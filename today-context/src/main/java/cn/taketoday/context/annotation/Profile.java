@@ -25,13 +25,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Indicates that a component is eligible for registration when one or more

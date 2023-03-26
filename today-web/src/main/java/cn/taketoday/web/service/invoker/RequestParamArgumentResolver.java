@@ -22,6 +22,7 @@ package cn.taketoday.web.service.invoker;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestParam;
 
 /**
@@ -35,7 +36,7 @@ import cn.taketoday.web.annotation.RequestParam;
  * <p>The argument may be:
  * <ul>
  * <li>{@code Map<String, ?>} or
- * {@link cn.taketoday.core.MultiValueMap MultiValueMap&lt;String, ?&gt;} with
+ * {@link MultiValueMap MultiValueMap&lt;String, ?&gt;} with
  * multiple request parameter and value(s).
  * <li>{@code Collection} or an array of request parameters.
  * <li>An individual request parameter.

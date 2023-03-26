@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
@@ -25,24 +26,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Arjen Poutsma
- * @author Juergen Hoeller
- * @author TODAY <br>
- * 2020-01-30 20:03
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/3/26 11:34
  */
-public class MultiValueMapTest {
+class LinkedMultiValueMapTests {
 
-  private final DefaultMultiValueMap<String, String> map = new DefaultMultiValueMap<>();
+  private final LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
   @Test
-  public void add() {
+  void add() {
     map.add("key", "value1");
     map.add("key", "value2");
     assertThat(map).hasSize(1);
@@ -50,27 +48,27 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void addIfAbsentWhenAbsent() {
+  void addIfAbsentWhenAbsent() {
     map.addIfAbsent("key", "value1");
     assertThat(map.get("key")).containsExactly("value1");
   }
 
   @Test
-  public void addIfAbsentWhenPresent() {
+  void addIfAbsentWhenPresent() {
     map.add("key", "value1");
     map.addIfAbsent("key", "value2");
     assertThat(map.get("key")).containsExactly("value1");
   }
 
   @Test
-  public void set() {
+  void set() {
     map.set("key", "value1");
     map.set("key", "value2");
     assertThat(map.get("key")).containsExactly("value2");
   }
 
   @Test
-  public void addAll() {
+  void addAll() {
     map.add("key", "value1");
     map.addAll("key", Arrays.asList("value2", "value3"));
     assertThat(map).hasSize(1);
@@ -78,7 +76,7 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void addAllWithEmptyList() {
+  void addAllWithEmptyList() {
     map.addAll("key", Collections.emptyList());
     assertThat(map).hasSize(1);
     assertThat(map.get("key")).isEmpty();
@@ -86,7 +84,7 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void getFirst() {
+  void getFirst() {
     List<String> values = new ArrayList<>(2);
     values.add("value1");
     values.add("value2");
@@ -96,14 +94,14 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void getFirstWithEmptyList() {
+  void getFirstWithEmptyList() {
     map.put("key", Collections.emptyList());
     assertThat(map.getFirst("key")).isNull();
     assertThat(map.getFirst("other")).isNull();
   }
 
   @Test
-  public void toSingleValueMap() {
+  void toSingleValueMap() {
     List<String> values = new ArrayList<>(2);
     values.add("value1");
     values.add("value2");
@@ -114,7 +112,7 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void toSingleValueMapWithEmptyList() {
+  void toSingleValueMapWithEmptyList() {
     map.put("key", Collections.emptyList());
     Map<String, String> singleValueMap = map.toSingleValueMap();
     assertThat(singleValueMap).isEmpty();
@@ -122,10 +120,10 @@ public class MultiValueMapTest {
   }
 
   @Test
-  public void equals() {
+  void equals() {
     map.set("key1", "value1");
     assertThat(map).isEqualTo(map);
-    MultiValueMap<String, String> o1 = new DefaultMultiValueMap<>();
+    MultiValueMap<String, String> o1 = new LinkedMultiValueMap<>();
     o1.set("key1", "value1");
     assertThat(o1).isEqualTo(map);
     assertThat(map).isEqualTo(o1);
@@ -133,34 +131,6 @@ public class MultiValueMapTest {
     o2.put("key1", Collections.singletonList("value1"));
     assertThat(o2).isEqualTo(map);
     assertThat(map).isEqualTo(o2);
-  }
-
-  @Test
-  public void toArrayMap() {
-    map.set("key1", "value1");
-
-    final Map<String, String[]> arrayMap = map.toArrayMap(String[]::new);
-    System.out.println(arrayMap);
-
-    assertThat(arrayMap).hasSize(1).containsKey("key1");
-
-    String[] strings = arrayMap.get("key1");
-
-    assertThat(strings)
-            .hasSize(1)
-            .isEqualTo(new String[] { "value1" });
-    assertThat(strings[0])
-            .isEqualTo("value1");
-    Map<String, String[]> linkedArrayMap = new LinkedHashMap<>();
-
-    map.copyToArrayMap(linkedArrayMap, String[]::new);
-
-    strings = linkedArrayMap.get("key1");
-    assertThat(strings)
-            .hasSize(1)
-            .isEqualTo(new String[] { "value1" });
-    assertThat(strings[0])
-            .isEqualTo("value1");
   }
 
 }

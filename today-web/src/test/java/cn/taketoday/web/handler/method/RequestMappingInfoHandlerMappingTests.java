@@ -32,13 +32,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerInterceptor;

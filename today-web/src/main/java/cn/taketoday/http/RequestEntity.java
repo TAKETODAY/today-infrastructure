@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.client.RestOperations;
 import cn.taketoday.web.client.RestTemplate;

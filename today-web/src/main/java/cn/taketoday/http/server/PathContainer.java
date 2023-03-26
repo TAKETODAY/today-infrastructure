@@ -22,7 +22,7 @@ package cn.taketoday.http.server;
 
 import java.util.List;
 
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Structured representation of a URI path parsed via {@link #parsePath(String)}

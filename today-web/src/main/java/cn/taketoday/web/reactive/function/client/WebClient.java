@@ -32,7 +32,6 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
@@ -44,6 +43,7 @@ import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyInserter;
 import cn.taketoday.web.reactive.function.BodyInserters;
@@ -701,7 +701,7 @@ public interface WebClient {
      *     .bodyToMono(Void.class);
      * </pre>
      * <p>For multipart requests consider providing
-     * {@link cn.taketoday.core.MultiValueMap MultiValueMap} prepared
+     * {@link MultiValueMap MultiValueMap} prepared
      * with {@link cn.taketoday.http.client.MultipartBodyBuilder
      * MultipartBodyBuilder}.
      *

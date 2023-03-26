@@ -27,14 +27,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.mock.web.MockMultipartFile;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.multipart.MultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

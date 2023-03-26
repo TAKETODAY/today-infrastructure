@@ -33,8 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -45,7 +43,9 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.mail.internet.MimeUtility;
@@ -153,7 +153,7 @@ import jakarta.mail.internet.MimeUtility;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @see AllEncompassingFormHttpMessageConverter
- * @see cn.taketoday.core.MultiValueMap
+ * @see MultiValueMap
  * @since 4.0
  */
 public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {

@@ -23,9 +23,9 @@ package cn.taketoday.web.service.invoker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.service.annotation.PostExchange;
 import reactor.core.publisher.Mono;

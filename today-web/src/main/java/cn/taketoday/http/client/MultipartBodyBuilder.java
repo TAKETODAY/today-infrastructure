@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ResolvableTypeProvider;
 import cn.taketoday.core.TypeReference;
@@ -41,6 +39,8 @@ import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Prepare the body of a multipart request, resulting in a

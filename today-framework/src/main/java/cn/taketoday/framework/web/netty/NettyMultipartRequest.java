@@ -20,9 +20,9 @@
 
 package cn.taketoday.framework.web.netty;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
 import io.netty.handler.codec.http.multipart.Attribute;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.core;
+package cn.taketoday.util;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -32,7 +32,6 @@ import java.util.function.IntFunction;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.

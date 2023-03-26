@@ -29,10 +29,10 @@ import java.util.List;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.condition.ConditionMessage.Style;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * {@link Conditional} that only matches when the specified resources are exits

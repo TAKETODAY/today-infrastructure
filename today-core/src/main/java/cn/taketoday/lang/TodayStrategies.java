@@ -35,7 +35,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
@@ -43,6 +42,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 

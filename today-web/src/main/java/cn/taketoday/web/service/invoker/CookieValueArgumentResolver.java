@@ -22,6 +22,7 @@ package cn.taketoday.web.service.invoker;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.CookieValue;
 
 /**
@@ -31,7 +32,7 @@ import cn.taketoday.web.annotation.CookieValue;
  * <p>The argument may be:
  * <ul>
  * <li>{@code Map<String, ?>} or
- * {@link cn.taketoday.core.MultiValueMap MultiValueMap&lt;String, ?&gt;} with
+ * {@link MultiValueMap MultiValueMap&lt;String, ?&gt;} with
  * multiple cookies and value(s).
  * <li>{@code Collection} or an array of cookie values.
  * <li>An individual cookie value.

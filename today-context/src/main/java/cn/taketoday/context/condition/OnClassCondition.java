@@ -28,9 +28,9 @@ import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 /**

@@ -38,7 +38,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpStatusCode;
@@ -47,6 +46,7 @@ import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterReadFailedException;

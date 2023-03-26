@@ -24,11 +24,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Rendering-specific subtype of {@link ServerResponse} that exposes model and template data.

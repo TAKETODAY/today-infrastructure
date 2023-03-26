@@ -22,8 +22,8 @@ package cn.taketoday.web.socket.config;
 
 import java.util.Arrays;
 
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.socket.WebSocketHandler;

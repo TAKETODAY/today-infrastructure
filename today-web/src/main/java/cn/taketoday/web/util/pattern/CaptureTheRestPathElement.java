@@ -22,9 +22,9 @@ package cn.taketoday.web.util.pattern;
 
 import java.util.List;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.PathSegment;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.pattern.PathPattern.MatchingContext;
 
 /**

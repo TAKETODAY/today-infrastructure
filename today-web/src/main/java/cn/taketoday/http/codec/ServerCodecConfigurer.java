@@ -21,6 +21,7 @@
 package cn.taketoday.http.codec;
 
 import cn.taketoday.core.codec.Encoder;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Extension of {@link CodecConfigurer} for HTTP message reader and writer
@@ -32,9 +33,9 @@ import cn.taketoday.core.codec.Encoder;
  * <li>{@link cn.taketoday.core.io.buffer.DataBuffer DataBuffer}
  * <li>{@link cn.taketoday.core.io.Resource Resource}
  * <li>{@link String}
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,String&gt;} for form data
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,Object&gt;} for multipart data
  * <li>JSON and Smile, if Jackson is present
  * <li>XML, if JAXB2 is present
@@ -46,7 +47,7 @@ import cn.taketoday.core.codec.Encoder;
  * <li>{@link cn.taketoday.core.io.buffer.DataBuffer DataBuffer}
  * <li>{@link cn.taketoday.core.io.Resource Resource}
  * <li>{@link String}
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,String&gt;} for form data
  * <li>JSON and Smile, if Jackson is present
  * <li>XML, if JAXB2 is present

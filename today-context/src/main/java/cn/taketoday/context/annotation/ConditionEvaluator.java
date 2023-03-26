@@ -29,7 +29,6 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
@@ -38,6 +37,7 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Condition Evaluation

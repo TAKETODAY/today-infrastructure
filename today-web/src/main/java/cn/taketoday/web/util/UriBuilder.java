@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Builder-style methods to prepare and expand a URI template with variables.

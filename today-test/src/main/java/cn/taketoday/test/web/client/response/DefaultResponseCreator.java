@@ -25,7 +25,6 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
@@ -37,6 +36,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
 import cn.taketoday.test.web.client.ResponseCreator;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * A {@code ResponseCreator} with builder-style methods for adding response details.

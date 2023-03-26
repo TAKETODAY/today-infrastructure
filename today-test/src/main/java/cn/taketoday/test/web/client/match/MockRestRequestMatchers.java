@@ -33,7 +33,7 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.test.web.client.MockRestServiceServer;
 import cn.taketoday.test.web.client.RequestMatcher;
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;

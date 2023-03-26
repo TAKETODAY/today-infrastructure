@@ -31,8 +31,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
+import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

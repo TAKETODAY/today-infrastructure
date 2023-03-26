@@ -43,7 +43,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.Resource;
 import javax.annotation.meta.When;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ExtendsBaseClassWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ImplementsInterfaceWithGenericAnnotatedMethod;
 import cn.taketoday.core.annotation.AnnotationUtilsTests.WebController;
@@ -52,6 +51,7 @@ import cn.taketoday.core.testfixture.stereotype.Component;
 import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.findAllMergedAnnotations;
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.findMergedAnnotation;

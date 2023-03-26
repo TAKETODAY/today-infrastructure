@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -50,6 +49,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.util.UriBuilder;

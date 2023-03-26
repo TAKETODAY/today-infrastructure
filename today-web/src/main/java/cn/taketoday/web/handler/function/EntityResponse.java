@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
@@ -35,6 +34,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Entity-specific subtype of {@link ServerResponse} that exposes entity data.

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.service.annotation.PostExchange;
 

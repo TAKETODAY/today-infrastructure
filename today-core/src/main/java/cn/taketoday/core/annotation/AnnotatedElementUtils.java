@@ -29,10 +29,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.core.BridgeMethodResolver;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * General utility methods for finding annotations, meta-annotations, and

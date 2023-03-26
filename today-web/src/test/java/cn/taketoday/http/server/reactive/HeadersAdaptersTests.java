@@ -35,8 +35,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.MultiValueMap;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.undertow.util.HeaderMap;
 

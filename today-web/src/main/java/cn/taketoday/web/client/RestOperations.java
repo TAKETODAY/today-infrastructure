@@ -31,6 +31,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Interface specifying a basic set of RESTful operations.
@@ -158,7 +159,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -179,7 +180,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -200,7 +201,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -220,7 +221,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -244,7 +245,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -266,7 +267,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -287,7 +288,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -309,7 +310,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.
@@ -330,7 +331,7 @@ public interface RestOperations {
    * <p>The {@code request} parameter can be a {@link HttpEntity} in order to
    * add additional HTTP headers to the request.
    * <p>The body of the entity, or {@code request} itself, can be a
-   * {@link cn.taketoday.core.MultiValueMap MultiValueMap} to create a multipart request.
+   * {@link MultiValueMap MultiValueMap} to create a multipart request.
    * The values in the {@code MultiValueMap} can be any Object representing the body of the part,
    * or an {@link cn.taketoday.http.HttpEntity HttpEntity} representing a part with body
    * and headers.

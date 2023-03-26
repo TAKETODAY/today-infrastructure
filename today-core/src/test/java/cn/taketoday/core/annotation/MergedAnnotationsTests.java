@@ -43,7 +43,6 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import cn.taketoday.core.annotation.MergedAnnotations.Search;
@@ -52,6 +51,7 @@ import cn.taketoday.core.annotation.subpackage.NonPublicAnnotatedClass;
 import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.annotation.Resource;
 

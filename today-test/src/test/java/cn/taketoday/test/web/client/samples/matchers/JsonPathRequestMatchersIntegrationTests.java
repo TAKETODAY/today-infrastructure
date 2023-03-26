@@ -27,12 +27,12 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.client.MockRestServiceServer;
 import cn.taketoday.test.web.client.match.JsonPathRequestMatchersTests;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.client.RestTemplate;
 
 import static cn.taketoday.test.web.client.match.MockRestRequestMatchers.content;

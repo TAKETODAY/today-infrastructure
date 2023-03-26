@@ -23,8 +23,8 @@ package cn.taketoday.web.util.pattern;
 import java.util.Collections;
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Holder for URI variables and path parameters (matrix variables) extracted
