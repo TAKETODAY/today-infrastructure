@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,6 +50,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.util.UriBuilder;
@@ -273,6 +274,19 @@ public abstract class RequestPredicates {
    */
   public static RequestPredicate pathExtension(Predicate<String> extensionPredicate) {
     return new PathExtensionPredicate(extensionPredicate);
+  }
+
+  /**
+   * Return a {@code RequestPredicate} that matches if the request's parameter of the given name
+   * has the given value.
+   *
+   * @param name the name of the parameter to test against
+   * @return a predicate that matches if the parameter has the given value
+   * @see ServerRequest#param(String)
+   * @see StringUtils#isBlank(String)
+   */
+  public static RequestPredicate param(String name) {
+    return new ParamPredicate(name, StringUtils::isBlank);
   }
 
   /**
@@ -747,8 +761,9 @@ public abstract class RequestPredicates {
 
     @Override
     public boolean test(ServerRequest request) {
-      Optional<String> s = request.param(name);
-      return s.filter(valuePredicate).isPresent();
+      return request.param(name)
+              .filter(valuePredicate)
+              .isPresent();
     }
 
     @Override
