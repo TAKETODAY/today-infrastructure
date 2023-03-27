@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,7 +68,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     @Override
     protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
       String id = super.resolveId(element, definition, parserContext);
-      if (!StringUtils.hasText(id)) {
+      if (StringUtils.isBlank(id)) {
         id = element.getAttribute("static-field");
       }
       return id;
@@ -85,7 +85,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
       String path = element.getAttribute("path");
-      if (!StringUtils.hasText(path)) {
+      if (StringUtils.isBlank(path)) {
         parserContext.getReaderContext().error("Attribute 'path' must not be empty", element);
         return;
       }
@@ -104,7 +104,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
     @Override
     protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext) {
       String id = super.resolveId(element, definition, parserContext);
-      if (!StringUtils.hasText(id)) {
+      if (StringUtils.isBlank(id)) {
         id = element.getAttribute("path");
       }
       return id;

@@ -356,7 +356,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * @see #setDefaultProfiles
    */
   protected void validateProfile(String profile) {
-    if (!StringUtils.hasText(profile)) {
+    if (StringUtils.isBlank(profile)) {
       throw new IllegalArgumentException(
               "Invalid profile [" + profile + "]: must contain text");
     }

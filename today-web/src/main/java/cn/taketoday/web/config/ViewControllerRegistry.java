@@ -318,7 +318,7 @@ public class ViewControllerRegistry extends ApplicationContextSupport {
     String status = action.getAttribute(ATTR_STATUS); // status
     String type = action.getAttribute(ATTR_TYPE); // type forward, redirect
 
-    if (!StringUtils.hasText(path)) {
+    if (StringUtils.isBlank(path)) {
       throw new InfraConfigurationException("You must specify a 'name' attribute like this: " +
               "[<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
     }

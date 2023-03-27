@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -97,7 +97,7 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
   static void addHeaders(HttpURLConnection connection, HttpHeaders headers) {
     String method = connection.getRequestMethod();
     if ((method.equals("PUT") || method.equals("DELETE"))
-            && !StringUtils.hasText(headers.getFirst(HttpHeaders.ACCEPT))) {
+            && StringUtils.isBlank(headers.getFirst(HttpHeaders.ACCEPT))) {
       // Avoid "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
       // from HttpUrlConnection which prevents JSON error response details.
       headers.set(HttpHeaders.ACCEPT, "*/*");

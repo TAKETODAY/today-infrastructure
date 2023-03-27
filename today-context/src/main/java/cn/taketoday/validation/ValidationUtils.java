@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -263,7 +263,7 @@ public abstract class ValidationUtils {
 
     Assert.notNull(errors, "Errors object must not be null");
     Object value = errors.getFieldValue(field);
-    if (value == null || !StringUtils.hasText(value.toString())) {
+    if (value == null || StringUtils.isBlank(value.toString())) {
       errors.rejectValue(field, errorCode, errorArgs, defaultMessage);
     }
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -257,7 +257,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       template.setRetryPolicy(breaker);
       template.setBackOffPolicy(new NoBackOffPolicy());
       String label = circuit.label();
-      if (!StringUtils.hasText(label)) {
+      if (StringUtils.isBlank(label)) {
         label = method.toGenericString();
       }
       return RetryInterceptorBuilder.circuitBreaker()

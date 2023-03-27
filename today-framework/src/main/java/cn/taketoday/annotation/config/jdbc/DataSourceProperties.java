@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -199,10 +199,10 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     if (StringUtils.hasText(this.url)) {
       driverClassName = DatabaseDriver.fromJdbcUrl(this.url).getDriverClassName();
     }
-    if (!StringUtils.hasText(driverClassName)) {
+    if (StringUtils.isBlank(driverClassName)) {
       driverClassName = embeddedDatabaseConnection.getDriverClassName();
     }
-    if (!StringUtils.hasText(driverClassName)) {
+    if (StringUtils.isBlank(driverClassName)) {
       throw new DataSourceBeanCreationException(
               "Failed to determine a suitable driver class", this, embeddedDatabaseConnection);
     }
@@ -250,7 +250,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     }
     String databaseName = determineDatabaseName();
     String url = (databaseName != null) ? this.embeddedDatabaseConnection.getUrl(databaseName) : null;
-    if (!StringUtils.hasText(url)) {
+    if (StringUtils.isBlank(url)) {
       throw new DataSourceBeanCreationException("Failed to determine suitable jdbc url", this,
               this.embeddedDatabaseConnection);
     }

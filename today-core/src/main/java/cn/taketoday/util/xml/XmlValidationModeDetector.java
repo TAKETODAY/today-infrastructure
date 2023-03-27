@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -99,7 +99,7 @@ public class XmlValidationModeDetector {
       String content;
       while ((content = reader.readLine()) != null) {
         content = consumeCommentTokens(content);
-        if (!StringUtils.hasText(content)) {
+        if (StringUtils.isBlank(content)) {
           continue;
         }
         if (hasDoctype(content)) {

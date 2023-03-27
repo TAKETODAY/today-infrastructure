@@ -98,7 +98,7 @@ public abstract class WebUtils {
    */
   public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
     MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
-    if (!StringUtils.hasText(matrixVariables)) {
+    if (StringUtils.isBlank(matrixVariables)) {
       return result;
     }
     StringTokenizer pairs = new StringTokenizer(matrixVariables, ";");

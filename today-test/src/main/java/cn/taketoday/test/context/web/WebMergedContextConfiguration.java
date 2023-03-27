@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,7 +81,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    */
   public WebMergedContextConfiguration(MergedContextConfiguration mergedConfig, String resourceBasePath) {
     super(mergedConfig);
-    this.resourceBasePath = !StringUtils.hasText(resourceBasePath) ? "" : resourceBasePath;
+    this.resourceBasePath = StringUtils.isBlank(resourceBasePath) ? "" : resourceBasePath;
   }
 
   /**

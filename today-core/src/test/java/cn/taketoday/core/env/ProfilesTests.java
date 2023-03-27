@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -380,7 +380,7 @@ class ProfilesTests {
       // to ensure that the Profiles implementation returned by Profiles.of()
       // never passes an invalid (parsed) profile name to the active profiles
       // predicate supplied to Profiles#matches(Predicate<String>).
-      if (!StringUtils.hasText(profile) || profile.charAt(0) == '!') {
+      if (StringUtils.isBlank(profile) || profile.charAt(0) == '!') {
         throw new IllegalArgumentException("Invalid profile [" + profile + "]");
       }
       return this.activeProfiles.contains(profile);

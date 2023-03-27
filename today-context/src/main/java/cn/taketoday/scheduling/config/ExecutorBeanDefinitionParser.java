@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,7 @@ public class ExecutorBeanDefinitionParser extends AbstractSingleBeanDefinitionPa
 
   private void configureRejectionPolicy(Element element, BeanDefinitionBuilder builder) {
     String rejectionPolicy = element.getAttribute("rejection-policy");
-    if (!StringUtils.hasText(rejectionPolicy)) {
+    if (StringUtils.isBlank(rejectionPolicy)) {
       return;
     }
     String prefix = "java.util.concurrent.ThreadPoolExecutor.";

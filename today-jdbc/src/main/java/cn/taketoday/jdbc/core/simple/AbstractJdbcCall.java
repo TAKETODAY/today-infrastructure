@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -255,7 +255,7 @@ public abstract class AbstractJdbcCall {
    */
   public void addDeclaredParameter(SqlParameter parameter) {
     Assert.notNull(parameter, "The supplied parameter must not be null");
-    if (!StringUtils.hasText(parameter.getName())) {
+    if (StringUtils.isBlank(parameter.getName())) {
       throw new InvalidDataAccessApiUsageException(
               "You must specify a parameter name when declaring parameters for \"" + getProcedureName() + "\"");
     }

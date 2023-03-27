@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,7 +59,7 @@ class DataSourceBeanCreationFailureAnalyzer extends AbstractFailureAnalyzer<Data
   private String getDescription(DataSourceBeanCreationException cause) {
     StringBuilder description = new StringBuilder();
     description.append("Failed to configure a DataSource: ");
-    if (!StringUtils.hasText(cause.properties.getUrl())) {
+    if (StringUtils.isBlank(cause.properties.getUrl())) {
       description.append("'url' attribute is not specified and ");
     }
     description.append(String.format("no embedded datasource could be configured.%n"));

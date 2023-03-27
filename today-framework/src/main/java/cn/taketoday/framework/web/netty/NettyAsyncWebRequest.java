@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -82,11 +82,12 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
         try {
           dispatchToClient(request, concurrentResult);
         }
-        catch (Exception e) {
+        catch (Throwable e) {
           // last exception handling
           for (Consumer<Throwable> exceptionHandler : exceptionHandlers) {
             exceptionHandler.accept(e);
           }
+          channelContext.fireExceptionCaught(e);
         }
         finally {
           dispatchEvent(completionHandlers);
@@ -101,7 +102,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
    * @param request current request
    * @param concurrentResult async result
    */
-  protected final void dispatchToClient(RequestContext request, Object concurrentResult) {
+  protected final void dispatchToClient(RequestContext request, Object concurrentResult) throws Throwable {
     DispatcherHandler dispatcherHandler = (DispatcherHandler) request.getAttribute(DispatcherHandler.BEAN_NAME);
     Assert.state(dispatcherHandler != null, "No DispatcherHandler");
 

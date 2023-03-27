@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,9 +26,9 @@ import java.util.List;
 
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ManagedList;
-import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.jdbc.datasource.init.CompositeDatabasePopulator;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.lang.Nullable;
@@ -62,7 +62,7 @@ abstract class DatabasePopulatorConfigUtils {
     ManagedList<BeanMetadataElement> delegates = new ManagedList<>();
     for (Element scriptElement : scripts) {
       String executionAttr = scriptElement.getAttribute("execution");
-      if (!StringUtils.hasText(executionAttr)) {
+      if (StringUtils.isBlank(executionAttr)) {
         executionAttr = "INIT";
       }
       if (!execution.equals(executionAttr)) {

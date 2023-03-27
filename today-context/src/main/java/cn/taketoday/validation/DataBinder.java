@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -868,10 +868,10 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         boolean empty = pv == null || pv.getValue() == null;
         if (!empty) {
           if (pv.getValue() instanceof String) {
-            empty = !StringUtils.hasText((String) pv.getValue());
+            empty = StringUtils.isBlank((String) pv.getValue());
           }
           else if (pv.getValue() instanceof String[] values) {
-            empty = values.length == 0 || !StringUtils.hasText(values[0]);
+            empty = values.length == 0 || StringUtils.isBlank(values[0]);
           }
         }
         if (empty) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,7 +86,7 @@ class EmbeddedDatabaseBeanDefinitionParser extends AbstractBeanDefinitionParser 
     String name = element.getAttribute(DB_NAME_ATTRIBUTE);
 
     // 2) Fall back to an implicit database name based on the ID
-    if (!StringUtils.hasText(name)) {
+    if (StringUtils.isBlank(name)) {
       name = element.getAttribute(ID_ATTRIBUTE);
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -175,7 +175,7 @@ public class ResourcePropertySource extends PropertiesPropertySource {
    */
   private static String getNameForResource(Resource resource) {
     String name = resource.toString();
-    if (!StringUtils.hasText(name)) {
+    if (StringUtils.isBlank(name)) {
       name = resource.getClass().getSimpleName() + "@" + System.identityHashCode(resource);
     }
     return name;

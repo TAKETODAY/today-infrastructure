@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,7 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
     buildFeedEntries(model, wireFeed, context);
 
     setResponseContentType(context);
-    if (!StringUtils.hasText(wireFeed.getEncoding())) {
+    if (StringUtils.isBlank(wireFeed.getEncoding())) {
       wireFeed.setEncoding(Constant.DEFAULT_ENCODING);
     }
 

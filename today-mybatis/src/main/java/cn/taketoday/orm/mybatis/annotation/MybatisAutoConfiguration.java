@@ -181,7 +181,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
 
   private void applyConfiguration(SqlSessionFactoryBean factory) {
     Configuration configuration = properties.getConfiguration();
-    if (configuration == null && !StringUtils.hasText(properties.getConfigLocation())) {
+    if (configuration == null && StringUtils.isBlank(properties.getConfigLocation())) {
       configuration = new Configuration();
     }
 

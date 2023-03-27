@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -95,7 +95,7 @@ public class ResourceBundleEditor extends PropertyEditorSupport {
     else {
       // The name potentially contains locale information
       String baseName = name.substring(0, separator);
-      if (!StringUtils.hasText(baseName)) {
+      if (StringUtils.isBlank(baseName)) {
         throw new IllegalArgumentException("Invalid ResourceBundle name: '" + text + "'");
       }
       String localeString = name.substring(separator + 1);

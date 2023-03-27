@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -208,7 +208,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
   protected void importBeanDefinitionResource(Element ele) {
     String location = ele.getAttribute(RESOURCE_ATTRIBUTE);
     XmlReaderContext readerContext = getReaderContext();
-    if (!StringUtils.hasText(location)) {
+    if (StringUtils.isBlank(location)) {
       readerContext.error("Resource location must not be empty", ele);
       return;
     }
@@ -287,11 +287,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     String name = ele.getAttribute(NAME_ATTRIBUTE);
     String alias = ele.getAttribute(ALIAS_ATTRIBUTE);
     boolean valid = true;
-    if (!StringUtils.hasText(name)) {
+    if (StringUtils.isBlank(name)) {
       getReaderContext().error("Name must not be empty", ele);
       valid = false;
     }
-    if (!StringUtils.hasText(alias)) {
+    if (StringUtils.isBlank(alias)) {
       getReaderContext().error("Alias must not be empty", ele);
       valid = false;
     }

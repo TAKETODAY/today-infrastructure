@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -106,7 +106,7 @@ public class CustomNumberEditor extends PropertyEditorSupport {
    */
   @Override
   public void setAsText(String text) throws IllegalArgumentException {
-    if (this.allowEmpty && !StringUtils.hasText(text)) {
+    if (this.allowEmpty && StringUtils.isBlank(text)) {
       // Treat empty String as null value.
       setValue(null);
     }

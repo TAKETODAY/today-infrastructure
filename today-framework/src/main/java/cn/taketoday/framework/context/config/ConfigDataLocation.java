@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -195,7 +195,7 @@ public final class ConfigDataLocation implements OriginProvider {
     if (optional) {
       location = location.substring(OPTIONAL_PREFIX.length());
     }
-    if (!StringUtils.hasText(location)) {
+    if (StringUtils.isBlank(location)) {
       return null;
     }
     return new ConfigDataLocation(optional, location, null);

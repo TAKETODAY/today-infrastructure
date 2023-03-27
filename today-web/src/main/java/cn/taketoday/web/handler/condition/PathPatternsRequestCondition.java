@@ -73,7 +73,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   }
 
   private static SortedSet<PathPattern> parse(PathPatternParser parser, String... patterns) {
-    if (patterns.length == 0 || (patterns.length == 1 && !StringUtils.hasText(patterns[0]))) {
+    if (patterns.length == 0 || (patterns.length == 1 && StringUtils.isBlank(patterns[0]))) {
       return EMPTY_PATH_PATTERN;
     }
     SortedSet<PathPattern> result = new TreeSet<>();

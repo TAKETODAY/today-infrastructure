@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -228,6 +228,18 @@ class StringUtilsTests {
   void hasTextBlank() {
     String blank = "          ";
     assertThat(StringUtils.hasText(blank)).isEqualTo(false);
+  }
+
+  @Test
+  void isBlank() {
+    assertThat(StringUtils.isBlank("")).isEqualTo(true);
+    assertThat(StringUtils.isBlank("   ")).isEqualTo(true);
+    assertThat(StringUtils.isBlank(null)).isEqualTo(true);
+
+    assertThat(StringUtils.isBlank("12345")).isEqualTo(false);
+    assertThat(StringUtils.isBlank(" dsdsdsds ")).isEqualTo(false);
+    assertThat(StringUtils.isBlank("dsdsdsds ")).isEqualTo(false);
+    assertThat(StringUtils.isBlank(" dsdsdsds")).isEqualTo(false);
   }
 
   @Test

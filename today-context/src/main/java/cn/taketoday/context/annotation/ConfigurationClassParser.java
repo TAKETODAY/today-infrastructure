@@ -415,11 +415,11 @@ class ConfigurationClassParser {
    */
   private void processPropertySource(MergedAnnotation<PropertySource> propertySource) {
     String name = propertySource.getString("name");
-    if (!StringUtils.hasText(name)) {
+    if (StringUtils.isBlank(name)) {
       name = null;
     }
     String encoding = propertySource.getString("encoding");
-    if (!StringUtils.hasText(encoding)) {
+    if (StringUtils.isBlank(encoding)) {
       encoding = null;
     }
     String[] locations = propertySource.getStringArray("value");

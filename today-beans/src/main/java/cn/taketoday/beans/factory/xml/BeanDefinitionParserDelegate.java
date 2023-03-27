@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -422,7 +422,7 @@ public class BeanDefinitionParserDelegate {
     }
 
     String beanName = id;
-    if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
+    if (StringUtils.isBlank(beanName) && !aliases.isEmpty()) {
       beanName = aliases.remove(0);
       if (log.isTraceEnabled()) {
         log.trace("No XML 'id' specified - using '{}' as bean name and {} as aliases", beanName, aliases);
@@ -435,7 +435,7 @@ public class BeanDefinitionParserDelegate {
 
     BeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
     if (beanDefinition != null) {
-      if (!StringUtils.hasText(beanName)) {
+      if (StringUtils.isBlank(beanName)) {
         try {
           if (containingBean != null) {
             beanName = BeanDefinitionReaderUtils.generateBeanName(
@@ -945,7 +945,7 @@ public class BeanDefinitionParserDelegate {
 
     if (hasRefAttribute) {
       String refName = ele.getAttribute(REF_ATTRIBUTE);
-      if (!StringUtils.hasText(refName)) {
+      if (StringUtils.isBlank(refName)) {
         error(elementName + " contains empty 'ref' attribute", ele);
       }
       RuntimeBeanReference ref = new RuntimeBeanReference(refName);
@@ -1013,7 +1013,7 @@ public class BeanDefinitionParserDelegate {
           return null;
         }
       }
-      if (!StringUtils.hasText(refName)) {
+      if (StringUtils.isBlank(refName)) {
         error("<ref> element contains empty target attribute", ele);
         return null;
       }
@@ -1066,7 +1066,7 @@ public class BeanDefinitionParserDelegate {
       error("'bean' is required for <idref> element", ele);
       return null;
     }
-    if (!StringUtils.hasText(refName)) {
+    if (StringUtils.isBlank(refName)) {
       error("<idref> element contains empty target attribute", ele);
       return null;
     }
@@ -1083,7 +1083,7 @@ public class BeanDefinitionParserDelegate {
     String value = DomUtils.getTextValue(ele);
     String specifiedTypeName = ele.getAttribute(TYPE_ATTRIBUTE);
     String typeName = specifiedTypeName;
-    if (!StringUtils.hasText(typeName)) {
+    if (StringUtils.isBlank(typeName)) {
       typeName = defaultTypeName;
     }
     try {
@@ -1108,7 +1108,7 @@ public class BeanDefinitionParserDelegate {
 
     ClassLoader classLoader = this.readerContext.getBeanClassLoader();
     TypedStringValue typedValue;
-    if (!StringUtils.hasText(targetTypeName)) {
+    if (StringUtils.isBlank(targetTypeName)) {
       typedValue = new TypedStringValue(value);
     }
     else if (classLoader != null) {
@@ -1234,7 +1234,7 @@ public class BeanDefinitionParserDelegate {
       }
       else if (hasKeyRefAttribute) {
         String refName = entryEle.getAttribute(KEY_REF_ATTRIBUTE);
-        if (!StringUtils.hasText(refName)) {
+        if (StringUtils.isBlank(refName)) {
           error("<entry> element contains empty 'key-ref' attribute", entryEle);
         }
         RuntimeBeanReference ref = new RuntimeBeanReference(refName);
@@ -1266,14 +1266,14 @@ public class BeanDefinitionParserDelegate {
       }
       if (hasValueAttribute) {
         String valueType = entryEle.getAttribute(VALUE_TYPE_ATTRIBUTE);
-        if (!StringUtils.hasText(valueType)) {
+        if (StringUtils.isBlank(valueType)) {
           valueType = defaultValueType;
         }
         value = buildTypedStringValueForMap(entryEle.getAttribute(VALUE_ATTRIBUTE), valueType, entryEle);
       }
       else if (hasValueRefAttribute) {
         String refName = entryEle.getAttribute(VALUE_REF_ATTRIBUTE);
-        if (!StringUtils.hasText(refName)) {
+        if (StringUtils.isBlank(refName)) {
           error("<entry> element contains empty 'value-ref' attribute", entryEle);
         }
         RuntimeBeanReference ref = new RuntimeBeanReference(refName);

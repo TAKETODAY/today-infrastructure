@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -467,7 +467,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   }
 
   private boolean notSafeExtension(RequestContext request, @Nullable String extension) {
-    if (!StringUtils.hasText(extension)) {
+    if (StringUtils.isBlank(extension)) {
       return false;
     }
     extension = extension.toLowerCase(Locale.ENGLISH);

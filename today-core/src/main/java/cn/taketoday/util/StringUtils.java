@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1018,6 +1018,57 @@ else */
       }
     }
     return false;
+  }
+
+  /**
+   * Check whether the given {@code String} contains actual <em>text</em>.
+   * <p>More specifically, this method returns {@code true} if the
+   * {@code String} is {@code null}, its length is greater than 0,
+   * and it contains whitespace character only.
+   *
+   * <pre>{@code
+   * StringUtils.isBlank(null) = true
+   * StringUtils.isBlank("") = true
+   * StringUtils.isBlank(" ") = true
+   * StringUtils.isBlank("12345") = false
+   * StringUtils.isBlank(" 12345 ") = false
+   * }</pre>
+   *
+   * @param str the {@code String} to check (may be {@code null})
+   * @return {@code true} if the {@code String} is {@code null}, its
+   * length is greater than 0, and it contains whitespace only
+   * @see #hasText(CharSequence)
+   * @see #isNotEmpty(CharSequence)
+   * @see Character#isWhitespace
+   * @since 4.0
+   */
+  public static boolean isBlank(@Nullable String str) {
+    return !hasText(str);
+  }
+
+  /**
+   * Check whether the given {@code CharSequence} contains actual <em>text</em>.
+   * <p>
+   * More specifically, this method returns {@code true} if the
+   * {@code CharSequence} is {@code null} or its length is greater than 0, and
+   * it contains whitespace character only.
+   * <p>
+   * <pre>{@code
+   * StringUtils.isBlank(null) = true
+   * StringUtils.isBlank("") = true
+   * StringUtils.isBlank(" ") = true
+   * StringUtils.isBlank("12345") = false
+   * StringUtils.isBlank(" 12345 ") = false
+   * }</pre>
+   *
+   * @param str the {@code CharSequence} to check (may be {@code null})
+   * @return {@code true} if the {@code CharSequence} is not {@code null}, its
+   * length is greater than 0, and it contains whitespace only
+   * @see Character#isWhitespace
+   * @since 4.0
+   */
+  public static boolean isBlank(@Nullable CharSequence str) {
+    return !hasText(str);
   }
 
   /**

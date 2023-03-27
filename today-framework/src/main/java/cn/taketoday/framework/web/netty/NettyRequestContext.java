@@ -385,15 +385,9 @@ public class NettyRequestContext extends RequestContext {
       }
     }
 
-    @Override
-    public void flush() {
-
-    }
-
   }
 
-  @Override
-  protected void postRequestCompleted() {
+  public void postRequestCompleted() {
     flush();
 
     Consumer<? super HttpHeaders> trailerHeadersConsumer = config.getTrailerHeadersConsumer();
@@ -502,7 +496,7 @@ public class NettyRequestContext extends RequestContext {
       }
 
       var noBody = new DefaultHttpResponse(httpVersion, status, responseHeaders);
-      channelContext.writeAndFlush(noBody);
+      channelContext.write(noBody);
     }
 
   }
