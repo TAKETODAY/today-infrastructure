@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -260,15 +260,6 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
   }
 
-  protected void registerJodaTime() {
-    try {
-      register(JodaDateTimeTypeHandler.class);
-      register(JodaLocalDateTypeHandler.class);
-      register(JodaLocalTimeTypeHandler.class);
-    }
-    catch (Exception ignored) { }
-  }
-
   // Construct a handler (used also from Builders)
 
   @SuppressWarnings("unchecked")
@@ -396,8 +387,6 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     registry.register(Character.class, new CharacterTypeHandler());
 
     registry.register(UUID.class, new UUIDTypeHandler());
-
-    registry.registerJodaTime();
   }
 
 }

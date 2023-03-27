@@ -60,7 +60,6 @@
     <h2.version>1.4.199</h2.version>
     <hsqldb.version>2.7.0</hsqldb.version>
     <jdbi.version>2.78</jdbi.version>
-    <joda-time.version>2.0</joda-time.version>
     <jooq.version>3.3.0</jooq.version>
     <junit5.version>5.9.2</junit5.version>
     <mockito.version>5.1.1</mockito.version>
@@ -423,12 +422,6 @@
         <groupId>jakarta.persistence</groupId>
         <artifactId>jakarta.persistence-api</artifactId>
         <version>3.0.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>joda-time</groupId>
-        <artifactId>joda-time</artifactId>
-        <version>2.10.13</version>
       </dependency>
 
       <dependency>

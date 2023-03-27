@@ -38,7 +38,6 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.joda.time.DateTime;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.ResultQuery;
@@ -63,6 +62,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -135,8 +135,8 @@ public class PojoPerformanceTest {
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
-              .addParameter("creation_date", new DateTime(System.currentTimeMillis() + r.nextInt()).toDate())
-              .addParameter("last_change_date", new DateTime(System.currentTimeMillis() + r.nextInt()).toDate())
+              .addParameter("creation_date", new Date(System.currentTimeMillis() + r.nextInt()))
+              .addParameter("last_change_date", new Date(System.currentTimeMillis() + r.nextInt()))
               .addParameter("counter1", r.nextDouble() > 0.5 ? r.nextInt() : null)
               .addParameter("counter2", r.nextDouble() > 0.5 ? r.nextInt() : null)
               .addParameter("counter3", r.nextDouble() > 0.5 ? r.nextInt() : null)

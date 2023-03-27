@@ -21,7 +21,6 @@
 package cn.taketoday.jdbc.issues;
 
 import org.hsqldb.jdbcDriver;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +31,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import cn.taketoday.jdbc.JdbcConnection;
@@ -248,12 +248,13 @@ public class IssuesTest {
     String insertSql = "insert into issue11test (val, adate) values (:val, :date)";
     sql2o.createNamedQuery(insertSql)
             .addParameter("val", WhatEverEnum.VAL)
-            .addParameter("date", new DateTime())
+            .addParameter("date", new Date())
             .executeUpdate();
-    DateTime dtNull = null;
+    Date dtNull = null;
     WhatEverEnum enumNull = null;
 
-    sql2o.createNamedQuery(insertSql).addParameter("val", enumNull).addParameter("date", dtNull).executeUpdate();
+    sql2o.createNamedQuery(insertSql).addParameter("val", enumNull)
+            .addParameter("date", dtNull).executeUpdate();
   }
 
   /**

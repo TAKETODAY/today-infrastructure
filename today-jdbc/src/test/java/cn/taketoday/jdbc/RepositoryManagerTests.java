@@ -23,9 +23,6 @@ package cn.taketoday.jdbc;
 import com.google.common.collect.ImmutableList;
 
 import org.hsqldb.jdbc.JDBCDataSource;
-import org.joda.time.DateTime;
-import org.joda.time.LocalTime;
-import org.joda.time.Period;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +34,10 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -360,22 +359,23 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
     repositoryManager.createNamedQuery("insert into testjoda(id, joda1, joda2) values(:id, :joda1, :joda2)")
             .addParameter("id", 1)
-            .addParameter("joda1", new DateTime()).addParameter("joda2", new DateTime().plusDays(-1))
+            .addParameter("joda1", LocalDateTime.now())
+            .addParameter("joda2", LocalDateTime.now().plusDays(-1))
             .addToBatch()
             .addParameter("id", 2)
-            .addParameter("joda1", new DateTime().plusYears(1))
-            .addParameter("joda2", new DateTime().plusDays(-2))
+            .addParameter("joda1", LocalDateTime.now().plusYears(1))
+            .addParameter("joda2", LocalDateTime.now().plusDays(-2))
             .addToBatch()
             .addParameter("id", 3)
-            .addParameter("joda1", new DateTime().plusYears(2))
-            .addParameter("joda2", new DateTime().plusDays(-3))
+            .addParameter("joda1", LocalDateTime.now().plusYears(2))
+            .addParameter("joda2", LocalDateTime.now().plusDays(-3))
             .addToBatch()
             .executeBatch();
 
-    List<JodaEntity> list = repositoryManager.createNamedQuery("select * from testjoda").fetch(JodaEntity.class);
+    List<LocalDateTimeEntity> list = repositoryManager.createNamedQuery("select * from testjoda").fetch(LocalDateTimeEntity.class);
 
     assertEquals(3, list.size());
-    assertTrue(list.get(0).getJoda2().isBeforeNow());
+    assertTrue(list.get(0).getJoda2().isBefore(LocalDateTime.now()));
 
   }
 
@@ -423,12 +423,20 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     assertEquals(3, list.size());
 
     // make sure d1, d2, d3 were properly inserted and selected
+    LocalDate date1 = LocalDate.now();
+
     for (UtilDateEntity e : list) {
       assertEquals(now, e.d1);
       assertEquals(now, e.getD2());
-      Date dateOnly = new DateTime(now).toDateMidnight().toDate();
-      assertEquals(dateOnly, e.getD3());
+      LocalDate localDate = convertToLocalDateViaInstant(e.getD3());
+      assertEquals(localDate, date1);
     }
+  }
+
+  public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
+    return dateToConvert.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
   }
 
   @Test
@@ -620,7 +628,9 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
     assertEquals(1, entity.id);
     assertEquals("something", entity.text);
-    assertEquals(new DateTime(2011, 1, 1, 0, 0, 0, 0).toDate(), entity.time);
+
+    assertEquals(Date.from(LocalDateTime.of(2011, 1, 1,
+            0, 0, 0, 0).atZone(ZoneId.systemDefault()).toInstant()), entity.time);
   }
 
   @Test
@@ -639,8 +649,9 @@ public class RepositoryManagerTests extends BaseMemDbTest {
 
     assertEquals(1, entity.id);
     assertEquals("something", entity.text);
-    assertEquals(new DateTime(2011, 1, 1, 0, 0, 0, 0).toDate(), entity.time);
-
+//    assertEquals(new DateTime(2011, 1, 1, 0, 0, 0, 0).toDate(), entity.time);
+    assertEquals(Date.from(LocalDateTime.of(2011, 1, 1,
+            0, 0, 0, 0).atZone(ZoneId.systemDefault()).toInstant()), entity.time);
   }
 
   @Test
@@ -1047,27 +1058,6 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     byte[] pojo2Data = IOUtils.toByteArray(pojo2.data);
     String pojo2DataString = new String(pojo2Data);
     assertThat(dataString).isEqualTo(pojo2DataString);
-  }
-
-  @Test
-  public void testTimeConverter() {
-    String sql = "select current_time as col1 from (values(0))";
-
-    Time sqlTime = repositoryManager.createNamedQuery(sql).fetchScalar(Time.class);
-
-    Period p = new Period(new LocalTime(sqlTime), new LocalTime());
-
-    assertThat(sqlTime).isNotNull();
-    assertEquals(0, p.getMinutes());
-
-    Date date = repositoryManager.createNamedQuery(sql)
-            .fetchScalar(Date.class);
-    assertThat(date).isNotNull();
-
-    LocalTime jodaTime = repositoryManager.createNamedQuery(sql)
-            .fetchScalar(LocalTime.class);
-    assertTrue(jodaTime.getMillisOfDay() > 0);
-    assertThat(jodaTime.getHourOfDay()).isEqualTo(new LocalTime().getHourOfDay());
   }
 
   public static class BindablePojo {
