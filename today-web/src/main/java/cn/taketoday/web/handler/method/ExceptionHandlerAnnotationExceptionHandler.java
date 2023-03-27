@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -74,7 +74,6 @@ public class ExceptionHandlerAnnotationExceptionHandler
       return null; // next
     }
 
-    logCatchThrowable(target);
     ArrayList<Throwable> exceptions = new ArrayList<>();
     try {
       if (logger.isDebugEnabled()) {

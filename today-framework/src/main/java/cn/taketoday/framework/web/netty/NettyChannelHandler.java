@@ -100,7 +100,6 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
         exceptionCaught(ctx, e);
       }
       finally {
-        nettyContext.postRequestCompleted();
         RequestContextHolder.remove();
         ReferenceCountUtil.safeRelease(httpRequest);
       }

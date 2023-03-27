@@ -52,6 +52,7 @@ import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -73,43 +74,34 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  */
 class DefaultServerRequest implements ServerRequest {
 
-  private final RequestPath requestPath;
-
   private final Headers headers;
-
+  private final RequestPath requestPath;
   private final RequestContext requestContext;
-  private final List<HttpMessageConverter<?>> messageConverters;
-
-  private final MultiValueMap<String, String> params;
-
   private final Map<String, Object> attributes;
+  private final MultiValueMap<String, String> params;
+  private final List<HttpMessageConverter<?>> messageConverters;
 
   @Nullable
   private MultiValueMap<String, Multipart> parts;
 
-  @Nullable
-  private Map<String, String> pathVariables;
-
-  public DefaultServerRequest(RequestContext requestContext, List<HttpMessageConverter<?>> messageConverters) {
+  DefaultServerRequest(RequestContext requestContext, List<HttpMessageConverter<?>> messageConverters) {
     this.requestContext = requestContext;
+    this.requestPath = requestContext.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
-
+    this.attributes = new ServletAttributesMap(requestContext);
     this.headers = new DefaultRequestHeaders(requestContext.getHeaders());
     this.params = MultiValueMap.from(new ServletParametersMap(requestContext));
-    this.attributes = new ServletAttributesMap(requestContext);
-
-    this.requestPath = requestContext.getRequestPath();
   }
 
   @Override
   public HttpMethod method() {
-    return requestContext().getMethod();
+    return requestContext.getMethod();
   }
 
   @Override
   @Deprecated
   public String methodName() {
-    return requestContext().getMethodValue();
+    return requestContext.getMethodValue();
   }
 
   @Override
@@ -119,7 +111,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public UriBuilder uriBuilder() {
-    return UriComponentsBuilder.fromHttpRequest(requestContext());
+    return UriComponentsBuilder.fromHttpRequest(requestContext);
   }
 
   @Override
@@ -134,7 +126,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public MultiValueMap<String, HttpCookie> cookies() {
-    HttpCookie[] cookies = requestContext().getCookies();
+    HttpCookie[] cookies = requestContext.getCookies();
     if (cookies == null) {
       cookies = new HttpCookie[0];
     }
@@ -211,7 +203,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public Optional<Object> attribute(String name) {
-    return Optional.ofNullable(requestContext().getAttribute(name));
+    return Optional.ofNullable(requestContext.getAttribute(name));
   }
 
   @Override
@@ -221,7 +213,16 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public Optional<String> param(String name) {
-    return Optional.ofNullable(requestContext().getParameter(name));
+    return Optional.ofNullable(requestContext.getParameter(name));
+  }
+
+  @Override
+  public List<String> params(String name) {
+    List<String> paramValues = params.get(name);
+    if (CollectionUtils.isEmpty(paramValues)) {
+      return Collections.emptyList();
+    }
+    return paramValues;
   }
 
   @Override
@@ -233,28 +234,20 @@ class DefaultServerRequest implements ServerRequest {
   public MultiValueMap<String, Multipart> multipartData() throws IOException {
     MultiValueMap<String, Multipart> result = this.parts;
     if (result == null) {
-      result = requestContext().getMultipartRequest().multipartData();
+      result = requestContext.getMultipartRequest().multipartData();
       this.parts = result;
     }
     return result;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public Map<String, String> pathVariables() {
-    Map<String, String> pathVariables = this.pathVariables;
-    if (pathVariables == null) {
-      pathVariables = (Map<String, String>)
-              requestContext.getAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-      if (pathVariables != null) {
-        return pathVariables;
-      }
-      else {
-        pathVariables = Collections.emptyMap();
-      }
-      this.pathVariables = pathVariables;
+    if (requestContext.getAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
+            instanceof Map pathVariables) {
+      return pathVariables;
     }
-    return pathVariables;
+    return Collections.emptyMap();
   }
 
   @Override
@@ -371,13 +364,12 @@ class DefaultServerRequest implements ServerRequest {
 
     @Override
     public List<String> get(Object key) {
-      String name = (String) key;
-      String[] parameterValues = this.requestContext.getParameters(name);
-      if (!ObjectUtils.isEmpty(parameterValues)) {
-        return Arrays.asList(parameterValues);
+      String[] parameterValues = requestContext.getParameters((String) key);
+      if (ObjectUtils.isEmpty(parameterValues)) {
+        return Collections.emptyList();
       }
       else {
-        return Collections.emptyList();
+        return Arrays.asList(parameterValues);
       }
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,8 +32,8 @@ public interface RequestCompletedListener {
    * invoke when request handled
    *
    * @param request current request
-   * @param failureCause failure cause
+   * @param notHandled failure cause
    */
-  void requestCompleted(RequestContext request, @Nullable Throwable failureCause);
+  void requestCompleted(RequestContext request, @Nullable Throwable notHandled);
 
 }

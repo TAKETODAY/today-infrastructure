@@ -645,9 +645,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     handler.afterPropertiesSet();
     handlers.add(handler);
 
-    ResponseStatusExceptionHandler responseStatusResolver = new ResponseStatusExceptionHandler();
-    responseStatusResolver.setMessageSource(this.applicationContext);
-    handlers.add(responseStatusResolver);
+    var statusExceptionHandler = new ResponseStatusExceptionHandler();
+    statusExceptionHandler.setMessageSource(this.applicationContext);
+    handlers.add(statusExceptionHandler);
 
     handlers.add(new SimpleHandlerExceptionHandler());
   }

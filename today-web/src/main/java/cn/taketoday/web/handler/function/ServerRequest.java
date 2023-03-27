@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -165,7 +166,7 @@ public interface ServerRequest {
   Map<String, Object> attributes();
 
   /**
-   * Get the first parameter with the given name, if present. Servlet
+   * Get the first parameter with the given name, if present.
    * parameters are contained in the query string or posted form data.
    *
    * @param name the parameter name
@@ -187,7 +188,24 @@ public interface ServerRequest {
   }
 
   /**
-   * Get all parameters for this request. Servlet parameters are contained
+   * Get the parameters with the given name.
+   * <p>
+   * parameters are contained in the query string or posted form data.
+   *
+   * @param name the parameter name
+   * @return the parameter value
+   * @see RequestContext#getParameter(String)
+   */
+  default List<String> params(String name) {
+    List<String> paramValues = params().get(name);
+    if (CollectionUtils.isEmpty(paramValues)) {
+      return Collections.emptyList();
+    }
+    return paramValues;
+  }
+
+  /**
+   * Get all parameters for this request. parameters are contained
    * in the query string or posted form data.
    *
    * @see RequestContext#getParameters()
@@ -216,7 +234,7 @@ public interface ServerRequest {
   default String pathVariable(String name) {
     Map<String, String> pathVariables = pathVariables();
     if (pathVariables.containsKey(name)) {
-      return pathVariables().get(name);
+      return pathVariables.get(name);
     }
     else {
       throw new IllegalArgumentException("No path variable with name \"" + name + "\" available");

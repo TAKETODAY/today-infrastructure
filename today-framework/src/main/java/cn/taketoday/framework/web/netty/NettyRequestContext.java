@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.ApplicationContext;
@@ -387,10 +386,15 @@ public class NettyRequestContext extends RequestContext {
 
   }
 
-  public void postRequestCompleted() {
+  @Override
+  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+    if (notHandled != null) {
+      return;
+    }
+
     flush();
 
-    Consumer<? super HttpHeaders> trailerHeadersConsumer = config.getTrailerHeadersConsumer();
+    var trailerHeadersConsumer = config.getTrailerHeadersConsumer();
     LastHttpContent lastHttpContent = LastHttpContent.EMPTY_LAST_CONTENT;
     // https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2
     // A trailer allows the sender to include additional fields at the end

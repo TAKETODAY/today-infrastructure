@@ -46,7 +46,6 @@ import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -363,16 +362,6 @@ public final class ServletRequestContext extends RequestContext implements Servl
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
     return new StandardServletAsyncWebRequest(this);
-  }
-
-  @Override
-  protected void postRequestCompleted() {
-    try {
-      flush();
-    }
-    catch (IOException e) {
-      throw ExceptionUtils.sneakyThrow(e);
-    }
   }
 
   @Override

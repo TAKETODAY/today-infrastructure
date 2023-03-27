@@ -826,6 +826,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Executes all request destruction callbacks and other resources cleanup
    */
   public void requestCompleted() {
+    requestCompleted(null);
+  }
+
+  /**
+   * Signal that the request has been completed.
+   * <p>Executes all request destruction callbacks and other resources cleanup
+   *
+   * @param notHandled exception not handled
+   */
+  public void requestCompleted(@Nullable Throwable notHandled) {
     requestCompletedTimeMillis = System.currentTimeMillis();
 
     if (multipartRequest != null) {
@@ -842,10 +852,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
       requestDestructionCallbacks = null;
     }
 
-    postRequestCompleted();
+    postRequestCompleted(notHandled);
   }
 
-  protected void postRequestCompleted() {
+  protected void postRequestCompleted(@Nullable Throwable notHandled) {
 
   }
 
@@ -1730,7 +1740,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * Forces any content in the buffer to be written to the client.  A call
    * to this method automatically commits the response, meaning the status
-   * code and headers will be written.
+   * code and headers will be written. Ensure that the headers and the content
+   * of the response are written out.
+   * <p>After the first flush, headers can no longer be changed.
+   * Only further content writing and content flushing is possible.
    *
    * @throws IOException if the act of flushing the buffer cannot be completed.
    * @see #isCommitted

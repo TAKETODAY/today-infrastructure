@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,9 +45,9 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
   }
 
   @Override
-  public void requestCompleted(RequestContext request, @Nullable Throwable failureCause) {
+  public void requestCompleted(RequestContext request, @Nullable Throwable notHandled) {
     // Whether we succeeded, publish an event.
-    var event = getRequestHandledEvent(request, failureCause);
+    var event = getRequestHandledEvent(request, notHandled);
     eventPublisher.publishEvent(event);
   }
 
@@ -55,14 +55,14 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
    * create a {@link RequestHandledEvent} for the given request.
    *
    * @param request request context
-   * @param failureCause failure cause
+   * @param notHandled failure cause
    * @return the event
    */
   protected ApplicationEvent getRequestHandledEvent(
-          RequestContext request, @Nullable Throwable failureCause) {
+          RequestContext request, @Nullable Throwable notHandled) {
     return new RequestHandledEvent(this, request.getRequestURI(), request.getRemoteAddress(),
             request.getMethodValue(), RequestContextUtils.getSessionId(request), null,
-            request.getRequestProcessingTime(), failureCause, request.getStatus());
+            request.getRequestProcessingTime(), notHandled, request.getStatus());
   }
 
 }

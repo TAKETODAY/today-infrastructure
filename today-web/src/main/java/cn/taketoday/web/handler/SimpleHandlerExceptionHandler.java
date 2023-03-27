@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -168,7 +168,6 @@ public class SimpleHandlerExceptionHandler
   @Nullable
   @Override
   protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) {
-    logCatchThrowable(ex);
 
     try {
       // ErrorResponse exceptions that expose HTTP response details

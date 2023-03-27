@@ -1063,6 +1063,11 @@ public abstract class RequestPredicates {
     }
 
     @Override
+    public List<String> params(String name) {
+      return request.params(name);
+    }
+
+    @Override
     public MultiValueMap<String, String> params() {
       return request.params();
     }

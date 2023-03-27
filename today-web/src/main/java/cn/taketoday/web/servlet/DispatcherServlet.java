@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.servlet;
 
@@ -277,7 +277,13 @@ public class DispatcherServlet
       Object concurrentResult = request.getAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE);
       RequestContext context = (RequestContext) request.getAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE);
       Object httpRequestHandler = WebAsyncManager.findHttpRequestHandler(context);
-      handleConcurrentResult(context, httpRequestHandler, concurrentResult);
+
+      try {
+        handleConcurrentResult(context, httpRequestHandler, concurrentResult);
+      }
+      catch (final Throwable e) {
+        throw new ServletException("Async processing failed: " + e, e);
+      }
       return;
     }
 
@@ -295,7 +301,7 @@ public class DispatcherServlet
       dispatch(context);
     }
     catch (final Throwable e) {
-      throw new ServletException(e);
+      throw new ServletException("Handler processing failed: " + e, e);
     }
     finally {
       if (reset) {

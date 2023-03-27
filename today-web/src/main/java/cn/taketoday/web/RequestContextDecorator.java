@@ -513,8 +513,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  protected void postRequestCompleted() {
-    delegate.postRequestCompleted();
+  public void requestCompleted(@Nullable Throwable notHandled) {
+    delegate.requestCompleted(notHandled);
   }
 
   @Override

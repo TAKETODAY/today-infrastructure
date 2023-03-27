@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -39,7 +38,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerAdapterNotFoundException;
@@ -205,6 +203,7 @@ public class DispatcherHandler extends InfraHandler {
     AnnotationAwareOrderComparator.sort(handlers);
 
     addRequestHandledActions(handlers);
+    addRequestHandledActions(RequestContext::requestCompleted);
   }
 
   /**
@@ -275,73 +274,6 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Handle HTTP request
-   *
-   * @param handler HTTP handler
-   * @param context Current HTTP request context
-   * @throws Throwable If {@link Throwable} cannot handle
-   */
-  public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
-    Object returnValue = null;
-    Throwable throwable = null;
-    try {
-      if (handler == null) {
-        returnValue = handlerNotFound(context);
-      }
-      else if (handler instanceof HttpRequestHandler requestHandler) {
-        // specially for RequestHandler
-        returnValue = requestHandler.handleRequest(context);
-      }
-      else {
-        // adaptation for handling this request
-        returnValue = lookupHandlerAdapter(handler).handle(context, handler);
-      }
-    }
-    catch (Throwable e) {
-      throwable = e;
-    }
-    finally {
-      try {
-        processDispatchResult(context, handler, returnValue, throwable);
-        throwable = null; // handled
-      }
-      catch (Throwable ex) {
-        throwable = ex; // not handled
-      }
-      if (!context.isConcurrentHandlingStarted()) {
-        requestProcessingCompleted(context, throwable);
-      }
-      logResult(context, throwable);
-    }
-  }
-
-  /**
-   * Handle {@link Exception} occurred in target handler
-   *
-   * @param handler HTTP handler
-   * @param exception {@link Throwable} occurred in target handler
-   * @param context Current HTTP request context
-   * @throws Throwable If {@link Throwable} cannot be handled
-   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
-   * @throws IOException throws when write data to response
-   */
-  public void handleException(
-          @Nullable Object handler, Throwable exception, RequestContext context) throws Throwable {
-    // clear context
-    context.reset();
-    // prepare context throwable
-    context.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, exception);
-    // handle exception
-    Object returnValue = exceptionHandler.handleException(context, exception, handler);
-    if (returnValue == null) {
-      throw exception;
-    }
-    else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      returnValueHandler.handleReturnValue(context, null, returnValue);
-    }
-  }
-
-  /**
    * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
    * This exception can then be caught with a HandlerExceptionHandler or an
    * {@code @ExceptionHandler} controller method.
@@ -360,7 +292,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param concurrentResult async result
    */
   public void handleConcurrentResult(RequestContext context,
-          @Nullable Object handler, Object concurrentResult) {
+          @Nullable Object handler, Object concurrentResult) throws Throwable {
     Throwable throwable = null;
     try {
       if (handler instanceof AsyncHandler asyncHandler) {
@@ -381,8 +313,8 @@ public class DispatcherHandler extends InfraHandler {
       throwable = ex; // not handled
     }
     finally {
-      requestProcessingCompleted(context, throwable);
       logResult(context, throwable);
+      requestCompleted(context, throwable);
     }
   }
 
@@ -420,7 +352,7 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
     catch (Throwable ex) {
-      throwable = ex;
+      throwable = ex; // from request handler
     }
     finally {
       try {
@@ -430,11 +362,11 @@ public class DispatcherHandler extends InfraHandler {
       catch (Throwable ex) {
         throwable = ex; // not handled
       }
-      // async
-      if (!context.isConcurrentHandlingStarted()) {
-        requestProcessingCompleted(context, throwable);
-      }
       logResult(context, throwable);
+
+      if (!context.isConcurrentHandlingStarted()) {
+        requestCompleted(context, throwable);
+      }
     }
   }
 
@@ -477,6 +409,8 @@ public class DispatcherHandler extends InfraHandler {
     // Check registered HandlerExceptionHandlers...
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {
+      // not found a suitable handler to handle this exception,
+      // throw it to top level to handle
       throw ex;
     }
     else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
@@ -507,15 +441,14 @@ public class DispatcherHandler extends InfraHandler {
     }
   }
 
-  protected void requestProcessingCompleted(
-          RequestContext request, @Nullable Throwable failureCause) {
-    request.requestCompleted();
+  protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
+    for (RequestCompletedListener action : requestCompletedActions) {
+      action.requestCompleted(request, notHandled);
+    }
 
-    RequestCompletedListener[] requestCompletedListeners = requestCompletedActions.get();
-    if (ObjectUtils.isNotEmpty(requestCompletedListeners)) {
-      for (RequestCompletedListener action : requestCompletedListeners) {
-        action.requestCompleted(request, failureCause);
-      }
+    // exception not handled
+    if (notHandled != null) {
+      throw notHandled;
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -93,10 +93,10 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     this.messageConverters = new ArrayList<>(other.messageConverters());
     this.method = other.method();
     this.uri = other.uri();
-    headers(headers -> headers.addAll(other.headers().asHttpHeaders()));
-    cookies(cookies -> cookies.addAll(other.cookies()));
-    attributes(attributes -> attributes.putAll(other.attributes()));
     params(params -> params.addAll(other.params()));
+    cookies(cookies -> cookies.addAll(other.cookies()));
+    headers(headers -> headers.addAll(other.headers().asHttpHeaders()));
+    attributes(attributes -> attributes.putAll(other.attributes()));
     this.remoteAddress = other.remoteAddress().orElse(null);
   }
 
@@ -215,21 +215,22 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Nullable
     private final InetSocketAddress remoteAddress;
 
-    public BuiltServerRequest(RequestContext requestContext, HttpMethod method, URI uri,
-            HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
+    public BuiltServerRequest(RequestContext requestContext,
+            HttpMethod method, URI uri, HttpHeaders headers,
+            MultiValueMap<String, HttpCookie> cookies,
             Map<String, Object> attributes, MultiValueMap<String, String> params,
             @Nullable InetSocketAddress remoteAddress, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
 
-      this.requestContext = requestContext;
-      this.method = method;
       this.uri = uri;
+      this.body = body;
+      this.method = method;
+      this.remoteAddress = remoteAddress;
+      this.requestContext = requestContext;
       this.headers = HttpHeaders.copyOf(headers);
+      this.messageConverters = messageConverters;
+      this.params = new LinkedMultiValueMap<>(params);
       this.cookies = new LinkedMultiValueMap<>(cookies);
       this.attributes = new LinkedHashMap<>(attributes);
-      this.params = new LinkedMultiValueMap<>(params);
-      this.remoteAddress = remoteAddress;
-      this.body = body;
-      this.messageConverters = messageConverters;
     }
 
     @Override
@@ -245,7 +246,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     @Override
     public MultiValueMap<String, Multipart> multipartData() throws IOException {
-      return requestContext().getMultipartRequest().multipartData();
+      return requestContext.getMultipartRequest().multipartData();
     }
 
     @Override
@@ -295,16 +296,13 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       MediaType contentType = headers().contentType().orElse(MediaType.APPLICATION_OCTET_STREAM);
 
       for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
-        if (messageConverter instanceof GenericHttpMessageConverter) {
-          GenericHttpMessageConverter<T> genericMessageConverter =
-                  (GenericHttpMessageConverter<T>) messageConverter;
-          if (genericMessageConverter.canRead(bodyType, bodyClass, contentType)) {
-            return genericMessageConverter.read(bodyType, bodyClass, inputMessage);
+        if (messageConverter instanceof GenericHttpMessageConverter<?> converter) {
+          if (converter.canRead(bodyType, bodyClass, contentType)) {
+            return (T) converter.read(bodyType, bodyClass, inputMessage);
           }
         }
         if (messageConverter.canRead(bodyClass, contentType)) {
-          HttpMessageConverter<T> theConverter =
-                  (HttpMessageConverter<T>) messageConverter;
+          var theConverter = (HttpMessageConverter<T>) messageConverter;
           Class<? extends T> clazz = (Class<? extends T>) bodyClass;
           return theConverter.read(clazz, inputMessage);
         }
@@ -323,8 +321,8 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map<String, String> pathVariables() {
-
       HandlerMatchingMetadata matchingMetadata = requestContext.getMatchingMetadata();
       if (matchingMetadata != null) {
         PathMatchInfo pathMatchInfo = matchingMetadata.getPathMatchInfo();
@@ -332,15 +330,12 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
           return pathMatchInfo.getUriVariables();
         }
       }
-      @SuppressWarnings("unchecked")
-      Map<String, String> pathVariables = (Map<String, String>) attributes()
-              .get(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-      if (pathVariables != null) {
+
+      if (attributes.get(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
+              instanceof Map pathVariables) {
         return pathVariables;
       }
-      else {
-        return Collections.emptyMap();
-      }
+      return Collections.emptyMap();
     }
 
     @Override

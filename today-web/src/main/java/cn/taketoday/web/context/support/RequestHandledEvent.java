@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,7 +48,7 @@ public class RequestHandledEvent extends ApplicationEvent {
 
   /** Cause of failure, if any. */
   @Nullable
-  private Throwable failureCause;
+  private Throwable notHandled;
 
   /** URL that triggered the request. */
   private final String requestUrl;
@@ -97,15 +97,15 @@ public class RequestHandledEvent extends ApplicationEvent {
    * @param userName the name of the user that was associated with the
    * request, if any (usually the UserPrincipal)
    * @param processingTimeMillis the processing time of the request in milliseconds
-   * @param failureCause the cause of failure, if any
+   * @param notHandled the cause of failure, if any
    */
   public RequestHandledEvent(Object source, String requestUrl,
           String clientAddress, String method, @Nullable String sessionId,
-          @Nullable String userName, long processingTimeMillis, @Nullable Throwable failureCause) {
+          @Nullable String userName, long processingTimeMillis, @Nullable Throwable notHandled) {
 
     super(source);
     this.method = method;
-    this.failureCause = failureCause;
+    this.notHandled = notHandled;
     this.statusCode = -1;
     this.userName = userName;
     this.sessionId = sessionId;
@@ -125,12 +125,12 @@ public class RequestHandledEvent extends ApplicationEvent {
    * @param userName the name of the user that was associated with the
    * request, if any (usually the UserPrincipal)
    * @param processingTimeMillis the processing time of the request in milliseconds
-   * @param failureCause the cause of failure, if any
+   * @param notHandled the cause of failure, if any
    * @param statusCode the HTTP status code of the response
    */
   public RequestHandledEvent(Object source, String requestUrl,
           String clientAddress, String method, @Nullable String sessionId,
-          @Nullable String userName, long processingTimeMillis, @Nullable Throwable failureCause, int statusCode) {
+          @Nullable String userName, long processingTimeMillis, @Nullable Throwable notHandled, int statusCode) {
     super(source);
 
     this.method = method;
@@ -138,7 +138,7 @@ public class RequestHandledEvent extends ApplicationEvent {
     this.sessionId = sessionId;
     this.statusCode = statusCode;
     this.requestUrl = requestUrl;
-    this.failureCause = failureCause;
+    this.notHandled = notHandled;
     this.clientAddress = clientAddress;
     this.processingTimeMillis = processingTimeMillis;
   }
@@ -173,7 +173,7 @@ public class RequestHandledEvent extends ApplicationEvent {
    * Return whether the request failed.
    */
   public boolean wasFailure() {
-    return failureCause != null;
+    return notHandled != null;
   }
 
   /**
@@ -181,7 +181,7 @@ public class RequestHandledEvent extends ApplicationEvent {
    */
   @Nullable
   public Throwable getFailureCause() {
-    return this.failureCause;
+    return this.notHandled;
   }
 
   /**
@@ -243,7 +243,7 @@ public class RequestHandledEvent extends ApplicationEvent {
       sb.append("OK");
     }
     else {
-      sb.append("failed: ").append(this.failureCause);
+      sb.append("failed: ").append(this.notHandled);
     }
     sb.append(']');
     return sb.toString();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -205,17 +205,6 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   protected String buildLogMessage(Throwable ex, RequestContext request) {
     return "Resolved [" + LogFormatUtils.formatValue(ex, -1, true) + "]";
-  }
-
-  /**
-   * record exception log occurred in target request handler
-   *
-   * @param target Throwable occurred in target request handler
-   */
-  protected void logCatchThrowable(Throwable target) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Catch Throwable: [{}]", target.toString(), target);
-    }
   }
 
   /**
