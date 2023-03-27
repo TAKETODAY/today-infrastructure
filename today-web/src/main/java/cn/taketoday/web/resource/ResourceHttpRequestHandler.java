@@ -576,7 +576,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     }
 
     path = processPath(path);
-    if (!StringUtils.hasText(path) || isInvalidPath(path)) {
+    if (StringUtils.isBlank(path) || isInvalidPath(path)) {
       return null;
     }
     if (isInvalidEncodedPath(path)) {
