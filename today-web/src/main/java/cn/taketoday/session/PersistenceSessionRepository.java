@@ -37,7 +37,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/27 21:35
  */
-public class PersistenceSessionRepository implements SessionRepository, DisposableBean, WebSessionListener {
+public class PersistenceSessionRepository implements SessionRepository, DisposableBean {
   private static final Logger log = LoggerFactory.getLogger(PersistenceSessionRepository.class);
 
   private final SessionRepository delegate;
@@ -90,7 +90,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   @Override
   public WebSession removeSession(String sessionId) {
     WebSession ret = delegate.removeSession(sessionId);
-    doRemove(sessionId);
+    removePersister(sessionId, sessionPersister);
     return ret;
   }
 
@@ -136,19 +136,44 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
     }
   }
 
-  @Override
-  public void sessionDestroyed(WebSessionEvent se) {
-    String sessionId = se.getSessionId();
-    doRemove(sessionId);
-  }
-
-  private void doRemove(String sessionId) {
+  private static void removePersister(String sessionId, SessionPersister sessionPersister) {
     try {
-      sessionPersister.remove(sessionId);
+      synchronized(sessionId.intern()) {
+        sessionPersister.remove(sessionId);
+      }
     }
     catch (IOException e) {
       log.error("Unable to remove session from SessionPersister: {}", sessionPersister, e);
     }
   }
 
+  /**
+   * for WebSession destroy event
+   */
+  public WebSessionListener createDestructionCallback() {
+    return new PersisterDestructionCallback(sessionPersister);
+  }
+
+  /**
+   * for WebSession destroy event
+   */
+  public static WebSessionListener createDestructionCallback(SessionPersister sessionPersister) {
+    Assert.notNull(sessionPersister, "No SessionPersister");
+    return new PersisterDestructionCallback(sessionPersister);
+  }
+
+  static class PersisterDestructionCallback implements WebSessionListener {
+    final SessionPersister sessionPersister;
+
+    public PersisterDestructionCallback(SessionPersister sessionPersister) {
+      this.sessionPersister = sessionPersister;
+    }
+
+    @Override
+    public void sessionDestroyed(WebSessionEvent se) {
+      String sessionId = se.getSessionId();
+      removePersister(sessionId, sessionPersister);
+    }
+
+  }
 }
