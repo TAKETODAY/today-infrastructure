@@ -46,6 +46,7 @@ import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -415,6 +416,18 @@ public final class ServletRequestContext extends RequestContext implements Servl
 
     if (bodyUsed) {
       response.flushBuffer();
+    }
+  }
+
+  @Override
+  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+    if (notHandled == null) {
+      try {
+        flush();
+      }
+      catch (IOException e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
     }
   }
 
