@@ -140,6 +140,9 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
 
   /**
    * default {@link SessionRepository} bean
+   * <p>
+   * Enable session persistent when there is a 'sessionPersister' bean
+   * or {@link SessionProperties#isPersistent()} is enabled
    *
    * @since 3.0
    */

@@ -37,7 +37,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/27 21:35
  */
-public class PersistenceSessionRepository implements SessionRepository, DisposableBean {
+public class PersistenceSessionRepository implements SessionRepository, DisposableBean, WebSessionListener {
   private static final Logger log = LoggerFactory.getLogger(PersistenceSessionRepository.class);
 
   private final SessionRepository delegate;
@@ -90,12 +90,7 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
   @Override
   public WebSession removeSession(String sessionId) {
     WebSession ret = delegate.removeSession(sessionId);
-    try {
-      sessionPersister.remove(sessionId);
-    }
-    catch (IOException e) {
-      log.error("Unable to remove session from SessionPersister: {}", sessionPersister, e);
-    }
+    doRemove(sessionId);
     return ret;
   }
 
@@ -138,6 +133,21 @@ public class PersistenceSessionRepository implements SessionRepository, Disposab
                   session, sessionPersister, e);
         }
       }
+    }
+  }
+
+  @Override
+  public void sessionDestroyed(WebSessionEvent se) {
+    String sessionId = se.getSessionId();
+    doRemove(sessionId);
+  }
+
+  private void doRemove(String sessionId) {
+    try {
+      sessionPersister.remove(sessionId);
+    }
+    catch (IOException e) {
+      log.error("Unable to remove session from SessionPersister: {}", sessionPersister, e);
     }
   }
 
