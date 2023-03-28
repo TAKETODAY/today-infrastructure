@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,8 +27,8 @@ import cn.taketoday.session.WebSessionEvent;
 import cn.taketoday.session.WebSessionListener;
 
 /**
- * Servlet HttpSessionListener that automatically exposes the session mutex
- * when an HttpSession gets created. To be registered as a listener in
+ * WebSessionListener that automatically exposes the session mutex
+ * when an WebSession gets created. To be registered as a listener in
  * {@code web.xml}.
  *
  * <p>The session mutex is guaranteed to be the same object during
@@ -36,10 +36,10 @@ import cn.taketoday.session.WebSessionListener;
  * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
  * safe reference to synchronize on for locking on the current session.
  *
- * <p>In many cases, the HttpSession reference itself is a safe mutex
+ * <p>In many cases, the WebSession reference itself is a safe mutex
  * as well, since it will always be the same object reference for the
  * same active logical session. However, this is not guaranteed across
- * different servlet containers; the only 100% safe way is a session mutex.
+ * different containers; the only 100% safe way is a session mutex.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -63,7 +63,7 @@ public class WebSessionMutexListener implements WebSessionListener {
   /**
    * The mutex to be registered.
    * Doesn't need to be anything but a plain Object to synchronize on.
-   * Should be serializable to allow for HttpSession persistence.
+   * Should be serializable to allow for WebSession persistence.
    */
   private static class Mutex implements Serializable {
 
