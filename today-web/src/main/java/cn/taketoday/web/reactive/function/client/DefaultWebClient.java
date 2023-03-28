@@ -371,12 +371,6 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    @Deprecated
-    public RequestHeadersSpec<?> syncBody(Object body) {
-      return bodyValue(body);
-    }
-
-    @Override
     public ResponseSpec retrieve() {
       return new DefaultResponseSpec(
               exchange(), this::createRequest, DefaultWebClient.this.defaultStatusHandlers);
@@ -392,7 +386,6 @@ class DefaultWebClient implements WebClient {
         }
 
         @Override
-        @Deprecated
         public String getMethodValue() {
           return httpMethod.name();
         }
