@@ -25,12 +25,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-import cn.taketoday.core.ConfigurableObjectInputStream;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -65,6 +63,12 @@ public class FileSessionPersister implements SessionPersister {
 
   private final SessionRepository repository;
 
+  /**
+   * Creates FileSessionPersister with given SessionRepository
+   *
+   * @param repository used to create session
+   * @see #load(String)
+   */
   public FileSessionPersister(SessionRepository repository) {
     Assert.notNull(repository, "SessionRepository is required");
     this.repository = repository;
@@ -163,7 +167,7 @@ public class FileSessionPersister implements SessionPersister {
       log.debug("Loading Session [{}] from file [{}]", id, file.getAbsolutePath());
     }
 
-    try (var ois = getObjectInputStream(new FileInputStream(file))) {
+    try (var ois = new ObjectInputStream(new FileInputStream(file))) {
       WebSession session = repository.createSession(id);
       if (session instanceof SerializableSession serialized) {
         serialized.readObjectData(ois);
@@ -203,22 +207,6 @@ public class FileSessionPersister implements SessionPersister {
         oos.writeObject(session);
       }
     }
-  }
-
-  /**
-   * Create the object input stream to use to read a session from the store.
-   * Sub-classes <b>must</b> have set the thread context class loader before
-   * calling this method.
-   *
-   * @param is The input stream provided by the sub-class that will provide
-   * the data for a session
-   * @return An appropriately configured ObjectInputStream from which the
-   * session can be read.
-   * @throws IOException if a problem occurs creating the ObjectInputStream
-   */
-  protected ObjectInputStream getObjectInputStream(InputStream is) throws IOException {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    return new ConfigurableObjectInputStream(is, classLoader);
   }
 
   /**
