@@ -87,14 +87,11 @@ class DefaultErrorAttributesTests {
   @Test
   void mvcError() {
     RuntimeException ex = new RuntimeException("Test");
-    Object modelAndView = this.errorAttributes.handleException(webRequest, ex, null);
-    this.request.setAttribute("jakarta.servlet.error.exception", new RuntimeException("Ignored"));
-    Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
-            ErrorAttributeOptions.of(Include.MESSAGE));
-    assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(ex);
-    assertThat(this.webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE))
-            .isSameAs(ex);
-    assertThat(modelAndView).isNull();
+    request.setAttribute("jakarta.servlet.error.exception", ex);
+    var attributes = errorAttributes.getErrorAttributes(webRequest, ErrorAttributeOptions.of(Include.MESSAGE));
+    assertThat(errorAttributes.getError(webRequest)).isSameAs(ex);
+    assertThat(webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE)).isSameAs(ex);
+
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes.get("message")).isEqualTo("Test");
   }

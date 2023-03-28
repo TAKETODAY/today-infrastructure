@@ -34,7 +34,6 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
-import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.util.WebUtils;
@@ -65,24 +64,11 @@ import jakarta.servlet.ServletException;
  * @see ErrorAttributes
  * @since 4.0
  */
-public class DefaultErrorAttributes implements ErrorAttributes, HandlerExceptionHandler, Ordered {
-
-  private static final String ERROR_INTERNAL_ATTRIBUTE = DefaultErrorAttributes.class.getName() + ".ERROR";
+public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
 
   @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE;
-  }
-
-  @Nullable
-  @Override
-  public Object handleException(RequestContext context, Throwable ex, @Nullable Object handler) {
-    storeErrorAttributes(context, ex);
-    return null;
-  }
-
-  private void storeErrorAttributes(RequestContext request, Throwable ex) {
-    request.setAttribute(ERROR_INTERNAL_ATTRIBUTE, ex);
   }
 
   @Override
@@ -200,13 +186,10 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
   @Override
   @Nullable
   public Throwable getError(RequestContext request) {
-    Throwable exception = getAttribute(request, ERROR_INTERNAL_ATTRIBUTE);
+    Throwable exception = getAttribute(request, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
     if (exception == null) {
       if (ServletDetector.runningInServlet(request)) {
         exception = getAttribute(request, RequestDispatcher.ERROR_EXCEPTION);
-      }
-      if (exception == null) {
-        exception = getAttribute(request, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
       }
     }
 
