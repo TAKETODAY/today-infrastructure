@@ -23,6 +23,7 @@ package cn.taketoday.session.config;
 import java.io.File;
 
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -65,15 +66,9 @@ import cn.taketoday.web.view.SessionRedirectModelManager;
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SessionProperties.class)
-class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
+class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, SmartInitializingSingleton {
 
   volatile boolean destructionCallbackRegistered;
-
-  final ObjectProvider<SessionEventDispatcher> eventDispatcher;
-
-  WebSessionConfiguration(ObjectProvider<SessionEventDispatcher> eventDispatcher) {
-    this.eventDispatcher = eventDispatcher;
-  }
 
   /**
    * @param beanDefinition the merged bean definition for the bean
@@ -88,10 +83,6 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
     // register SessionScope automatically
     if (!destructionCallbackRegistered
             && RequestContext.SCOPE_SESSION.equals(beanDefinition.getScope())) {
-      SessionEventDispatcher dispatcher = eventDispatcher.getIfAvailable();
-      if (dispatcher != null) {
-        dispatcher.addAttributeListeners(SessionScope.createDestructionCallback());
-      }
       destructionCallbackRegistered = true;
     }
   }
@@ -149,7 +140,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(SessionRepository.class)
-  static SessionRepository memorySessionRepository(SessionProperties properties,
+  static SessionRepository sessionRepository(SessionProperties properties,
           SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator,
           @Nullable SessionPersister sessionPersister) {
     var repository = new InMemorySessionRepository(eventDispatcher, idGenerator);
@@ -197,6 +188,19 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor {
   @ConditionalOnMissingBean(value = RedirectModelManager.class, name = RedirectModelManager.BEAN_NAME)
   static SessionRedirectModelManager sessionRedirectModelManager(SessionManager sessionManager) {
     return new SessionRedirectModelManager(sessionManager);
+  }
+
+  @Override
+  public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
+    SessionEventDispatcher eventDispatcher = beanFactory.getBean(SessionEventDispatcher.class);
+    if (destructionCallbackRegistered) {
+      eventDispatcher.addAttributeListeners(SessionScope.createDestructionCallback());
+    }
+
+    SessionRepository sessionRepository = beanFactory.getBean(SessionRepository.class);
+    if (sessionRepository instanceof PersistenceSessionRepository repository) {
+      eventDispatcher.addSessionListeners(repository.createDestructionCallback());
+    }
   }
 
 }
