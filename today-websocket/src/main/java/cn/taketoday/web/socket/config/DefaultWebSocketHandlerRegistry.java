@@ -63,7 +63,7 @@ public class DefaultWebSocketHandlerRegistry implements WebSocketHandlerRegistry
 
   /**
    * Set the order for the resulting {@link SimpleUrlHandlerMapping} relative to
-   * other handler mappings configured in Spring MVC.
+   * other handler mappings configured in Web MVC.
    * <p>The default value is 1.
    */
   public void setOrder(int order) {

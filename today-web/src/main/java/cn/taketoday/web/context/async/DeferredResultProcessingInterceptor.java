@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.web.RequestContext;
  * <p>As a general rule exceptions raised by interceptor methods will cause
  * async processing to resume by dispatching back to the container and using
  * the Exception instance as the concurrent result. Such exceptions will then
- * be processed through the {@code HandlerExceptionResolver} mechanism.
+ * be processed through the {@code HandlerExceptionHandler} mechanism.
  *
  * <p>The {@link #handleTimeout(RequestContext, DeferredResult) handleTimeout}
  * method can set the {@code DeferredResult} in order to resume processing.

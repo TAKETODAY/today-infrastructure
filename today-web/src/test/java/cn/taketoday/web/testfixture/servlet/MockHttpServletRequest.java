@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -123,15 +123,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /**
    * The default protocol: 'HTTP/1.1'.
-   *
-   * @since 4.3.7
    */
   public static final String DEFAULT_PROTOCOL = "HTTP/1.1";
 
   /**
    * The default scheme: 'http'.
-   *
-   * @since 4.3.7
    */
   public static final String DEFAULT_SCHEME = HTTP;
 
@@ -441,7 +437,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return the content as a byte array (potentially {@code null})
    * @see #setContent(byte[])
    * @see #getContentAsString()
-   * @since 5.0
    */
   @Nullable
   public byte[] getContentAsByteArray() {
@@ -458,7 +453,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #setContent(byte[])
    * @see #setCharacterEncoding(String)
    * @see #getContentAsByteArray()
-   * @since 5.0
    */
   @Nullable
   public String getContentAsString() throws IllegalStateException, UnsupportedEncodingException {
@@ -806,7 +800,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * any existing locales.
    *
    * @see #addPreferredLocale
-   * @since 3.2
+   * @since 4.0
    */
   public void setPreferredLocales(List<Locale> locales) {
     Assert.notEmpty(locales, "Locale list must not be empty");
@@ -1107,8 +1101,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /**
    * Remove already registered entries for the specified HTTP header, if any.
-   *
-   * @since 4.3.20
    */
   public void removeHeader(String name) {
     Assert.notNull(name, "Header name must not be null");
