@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -106,11 +106,13 @@ import static cn.taketoday.lang.Constant.SUID_FIELD_NAME;
  * <p>
  * For an almost drop-in replacement for <code>java.lang.reflect.Proxy</code>,
  * see the {@link Proxy} class.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Enhancer extends AbstractClassGenerator<Object> {
 
-  private static final CallbackFilter ALL_ZERO = (m) -> 0;
+  private static final CallbackFilter ALL_ZERO = m -> 0;
 
   private static final String BOUND_FIELD = "today$Bound";
   private static final String CONSTRUCTED_FIELD = "today$Constructed";
@@ -147,10 +149,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   static final MethodSignature SET_THREAD_CALLBACKS = new MethodSignature(Type.VOID_TYPE, SET_THREAD_CALLBACKS_NAME, CALLBACK_ARRAY);
   static final MethodSignature SET_STATIC_CALLBACKS = new MethodSignature(Type.VOID_TYPE, SET_STATIC_CALLBACKS_NAME, CALLBACK_ARRAY);
   static final MethodSignature MULTIARG_NEW_INSTANCE = new MethodSignature(
-          Type.TYPE_OBJECT,
-          "newInstance",
-          Type.TYPE_CLASS_ARRAY, Type.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY
-  );
+          Type.TYPE_OBJECT, "newInstance", Type.TYPE_CLASS_ARRAY, Type.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY);
   static final MethodSignature GET_CALLBACKS = new MethodSignature(CALLBACK_ARRAY, "getCallbacks");
   static final MethodSignature GET_CALLBACK = new MethodSignature(CALLBACK, "getCallback", Type.INT_TYPE);
   static final MethodSignature SET_CALLBACKS = new MethodSignature(Type.VOID_TYPE, "setCallbacks", CALLBACK_ARRAY);
@@ -164,7 +163,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private EnhancerFactoryData currentData;
   private Object currentKey;
 
+  @Nullable
   private Class<?>[] interfaces;
+
   private CallbackFilter filter;
   private Callback[] callbacks;
   private Type[] callbackTypes;
@@ -229,7 +230,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param interfaces array of interfaces to implement, or null
    * @see Factory
    */
-  public void setInterfaces(Class<?>... interfaces) {
+  public void setInterfaces(@Nullable Class<?>... interfaces) {
     this.interfaces = interfaces;
   }
 
@@ -378,7 +379,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    *
    * @param sUID the field value, or null to avoid generating field.
    */
-  public void setSerialVersionUID(Long sUID) {
+  public void setSerialVersionUID(@Nullable Long sUID) {
     this.serialVersionUID = sUID;
   }
 
@@ -584,12 +585,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     getMethods(superclass, interfaces, methods, null);
   }
 
-  private static void getMethods(
-          Class<?> superclass,
-          @Nullable Class<?>[] interfaces,
-          List<Method> methods,
-          @Nullable List<Method> interfaceMethods
-  ) {
+  private static void getMethods(Class<?> superclass, @Nullable Class<?>[] interfaces,
+          List<Method> methods, @Nullable List<Method> interfaceMethods) {
     MethodInfo.addAllMethods(superclass, methods);
 
     List<Method> target = methods;
@@ -743,6 +740,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @return newly created proxy instance
    * @throws Exception if something goes wrong
    */
+  @Override
   protected Object firstInstance(Class type) throws Exception {
     if (classOnly) {
       return type;
@@ -752,6 +750,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
   }
 
+  @Override
   protected Object nextInstance(Object instance) {
     EnhancerFactoryData data = (EnhancerFactoryData) instance;
 
@@ -944,8 +943,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @param filter the callback filter to use when generating a new class
    * @param callbacks callback implementations to use for the enhanced object
    */
-  public static Object create(
-          Class superclass, Class[] interfaces, CallbackFilter filter, Callback[] callbacks) {
+  public static Object create(Class superclass,
+          Class[] interfaces, CallbackFilter filter, Callback[] callbacks) {
     Enhancer e = new Enhancer();
     e.setSuperclass(superclass);
     e.setInterfaces(interfaces);
@@ -1187,7 +1186,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         throw new IllegalArgumentException(
                 "Callback filter returned an index that is too large: " + index);
       }
-      originalModifiers.put(method, (actualMethod != null) ? actualMethod.getModifiers() : method.getModifiers());
+      originalModifiers.put(method, actualMethod != null ? actualMethod.getModifiers() : method.getModifiers());
 
       indexes.put(method, index);
       List<MethodInfo> group = groups.get(generators[index]);

@@ -45,8 +45,6 @@ import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.core.ConnectionCallback;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
-import cn.taketoday.jdbc.persistence.dialect.MySQLDialect;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandler;
@@ -72,9 +70,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   private int maxBatchRecords = 0;
 
-  // TODO Dialect static factory creation
-  private Dialect dialect = new MySQLDialect();
-
   @Nullable
   private ArrayList<BatchPersistListener> batchPersistListeners;
 
@@ -87,11 +82,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     this.repositoryManager = repositoryManager;
     setDataSource(repositoryManager.getDataSource());
     setExceptionTranslator(repositoryManager.getExceptionTranslator());
-  }
-
-  public void setDialect(Dialect dialect) {
-    Assert.notNull(dialect, "dialect is required");
-    this.dialect = dialect;
   }
 
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {

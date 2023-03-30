@@ -18,17 +18,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.bytecode.core;
+package cn.taketoday.web;
 
-import cn.taketoday.bytecode.ClassVisitor;
+import org.junit.jupiter.api.Test;
+
+import cn.taketoday.web.reactive.function.client.WebClient;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 2019-09-02 17:20
+ * @since 4.0 2023/3/28 09:28
  */
-@FunctionalInterface
-public interface ClassGenerator {
+class WebIntegrationTests {
 
-  void generateClass(ClassVisitor v) throws Exception;
+  @Test
+  void sse() {
+
+    WebClient client = WebClient.create();
+
+    client.get()
+            .uri("");
+
+  }
 
 }

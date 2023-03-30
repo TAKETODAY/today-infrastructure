@@ -194,10 +194,6 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
       return (result != null && result.getParameterCount() > 0) ? result : null;
     }
 
-    private static boolean isKotlinType(Class<?> type) {
-      return false;
-    }
-
   }
 
 }

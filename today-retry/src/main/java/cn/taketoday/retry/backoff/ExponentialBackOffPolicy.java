@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,9 +44,9 @@ import cn.taketoday.util.ClassUtils;
  * @author Dave Syer
  * @author Gary Russell
  * @author Artem Bilan
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<ExponentialBackOffPolicy> {
 
   protected final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -250,8 +250,8 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
     ExponentialBackOffContext context = (ExponentialBackOffContext) backOffContext;
     try {
       long sleepTime = context.getSleepAndIncrement();
-      if (this.logger.isDebugEnabled()) {
-        this.logger.debug("Sleeping for " + sleepTime);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Sleeping for {}", sleepTime);
       }
       this.sleeper.sleep(sleepTime);
     }
