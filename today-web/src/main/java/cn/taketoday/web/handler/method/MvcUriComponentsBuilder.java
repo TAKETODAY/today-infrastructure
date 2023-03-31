@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,15 +22,15 @@ package cn.taketoday.web.handler.method;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -689,7 +689,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static class ControllerMethodInvocationInterceptor
-          implements cn.taketoday.bytecode.proxy.MethodInterceptor, MethodInterceptor, MethodInvocationInfo {
+          implements cn.taketoday.bytecode.proxy.MethodInterceptor, InvocationHandler, MethodInterceptor, MethodInvocationInfo {
 
     private final Class<?> controllerType;
 
@@ -766,11 +766,14 @@ public class MvcUriComponentsBuilder {
         return (T) interceptor;
       }
       else if (controllerType.isInterface()) {
-        ProxyFactory factory = new ProxyFactory(EmptyTargetSource.INSTANCE);
-        factory.addInterface(controllerType);
-        factory.addInterface(MethodInvocationInfo.class);
-        factory.addAdvice(interceptor);
-        return (T) factory.getProxy();
+        ClassLoader classLoader = controllerType.getClassLoader();
+        if (classLoader == null || classLoader.getParent() == null) {
+          // JDK interface type from bootstrap loader or platform loader ->
+          // use higher-level loader which can see Spring infrastructure classes
+          classLoader = MethodInvocationInfo.class.getClassLoader();
+        }
+        Class<?>[] ifcs = new Class<?>[] { controllerType, MethodInvocationInfo.class };
+        return (T) Proxy.newProxyInstance(classLoader, ifcs, interceptor);
       }
       else {
         Enhancer enhancer = new Enhancer();
@@ -798,6 +801,13 @@ public class MvcUriComponentsBuilder {
         return (T) proxy;
       }
     }
+
+    @Override
+    @Nullable
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      return intercept(proxy, method, args, null);
+    }
+
   }
 
   /**
