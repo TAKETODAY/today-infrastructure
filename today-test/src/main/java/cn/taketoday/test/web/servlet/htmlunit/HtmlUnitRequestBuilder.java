@@ -20,11 +20,11 @@
 
 package cn.taketoday.test.web.servlet.htmlunit;
 
-import com.gargoylesoftware.htmlunit.FormEncodingType;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.util.KeyDataPair;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import org.htmlunit.FormEncodingType;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebRequest;
+import org.htmlunit.util.KeyDataPair;
+import org.htmlunit.util.NameValuePair;
 
 import java.io.File;
 import java.io.IOException;
@@ -304,8 +304,8 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
       }
     }
 
-    Set<com.gargoylesoftware.htmlunit.util.Cookie> managedCookies = this.webClient.getCookies(this.webRequest.getUrl());
-    for (com.gargoylesoftware.htmlunit.util.Cookie cookie : managedCookies) {
+    Set<org.htmlunit.util.Cookie> managedCookies = this.webClient.getCookies(this.webRequest.getUrl());
+    for (org.htmlunit.util.Cookie cookie : managedCookies) {
       processCookie(request, cookies, new Cookie(cookie.getName(), cookie.getValue()));
     }
 
@@ -354,8 +354,8 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
     this.webClient.getCookieManager().removeCookie(createCookie(request, sessionid));
   }
 
-  private com.gargoylesoftware.htmlunit.util.Cookie createCookie(MockHttpServletRequest request, String sessionid) {
-    return new com.gargoylesoftware.htmlunit.util.Cookie(request.getServerName(), "JSESSIONID", sessionid,
+  private org.htmlunit.util.Cookie createCookie(MockHttpServletRequest request, String sessionid) {
+    return new org.htmlunit.util.Cookie(request.getServerName(), "JSESSIONID", sessionid,
             request.getContextPath() + "/", null, request.isSecure(), true);
   }
 

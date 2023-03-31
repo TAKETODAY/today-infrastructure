@@ -20,9 +20,8 @@
 
 package cn.taketoday.test.web.servlet.htmlunit.webdriver;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebClient;
-
+import org.htmlunit.BrowserVersion;
+import org.htmlunit.WebClient;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 import cn.taketoday.lang.Assert;

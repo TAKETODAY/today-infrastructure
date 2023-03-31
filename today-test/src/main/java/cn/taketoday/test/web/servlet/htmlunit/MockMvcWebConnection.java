@@ -20,14 +20,13 @@
 
 package cn.taketoday.test.web.servlet.htmlunit;
 
-import com.gargoylesoftware.htmlunit.CookieManager;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebConnection;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.WebResponse;
-import com.gargoylesoftware.htmlunit.util.Cookie;
-
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.htmlunit.CookieManager;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebConnection;
+import org.htmlunit.WebRequest;
+import org.htmlunit.WebResponse;
+import org.htmlunit.util.Cookie;
 
 import java.io.IOException;
 import java.util.Date;

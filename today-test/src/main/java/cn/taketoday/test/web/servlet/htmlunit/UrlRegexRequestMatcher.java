@@ -20,7 +20,7 @@
 
 package cn.taketoday.test.web.servlet.htmlunit;
 
-import com.gargoylesoftware.htmlunit.WebRequest;
+import org.htmlunit.WebRequest;
 
 import java.util.regex.Pattern;
 

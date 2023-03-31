@@ -20,10 +20,9 @@
 
 package cn.taketoday.test.web.servlet.htmlunit.webdriver;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebConnection;
-
+import org.htmlunit.BrowserVersion;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebConnection;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 

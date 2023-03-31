@@ -20,8 +20,8 @@
 
 package cn.taketoday.test.web.servlet.htmlunit;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebConnection;
+import org.htmlunit.WebClient;
+import org.htmlunit.WebConnection;
 
 import java.util.ArrayList;
 import java.util.Collections;

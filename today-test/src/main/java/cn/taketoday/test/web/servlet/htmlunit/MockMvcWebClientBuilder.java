@@ -20,7 +20,7 @@
 
 package cn.taketoday.test.web.servlet.htmlunit;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import org.htmlunit.WebClient;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
