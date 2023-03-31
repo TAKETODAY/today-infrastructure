@@ -1439,11 +1439,16 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         try {
           Class<?> resource = entry.getKey();
           ClassLoader classLoader = resource.getClassLoader();
+          if (classLoader == null) {
+            // bootstrap class loader
+            return resolved;
+          }
           try (InputStream is = classLoader.getResourceAsStream(ClassUtils.getFullyClassFileName(resource))) {
             if (is == null) {
               return resolved;
             }
-            new ClassReader(is).accept(new BridgedFinder(entry.getValue(), resolved), ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+            new ClassReader(is).accept(new BridgedFinder(entry.getValue(), resolved),
+                    ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
           }
         }
         catch (IOException ignored) { }

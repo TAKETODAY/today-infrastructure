@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,6 @@ import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.RawTargetAccess;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.proxy.Callback;
@@ -49,6 +48,7 @@ import cn.taketoday.bytecode.proxy.Factory;
 import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.bytecode.proxy.NoOp;
+import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -115,8 +115,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   @Override
-  protected Object getProxyInternal(
-          Class<?> proxySuperClass, ClassLoader classLoader) throws Exception {
+  protected Object getProxyInternal(Class<?> proxySuperClass, @Nullable ClassLoader classLoader) throws Exception {
     if (log.isTraceEnabled()) {
       log.trace("Creating CGLIB proxy: {}", config.getTargetSource());
     }

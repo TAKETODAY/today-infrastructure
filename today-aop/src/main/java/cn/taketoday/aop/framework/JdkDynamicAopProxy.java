@@ -130,7 +130,7 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
 
     if (classLoader == null || classLoader.getParent() == null) {
       // JDK bootstrap loader or platform loader suggested ->
-      // use higher-level loader which can see Spring infrastructure classes
+      // use higher-level loader which can see infrastructure classes
       classLoader = getClass().getClassLoader();
     }
 
