@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,12 +31,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * A logical conjunction ({@code ' && '}) request condition that matches a request against
- * a set parameter expressions with syntax defined in {@link ActionMapping#params()}.
+ * a set parameter expressions with syntax defined in {@link RequestMapping#params()}.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
@@ -50,7 +50,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
   /**
    * Create a new instance from the given param expressions.
    *
-   * @param params expressions with syntax defined in {@link ActionMapping#params()};
+   * @param params expressions with syntax defined in {@link RequestMapping#params()};
    * if 0, the condition will match to every request.
    */
   public ParamsRequestCondition(String... params) {

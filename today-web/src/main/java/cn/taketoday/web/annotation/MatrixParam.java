@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -71,6 +72,7 @@ import cn.taketoday.lang.Constant;
  * @see <a href="http://www.w3.org/DesignIssues/MatrixURIs.html">Matrix URIs</a>
  * @since 4.0
  */
+@Documented
 @RequestParam
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)

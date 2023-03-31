@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,24 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * apply the contentType HTTP header to client
- *
- * @author TODAY 2021/4/24 0:14
- * @since 3.0
+ * Contains built-in {@code ResultMatcher} and {@code ResultHandler} implementations.
+ * <p>Use {@link cn.taketoday.test.web.servlet.result.MockMvcResultMatchers}
+ * and {@link cn.taketoday.test.web.servlet.result.MockMvcResultHandlers}
+ * to access instances of those implementations.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Produce {
-  /**
-   * content-type
-   */
-  String value();
-}
+@NonNullApi
+@NonNullFields
+package cn.taketoday.test.web.servlet.result;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

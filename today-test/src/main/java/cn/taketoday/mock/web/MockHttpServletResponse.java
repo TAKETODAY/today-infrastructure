@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -178,7 +178,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @param characterEncoding the default character encoding
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 5.3.10
    */
   public void setDefaultCharacterEncoding(String characterEncoding) {
     Assert.notNull(characterEncoding, "'characterEncoding' must not be null");
@@ -277,7 +276,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @see #getContentAsString()
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 5.2
    */
   public String getContentAsString(Charset fallbackCharset) throws UnsupportedEncodingException {
     if (this.characterEncodingSet) {

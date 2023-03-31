@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,10 +30,10 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.web.ResolvableMethod;
-import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.annotation.RequestBody;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -325,7 +325,7 @@ public class MvcAnnotationPredicates {
 
     @Override
     public boolean test(Method method) {
-      ActionMapping annot = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
+      RequestMapping annot = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
       return annot != null &&
               Arrays.equals(this.path, annot.path()) &&
               Arrays.equals(this.method, annot.method()) &&

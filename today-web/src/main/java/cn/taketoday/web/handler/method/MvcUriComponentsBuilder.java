@@ -57,7 +57,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
@@ -67,7 +67,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
 
 /**
  * Creates instances of {@link cn.taketoday.web.util.UriComponentsBuilder}
- * by pointing to {@code @ActionMapping} methods on  MVC controllers.
+ * by pointing to {@code @RequestMapping} methods on  MVC controllers.
  *
  * <p>There are several groups of methods:
  * <ul>
@@ -342,7 +342,7 @@ public class MvcUriComponentsBuilder {
   }
 
   /**
-   * Return a "mock" controller instance. When an {@code @ActionMapping} method
+   * Return a "mock" controller instance. When an {@code @RequestMapping} method
    * on the controller is invoked, the supplied argument values are remembered
    * and the result can then be used to create a {@code UriComponentsBuilder}
    * via {@link #fromMethodCall(Object)}.
@@ -361,7 +361,7 @@ public class MvcUriComponentsBuilder {
   }
 
   /**
-   * Return a "mock" controller instance. When an {@code @ActionMapping} method
+   * Return a "mock" controller instance. When an {@code @RequestMapping} method
    * on the controller is invoked, the supplied argument values are remembered
    * and the result can then be used to create {@code UriComponentsBuilder} via
    * {@link #fromMethodCall(Object)}.
@@ -396,7 +396,7 @@ public class MvcUriComponentsBuilder {
    * separator, and then the method name. For example "PC#getPerson"
    * for a class named PersonController with method getPerson. In case the
    * naming convention does not produce unique results, an explicit name may
-   * be assigned through the name attribute of the {@code @ActionMapping}
+   * be assigned through the name attribute of the {@code @RequestMapping}
    * annotation.
    * <p>This is aimed primarily for use in view rendering technologies and EL
    * expressions. The  URL tag library registers this method as a function
@@ -575,7 +575,7 @@ public class MvcUriComponentsBuilder {
 
   private static String getClassMapping(Class<?> controllerType) {
     Assert.notNull(controllerType, "'controllerType' must not be null");
-    ActionMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controllerType, ActionMapping.class);
+    RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controllerType, RequestMapping.class);
     if (mapping == null) {
       return "/";
     }
@@ -591,7 +591,7 @@ public class MvcUriComponentsBuilder {
 
   private static String getMethodMapping(Method method) {
     Assert.notNull(method, "'method' must not be null");
-    ActionMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
+    RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
     if (requestMapping == null) {
       throw new IllegalArgumentException("No @RequestMapping on: " + method.toGenericString());
     }

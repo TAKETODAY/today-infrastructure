@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,7 +59,7 @@ public class MockClientHttpResponse implements ClientHttpResponse {
 
   private Flux<DataBuffer> body = Flux.empty();
 
-  public MockClientHttpResponse(HttpStatus status) {
+  public MockClientHttpResponse(HttpStatusCode status) {
     Assert.notNull(status, "HttpStatus is required");
     this.status = status.value();
   }

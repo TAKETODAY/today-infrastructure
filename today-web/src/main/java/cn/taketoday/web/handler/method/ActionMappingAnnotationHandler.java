@@ -37,6 +37,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -47,7 +48,7 @@ import cn.taketoday.web.util.WebUtils;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.annotation.RequestMapping
- * @see cn.taketoday.web.annotation.ActionMapping
+ * @see RequestMapping
  * @see cn.taketoday.stereotype.Controller
  * @since 4.0 2021/11/29 22:48
  */

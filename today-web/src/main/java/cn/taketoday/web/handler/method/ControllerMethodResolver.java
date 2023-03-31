@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
@@ -58,7 +58,7 @@ class ControllerMethodResolver {
    * MethodFilter that matches {@link ModelAttribute @ModelAttribute} methods.
    */
   public static final ReflectionUtils.MethodFilter MODEL_ATTRIBUTE_METHODS = method ->
-          !AnnotatedElementUtils.hasAnnotation(method, ActionMapping.class)
+          !AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class)
                   && AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class);
 
   private final Map<Class<?>, SessionAttributesHandler> sessionAttributesHandlerCache = new ConcurrentHashMap<>(64);

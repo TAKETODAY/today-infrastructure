@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,7 +42,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
-import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PostMapping;
@@ -594,7 +593,7 @@ class CrossOriginTests {
 
     @Override
     protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-      ActionMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
+      RequestMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
       if (annotation != null) {
         RequestMappingInfo.BuilderConfiguration options = getBuilderConfiguration();
         return RequestMappingInfo.paths(annotation.value())

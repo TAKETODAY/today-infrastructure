@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,9 +40,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.RequestBody;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.condition.AbstractRequestCondition;
 import cn.taketoday.web.handler.condition.CompositeRequestCondition;
@@ -51,7 +51,7 @@ import cn.taketoday.web.handler.condition.RequestCondition;
 
 /**
  * Creates {@link RequestMappingInfo} instances from type and method-level
- * {@link ActionMapping @ActionMapping} annotations in
+ * {@link RequestMapping @RequestMapping} annotations in
  * {@link Controller @Controller} classes.
  *
  * @author Arjen Poutsma
@@ -132,22 +132,22 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   /**
    * {@inheritDoc}
    * <p>Expects a handler to have either a type-level @{@link Controller}
-   * annotation or a type-level @{@link ActionMapping} annotation.
+   * annotation or a type-level @{@link RequestMapping} annotation.
    */
   @Override
   protected boolean isHandler(Class<?> beanType) {
     var annotations = MergedAnnotations.from(
             beanType, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
     return annotations.isPresent(Controller.class)
-            || annotations.isPresent(ActionMapping.class);
+            || annotations.isPresent(RequestMapping.class);
   }
 
   /**
-   * Uses method and type-level @{@link ActionMapping} annotations to create
+   * Uses method and type-level @{@link RequestMapping} annotations to create
    * the RequestMappingInfo.
    *
    * @return the created RequestMappingInfo, or {@code null} if the method
-   * does not have a {@code @ActionMapping} annotation.
+   * does not have a {@code @RequestMapping} annotation.
    * @see #getCustomMethodCondition(Method)
    * @see #getCustomTypeCondition(Class)
    */
@@ -185,7 +185,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * Delegates to {@link #createRequestMappingInfo(ActionMapping, RequestCondition)},
+   * Delegates to {@link #createRequestMappingInfo(RequestMapping, RequestCondition)},
    * supplying the appropriate custom {@link RequestCondition} depending on whether
    * the supplied {@code annotatedElement} is a class or method.
    *
@@ -194,7 +194,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   @Nullable
   private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
-    ActionMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, ActionMapping.class);
+    RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
     if (requestMapping != null) {
       RequestCondition<?> customCondition =
               element instanceof Class ? getCustomTypeCondition((Class<?>) element)
@@ -240,12 +240,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   /**
    * Create a {@link RequestMappingInfo} from the supplied
-   * {@link ActionMapping @ActionMapping} annotation, which is either
+   * {@link RequestMapping @RequestMapping} annotation, which is either
    * a directly declared annotation, a meta-annotation, or the synthesized
    * result of merging annotation attributes within an annotation hierarchy.
    */
   protected RequestMappingInfo createRequestMappingInfo(
-          ActionMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
+          RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 
     var builder = RequestMappingInfo.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
             .params(requestMapping.params())

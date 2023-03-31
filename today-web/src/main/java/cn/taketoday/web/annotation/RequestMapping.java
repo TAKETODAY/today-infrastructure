@@ -17,8 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,7 +29,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 
 /**
@@ -46,12 +47,12 @@ import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
  * {@code @RequestMapping} and {@code @SessionAttributes} - on
  * the controller <i>interface</i> rather than on the implementation class.
  *
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-08-23 10:18
  */
-@ActionMapping
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface RequestMapping {
 
   /**
@@ -77,7 +78,7 @@ public @interface RequestMapping {
    * explicitly is effectively mapped to an empty path.
    */
   @AliasFor("path")
-  String[] value() default Constant.BLANK;
+  String[] value() default {};
 
   /**
    * The path mapping URIs (e.g. {@code "/profile"}).
@@ -94,7 +95,7 @@ public @interface RequestMapping {
    * @since 4.0
    */
   @AliasFor("value")
-  String[] path() default Constant.BLANK;
+  String[] path() default {};
 
   /**
    * Combine this condition with another such as conditions from a
@@ -227,5 +228,4 @@ public @interface RequestMapping {
    * @since 4.0
    */
   String[] headers() default {};
-
 }
