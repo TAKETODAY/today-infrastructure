@@ -436,13 +436,9 @@ class DefaultWebClient implements WebClient {
     @Override
     public Mono<ClientResponse> exchange() {
       ClientRequest.Builder requestBuilder = initRequestBuilder();
-      if (inserter != null) {
-        requestBuilder = requestBuilder.body(inserter);
-      }
-
-      ClientRequest request = requestBuilder.build();
 
       return Mono.defer(() -> {
+        ClientRequest request = requestBuilder.build();
         Mono<ClientResponse> responseMono = exchangeFunction.exchange(request)
                 .checkpoint("Request to " + httpMethod.name() + " " + this.uri + " [DefaultWebClient]")
                 .switchIfEmpty(NO_HTTP_CLIENT_RESPONSE_ERROR);
@@ -461,29 +457,17 @@ class DefaultWebClient implements WebClient {
               .headers(this::initHeaders)
               .cookies(this::initCookies)
               .attributes(attributes -> attributes.putAll(this.attributes));
-      if (this.httpRequestConsumer != null) {
-        builder.httpRequest(this.httpRequestConsumer);
+      if (httpRequestConsumer != null) {
+        builder.httpRequest(httpRequestConsumer);
+      }
+      if (inserter != null) {
+        builder.body(inserter);
       }
       return builder;
     }
 
     private URI initUri() {
       return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
-    }
-
-    private HttpHeaders initHeaders() {
-      if (CollectionUtils.isEmpty(this.headers)) {
-        return (defaultHeaders != null ? defaultHeaders : HttpHeaders.create());
-      }
-      else if (CollectionUtils.isEmpty(defaultHeaders)) {
-        return this.headers;
-      }
-      else {
-        HttpHeaders result = HttpHeaders.create();
-        result.putAll(defaultHeaders);
-        result.putAll(this.headers);
-        return result;
-      }
     }
 
     private void initHeaders(HttpHeaders out) {

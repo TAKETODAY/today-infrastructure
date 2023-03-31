@@ -52,6 +52,7 @@ import reactor.core.publisher.Mono;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class BodyInserters {
@@ -85,7 +86,7 @@ public abstract class BodyInserters {
    * Inserter to write the given value.
    * <p>Alternatively, consider using the {@code bodyValue(Object)} shortcuts on
    * {@link WebClient WebClient} and
-   * {@link cn.taketoday.web.reactive.function.server.ServerResponse ServerResponse}.
+   * {@link cn.taketoday.web.handler.function.ServerResponse ServerResponse}.
    *
    * @param body the value to write
    * @param <T> the type of the body
@@ -105,39 +106,17 @@ public abstract class BodyInserters {
   }
 
   /**
-   * Inserter to write the given object.
-   * <p>Alternatively, consider using the {@code bodyValue(Object)} shortcuts on
-   * {@link WebClient WebClient} and
-   * {@link cn.taketoday.web.reactive.function.server.ServerResponse ServerResponse}.
-   *
-   * @param body the body to write to the response
-   * @param <T> the type of the body
-   * @return the inserter to write a single object
-   * @throws IllegalArgumentException if {@code body} is a {@link Publisher} or an
-   * instance of a type supported by {@link ReactiveAdapterRegistry#getSharedInstance()},
-   * for which {@link #fromPublisher(Publisher, Class)} or
-   * {@link #fromProducer(Object, Class)} should be used.
-   * @see #fromPublisher(Publisher, Class)
-   * @see #fromProducer(Object, Class)
-   */
-  @Deprecated
-  public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromObject(T body) {
-    return fromValue(body);
-  }
-
-  /**
    * Inserter to write the given producer of value(s) which must be a {@link Publisher}
    * or another producer adaptable to a {@code Publisher} via
    * {@link ReactiveAdapterRegistry}.
    * <p>Alternatively, consider using the {@code body} shortcuts on
    * {@link WebClient WebClient} and
-   * {@link cn.taketoday.web.reactive.function.server.ServerResponse ServerResponse}.
+   * {@link cn.taketoday.web.handler.function.ServerResponse ServerResponse}.
    *
    * @param <T> the type of the body
    * @param producer the source of body value(s).
    * @param elementClass the class of values to be produced
    * @return the inserter to write a producer
-   * @since 4.0
    */
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(T producer, Class<?> elementClass) {
     Assert.notNull(producer, "'producer' must not be null");
@@ -154,13 +133,12 @@ public abstract class BodyInserters {
    * {@link ReactiveAdapterRegistry}.
    * <p>Alternatively, consider using the {@code body} shortcuts on
    * {@link WebClient WebClient} and
-   * {@link cn.taketoday.web.reactive.function.server.ServerResponse ServerResponse}.
+   * {@link cn.taketoday.web.handler.function.ServerResponse ServerResponse}.
    *
    * @param <T> the type of the body
    * @param producer the source of body value(s).
    * @param elementTypeRef the type of values to be produced
    * @return the inserter to write a producer
-   * @since 4.0
    */
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(
           T producer, TypeReference<?> elementTypeRef) {
@@ -177,7 +155,7 @@ public abstract class BodyInserters {
    * Inserter to write the given {@link Publisher}.
    * <p>Alternatively, consider using the {@code body} shortcuts on
    * {@link WebClient WebClient} and
-   * {@link cn.taketoday.web.reactive.function.server.ServerResponse ServerResponse}.
+   * {@link cn.taketoday.web.handler.function.ServerResponse ServerResponse}.
    *
    * @param publisher the publisher to write with
    * @param elementClass the class of elements in the publisher
@@ -198,7 +176,7 @@ public abstract class BodyInserters {
    * Inserter to write the given {@link Publisher}.
    * <p>Alternatively, consider using the {@code body} shortcuts on
    * {@link WebClient WebClient} and
-   * {@link cn.taketoday.web.reactive.function.server.ServerResponse ServerResponse}.
+   * {@link cn.taketoday.web.handler.function.ServerResponse ServerResponse}.
    *
    * @param publisher the publisher to write with
    * @param elementTypeRef the type of elements contained in the publisher
@@ -246,9 +224,8 @@ public abstract class BodyInserters {
    * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C recommendation</a>
    */
   // Parameterized for server-side use
-  public static <T, S extends Publisher<ServerSentEvent<T>>> BodyInserter<S, ServerHttpResponse> fromServerSentEvents(
-          S eventsPublisher) {
-
+  public static <T, S extends Publisher<ServerSentEvent<T>>>
+  BodyInserter<S, ServerHttpResponse> fromServerSentEvents(S eventsPublisher) {
     Assert.notNull(eventsPublisher, "'eventsPublisher' must not be null");
     return (serverResponse, context) -> {
       ResolvableType elementType = SSE_TYPE;
@@ -370,8 +347,8 @@ public abstract class BodyInserters {
    * @return the inserter to write directly to the body
    * @see ReactiveHttpOutputMessage#writeWith(Publisher)
    */
-  public static <T extends Publisher<DataBuffer>> BodyInserter<T, ReactiveHttpOutputMessage> fromDataBuffers(
-          T publisher) {
+  public static <T extends Publisher<DataBuffer>>
+  BodyInserter<T, ReactiveHttpOutputMessage> fromDataBuffers(T publisher) {
 
     Assert.notNull(publisher, "'publisher' must not be null");
     return (outputMessage, context) -> outputMessage.writeWith(publisher);
@@ -540,7 +517,6 @@ public abstract class BodyInserters {
       return withInternal(values);
     }
 
-    @SuppressWarnings("unchecked")
     private MultipartInserter withInternal(MultiValueMap<String, ?> values) {
       values.forEach((key, valueList) -> {
         for (Object value : valueList) {
