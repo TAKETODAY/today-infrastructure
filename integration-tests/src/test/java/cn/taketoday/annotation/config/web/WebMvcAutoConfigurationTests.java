@@ -569,10 +569,10 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Test
-  void customExceptionHandlerExceptionResolver() {
-    this.contextRunner.withUserConfiguration(CustomExceptionHandlerExceptionResolver.class)
+  void customExceptionHandlerExceptionHandler() {
+    this.contextRunner.withUserConfiguration(CustomExceptionHandlerExceptionHandler.class)
             .run((context) -> assertThat(
-                    context.getBean(CustomExceptionHandlerExceptionResolver.class).exceptionResolvers)
+                    context.getBean(CustomExceptionHandlerExceptionHandler.class).exceptionResolvers)
                     .isEqualTo(1));
   }
 
@@ -1011,7 +1011,7 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class CustomExceptionHandlerExceptionResolver {
+  static class CustomExceptionHandlerExceptionHandler {
 
     private int exceptionResolvers = 0;
 
@@ -1021,8 +1021,8 @@ public class WebMvcAutoConfigurationTests {
 
         @Override
         public ExceptionHandlerAnnotationExceptionHandler createAnnotationExceptionHandler() {
-          CustomExceptionHandlerExceptionResolver.this.exceptionResolvers++;
-          return new MyExceptionHandlerExceptionResolver();
+          CustomExceptionHandlerExceptionHandler.this.exceptionResolvers++;
+          return new MyExceptionHandlerExceptionHandler();
         }
 
       };
@@ -1030,7 +1030,7 @@ public class WebMvcAutoConfigurationTests {
 
   }
 
-  static class MyExceptionHandlerExceptionResolver extends ExceptionHandlerAnnotationExceptionHandler {
+  static class MyExceptionHandlerExceptionHandler extends ExceptionHandlerAnnotationExceptionHandler {
 
   }
 

@@ -20,24 +20,53 @@
 
 package cn.taketoday.web;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalTime;
+
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.core.TypeReference;
+import cn.taketoday.framework.Application;
+import cn.taketoday.http.codec.ServerSentEvent;
 import cn.taketoday.web.reactive.function.client.WebClient;
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/3/28 09:28
  */
+@Slf4j
 class WebIntegrationTests {
+  ConfigurableApplicationContext context = Application.run(WebSseResource.class);
+
+  @BeforeEach
+  void setUp() {
+
+  }
+
+  @AfterEach
+  void cleanUp() {
+    context.close();
+  }
 
   @Test
-  void sse() {
+  void consumeServerSentEvent() {
+    WebClient client = WebClient.create("http://localhost:8080/");
+    Flux<ServerSentEvent<String>> eventStream = client.get()
+            .uri("/sse/stream")
+            .retrieve()
+            .bodyToFlux(new TypeReference<>() {
 
-    WebClient client = WebClient.create();
+            });
 
-    client.get()
-            .uri("");
-
+    eventStream.subscribe(
+            content -> log.info("Time: {} - event: name[{}], id [{}], content[{}] ",
+                    LocalTime.now(), content.event(), content.id(), content.data()),
+            error -> log.error("Error receiving SSE: {}", error.toString(), error),
+            () -> log.info("Completed!!!"));
   }
 
 }

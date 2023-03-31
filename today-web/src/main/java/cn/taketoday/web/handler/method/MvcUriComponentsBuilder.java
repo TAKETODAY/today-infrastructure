@@ -597,7 +597,7 @@ public class MvcUriComponentsBuilder {
     }
     String[] paths = requestMapping.path();
     if (ObjectUtils.isEmpty(paths) || StringUtils.isEmpty(paths[0])) {
-      return "/";
+      return "";
     }
     if (paths.length > 1 && logger.isTraceEnabled()) {
       logger.trace("Using first of multiple paths on {}", method.toGenericString());

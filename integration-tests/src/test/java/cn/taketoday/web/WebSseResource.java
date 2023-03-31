@@ -20,15 +20,16 @@
 
 package cn.taketoday.web;
 
-import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.http.codec.ServerSentEvent;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.handler.method.SseEmitter;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
 
 import static cn.taketoday.web.handler.method.SseEmitter.event;
 
@@ -44,27 +45,44 @@ public class WebSseResource {
 
   @GET("/sse")
   public SseEmitter sse() {
-    SseEmitter sseEmitter = new SseEmitter();
+    SseEmitter emitter = new SseEmitter();
 
     executor.execute(() -> {
       for (int i = 0; i < 5; i++) {
         try {
-          sseEmitter.send(event()
+          emitter.send(event()
                   .id("id-" + i)
                   .name("event-name-" + i)
                   .data(new Body("today", 25))
           );
-          ExceptionUtils.sneakyThrow(() -> TimeUnit.SECONDS.sleep(1));
+          TimeUnit.SECONDS.sleep(1);
         }
-        catch (IOException e) {
+        catch (Exception e) {
+          emitter.completeWithError(e);
           throw new RuntimeException(e);
         }
       }
 
-      sseEmitter.complete();
+      emitter.complete();
     });
 
-    return sseEmitter;
+    return emitter;
+  }
+
+  @GET("/sse/flux")
+  public Flux<Body> sseFlux() {
+    return Flux.range(0, 10)
+            .map(sequence -> new Body("today", sequence));
+  }
+
+  @GetMapping("/sse/stream")
+  public Flux<ServerSentEvent<Body>> streamEvents() {
+    return Flux.range(0, 10)
+            .map(sequence -> ServerSentEvent.<Body>builder()
+                    .id(String.valueOf(sequence))
+                    .event("test-event")
+                    .data(new Body("today", sequence))
+                    .build());
   }
 
   record Body(String name, int age) {
