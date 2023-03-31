@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -569,16 +569,13 @@ public class CodeFlow implements Opcodes {
     if (descriptor == null) {
       return false;
     }
-    boolean primitive = true;
     for (int i = 0, max = descriptor.length(); i < max; i++) {
       char ch = descriptor.charAt(i);
-      if (ch == '[') {
-        continue;
+      if (ch != '[') {
+        return ch != 'L';
       }
-      primitive = (ch != 'L');
-      break;
     }
-    return primitive;
+    return true;
   }
 
   /**
@@ -592,34 +589,23 @@ public class CodeFlow implements Opcodes {
       return true;
     }
     if (desc1.length() == 1) {
-      switch (desc1) {
-        case "Z":
-          return desc2.equals("Ljava/lang/Boolean");
-        case "D":
-          return desc2.equals("Ljava/lang/Double");
-        case "F":
-          return desc2.equals("Ljava/lang/Float");
-        case "I":
-          return desc2.equals("Ljava/lang/Integer");
-        case "J":
-          return desc2.equals("Ljava/lang/Long");
-      }
+      return boxingCompatible(desc1, desc2);
     }
     else if (desc2.length() == 1) {
-      switch (desc2) {
-        case "Z":
-          return desc1.equals("Ljava/lang/Boolean");
-        case "D":
-          return desc1.equals("Ljava/lang/Double");
-        case "F":
-          return desc1.equals("Ljava/lang/Float");
-        case "I":
-          return desc1.equals("Ljava/lang/Integer");
-        case "J":
-          return desc1.equals("Ljava/lang/Long");
-      }
+      return boxingCompatible(desc2, desc1);
     }
     return false;
+  }
+
+  private static boolean boxingCompatible(String desc1, String desc2) {
+    return switch (desc1) {
+      case "Z" -> desc2.equals("Ljava/lang/Boolean");
+      case "D" -> desc2.equals("Ljava/lang/Double");
+      case "F" -> desc2.equals("Ljava/lang/Float");
+      case "I" -> desc2.equals("Ljava/lang/Integer");
+      case "J" -> desc2.equals("Ljava/lang/Long");
+      default -> false;
+    };
   }
 
   /**
@@ -637,7 +623,8 @@ public class CodeFlow implements Opcodes {
     if (isPrimitiveOrUnboxableSupportedNumber(descriptor)) {
       return true;
     }
-    return ("Z".equals(descriptor) || descriptor.equals("Ljava/lang/Boolean"));
+    return "Z".equals(descriptor)
+            || descriptor.equals("Ljava/lang/Boolean");
   }
 
   /**
@@ -657,7 +644,10 @@ public class CodeFlow implements Opcodes {
     }
     if (descriptor.startsWith("Ljava/lang/")) {
       String name = descriptor.substring("Ljava/lang/".length());
-      return name.equals("Double") || name.equals("Float") || name.equals("Integer") || name.equals("Long");
+      return name.equals("Double")
+              || name.equals("Float")
+              || name.equals("Integer")
+              || name.equals("Long");
     }
     return false;
   }
@@ -670,7 +660,7 @@ public class CodeFlow implements Opcodes {
    * @return {@code true} if it is an {@link Integer}, {@link Short} or {@link Byte}
    */
   public static boolean isIntegerForNumericOp(Number number) {
-    return (number instanceof Integer || number instanceof Short || number instanceof Byte);
+    return number instanceof Integer || number instanceof Short || number instanceof Byte;
   }
 
   /**
@@ -804,38 +794,36 @@ public class CodeFlow implements Opcodes {
     String name = type.getName();
     if (type.isPrimitive()) {
       switch (name.length()) {
-        case 3:
+        case 3 -> {
           return "I";
-        case 4:
-          switch (name) {
-            case "byte":
-              return "B";
-            case "char":
-              return "C";
-            case "long":
-              return "J";
-            case "void":
-              return "V";
-          }
-          break;
-        case 5:
+        }
+        case 4 -> {
+          return switch (name) {
+            case "byte" -> "B";
+            case "char" -> "C";
+            case "long" -> "J";
+            case "void" -> "V";
+            default -> "";
+          };
+        }
+        case 5 -> {
           if (name.equals("float")) {
             return "F";
           }
           else if (name.equals("short")) {
             return "S";
           }
-          break;
-        case 6:
+        }
+        case 6 -> {
           if (name.equals("double")) {
             return "D";
           }
-          break;
-        case 7:
+        }
+        case 7 -> {
           if (name.equals("boolean")) {
             return "Z";
           }
-          break;
+        }
       }
     }
     else {
@@ -967,10 +955,9 @@ public class CodeFlow implements Opcodes {
     int length = arraytype.length();
     for (int i = 0; i < length; i++) {
       char ch = arraytype.charAt(i);
-      if (ch == '[') {
-        continue;
+      if (ch != '[') {
+        return ch == 'L';
       }
-      return (ch == 'L');
     }
     return false;
   }

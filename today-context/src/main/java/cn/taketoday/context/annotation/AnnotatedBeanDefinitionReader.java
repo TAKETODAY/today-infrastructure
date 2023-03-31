@@ -23,6 +23,7 @@ package cn.taketoday.context.annotation;
 import java.lang.annotation.Annotation;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
@@ -138,6 +139,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    *
    * @param componentClasses one or more component classes,
    * e.g. {@link Configuration @Configuration} classes
+   * @throws BeanDefinitionStoreException if registration failed
    */
   public void register(Class<?>... componentClasses) {
     for (Class<?> componentClass : componentClasses) {
@@ -150,6 +152,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * class-declared annotations.
    *
    * @param beanClass the class of the bean
+   * @throws BeanDefinitionStoreException if registration failed
    */
   public void registerBean(Class<?> beanClass) {
     doRegisterBean(beanClass, null, null, null, null);
@@ -162,6 +165,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @param beanClass the class of the bean
    * @param name an explicit name for the bean
    * (or {@code null} for generating a default bean name)
+   * @throws BeanDefinitionStoreException if registration failed
    */
   public void registerBean(Class<?> beanClass, @Nullable String name) {
     doRegisterBean(beanClass, name, null, null, null);
@@ -174,6 +178,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @param beanClass the class of the bean
    * @param qualifiers specific qualifier annotations to consider,
    * in addition to qualifiers at the bean class level
+   * @throws BeanDefinitionStoreException if registration failed
    */
   @SuppressWarnings("unchecked")
   public void registerBean(Class<?> beanClass, Class<? extends Annotation>... qualifiers) {
@@ -189,6 +194,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * (or {@code null} for generating a default bean name)
    * @param qualifiers specific qualifier annotations to consider,
    * in addition to qualifiers at the bean class level
+   * @throws BeanDefinitionStoreException if registration failed
    */
   @SuppressWarnings("unchecked")
   public void registerBean(Class<?> beanClass, @Nullable String name,
@@ -205,6 +211,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * @param beanClass the class of the bean
    * @param supplier a callback for creating an instance of the bean
    * (may be {@code null})
+   * @throws BeanDefinitionStoreException if registration failed
    */
   public <T> void registerBean(Class<T> beanClass, @Nullable Supplier<T> supplier) {
     doRegisterBean(beanClass, null, null, supplier, null);
@@ -220,6 +227,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * (or {@code null} for generating a default bean name)
    * @param supplier a callback for creating an instance of the bean
    * (may be {@code null})
+   * @throws BeanDefinitionStoreException if registration failed
    */
   public <T> void registerBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier) {
     doRegisterBean(beanClass, name, null, supplier, null);
@@ -236,6 +244,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * (may be {@code null})
    * @param customizers one or more callbacks for customizing the factory's
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+   * @throws BeanDefinitionStoreException if registration failed
    */
   public <T> void registerBean(Class<T> beanClass, @Nullable String name, @Nullable Supplier<T> supplier,
           BeanDefinitionCustomizer... customizers) {
@@ -255,6 +264,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
    * (may be {@code null})
    * @param customizers one or more callbacks for customizing the factory's
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+   * @throws BeanDefinitionStoreException if registration failed
    */
   private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name,
           @Nullable Class<? extends Annotation>[] qualifiers, @Nullable Supplier<T> supplier,
@@ -305,8 +315,8 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
     return new StandardEnvironment();
   }
 
-  private void applyDynamicCustomizers(
-          BeanDefinition definition, @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
+  private void applyDynamicCustomizers(BeanDefinition definition,
+          @Nullable BeanDefinitionCustomizer[] dynamicCustomizers) {
 
     // dynamic customize
     if (ObjectUtils.isNotEmpty(dynamicCustomizers)) {
