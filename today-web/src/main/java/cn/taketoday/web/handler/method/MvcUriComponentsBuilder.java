@@ -56,17 +56,18 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.ServletDetector;
+import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
+import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.ServletUriComponentsBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Creates instances of {@link cn.taketoday.web.util.UriComponentsBuilder}
- * by pointing to {@code @RequestMapping} methods on  MVC controllers.
+ * by pointing to {@code @ActionMapping} methods on  MVC controllers.
  *
  * <p>There are several groups of methods:
  * <ul>
@@ -109,7 +110,8 @@ public class MvcUriComponentsBuilder {
 
   private static final CompositeUriComponentsContributor defaultUriComponentsContributor =
           new CompositeUriComponentsContributor(
-                  new PathVariableMethodArgumentResolver()
+                  new PathVariableMethodArgumentResolver(),
+                  new RequestParamMethodArgumentResolver(false)
           );
 
   private final UriComponentsBuilder baseUrl;
@@ -340,7 +342,7 @@ public class MvcUriComponentsBuilder {
   }
 
   /**
-   * Return a "mock" controller instance. When an {@code @RequestMapping} method
+   * Return a "mock" controller instance. When an {@code @ActionMapping} method
    * on the controller is invoked, the supplied argument values are remembered
    * and the result can then be used to create a {@code UriComponentsBuilder}
    * via {@link #fromMethodCall(Object)}.
@@ -359,7 +361,7 @@ public class MvcUriComponentsBuilder {
   }
 
   /**
-   * Return a "mock" controller instance. When an {@code @RequestMapping} method
+   * Return a "mock" controller instance. When an {@code @ActionMapping} method
    * on the controller is invoked, the supplied argument values are remembered
    * and the result can then be used to create {@code UriComponentsBuilder} via
    * {@link #fromMethodCall(Object)}.
@@ -394,7 +396,7 @@ public class MvcUriComponentsBuilder {
    * separator, and then the method name. For example "PC#getPerson"
    * for a class named PersonController with method getPerson. In case the
    * naming convention does not produce unique results, an explicit name may
-   * be assigned through the name attribute of the {@code @RequestMapping}
+   * be assigned through the name attribute of the {@code @ActionMapping}
    * annotation.
    * <p>This is aimed primarily for use in view rendering technologies and EL
    * expressions. The  URL tag library registers this method as a function
@@ -545,8 +547,13 @@ public class MvcUriComponentsBuilder {
   }
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
+    if (ServletDetector.isPresent) {
+      return baseUrl == null ?
+             ServletUriComponentsBuilder.fromCurrentServletMapping() :
+             baseUrl.cloneBuilder();
+    }
     return baseUrl == null ?
-           ServletUriComponentsBuilder.fromCurrentServletMapping() :
+           UriComponentsBuilder.fromHttpRequest(RequestContextHolder.getRequired()) :
            baseUrl.cloneBuilder();
   }
 
@@ -568,7 +575,7 @@ public class MvcUriComponentsBuilder {
 
   private static String getClassMapping(Class<?> controllerType) {
     Assert.notNull(controllerType, "'controllerType' must not be null");
-    RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controllerType, RequestMapping.class);
+    ActionMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controllerType, ActionMapping.class);
     if (mapping == null) {
       return "/";
     }
@@ -577,14 +584,14 @@ public class MvcUriComponentsBuilder {
       return "/";
     }
     if (paths.length > 1 && logger.isTraceEnabled()) {
-      logger.trace("Using first of multiple paths on " + controllerType.getName());
+      logger.trace("Using first of multiple paths on {}", controllerType.getName());
     }
     return paths[0];
   }
 
   private static String getMethodMapping(Method method) {
     Assert.notNull(method, "'method' must not be null");
-    RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
+    ActionMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
     if (requestMapping == null) {
       throw new IllegalArgumentException("No @RequestMapping on: " + method.toGenericString());
     }
@@ -593,7 +600,7 @@ public class MvcUriComponentsBuilder {
       return "/";
     }
     if (paths.length > 1 && logger.isTraceEnabled()) {
-      logger.trace("Using first of multiple paths on " + method.toGenericString());
+      logger.trace("Using first of multiple paths on {}", method.toGenericString());
     }
     return paths[0];
   }
@@ -662,9 +669,8 @@ public class MvcUriComponentsBuilder {
     if (applicationContext != null) {
       return applicationContext;
     }
-    HttpServletRequest request = ServletUtils.getServletRequest(context);
     String attributeName = ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE;
-    return (ApplicationContext) request.getAttribute(attributeName);
+    return (ApplicationContext) context.getAttribute(attributeName);
   }
 
   /**

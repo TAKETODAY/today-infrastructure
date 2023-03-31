@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,14 +54,16 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
   private final ConversionService conversionService;
 
   /**
-   * Create an instance from a collection of {@link UriComponentsContributor UriComponentsContributors} or
-   * {@link cn.taketoday.web.bind.resolver.ParameterResolvingStrategy ParameterResolvingStrategies}.
-   * Since both of these tend to be implemented by the same class, the most convenient option is
-   * to obtain the configured {@code ParameterResolvingStrategies} in {@code RequestMappingHandlerAdapter}
-   * and provide that to this constructor.
+   * Create an instance from a collection of {@link UriComponentsContributor
+   * UriComponentsContributors} or {@link ParameterResolvingStrategy
+   * ParameterResolvingStrategies}. Since both of these tend to be
+   * implemented by the same class, the most convenient option is
+   * to obtain the configured {@code ParameterResolvingStrategies}
+   * in {@code RequestMappingHandlerAdapter} and provide that to
+   * this constructor.
    *
    * @param contributors a collection of {@link UriComponentsContributor}
-   * or {@link ParameterResolvingStrategies HandlerMethodArgumentResolvers}
+   * or {@link ParameterResolvingStrategies ParameterResolvingStrategies}
    */
   public CompositeUriComponentsContributor(UriComponentsContributor... contributors) {
     this.contributors = Arrays.asList(contributors);
@@ -69,10 +71,11 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
   }
 
   /**
-   * Create an instance from a collection of {@link UriComponentsContributor UriComponentsContributors} or
-   * {@link ParameterResolvingStrategies ParameterResolvingStrategies}. Since both of these tend to be implemented
+   * Create an instance from a collection of {@link UriComponentsContributor
+   * UriComponentsContributors} or {@link ParameterResolvingStrategies
+   * ParameterResolvingStrategies}. Since both of these tend to be implemented
    * by the same class, the most convenient option is to obtain the configured
-   * {@code HandlerMethodArgumentResolvers} in {@code RequestMappingHandlerAdapter}
+   * {@code ParameterResolvingStrategies} in {@code RequestMappingHandlerAdapter}
    * and provide that to this constructor.
    *
    * @param contributors a collection of {@link UriComponentsContributor}
@@ -83,10 +86,11 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
   }
 
   /**
-   * Create an instance from a collection of {@link UriComponentsContributor UriComponentsContributors} or
-   * {@link ParameterResolvingStrategies ParameterResolvingStrategies}. Since both of these tend to be implemented
+   * Create an instance from a collection of {@link UriComponentsContributor
+   * UriComponentsContributors} or  {@link ParameterResolvingStrategies
+   * ParameterResolvingStrategies}. Since both of these tend to be implemented
    * by the same class, the most convenient option is to obtain the configured
-   * {@code HandlerMethodArgumentResolvers} in the {@code RequestMappingHandlerAdapter}
+   * {@code ParameterResolvingStrategies} in the {@code RequestMappingHandlerAdapter}
    * and provide that to this constructor.
    * <p>If the {@link ConversionService} argument is {@code null},
    * {@link cn.taketoday.format.support.DefaultFormattingConversionService}
@@ -98,8 +102,8 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
    * need to be formatted as Strings before being added to the URI
    */
   public CompositeUriComponentsContributor(@Nullable Collection<?> contributors, @Nullable ConversionService cs) {
-    this.contributors = (contributors != null ? new ArrayList<>(contributors) : Collections.emptyList());
-    this.conversionService = (cs != null ? cs : new DefaultFormattingConversionService());
+    this.contributors = contributors != null ? new ArrayList<>(contributors) : Collections.emptyList();
+    this.conversionService = cs != null ? cs : new DefaultFormattingConversionService();
   }
 
   /**
@@ -110,13 +114,13 @@ public class CompositeUriComponentsContributor implements UriComponentsContribut
    * was created with contributors to delegate to
    */
   public boolean hasContributors() {
-    return !this.contributors.isEmpty();
+    return !contributors.isEmpty();
   }
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
     ResolvableMethodParameter resolvable = null;
-    for (Object contributor : this.contributors) {
+    for (Object contributor : contributors) {
       if (contributor instanceof UriComponentsContributor ucc) {
         if (ucc.supportsParameter(parameter)) {
           return true;

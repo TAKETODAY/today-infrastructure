@@ -133,6 +133,13 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
   }
 
   @Override
+  public void configurePathMatch(PathMatchConfigurer configurer) {
+    for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
+      webMvcConfigurer.configurePathMatch(configurer);
+    }
+  }
+
+  @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     for (WebMvcConfigurer webMvcConfigurer : getWebMvcConfigurations()) {
       webMvcConfigurer.configureMessageConverters(converters);

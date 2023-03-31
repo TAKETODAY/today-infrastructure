@@ -38,7 +38,9 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -106,7 +108,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   @Nullable
   private HandlerMethodMappingNamingStrategy<T> namingStrategy;
 
-  private GenericApplicationContext context;
+  @Nullable
+  private BeanDefinitionRegistry registry;
+
+  @Nullable
+  private AnnotatedBeanDefinitionReader beanDefinitionReader;
 
   private boolean useInheritedInterceptor = true;
 
@@ -144,7 +150,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Configure the {@code HandlerInterceptor} lookup strategy
    *
    * @see cn.taketoday.beans.factory.support.BeanDefinitionRegistry#containsBeanDefinition(Class, boolean)
-   * @see #addInterceptors(ArrayList, MergedAnnotation)
+   * @see #addInterceptors(ApplicationContext, ArrayList, MergedAnnotation)
    */
   public void setUseInheritedInterceptor(boolean useInheritedInterceptor) {
     this.useInheritedInterceptor = useInheritedInterceptor;
@@ -223,7 +229,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Override
   public void afterPropertiesSet() {
-    this.context = unwrapContext(GenericApplicationContext.class);
+    this.registry = unwrapContext(BeanDefinitionRegistry.class);
     initHandlerMethods();
   }
 
@@ -545,17 +551,18 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {
     ArrayList<HandlerInterceptor> ret = new ArrayList<>();
+    ApplicationContext context = obtainApplicationContext();
 
     // get interceptor on class
     MergedAnnotations.from(controllerClass, SearchStrategy.TYPE_HIERARCHY)
             .stream(Interceptor.class)
-            .forEach(interceptor -> addInterceptors(ret, interceptor));
+            .forEach(interceptor -> addInterceptors(context, ret, interceptor));
 
     // HandlerInterceptor on a method
     MergedAnnotations.from(action, SearchStrategy.TYPE_HIERARCHY)
             .stream(Interceptor.class)
             .forEach(interceptor -> {
-              addInterceptors(ret, interceptor);
+              addInterceptors(context, ret, interceptor);
 
               // exclude interceptors
               for (var exclude : interceptor.<HandlerInterceptor>getClassArray("exclude")) {
@@ -570,7 +577,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     return ret;
   }
 
-  private void addInterceptors(ArrayList<HandlerInterceptor> ret, MergedAnnotation<Interceptor> annotation) {
+  private void addInterceptors(ApplicationContext context,
+          ArrayList<HandlerInterceptor> ret, MergedAnnotation<Interceptor> annotation) {
     var interceptors = annotation.<HandlerInterceptor>getClassValueArray();
 
     if (ObjectUtils.isNotEmpty(interceptors)) {
@@ -584,7 +592,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
           ret.add(instance);
         }
         else {
-          if (!context.containsBeanDefinition(interceptor, true)) {
+          if (!registry().containsBeanDefinition(interceptor, true)) {
             registerInterceptorBean(interceptor);
           }
           HandlerInterceptor instance = context.getBean(interceptor);
@@ -607,13 +615,23 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   }
 
   private void registerInterceptorBean(Class<?> interceptor) {
+    if (beanDefinitionReader == null) {
+      beanDefinitionReader = new AnnotatedBeanDefinitionReader(registry());
+    }
     try {
-      context.registerBean(interceptor);
+      beanDefinitionReader.registerBean(interceptor);
     }
     catch (BeanDefinitionStoreException e) {
       throw new InfraConfigurationException(
               "Interceptor: [" + interceptor.getName() + "] register error", e);
     }
+  }
+
+  private BeanDefinitionRegistry registry() {
+    if (registry == null) {
+      registry = unwrapContext(BeanDefinitionRegistry.class);
+    }
+    return registry;
   }
 
   // Abstract template methods

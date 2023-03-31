@@ -98,10 +98,12 @@ import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
+import cn.taketoday.web.handler.method.MvcUriComponentsBuilder;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
+import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -671,12 +673,17 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   RequestMappingHandlerMapping requestMappingHandlerMapping(
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
-    var handlerMapping = createRequestMappingHandlerMapping();
-    handlerMapping.setOrder(0);
-    handlerMapping.setContentNegotiationManager(contentNegotiationManager);
+    var mapping = createRequestMappingHandlerMapping();
+    mapping.setOrder(0);
+    mapping.setContentNegotiationManager(contentNegotiationManager);
 
-    initHandlerMapping(handlerMapping);
-    return handlerMapping;
+    initHandlerMapping(mapping);
+
+    PathMatchConfigurer pathConfig = getPathMatchConfigurer();
+    if (pathConfig.getPathPrefixes() != null) {
+      mapping.setPathPrefixes(pathConfig.getPathPrefixes());
+    }
+    return mapping;
   }
 
   /**
@@ -1045,6 +1052,20 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   protected void configureAsyncSupport(AsyncSupportConfigurer configurer) {
 
+  }
+
+  /**
+   * Return an instance of {@link CompositeUriComponentsContributor} for use with
+   * {@link MvcUriComponentsBuilder}.
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  public CompositeUriComponentsContributor mvcUriComponentsContributor(
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
+          @Qualifier("parameterResolvingRegistry") ParameterResolvingRegistry registry) {
+    var strategies = new ArrayList<>(registry.getDefaultStrategies().getStrategies());
+    strategies.addAll(registry.getCustomizedStrategies().getStrategies());
+    return new CompositeUriComponentsContributor(strategies, conversionService);
   }
 
   static boolean isPresent(String name) {

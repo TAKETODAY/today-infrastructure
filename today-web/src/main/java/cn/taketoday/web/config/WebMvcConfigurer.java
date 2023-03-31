@@ -156,7 +156,9 @@ public interface WebMvcConfigurer {
    * @see PathMatchConfigurer
    * @since 4.0
    */
-  default void configurePathMatch(PathMatchConfigurer configurer) { }
+  default void configurePathMatch(PathMatchConfigurer configurer) {
+
+  }
 
   /**
    * Configure the {@link HttpMessageConverter HttpMessageConverter}s for
