@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelNode;
 import cn.taketoday.lang.Assert;
@@ -39,51 +39,53 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Andy Clement
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class InlineList extends SpelNodeImpl {
 
   // If the list is purely literals, it is a constant value and can be computed and cached
   @Nullable
-  private TypedValue constant;  // TODO must be immutable list
+  private final TypedValue constant;  // TODO must be immutable list
 
   public InlineList(int startPos, int endPos, SpelNodeImpl... args) {
     super(startPos, endPos, args);
-    checkIfConstant();
+    this.constant = computeConstant();
   }
 
   /**
-   * If all the components of the list are constants, or lists that themselves contain constants, then a constant list
-   * can be built to represent this node. This will speed up later getValue calls and reduce the amount of garbage
+   * If all the components of the list are constants, or lists
+   * that themselves contain constants, then a constant list
+   * can be built to represent this node. This will speed up
+   * later getValue calls and reduce the amount of garbage
    * created.
    */
-  private void checkIfConstant() {
-    boolean isConstant = true;
+  @Nullable
+  private TypedValue computeConstant() {
     for (int c = 0, max = getChildCount(); c < max; c++) {
       SpelNode child = getChild(c);
       if (!(child instanceof Literal)) {
         if (child instanceof InlineList inlineList) {
           if (!inlineList.isConstant()) {
-            isConstant = false;
+            return null;
           }
         }
         else {
-          isConstant = false;
+          return null;
         }
       }
     }
-    if (isConstant) {
-      ArrayList<Object> constantList = new ArrayList<>();
-      for (SpelNodeImpl child : children) {
-        if (child instanceof Literal literal) {
-          constantList.add(literal.getLiteralValue().getValue());
-        }
-        else if (child instanceof InlineList inlineList) {
-          constantList.add(inlineList.getConstantValue());
-        }
+
+    ArrayList<Object> constantList = new ArrayList<>();
+    for (SpelNodeImpl child : children) {
+      if (child instanceof Literal literal) {
+        constantList.add(literal.getLiteralValue().getValue());
       }
-      this.constant = new TypedValue(Collections.unmodifiableList(constantList));
+      else if (child instanceof InlineList inlineList) {
+        constantList.add(inlineList.getConstantValue());
+      }
     }
+    return new TypedValue(Collections.unmodifiableList(constantList));
   }
 
   @Override
@@ -114,7 +116,7 @@ public class InlineList extends SpelNodeImpl {
    * Return whether this list is a constant value.
    */
   public boolean isConstant() {
-    return (this.constant != null);
+    return constant != null;
   }
 
   @SuppressWarnings("unchecked")
@@ -135,7 +137,8 @@ public class InlineList extends SpelNodeImpl {
     final String className = codeflow.getClassName();
 
     codeflow.registerNewField((cw, cflow) ->
-            cw.visitField(ACC_PRIVATE | ACC_STATIC | ACC_FINAL, constantFieldName, "Ljava/util/List;", null, null));
+            cw.visitField(ACC_PRIVATE | ACC_STATIC | ACC_FINAL,
+                    constantFieldName, "Ljava/util/List;", null, null));
 
     codeflow.registerNewClinit((mVisitor, cflow) ->
             generateClinitCode(className, constantFieldName, mVisitor, cflow, false));
