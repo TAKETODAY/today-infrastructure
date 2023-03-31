@@ -20,7 +20,6 @@
 
 package cn.taketoday.test.web.servlet;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
@@ -29,15 +28,19 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.CallableProcessingInterceptor;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -48,6 +51,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class TestDispatcherServlet extends DispatcherServlet {
@@ -62,51 +66,58 @@ final class TestDispatcherServlet extends DispatcherServlet {
   }
 
   @Override
-  protected void service(HttpServletRequest request, HttpServletResponse response)
-          throws ServletException, IOException {
+  public void service(ServletRequest request, ServletResponse response) throws ServletException {
+    ServletRequestContext context = new ServletRequestContext(
+            getApplicationContext(), (HttpServletRequest) request, (HttpServletResponse) response);
+    context.setWebAsyncManagerFactory(webAsyncManagerFactory);
+    registerAsyncResultInterceptors(context);
 
-    registerAsyncResultInterceptors(request);
+    RequestContextHolder.set(context);
 
-    super.service(request, response);
+    try {
+      super.service(request, response);
 
-    if (request.getAsyncContext() != null) {
-      MockAsyncContext asyncContext;
-      if (request.getAsyncContext() instanceof MockAsyncContext mockAsyncContext) {
-        asyncContext = mockAsyncContext;
+      if (request.getAsyncContext() != null) {
+        MockAsyncContext asyncContext;
+        if (request.getAsyncContext() instanceof MockAsyncContext mockAsyncContext) {
+          asyncContext = mockAsyncContext;
+        }
+        else {
+          MockHttpServletRequest mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
+          Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
+          asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
+          String requestClassName = request.getClass().getName();
+          Assert.notNull(asyncContext, () ->
+                  "Outer request wrapper " + requestClassName + " has an AsyncContext," +
+                          "but it is not a MockAsyncContext, while the nested " +
+                          mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
+        }
+
+        CountDownLatch dispatchLatch = new CountDownLatch(1);
+        asyncContext.addDispatchHandler(dispatchLatch::countDown);
+        getMvcResult(context).setAsyncDispatchLatch(dispatchLatch);
       }
-      else {
-        MockHttpServletRequest mockRequest = WebUtils.getNativeRequest(request, MockHttpServletRequest.class);
-        Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
-        asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
-        String requestClassName = request.getClass().getName();
-        Assert.notNull(asyncContext, () ->
-                "Outer request wrapper " + requestClassName + " has an AsyncContext," +
-                        "but it is not a MockAsyncContext, while the nested " +
-                        mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
-      }
-
-      CountDownLatch dispatchLatch = new CountDownLatch(1);
-      asyncContext.addDispatchHandler(dispatchLatch::countDown);
-      getMvcResult(request).setAsyncDispatchLatch(dispatchLatch);
+    }
+    finally {
+      RequestContextHolder.remove();
     }
   }
 
-  private void registerAsyncResultInterceptors(HttpServletRequest request) {
-
-    WebAsyncUtils.getAsyncManager(request).registerCallableInterceptor(KEY,
+  private void registerAsyncResultInterceptors(RequestContext context) {
+    context.getAsyncManager().registerCallableInterceptor(KEY,
             new CallableProcessingInterceptor() {
               @Override
-              public <T> void postProcess(NativeWebRequest r, Callable<T> task, Object value) {
+              public <T> void postProcess(RequestContext r, Callable<T> task, Object value) {
                 // We got the result, must also wait for the dispatch
-                getMvcResult(request).setAsyncResult(value);
+                getMvcResult(context).setAsyncResult(value);
               }
             });
 
-    WebAsyncUtils.getAsyncManager(request).registerDeferredResultInterceptor(KEY,
+    context.getAsyncManager().registerDeferredResultInterceptor(KEY,
             new DeferredResultProcessingInterceptor() {
               @Override
-              public <T> void postProcess(NativeWebRequest r, DeferredResult<T> result, Object value) {
-                getMvcResult(request).setAsyncResult(value);
+              public <T> void postProcess(RequestContext r, DeferredResult<T> result, Object value) {
+                getMvcResult(context).setAsyncResult(value);
               }
             });
   }
@@ -127,26 +138,27 @@ final class TestDispatcherServlet extends DispatcherServlet {
     return handler;
   }
 
+//  @Override
+//  protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response)
+//          throws Exception {
+//
+//    DefaultMvcResult mvcResult = getMvcResult(request);
+//    mvcResult.setModelAndView(mv);
+//    super.render(mv, request, response);
+//  }
+
+  @Nullable
   @Override
-  protected void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response)
-          throws Exception {
-
-    DefaultMvcResult mvcResult = getMvcResult(request);
-    mvcResult.setModelAndView(mv);
-    super.render(mv, request, response);
-  }
-
-  @Override
-  protected ModelAndView processHandlerException(HttpServletRequest request, HttpServletResponse response,
-          @Nullable Object handler, Exception ex) throws Exception {
-
-    ModelAndView mav = super.processHandlerException(request, response, handler, ex);
+  protected Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+    Object mav = super.processHandlerException(request, handler, ex);
 
     // We got this far, exception was processed..
     DefaultMvcResult mvcResult = getMvcResult(request);
     mvcResult.setResolvedException(ex);
-    mvcResult.setModelAndView(mav);
 
+    if (mav instanceof ModelAndView modelAndView) {
+      mvcResult.setModelAndView(modelAndView);
+    }
     return mav;
   }
 

@@ -90,7 +90,7 @@ public class DispatcherHandler extends InfraHandler {
 
   private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
 
-  private WebAsyncManagerFactory webAsyncManagerFactory;
+  protected WebAsyncManagerFactory webAsyncManagerFactory;
 
   public DispatcherHandler() { }
 

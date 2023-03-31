@@ -266,7 +266,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
 
     @Nullable
     @Override
-    public Exception getResolvedException() {
+    public Throwable getResolvedException() {
       return this.mvcResult.getResolvedException();
     }
 

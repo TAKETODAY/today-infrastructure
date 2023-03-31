@@ -42,19 +42,23 @@ import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.session.SessionManager;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.InterceptorRegistration;
 import cn.taketoday.web.config.InterceptorRegistry;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
 import cn.taketoday.web.handler.MappedInterceptor;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
@@ -67,6 +71,7 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.DefaultRequestToViewNameTranslator;
 import cn.taketoday.web.view.RedirectModelManager;
+import cn.taketoday.web.view.SessionRedirectModelManager;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
 import jakarta.servlet.ServletContext;
@@ -101,7 +106,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
   private List<ParameterResolvingStrategy> customArgumentResolvers = new ArrayList<>();
 
-  private List<HandlerMethodReturnValueHandler> customReturnValueHandlers = new ArrayList<>();
+  private List<ReturnValueHandler> customReturnValueHandlers = new ArrayList<>();
 
   private final List<MappedInterceptor> mappedInterceptors = new ArrayList<>();
 
@@ -133,8 +138,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   @Nullable
   private PathPatternParser patternParser;
 
-  private boolean useSuffixPatternMatch = false;
-
   private boolean useTrailingSlashPatternMatch = true;
 
   @Nullable
@@ -143,6 +146,15 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   private final Map<String, String> placeholderValues = new HashMap<>();
 
   private Supplier<RequestMappingHandlerMapping> handlerMappingFactory = RequestMappingHandlerMapping::new;
+
+  @Nullable
+  private SessionManager sessionManager;
+
+  @Nullable
+  private RedirectModelManager redirectModelManager;
+
+  private ReturnValueHandlerManager returnValueHandlerManager = new ReturnValueHandlerManager();
+  private ParameterResolvingRegistry parameterResolvingRegistry = new ParameterResolvingRegistry();
 
   /**
    * Protected constructor. Not intended for direct instantiation.
@@ -329,22 +341,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Whether to use suffix pattern match (".*") when matching patterns to
-   * requests. If enabled a method mapped to "/users" also matches to "/users.*".
-   * <p>The default value is {@code false}.
-   *
-   * @deprecated as of 5.2.4. See class-level note in
-   * {@link RequestMappingHandlerMapping} on the deprecation of path extension
-   * config options.
-   */
-  @Deprecated
-  public StandaloneMockMvcBuilder setUseSuffixPatternMatch(boolean useSuffixPatternMatch) {
-    this.useSuffixPatternMatch = useSuffixPatternMatch;
-    this.preferPathMatcher |= useSuffixPatternMatch;
-    return this;
-  }
-
-  /**
    * Whether to match to URLs irrespective of the presence of a trailing slash.
    * If enabled a method mapped to "/users" also matches to "/users/".
    */
@@ -384,6 +380,26 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     return this;
   }
 
+  public StandaloneMockMvcBuilder setSessionManager(@Nullable SessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+    return this;
+  }
+
+  public StandaloneMockMvcBuilder setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
+    this.redirectModelManager = redirectModelManager;
+    return this;
+  }
+
+  public StandaloneMockMvcBuilder setReturnValueHandlerManager(ReturnValueHandlerManager returnValueHandlerManager) {
+    this.returnValueHandlerManager = returnValueHandlerManager;
+    return this;
+  }
+
+  public StandaloneMockMvcBuilder setParameterResolvingRegistry(ParameterResolvingRegistry parameterResolvingRegistry) {
+    this.parameterResolvingRegistry = parameterResolvingRegistry;
+    return this;
+  }
+
   @Override
   protected WebApplicationContext initWebAppContext() {
     MockServletContext servletContext = new MockServletContext();
@@ -416,23 +432,22 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     wac.addBean("requestMappingHandlerMapping", hm);
 
     RequestMappingHandlerAdapter ha = config.requestMappingHandlerAdapter(
-            mvcContentNegotiationManager,
-            mvcConversionService, mvcValidator);
+            sessionManager,
+            redirectModelManager,
+            mvcValidator,
+            returnValueHandlerManager,
+            parameterResolvingRegistry, mvcConversionService);
     ha.setApplicationContext(wac);
     ha.afterPropertiesSet();
     wac.addBean("requestMappingHandlerAdapter", ha);
 
     wac.addBean("handlerExceptionHandler", config.handlerExceptionHandler());
 
-    wac.addBeans(initViewResolvers(wac));
-    wac.addBean(DispatcherServlet.LOCALE_RESOLVER_BEAN_NAME, this.localeResolver);
-    wac.addBean(DispatcherServlet.THEME_RESOLVER_BEAN_NAME,
-            new cn.taketoday.web.servlet.theme.FixedThemeResolver());
-    wac.addBean(DispatcherServlet.REQUEST_TO_VIEW_NAME_TRANSLATOR_BEAN_NAME,
-            new DefaultRequestToViewNameTranslator());
+    wac.addBeans(initViewResolvers(wac), new DefaultRequestToViewNameTranslator());
+    wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
 
-    this.flashMapManager = new SessionFlashMapManager();
-    wac.addBean(DispatcherServlet.FLASH_MAP_MANAGER_BEAN_NAME, this.flashMapManager);
+    this.flashMapManager = new SessionRedirectModelManager(sessionManager);
+    wac.addBean(RedirectModelManager.BEAN_NAME, this.flashMapManager);
 
     extendMvcSingletons(sc).forEach(wac::addBean);
   }
@@ -473,7 +488,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
         if (removeSemicolonContent != null) {
           UrlPathHelper pathHelper = new UrlPathHelper();
           pathHelper.setRemoveSemicolonContent(removeSemicolonContent);
-          handlerMapping.setUrlPathHelper(pathHelper);
         }
       }
       handlerMapping.setUseTrailingSlashMatch(useTrailingSlashPatternMatch);
@@ -488,13 +502,13 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     @Override
-    protected void addArgumentResolvers(List<ParameterResolvingStrategy> argumentResolvers) {
-      argumentResolvers.addAll(customArgumentResolvers);
+    protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
+      registry.getCustomizedStrategies().add(customArgumentResolvers);
     }
 
     @Override
-    protected void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> returnValueHandlers) {
-      returnValueHandlers.addAll(customReturnValueHandlers);
+    protected void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+      manager.addHandlers(customReturnValueHandlers);
     }
 
     @Override

@@ -101,8 +101,6 @@ public class HeaderResultMatchers {
 
   /**
    * Assert that the named response header does not exist.
-   *
-   * @since 4.0
    */
   public ResultMatcher doesNotExist(String name) {
     return result -> assertFalse("Response should not contain header '" + name + "'",
@@ -134,7 +132,6 @@ public class HeaderResultMatchers {
    * header, or if the supplied {@code value} does not match the primary value.
    *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section 7.1.1.1 of RFC 7231</a>
-   * @since 4.0
    */
   public ResultMatcher dateValue(String name, long value) {
     return result -> {
@@ -142,7 +139,7 @@ public class HeaderResultMatchers {
       String headerValue = response.getHeader(name);
       assertNotNull("Response does not contain header '" + name + "'", headerValue);
 
-      HttpHeaders headers = new HttpHeaders();
+      HttpHeaders headers = HttpHeaders.create();
       headers.setDate("expected", value);
       headers.set("actual", headerValue);
 

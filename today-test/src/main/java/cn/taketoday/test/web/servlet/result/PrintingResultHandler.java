@@ -198,7 +198,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print exceptions resolved through a HandlerExceptionHandler.
    */
-  protected void printResolvedException(@Nullable Exception resolvedException) throws Exception {
+  protected void printResolvedException(@Nullable Throwable resolvedException) throws Exception {
     if (resolvedException == null) {
       this.printer.printValue("Type", null);
     }

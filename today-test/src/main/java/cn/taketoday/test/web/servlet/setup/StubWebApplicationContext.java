@@ -186,6 +186,10 @@ class StubWebApplicationContext implements WebApplicationContext {
     }
   }
 
+  public void addBeans(Object... beans) {
+    addBeans(List.of(beans));
+  }
+
   //---------------------------------------------------------------------
   // Implementation of BeanFactory interface
   //---------------------------------------------------------------------

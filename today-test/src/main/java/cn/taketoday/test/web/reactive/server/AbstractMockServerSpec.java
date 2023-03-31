@@ -56,7 +56,7 @@ abstract class AbstractMockServerSpec<B extends WebTestClient.MockServerSpec<B>>
 
   @Override
   public WebTestClient.Builder configureClient() {
-    return new DefaultWebTestClientBuilder(builder);
+    return new DefaultWebTestClientBuilder();
   }
 
   @Override

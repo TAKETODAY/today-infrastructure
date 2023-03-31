@@ -239,7 +239,6 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    @Deprecated
     public String methodName() {
       return this.method.name();
     }

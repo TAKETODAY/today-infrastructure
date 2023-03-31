@@ -61,7 +61,7 @@ class DefaultMvcResult implements MvcResult {
   private ModelAndView modelAndView;
 
   @Nullable
-  private Exception resolvedException;
+  private Throwable resolvedException;
 
   private final AtomicReference<Object> asyncResult = new AtomicReference<>(RESULT_NONE);
 
@@ -112,13 +112,13 @@ class DefaultMvcResult implements MvcResult {
     return this.interceptors;
   }
 
-  public void setResolvedException(Exception resolvedException) {
+  public void setResolvedException(Throwable resolvedException) {
     this.resolvedException = resolvedException;
   }
 
   @Override
   @Nullable
-  public Exception getResolvedException() {
+  public Throwable getResolvedException() {
     return this.resolvedException;
   }
 

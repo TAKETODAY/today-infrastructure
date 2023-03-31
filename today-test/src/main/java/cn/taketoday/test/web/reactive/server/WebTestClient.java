@@ -370,10 +370,7 @@ public interface WebTestClient {
      * {@link #exchangeStrategies(ExchangeStrategies)}. This method is
      * designed for use in scenarios where multiple parties wish to update
      * the {@code ExchangeStrategies}.
-     *
-     * @deprecated as of 5.1.13 in favor of {@link #codecs(Consumer)}
      */
-    @Deprecated
     Builder exchangeStrategies(Consumer<ExchangeStrategies.Builder> configurer);
 
     /**
