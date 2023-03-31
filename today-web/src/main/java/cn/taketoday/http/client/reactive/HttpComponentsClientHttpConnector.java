@@ -85,8 +85,7 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
    * @param client the client to use
    * @param contextProvider a {@link HttpClientContext} supplier
    */
-  public HttpComponentsClientHttpConnector(
-          CloseableHttpAsyncClient client,
+  public HttpComponentsClientHttpConnector(CloseableHttpAsyncClient client,
           BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider) {
     Assert.notNull(client, "Client must not be null");
     Assert.notNull(contextProvider, "ContextProvider must not be null");
@@ -103,27 +102,26 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
   }
 
   @Override
-  public Mono<ClientHttpResponse> connect(
-          HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
+  public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
+          Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 
     HttpClientContext context = this.contextProvider.apply(method, uri);
     if (context.getCookieStore() == null) {
       context.setCookieStore(new BasicCookieStore());
     }
 
-    var request = new HttpComponentsClientHttpRequest(method, uri, context, dataBufferFactory);
-    return requestCallback.apply(request)
-            .then(Mono.defer(() -> execute(request, context)));
+    HttpComponentsClientHttpRequest request =
+            new HttpComponentsClientHttpRequest(method, uri, context, this.dataBufferFactory);
+    return requestCallback.apply(request).then(Mono.defer(() -> execute(request, context)));
   }
 
   private Mono<ClientHttpResponse> execute(HttpComponentsClientHttpRequest request, HttpClientContext context) {
     AsyncRequestProducer requestProducer = request.toRequestProducer();
 
     return Mono.create(sink -> {
-      var responseConsumer = new ReactiveResponseConsumer(
-              new ResponseCallback(sink, this.dataBufferFactory, context));
-
-      client.execute(requestProducer, responseConsumer, context, new ResultCallback(sink));
+      ReactiveResponseConsumer reactiveResponseConsumer =
+              new ReactiveResponseConsumer(new ResponseCallback(sink, this.dataBufferFactory, context));
+      this.client.execute(requestProducer, reactiveResponseConsumer, context, new ResultCallback(sink));
     });
   }
 
@@ -135,24 +133,29 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
   /**
    * Callback that invoked when a response is received.
    */
-  private record ResponseCallback(
-          MonoSink<ClientHttpResponse> sink, DataBufferFactory dataBufferFactory, HttpClientContext context)
+  private static class ResponseCallback
           implements FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> {
+
+    private final HttpClientContext context;
+    private final MonoSink<ClientHttpResponse> sink;
+    private final DataBufferFactory dataBufferFactory;
+
+    public ResponseCallback(MonoSink<ClientHttpResponse> sink,
+            DataBufferFactory dataBufferFactory, HttpClientContext context) {
+
+      this.sink = sink;
+      this.dataBufferFactory = dataBufferFactory;
+      this.context = context;
+    }
 
     @Override
     public void completed(Message<HttpResponse, Publisher<ByteBuffer>> result) {
-      var response = new HttpComponentsClientHttpResponse(this.dataBufferFactory, result, this.context);
-      this.sink.success(response);
+      this.sink.success(new HttpComponentsClientHttpResponse(this.dataBufferFactory, result, this.context));
     }
 
     @Override
     public void failed(Exception ex) {
-      Throwable t = ex;
-      if (t instanceof HttpStreamResetException) {
-        HttpStreamResetException httpStreamResetException = (HttpStreamResetException) ex;
-        t = httpStreamResetException.getCause();
-      }
-      this.sink.error(t);
+      this.sink.error(ex instanceof HttpStreamResetException && ex.getCause() != null ? ex.getCause() : ex);
     }
 
     @Override
@@ -179,8 +182,7 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
 
     @Override
     public void failed(Exception ex) {
-      Throwable t = (ex instanceof HttpStreamResetException hsre ? hsre.getCause() : ex);
-      this.sink.error(t);
+      this.sink.error(ex instanceof HttpStreamResetException && ex.getCause() != null ? ex.getCause() : ex);
     }
 
     @Override
