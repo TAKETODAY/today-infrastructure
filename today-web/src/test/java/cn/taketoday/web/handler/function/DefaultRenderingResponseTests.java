@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,7 +49,7 @@ public class DefaultRenderingResponseTests {
   static final ServerResponse.Context EMPTY_CONTEXT = Collections::emptyList;
 
   @Test
-  public void create() throws Exception {
+  public void create() throws Throwable {
     String name = "foo";
     RenderingResponse result = RenderingResponse.create(name).build();
 
@@ -62,7 +62,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void status() throws Exception {
+  public void status() throws Throwable {
     HttpStatus status = HttpStatus.I_AM_A_TEAPOT;
     RenderingResponse result = RenderingResponse.create("foo").status(status).build();
 
@@ -75,7 +75,7 @@ public class DefaultRenderingResponseTests {
 
   @Nullable
   private static ModelAndView getModelAndView(
-          RenderingResponse result, MockHttpServletRequest request, MockHttpServletResponse response) throws Exception {
+          RenderingResponse result, MockHttpServletRequest request, MockHttpServletResponse response) throws Throwable {
     ServletRequestContext servletRequestContext = new ServletRequestContext(null, request, response);
     Object write = result.writeTo(servletRequestContext, EMPTY_CONTEXT);
     servletRequestContext.flush();
@@ -86,7 +86,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void headers() throws Exception {
+  public void headers() throws Throwable {
     HttpHeaders headers = HttpHeaders.create();
     headers.set("foo", "bar");
     RenderingResponse result = RenderingResponse.create("foo")
@@ -102,7 +102,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void modelAttribute() throws Exception {
+  public void modelAttribute() throws Throwable {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttribute("foo", "bar").build();
 
@@ -115,7 +115,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void modelAttributeConventions() throws Exception {
+  public void modelAttributeConventions() throws Throwable {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttribute("bar").build();
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -126,7 +126,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void modelAttributes() throws Exception {
+  public void modelAttributes() throws Throwable {
     Map<String, String> model = Collections.singletonMap("foo", "bar");
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes(model).build();
@@ -138,7 +138,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void modelAttributesConventions() throws Exception {
+  public void modelAttributesConventions() throws Throwable {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes("bar").build();
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -149,7 +149,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void cookies() throws Exception {
+  public void cookies() throws Throwable {
     MultiValueMap<String, HttpCookie> newCookies = new LinkedMultiValueMap<>();
     newCookies.add("name", new HttpCookie("name", "value"));
     RenderingResponse result =
@@ -164,7 +164,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void notModifiedEtag() throws Exception {
+  public void notModifiedEtag() throws Throwable {
     String etag = "\"foo\"";
     RenderingResponse result = RenderingResponse.create("bar")
             .header(HttpHeaders.ETAG, etag)
@@ -180,7 +180,7 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
-  public void notModifiedLastModified() throws Exception {
+  public void notModifiedLastModified() throws Throwable {
     ZonedDateTime now = ZonedDateTime.now();
     ZonedDateTime oneMinuteBeforeNow = now.minus(1, ChronoUnit.MINUTES);
 

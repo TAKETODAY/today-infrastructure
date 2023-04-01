@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -169,7 +169,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
     }
 
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(RequestContext request, Context context) {
 
       ModelAndView mav = new ModelAndView(this.name, statusCode());
       mav.addAllObjects(this.model);

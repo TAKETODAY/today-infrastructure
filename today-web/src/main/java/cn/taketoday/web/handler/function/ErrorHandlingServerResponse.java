@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.function;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -53,17 +52,12 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
   }
 
   @Nullable
-  protected final Object handleError(Throwable t, RequestContext request, Context context) throws Exception {
+  protected final Object handleError(Throwable t, RequestContext request, Context context) throws Throwable {
     ServerResponse serverResponse = errorResponse(t, request);
     if (serverResponse != null) {
       return serverResponse.writeTo(request, context);
     }
-    else if (t instanceof IOException) {
-      throw (IOException) t;
-    }
-    else {
-      throw new Exception(t);
-    }
+    throw t;
   }
 
   @Nullable

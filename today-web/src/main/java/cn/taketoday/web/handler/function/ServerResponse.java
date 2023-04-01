@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -102,7 +102,7 @@ public interface ServerResponse {
    * @return a {@code ModelAndView} to render, or {@code null} if handled directly
    */
   @Nullable
-  Object writeTo(RequestContext request, Context context) throws Exception;
+  Object writeTo(RequestContext request, Context context) throws Throwable;
 
   // Static methods
 

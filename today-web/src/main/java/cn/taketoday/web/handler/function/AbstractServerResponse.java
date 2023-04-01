@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,7 +85,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   @Nullable
   @Override
-  public Object writeTo(RequestContext request, Context context) throws Exception {
+  public Object writeTo(RequestContext request, Context context) throws Throwable {
     try {
       writeStatusAndHeaders(request);
 
@@ -129,6 +129,6 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   @Nullable
   protected abstract Object writeToInternal(
-          RequestContext request, Context context) throws Exception;
+          RequestContext request, Context context) throws Throwable;
 
 }

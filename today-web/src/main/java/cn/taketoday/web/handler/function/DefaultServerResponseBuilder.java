@@ -224,7 +224,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
     @Nullable
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) throws Exception {
+    protected Object writeToInternal(RequestContext request, Context context) {
       return this.writeFunction.apply(request);
     }
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -301,7 +301,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     protected void tryWriteEntityWithMessageConverters(Object entity,
-            RequestContext request, ServerResponse.Context context) throws Exception {
+            RequestContext request, ServerResponse.Context context) throws Throwable {
       try {
         writeEntityWithMessageConverters(entity, request, context);
       }
@@ -363,7 +363,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
             tryWriteEntityWithMessageConverters(value, request, context);
             result.setResult(null);
           }
-          catch (Exception writeException) {
+          catch (Throwable writeException) {
             result.setErrorResult(writeException);
           }
         }
@@ -427,7 +427,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
           request.getOutputStream().flush();
           this.subscription.request(1);
         }
-        catch (Exception ex) {
+        catch (Throwable ex) {
           this.subscription.cancel();
           this.deferredResult.setErrorResult(ex);
         }
@@ -438,7 +438,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
         try {
           handleError(t, this.request, this.context);
         }
-        catch (Exception handlingThrowable) {
+        catch (Throwable handlingThrowable) {
           this.deferredResult.setErrorResult(handlingThrowable);
         }
       }

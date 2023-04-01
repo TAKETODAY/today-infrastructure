@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -222,7 +222,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void build() throws Exception {
+  void build() throws Throwable {
     HttpCookie cookie = new HttpCookie("name", "value");
     ServerResponse response = ServerResponse.status(HttpStatus.CREATED)
             .header("MyKey", "MyValue")
@@ -242,7 +242,7 @@ class DefaultServerResponseBuilderTests {
 
   @Nullable
   private static Object getObject(
-          ServerResponse response, MockHttpServletRequest mockRequest, MockHttpServletResponse mockResponse) throws Exception {
+          ServerResponse response, MockHttpServletRequest mockRequest, MockHttpServletResponse mockResponse) throws Throwable {
     ServletRequestContext context = new ServletRequestContext(null, mockRequest, mockResponse);
     try {
       return response.writeTo(context, EMPTY_CONTEXT);
@@ -253,7 +253,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void notModifiedEtag() throws Exception {
+  void notModifiedEtag() throws Throwable {
     String etag = "\"foo\"";
     ServerResponse response = ServerResponse.ok()
             .eTag(etag)
@@ -270,7 +270,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void notModifiedLastModified() throws Exception {
+  void notModifiedLastModified() throws Throwable {
     ZonedDateTime now = ZonedDateTime.now();
     ZonedDateTime oneMinuteBeforeNow = now.minus(1, ChronoUnit.MINUTES);
 
@@ -288,7 +288,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void body() throws Exception {
+  void body() throws Throwable {
     String body = "foo";
     ServerResponse response = ServerResponse.ok().body(body);
 
@@ -304,7 +304,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void bodyWithParameterizedTypeReference() throws Exception {
+  void bodyWithParameterizedTypeReference() throws Throwable {
     List<String> body = new ArrayList<>();
     body.add("foo");
     body.add("bar");
@@ -323,7 +323,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void bodyCompletionStage() throws Exception {
+  void bodyCompletionStage() throws Throwable {
     String body = "foo";
     CompletionStage<String> completionStage = CompletableFuture.completedFuture(body);
     ServerResponse response = ServerResponse.ok().body(completionStage);
@@ -343,7 +343,7 @@ class DefaultServerResponseBuilderTests {
   }
 
   @Test
-  void bodyPublisher() throws Exception {
+  void bodyPublisher() throws Throwable {
     String body = "foo";
     Publisher<String> publisher = Mono.just(body);
     ServerResponse response = ServerResponse.ok().body(publisher);
