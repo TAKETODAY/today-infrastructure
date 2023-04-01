@@ -35,7 +35,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -168,14 +170,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Return a (read-only) map with all mappings and HandlerMethod's.
    */
   public Map<T, HandlerMethod> getHandlerMethods() {
-    this.mappingRegistry.acquireReadLock();
+    mappingRegistry.acquireReadLock();
     try {
       return Collections.unmodifiableMap(
-              this.mappingRegistry.registrations.entrySet().stream()
+              mappingRegistry.registrations.entrySet().stream()
                       .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().handlerMethod)));
     }
     finally {
-      this.mappingRegistry.releaseReadLock();
+      mappingRegistry.releaseReadLock();
     }
   }
 
@@ -241,9 +243,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @see #handlerMethodsInitialized
    */
   protected void initHandlerMethods() {
+    BeanFactory beanFactory = obtainApplicationContext().getBeanFactory();
     for (String beanName : getCandidateBeanNames()) {
       if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
-        processCandidateBean(beanName);
+        processCandidateBean(beanFactory, beanName);
       }
     }
     handlerMethodsInitialized(getHandlerMethods());
@@ -272,19 +275,17 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @see #isHandler
    * @see #detectHandlerMethods
    */
-  protected void processCandidateBean(String beanName) {
+  protected void processCandidateBean(BeanFactory beanFactory, String beanName) {
     Class<?> beanType = null;
     try {
-      beanType = obtainApplicationContext().getType(beanName);
+      beanType = beanFactory.getType(beanName);
     }
     catch (Throwable ex) {
       // An unresolvable bean type, probably from a lazy bean - let's ignore it.
-      if (log.isTraceEnabled()) {
-        log.trace("Could not resolve type for bean '{}'", beanName, ex);
-      }
+      log.trace("Could not resolve type for bean '{}'", beanName, ex);
     }
     if (beanType != null && isHandler(beanType)) {
-      detectHandlerMethods(beanName);
+      detectHandlerMethods(beanType, beanName);
     }
   }
 
@@ -300,30 +301,39 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
                            : handler.getClass();
 
     if (handlerType != null) {
-      Class<?> userType = ClassUtils.getUserClass(handlerType);
-      Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
-              method -> {
-                try {
-                  return getMappingForMethod(method, userType);
-                }
-                catch (Throwable ex) {
-                  throw new IllegalStateException(
-                          "Invalid mapping on handler class [" + userType.getName() + "]: " + method, ex);
-                }
-              });
-      if (log.isTraceEnabled()) {
-        log.trace(formatMappings(userType, methods));
-      }
-      else if (mappingsLogger.isDebugEnabled()) {
-        mappingsLogger.debug(formatMappings(userType, methods));
-      }
+      detectHandlerMethods(handlerType, handler);
+    }
+  }
 
-      for (Map.Entry<Method, T> entry : methods.entrySet()) {
-        Method method = entry.getKey();
-        T mapping = entry.getValue();
-        Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
-        registerHandlerMethod(handler, invocableMethod, mapping);
-      }
+  /**
+   * Look for handler methods in the specified handler bean.
+   *
+   * @param handlerType handler type
+   * @param handler either a bean name or an actual handler instance
+   * @see #getMappingForMethod
+   */
+  private void detectHandlerMethods(Class<?> handlerType, Object handler) {
+    Class<?> userType = ClassUtils.getUserClass(handlerType);
+    Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
+            method -> {
+              try {
+                return getMappingForMethod(method, userType);
+              }
+              catch (Throwable ex) {
+                throw new IllegalStateException(
+                        "Invalid mapping on handler class [" + userType.getName() + "]: " + method, ex);
+              }
+            });
+    if (log.isTraceEnabled()) {
+      log.trace(formatMappings(userType, methods));
+    }
+    else if (mappingsLogger.isDebugEnabled()) {
+      mappingsLogger.debug(formatMappings(userType, methods));
+    }
+
+    for (Map.Entry<Method, T> entry : methods.entrySet()) {
+      Method invocableMethod = AopUtils.selectInvocableMethod(entry.getKey(), userType);
+      registerHandlerMethod(handler, invocableMethod, entry.getValue());
     }
   }
 
@@ -362,10 +372,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
     if (handler instanceof String beanName) {
+      ApplicationContext context = obtainApplicationContext();
       return new HandlerMethod(beanName,
-              obtainApplicationContext().getAutowireCapableBeanFactory(),
-              obtainApplicationContext(),
-              method);
+              context.getAutowireCapableBeanFactory(), context, method);
     }
     return new HandlerMethod(handler, method);
   }
@@ -551,7 +560,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected List<HandlerInterceptor> getInterceptors(Class<?> controllerClass, Method action) {
     ArrayList<HandlerInterceptor> ret = new ArrayList<>();
-    ApplicationContext context = obtainApplicationContext();
+    ApplicationContext context = getApplicationContext();
 
     // get interceptor on class
     MergedAnnotations.from(controllerClass, SearchStrategy.TYPE_HIERARCHY)
@@ -564,22 +573,33 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
             .forEach(interceptor -> {
               addInterceptors(context, ret, interceptor);
 
-              // exclude interceptors
-              for (var exclude : interceptor.<HandlerInterceptor>getClassArray("exclude")) {
-                ret.remove(context.getBean(exclude));
-              }
+              if (context != null) {
+                // exclude interceptors
+                for (var exclude : interceptor.<HandlerInterceptor>getClassArray("exclude")) {
+                  ret.remove(context.getBean(exclude));
+                }
 
-              for (String excludeName : interceptor.getStringArray("excludeNames")) {
-                ret.remove(context.getBean(excludeName, HandlerInterceptor.class));
+                for (String excludeName : interceptor.getStringArray("excludeNames")) {
+                  ret.remove(context.getBean(excludeName, HandlerInterceptor.class));
+                }
               }
             });
 
     return ret;
   }
 
-  private void addInterceptors(ApplicationContext context,
+  private void addInterceptors(@Nullable ApplicationContext context,
           ArrayList<HandlerInterceptor> ret, MergedAnnotation<Interceptor> annotation) {
     var interceptors = annotation.<HandlerInterceptor>getClassValueArray();
+    if (context == null) {
+      if (ObjectUtils.isNotEmpty(interceptors)) {
+        for (var interceptor : interceptors) {
+          HandlerInterceptor instance = BeanUtils.newInstance(interceptor);
+          ret.add(instance);
+        }
+      }
+      return;
+    }
 
     if (ObjectUtils.isNotEmpty(interceptors)) {
       for (var interceptor : interceptors) {
@@ -836,7 +856,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
         nameLookup.remove(name);
         return;
       }
-      List<HandlerMethod> newList = new ArrayList<>(oldList.size() - 1);
+      ArrayList<HandlerMethod> newList = new ArrayList<>(oldList.size() - 1);
       for (HandlerMethod current : oldList) {
         if (!current.equals(handlerMethod)) {
           newList.add(current);
@@ -847,10 +867,16 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
     @Override
     protected HandlerInterceptor[] createValue(Method method, @Nullable HandlerMethod handlerMethod) {
-      Assert.state(handlerMethod != null, "No HandlerMethod");
-      Class<?> controllerClass = handlerMethod.getBeanType();
+      Class<?> controllerClass = getControllerClass(method, handlerMethod);
       List<HandlerInterceptor> interceptors = getInterceptors(controllerClass, method);
       return interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY);
+    }
+
+    private Class<?> getControllerClass(Method method, @Nullable HandlerMethod handlerMethod) {
+      if (handlerMethod != null) {
+        return handlerMethod.getBeanType();
+      }
+      return ClassUtils.getUserClass(method.getDeclaringClass());
     }
 
     public HandlerInterceptor[] getHandlerInterceptors(HandlerMethod handlerMethod) {

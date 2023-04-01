@@ -209,6 +209,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
   }
 
   /** @since 3.0.3 */
+  @Nullable
   protected String resolveEmbeddedVariables(String expression) {
     if (embeddedValueResolver != null) {
       return embeddedValueResolver.resolveStringValue(expression);
@@ -335,10 +336,12 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
     HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
     if (hasCorsConfigurationSource(handler) || request.isPreFlightRequest()) {
+      // handler config
       CorsConfiguration config = getCorsConfiguration(handler, request);
-      CorsConfigurationSource source = getCorsConfigurationSource();
-      if (source != null) {
-        CorsConfiguration globalConfig = source.getCorsConfiguration(request);
+      CorsConfigurationSource global = getCorsConfigurationSource();
+      if (global != null) {
+        // global config
+        CorsConfiguration globalConfig = global.getCorsConfiguration(request);
         if (globalConfig != null) {
           config = globalConfig.combine(config);
         }
