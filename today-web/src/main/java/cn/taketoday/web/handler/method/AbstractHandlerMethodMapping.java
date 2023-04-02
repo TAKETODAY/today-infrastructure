@@ -231,7 +231,6 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Override
   public void afterPropertiesSet() {
-    this.registry = unwrapContext(BeanDefinitionRegistry.class);
     initHandlerMethods();
   }
 
