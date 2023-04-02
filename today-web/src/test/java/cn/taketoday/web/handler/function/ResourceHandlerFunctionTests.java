@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -66,7 +66,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void get() throws Exception {
+  public void get() throws Throwable {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -93,7 +93,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void getRange() throws Exception {
+  public void getRange() throws Throwable {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-5");
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -126,7 +126,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void getInvalidRange() throws Exception {
+  public void getInvalidRange() throws Throwable {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
@@ -156,7 +156,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void head() throws Exception {
+  public void head() throws Throwable {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();
@@ -183,7 +183,7 @@ public class ResourceHandlerFunctionTests {
   }
 
   @Test
-  public void options() throws Exception {
+  public void options() throws Throwable {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockHttpServletResponse servletResponse = new MockHttpServletResponse();

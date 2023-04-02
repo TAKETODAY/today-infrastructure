@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -175,7 +175,7 @@ class DefaultEntityResponseBuilderTests {
   }
 
   @Test
-  void notModifiedEtag() throws Exception {
+  void notModifiedEtag() throws Throwable {
     String etag = "\"foo\"";
     EntityResponse<String> entityResponse = EntityResponse.fromObject("bar")
             .eTag(etag)
@@ -195,7 +195,7 @@ class DefaultEntityResponseBuilderTests {
   }
 
   @Test
-  void notModifiedLastModified() throws Exception {
+  void notModifiedLastModified() throws Throwable {
     ZonedDateTime now = ZonedDateTime.now();
     ZonedDateTime oneMinuteBeforeNow = now.minus(1, ChronoUnit.MINUTES);
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,7 +52,7 @@ class SseServerResponseTests {
   }
 
   @Test
-  void sendString() throws Exception {
+  void sendString() throws Throwable {
     String body = "foo bar";
     ServerResponse response = ServerResponse.sse(sse -> {
       try {
@@ -76,7 +76,7 @@ class SseServerResponseTests {
   }
 
   @Test
-  void sendObject() throws Exception {
+  void sendObject() throws Throwable {
     Person person = new Person("John Doe", 42);
     ServerResponse response = ServerResponse.sse(sse -> {
       try {
@@ -100,7 +100,7 @@ class SseServerResponseTests {
   }
 
   @Test
-  void builder() throws Exception {
+  void builder() throws Throwable {
     ServerResponse response = ServerResponse.sse(sse -> {
       try {
         sse.id("id")
