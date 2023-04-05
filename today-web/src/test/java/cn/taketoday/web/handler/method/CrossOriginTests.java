@@ -106,7 +106,7 @@ class CrossOriginTests {
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler().toString())
+    assertThat(chain.getRawHandler().toString())
             .endsWith("RequestMappingInfoHandlerMapping$HttpOptionsHandler#handle()");
   }
 
@@ -118,7 +118,7 @@ class CrossOriginTests {
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler().getClass().getName()).endsWith("AbstractHandlerMapping$PreFlightHandler");
+    assertThat(chain.getRawHandler().getClass().getName()).endsWith("AbstractHandlerMapping$PreFlightHandler");
   }
 
   @PathPatternsParameterizedTest
@@ -394,7 +394,7 @@ class CrossOriginTests {
   private CorsConfiguration getCorsConfiguration(@Nullable HandlerExecutionChain chain, boolean isPreFlightRequest) {
     assertThat(chain).isNotNull();
     if (isPreFlightRequest) {
-      Object handler = chain.getHandler();
+      Object handler = chain.getRawHandler();
       assertThat(handler.getClass().getSimpleName()).isEqualTo("PreFlightHandler");
       DirectFieldAccessor accessor = new DirectFieldAccessor(handler);
       return (CorsConfiguration) accessor.getPropertyValue("config");

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -148,9 +148,9 @@ public class HandlerMethodMappingTests {
     HandlerExecutionChain chain = getHandler(context);
 
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler()).isInstanceOf(HttpRequestHandler.class);
+    assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
 
-    if (chain.getHandler() instanceof HttpRequestHandler httpRequestHandler) {
+    if (chain.getRawHandler() instanceof HttpRequestHandler httpRequestHandler) {
       httpRequestHandler.handleRequest(context);
     }
 
@@ -179,9 +179,9 @@ public class HandlerMethodMappingTests {
     ServletRequestContext context = new ServletRequestContext(null, request, response);
     HandlerExecutionChain chain = getHandler(context);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler()).isInstanceOf(HttpRequestHandler.class);
+    assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
 
-    if (chain.getHandler() instanceof HttpRequestHandler httpRequestHandler) {
+    if (chain.getRawHandler() instanceof HttpRequestHandler httpRequestHandler) {
       httpRequestHandler.handleRequest(context);
     }
 

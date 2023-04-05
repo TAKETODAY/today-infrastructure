@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,8 +85,8 @@ class ModelHandlerTests {
 
     this.attributeStore = new DefaultSessionAttributeStore();
 
-    webRequest.setBindingContext(new BindingContext());
-    bindingContext = webRequest.getBindingContext();
+    webRequest.setBinding(new BindingContext());
+    bindingContext = webRequest.getBinding();
     returnValueHandlerManager = new ReturnValueHandlerManager();
     returnValueHandlerManager.setApplicationContext(context);
     returnValueHandlerManager.registerDefaultHandlers();
@@ -100,7 +100,7 @@ class ModelHandlerTests {
 
   @Test
   public void modelAttributeMethod() throws Throwable {
-    BindingContext container = webRequest.getBindingContext();
+    BindingContext container = webRequest.getBinding();
 
     HandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
@@ -112,7 +112,7 @@ class ModelHandlerTests {
 
   @Test
   public void modelAttributeMethodWithExplicitName() throws Throwable {
-    BindingContext mavContainer = webRequest.getBindingContext();
+    BindingContext mavContainer = webRequest.getBinding();
     HandlerMethod handlerMethod = createHandlerMethod("handle");
 
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrWithName");
@@ -123,7 +123,7 @@ class ModelHandlerTests {
 
   @Test
   public void modelAttributeMethodWithNameByConvention() throws Throwable {
-    BindingContext bindingContext = webRequest.getBindingContext();
+    BindingContext bindingContext = webRequest.getBinding();
 
     HandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrConvention");
@@ -134,7 +134,7 @@ class ModelHandlerTests {
 
   @Test
   public void modelAttributeMethodWithNullReturnValue() throws Throwable {
-    BindingContext bindingContext = webRequest.getBindingContext();
+    BindingContext bindingContext = webRequest.getBinding();
 
     HandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "nullModelAttr");
@@ -146,7 +146,7 @@ class ModelHandlerTests {
 
   @Test
   public void modelAttributeWithBindingDisabled() throws Throwable {
-    BindingContext bindingContext = webRequest.getBindingContext();
+    BindingContext bindingContext = webRequest.getBinding();
 
     HandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrWithBindingDisabled");

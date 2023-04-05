@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -129,7 +129,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBindingContext(binderFactory);
+    webRequest.setBinding(binderFactory);
 
     @SuppressWarnings("unchecked")
     Optional<String> result = (Optional<String>)
@@ -163,7 +163,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBindingContext(binderFactory);
+    webRequest.setBinding(binderFactory);
 
     assertThat(resolver.resolveArgument(webRequest, paramOptional)).isEqualTo(Optional.empty());
   }

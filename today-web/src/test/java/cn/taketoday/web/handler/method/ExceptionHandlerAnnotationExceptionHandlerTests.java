@@ -148,7 +148,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
     MockServletRequestContext context1 = new MockServletRequestContext(context, request, response);
-    context1.setBindingContext(new BindingContext());
+    context1.setBinding(new BindingContext());
     Object ret = this.handler.handleException(context1, ex, handler);
     if (ret instanceof ModelAndView mav) {
       return mav;
@@ -221,11 +221,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     };
 
     MockServletRequestContext context = new MockServletRequestContext(null, request, response);
-    context.setBindingContext(new BindingContext());
+    context.setBinding(new BindingContext());
 
     Object ret = this.handler.handleException(context, ex, handler);
 
-    ModelMap model = context.getBindingContext().getModel();
+    ModelMap model = context.getBinding().getModel();
     assertThat(model.size()).isEqualTo(1);
     assertThat(model.getAttribute("exceptionClassName")).isEqualTo("IllegalArgumentException");
   }

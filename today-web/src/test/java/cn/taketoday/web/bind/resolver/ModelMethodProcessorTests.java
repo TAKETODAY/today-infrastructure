@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,13 +26,13 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.ui.Model;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.ui.Model;
-import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,7 +64,7 @@ class ModelMethodProcessorTests {
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
     webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
-    webRequest.setBindingContext(new BindingContext());
+    webRequest.setBinding(new BindingContext());
   }
 
   @Test
@@ -87,7 +87,7 @@ class ModelMethodProcessorTests {
 
   @Test
   public void resolveArgumentValue() throws Throwable {
-    BindingContext bindingContext = webRequest.getBindingContext();
+    BindingContext bindingContext = webRequest.getBinding();
     ModelMap model = bindingContext.getModel();
     assertThat(processor.resolveArgument(webRequest, new ResolvableMethodParameter(paramModel))).isSameAs(model);
     assertThat(processor.resolveArgument(webRequest, new ResolvableMethodParameter(redirectModelParam))).isSameAs(bindingContext.getRedirectModel());
@@ -98,7 +98,7 @@ class ModelMethodProcessorTests {
   @Test
   public void handleModelReturnValue() throws Exception {
 
-    BindingContext bindingContext = webRequest.getBindingContext();
+    BindingContext bindingContext = webRequest.getBinding();
     bindingContext.addAttribute("attr1", "value1");
 
     ModelMap returnValue = new ModelMap();

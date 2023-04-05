@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -349,6 +349,31 @@ class WebAsyncManagerTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.asyncManager.startDeferredResultProcessing(null))
             .withMessage("DeferredResult is required");
+  }
+
+  @Test
+  void getInterceptor() {
+    assertThat(asyncManager.getCallableInterceptor("key")).isNull();
+
+    var interceptor = new TimeoutAsyncProcessingInterceptor();
+    asyncManager.registerCallableInterceptor("key", interceptor);
+
+    assertThat(asyncManager.getCallableInterceptor("key")).isEqualTo(interceptor);
+    assertThat(asyncManager.getDeferredResultInterceptor("key")).isNull();
+
+    var processingInterceptor = new TimeoutAsyncProcessingInterceptor();
+    asyncManager.registerDeferredResultInterceptor("key", processingInterceptor);
+    assertThat(asyncManager.getDeferredResultInterceptor("key")).isEqualTo(processingInterceptor);
+    //
+
+    asyncManager.registerCallableInterceptors(interceptor);
+    assertThat(asyncManager.getCallableInterceptor(
+            interceptor.getClass().getName() + ":" + interceptor.hashCode())).isEqualTo(interceptor);
+
+    asyncManager.registerDeferredResultInterceptors(processingInterceptor);
+    assertThat(asyncManager.getDeferredResultInterceptor(
+            processingInterceptor.getClass().getName() + ":" + processingInterceptor.hashCode()))
+            .isEqualTo(processingInterceptor);
   }
 
   private void setupDefaultAsyncScenario() {

@@ -56,6 +56,7 @@ import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.servlet.filter.OncePerRequestFilter#shouldNotFilterAsyncDispatch
  * @see cn.taketoday.web.servlet.filter.OncePerRequestFilter#isAsyncDispatch
  * @since 4.0
@@ -80,11 +81,8 @@ public final class WebAsyncManager {
 
   private static final Logger logger = LoggerFactory.getLogger(WebAsyncManager.class);
 
-  private static final CallableProcessingInterceptor timeoutCallableInterceptor =
-          new TimeoutCallableProcessingInterceptor();
-
-  private static final DeferredResultProcessingInterceptor timeoutDeferredResultInterceptor =
-          new TimeoutDeferredResultProcessingInterceptor();
+  private static final TimeoutAsyncProcessingInterceptor timeoutInterceptor =
+          new TimeoutAsyncProcessingInterceptor();
 
   private static Boolean taskExecutorWarning = true;
 
@@ -301,7 +299,7 @@ public final class WebAsyncManager {
     var interceptors = new ArrayList<CallableProcessingInterceptor>();
     interceptors.add(webAsyncTask.getInterceptor());
     interceptors.addAll(callableInterceptors.values());
-    interceptors.add(timeoutCallableInterceptor);
+    interceptors.add(timeoutInterceptor);
 
     Callable<?> callable = webAsyncTask.getCallable();
     CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
@@ -436,7 +434,7 @@ public final class WebAsyncManager {
     List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
     interceptors.add(deferredResult.getInterceptor());
     interceptors.addAll(deferredResultInterceptors.values());
-    interceptors.add(timeoutDeferredResultInterceptor);
+    interceptors.add(timeoutInterceptor);
 
     var interceptorChain = new DeferredResultInterceptorChain(interceptors);
     asyncRequest.addTimeoutHandler(() -> {

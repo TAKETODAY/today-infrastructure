@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,13 +20,15 @@
 
 package cn.taketoday.web.context.async;
 
+import java.util.concurrent.Callable;
+
 import cn.taketoday.web.RequestContext;
 
 /**
  * Sends a 503 (SERVICE_UNAVAILABLE) in case of a timeout if the response is not
- * already committed. this is done indirectly by returning
- * {@link AsyncRequestTimeoutException} as the result of processing which is
- * then handled by MVC's default exception handling as a 503 error.
+ * already committed. this is done indirectly by setting the result
+ * to an {@link AsyncRequestTimeoutException} which is then handled by
+ * MVC's default exception handling as a 503 error.
  *
  * <p>Registered at the end, after all other interceptors and
  * therefore invoked only if no other interceptor handles the timeout.
@@ -37,14 +39,21 @@ import cn.taketoday.web.RequestContext;
  * header if necessary.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class TimeoutDeferredResultProcessingInterceptor implements DeferredResultProcessingInterceptor {
+public class TimeoutAsyncProcessingInterceptor
+        implements CallableProcessingInterceptor, DeferredResultProcessingInterceptor {
 
-	@Override
-	public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> result) throws Exception {
-		result.setErrorResult(new AsyncRequestTimeoutException());
-		return false;
-	}
+  @Override
+  public <T> Object handleTimeout(RequestContext request, Callable<T> task) {
+    return new AsyncRequestTimeoutException();
+  }
+
+  @Override
+  public <T> boolean handleTimeout(RequestContext request, DeferredResult<T> result) {
+    result.setErrorResult(new AsyncRequestTimeoutException());
+    return false;
+  }
 
 }

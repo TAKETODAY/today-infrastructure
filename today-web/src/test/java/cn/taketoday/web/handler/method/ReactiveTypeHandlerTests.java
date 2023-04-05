@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -323,7 +323,7 @@ class ReactiveTypeHandlerTests {
 
     BindingContext mavContainer = new BindingContext();
     MethodParameter returnType = on(TestController.class).resolveReturnType(asyncType, genericType);
-    webRequest.setBindingContext(mavContainer);
+    webRequest.setBinding(mavContainer);
     return this.handler.handleValue(returnValue, returnType, this.webRequest);
   }
 

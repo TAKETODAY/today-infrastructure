@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.web.handler;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -234,7 +233,6 @@ class ReturnValueHandlerManagerTests {
     ViewReturnValueHandler viewReturnValueHandler = manager.get(ViewReturnValueHandler.class);
 
     assertThat(viewReturnValueHandler).isNotNull();
-    assertThat(viewReturnValueHandler.getModelManager()).isNull();
     assertThat(webViewResolver).isEqualTo(viewReturnValueHandler.getViewResolver());
   }
 

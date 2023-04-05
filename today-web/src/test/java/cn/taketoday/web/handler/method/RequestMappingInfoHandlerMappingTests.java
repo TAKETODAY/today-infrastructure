@@ -466,7 +466,7 @@ class RequestMappingInfoHandlerMappingTests {
     Object handler = mapping.getHandler(context);
     assertThat(handler).isNotNull().isInstanceOf(HandlerExecutionChain.class);
     HandlerExecutionChain chain = (HandlerExecutionChain) handler;
-    return (HandlerMethod) chain.getHandler();
+    return (HandlerMethod) chain.getRawHandler();
   }
 
   private void testHttpMediaTypeNotSupportedException(TestRequestMappingInfoHandlerMapping mapping, String url) {
@@ -487,7 +487,7 @@ class RequestMappingInfoHandlerMappingTests {
 
     var context = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
-    context.setBindingContext(new BindingContext());
+    context.setBinding(new BindingContext());
     Object result = new InvocableHandlerMethod(handlerMethod, new ResolvableParameterFactory())
             .invokeForRequest(context);
 

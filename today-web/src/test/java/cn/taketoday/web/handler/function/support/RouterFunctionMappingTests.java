@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,7 +63,7 @@ class RouterFunctionMappingTests {
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
-    assertThat(result.getHandler()).isSameAs(handlerFunction);
+    assertThat(result.getRawHandler()).isSameAs(handlerFunction);
   }
 
   @Test
@@ -125,8 +125,8 @@ class RouterFunctionMappingTests {
     HandlerExecutionChain chain1 = (HandlerExecutionChain) mapping.getHandler(createTestRequest("/fn1"));
     HandlerExecutionChain chain2 = (HandlerExecutionChain) mapping.getHandler(createTestRequest("/fn2"));
     if (detect) {
-      assertThat(chain1).isNotNull().extracting(HandlerExecutionChain::getHandler).isSameAs(function1);
-      assertThat(chain2).isNotNull().extracting(HandlerExecutionChain::getHandler).isSameAs(function2);
+      assertThat(chain1).isNotNull().extracting(HandlerExecutionChain::getRawHandler).isSameAs(function1);
+      assertThat(chain2).isNotNull().extracting(HandlerExecutionChain::getRawHandler).isSameAs(function2);
     }
     else {
       assertThat(chain1).isNull();
@@ -134,7 +134,7 @@ class RouterFunctionMappingTests {
     }
 
     HandlerExecutionChain chain3 = (HandlerExecutionChain) mapping.getHandler(createTestRequest("/fn3"));
-    assertThat(chain3).isNotNull().extracting(HandlerExecutionChain::getHandler).isSameAs(function3);
+    assertThat(chain3).isNotNull().extracting(HandlerExecutionChain::getRawHandler).isSameAs(function3);
 
   }
 
@@ -155,7 +155,7 @@ class RouterFunctionMappingTests {
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
-    assertThat(result.getHandler()).isSameAs(handlerFunction);
+    assertThat(result.getRawHandler()).isSameAs(handlerFunction);
   }
 
   @Test
