@@ -49,7 +49,7 @@ public class ModelAndViewMethodArgumentResolver implements ParameterResolvingStr
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    return context.getBindingContext().getModelAndView();
+    return context.binding().getModelAndView();
   }
 
 }

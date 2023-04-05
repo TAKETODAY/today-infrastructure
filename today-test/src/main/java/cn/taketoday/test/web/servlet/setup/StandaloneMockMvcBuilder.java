@@ -35,6 +35,9 @@ import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.support.ApplicationContextSupport;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
@@ -43,17 +46,20 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.session.SessionManager;
+import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.util.PlaceholderResolver;
 import cn.taketoday.util.PropertyPlaceholderHandler;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
+import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.InterceptorRegistration;
 import cn.taketoday.web.config.InterceptorRegistry;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
@@ -73,7 +79,9 @@ import cn.taketoday.web.view.DefaultRequestToViewNameTranslator;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.SessionRedirectModelManager;
 import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.ViewRef;
 import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.ViewReturnValueHandler;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -93,6 +101,7 @@ import jakarta.servlet.ServletContext;
  * {@code ViewResolver}s (see {@link #setViewResolvers(ViewResolver...)}).
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneMockMvcBuilder> {
@@ -179,8 +188,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * <p>Normally {@code @ControllerAdvice} are auto-detected as long as they're declared
    * as Spring beans. However since the standalone setup does not load any Spring config,
    * they need to be registered explicitly here instead much like controllers.
-   *
-   * @since 4.0
    */
   public StandaloneMockMvcBuilder setControllerAdvice(Object... controllerAdvice) {
     this.controllerAdvice = instantiateIfNecessary(controllerAdvice);
@@ -304,7 +311,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * View instance only -- e.g. rendering generated content (JSON, XML, Atom).
    */
   public StandaloneMockMvcBuilder setSingleView(View view) {
-    this.viewResolvers = Collections.<ViewResolver>singletonList(new StaticViewResolver(view));
+    this.viewResolvers = Collections.singletonList(new StaticViewResolver(view));
     return this;
   }
 
@@ -332,7 +339,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * instead of String pattern matching with a {@link cn.taketoday.core.PathMatcher}.
    *
    * @param parser the parser to use
-   * @since 4.0
    */
   public StandaloneMockMvcBuilder setPatternParser(@Nullable PathPatternParser parser) {
     this.patternParser = parser;
@@ -404,7 +410,12 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   protected WebApplicationContext initWebAppContext() {
     MockServletContext servletContext = new MockServletContext();
     StubWebApplicationContext wac = new StubWebApplicationContext(servletContext);
+
+    var reader = new AnnotatedBeanDefinitionReader(wac);
+    reader.register(WebConfig.class);
+
     registerMvcSingletons(wac);
+
     servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
     return wac;
   }
@@ -416,6 +427,9 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     wac.addBeans(this.controllers);
     wac.addBeans(this.controllerAdvice);
+    wac.addBeans(parameterResolvingRegistry, returnValueHandlerManager);
+
+    wac.refresh();
 
     FormattingConversionService mvcConversionService = config.mvcConversionService();
     wac.addBean("mvcConversionService", mvcConversionService);
@@ -426,16 +440,14 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     Validator mvcValidator = config.mvcValidator();
     wac.addBean("mvcValidator", mvcValidator);
 
-    RequestMappingHandlerMapping hm = config.getHandlerMapping(mvcConversionService, resourceUrlProvider);
+    RequestMappingHandlerMapping hm = config.getHandlerMapping();
     hm.setApplicationContext(wac);
     hm.afterPropertiesSet();
     wac.addBean("requestMappingHandlerMapping", hm);
 
     RequestMappingHandlerAdapter ha = config.requestMappingHandlerAdapter(
-            sessionManager,
-            redirectModelManager,
-            mvcValidator,
-            returnValueHandlerManager,
+            sessionManager, redirectModelManager,
+            mvcValidator, returnValueHandlerManager,
             parameterResolvingRegistry, mvcConversionService);
     ha.setApplicationContext(wac);
     ha.afterPropertiesSet();
@@ -443,13 +455,21 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     wac.addBean("handlerExceptionHandler", config.handlerExceptionHandler());
 
-    wac.addBeans(initViewResolvers(wac), new DefaultRequestToViewNameTranslator());
+    wac.addBeans(initViewResolvers(wac));
+    wac.addBeans(new DefaultRequestToViewNameTranslator());
     wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
 
     this.flashMapManager = new SessionRedirectModelManager(sessionManager);
     wac.addBean(RedirectModelManager.BEAN_NAME, this.flashMapManager);
 
     extendMvcSingletons(sc).forEach(wac::addBean);
+  }
+
+  @EnableWebMvc
+  @Configuration
+  @Import(ViewAttributeReturnValueHandler.class)
+  static class WebConfig {
+
   }
 
   private List<ViewResolver> initViewResolvers(WebApplicationContext wac) {
@@ -478,9 +498,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   /** Using the MVC Java configuration as the starting point for the "standalone" setup. */
   private class StandaloneConfiguration extends WebMvcConfigurationSupport {
 
-    public RequestMappingHandlerMapping getHandlerMapping(
-            FormattingConversionService mvcConversionService,
-            ResourceUrlProvider mvcResourceUrlProvider) {
+    public RequestMappingHandlerMapping getHandlerMapping() {
 
       RequestMappingHandlerMapping handlerMapping = handlerMappingFactory.get();
       handlerMapping.setEmbeddedValueResolver(new StaticStringValueResolver(placeholderValues));
@@ -613,6 +631,27 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     public View resolveViewName(String viewName, Locale locale) {
       return this.view;
     }
+  }
+
+  static class ViewAttributeReturnValueHandler extends ViewReturnValueHandler {
+
+    public ViewAttributeReturnValueHandler(ViewResolver viewResolver) {
+      super(viewResolver);
+    }
+
+    @Override
+    public void renderView(RequestContext context, View view) {
+      super.renderView(context, view);
+      context.setAttribute(MvcResult.VIEW_ATTRIBUTE, view);
+    }
+
+    @Override
+    public void renderView(RequestContext context, ViewRef viewRef) {
+      super.renderView(context, viewRef);
+      String viewName = viewRef.getViewName();
+      context.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, viewName);
+    }
+
   }
 
 }

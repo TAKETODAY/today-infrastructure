@@ -18,30 +18,32 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler;
+package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.support.SessionStatus;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
+ * Resolves a {@link SessionStatus} argument by obtaining it from
+ * the {@link BindingContext}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/12/7 23:06
+ * @since 4.0 2023/4/5 11:40
  */
-public interface HandlerWrapper {
+public class SessionStatusMethodArgumentResolver implements ParameterResolvingStrategy {
 
-  Object getRawHandler();
+  @Override
+  public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+    return resolvable.is(SessionStatus.class);
+  }
 
-  /**
-   * unwrap handler
-   *
-   * @param handler maybe a wrapped handler
-   * @return unwrapped handler
-   */
   @Nullable
-  static Object unwrap(@Nullable Object handler) {
-    if (handler instanceof HandlerWrapper wrapper) {
-      return wrapper.getRawHandler();
-    }
-    return handler;
+  @Override
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    return context.binding().getSessionStatus();
   }
 
 }

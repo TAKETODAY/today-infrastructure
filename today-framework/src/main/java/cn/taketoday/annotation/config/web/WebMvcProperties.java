@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -292,6 +292,8 @@ public class WebMvcProperties {
      */
     private String suffix;
 
+    private boolean putAllOutputRedirectModel = true;
+
     public String getPrefix() {
       return this.prefix;
     }
@@ -308,6 +310,13 @@ public class WebMvcProperties {
       this.suffix = suffix;
     }
 
+    public void setPutAllOutputRedirectModel(boolean putAllOutputRedirectModel) {
+      this.putAllOutputRedirectModel = putAllOutputRedirectModel;
+    }
+
+    public boolean isPutAllOutputRedirectModel() {
+      return putAllOutputRedirectModel;
+    }
   }
 
   public static class Contentnegotiation {

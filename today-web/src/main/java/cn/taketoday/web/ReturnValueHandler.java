@@ -44,7 +44,6 @@ import cn.taketoday.web.handler.result.SmartReturnValueHandler;
  * @see HandlerMethod
  */
 public interface ReturnValueHandler {
-  String REDIRECT_URL_PREFIX = "redirect:";
 
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 

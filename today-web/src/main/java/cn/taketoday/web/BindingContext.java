@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -182,6 +182,7 @@ public class BindingContext {
    * ViewResolver, or {@code null} if a View object is set.
    */
   @Nullable
+  @Deprecated
   public String getViewName() {
     return view instanceof String ? (String) this.view : null;
   }
@@ -190,6 +191,7 @@ public class BindingContext {
    * Set a View object to be used by the DispatcherServlet.
    * Will override any pre-existing view name or View.
    */
+  @Deprecated
   public void setView(@Nullable Object view) {
     this.view = view;
   }
@@ -199,6 +201,7 @@ public class BindingContext {
    * to be resolved by the DispatcherServlet via a ViewResolver.
    */
   @Nullable
+  @Deprecated
   public Object getView() {
     return this.view;
   }
@@ -207,8 +210,16 @@ public class BindingContext {
    * Whether the view is a view reference specified via a name to be
    * resolved by the DispatcherServlet via a ViewResolver.
    */
+  @Deprecated
   public boolean isViewReference() {
     return view instanceof String;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean hasModel() {
+    return model != null;
   }
 
   /**

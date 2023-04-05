@@ -649,7 +649,7 @@ public class HandlerMethod implements AsyncHandler {
       return annotationHandler.getMethod();
     }
     else if (handler instanceof HandlerWrapper wrapper
-            && wrapper.getHandler() instanceof HandlerMethod target) {
+            && wrapper.getRawHandler() instanceof HandlerMethod target) {
       return target;
     }
     return null;

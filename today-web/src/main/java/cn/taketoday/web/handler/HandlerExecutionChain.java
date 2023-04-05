@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,7 +60,7 @@ public class HandlerExecutionChain
    */
   public HandlerExecutionChain(Object handler, @Nullable HandlerInterceptor... interceptors) {
     if (handler instanceof HandlerExecutionChain originalChain) {
-      this.handler = originalChain.getHandler();
+      this.handler = originalChain.getRawHandler();
       addInterceptors(originalChain.getInterceptors());
     }
     else {
@@ -73,7 +73,7 @@ public class HandlerExecutionChain
    * Return the handler object to execute.
    */
   @Override
-  public Object getHandler() {
+  public Object getRawHandler() {
     return this.handler;
   }
 
@@ -96,7 +96,7 @@ public class HandlerExecutionChain
    */
   @Override
   public String toString() {
-    return "HandlerExecutionChain with [" + getHandler() + "] and " + interceptorSize() + " interceptors";
+    return "HandlerExecutionChain with [" + getRawHandler() + "] and " + interceptorSize() + " interceptors";
   }
 
   @Nullable

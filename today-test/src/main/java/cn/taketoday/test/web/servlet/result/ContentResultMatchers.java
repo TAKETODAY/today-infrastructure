@@ -207,7 +207,6 @@ public class ContentResultMatchers {
    * ordering).
    *
    * @param jsonContent the expected JSON content
-   * @since 4.0
    */
   public ResultMatcher json(String jsonContent) {
     return json(jsonContent, false);
@@ -226,7 +225,6 @@ public class ContentResultMatchers {
    *
    * @param jsonContent the expected JSON content
    * @param strict enables strict checking
-   * @since 4.0
    */
   public ResultMatcher json(String jsonContent, boolean strict) {
     return result -> {

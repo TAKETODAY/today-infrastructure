@@ -23,11 +23,13 @@ package cn.taketoday.test.web.servlet.result;
 import org.hamcrest.Matcher;
 
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.test.web.servlet.ResultMatcher;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncTask;
 import jakarta.servlet.http.HttpServletRequest;
@@ -164,6 +166,13 @@ public class RequestResultMatchers {
         assertNull("Session attribute '" + name + "' exists", session.getAttribute(name));
       }
     };
+  }
+
+  /**
+   * Assert the given RequestContext.
+   */
+  public ResultMatcher request(Consumer<RequestContext> contextConsumer) {
+    return result -> contextConsumer.accept(result.getRequestContext());
   }
 
   private static void assertAsyncStarted(HttpServletRequest request) {

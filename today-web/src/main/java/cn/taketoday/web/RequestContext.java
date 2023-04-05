@@ -1350,17 +1350,30 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /** @since 4.0 */
-  public void setBindingContext(BindingContext bindingContext) {
+  public void setBinding(@Nullable BindingContext bindingContext) {
     this.bindingContext = bindingContext;
   }
 
   /** @since 4.0 */
-  public boolean hasBindingContext() {
+  public boolean hasBinding() {
     return bindingContext != null;
   }
 
-  /** @since 4.0 */
-  public BindingContext getBindingContext() {
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public BindingContext getBinding() {
+    return bindingContext;
+  }
+
+  /**
+   * @throws IllegalStateException if BindingContext is not set
+   * @since 4.0
+   */
+  public BindingContext binding() {
+    BindingContext bindingContext = this.bindingContext;
+    Assert.state(bindingContext != null, "BindingContext is required");
     return bindingContext;
   }
 

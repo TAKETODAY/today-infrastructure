@@ -24,16 +24,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.ui.ModelMap;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.view.View;
 
 /**
  * A simple implementation of {@link MvcResult} with setters.
@@ -44,12 +47,15 @@ import cn.taketoday.web.view.RedirectModel;
  */
 class DefaultMvcResult implements MvcResult {
 
+  static final String MVC_RESULT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          MvcResult.class, "mvc-result");
+
   private static final Object RESULT_NONE = new Object();
 
   private final MockHttpServletRequest mockRequest;
   private final MockHttpServletResponse mockResponse;
 
-  private final RequestContext requestContext;
+  private RequestContext requestContext;
 
   @Nullable
   private Object handler;
@@ -74,7 +80,7 @@ class DefaultMvcResult implements MvcResult {
   public DefaultMvcResult(MockHttpServletRequest request, MockHttpServletResponse response) {
     this.mockRequest = request;
     this.mockResponse = response;
-    this.requestContext = new ServletRequestContext(null, request, response);
+    request.setAttribute(MVC_RESULT_ATTRIBUTE, this);
   }
 
   @Override
@@ -90,6 +96,10 @@ class DefaultMvcResult implements MvcResult {
   @Override
   public RequestContext getRequestContext() {
     return requestContext;
+  }
+
+  public void setRequestContext(RequestContext requestContext) {
+    this.requestContext = requestContext;
   }
 
   public void setHandler(@Nullable Object handler) {
@@ -129,6 +139,32 @@ class DefaultMvcResult implements MvcResult {
   @Override
   @Nullable
   public ModelAndView getModelAndView() {
+    if (modelAndView == null) {
+      if (requestContext.hasBinding()) {
+        BindingContext bindingContext = requestContext.getBinding();
+        if (bindingContext != null && bindingContext.hasModelAndView()) {
+          ModelAndView modelAndView = bindingContext.getModelAndView();
+          setModelAndView(modelAndView);
+        }
+        else if (bindingContext != null) {
+          ModelMap model = bindingContext.getModel();
+          Object viewNameAttribute = requestContext.getAttribute(VIEW_NAME_ATTRIBUTE);
+          if (viewNameAttribute instanceof String viewName) {
+            modelAndView = new ModelAndView(viewName, model);
+          }
+          else if (requestContext.getAttribute(VIEW_ATTRIBUTE) instanceof View view) {
+            modelAndView = new ModelAndView(view, model);
+          }
+          else {
+            modelAndView = new ModelAndView();
+            modelAndView.addAllObjects(model);
+          }
+        }
+        else {
+          modelAndView = new ModelAndView();
+        }
+      }
+    }
     return this.modelAndView;
   }
 
@@ -177,6 +213,14 @@ class DefaultMvcResult implements MvcResult {
 
   void setAsyncDispatchLatch(CountDownLatch asyncDispatchLatch) {
     this.asyncDispatchLatch = asyncDispatchLatch;
+  }
+
+  static DefaultMvcResult forContext(RequestContext request) {
+    Object attribute = request.getAttribute(MVC_RESULT_ATTRIBUTE);
+    if (attribute instanceof DefaultMvcResult mvcResult) {
+      return mvcResult;
+    }
+    throw new IllegalStateException("No DefaultMvcResult");
   }
 
 }

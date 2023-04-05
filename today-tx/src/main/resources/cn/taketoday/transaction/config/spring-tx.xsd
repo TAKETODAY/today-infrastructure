@@ -13,7 +13,7 @@
 
   <xsd:annotation>
     <xsd:documentation><![CDATA[
-	Defines the elements used in the Spring Framework's declarative
+	Defines the elements used in the Infra declarative
 	transaction management infrastructure.
 		]]></xsd:documentation>
   </xsd:annotation>

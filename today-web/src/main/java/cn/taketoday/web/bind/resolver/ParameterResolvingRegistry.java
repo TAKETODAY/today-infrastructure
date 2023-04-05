@@ -261,6 +261,7 @@ public class ParameterResolvingRegistry
     strategies.add(new ModelMethodProcessor());
     strategies.add(new MapMethodProcessor());
     strategies.add(new ErrorsMethodArgumentResolver());
+    strategies.add(new SessionStatusMethodArgumentResolver());
     strategies.add(new UriComponentsBuilderParameterStrategy());
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));

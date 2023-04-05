@@ -113,4 +113,27 @@ public interface ResultActions {
    */
   MvcResult andReturn();
 
+  //
+
+  static ResultActions forMvcResult(MvcResult mvcResult) {
+    return new ResultActions() {
+      @Override
+      public ResultActions andExpect(ResultMatcher matcher) throws Exception {
+        matcher.match(mvcResult);
+        return this;
+      }
+
+      @Override
+      public ResultActions andDo(ResultHandler handler) throws Exception {
+        handler.handle(mvcResult);
+        return this;
+      }
+
+      @Override
+      public MvcResult andReturn() {
+        return mvcResult;
+      }
+    };
+  }
+
 }

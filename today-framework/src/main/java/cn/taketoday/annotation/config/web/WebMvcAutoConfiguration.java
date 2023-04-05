@@ -103,6 +103,8 @@ import cn.taketoday.web.servlet.filter.OrderedHiddenHttpMethodFilter;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.ViewReturnValueHandler;
 
 import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 
@@ -228,6 +230,16 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
     localeResolver.setDefaultLocale(this.webProperties.getLocale());
     return localeResolver;
+  }
+
+  @Override
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(ViewReturnValueHandler.class)
+  public ViewReturnValueHandler viewReturnValueHandler(List<ViewResolver> viewResolvers) {
+    ViewReturnValueHandler handler = super.viewReturnValueHandler(viewResolvers);
+    handler.setPutAllOutputRedirectModel(mvcProperties.getView().isPutAllOutputRedirectModel());
+    return handler;
   }
 
   @Override

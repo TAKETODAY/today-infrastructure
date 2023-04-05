@@ -20,6 +20,7 @@
 
 package cn.taketoday.test.web.servlet;
 
+import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
@@ -33,9 +34,16 @@ import cn.taketoday.web.view.RedirectModel;
  * Provides access to the result of an executed request.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface MvcResult {
+
+  String VIEW_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          MvcResult.class, "view");
+
+  String VIEW_NAME_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          MvcResult.class, "view-name");
 
   /**
    * Return the performed request.
@@ -89,7 +97,7 @@ public interface MvcResult {
   /**
    * Return the "output" flash attributes saved during request processing.
    *
-   * @return the {@code FlashMap}, possibly empty
+   * @return the {@code RedirectModel}, possibly empty
    */
   RedirectModel getFlashMap();
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -69,8 +69,8 @@ public class InitBinderBindingContext extends BindingContext {
   @Override
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
     if (binderMethods != null) {
-      BindingContext bindingContext = request.getBindingContext();
-      request.setBindingContext(binderMethodContext);
+      BindingContext bindingContext = request.getBinding();
+      request.setBinding(binderMethodContext);
       for (InvocableHandlerMethod binderMethod : binderMethods) {
         if (isBinderMethodApplicable(binderMethod, dataBinder)) {
           Object returnValue = binderMethod.invokeForRequest(request, dataBinder);
@@ -85,7 +85,7 @@ public class InitBinderBindingContext extends BindingContext {
           }
         }
       }
-      request.setBindingContext(bindingContext);
+      request.setBinding(bindingContext);
     }
   }
 

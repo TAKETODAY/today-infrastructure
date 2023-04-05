@@ -543,18 +543,23 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setBindingContext(BindingContext bindingContext) {
-    delegate.setBindingContext(bindingContext);
+  public void setBinding(BindingContext bindingContext) {
+    delegate.setBinding(bindingContext);
   }
 
   @Override
-  public BindingContext getBindingContext() {
-    return delegate.getBindingContext();
+  public BindingContext getBinding() {
+    return delegate.getBinding();
   }
 
   @Override
-  public boolean hasBindingContext() {
-    return delegate.hasBindingContext();
+  public BindingContext binding() {
+    return delegate.binding();
+  }
+
+  @Override
+  public boolean hasBinding() {
+    return delegate.hasBinding();
   }
 
   // AttributeAccessorSupport

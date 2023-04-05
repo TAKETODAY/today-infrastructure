@@ -74,7 +74,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/3/30 20:28
  */
-public class StaticListableBeanFactory implements BeanFactory {
+public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry implements BeanFactory {
 
   /** Map from bean name to bean instance. */
   private final Map<String, Object> beans;

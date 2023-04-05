@@ -47,7 +47,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * A subclass of {@code DispatcherServlet} that saves the result in an
  * {@link MvcResult}. The {@code MvcResult} instance is expected to be available
- * as the request attribute {@link MockMvc#MVC_RESULT_ATTRIBUTE}.
+ * as the request attribute {@link DefaultMvcResult#MVC_RESULT_ATTRIBUTE}.
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
@@ -72,7 +72,9 @@ final class TestDispatcherServlet extends DispatcherServlet {
     context.setWebAsyncManagerFactory(webAsyncManagerFactory);
     registerAsyncResultInterceptors(context);
 
+    DefaultMvcResult mvcResult = getMvcResult(context);
     RequestContextHolder.set(context);
+    mvcResult.setRequestContext(context);
 
     try {
       super.service(request, response);
@@ -83,7 +85,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
           asyncContext = mockAsyncContext;
         }
         else {
-          MockHttpServletRequest mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
+          var mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
           Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
           asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
           String requestClassName = request.getClass().getName();
@@ -95,7 +97,8 @@ final class TestDispatcherServlet extends DispatcherServlet {
 
         CountDownLatch dispatchLatch = new CountDownLatch(1);
         asyncContext.addDispatchHandler(dispatchLatch::countDown);
-        getMvcResult(context).setAsyncDispatchLatch(dispatchLatch);
+
+        mvcResult.setAsyncDispatchLatch(dispatchLatch);
       }
     }
     finally {
@@ -104,26 +107,13 @@ final class TestDispatcherServlet extends DispatcherServlet {
   }
 
   private void registerAsyncResultInterceptors(RequestContext context) {
-    context.getAsyncManager().registerCallableInterceptor(KEY,
-            new CallableProcessingInterceptor() {
-              @Override
-              public <T> void postProcess(RequestContext r, Callable<T> task, Object value) {
-                // We got the result, must also wait for the dispatch
-                getMvcResult(context).setAsyncResult(value);
-              }
-            });
-
-    context.getAsyncManager().registerDeferredResultInterceptor(KEY,
-            new DeferredResultProcessingInterceptor() {
-              @Override
-              public <T> void postProcess(RequestContext r, DeferredResult<T> result, Object value) {
-                getMvcResult(context).setAsyncResult(value);
-              }
-            });
+    var interceptor = new MvcResultProcessingInterceptor();
+    context.getAsyncManager().registerCallableInterceptor(KEY, interceptor);
+    context.getAsyncManager().registerDeferredResultInterceptor(KEY, interceptor);
   }
 
-  protected DefaultMvcResult getMvcResult(RequestContext request) {
-    return (DefaultMvcResult) request.getAttribute(MockMvc.MVC_RESULT_ATTRIBUTE);
+  private DefaultMvcResult getMvcResult(RequestContext request) {
+    return DefaultMvcResult.forContext(request);
   }
 
   @Nullable
@@ -132,7 +122,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
     Object handler = super.lookupHandler(context);
     if (handler instanceof HandlerExecutionChain chain) {
       DefaultMvcResult mvcResult = getMvcResult(context);
-      mvcResult.setHandler(chain.getHandler());
+      mvcResult.setHandler(chain.getRawHandler());
       mvcResult.setInterceptors(chain.getInterceptors());
     }
     return handler;
@@ -160,6 +150,22 @@ final class TestDispatcherServlet extends DispatcherServlet {
       mvcResult.setModelAndView(modelAndView);
     }
     return mav;
+  }
+
+  class MvcResultProcessingInterceptor
+          implements CallableProcessingInterceptor, DeferredResultProcessingInterceptor {
+
+    @Override
+    public <T> void postProcess(RequestContext context, Callable<T> task, Object value) {
+      // We got the result, must also wait for the dispatch
+      getMvcResult(context).setAsyncResult(value);
+    }
+
+    @Override
+    public <T> void postProcess(RequestContext context, DeferredResult<T> result, Object value) {
+      getMvcResult(context).setAsyncResult(value);
+    }
+
   }
 
 }

@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,18 +348,11 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    @Deprecated
-    public RequestHeadersSpec<?> syncBody(Object body) {
-      return bodyValue(body);
-    }
-
-    @Override
     public ResponseSpec exchange() {
-      ClientRequest request = (this.inserter != null ?
-                               initRequestBuilder().body(this.inserter).build() :
-                               initRequestBuilder().build());
+      ClientRequest request = initRequestBuilder().build();
 
-      ClientResponse response = exchangeFunction.exchange(request).block(getResponseTimeout());
+      ClientResponse response = exchangeFunction.exchange(request)
+              .block(getResponseTimeout());
       Assert.state(response != null, "No ClientResponse");
 
       ExchangeResult result = wiretapConnector.getExchangeResult(
@@ -390,6 +384,10 @@ class DefaultWebTestClient implements WebTestClient {
 
       if (this.httpRequestConsumer != null) {
         builder.httpRequest(this.httpRequestConsumer);
+      }
+
+      if (this.inserter != null) {
+        builder.body(this.inserter);
       }
 
       return builder;
@@ -518,9 +516,7 @@ class DefaultWebTestClient implements WebTestClient {
         // that is not a RuntimeException, but since ExceptionCollector may
         // throw a checked Exception, we handle this to appease the compiler
         // and in case someone uses a "sneaky throws" technique.
-        AssertionError assertionError = new AssertionError(ex.getMessage());
-        assertionError.initCause(ex);
-        throw assertionError;
+        throw new AssertionError(ex.getMessage(), ex);
       }
       return this;
     }
@@ -606,7 +602,7 @@ class DefaultWebTestClient implements WebTestClient {
       List<E> actual = getResult().getResponseBody();
       String message = "Response body does not contain " + expected;
       getResult().assertWithDiagnostics(() ->
-              AssertionErrors.assertTrue(message, (actual != null && actual.containsAll(expected))));
+              AssertionErrors.assertTrue(message, (actual != null && new HashSet<>(actual).containsAll(expected))));
       return this;
     }
 
@@ -617,7 +613,7 @@ class DefaultWebTestClient implements WebTestClient {
       List<E> actual = getResult().getResponseBody();
       String message = "Response body should not have contained " + expected;
       getResult().assertWithDiagnostics(() ->
-              AssertionErrors.assertTrue(message, (actual == null || !actual.containsAll(expected))));
+              AssertionErrors.assertTrue(message, (actual == null || !new HashSet<>(actual).containsAll(expected))));
       return this;
     }
 

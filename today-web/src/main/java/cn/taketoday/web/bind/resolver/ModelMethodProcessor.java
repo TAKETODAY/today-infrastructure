@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,12 +21,12 @@
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.RedirectModel;
 
 /**
@@ -57,11 +57,11 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
       // set redirect model to current BindingContext
-      context.getBindingContext().setRedirectModel(redirectModel);
+      context.binding().setRedirectModel(redirectModel);
       return redirectModel;
     }
 
-    return context.getBindingContext().getModel();
+    return context.binding().getModel();
   }
 
   //---------------------------------------------------------------------
@@ -85,7 +85,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Model model) {
-      BindingContext bindingContext = context.getBindingContext();
+      BindingContext bindingContext = context.binding();
       if (returnValue instanceof RedirectModel redirectModel) {
         // RedirectModel is a special case:
         RedirectModel existRedirectModel = bindingContext.getRedirectModel();

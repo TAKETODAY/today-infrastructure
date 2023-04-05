@@ -335,9 +335,7 @@ public class ReturnValueHandlerManager
         viewResolver = resolver;
       }
       viewReturnValueHandler = new ViewReturnValueHandler(viewResolver);
-      viewReturnValueHandler.setModelManager(redirectModelManager);
     }
-    Assert.state(viewReturnValueHandler != null, "No ViewReturnValueHandler");
     return viewReturnValueHandler;
   }
 

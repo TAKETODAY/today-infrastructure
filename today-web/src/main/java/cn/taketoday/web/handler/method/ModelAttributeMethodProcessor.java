@@ -120,7 +120,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    BindingContext bindingContext = context.getBindingContext();
+    BindingContext bindingContext = context.binding();
 
     MethodParameter parameter = resolvable.getParameter();
     String name = ModelHandler.getNameForParameter(parameter);
@@ -523,9 +523,8 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   public void handleHandlerMethodReturnValue(
           RequestContext context, HandlerMethod handler, @Nullable Object returnValue) {
     if (returnValue != null) {
-      BindingContext bindingContext = context.getBindingContext();
       String name = ModelHandler.getNameForReturnValue(returnValue, handler);
-      bindingContext.addAttribute(name, returnValue);
+      context.binding().addAttribute(name, returnValue);
     }
   }
 

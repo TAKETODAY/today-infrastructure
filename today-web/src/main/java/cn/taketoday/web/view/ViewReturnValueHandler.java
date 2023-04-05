@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
@@ -45,9 +46,6 @@ import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   private final ViewResolver viewResolver;
-
-  @Nullable
-  private RedirectModelManager modelManager;
 
   private boolean putAllOutputRedirectModel = true;
 
@@ -73,7 +71,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof String || returnValue instanceof ViewRef || returnValue instanceof View;
+    return returnValue instanceof String
+            || returnValue instanceof View
+            || returnValue instanceof ViewRef;
   }
 
   /**
@@ -84,8 +84,8 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @throws ViewRenderingException Could not resolve view with given name
    */
   @Override
-  public void handleReturnValue(
-          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context,
+          @Nullable Object handler, @Nullable Object returnValue) throws ViewRenderingException {
     if (returnValue instanceof String viewName) {
       renderView(context, viewName);
     }
@@ -102,9 +102,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    *
    * @param context current HTTP request context
    * @param viewName View to render
-   * @throws Exception If view rendering failed
+   * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, String viewName) throws Exception {
+  public void renderView(RequestContext context, String viewName) {
     Locale locale = RequestContextUtils.getLocale(context);
     renderView(context, ViewRef.of(viewName, locale));
   }
@@ -114,16 +114,16 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    *
    * @param context current HTTP request context
    * @param viewRef ViewRef to render
-   * @throws Exception If view rendering failed
+   * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, ViewRef viewRef) throws Exception {
+  public void renderView(RequestContext context, ViewRef viewRef) {
     Locale locale = viewRef.getLocale();
     String viewName = viewRef.getViewName();
     if (locale == null) {
       locale = RequestContextUtils.getLocale(context);
     }
 
-    View view = viewResolver.resolveViewName(viewName, locale);
+    View view = resolveViewName(locale, viewName);
     if (view == null) {
       HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
       if (matchingMetadata != null) {
@@ -141,31 +141,46 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     }
   }
 
+  @Nullable
+  private View resolveViewName(Locale locale, String viewName) {
+    try {
+      return viewResolver.resolveViewName(viewName, locale);
+    }
+    catch (Exception e) {
+      throw new ViewRenderingException("Could not resolve view with name '" + viewName + "'", e);
+    }
+  }
+
   /**
    * rendering a {@link View}
    *
    * @param context current HTTP request context
    * @param view View to render
-   * @throws Exception If view rendering failed
+   * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, View view) throws Exception {
+  public void renderView(RequestContext context, View view) {
     LinkedHashMap<String, Object> model = new LinkedHashMap<>();
 
     if (putAllOutputRedirectModel) {
       // put all output RedirectModel
-      RedirectModel outputRedirectModel = RequestContextUtils.getOutputRedirectModel(context);
-      if (outputRedirectModel != null) {
-        model.putAll(outputRedirectModel.asMap());
+      RedirectModel output = RequestContextUtils.getOutputRedirectModel(context);
+      if (output != null) {
+        model.putAll(output.asMap());
       }
     }
 
-    if (context.hasBindingContext()) {
+    BindingContext binding = context.getBinding();
+    if (binding != null && binding.hasModel()) {
       // injected arguments Model
-      model.putAll(context.getBindingContext().getModel());
+      model.putAll(binding.getModel());
     }
-
-    // do rendering
-    view.render(model, context);
+    try {
+      // do rendering
+      view.render(model, context);
+    }
+    catch (Exception e) {
+      throw new ViewRenderingException("View '" + view + "' render failed", e);
+    }
   }
 
   /**
@@ -181,19 +196,10 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * set RedirectModelManager to resolve 'input' RedirectModel
+   * Returns ViewResolver
    *
-   * @param modelManager RedirectModelManager to manage 'input' or 'output' RedirectModel
+   * @return ViewResolver
    */
-  public void setModelManager(@Nullable RedirectModelManager modelManager) {
-    this.modelManager = modelManager;
-  }
-
-  @Nullable
-  public RedirectModelManager getModelManager() {
-    return modelManager;
-  }
-
   public ViewResolver getViewResolver() {
     return viewResolver;
   }

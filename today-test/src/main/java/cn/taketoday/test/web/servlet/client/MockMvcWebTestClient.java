@@ -33,7 +33,6 @@ import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.RequestBuilder;
 import cn.taketoday.test.web.servlet.ResultActions;
-import cn.taketoday.test.web.servlet.ResultHandler;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import cn.taketoday.test.web.servlet.setup.MockMvcConfigurer;
@@ -147,24 +146,7 @@ public interface MockMvcWebTestClient {
               "Result from mock server exchange must be an instance of MvcResult instead of " +
                       (serverResult != null ? serverResult.getClass().getName() : "null"));
     }
-    return new ResultActions() {
-      @Override
-      public ResultActions andExpect(ResultMatcher matcher) throws Exception {
-        matcher.match(mvcResult);
-        return this;
-      }
-
-      @Override
-      public ResultActions andDo(ResultHandler handler) throws Exception {
-        handler.handle(mvcResult);
-        return this;
-      }
-
-      @Override
-      public MvcResult andReturn() {
-        return mvcResult;
-      }
-    };
+    return ResultActions.forMvcResult(mvcResult);
   }
 
   /**

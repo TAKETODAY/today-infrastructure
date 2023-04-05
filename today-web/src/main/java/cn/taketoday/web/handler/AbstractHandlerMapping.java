@@ -425,7 +425,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
    */
   protected boolean hasCorsConfigurationSource(Object handler) {
     if (handler instanceof HandlerExecutionChain handlerExecutionChain) {
-      handler = handlerExecutionChain.getHandler();
+      handler = handlerExecutionChain.getRawHandler();
     }
     return handler instanceof CorsConfigurationSource || this.corsConfigurationSource != null;
   }
@@ -442,7 +442,7 @@ public abstract class AbstractHandlerMapping extends ApplicationContextSupport
   protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
     Object resolvedHandler = handler;
     if (handler instanceof HandlerExecutionChain chain) {
-      resolvedHandler = chain.getHandler();
+      resolvedHandler = chain.getRawHandler();
     }
     if (resolvedHandler instanceof CorsConfigurationSource configSource) {
       return configSource.getCorsConfiguration(request);

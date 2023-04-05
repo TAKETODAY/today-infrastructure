@@ -237,7 +237,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
   protected void validateIfApplicable(
           RequestContext context, MethodParameter parameter, Object arg) throws Throwable {
-    BindingContext bindingContext = context.getBindingContext();
+    BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
       String name = Conventions.getVariableNameForParameter(parameter);
       WebDataBinder binder = bindingContext.createBinder(context, arg, name);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -96,7 +96,7 @@ public class WebSocketHandlerMapping extends SimpleUrlHandlerMapping implements 
 
   private boolean matchWebSocketUpgrade(@Nullable Object handler, RequestContext request) {
     handler = (handler instanceof HandlerExecutionChain ?
-               ((HandlerExecutionChain) handler).getHandler() : handler);
+               ((HandlerExecutionChain) handler).getRawHandler() : handler);
     if (this.webSocketUpgradeMatch && handler instanceof WebSocketHttpRequestHandler) {
       String header = request.requestHeaders().getUpgrade();
       return request.getMethod() == HttpMethod.GET

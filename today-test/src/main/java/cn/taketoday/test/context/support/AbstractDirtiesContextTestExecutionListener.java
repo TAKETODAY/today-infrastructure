@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,7 +42,7 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  * with the {@link DirtiesContext @DirtiesContext} annotation.
  *
  * <p>The core functionality for this class was extracted from
- * {@link DirtiesContextTestExecutionListener} in Spring Framework 4.2.
+ * {@link DirtiesContextTestExecutionListener}
  *
  * @author Sam Brannen
  * @author Juergen Hoeller

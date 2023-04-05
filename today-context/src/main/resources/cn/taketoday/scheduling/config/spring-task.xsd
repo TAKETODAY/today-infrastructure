@@ -7,7 +7,7 @@
 
   <xsd:annotation>
     <xsd:documentation><![CDATA[
-	Defines the elements used in the Spring Framework's support for task execution and scheduling.
+	Defines the elements used in the Infra support for task execution and scheduling.
 		]]></xsd:documentation>
   </xsd:annotation>
 

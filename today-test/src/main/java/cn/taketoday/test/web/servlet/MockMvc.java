@@ -33,7 +33,6 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
@@ -72,8 +71,6 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  * @since 4.0
  */
 public final class MockMvc {
-
-  static final String MVC_RESULT_ATTRIBUTE = MockMvc.class.getName().concat(".MVC_RESULT_ATTRIBUTE");
 
   private final TestDispatcherServlet servlet;
 
@@ -197,10 +194,8 @@ public final class MockMvc {
     }
 
     MvcResult mvcResult = new DefaultMvcResult(request, mockResponse);
-    request.setAttribute(MVC_RESULT_ATTRIBUTE, mvcResult);
 
-    RequestContext previousAttributes = RequestContextHolder.getRequired();
-    RequestContextHolder.set(new ServletRequestContext(null, request, servletResponse));
+    RequestContext previousAttributes = RequestContextHolder.get();
 
     MockFilterChain filterChain = new MockFilterChain(this.servlet, this.filters);
     filterChain.doFilter(request, servletResponse);
@@ -212,25 +207,7 @@ public final class MockMvc {
 
     applyDefaultResultActions(mvcResult);
     RequestContextHolder.set(previousAttributes);
-
-    return new ResultActions() {
-      @Override
-      public ResultActions andExpect(ResultMatcher matcher) throws Exception {
-        matcher.match(mvcResult);
-        return this;
-      }
-
-      @Override
-      public ResultActions andDo(ResultHandler handler) throws Exception {
-        handler.handle(mvcResult);
-        return this;
-      }
-
-      @Override
-      public MvcResult andReturn() {
-        return mvcResult;
-      }
-    };
+    return ResultActions.forMvcResult(mvcResult);
   }
 
   private MockHttpServletResponse unwrapResponseIfNecessary(ServletResponse servletResponse) {

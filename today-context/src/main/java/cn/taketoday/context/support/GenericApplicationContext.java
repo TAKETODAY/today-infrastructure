@@ -241,7 +241,7 @@ public class GenericApplicationContext
   /**
    * This implementation delegates to this context's {@code ResourceLoader} if set,
    * falling back to the default superclass behavior otherwise.
-   * <p>As of Spring Framework 5.3.22, this method also honors registered
+   * <p>This method also honors registered
    * {@linkplain #getProtocolResolvers() protocol resolvers} when a custom
    * {@code ResourceLoader} has been set.
    *

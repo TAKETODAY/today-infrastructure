@@ -498,20 +498,10 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   protected void configureViewResolvers(ViewResolverRegistry registry) { }
 
-  /**
-   * default {@link ReturnValueHandler} registry
-   */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
-  ReturnValueHandlerManager returnValueHandlerManager(
-          @Nullable RedirectModelManager redirectModelManager, List<ViewResolver> viewResolvers) {
-
-    var manager = new ReturnValueHandlerManager(getMessageConverters());
-
-    manager.setApplicationContext(applicationContext);
-    manager.setRedirectModelManager(redirectModelManager);
-
+  @ConditionalOnMissingBean(ViewReturnValueHandler.class)
+  public ViewReturnValueHandler viewReturnValueHandler(List<ViewResolver> viewResolvers) {
     ViewResolver viewResolver;
     if (viewResolvers.size() == 1) {
       viewResolver = CollectionUtils.firstElement(viewResolvers);
@@ -523,16 +513,29 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       viewResolver = composite;
     }
 
-    manager.setViewResolver(viewResolver);
-    ViewReturnValueHandler handler = new ViewReturnValueHandler(viewResolver);
-    handler.setModelManager(redirectModelManager);
+    return new ViewReturnValueHandler(viewResolver);
+  }
+
+  /**
+   * default {@link ReturnValueHandler} registry
+   */
+  @Component
+  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
+  ReturnValueHandlerManager returnValueHandlerManager(
+          ViewReturnValueHandler viewHandler, @Nullable RedirectModelManager redirectModelManager) {
+
+    var manager = new ReturnValueHandlerManager(getMessageConverters());
+
+    manager.setApplicationContext(applicationContext);
+    manager.setRedirectModelManager(redirectModelManager);
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
     if (configurer.getTaskExecutor() != null) {
       manager.setTaskExecutor(configurer.getTaskExecutor());
     }
 
-    manager.setViewReturnValueHandler(handler);
+    manager.setViewReturnValueHandler(viewHandler);
     manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
     manager.registerDefaultHandlers();
 

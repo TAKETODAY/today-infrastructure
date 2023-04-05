@@ -328,27 +328,27 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   protected Object invokeHandlerMethod(
           RequestContext request, HandlerMethod handlerMethod) throws Throwable {
 
-    BindingContext bindingContext = new InitBinderBindingContext(
+    BindingContext binding = new InitBinderBindingContext(
             getWebBindingInitializer(), methodResolver.getBinderMethods(handlerMethod));
 
-    request.setBindingContext(bindingContext);
+    request.setBinding(binding);
 
     // add last RedirectModel to this request
     var inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
     if (inputRedirectModel != null) {
-      bindingContext.addAllAttributes(inputRedirectModel);
+      binding.addAllAttributes(inputRedirectModel);
     }
 
-    modelHandler.initModel(request, bindingContext, handlerMethod);
+    modelHandler.initModel(request, binding, handlerMethod);
 
     var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
-    Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
+    Object returnValue = invocableMethod.invokeAndHandle(request, binding);
 
     if (request.isConcurrentHandlingStarted()) {
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
-    modelHandler.updateModel(request, bindingContext, handlerMethod.getBeanType());
+    modelHandler.updateModel(request, binding, handlerMethod.getBeanType());
     return returnValue;
   }
 

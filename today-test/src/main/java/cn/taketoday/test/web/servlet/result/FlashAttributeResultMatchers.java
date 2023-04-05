@@ -77,7 +77,7 @@ public class FlashAttributeResultMatchers {
    * Assert the number of flash attributes.
    */
   public ResultMatcher attributeCount(int count) {
-    return result -> assertEquals("FlashMap size", count, result.getFlashMap().size());
+    return result -> assertEquals("RedirectModel size", count, result.getFlashMap().size());
   }
 
 }

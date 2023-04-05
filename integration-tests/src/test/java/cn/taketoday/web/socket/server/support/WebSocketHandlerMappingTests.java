@@ -54,7 +54,7 @@ public class WebSocketHandlerMappingTests {
     ServletRequestContext context = new ServletRequestContext(null, request, new MockHttpServletResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler()).isSameAs(handler);
+    assertThat(chain.getRawHandler()).isSameAs(handler);
 
     mapping.setWebSocketUpgradeMatch(true);
 
@@ -65,7 +65,7 @@ public class WebSocketHandlerMappingTests {
     context = new ServletRequestContext(null, request, new MockHttpServletResponse());
     chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler()).isSameAs(handler);
+    assertThat(chain.getRawHandler()).isSameAs(handler);
 
     request.setMethod("POST");
     context = new ServletRequestContext(null, request, new MockHttpServletResponse());

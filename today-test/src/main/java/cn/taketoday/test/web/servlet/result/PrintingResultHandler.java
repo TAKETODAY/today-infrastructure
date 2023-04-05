@@ -105,7 +105,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printHeading("ModelAndView");
     printModelAndView(result.getModelAndView());
 
-    this.printer.printHeading("FlashMap");
+    this.printer.printHeading("RedirectModel");
     printFlashMap(RequestContextUtils.getOutputRedirectModel(result.getRequestContext()));
 
     this.printer.printHeading("MockHttpServletResponse");
