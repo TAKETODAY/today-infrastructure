@@ -46,7 +46,6 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
@@ -325,14 +324,6 @@ public interface MockMvcWebTestClient {
      * {@link StandaloneMockMvcBuilder#setFlashMapManager(RedirectModelManager)}.
      */
     ControllerSpec flashMapManager(RedirectModelManager flashMapManager);
-
-    /**
-     * Enable URL path matching with parsed
-     * {@link cn.taketoday.web.util.pattern.PathPattern PathPatterns}.
-     * <p>This is delegated to
-     * {@link StandaloneMockMvcBuilder#setPatternParser(PathPatternParser)}.
-     */
-    ControllerSpec patternParser(PathPatternParser parser);
 
     /**
      * Whether to match trailing slashes.

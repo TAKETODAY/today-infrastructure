@@ -29,7 +29,6 @@ import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.reflect.MethodInvoker;
 import cn.taketoday.util.ClassUtils;
@@ -41,7 +40,6 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * HTTP Request Annotation Handler
@@ -60,7 +58,6 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
   private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
-  @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
 
   // target return-value handler
@@ -212,17 +209,6 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
         context.setStatus(httpStatus);
       }
     }
-    else {
-      Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-      if (attribute instanceof HttpStatusCodeProvider provider) { // @since 3.0.1
-        HttpStatusCode httpStatus = provider.getStatusCode();
-        context.setStatus(httpStatus);
-      }
-      else if (attribute instanceof Throwable throwable) {
-        ResponseStatus runtimeErrorStatus = HandlerMethod.getResponseStatus(throwable);
-        applyResponseStatus(context, runtimeErrorStatus.code());
-      }
-    }
   }
 
   public void handleReturnValue(
@@ -231,7 +217,7 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
 
     ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
-      returnValueHandler = returnValueHandlerManager.obtainHandler(this);
+      returnValueHandler = returnValueHandlerManager.obtainHandler(handler, returnValue);
       this.returnValueHandler = returnValueHandler;
     }
     // @since 3.0

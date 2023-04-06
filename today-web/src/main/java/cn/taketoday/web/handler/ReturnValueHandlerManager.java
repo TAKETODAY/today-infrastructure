@@ -226,6 +226,20 @@ public class ReturnValueHandlerManager
   }
 
   /**
+   * Get correspond view resolver, If there isn't a suitable resolver will be
+   * throws {@link ReturnValueHandlerNotFoundException}
+   *
+   * @return A suitable {@link ReturnValueHandler}
+   */
+  public ReturnValueHandler obtainHandler(Object handler, @Nullable Object returnValue) {
+    ReturnValueHandler returnValueHandler = findHandler(handler, returnValue);
+    if (returnValueHandler == null) {
+      throw new ReturnValueHandlerNotFoundException(handler);
+    }
+    return returnValueHandler;
+  }
+
+  /**
    * @param returnValue if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
    * @return null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
    */

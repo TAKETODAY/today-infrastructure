@@ -30,25 +30,29 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Role;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.support.ApplicationContextSupport;
-import cn.taketoday.core.StringValueResolver;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.session.SessionManager;
+import cn.taketoday.session.config.EnableWebSession;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.test.web.servlet.MvcResult;
-import cn.taketoday.util.PlaceholderResolver;
-import cn.taketoday.util.PropertyPlaceholderHandler;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerInterceptor;
@@ -59,28 +63,24 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
-import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.config.DelegatingWebMvcConfiguration;
 import cn.taketoday.web.config.InterceptorRegistration;
 import cn.taketoday.web.config.InterceptorRegistry;
-import cn.taketoday.web.config.WebMvcConfigurationSupport;
+import cn.taketoday.web.config.PathMatchConfigurer;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.MappedInterceptor;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
-import cn.taketoday.web.util.pattern.PathPatternParser;
-import cn.taketoday.web.view.DefaultRequestToViewNameTranslator;
 import cn.taketoday.web.view.RedirectModelManager;
-import cn.taketoday.web.view.SessionRedirectModelManager;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewRef;
 import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 import jakarta.servlet.ServletContext;
 
@@ -137,33 +137,26 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   @Nullable
   private List<ViewResolver> viewResolvers;
 
-  private LocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+  @Nullable
+  private LocaleResolver localeResolver;
 
   @Nullable
   private RedirectModelManager flashMapManager;
 
-  private boolean preferPathMatcher = false;
-
-  @Nullable
-  private PathPatternParser patternParser;
-
   private boolean useTrailingSlashPatternMatch = true;
 
-  @Nullable
-  private Boolean removeSemicolonContent;
-
-  private final Map<String, String> placeholderValues = new HashMap<>();
+  private final Map<String, Object> placeholderValues = new HashMap<>();
 
   private Supplier<RequestMappingHandlerMapping> handlerMappingFactory = RequestMappingHandlerMapping::new;
 
   @Nullable
-  private SessionManager sessionManager;
-
-  @Nullable
   private RedirectModelManager redirectModelManager;
 
-  private ReturnValueHandlerManager returnValueHandlerManager = new ReturnValueHandlerManager();
-  private ParameterResolvingRegistry parameterResolvingRegistry = new ParameterResolvingRegistry();
+  @Nullable
+  private ReturnValueHandlerManager returnValueHandlerManager;
+
+  @Nullable
+  private ParameterResolvingRegistry parameterResolvingRegistry;
 
   /**
    * Protected constructor. Not intended for direct instantiation.
@@ -334,19 +327,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Enable URL path matching with parsed
-   * {@link cn.taketoday.web.util.pattern.PathPattern PathPatterns}
-   * instead of String pattern matching with a {@link cn.taketoday.core.PathMatcher}.
-   *
-   * @param parser the parser to use
-   */
-  public StandaloneMockMvcBuilder setPatternParser(@Nullable PathPatternParser parser) {
-    this.patternParser = parser;
-    this.preferPathMatcher = (this.patternParser == null);
-    return this;
-  }
-
-  /**
    * Whether to match to URLs irrespective of the presence of a trailing slash.
    * If enabled a method mapped to "/users" also matches to "/users/".
    */
@@ -356,22 +336,12 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Set if ";" (semicolon) content should be stripped from the request URI. The value,
-   * if provided, is in turn set on
-   * {@link cn.taketoday.web.servlet.UrlPathHelper#setRemoveSemicolonContent(boolean)}.
-   */
-  public StandaloneMockMvcBuilder setRemoveSemicolonContent(boolean removeSemicolonContent) {
-    this.removeSemicolonContent = removeSemicolonContent;
-    return this;
-  }
-
-  /**
    * In a standalone setup there is no support for placeholder values embedded in
    * request mappings. This method allows manually provided placeholder values so they
    * can be resolved. Alternatively consider creating a test that initializes a
    * {@link WebApplicationContext}.
    */
-  public StandaloneMockMvcBuilder addPlaceholderValue(String name, String value) {
+  public StandaloneMockMvcBuilder addPlaceholderValue(String name, Object value) {
     this.placeholderValues.put(name, value);
     return this;
   }
@@ -383,11 +353,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    */
   public StandaloneMockMvcBuilder setCustomHandlerMapping(Supplier<RequestMappingHandlerMapping> factory) {
     this.handlerMappingFactory = factory;
-    return this;
-  }
-
-  public StandaloneMockMvcBuilder setSessionManager(@Nullable SessionManager sessionManager) {
-    this.sessionManager = sessionManager;
     return this;
   }
 
@@ -412,7 +377,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     StubWebApplicationContext wac = new StubWebApplicationContext(servletContext);
 
     var reader = new AnnotatedBeanDefinitionReader(wac);
-    reader.register(WebConfig.class);
+    reader.register(StandaloneConfiguration.class);
 
     registerMvcSingletons(wac);
 
@@ -421,55 +386,35 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   private void registerMvcSingletons(StubWebApplicationContext wac) {
-    StandaloneConfiguration config = new StandaloneConfiguration();
-    config.setApplicationContext(wac);
     ServletContext sc = wac.getServletContext();
+    wac.addBeans(this);
 
     wac.addBeans(this.controllers);
     wac.addBeans(this.controllerAdvice);
-    wac.addBeans(parameterResolvingRegistry, returnValueHandlerManager);
+    if (parameterResolvingRegistry != null) {
+      wac.addBeans(parameterResolvingRegistry);
+    }
 
-    wac.refresh();
+    if (returnValueHandlerManager != null) {
+      wac.addBeans(returnValueHandlerManager);
+    }
 
-    FormattingConversionService mvcConversionService = config.mvcConversionService();
-    wac.addBean("mvcConversionService", mvcConversionService);
-    ResourceUrlProvider resourceUrlProvider = config.mvcResourceUrlProvider();
-    wac.addBean("mvcResourceUrlProvider", resourceUrlProvider);
-    ContentNegotiationManager mvcContentNegotiationManager = config.mvcContentNegotiationManager();
-    wac.addBean("mvcContentNegotiationManager", mvcContentNegotiationManager);
-    Validator mvcValidator = config.mvcValidator();
-    wac.addBean("mvcValidator", mvcValidator);
-
-    RequestMappingHandlerMapping hm = config.getHandlerMapping();
-    hm.setApplicationContext(wac);
-    hm.afterPropertiesSet();
-    wac.addBean("requestMappingHandlerMapping", hm);
-
-    RequestMappingHandlerAdapter ha = config.requestMappingHandlerAdapter(
-            sessionManager, redirectModelManager,
-            mvcValidator, returnValueHandlerManager,
-            parameterResolvingRegistry, mvcConversionService);
-    ha.setApplicationContext(wac);
-    ha.afterPropertiesSet();
-    wac.addBean("requestMappingHandlerAdapter", ha);
-
-    wac.addBean("handlerExceptionHandler", config.handlerExceptionHandler());
+    if (redirectModelManager != null) {
+      wac.addBean(RedirectModelManager.BEAN_NAME, redirectModelManager);
+    }
 
     wac.addBeans(initViewResolvers(wac));
-    wac.addBeans(new DefaultRequestToViewNameTranslator());
-    wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
 
-    this.flashMapManager = new SessionRedirectModelManager(sessionManager);
-    wac.addBean(RedirectModelManager.BEAN_NAME, this.flashMapManager);
+    if (localeResolver != null) {
+      wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
+    }
 
+    if (flashMapManager != null) {
+      wac.addBean(RedirectModelManager.BEAN_NAME, this.flashMapManager);
+    }
+
+    wac.refresh();
     extendMvcSingletons(sc).forEach(wac::addBean);
-  }
-
-  @EnableWebMvc
-  @Configuration
-  @Import(ViewAttributeReturnValueHandler.class)
-  static class WebConfig {
-
   }
 
   private List<ViewResolver> initViewResolvers(WebApplicationContext wac) {
@@ -495,23 +440,54 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     return Collections.emptyMap();
   }
 
-  /** Using the MVC Java configuration as the starting point for the "standalone" setup. */
-  private class StandaloneConfiguration extends WebMvcConfigurationSupport {
+  /**
+   * Using the MVC Java configuration as the starting point for the "standalone" setup.
+   */
+  @EnableWebSession
+  @Configuration(proxyBeanMethods = false)
+  private class StandaloneConfiguration extends DelegatingWebMvcConfiguration {
 
-    public RequestMappingHandlerMapping getHandlerMapping() {
+    public StandaloneConfiguration(List<WebMvcConfigurer> configurers) {
+      super(configurers);
+    }
 
-      RequestMappingHandlerMapping handlerMapping = handlerMappingFactory.get();
-      handlerMapping.setEmbeddedValueResolver(new StaticStringValueResolver(placeholderValues));
-      if (patternParser == null && preferPathMatcher) {
-        if (removeSemicolonContent != null) {
-          UrlPathHelper pathHelper = new UrlPathHelper();
-          pathHelper.setRemoveSemicolonContent(removeSemicolonContent);
-        }
+    @Override
+    @Component
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    @ConditionalOnMissingBean(ViewReturnValueHandler.class)
+    public ViewAttributeReturnValueHandler viewReturnValueHandler(
+            LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
+      ViewResolver viewResolver;
+      if (viewResolvers.size() == 1) {
+        viewResolver = CollectionUtils.firstElement(viewResolvers);
+        Assert.state(viewResolver != null, "No ViewResolver");
       }
-      handlerMapping.setUseTrailingSlashMatch(useTrailingSlashPatternMatch);
-      handlerMapping.setOrder(0);
-      handlerMapping.setInterceptors(getInterceptors());
-      return handlerMapping;
+      else {
+        ViewResolverComposite composite = new ViewResolverComposite();
+        composite.setViewResolvers(viewResolvers);
+        viewResolver = composite;
+      }
+
+      ViewAttributeReturnValueHandler handler = new ViewAttributeReturnValueHandler(viewResolver);
+      handler.setLocaleResolver(localeResolver);
+      return handler;
+    }
+
+    @Autowired
+    void init(ConfigurableEnvironment environment) {
+      environment.getPropertySources().
+              addFirst(new MapPropertySource("placeholderValues", placeholderValues));
+    }
+
+    @Override
+    protected RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
+      return handlerMappingFactory.get();
+    }
+
+    @Override
+    protected void configurePathMatch(PathMatchConfigurer configurer) {
+      super.configurePathMatch(configurer);
+      configurer.setUseTrailingSlashMatch(useTrailingSlashPatternMatch);
     }
 
     @Override
@@ -530,7 +506,9 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
+    public void addInterceptors(InterceptorRegistry registry) {
+      super.addInterceptors(registry);
+
       for (MappedInterceptor interceptor : mappedInterceptors) {
         InterceptorRegistration registration = registry.addInterceptor(interceptor.getInterceptor());
         if (interceptor.getPathPatterns() != null) {
@@ -592,26 +570,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
         }
         handlers.add(resolver);
       }
-    }
-  }
-
-  /**
-   * A static resolver placeholder for values embedded in request mappings.
-   */
-  private static class StaticStringValueResolver implements StringValueResolver {
-
-    private final PropertyPlaceholderHandler helper;
-
-    private final PlaceholderResolver resolver;
-
-    public StaticStringValueResolver(Map<String, String> values) {
-      this.helper = new PropertyPlaceholderHandler("${", "}", ":", false);
-      this.resolver = values::get;
-    }
-
-    @Override
-    public String resolveStringValue(String strVal) throws BeansException {
-      return this.helper.replacePlaceholders(strVal, this.resolver);
     }
   }
 

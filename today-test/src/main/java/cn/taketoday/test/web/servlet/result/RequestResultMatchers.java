@@ -22,14 +22,18 @@ package cn.taketoday.test.web.servlet.result;
 
 import org.hamcrest.Matcher;
 
+import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.WebAsyncTask;
 import jakarta.servlet.http.HttpServletRequest;
@@ -127,8 +131,8 @@ public class RequestResultMatchers {
    * Assert a request attribute value.
    */
   public ResultMatcher attribute(String name, @Nullable Object expectedValue) {
-    return result ->
-            assertEquals("Request attribute '" + name + "'", expectedValue, result.getRequest().getAttribute(name));
+    return result -> assertEquals("Request attribute '" + name + "'",
+            expectedValue, result.getRequest().getAttribute(name));
   }
 
   /**
@@ -137,11 +141,25 @@ public class RequestResultMatchers {
   @SuppressWarnings("unchecked")
   public <T> ResultMatcher sessionAttribute(String name, Matcher<? super T> matcher) {
     return result -> {
-      HttpSession session = result.getRequest().getSession();
-      Assert.state(session != null, "No HttpSession");
+      WebSession session = getSession(result);
       T value = (T) session.getAttribute(name);
       assertThat("Session attribute '" + name + "'", value, matcher);
     };
+  }
+
+  private static WebSession getSession(MvcResult result) {
+    HttpSession httpSession = result.getRequest().getSession();
+    WebSession session = RequestContextUtils.getSession(result.getRequestContext());
+    Assert.state(session != null, "No WebSession");
+    if (httpSession != null) {
+      // 暂时使用合并的方式
+      Enumeration<String> attributeNames = httpSession.getAttributeNames();
+      while (attributeNames.hasMoreElements()) {
+        String attr = attributeNames.nextElement();
+        session.setAttribute(attr, httpSession.getAttribute(attr));
+      }
+    }
+    return session;
   }
 
   /**
@@ -149,8 +167,7 @@ public class RequestResultMatchers {
    */
   public ResultMatcher sessionAttribute(String name, @Nullable Object value) {
     return result -> {
-      HttpSession session = result.getRequest().getSession();
-      Assert.state(session != null, "No HttpSession");
+      WebSession session = getSession(result);
       assertEquals("Session attribute '" + name + "'", value, session.getAttribute(name));
     };
   }
@@ -160,8 +177,7 @@ public class RequestResultMatchers {
    */
   public ResultMatcher sessionAttributeDoesNotExist(String... names) {
     return result -> {
-      HttpSession session = result.getRequest().getSession();
-      Assert.state(session != null, "No HttpSession");
+      WebSession session = getSession(result);
       for (String name : names) {
         assertNull("Session attribute '" + name + "' exists", session.getAttribute(name));
       }

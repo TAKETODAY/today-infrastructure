@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -255,7 +255,7 @@ public abstract class InfraHandler
       if (wac instanceof ConfigurableApplicationContext cwac && !cwac.isActive()) {
         // The context has not yet been refreshed -> provide services such as
         // setting the parent context, setting the application context id, etc
-        if (cwac.getParent() == null) {
+        if (cwac.getParent() == null && rootContext != wac) {
           // The context instance was injected without an explicit parent -> set
           // the root application context (if any; may be null) as the parent
           cwac.setParent(rootContext);

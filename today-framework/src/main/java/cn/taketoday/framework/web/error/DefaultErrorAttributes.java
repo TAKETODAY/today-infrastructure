@@ -29,8 +29,8 @@ import java.util.Map;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
@@ -77,15 +77,13 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     errorAttributes.put("timestamp", new Date());
     addPath(context, errorAttributes);
     addStatus(errorAttributes, context);
-
     addErrorDetails(errorAttributes, context, options);
-
     return errorAttributes;
   }
 
   private void addPath(RequestContext request, HashMap<String, Object> attributes) {
     if (ServletDetector.runningInServlet(request)) {
-      String path = getAttribute(request, RequestDispatcher.ERROR_REQUEST_URI);
+      Object path = getAttribute(request, RequestDispatcher.ERROR_REQUEST_URI);
       if (path == null) {
         path = request.getRequestURI();
       }
@@ -103,6 +101,11 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     }
     else {
       status = request.getStatus();
+    }
+
+    Throwable error = getError(request);
+    if (error instanceof HttpStatusCodeProvider provider) {
+      status = provider.getStatusCode().value();
     }
 
     if (status == null) {
@@ -172,9 +175,9 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    */
   protected String getMessage(RequestContext request, Throwable error) {
     if (ServletDetector.runningInServlet(request)) {
-      Object message = getAttribute(request, RequestDispatcher.ERROR_MESSAGE);
-      if (ObjectUtils.isNotEmpty(message)) {
-        return message.toString();
+      Object attribute = getAttribute(request, RequestDispatcher.ERROR_MESSAGE);
+      if (attribute instanceof String message) {
+        return message;
       }
     }
     if (error != null && StringUtils.isNotEmpty(error.getMessage())) {
@@ -186,17 +189,20 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   @Override
   @Nullable
   public Throwable getError(RequestContext request) {
-    Throwable exception = getAttribute(request, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-    if (exception == null) {
+    Object attribute = getAttribute(request, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
+    if (!(attribute instanceof Throwable)) {
       if (ServletDetector.runningInServlet(request)) {
-        exception = getAttribute(request, RequestDispatcher.ERROR_EXCEPTION);
+        attribute = getAttribute(request, RequestDispatcher.ERROR_EXCEPTION);
       }
     }
 
-    // store the exception in a well-known attribute to make it available to metrics
-    // instrumentation.
-    request.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, exception);
-    return exception;
+    if (attribute instanceof Throwable exception) {
+      // store the exception in a well-known attribute to make it available to metrics
+      // instrumentation.
+      request.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, attribute);
+      return exception;
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")

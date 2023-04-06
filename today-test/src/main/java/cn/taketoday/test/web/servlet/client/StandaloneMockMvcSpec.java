@@ -37,7 +37,6 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
@@ -147,12 +146,6 @@ class StandaloneMockMvcSpec extends AbstractMockMvcServerSpec<MockMvcWebTestClie
   @Override
   public StandaloneMockMvcSpec flashMapManager(RedirectModelManager flashMapManager) {
     this.mockMvcBuilder.setFlashMapManager(flashMapManager);
-    return this;
-  }
-
-  @Override
-  public StandaloneMockMvcSpec patternParser(PathPatternParser parser) {
-    this.mockMvcBuilder.setPatternParser(parser);
     return this;
   }
 

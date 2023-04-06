@@ -34,15 +34,12 @@ import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A subclass of {@code DispatcherServlet} that saves the result in an
@@ -67,42 +64,32 @@ final class TestDispatcherServlet extends DispatcherServlet {
 
   @Override
   public void service(ServletRequest request, ServletResponse response) throws ServletException {
-    ServletRequestContext context = new ServletRequestContext(
-            getApplicationContext(), (HttpServletRequest) request, (HttpServletResponse) response);
+    RequestContext context = RequestContextHolder.getRequired();
     context.setWebAsyncManagerFactory(webAsyncManagerFactory);
+
     registerAsyncResultInterceptors(context);
 
-    DefaultMvcResult mvcResult = getMvcResult(context);
-    RequestContextHolder.set(context);
-    mvcResult.setRequestContext(context);
+    super.service(request, response);
 
-    try {
-      super.service(request, response);
-
-      if (request.getAsyncContext() != null) {
-        MockAsyncContext asyncContext;
-        if (request.getAsyncContext() instanceof MockAsyncContext mockAsyncContext) {
-          asyncContext = mockAsyncContext;
-        }
-        else {
-          var mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
-          Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
-          asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
-          String requestClassName = request.getClass().getName();
-          Assert.notNull(asyncContext, () ->
-                  "Outer request wrapper " + requestClassName + " has an AsyncContext," +
-                          "but it is not a MockAsyncContext, while the nested " +
-                          mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
-        }
-
-        CountDownLatch dispatchLatch = new CountDownLatch(1);
-        asyncContext.addDispatchHandler(dispatchLatch::countDown);
-
-        mvcResult.setAsyncDispatchLatch(dispatchLatch);
+    if (request.getAsyncContext() != null) {
+      MockAsyncContext asyncContext;
+      if (request.getAsyncContext() instanceof MockAsyncContext mockAsyncContext) {
+        asyncContext = mockAsyncContext;
       }
-    }
-    finally {
-      RequestContextHolder.remove();
+      else {
+        var mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
+        Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
+        asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
+        Assert.notNull(asyncContext, () ->
+                "Outer request wrapper " + request.getClass().getName() + " has an AsyncContext," +
+                        "but it is not a MockAsyncContext, while the nested " +
+                        mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
+      }
+
+      CountDownLatch dispatchLatch = new CountDownLatch(1);
+      asyncContext.addDispatchHandler(dispatchLatch::countDown);
+
+      getMvcResult(context).setAsyncDispatchLatch(dispatchLatch);
     }
   }
 

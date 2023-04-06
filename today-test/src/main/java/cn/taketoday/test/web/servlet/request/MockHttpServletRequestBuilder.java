@@ -162,7 +162,6 @@ public class MockHttpServletRequestBuilder
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param url the URL
-   * @since 4.0.3
    */
   MockHttpServletRequestBuilder(HttpMethod httpMethod, URI url) {
     this(httpMethod.name(), url);

@@ -55,7 +55,7 @@ class DefaultMvcResult implements MvcResult {
   private final MockHttpServletRequest mockRequest;
   private final MockHttpServletResponse mockResponse;
 
-  private RequestContext requestContext;
+  private final RequestContext requestContext;
 
   @Nullable
   private Object handler;
@@ -77,9 +77,11 @@ class DefaultMvcResult implements MvcResult {
   /**
    * Create a new instance with the given request and response.
    */
-  public DefaultMvcResult(MockHttpServletRequest request, MockHttpServletResponse response) {
+  public DefaultMvcResult(MockHttpServletRequest request,
+          MockHttpServletResponse response, RequestContext requestContext) {
     this.mockRequest = request;
     this.mockResponse = response;
+    this.requestContext = requestContext;
     request.setAttribute(MVC_RESULT_ATTRIBUTE, this);
   }
 
@@ -96,10 +98,6 @@ class DefaultMvcResult implements MvcResult {
   @Override
   public RequestContext getRequestContext() {
     return requestContext;
-  }
-
-  public void setRequestContext(RequestContext requestContext) {
-    this.requestContext = requestContext;
   }
 
   public void setHandler(@Nullable Object handler) {

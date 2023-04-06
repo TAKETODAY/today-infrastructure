@@ -33,6 +33,7 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
@@ -193,9 +194,12 @@ public final class MockMvc {
       request = smartRequestBuilder.postProcessRequest(request);
     }
 
-    MvcResult mvcResult = new DefaultMvcResult(request, mockResponse);
+    RequestContext previous = RequestContextHolder.get();
 
-    RequestContext previousAttributes = RequestContextHolder.get();
+    var context = new ServletRequestContext(servlet.getApplicationContext(), request, servletResponse);
+    DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
+
+    RequestContextHolder.set(context);
 
     MockFilterChain filterChain = new MockFilterChain(this.servlet, this.filters);
     filterChain.doFilter(request, servletResponse);
@@ -206,7 +210,7 @@ public final class MockMvc {
     }
 
     applyDefaultResultActions(mvcResult);
-    RequestContextHolder.set(previousAttributes);
+    RequestContextHolder.set(previous);
     return ResultActions.forMvcResult(mvcResult);
   }
 

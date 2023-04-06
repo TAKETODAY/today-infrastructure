@@ -23,7 +23,6 @@ package cn.taketoday.test.web.servlet;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -81,14 +80,6 @@ public abstract class MockMvcBuilderSupport {
     mockMvc.setGlobalResultHandlers(globalResultHandlers);
 
     return mockMvc;
-  }
-
-  @SuppressWarnings("serial")
-  private static class MockMvcBuildException extends NestedRuntimeException {
-
-    public MockMvcBuildException(String msg, Throwable cause) {
-      super(msg, cause);
-    }
   }
 
 }
