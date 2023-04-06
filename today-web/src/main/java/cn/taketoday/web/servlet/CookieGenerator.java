@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -212,7 +212,7 @@ public class CookieGenerator {
    * @see #setCookiePath
    */
   public void removeCookie(RequestContext response) {
-    Assert.notNull(response, "HttpServletResponse must not be null");
+    Assert.notNull(response, "RequestContext must not be null");
     ResponseCookieBuilder cookie = createCookie("");
     cookie.maxAge(0);
     if (isCookieSecure()) {
