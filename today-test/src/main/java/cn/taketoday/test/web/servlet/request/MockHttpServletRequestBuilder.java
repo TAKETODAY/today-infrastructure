@@ -44,14 +44,12 @@ import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
@@ -784,10 +782,10 @@ public class MockHttpServletRequestBuilder
 
     RedirectModel flashMap = new RedirectModel();
     flashMap.putAll(this.flashAttributes);
-    RedirectModelManager flashMapManager = getFlashMapManager(request);
-    flashMapManager.saveRedirectModel(new ServletRequestContext(
-            null, request, new MockHttpServletResponse()), flashMap);
-
+//    RedirectModelManager flashMapManager = getFlashMapManager(request);
+//    flashMapManager.saveRedirectModel(new ServletRequestContext(
+//            null, request, new MockHttpServletResponse()), flashMap);
+    request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, flashMap);
     return request;
   }
 

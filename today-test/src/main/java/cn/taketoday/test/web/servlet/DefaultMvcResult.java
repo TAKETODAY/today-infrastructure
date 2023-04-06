@@ -168,7 +168,12 @@ class DefaultMvcResult implements MvcResult {
 
   @Override
   public RedirectModel getFlashMap() {
-    return RequestContextUtils.getOutputRedirectModel(this.requestContext);
+    RedirectModel model = RequestContextUtils.getOutputRedirectModel(this.requestContext);
+    if (model == null) {
+      model = new RedirectModel();
+      requestContext.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
+    }
+    return model;
   }
 
   public void setAsyncResult(Object asyncResult) {
