@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -179,11 +180,22 @@ public class ControllerAdviceBean implements Ordered {
   public int getOrder() {
     if (this.order == null) {
       String beanName = null;
-      Object resolvedBean;
-      if (this.beanFactory != null && this.beanOrName instanceof String) {
-        beanName = (String) this.beanOrName;
+      Object resolvedBean = null;
+      if (this.beanFactory != null && this.beanOrName instanceof String stringBeanName) {
+        beanName = stringBeanName;
+        String targetBeanName = ScopedProxyUtils.getTargetBeanName(beanName);
+        boolean isScopedProxy = this.beanFactory.containsBean(targetBeanName);
+        // Avoid eager @ControllerAdvice bean resolution for scoped proxies,
+        // since attempting to do so during context initialization would result
+        // in an exception due to the current absence of the scope. For example,
+        // an HTTP request or session scope is not active during initialization.
+        if (!isScopedProxy && !ScopedProxyUtils.isScopedTarget(beanName)) {
+          resolvedBean = resolveBean();
+        }
       }
-      resolvedBean = resolveBean();
+      else {
+        resolvedBean = resolveBean();
+      }
 
       if (resolvedBean instanceof Ordered ordered) {
         this.order = ordered.getOrder();
@@ -302,13 +314,15 @@ public class ControllerAdviceBean implements Ordered {
     }
     ArrayList<ControllerAdviceBean> adviceBeans = new ArrayList<>();
     for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, Object.class)) {
-      var controllerAdvice = beanFactory.findAnnotationOnBean(name, ControllerAdvice.class);
-      if (controllerAdvice.isPresent()) {
-        // Use the @ControllerAdvice annotation found by findAnnotationOnBean()
-        // in order to avoid a subsequent lookup of the same annotation.
-        Class<?> beanType = getBeanType(name, beanFactory);
-        if (isCandidate(beanType, types)) {
-          adviceBeans.add(new ControllerAdviceBean(name, beanFactory, beanType, controllerAdvice.synthesize()));
+      if (!ScopedProxyUtils.isScopedTarget(name)) {
+        var controllerAdvice = beanFactory.findAnnotationOnBean(name, ControllerAdvice.class);
+        if (controllerAdvice.isPresent()) {
+          // Use the @ControllerAdvice annotation found by findAnnotationOnBean()
+          // in order to avoid a subsequent lookup of the same annotation.
+          Class<?> beanType = getBeanType(name, beanFactory);
+          if (isCandidate(beanType, types)) {
+            adviceBeans.add(new ControllerAdviceBean(name, beanFactory, beanType, controllerAdvice.synthesize()));
+          }
         }
       }
     }
