@@ -74,6 +74,7 @@ import cn.taketoday.validation.beanvalidation.OptionalValidatorFactoryBean;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -104,6 +105,7 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
+import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -499,9 +501,16 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   protected void configureViewResolvers(ViewResolverRegistry registry) { }
 
   @Component
+  @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
+  public LocaleResolver webLocaleResolver() {
+    return new AcceptHeaderLocaleResolver();
+  }
+
+  @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ViewReturnValueHandler.class)
-  public ViewReturnValueHandler viewReturnValueHandler(List<ViewResolver> viewResolvers) {
+  public ViewReturnValueHandler viewReturnValueHandler(
+          LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
     ViewResolver viewResolver;
     if (viewResolvers.size() == 1) {
       viewResolver = CollectionUtils.firstElement(viewResolvers);
@@ -513,7 +522,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       viewResolver = composite;
     }
 
-    return new ViewReturnValueHandler(viewResolver);
+    return new ViewReturnValueHandler(viewResolver, localeResolver);
   }
 
   /**
@@ -595,11 +604,11 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    */
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerExceptionHandler handlerExceptionHandler() {
+  public HandlerExceptionHandler handlerExceptionHandler(AnnotationHandlerFactory handlerFactory) {
     var handlers = new ArrayList<HandlerExceptionHandler>();
     configureExceptionHandlers(handlers);
     if (handlers.isEmpty()) {
-      addDefaultHandlerExceptionHandlers(handlers);
+      addDefaultHandlerExceptionHandlers(handlers, handlerFactory);
     }
     extendExceptionHandlers(handlers);
     CompositeHandlerExceptionHandler composite = new CompositeHandlerExceptionHandler();
@@ -641,12 +650,14 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
    * <li>{@link SimpleHandlerExceptionHandler} for resolving known Framework exception types
    * </ul>
    */
-  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers) {
+  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers,
+          AnnotationHandlerFactory handlerFactory) {
     var handler = createAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {
       handler.setApplicationContext(this.applicationContext);
     }
+    handler.setHandlerFactory(handlerFactory);
     handler.afterPropertiesSet();
     handlers.add(handler);
 
@@ -1064,8 +1075,8 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CompositeUriComponentsContributor mvcUriComponentsContributor(
-          @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-          @Qualifier("parameterResolvingRegistry") ParameterResolvingRegistry registry) {
+          ParameterResolvingRegistry registry,
+          @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
     var strategies = new ArrayList<>(registry.getDefaultStrategies().getStrategies());
     strategies.addAll(registry.getCustomizedStrategies().getStrategies());
     return new CompositeUriComponentsContributor(strategies, conversionService);

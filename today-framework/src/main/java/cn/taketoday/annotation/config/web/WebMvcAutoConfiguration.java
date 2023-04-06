@@ -236,8 +236,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ViewReturnValueHandler.class)
-  public ViewReturnValueHandler viewReturnValueHandler(List<ViewResolver> viewResolvers) {
-    ViewReturnValueHandler handler = super.viewReturnValueHandler(viewResolvers);
+  public ViewReturnValueHandler viewReturnValueHandler(
+          LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
+    ViewReturnValueHandler handler = super.viewReturnValueHandler(localeResolver, viewResolvers);
     handler.setPutAllOutputRedirectModel(mvcProperties.getView().isPutAllOutputRedirectModel());
     return handler;
   }

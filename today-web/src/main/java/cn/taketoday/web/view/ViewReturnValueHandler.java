@@ -23,11 +23,13 @@ package cn.taketoday.web.view;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
+import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMatchingMetadata;
+import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -47,11 +49,19 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   private final ViewResolver viewResolver;
 
+  @Nullable
+  private LocaleResolver localeResolver;
+
   private boolean putAllOutputRedirectModel = true;
 
   public ViewReturnValueHandler(ViewResolver viewResolver) {
+    this(viewResolver, null);
+  }
+
+  public ViewReturnValueHandler(ViewResolver viewResolver, @Nullable LocaleResolver localeResolver) {
     Assert.notNull(viewResolver, "viewResolver is required");
     this.viewResolver = viewResolver;
+    this.localeResolver = localeResolver;
   }
 
   @Override
@@ -105,8 +115,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @throws ViewRenderingException If view rendering failed
    */
   public void renderView(RequestContext context, String viewName) {
-    Locale locale = RequestContextUtils.getLocale(context);
-    renderView(context, ViewRef.of(viewName, locale));
+    renderView(context, ViewRef.of(viewName));
   }
 
   /**
@@ -120,7 +129,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     Locale locale = viewRef.getLocale();
     String viewName = viewRef.getViewName();
     if (locale == null) {
-      locale = RequestContextUtils.getLocale(context);
+      locale = getLocale(context);
     }
 
     View view = resolveViewName(locale, viewName);
@@ -139,6 +148,32 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     else {
       renderView(context, view);
     }
+  }
+
+  /**
+   * Retrieve the current locale from the given request, using the
+   * LocaleResolver bound to the request by the Ioc
+   * (if available), falling back to the request's accept-header Locale.
+   * <p>This method serves as a straightforward alternative to the standard
+   * Servlet {@link jakarta.servlet.http.HttpServletRequest#getLocale()} method,
+   * falling back to the latter if no more specific locale has been found.
+   * <p>Consider using {@link LocaleContextHolder#getLocale()}
+   * which will normally be populated with the same Locale.
+   *
+   * @param request current HTTP request
+   * @return the current locale for the given request, either from the
+   * LocaleResolver or from the plain request itself
+   */
+  private Locale getLocale(RequestContext request) {
+    LocaleResolver localeResolver = this.localeResolver;
+    if (localeResolver == null) {
+      localeResolver = RequestContextUtils.getLocaleResolver(request);
+    }
+
+    if (localeResolver != null) {
+      return localeResolver.resolveLocale(request);
+    }
+    return request.getLocale();
   }
 
   @Nullable
@@ -193,6 +228,20 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    */
   public void setPutAllOutputRedirectModel(boolean putAllOutputRedirectModel) {
     this.putAllOutputRedirectModel = putAllOutputRedirectModel;
+  }
+
+  /**
+   * set {@link #localeResolver} to determine the Locale in which
+   * to resolve the view. ViewResolvers that support internationalization
+   * should respect this.
+   * <p>
+   * If {@link #localeResolver} is null use {@link RequestContextUtils#getLocale(RequestContext)}
+   * to find Locale
+   *
+   * @param localeResolver to determine the Locale in which to resolve the view
+   */
+  public void setLocaleResolver(@Nullable LocaleResolver localeResolver) {
+    this.localeResolver = localeResolver;
   }
 
   /**
