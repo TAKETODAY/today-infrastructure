@@ -370,6 +370,13 @@ public class HandlerMethod implements AsyncHandler {
     return new ReturnValueMethodParameter(returnValue);
   }
 
+  /**
+   * Return the actual return type.
+   */
+  public Class<?> getRawReturnType() {
+    return returnType;
+  }
+
   public boolean isReturnTypeAssignableTo(Class<?> superClass) {
     return superClass.isAssignableFrom(returnType);
   }

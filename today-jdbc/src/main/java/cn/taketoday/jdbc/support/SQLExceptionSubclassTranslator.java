@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -112,7 +112,7 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
       return new RecoverableDataAccessException(buildMessage(task, sql, ex), ex);
     }
 
-    // Fallback to Spring's own SQL state translation...
+    // Fallback to Infra own SQL state translation...
     return null;
   }
 

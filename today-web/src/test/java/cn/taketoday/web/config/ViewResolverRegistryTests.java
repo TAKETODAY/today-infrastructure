@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import cn.taketoday.web.view.groovy.GroovyMarkupViewResolver;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
 import cn.taketoday.web.view.script.ScriptTemplateConfigurer;
 import cn.taketoday.web.view.script.ScriptTemplateViewResolver;
+import cn.taketoday.web.view.xml.MarshallingView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,7 +86,7 @@ class ViewResolverRegistryTests {
   @Test
   public void noResolvers() {
     assertThat(this.registry.getViewResolvers()).isNotNull();
-    assertThat(this.registry.getViewResolvers().size()).isEqualTo(0);
+    assertThat(this.registry.getViewResolvers()).isEmpty();
     assertThat(this.registry.hasRegistrations()).isFalse();
   }
 
@@ -99,7 +100,7 @@ class ViewResolverRegistryTests {
   @Test
   public void beanName() {
     this.registry.beanName();
-    assertThat(this.registry.getViewResolvers().size()).isEqualTo(1);
+    assertThat(this.registry.getViewResolvers()).hasSize(1);
     assertThat(registry.getViewResolvers().get(0).getClass()).isEqualTo(BeanNameViewResolver.class);
   }
 
@@ -122,7 +123,7 @@ class ViewResolverRegistryTests {
     this.registry.jsp().viewNames("view1", "view2");
     this.registry.jsp().viewNames("view3", "view4");
     assertThat(this.registry.getViewResolvers()).isNotNull();
-    assertThat(this.registry.getViewResolvers().size()).isEqualTo(2);
+    assertThat(this.registry.getViewResolvers()).hasSize(2);
     assertThat(this.registry.getViewResolvers().get(0).getClass()).isEqualTo(InternalResourceViewResolver.class);
     assertThat(this.registry.getViewResolvers().get(1).getClass()).isEqualTo(InternalResourceViewResolver.class);
   }
@@ -178,26 +179,26 @@ class ViewResolverRegistryTests {
     assertThat(this.registry.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
   }
 
-//  @Test
-//  public void contentNegotiationAddsDefaultViewRegistrations() {
-//    MappingJackson2JsonView view1 = new MappingJackson2JsonView();
-//    this.registry.enableContentNegotiation(view1);
-//
-//    ContentNegotiatingViewResolver resolver1 = checkAndGetResolver(ContentNegotiatingViewResolver.class);
-//    assertThat(resolver1.getDefaultViews()).isEqualTo(Arrays.asList(view1));
-//
-////    MarshallingView view2 = new MarshallingView();
-////    this.registry.enableContentNegotiation(view2);
-//
-//    ContentNegotiatingViewResolver resolver2 = checkAndGetResolver(ContentNegotiatingViewResolver.class);
-//    assertThat(resolver2.getDefaultViews()).isEqualTo(Arrays.asList(view1, view2));
-//    assertThat(resolver2).isSameAs(resolver1);
-//  }
+  @Test
+  public void contentNegotiationAddsDefaultViewRegistrations() {
+    MappingJackson2JsonView view1 = new MappingJackson2JsonView();
+    this.registry.enableContentNegotiation(view1);
+
+    ContentNegotiatingViewResolver resolver1 = checkAndGetResolver(ContentNegotiatingViewResolver.class);
+    assertThat(resolver1.getDefaultViews()).isEqualTo(Arrays.asList(view1));
+
+    MarshallingView view2 = new MarshallingView();
+    this.registry.enableContentNegotiation(view2);
+
+    ContentNegotiatingViewResolver resolver2 = checkAndGetResolver(ContentNegotiatingViewResolver.class);
+    assertThat(resolver2.getDefaultViews()).isEqualTo(Arrays.asList(view1, view2));
+    assertThat(resolver2).isSameAs(resolver1);
+  }
 
   @SuppressWarnings("unchecked")
   private <T extends ViewResolver> T checkAndGetResolver(Class<T> resolverType) {
     assertThat(this.registry.getViewResolvers()).isNotNull();
-    assertThat(this.registry.getViewResolvers().size()).isEqualTo(1);
+    assertThat(this.registry.getViewResolvers()).hasSize(1);
     assertThat(this.registry.getViewResolvers().get(0).getClass()).isEqualTo(resolverType);
     return (T) registry.getViewResolvers().get(0);
   }

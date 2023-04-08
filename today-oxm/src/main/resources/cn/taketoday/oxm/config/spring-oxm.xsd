@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
+<xsd:schema xmlns="http://www.springframework.org/schema/oxm" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:tool="http://www.springframework.org/schema/tool"
+    targetNamespace="http://www.springframework.org/schema/oxm"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+  <xsd:import namespace="http://www.springframework.org/schema/beans"
+      schemaLocation="https://www.springframework.org/schema/beans/spring-beans.xsd" />
+  <xsd:import namespace="http://www.springframework.org/schema/tool"
+      schemaLocation="https://www.springframework.org/schema/tool/spring-tool.xsd" />
+
+  <xsd:annotation>
+    <xsd:documentation>
+      Defines the elements used in Infra Object/XML Mapping integration.
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:element name="jaxb2-marshaller">
+    <xsd:complexType>
+      <xsd:annotation>
+        <xsd:documentation source="java:cn.taketoday.oxm.jaxb.Jaxb2Marshaller">
+          Defines a JAXB2 Marshaller.
+        </xsd:documentation>
+        <xsd:appinfo>
+          <tool:annotation>
+            <tool:exports type="cn.taketoday.oxm.jaxb.Jaxb2Marshaller" />
+          </tool:annotation>
+        </xsd:appinfo>
+      </xsd:annotation>
+      <xsd:complexContent>
+        <xsd:extension base="beans:identifiedType">
+          <xsd:sequence>
+            <xsd:element name="class-to-be-bound" minOccurs="0" maxOccurs="unbounded">
+              <xsd:complexType>
+                <xsd:attribute name="name" type="classType" use="required" />
+              </xsd:complexType>
+            </xsd:element>
+          </xsd:sequence>
+          <xsd:attribute name="context-path" type="xsd:string">
+            <xsd:annotation>
+              <xsd:documentation>The JAXB context path.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="jibx-marshaller">
+    <xsd:complexType>
+      <xsd:annotation>
+        <xsd:documentation source="java:cn.taketoday.oxm.jibx.JibxMarshaller">
+          Defines a JiBX Marshaller. Deprecated
+        </xsd:documentation>
+        <xsd:appinfo>
+          <tool:annotation>
+            <tool:exports type="cn.taketoday.oxm.jibx.JibxMarshaller" />
+          </tool:annotation>
+        </xsd:appinfo>
+      </xsd:annotation>
+      <xsd:complexContent>
+        <xsd:extension base="beans:identifiedType">
+          <xsd:attribute name="target-class" type="classType">
+            <xsd:annotation>
+              <xsd:documentation>The target class to be bound with JiBX.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+          <xsd:attribute name="target-package" type="xsd:string">
+            <xsd:annotation>
+              <xsd:documentation>The target package for the JiBX binding.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+          <xsd:attribute name="binding-name" type="xsd:string">
+            <xsd:annotation>
+              <xsd:documentation>The binding name used by this marshaller.</xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="classType">
+    <xsd:annotation>
+      <xsd:documentation source="java:java.lang.Class">A class supported by a marshaller.</xsd:documentation>
+      <xsd:appinfo>
+        <tool:annotation kind="direct">
+          <tool:expected-type type="java.lang.Class" />
+          <tool:assignable-to restriction="class-only" />
+        </tool:annotation>
+      </xsd:appinfo>
+    </xsd:annotation>
+    <xsd:union memberTypes="xsd:string" />
+  </xsd:simpleType>
+
+</xsd:schema>

@@ -74,7 +74,7 @@ public class ReactorNetty2ResourceFactory implements InitializingBean, Disposabl
   /**
    * Whether to use global Reactor Netty resources via {@link HttpResources}.
    * <p>Default is "true" in which case this factory initializes and stops the
-   * global Reactor Netty resources within Spring's {@code ApplicationContext}
+   * global Reactor Netty resources within Infra {@code ApplicationContext}
    * lifecycle. If set to "false" the factory manages its resources independent
    * of the global ones.
    *

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,8 +58,8 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * (at request completion) and before it expires.
    * <p>The default value is 180 seconds.
    */
-  public void setRedirectModelTimeout(int RedirectModelTimeout) {
-    this.redirectModelTimeout = RedirectModelTimeout;
+  public void setRedirectModelTimeout(int redirectModelTimeout) {
+    this.redirectModelTimeout = redirectModelTimeout;
   }
 
   /**
@@ -124,9 +124,9 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
   @Nullable
   private RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, RequestContext request) {
     ArrayList<RedirectModel> result = new ArrayList<>();
-    for (RedirectModel RedirectModel : allMaps) {
-      if (isRedirectModelForRequest(RedirectModel, request)) {
-        result.add(RedirectModel);
+    for (RedirectModel model : allMaps) {
+      if (isRedirectModelForRequest(model, request)) {
+        result.add(model);
       }
     }
     if (!result.isEmpty()) {
@@ -143,8 +143,8 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * Whether the given RedirectModel matches the current request.
    * Uses the expected request path and query parameters saved in the RedirectModel.
    */
-  protected boolean isRedirectModelForRequest(RedirectModel RedirectModel, RequestContext request) {
-    String expectedPath = RedirectModel.getTargetRequestPath();
+  protected boolean isRedirectModelForRequest(RedirectModel model, RequestContext request) {
+    String expectedPath = model.getTargetRequestPath();
     if (expectedPath != null) {
       String requestUri = request.getRequestURI();
       if (!requestUri.equals(expectedPath) && !requestUri.equals(expectedPath + "/")) {
@@ -152,7 +152,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
       }
     }
     MultiValueMap<String, String> actualParams = getOriginatingRequestParams(request);
-    MultiValueMap<String, String> expectedParams = RedirectModel.getTargetRequestParams();
+    MultiValueMap<String, String> expectedParams = model.getTargetRequestParams();
     for (Map.Entry<String, List<String>> entry : expectedParams.entrySet()) {
       List<String> actualValues = actualParams.get(entry.getKey());
       if (actualValues == null) {
@@ -225,11 +225,11 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
   /**
    * Update the RedirectModel instances in the underlying storage.
    *
-   * @param RedirectModels a (potentially empty) list of RedirectModel instances to save
+   * @param redirectModels a (potentially empty) list of RedirectModel instances to save
    * @param request the current request
    */
   protected abstract void updateRedirectModel(
-          List<RedirectModel> RedirectModels, RequestContext request);
+          List<RedirectModel> redirectModels, RequestContext request);
 
   /**
    * Obtain a mutex for modifying the RedirectModel List as handled by

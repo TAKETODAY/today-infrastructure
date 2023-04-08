@@ -291,8 +291,8 @@ public class DispatcherServlet
 
     boolean reset = false;
     if (context == null) {
-      ApplicationContext ctx = getApplicationContext();
-      context = new ServletRequestContext(ctx, (HttpServletRequest) request, (HttpServletResponse) response);
+      context = new ServletRequestContext(getApplicationContext(),
+              (HttpServletRequest) request, (HttpServletResponse) response);
       RequestContextHolder.set(context);
       reset = true;
     }

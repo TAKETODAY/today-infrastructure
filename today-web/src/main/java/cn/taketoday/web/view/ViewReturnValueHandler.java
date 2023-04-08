@@ -52,7 +52,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   @Nullable
   private LocaleResolver localeResolver;
 
-  private boolean putAllOutputRedirectModel = true;
+  private boolean putAllOutputRedirectModel = false;
 
   public ViewReturnValueHandler(ViewResolver viewResolver) {
     this(viewResolver, null);
@@ -68,20 +68,23 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
-      if (handlerMethod.isReturn(String.class)) {
+      Class<?> rawReturnType = handlerMethod.getRawReturnType();
+      if (returnValue instanceof CharSequence
+              || CharSequence.class.isAssignableFrom(rawReturnType)) {
         return !handlerMethod.isResponseBody();
       }
-      return handlerMethod.isReturnTypeAssignableTo(ViewRef.class)
-              || handlerMethod.isReturnTypeAssignableTo(View.class);
+
+      if (ViewRef.class.isAssignableFrom(rawReturnType)
+              || View.class.isAssignableFrom(rawReturnType)) {
+        return true;
+      }
     }
-    else {
-      return supportsReturnValue(returnValue);
-    }
+    return supportsReturnValue(returnValue);
   }
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return returnValue instanceof String
+    return returnValue instanceof CharSequence
             || returnValue instanceof View
             || returnValue instanceof ViewRef;
   }
@@ -96,7 +99,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   @Override
   public void handleReturnValue(RequestContext context,
           @Nullable Object handler, @Nullable Object returnValue) throws ViewRenderingException {
-    if (returnValue instanceof String viewName) {
+    if (returnValue instanceof CharSequence viewName) {
       renderView(context, viewName);
     }
     else if (returnValue instanceof ViewRef viewRef) {
@@ -105,6 +108,17 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     else if (returnValue instanceof View view) {
       renderView(context, view);
     }
+  }
+
+  /**
+   * rendering a view from {@code viewName}
+   *
+   * @param context current HTTP request context
+   * @param viewName View to render
+   * @throws ViewRenderingException If view rendering failed
+   */
+  public void renderView(RequestContext context, CharSequence viewName) {
+    renderView(context, viewName.toString());
   }
 
   /**

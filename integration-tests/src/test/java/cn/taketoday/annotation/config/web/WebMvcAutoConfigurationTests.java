@@ -1230,7 +1230,7 @@ public class WebMvcAutoConfigurationTests {
     }
 
     @Override
-    protected void updateRedirectModel(List<RedirectModel> RedirectModels, RequestContext request) {
+    protected void updateRedirectModel(List<RedirectModel> redirectModels, RequestContext request) {
 
     }
 

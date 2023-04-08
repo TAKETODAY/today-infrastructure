@@ -60,6 +60,7 @@ import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -197,6 +198,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
   private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
+  private static final boolean jaxb2Present = isPresent("jakarta.xml.bind.Binder");
 
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
@@ -312,6 +314,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
       }
       messageConverters.add(new MappingJackson2XmlHttpMessageConverter(builder.build()));
     }
+    else if (jaxb2Present) {
+      messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
+    }
 
     if (jackson2Present) {
       Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json();
@@ -394,6 +399,9 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
     if (romePresent) {
       map.put("atom", MediaType.APPLICATION_ATOM_XML);
       map.put("rss", MediaType.APPLICATION_RSS_XML);
+    }
+    if (jaxb2Present || jackson2XmlPresent) {
+      map.put("xml", MediaType.APPLICATION_XML);
     }
     if (jackson2Present || gsonPresent || jsonbPresent) {
       map.put("json", MediaType.APPLICATION_JSON);

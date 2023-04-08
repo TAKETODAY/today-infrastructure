@@ -44,6 +44,7 @@
     <module>today-core</module>
     <module>today-tx</module>
     <module>today-orm</module>
+    <module>today-oxm</module>
     <module>today-aop</module>
     <module>today-web</module>
     <module>today-jdbc</module>

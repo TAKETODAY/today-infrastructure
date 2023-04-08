@@ -187,7 +187,6 @@
     <dependency>
       <groupId>com.rometools</groupId>
       <artifactId>rome</artifactId>
-      <version>1.18.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -203,18 +202,10 @@
       <scope>provided</scope>
     </dependency>
 
-
     <dependency>
       <groupId>com.googlecode.protobuf-java-format</groupId>
       <artifactId>protobuf-java-format</artifactId>
       <version>1.4</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.xnio</groupId>
-      <artifactId>xnio-api</artifactId>
-      <version>3.8.7.Final</version>
       <scope>provided</scope>
     </dependency>
 
@@ -312,6 +303,11 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-oxm</artifactId>
     </dependency>
 
     <!--
@@ -446,6 +442,12 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
       <scope>test</scope>
     </dependency>
 

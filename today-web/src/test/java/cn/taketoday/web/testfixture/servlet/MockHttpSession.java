@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -116,7 +116,6 @@ public class MockHttpSession implements HttpSession {
    * As of Servlet 3.1, the id of a session can be changed.
    *
    * @return the new session id
-   * @since 4.0.3
    */
   public String changeSessionId() {
     this.id = Integer.toString(nextId++);

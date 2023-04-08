@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.web.view;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -311,8 +310,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * expanding it with the given model, and then optionally appending simple type model
    * attributes as query String parameters.
    */
-  protected final String createTargetUrl(Map<String, Object> model, RequestContext request)
-          throws UnsupportedEncodingException {
+  protected final String createTargetUrl(Map<String, Object> model, RequestContext request) {
 
     // Prepare target URL.
     StringBuilder targetUrl = new StringBuilder();
