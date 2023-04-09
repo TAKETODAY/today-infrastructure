@@ -139,12 +139,12 @@ class DefaultMvcResult implements MvcResult {
   public ModelAndView getModelAndView() {
     if (modelAndView == null) {
       if (requestContext.hasBinding()) {
-        BindingContext bindingContext = requestContext.getBinding();
-        if (bindingContext != null && bindingContext.hasModelAndView()) {
+        BindingContext bindingContext = requestContext.binding();
+        if (bindingContext.hasModelAndView()) {
           ModelAndView modelAndView = bindingContext.getModelAndView();
           setModelAndView(modelAndView);
         }
-        else if (bindingContext != null) {
+        else {
           ModelMap model = bindingContext.getModel();
           Object viewNameAttribute = requestContext.getAttribute(VIEW_NAME_ATTRIBUTE);
           if (viewNameAttribute instanceof String viewName) {
@@ -157,9 +157,6 @@ class DefaultMvcResult implements MvcResult {
             modelAndView = new ModelAndView();
             modelAndView.addAllObjects(model);
           }
-        }
-        else {
-          modelAndView = new ModelAndView();
         }
       }
     }

@@ -563,7 +563,7 @@ class MockHttpServletRequestBuilderTests {
 
     RedirectModel flashMap = new SessionRedirectModelManager()
             .retrieveAndUpdate(new ServletRequestContext(null, request, new MockHttpServletResponse()));
-    assertThat((Object) flashMap).isNotNull();
+
     assertThat(flashMap.get("foo")).isEqualTo("bar");
   }
 

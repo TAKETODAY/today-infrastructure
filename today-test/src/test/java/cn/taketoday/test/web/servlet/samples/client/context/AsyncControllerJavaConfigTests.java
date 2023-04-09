@@ -82,7 +82,7 @@ public class AsyncControllerJavaConfigTests {
             .exchange()
             .expectStatus().isOk()
             .expectBody()
-            .consumeWith(System.out::println)
+//            .consumeWith(System.out::println)
             .json("{\"key\":\"value\"}");
 
     verify(this.callableInterceptor).beforeConcurrentHandling(any(), any());

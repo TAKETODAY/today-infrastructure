@@ -32,6 +32,7 @@ import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.reactive.server.EntityExchangeResult;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
+import cn.taketoday.ui.Model;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PostMapping;
@@ -78,7 +79,7 @@ public class FilterTests {
 
     // Further assertions on the server response
     MockMvcWebTestClient.resultActionsFor(exchangeResult)
-            .andExpect(model().size(1))
+            .andExpect(model().size(2))
             .andExpect(model().attributeExists("id"))
             .andExpect(flash().attributeCount(1))
             .andExpect(flash().attribute("message", "success!"));
@@ -135,7 +136,7 @@ public class FilterTests {
 
     // Further assertions on the server response
     MockMvcWebTestClient.resultActionsFor(exchangeResult)
-            .andExpect(model().size(1))
+            .andExpect(model().size(2))
             .andExpect(model().attributeExists("id"))
             .andExpect(flash().attributeCount(1))
             .andExpect(flash().attribute("message", "success!"));
@@ -174,11 +175,11 @@ public class FilterTests {
   private static class PersonController {
 
     @PostMapping(path = "/persons")
-    public String save(@Valid Person person, Errors errors, RedirectModel redirectAttrs) {
+    public String save(@Valid Person person, Errors errors, Model model, RedirectModel redirectAttrs) {
       if (errors.hasErrors()) {
         return "person/add";
       }
-      redirectAttrs.addAttribute("id", "1");
+      model.addAttribute("id", "1");
       redirectAttrs.addAttribute("message", "success!");
       return "redirect:/person/{id}";
     }

@@ -40,7 +40,6 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.support.ApplicationContextSupport;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
@@ -403,7 +402,12 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
       wac.addBean(RedirectModelManager.BEAN_NAME, redirectModelManager);
     }
 
-    wac.addBeans(initViewResolvers(wac));
+    if (viewResolvers == null) {
+      wac.addBeans(new InternalResourceViewResolver());
+    }
+    else {
+      wac.addBeans(viewResolvers);
+    }
 
     if (localeResolver != null) {
       wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
@@ -415,17 +419,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     wac.refresh();
     extendMvcSingletons(sc).forEach(wac::addBean);
-  }
-
-  private List<ViewResolver> initViewResolvers(WebApplicationContext wac) {
-    this.viewResolvers = (this.viewResolvers != null ? this.viewResolvers :
-                          Collections.singletonList(new InternalResourceViewResolver()));
-    for (Object viewResolver : this.viewResolvers) {
-      if (viewResolver instanceof ApplicationContextSupport support) {
-        support.setApplicationContext(wac);
-      }
-    }
-    return this.viewResolvers;
   }
 
   /**

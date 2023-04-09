@@ -308,6 +308,7 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-oxm</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!--

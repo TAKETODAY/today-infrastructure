@@ -156,7 +156,7 @@ class StandaloneMockMvcSpec extends AbstractMockMvcServerSpec<MockMvcWebTestClie
   }
 
   @Override
-  public StandaloneMockMvcSpec placeholderValue(String name, String value) {
+  public StandaloneMockMvcSpec placeholderValue(String name, Object value) {
     this.mockMvcBuilder.addPlaceholderValue(name, value);
     return this;
   }

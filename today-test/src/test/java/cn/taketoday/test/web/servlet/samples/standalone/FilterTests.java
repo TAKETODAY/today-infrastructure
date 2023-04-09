@@ -31,6 +31,7 @@ import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
+import cn.taketoday.ui.Model;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PostMapping;
@@ -75,12 +76,12 @@ public class FilterTests {
   @Test
   public void whenFiltersCompleteMvcProcessesRequest() throws Exception {
     standaloneSetup(new PersonController())
-            .addFilters(new ContinueFilter()).build()
+            .addFilters(new ContinueFilter())
             .perform(post("/persons").param("name", "Andy"))
             .andExpect(status().isFound())
             .andExpect(redirectedUrl("/person/1"))
-            .andExpect(model().size(1))
-            .andExpect(model().attributeExists("id"))
+            .andExpect(model().size(2))
+            .andExpect(model().attributeExists("id", "person"))
             .andExpect(flash().attributeCount(1))
             .andExpect(flash().attribute("message", "success!"));
   }
@@ -88,7 +89,7 @@ public class FilterTests {
   @Test
   public void filtersProcessRequest() throws Exception {
     standaloneSetup(new PersonController())
-            .addFilters(new ContinueFilter(), new RedirectFilter()).build()
+            .addFilters(new ContinueFilter(), new RedirectFilter())
             .perform(post("/persons").param("name", "Andy"))
             .andExpect(redirectedUrl("/login"));
   }
@@ -96,7 +97,7 @@ public class FilterTests {
   @Test
   public void filterMappedBySuffix() throws Exception {
     standaloneSetup(new PersonController())
-            .addFilter(new RedirectFilter(), "*.html").build()
+            .addFilter(new RedirectFilter(), "*.html")
             .perform(post("/persons.html").param("name", "Andy"))
             .andExpect(redirectedUrl("/login"));
   }
@@ -104,7 +105,7 @@ public class FilterTests {
   @Test
   public void filterWithExactMapping() throws Exception {
     standaloneSetup(new PersonController())
-            .addFilter(new RedirectFilter(), "/p", "/persons").build()
+            .addFilter(new RedirectFilter(), "/p", "/persons")
             .perform(post("/persons").param("name", "Andy"))
             .andExpect(redirectedUrl("/login"));
   }
@@ -112,12 +113,12 @@ public class FilterTests {
   @Test
   public void filterSkipped() throws Exception {
     standaloneSetup(new PersonController())
-            .addFilter(new RedirectFilter(), "/p", "/person").build()
+            .addFilter(new RedirectFilter(), "/p", "/person")
             .perform(post("/persons").param("name", "Andy"))
             .andExpect(status().isFound())
             .andExpect(redirectedUrl("/person/1"))
-            .andExpect(model().size(1))
-            .andExpect(model().attributeExists("id"))
+            .andExpect(model().size(2))
+            .andExpect(model().attributeExists("id", "person"))
             .andExpect(flash().attributeCount(1))
             .andExpect(flash().attribute("message", "success!"));
   }
@@ -125,7 +126,7 @@ public class FilterTests {
   @Test
   public void filterWrapsRequestResponse() throws Exception {
     standaloneSetup(new PersonController())
-            .addFilters(new WrappingRequestResponseFilter()).build()
+            .addFilters(new WrappingRequestResponseFilter())
             .perform(post("/user"))
             .andExpect(model().attribute("principal", WrappingRequestResponseFilter.PRINCIPAL_NAME));
   }
@@ -152,11 +153,11 @@ public class FilterTests {
   private static class PersonController {
 
     @PostMapping(path = "/persons")
-    public String save(@Valid Person person, Errors errors, RedirectModel redirectAttrs) {
+    public String save(@Valid Person person, Errors errors, Model model, RedirectModel redirectAttrs) {
       if (errors.hasErrors()) {
         return "person/add";
       }
-      redirectAttrs.addAttribute("id", "1");
+      model.addAttribute("id", "1");
       redirectAttrs.addAttribute("message", "success!");
       return "redirect:/person/{id}";
     }
@@ -202,8 +203,6 @@ public class FilterTests {
         public Principal getUserPrincipal() {
           return () -> PRINCIPAL_NAME;
         }
-
-        // Like Spring Security does in HttpServlet3RequestFactory..
 
         @Override
         public AsyncContext getAsyncContext() {

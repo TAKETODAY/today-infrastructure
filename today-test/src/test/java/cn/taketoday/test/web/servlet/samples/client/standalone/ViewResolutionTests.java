@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.http.MediaType;
+import cn.taketoday.oxm.jaxb.Jaxb2Marshaller;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.reactive.server.EntityExchangeResult;
@@ -41,6 +42,7 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
+import cn.taketoday.web.view.xml.MarshallingView;
 
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -91,13 +93,30 @@ class ViewResolutionTests {
   }
 
   @Test
+  void xmlOnly() {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(Person.class);
+
+    WebTestClient testClient =
+            MockMvcWebTestClient.bindToController(new PersonController())
+                    .singleView(new MarshallingView(marshaller))
+                    .build();
+
+    testClient.get().uri("/person/Corea")
+            .exchange()
+            .expectStatus().isOk()
+            .expectHeader().contentType(MediaType.APPLICATION_XML)
+            .expectBody().xpath("/person/name/text()").isEqualTo("Corea");
+  }
+
+  @Test
   void contentNegotiation() throws Exception {
-//    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-//    marshaller.setClassesToBeBound(Person.class);
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(Person.class);
 
     List<View> viewList = new ArrayList<>();
     viewList.add(new MappingJackson2JsonView());
-//    viewList.add(new MarshallingView(marshaller));
+    viewList.add(new MarshallingView(marshaller));
 
     ContentNegotiationManager manager = new ContentNegotiationManager(
             new HeaderContentNegotiationStrategy(), new FixedContentNegotiationStrategy(MediaType.TEXT_HTML));

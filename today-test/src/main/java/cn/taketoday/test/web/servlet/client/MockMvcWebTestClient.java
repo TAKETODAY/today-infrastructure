@@ -335,9 +335,9 @@ public interface MockMvcWebTestClient {
     /**
      * Configure placeholder values to use.
      * <p>This is delegated to
-     * {@link StandaloneMockMvcBuilder#addPlaceholderValue(String, String)}.
+     * {@link StandaloneMockMvcBuilder#addPlaceholderValue(String, Object)}.
      */
-    ControllerSpec placeholderValue(String name, String value);
+    ControllerSpec placeholderValue(String name, Object value);
 
     /**
      * Configure factory for a custom {@link RequestMappingHandlerMapping}.

@@ -220,7 +220,7 @@ public class XpathAssertionTests {
   }
 
   @Controller
-  public class BlogFeedController {
+  public static class BlogFeedController {
 
     @RequestMapping(value = "/blog.atom", method = { GET, HEAD })
     @ResponseBody

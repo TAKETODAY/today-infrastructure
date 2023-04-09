@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.http.MediaType;
+import cn.taketoday.oxm.jaxb.Jaxb2Marshaller;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.servlet.MockMvc;
@@ -39,6 +40,7 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
+import cn.taketoday.web.view.xml.MarshallingView;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -79,26 +81,26 @@ class ViewResolutionTests {
             .andExpect(jsonPath("$.person.name").value("Corea"));
   }
 
-//  @Test
-//  void xmlOnly() throws Exception {
-//    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-//    marshaller.setClassesToBeBound(Person.class);
-//
-//    standaloneSetup(new PersonController()).setSingleView(new MarshallingView(marshaller)).build()
-//            .perform(get("/person/Corea"))
-//            .andExpect(status().isOk())
-//            .andExpect(content().contentType(MediaType.APPLICATION_XML))
-//            .andExpect(xpath("/person/name/text()").string(equalTo("Corea")));
-//  }
+  @Test
+  void xmlOnly() throws Exception {
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(Person.class);
+
+    standaloneSetup(new PersonController()).setSingleView(new MarshallingView(marshaller)).build()
+            .perform(get("/person/Corea"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_XML))
+            .andExpect(xpath("/person/name/text()").string(equalTo("Corea")));
+  }
 
   @Test
   void contentNegotiation() throws Exception {
-//    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-//    marshaller.setClassesToBeBound(Person.class);
+    Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+    marshaller.setClassesToBeBound(Person.class);
 
     List<View> viewList = new ArrayList<>();
     viewList.add(new MappingJackson2JsonView());
-//    viewList.add(new MarshallingView(marshaller));
+    viewList.add(new MarshallingView(marshaller));
 
     ContentNegotiationManager manager = new ContentNegotiationManager(
             new HeaderContentNegotiationStrategy(), new FixedContentNegotiationStrategy(MediaType.TEXT_HTML));

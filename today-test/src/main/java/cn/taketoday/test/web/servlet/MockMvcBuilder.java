@@ -36,4 +36,20 @@ public interface MockMvcBuilder {
    */
   MockMvc build();
 
+  /**
+   * Perform a request and return a type that allows chaining further
+   * actions, such as asserting expectations, on the result.
+   *
+   * @param requestBuilder used to prepare the request to execute;
+   * see static factory methods in
+   * {@link cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders}
+   * @return an instance of {@link ResultActions} (never {@code null})
+   * @see cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders
+   * @see cn.taketoday.test.web.servlet.result.MockMvcResultMatchers
+   */
+  default ResultActions perform(RequestBuilder requestBuilder) throws Exception {
+    MockMvc mockMvc = build();
+    return mockMvc.perform(requestBuilder);
+  }
+
 }

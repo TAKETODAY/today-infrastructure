@@ -1348,8 +1348,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * The implementation of this (Servlet 3.1+) method calls
    * {@link MockHttpSession#changeSessionId()} if the session is a mock session.
    * Otherwise it simply returns the current session id.
-   *
-   * @since 4.0.3
    */
   @Override
   public String changeSessionId() {

@@ -63,7 +63,7 @@ public class RedirectTests {
     this.mockMvc.perform(post("/persons").param("name", "Andy"))
             .andExpect(status().isFound())
             .andExpect(redirectedUrl("/persons/Joe"))
-            .andExpect(model().size(1))
+            .andExpect(model().size(2))
             .andExpect(model().attributeExists("name"))
             .andExpect(flash().attributeCount(1))
             .andExpect(flash().attribute("message", "success!"));
@@ -74,8 +74,8 @@ public class RedirectTests {
     this.mockMvc.perform(post("/people").param("name", "Andy"))
             .andExpect(status().isFound())
             .andExpect(redirectedUrl("/persons/Joe"))
-            .andExpect(model().size(1))
-            .andExpect(model().attributeExists("name"))
+            .andExpect(model().size(2))
+            .andExpect(model().attributeExists("name", "person"))
             .andExpect(flash().attributeCount(1))
             .andExpect(flash().attribute("message", "success!"));
   }
@@ -121,21 +121,21 @@ public class RedirectTests {
     }
 
     @PostMapping("/persons")
-    public String save(@Valid Person person, Errors errors, RedirectModel redirectAttrs) {
+    public String save(@Valid Person person, Errors errors, Model model, RedirectModel redirectAttrs) {
       if (errors.hasErrors()) {
         return "persons/add";
       }
-      redirectAttrs.addAttribute("name", "Joe");
+      model.addAttribute("name", "Joe");
       redirectAttrs.addAttribute("message", "success!");
       return "redirect:/persons/{name}";
     }
 
     @PostMapping("/people")
-    public Object saveSpecial(@Valid Person person, Errors errors, RedirectModel redirectAttrs) {
+    public Object saveSpecial(@Valid Person person, Errors errors, Model model, RedirectModel redirectAttrs) {
       if (errors.hasErrors()) {
         return "persons/add";
       }
-      redirectAttrs.addAttribute("name", "Joe");
+      model.addAttribute("name", "Joe");
       redirectAttrs.addAttribute("message", "success!");
       return new StringBuilder("redirect:").append("/persons").append("/{name}");
     }
