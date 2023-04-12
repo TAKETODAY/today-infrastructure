@@ -31,10 +31,10 @@ import jakarta.servlet.DispatcherType;
 /**
  * Static factory methods for {@link RequestBuilder RequestBuilders}.
  *
- * <h3>Integration with the Spring TestContext Framework</h3>
+ * <h3>Integration with the Infra TestContext Framework</h3>
  * <p>Methods in this class will reuse a
  * {@link cn.taketoday.mock.web.MockServletContext MockServletContext}
- * that was created by the Spring TestContext Framework.
+ * that was created by the Infra TestContext Framework.
  *
  * <h3>Eclipse Users</h3>
  * <p>Consider adding this class as a Java editor favorite. To navigate to

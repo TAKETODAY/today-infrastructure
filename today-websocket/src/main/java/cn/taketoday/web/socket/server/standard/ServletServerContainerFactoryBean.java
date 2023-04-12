@@ -34,10 +34,10 @@ import jakarta.websocket.server.ServerContainer;
  * Since there is usually only one {@code ServerContainer} instance accessible under a
  * well-known {@code jakarta.servlet.ServletContext} attribute, simply declaring this
  * FactoryBean and using its setters allows for configuring the {@code ServerContainer}
- * through Spring configuration.
+ * through Infra configuration.
  *
  * <p>This is useful even if the {@code ServerContainer} is not injected into any other
- * bean within the Spring application context. For example, an application can configure
+ * bean within the Infra application context. For example, an application can configure
  * a {@link cn.taketoday.web.socket.server.support.DefaultHandshakeHandler},
  * a {@link cn.taketoday.web.socket.sockjs.SockJsService}, or
  * {@link ServerEndpointExporter}, and separately declare this FactoryBean in order

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Role;
 import cn.taketoday.stereotype.Component;
 
 /**
- * {@code @Configuration} class that registers the Spring infrastructure beans necessary
+ * {@code @Configuration} class that registers the infrastructure beans necessary
  * to enable AspectJ-based annotation-driven cache management for standard JSR-107
  * annotations.
  *

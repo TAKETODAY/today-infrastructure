@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * Spring Bean and Jackson {@link Module} to find and
+ * Infra Bean and Jackson {@link Module} to find and
  * {@link SimpleModule#setMixInAnnotation(Class, Class) register}
  * {@link JsonMixin @JsonMixin}-annotated classes.
  *

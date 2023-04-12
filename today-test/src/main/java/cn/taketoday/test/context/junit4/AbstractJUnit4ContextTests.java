@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,7 +41,7 @@ import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
 import cn.taketoday.test.context.web.ServletTestExecutionListener;
 
 /**
- * Abstract base test class which integrates the <em>Spring TestContext
+ * Abstract base test class which integrates the <em>Infra TestContext
  * Framework</em> with explicit {@link ApplicationContext} testing support
  * in a <strong>JUnit 4</strong> environment.
  *

@@ -64,7 +64,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
    * A session index that contains the current principal name (i.e. username).
    * <p>
    * It is the responsibility of the developer to ensure the index is populated since
-   * Spring Session is not aware of the authentication mechanism being used.
+   * Infra Session is not aware of the authentication mechanism being used.
    */
   private static final String PRINCIPAL_NAME_INDEX_NAME = Conventions.getQualifiedAttributeName(
           RedissonSessionRepository.class, "PRINCIPAL_NAME_INDEX_NAME");

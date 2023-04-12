@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -66,7 +66,7 @@ public interface CacheAwareContextLoaderDelegate {
    * Custom {@code CacheAwareContextLoaderDelegate} implementations are
    * therefore highly encouraged to override this method with a more meaningful
    * implementation. Note that the standard {@code CacheAwareContextLoaderDelegate}
-   * implementation in Spring overrides this method appropriately.
+   * implementation in Infra overrides this method appropriately.
    *
    * @param mergedContextConfiguration the merged context configuration used
    * to load the application context; never {@code null}

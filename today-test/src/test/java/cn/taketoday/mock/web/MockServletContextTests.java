@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,18 +24,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
-import cn.taketoday.core.io.FileSystemResourceLoader;
-import cn.taketoday.http.MediaType;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockRequestDispatcher;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.core.io.FileSystemResourceLoader;
+import cn.taketoday.http.MediaType;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRegistration;
@@ -102,7 +98,7 @@ class MockServletContextTests {
 
 		/**
 		 * Introduced to dispel claims in a thread on Stack Overflow:
-		 * <a href="https://stackoverflow.com/questions/22986109/testing-spring-managed-servlet">Testing Spring managed servlet</a>
+		 * <a href="https://stackoverflow.com/questions/22986109/testing-spring-managed-servlet">Testing Infra managed servlet</a>
 		 */
 		@Test
 		void getMimeTypeWithCustomConfiguredType() {

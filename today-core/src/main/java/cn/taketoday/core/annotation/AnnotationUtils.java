@@ -1295,7 +1295,7 @@ public abstract class AnnotationUtils {
 
   /**
    * Determine if the supplied {@link Annotation} has been <em>synthesized</em>
-   * by Spring (i.e. wrapped in a dynamic proxy) with additional functionality
+   * by Infra (i.e. wrapped in a dynamic proxy) with additional functionality
    * such as attribute alias handling.
    *
    * @param annotation the annotation to check

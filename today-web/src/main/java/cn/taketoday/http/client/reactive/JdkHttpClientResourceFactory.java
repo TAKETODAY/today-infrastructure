@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,7 @@ import cn.taketoday.scheduling.concurrent.CustomizableThreadFactory;
 
 /**
  * Factory to manage JDK HttpClient resources such as a shared {@link Executor}
- * within the lifecycle of a Spring {@code ApplicationContext}.
+ * within the lifecycle of a Infra {@code ApplicationContext}.
  *
  * <p>This factory implements {@link InitializingBean} and {@link DisposableBean}
  * and is expected typically to be declared as a Spring-managed bean.

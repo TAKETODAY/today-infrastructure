@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -119,7 +119,7 @@ public class InfraMethodRule implements MethodRule {
    * {@link TestContextManager#prepareTestInstance prepareTestInstance()},
    * {@link TestContextManager#beforeTestMethod beforeTestMethod()}, and
    * {@link TestContextManager#afterTestMethod afterTestMethod()} methods
-   * on the {@code TestContextManager}, potentially with Spring timeouts
+   * on the {@code TestContextManager}, potentially with Infra timeouts
    * and repetitions.
    * <p>In addition, this method checks whether the test is enabled in
    * the current execution environment. This prevents methods with a

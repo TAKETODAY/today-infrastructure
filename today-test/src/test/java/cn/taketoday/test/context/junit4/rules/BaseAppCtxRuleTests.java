@@ -32,7 +32,7 @@ import cn.taketoday.test.context.ContextConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Base class for integration tests involving Spring {@code ApplicationContexts}
+ * Base class for integration tests involving Infra {@code ApplicationContexts}
  * in conjunction with {@link InfraClassRule} and {@link InfraMethodRule}.
  *
  * <p>The goal of this class and its subclasses is to ensure that Rule-based

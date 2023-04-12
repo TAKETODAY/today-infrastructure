@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 
 /**
  * {@code @NestedTestConfiguration} is a type-level annotation that is used to
- * configure how Spring test configuration annotations are processed within
+ * configure how Infra test configuration annotations are processed within
  * enclosing class hierarchies (i.e., for <em>inner</em> test classes).
  *
  * <p>If {@code @NestedTestConfiguration} is not <em>present</em> or
@@ -56,7 +56,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
  * configuration from an enclosing test class will be inherited by inner test
  * classes, analogous to the semantics within a test class inheritance hierarchy.
  * When the {@link EnclosingConfiguration#OVERRIDE OVERRIDE} mode is in use,
- * inner test classes will have to declare their own Spring test configuration
+ * inner test classes will have to declare their own Infra test configuration
  * annotations. If you wish to explicitly configure the mode, annotate either
  * the inner test class or one of its enclosing classes with
  * {@code @NestedTestConfiguration(...)}. Note that a

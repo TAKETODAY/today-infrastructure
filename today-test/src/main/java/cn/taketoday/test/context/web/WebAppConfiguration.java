@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -67,7 +67,7 @@ public @interface WebAppConfiguration {
 
   /**
    * The resource path to the root directory of the web application.
-   * <p>A path that does not include a Spring resource prefix (e.g., {@code classpath:},
+   * <p>A path that does not include a Infra resource prefix (e.g., {@code classpath:},
    * {@code file:}, etc.) will be interpreted as a file system resource, and a
    * path should not end with a slash.
    * <p>Defaults to {@code "src/main/webapp"} as a file system resource. Note

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,7 +49,7 @@ import jakarta.servlet.http.HttpSession;
  * a application context from within custom web views or MVC actions.
  *
  * <p>Note that there are more convenient ways of accessing the root context for
- * many web frameworks, either part of Spring or available as an external library.
+ * many web frameworks, either part of Infra or available as an external library.
  * This helper class is just the most generic way to access the root context.
  *
  * @author Juergen Hoeller

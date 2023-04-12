@@ -94,7 +94,7 @@ class InfraExtensionTests {
     assertThat(this.dog).as("Dogbert should have been @Autowired by Spring").isNotNull();
     assertThat(this.dog.getName()).as("Dog's name").isEqualTo("Dogbert");
 
-    assertThat(this.cat).as("Catbert should have been @Autowired by Spring as the @Primary cat").isNotNull();
+    assertThat(this.cat).as("Catbert should have been @Autowired by Infra as the @Primary cat").isNotNull();
     assertThat(this.cat.getName()).as("Primary cat's name").isEqualTo("Catbert");
     assertThat(this.cats).as("Number of cats in context").hasSize(2);
 

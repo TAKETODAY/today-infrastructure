@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -210,7 +210,7 @@ public abstract class AbstractTransactionalJUnit4ContextTests extends AbstractJU
    * <p>The script will normally be loaded by classpath.
    * <p><b>Do not use this method to execute DDL if you expect rollback.</b>
    *
-   * @param sqlResourcePath the Spring resource path for the SQL script
+   * @param sqlResourcePath the Infra resource path for the SQL script
    * @param continueOnError whether or not to continue without throwing an
    * exception in the event of an error
    * @throws DataAccessException if there is an error executing a statement

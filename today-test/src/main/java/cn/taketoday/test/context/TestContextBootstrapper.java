@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -128,7 +128,7 @@ public interface TestContextBootstrapper {
    * {@link cn.taketoday.core.annotation.AnnotationAwareOrderComparator
    * AnnotationAwareOrderComparator}.
    * <p>Concrete implementations are free to determine what comprises the
-   * set of default listeners. However, by default, the Spring TestContext
+   * set of default listeners. However, by default, the Infra TestContext
    * Framework will use the
    * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
    * mechanism to look up all {@code TestExecutionListener} class names

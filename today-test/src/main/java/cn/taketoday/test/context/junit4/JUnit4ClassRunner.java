@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -135,7 +135,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
   /**
    * Construct a new {@code JUnit4ClassRunner} and initialize a
-   * {@link TestContextManager} to provide Spring testing functionality to
+   * {@link TestContextManager} to provide Infra testing functionality to
    * standard JUnit tests.
    *
    * @param clazz the test class to be run
@@ -204,7 +204,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunBeforeTestClassCallbacks} statement, thus preserving the
-   * default JUnit functionality while adding support for the Spring TestContext
+   * default JUnit functionality while adding support for the Infra TestContext
    * Framework.
    *
    * @see RunBeforeTestClassCallbacks
@@ -459,7 +459,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunBeforeTestMethodCallbacks} statement, thus preserving the
-   * default functionality while adding support for the Spring TestContext
+   * default functionality while adding support for the Infra TestContext
    * Framework.
    *
    * @see RunBeforeTestMethodCallbacks
@@ -473,7 +473,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunAfterTestMethodCallbacks} statement, thus preserving the
-   * default functionality while adding support for the Spring TestContext
+   * default functionality while adding support for the Infra TestContext
    * Framework.
    *
    * @see RunAfterTestMethodCallbacks

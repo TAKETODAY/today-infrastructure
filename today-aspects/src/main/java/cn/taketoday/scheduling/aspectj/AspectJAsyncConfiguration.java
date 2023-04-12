@@ -30,7 +30,7 @@ import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
 import cn.taketoday.stereotype.Component;
 
 /**
- * {@code @Configuration} class that registers the Spring infrastructure beans necessary
+ * {@code @Configuration} class that registers the infrastructure beans necessary
  * to enable AspectJ-based asynchronous method execution.
  *
  * @author Chris Beams

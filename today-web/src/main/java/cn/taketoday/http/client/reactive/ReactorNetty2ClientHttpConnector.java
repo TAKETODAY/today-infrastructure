@@ -70,7 +70,7 @@ public class ReactorNetty2ClientHttpConnector implements ClientHttpConnector {
    * fixed, shared resources are favored for event loop concurrency. However,
    * consider declaring a {@link ReactorNetty2ResourceFactory} bean with
    * {@code globalResources=true} in order to ensure the Reactor Netty global
-   * resources are shut down when the Spring ApplicationContext is closed.
+   * resources are shut down when the Infra ApplicationContext is closed.
    *
    * @param factory the resource factory to obtain the resources from
    * @param mapper a mapper for further initialization of the created client

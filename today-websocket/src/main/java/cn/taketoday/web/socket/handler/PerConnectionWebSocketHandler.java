@@ -42,7 +42,7 @@ import cn.taketoday.web.socket.WebSocketSession;
  *
  * <p>If initializing the target {@link WebSocketHandler} type requires a Spring
  * BeanFactory, then the {@link #setBeanFactory(BeanFactory)} property accordingly. Simply
- * declaring this class as a Spring bean will do that. Otherwise, {@link WebSocketHandler}
+ * declaring this class as a Infra bean will do that. Otherwise, {@link WebSocketHandler}
  * instances of the target type will be created using the default constructor.
  *
  * @author Rossen Stoyanchev

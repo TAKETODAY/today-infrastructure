@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.context.annotation.Import;
 
 /**
- * Global enabler for <code>@Retryable</code> annotations in Spring beans. If this is
+ * Global enabler for <code>@Retryable</code> annotations in Infra beans. If this is
  * declared on any <code>@Configuration</code> in the context then beans that have
  * retryable methods will be proxied and the retry handled according to the metadata in
  * the annotations.

@@ -48,7 +48,7 @@ import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * Annotation that can be specified on a test class that runs Infra based tests.
- * Provides the following features over and above the regular <em>Spring TestContext
+ * Provides the following features over and above the regular <em>Infra TestContext
  * Framework</em>:
  * <ul>
  * <li>Uses {@link InfraApplicationContextLoader} as the default {@link ContextLoader} when no

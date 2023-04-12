@@ -59,11 +59,11 @@ public interface MockMvcConfigurer {
 
   /**
    * Invoked when the MockMvc instance is about to be created with the MockMvc
-   * builder and the Spring WebApplicationContext that will be passed to the
+   * builder and the Infra WebApplicationContext that will be passed to the
    * {@code DispatcherServlet}.
    *
    * @param builder the builder for the MockMvc
-   * @param context the Spring configuration
+   * @param context the Infra configuration
    * @return a post processor to be applied to every request performed
    * through the {@code MockMvc} instance.
    */

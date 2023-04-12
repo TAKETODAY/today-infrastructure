@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -228,7 +228,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
    * </ol>
    * <p><strong>WARNING</strong>: If a test class {@code Constructor} is annotated
    * with {@code @Autowired} or automatically autowirable (see {@link TestConstructor}),
-   * Spring will assume the responsibility for resolving all parameters in the
+   * Infra will assume the responsibility for resolving all parameters in the
    * constructor. Consequently, no other registered {@link ParameterResolver}
    * will be able to resolve parameters.
    *

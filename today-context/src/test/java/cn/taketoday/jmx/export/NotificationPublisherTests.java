@@ -47,7 +47,7 @@ import cn.taketoday.jmx.support.ObjectNameManager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for the Spring JMX {@link NotificationPublisher} functionality.
+ * Integration tests for the Infra JMX {@link NotificationPublisher} functionality.
  *
  * @author Rob Harrop
  * @author Juergen Hoeller

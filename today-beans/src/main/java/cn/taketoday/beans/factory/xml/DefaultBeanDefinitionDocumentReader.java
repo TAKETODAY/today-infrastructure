@@ -225,7 +225,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     }
     catch (URISyntaxException ex) {
       // cannot convert to an URI, considering the location relative
-      // unless it is the well-known Spring prefix "classpath*:"
+      // unless it is the well-known Infra prefix "classpath*:"
     }
 
     // Absolute or relative?

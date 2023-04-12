@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,7 +49,7 @@ public final class InfraRunner extends JUnit4ClassRunner {
   /**
    * Construct a new {@code Runner} and initialize a
    * {@link TestContextManager TestContextManager}
-   * to provide Spring testing functionality to standard JUnit 4 tests.
+   * to provide Infra testing functionality to standard JUnit 4 tests.
    *
    * @param clazz the test class to be run
    * @see #createTestContextManager(Class)

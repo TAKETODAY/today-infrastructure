@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
  * <p>This annotation and its supporting infrastructure were originally designed
  * to allow properties from
  * <a href="https://www.testcontainers.org/">Testcontainers</a> based tests to be
- * exposed easily to Spring integration tests. However, this feature may also be
+ * exposed easily to Infra integration tests. However, this feature may also be
  * used with any form of external resource whose lifecycle is maintained outside
  * the test's {@code ApplicationContext}.
  *

@@ -33,7 +33,7 @@ import cn.taketoday.stereotype.Component;
  * 'primary' bean exists among the candidates, it will be the autowired value.
  *
  * <p>This annotation is semantically equivalent to the {@code <bean>} element's
- * {@code primary} attribute in Spring XML.
+ * {@code primary} attribute in Infra XML.
  *
  * <p>May be used on any class directly or indirectly annotated with
  * {@code @Component} or on methods annotated with @{@link Bean}.
@@ -71,7 +71,7 @@ import cn.taketoday.stereotype.Component;
  *
  * <p>Because {@code HibernateFooRepository} is marked with {@code @Primary},
  * it will be injected preferentially over the jdbc-based variant assuming both
- * are present as beans within the same Spring application context, which is
+ * are present as beans within the same Infra application context, which is
  * often the case when component-scanning is applied liberally.
  *
  * <p>Note that using {@code @Primary} at the class level has no effect unless

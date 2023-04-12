@@ -114,11 +114,11 @@ import cn.taketoday.util.xml.StaxUtils;
  * Therefore, it has limited namespace support. As such, it is rather unsuitable for
  * usage within Web Services.
  *
- * <p>This marshaller requires XStream 1.4.7 or higher, as of Spring 5.2.17.
+ * <p>This marshaller requires XStream 1.4.7 or higher
  * Note that {@link XStream} construction has been reworked in 4.0, with the
  * stream driver and the class loader getting passed into XStream itself now.
  *
- * <p>As of Spring Framework 6.0, the default {@link HierarchicalStreamDriver} is
+ * <p> the default {@link HierarchicalStreamDriver} is
  * a {@link DomDriver} that uses the configured {@linkplain #setEncoding(String)
  * encoding} and {@link #setNameCoder(NameCoder) NameCoder}. The driver can be
  * changed via {@link #setStreamDriver(HierarchicalStreamDriver)}.
@@ -652,10 +652,10 @@ public class XStreamMarshaller extends AbstractMarshaller implements BeanClassLo
 
   /**
    * Return the native XStream delegate used by this marshaller.
-   * <p><b>NOTE: This method has been marked as final as of Spring 4.0.</b>
+   * <p><b>NOTE: This method has been marked as final</b>
    * It can be used to access the fully configured XStream for marshalling
    * but not configuration purposes anymore.
-   * <p>As of Spring Framework 5.1.16, creation of the {@link XStream} instance
+   * <p>Creation of the {@link XStream} instance
    * returned by this method is thread safe.
    */
   public final XStream getXStream() {

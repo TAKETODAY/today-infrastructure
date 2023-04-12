@@ -74,7 +74,7 @@ public interface CallableProcessingInterceptor {
    * invoking the {@link Callable}. Once the state is captured, it can then be
    * transferred to the new {@link Thread} in
    * {@link #preProcess(RequestContext, Callable)}. Capturing the state of
-   * Spring Security's SecurityContextHolder and migrating it to the new Thread
+   * Infra Security's SecurityContextHolder and migrating it to the new Thread
    * is a concrete example of where this is useful.
    * <p>The default implementation is empty.
    *

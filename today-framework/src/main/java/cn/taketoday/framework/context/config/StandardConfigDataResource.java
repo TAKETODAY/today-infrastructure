@@ -73,7 +73,7 @@ public class StandardConfigDataResource extends ConfigDataResource {
   }
 
   /**
-   * Return the underlying Spring {@link Resource} being loaded.
+   * Return the underlying Infra {@link Resource} being loaded.
    *
    * @return the underlying resource
    */

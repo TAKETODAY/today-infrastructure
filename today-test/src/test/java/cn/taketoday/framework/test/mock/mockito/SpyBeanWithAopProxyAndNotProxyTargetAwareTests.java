@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.reset;
 
 /**
- * Test {@link SpyBean @SpyBean} when mixed with Spring AOP.
+ * Test {@link SpyBean @SpyBean} when mixed with Infra AOP.
  *
  * @author Phillip Webb
  * @see <a href="https://github.com/spring-projects/spring-boot/issues/5837">5837</a>

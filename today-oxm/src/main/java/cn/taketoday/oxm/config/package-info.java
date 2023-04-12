@@ -19,7 +19,7 @@
  */
 
 /**
- * Provides an namespace handler for the Spring Object/XML namespace.
+ * Provides an namespace handler for the Infra Object/XML namespace.
  */
 @NonNullApi
 @NonNullFields

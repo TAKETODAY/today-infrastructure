@@ -30,7 +30,7 @@ import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 
 /**
  * A variation of {@link WebSocketConfigurationSupport} that detects implementations of
- * {@link WebSocketConfigurer} in Spring configuration and invokes them in order to
+ * {@link WebSocketConfigurer} in Infra configuration and invokes them in order to
  * configure WebSocket request handling.
  *
  * @author Rossen Stoyanchev

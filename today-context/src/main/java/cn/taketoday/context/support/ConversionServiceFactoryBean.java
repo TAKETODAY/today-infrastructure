@@ -40,7 +40,7 @@ import cn.taketoday.lang.Nullable;
  * a {@link GenericConversionService} instance of their choosing.
  *
  * <p>Like all {@code FactoryBean} implementations, this class is suitable for
- * use when configuring a Spring application context using Spring {@code <beans>}
+ * use when configuring a Infra application context using Infra {@code <beans>}
  * XML. When configuring the container with
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}
  * classes, simply instantiate, configure and return the appropriate

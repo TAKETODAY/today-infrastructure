@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,7 +51,7 @@ public abstract class AopTestUtils {
    * <em>as is</em>.
    *
    * @param <T> the type of the target object
-   * @param candidate the instance to check (potentially a Spring AOP proxy;
+   * @param candidate the instance to check (potentially a Infra AOP proxy;
    * never {@code null})
    * @return the target object or the {@code candidate} (never {@code null})
    * @throws IllegalStateException if an error occurs while unwrapping a proxy
@@ -90,7 +90,7 @@ public abstract class AopTestUtils {
    * recursion leading to a {@link StackOverflowError}.
    *
    * @param <T> the type of the target object
-   * @param candidate the instance to check (potentially a Spring AOP proxy;
+   * @param candidate the instance to check (potentially a Infra AOP proxy;
    * never {@code null})
    * @return the target object or the {@code candidate} (never {@code null})
    * @throws IllegalStateException if an error occurs while unwrapping a proxy

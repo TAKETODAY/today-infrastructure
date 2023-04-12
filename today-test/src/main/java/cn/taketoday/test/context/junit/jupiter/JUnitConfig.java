@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 /**
  * {@code @ApplicationJUnitConfig} is a <em>composed annotation</em> that combines
  * {@link ExtendWith @ExtendWith(ApplicationExtension.class)} from JUnit Jupiter with
- * {@link ContextConfiguration @ContextConfiguration} from the <em>Spring TestContext
+ * {@link ContextConfiguration @ContextConfiguration} from the <em>Infra TestContext
  * Framework</em>.
  *
  * @author Sam Brannen

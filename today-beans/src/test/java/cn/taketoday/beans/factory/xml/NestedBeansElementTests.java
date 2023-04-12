@@ -31,7 +31,7 @@ import cn.taketoday.core.io.Resource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for new nested beans element support in Spring XML
+ * Tests for new nested beans element support in Infra XML
  *
  * @author Chris Beams
  */

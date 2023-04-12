@@ -200,7 +200,7 @@ public class ApplicationBuilder {
    * Create a child application with the provided sources. Default args and environment
    * are copied down into the child, but everything else is a clean sheet.
    *
-   * @param sources the sources for the application (Spring configuration)
+   * @param sources the sources for the application (Infra configuration)
    * @return the child application builder
    */
   public ApplicationBuilder child(Class<?>... sources) {
@@ -231,7 +231,7 @@ public class ApplicationBuilder {
    * Add a parent application with the provided sources. Default args and environment
    * are copied up into the parent, but everything else is a clean sheet.
    *
-   * @param sources the sources for the application (Spring configuration)
+   * @param sources the sources for the application (Infra configuration)
    * @return the parent builder
    */
   public ApplicationBuilder parent(Class<?>... sources) {
@@ -278,7 +278,7 @@ public class ApplicationBuilder {
    * the current application and its parent use {@link #sibling(Class[], String...)}
    * instead.
    *
-   * @param sources the sources for the application (Spring configuration)
+   * @param sources the sources for the application (Infra configuration)
    * @return the new sibling builder
    */
   public ApplicationBuilder sibling(Class<?>... sources) {
@@ -290,7 +290,7 @@ public class ApplicationBuilder {
    * this method is that the current application (and its parent) are started if they
    * are not already running.
    *
-   * @param sources the sources for the application (Spring configuration)
+   * @param sources the sources for the application (Infra configuration)
    * @param args the command line arguments to use when starting the current app and its
    * parent
    * @return the new sibling builder
@@ -521,7 +521,7 @@ public class ApplicationBuilder {
   }
 
   /**
-   * Add to the active Spring profiles for this app (and its parent and children).
+   * Add to the active Infra profiles for this app (and its parent and children).
    *
    * @param profiles the profiles to add.
    * @return the current builder
@@ -600,7 +600,7 @@ public class ApplicationBuilder {
 
   /**
    * Add some listeners to the application (listening for Application events as
-   * well as regular Spring events once the context is running). Any listeners that are
+   * well as regular Infra events once the context is running). Any listeners that are
    * also {@link ApplicationContextInitializer} will be added to the
    * {@link #initializers(ApplicationContextInitializer...) initializers} automatically.
    *

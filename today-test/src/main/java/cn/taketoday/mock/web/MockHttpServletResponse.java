@@ -508,7 +508,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return all values for the given header as a List of Strings.
    * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
-   * As of Spring 3.1, it returns a List of stringified values for Servlet 3.0 compatibility.
+   * it returns a List of stringified values for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValues(String)} for raw Object access.
    *
    * @param name the name of the header

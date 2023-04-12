@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,11 +34,11 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.AsyncConfigurer;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestContextManager;
@@ -291,7 +291,7 @@ public class EventPublishingTestExecutionListenerIntegrationTests {
   }
 
   /**
-   * MUST be annotated with {@code @Component} due to a change in Spring 5.1 that
+   * MUST be annotated with {@code @Component} that
    * does not consider beans in a package starting with "cn.taketoday" to be
    * event listeners unless they are also components.
    */

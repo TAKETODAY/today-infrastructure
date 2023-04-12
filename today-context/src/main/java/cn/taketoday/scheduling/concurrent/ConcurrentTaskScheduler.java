@@ -277,7 +277,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   /**
-   * Delegate that adapts a Spring Trigger to a JSR-236 Trigger.
+   * Delegate that adapts a Infra Trigger to a JSR-236 Trigger.
    * Separated into an inner class in order to avoid a hard dependency on the JSR-236 API.
    */
   private class EnterpriseConcurrentTriggerScheduler {

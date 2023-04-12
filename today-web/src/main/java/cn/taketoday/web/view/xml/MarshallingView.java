@@ -41,7 +41,7 @@ import jakarta.xml.bind.JAXBElement;
  * <p>The Object to be marshalled is supplied as a parameter in the model and then
  * {@linkplain #locateToBeMarshalled(Map) detected} during response rendering. Users can
  * either specify a specific entry in the model via the {@link #setModelKey(String) sourceKey}
- * property or have Spring locate the Source object.
+ * property or have Infra locate the Source object.
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller

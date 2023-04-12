@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -101,7 +101,7 @@ public class InfraClassRule implements TestRule {
   private static final Map<Class<?>, TestContextManager> testContextManagerCache = new ConcurrentHashMap<>(64);
 
   /**
-   * Apply <em>class-level</em> features of the <em>Spring TestContext
+   * Apply <em>class-level</em> features of the <em>Infra TestContext
    * Framework</em> to the supplied {@code base} statement.
    * <p>Specifically, this method retrieves the {@link TestContextManager}
    * used by this rule and its associated {@link InfraMethodRule} and

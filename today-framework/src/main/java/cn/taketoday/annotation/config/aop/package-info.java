@@ -19,6 +19,6 @@
  */
 
 /**
- * Auto-configuration for Spring AOP.
+ * Auto-configuration for Infra AOP.
  */
 package cn.taketoday.annotation.config.aop;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,13 +29,13 @@ import cn.taketoday.beans.factory.xml.NamespaceHandlerSupport;
  * declarative transaction management using either XML or using annotations.
  *
  * <p>This namespace handler is the central piece of functionality in the
- * Spring transaction management facilities and offers two approaches
+ * Infra transaction management facilities and offers two approaches
  * to declaratively manage transactions.
  *
  * <p>One approach uses transaction semantics defined in XML using the
  * {@code <tx:advice>} elements, the other uses annotations
  * in combination with the {@code <tx:annotation-driven>} element.
- * Both approached are detailed to great extent in the Spring reference manual.
+ * Both approached are detailed to great extent in the Infra reference manual.
  *
  * @author Rob Harrop
  * @author Juergen Hoeller

@@ -72,7 +72,7 @@ class ApplicationShutdownHookTests {
 
   @Test
   void runWhenContextIsBeingClosedInAnotherThreadWaitsUntilContextIsInactive() throws InterruptedException {
-    // This situation occurs in the Spring Tools IDE. It triggers a context close via
+    // This situation occurs in the Infra Tools IDE. It triggers a context close via
     // JMX and then stops the JVM. The two actions happen almost simultaneously
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     List<Object> finished = new CopyOnWriteArrayList<>();

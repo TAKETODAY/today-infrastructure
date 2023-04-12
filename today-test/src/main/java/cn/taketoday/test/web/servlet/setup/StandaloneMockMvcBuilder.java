@@ -178,7 +178,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * Register one or more {@link cn.taketoday.web.annotation.ControllerAdvice}
    * instances to be used in tests (specified {@code Class} will be turned into instance).
    * <p>Normally {@code @ControllerAdvice} are auto-detected as long as they're declared
-   * as Spring beans. However since the standalone setup does not load any Spring config,
+   * as Infra beans. However since the standalone setup does not load any Infra config,
    * they need to be registered explicitly here instead much like controllers.
    */
   public StandaloneMockMvcBuilder setControllerAdvice(Object... controllerAdvice) {

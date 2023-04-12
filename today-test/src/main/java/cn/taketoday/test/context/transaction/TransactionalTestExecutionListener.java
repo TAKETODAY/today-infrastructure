@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,7 +61,7 @@ import cn.taketoday.util.StringUtils;
  * declaratively via this listener or programmatically via
  * {@link TestTransaction}. Such transactions should not be confused with
  * <em>Spring-managed transactions</em> (i.e., those managed directly
- * by Spring within the {@code ApplicationContext} loaded for tests) or
+ * by Infra within the {@code ApplicationContext} loaded for tests) or
  * <em>application-managed transactions</em> (i.e., those managed
  * programmatically within application code that is invoked via tests).
  * Spring-managed and application-managed transactions will typically

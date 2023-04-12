@@ -36,7 +36,7 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.junit4.InfraRunner;
 
 /**
- * Annotation that can be used to add mocks to a Spring {@link ApplicationContext}. Can be
+ * Annotation that can be used to add mocks to a Infra {@link ApplicationContext}. Can be
  * used as a class level annotation or on fields in either {@code @Configuration} classes,
  * or test classes that are {@link RunWith @RunWith} the {@link InfraRunner}.
  * <p>

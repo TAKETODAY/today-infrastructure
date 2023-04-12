@@ -52,7 +52,7 @@ public class PatternMatcher<S> {
   }
 
   /**
-   * Lifted from AntPathMatcher in Spring Core. Tests whether or not a string matches
+   * Lifted from AntPathMatcher in Infra Core. Tests whether or not a string matches
    * against a pattern. The pattern may contain two special characters:<br>
    * '*' means zero or more characters<br>
    * '?' means one and only one character
