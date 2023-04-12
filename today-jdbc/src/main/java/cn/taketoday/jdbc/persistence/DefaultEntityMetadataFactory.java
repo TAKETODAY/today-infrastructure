@@ -29,7 +29,6 @@ import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Default EntityHolderFactory
@@ -125,8 +124,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     ArrayList<BeanProperty> beanProperties = new ArrayList<>();
     ArrayList<EntityProperty> propertyHandlers = new ArrayList<>();
 
-    BeanProperty idProperty = null;
-    String idColumnName = null;
+    EntityProperty idProperty = null;
     for (BeanProperty property : metadata) {
       if (isFiltered(property)) {
         continue;
@@ -141,14 +139,16 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       columnNames.add(columnName);
       beanProperties.add(property);
-      propertyHandlers.add(createEntityProperty(property, columnName));
 
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
           throw new IllegalEntityException("Only one Id property supported, entity: " + entityClass);
         }
-        idProperty = property;
-        idColumnName = columnName;
+        idProperty = createEntityProperty(property, columnName, true);
+        propertyHandlers.add(idProperty);
+      }
+      else {
+        propertyHandlers.add(createEntityProperty(property, columnName, false));
       }
     }
     if (idProperty == null) {
@@ -157,13 +157,11 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     }
 
     return new EntityMetadata(metadata, entityClass,
-            idColumnName, createEntityProperty(idProperty, idColumnName),
-            tableName, beanProperties.toArray(new BeanProperty[0]),
-            StringUtils.toStringArray(columnNames), propertyHandlers.toArray(new EntityProperty[0]));
+            idProperty, tableName, beanProperties, columnNames, propertyHandlers);
   }
 
-  private EntityProperty createEntityProperty(BeanProperty property, String columnName) {
-    return new EntityProperty(property, columnName, typeHandlerRegistry.getTypeHandler(property));
+  private EntityProperty createEntityProperty(BeanProperty property, String columnName, boolean isId) {
+    return new EntityProperty(property, columnName, typeHandlerRegistry.getTypeHandler(property), isId);
   }
 
   private boolean isFiltered(BeanProperty property) {

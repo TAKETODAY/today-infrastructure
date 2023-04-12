@@ -36,15 +36,16 @@ import cn.taketoday.lang.Nullable;
  */
 public class EntityProperty {
   public final String columnName;
-
+  public final boolean isIdProperty;
   public final BeanProperty property;
   public final TypeHandler<Object> typeHandler;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public EntityProperty(BeanProperty property, String columnName, TypeHandler typeHandler) {
+  EntityProperty(BeanProperty property, String columnName, TypeHandler typeHandler, boolean isIdProperty) {
     this.property = property;
     this.columnName = columnName;
     this.typeHandler = typeHandler;
+    this.isIdProperty = isIdProperty;
   }
 
   /**

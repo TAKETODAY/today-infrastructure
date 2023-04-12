@@ -21,11 +21,13 @@
 package cn.taketoday.jdbc.persistence;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.util.StringUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -43,19 +45,26 @@ public class EntityMetadata {
   public final String[] columnNames;
   public final EntityProperty[] entityProperties;
 
+  public final String[] columnNamesExcludeId;
+  public final EntityProperty[] entityPropertiesExcludeId;
+
 //  TODO public final boolean autoGenerateKeys ;
 
-  EntityMetadata(BeanMetadata root, Class<?> entityClass,
-          String idColumnName, EntityProperty idProperty, String tableName,
-          BeanProperty[] beanProperties, String[] columnNames, EntityProperty[] entityProperties) {
+  EntityMetadata(BeanMetadata root, Class<?> entityClass, EntityProperty idProperty, String tableName,
+          List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
     this.root = root;
-    this.entityClass = entityClass;
-    this.idColumnName = idColumnName;
-    this.idProperty = idProperty;
     this.tableName = tableName;
-    this.beanProperties = beanProperties;
-    this.columnNames = columnNames;
-    this.entityProperties = entityProperties;
+    this.idProperty = idProperty;
+    this.entityClass = entityClass;
+    this.idColumnName = idProperty.columnName;
+    this.columnNames = StringUtils.toStringArray(columnNames);
+    this.beanProperties = beanProperties.toArray(new BeanProperty[0]);
+    this.entityProperties = entityProperties.toArray(new EntityProperty[0]);
+
+    entityProperties.remove(idProperty);
+    columnNames.remove(idProperty.columnName);
+    this.columnNamesExcludeId = StringUtils.toStringArray(columnNames);
+    this.entityPropertiesExcludeId = entityProperties.toArray(new EntityProperty[0]);
   }
 
   @Override
