@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,7 +41,7 @@ import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationContextFactory;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
-import cn.taketoday.framework.test.context.ApplicationTest.WebEnvironment;
+import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.framework.test.mock.web.InfraMockServletContext;
 import cn.taketoday.framework.web.reactive.context.GenericReactiveWebApplicationContext;
 import cn.taketoday.framework.web.servlet.support.ServletContextApplicationContextInitializer;
@@ -64,7 +64,7 @@ import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
  * A {@link ContextLoader} that can be used to test Infra applications (those that
  * normally startup using {@link Application}). Although this loader can be used
  * directly, most test will instead want to use it with
- * {@link ApplicationTest @ApplicationTest}.
+ * {@link InfraTest @InfraTest}.
  * <p>
  * The loader supports both standard {@link MergedContextConfiguration} as well as
  * {@link WebMergedContextConfiguration}. If {@link WebMergedContextConfiguration} is used
@@ -81,7 +81,7 @@ import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
  * @author Madhura Bhave
  * @author Scott Frederick
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ApplicationTest
+ * @see InfraTest
  * @since 4.0
  */
 public class InfraApplicationContextLoader extends AbstractContextLoader {
@@ -124,7 +124,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     else {
       application.addListeners(new PrepareEnvironmentListener(config));
     }
-    String[] args = ApplicationTestArgs.get(config.getContextCustomizers());
+    String[] args = InfraTestArgs.get(config.getContextCustomizers());
     return application.run(args);
   }
 
@@ -213,7 +213,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
 
   private boolean isEmbeddedWebEnvironment(MergedContextConfiguration config) {
     return MergedAnnotations.from(config.getTestClass(), SearchStrategy.TYPE_HIERARCHY)
-            .get(ApplicationTest.class)
+            .get(InfraTest.class)
             .getValue("webEnvironment", WebEnvironment.class)
             .orElse(WebEnvironment.NONE)
             .isEmbedded();

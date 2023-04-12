@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.InfraConfiguration;
-import cn.taketoday.framework.test.context.ApplicationTest.WebEnvironment;
+import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
@@ -63,7 +63,7 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * {@link TestContextBootstrapper} for Infra. Provides support for
- * {@link ApplicationTest @ApplicationTest} and may also be used directly or subclassed.
+ * {@link InfraTest @InfraTest} and may also be used directly or subclassed.
  * Provides the following features over and above {@link DefaultTestContextBootstrapper}:
  * <ul>
  * <li>Uses {@link InfraApplicationContextLoader} as the
@@ -79,11 +79,11 @@ import cn.taketoday.util.StringUtils;
  * @author Brian Clozel
  * @author Madhura Bhave
  * @author Lorenzo Dee
- * @see ApplicationTest
+ * @see InfraTest
  * @see TestConfiguration
  * @since 4.0
  */
-public class InfraApplicationTestContextBootstrapper extends DefaultTestContextBootstrapper {
+public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
   private static final String[] WEB_ENVIRONMENT_CLASSES = { "jakarta.servlet.Servlet",
           "cn.taketoday.web.servlet.ConfigurableWebApplicationContext" };
@@ -96,7 +96,7 @@ public class InfraApplicationTestContextBootstrapper extends DefaultTestContextB
   private static final String ACTIVATE_SERVLET_LISTENER = "cn.taketoday.test."
           + "context.web.ServletTestExecutionListener.activateListener";
 
-  private static final Logger logger = LoggerFactory.getLogger(InfraApplicationTestContextBootstrapper.class);
+  private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 
   @Override
   public TestContext buildTestContext() {
@@ -234,7 +234,7 @@ public class InfraApplicationTestContextBootstrapper extends DefaultTestContextB
     Class<?> found = new AnnotatedClassFinder(
             InfraConfiguration.class).findFromClass(mergedConfig.getTestClass());
     Assert.state(found != null, "Unable to find a @InfraConfiguration, you need to use "
-            + "@ContextConfiguration or @ApplicationTest(classes=...) with your test");
+            + "@ContextConfiguration or @InfraTest(classes=...) with your test");
     logger.info("Found @InfraConfiguration {} for test {}", found.getName(), mergedConfig.getTestClass());
     return merge(found, classes);
   }
@@ -307,31 +307,31 @@ public class InfraApplicationTestContextBootstrapper extends DefaultTestContextB
    * @return the {@link WebEnvironment} or {@code null}
    */
   protected WebEnvironment getWebEnvironment(Class<?> testClass) {
-    ApplicationTest annotation = getAnnotation(testClass);
+    InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.webEnvironment() : null;
   }
 
   protected Class<?>[] getClasses(Class<?> testClass) {
-    ApplicationTest annotation = getAnnotation(testClass);
+    InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.classes() : null;
   }
 
   protected String[] getProperties(Class<?> testClass) {
-    ApplicationTest annotation = getAnnotation(testClass);
+    InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.properties() : null;
   }
 
-  protected ApplicationTest getAnnotation(Class<?> testClass) {
-    return TestContextAnnotationUtils.findMergedAnnotation(testClass, ApplicationTest.class);
+  protected InfraTest getAnnotation(Class<?> testClass) {
+    return TestContextAnnotationUtils.findMergedAnnotation(testClass, InfraTest.class);
   }
 
   protected void verifyConfiguration(Class<?> testClass) {
-    ApplicationTest applicationTest = getAnnotation(testClass);
-    if (applicationTest != null && isListeningOnPort(applicationTest.webEnvironment()) && MergedAnnotations
+    InfraTest infraTest = getAnnotation(testClass);
+    if (infraTest != null && isListeningOnPort(infraTest.webEnvironment()) && MergedAnnotations
             .from(testClass, SearchStrategy.INHERITED_ANNOTATIONS).isPresent(WebAppConfiguration.class)) {
       throw new IllegalStateException("@WebAppConfiguration should only be used "
-              + "with @ApplicationTest when @ApplicationTest is configured with a "
-              + "mock web environment. Please remove @WebAppConfiguration or reconfigure @ApplicationTest.");
+              + "with @InfraTest when @InfraTest is configured with a "
+              + "mock web environment. Please remove @WebAppConfiguration or reconfigure @InfraTest.");
     }
   }
 
@@ -363,8 +363,8 @@ public class InfraApplicationTestContextBootstrapper extends DefaultTestContextB
   protected final MergedContextConfiguration createModifiedConfig(MergedContextConfiguration mergedConfig,
           Class<?>[] classes, String[] propertySourceProperties) {
     Set<ContextCustomizer> contextCustomizers = new LinkedHashSet<>(mergedConfig.getContextCustomizers());
-    contextCustomizers.add(new ApplicationTestArgs(mergedConfig.getTestClass()));
-    contextCustomizers.add(new ApplicationTestWebEnvironment(mergedConfig.getTestClass()));
+    contextCustomizers.add(new InfraTestArgs(mergedConfig.getTestClass()));
+    contextCustomizers.add(new InfraTestWebEnvironment(mergedConfig.getTestClass()));
     return new MergedContextConfiguration(mergedConfig.getTestClass(), mergedConfig.getLocations(), classes,
             mergedConfig.getContextInitializerClasses(), mergedConfig.getActiveProfiles(),
             mergedConfig.getPropertySourceLocations(), propertySourceProperties, contextCustomizers,

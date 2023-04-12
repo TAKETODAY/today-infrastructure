@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,27 +21,27 @@
 package cn.taketoday.framework.test.context;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.framework.test.context.ApplicationTest.WebEnvironment;
+import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
 
 /**
  * {@link ContextCustomizer} to track the web environment that is used in a
- * {@link ApplicationTest}. The web environment is taken into account when evaluating a
+ * {@link InfraTest}. The web environment is taken into account when evaluating a
  * {@link MergedContextConfiguration} to determine if a context can be shared between
  * tests.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-class ApplicationTestWebEnvironment implements ContextCustomizer {
+class InfraTestWebEnvironment implements ContextCustomizer {
 
   private final WebEnvironment webEnvironment;
 
-  ApplicationTestWebEnvironment(Class<?> testClass) {
-    ApplicationTest sprintBootTest = TestContextAnnotationUtils.findMergedAnnotation(testClass,
-            ApplicationTest.class);
-    this.webEnvironment = (sprintBootTest != null) ? sprintBootTest.webEnvironment() : null;
+  InfraTestWebEnvironment(Class<?> testClass) {
+    InfraTest infraTest = TestContextAnnotationUtils.findMergedAnnotation(testClass, InfraTest.class);
+    this.webEnvironment = infraTest != null ? infraTest.webEnvironment() : null;
   }
 
   @Override
@@ -51,7 +51,7 @@ class ApplicationTestWebEnvironment implements ContextCustomizer {
   @Override
   public boolean equals(Object obj) {
     return (obj != null) && (getClass() == obj.getClass())
-            && this.webEnvironment == ((ApplicationTestWebEnvironment) obj).webEnvironment;
+            && this.webEnvironment == ((InfraTestWebEnvironment) obj).webEnvironment;
   }
 
   @Override

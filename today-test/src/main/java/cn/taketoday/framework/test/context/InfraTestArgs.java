@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,21 +30,22 @@ import cn.taketoday.test.context.MergedContextConfiguration;
 
 /**
  * {@link ContextCustomizer} to track application arguments that are used in a
- * {@link ApplicationTest}. The application arguments are taken into account when
+ * {@link InfraTest}. The application arguments are taken into account when
  * evaluating a {@link MergedContextConfiguration} to determine if a context can be shared
  * between tests.
  *
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-class ApplicationTestArgs implements ContextCustomizer {
+class InfraTestArgs implements ContextCustomizer {
 
   private static final String[] NO_ARGS = new String[0];
 
   private final String[] args;
 
-  ApplicationTestArgs(Class<?> testClass) {
+  InfraTestArgs(Class<?> testClass) {
     this.args = MergedAnnotations.from(testClass, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
-            .get(ApplicationTest.class).getValue("args", String[].class).orElse(NO_ARGS);
+            .get(InfraTest.class).getValue("args", String[].class).orElse(NO_ARGS);
   }
 
   @Override
@@ -58,7 +59,7 @@ class ApplicationTestArgs implements ContextCustomizer {
   @Override
   public boolean equals(Object obj) {
     return (obj != null) && (getClass() == obj.getClass())
-            && Arrays.equals(this.args, ((ApplicationTestArgs) obj).args);
+            && Arrays.equals(this.args, ((InfraTestArgs) obj).args);
   }
 
   @Override
@@ -74,8 +75,8 @@ class ApplicationTestArgs implements ContextCustomizer {
    */
   static String[] get(Set<ContextCustomizer> customizers) {
     for (ContextCustomizer customizer : customizers) {
-      if (customizer instanceof ApplicationTestArgs) {
-        return ((ApplicationTestArgs) customizer).args;
+      if (customizer instanceof InfraTestArgs) {
+        return ((InfraTestArgs) customizer).args;
       }
     }
     return NO_ARGS;

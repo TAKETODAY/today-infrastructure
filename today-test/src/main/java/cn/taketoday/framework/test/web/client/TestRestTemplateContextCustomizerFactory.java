@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.framework.test.web.client;
 
 import java.util.List;
 
-import cn.taketoday.framework.test.context.ApplicationTest;
+import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.ContextCustomizerFactory;
@@ -32,16 +32,16 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  * {@link ContextCustomizerFactory} for {@link TestRestTemplate}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TestRestTemplateContextCustomizer
  */
 class TestRestTemplateContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
-  public ContextCustomizer createContextCustomizer(Class<?> testClass,
-          List<ContextConfigurationAttributes> configAttributes) {
-    ApplicationTest applicationTest = TestContextAnnotationUtils.findMergedAnnotation(testClass,
-            ApplicationTest.class);
-    return (applicationTest != null) ? new TestRestTemplateContextCustomizer() : null;
+  public ContextCustomizer createContextCustomizer(
+          Class<?> testClass, List<ContextConfigurationAttributes> configAttributes) {
+    InfraTest infraTest = TestContextAnnotationUtils.findMergedAnnotation(testClass, InfraTest.class);
+    return infraTest != null ? new TestRestTemplateContextCustomizer() : null;
   }
 
 }

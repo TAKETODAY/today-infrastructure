@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,8 +29,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.framework.test.context.ApplicationTest;
-import cn.taketoday.framework.test.context.InfraApplicationTestContextBootstrapper;
+import cn.taketoday.framework.test.context.InfraTest;
+import cn.taketoday.framework.test.context.InfraTestContextBootstrapper;
 import cn.taketoday.test.context.BootstrapContext;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.TestContext;
@@ -85,7 +85,7 @@ class MockBeanContextCachingTests {
 
   @SuppressWarnings("rawtypes")
   private void bootstrapContext(Class<?> testClass) {
-    InfraApplicationTestContextBootstrapper bootstrapper = new InfraApplicationTestContextBootstrapper();
+    InfraTestContextBootstrapper bootstrapper = new InfraTestContextBootstrapper();
     BootstrapContext bootstrapContext = mock(BootstrapContext.class);
     given((Class) bootstrapContext.getTestClass()).willReturn(testClass);
     bootstrapper.setBootstrapContext(bootstrapContext);
@@ -94,12 +94,12 @@ class MockBeanContextCachingTests {
     testContext.getApplicationContext();
   }
 
-  @ApplicationTest(classes = TestConfiguration.class)
+  @InfraTest(classes = TestConfiguration.class)
   static class TestClass {
 
   }
 
-  @ApplicationTest(classes = TestConfiguration.class)
+  @InfraTest(classes = TestConfiguration.class)
   static class MockedBeanTestClass {
 
     @MockBean
@@ -107,7 +107,7 @@ class MockBeanContextCachingTests {
 
   }
 
-  @ApplicationTest(classes = TestConfiguration.class)
+  @InfraTest(classes = TestConfiguration.class)
   static class AnotherMockedBeanTestClass {
 
     @MockBean

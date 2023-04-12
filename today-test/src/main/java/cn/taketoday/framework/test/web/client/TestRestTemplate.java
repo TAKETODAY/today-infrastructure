@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.framework.test.context.ApplicationTest;
+import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -74,7 +74,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * {@link #getRestTemplate()}.
  * <p>
  * If you are using the
- * {@link ApplicationTest @ApplicationTest} annotation
+ * {@link InfraTest @InfraTest} annotation
  * with an embedded server, a {@link TestRestTemplate} is automatically available and can
  * be {@code @Autowired} into your test. If you need customizations (for example to adding
  * additional message converters) use a {@link RestTemplateBuilder} {@code @Bean}.

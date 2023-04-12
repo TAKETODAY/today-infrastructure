@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,12 +25,12 @@ import java.util.List;
 import cn.taketoday.test.context.TestExecutionListener;
 
 /**
- * Callback interface trigger from {@link InfraApplicationTestContextBootstrapper} that can be
+ * Callback interface trigger from {@link InfraTestContextBootstrapper} that can be
  * used to post-process the list of default {@link TestExecutionListener} classes to be
  * used by a test. Can be used to add or remove existing listener classes.
  *
  * @author Phillip Webb
- * @see ApplicationTest
+ * @see InfraTest
  * @since 4.0
  */
 @FunctionalInterface

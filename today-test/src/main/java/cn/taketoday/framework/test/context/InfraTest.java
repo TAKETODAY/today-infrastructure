@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,9 +81,9 @@ import cn.taketoday.web.servlet.WebApplicationContext;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@BootstrapWith(InfraApplicationTestContextBootstrapper.class)
+@BootstrapWith(InfraTestContextBootstrapper.class)
 @ExtendWith(InfraExtension.class)
-public @interface ApplicationTest {
+public @interface InfraTest {
 
   /**
    * Alias for {@link #properties()}.

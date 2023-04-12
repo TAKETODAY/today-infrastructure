@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,8 +38,9 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Madhura Bhave
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-class ApplicationTestRandomPortEnvironmentPostProcessor implements EnvironmentPostProcessor {
+class InfraTestRandomPortEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
   private static final String MANAGEMENT_PORT_PROPERTY = "management.server.port";
 
@@ -57,11 +58,11 @@ class ApplicationTestRandomPortEnvironmentPostProcessor implements EnvironmentPo
       return;
     }
     Integer serverPort = getPropertyAsInteger(environment, SERVER_PORT_PROPERTY, 8080);
-    if (!managementPort.equals(serverPort)) {
-      source.getSource().put(MANAGEMENT_PORT_PROPERTY, "0");
+    if (managementPort.equals(serverPort)) {
+      source.getSource().put(MANAGEMENT_PORT_PROPERTY, "");
     }
     else {
-      source.getSource().put(MANAGEMENT_PORT_PROPERTY, "");
+      source.getSource().put(MANAGEMENT_PORT_PROPERTY, "0");
     }
   }
 
@@ -74,14 +75,17 @@ class ApplicationTestRandomPortEnvironmentPostProcessor implements EnvironmentPo
   }
 
   private Integer getPropertyAsInteger(ConfigurableEnvironment environment, String property, Integer defaultValue) {
-    return environment.getPropertySources().stream().filter(
-                    (source) -> !source.getName().equals(TestPropertySourceUtils.INLINED_PROPERTIES_PROPERTY_SOURCE_NAME))
-            .map((source) -> getPropertyAsInteger(source, property, environment)).filter(Objects::nonNull)
-            .findFirst().orElse(defaultValue);
+    return environment.getPropertySources()
+            .stream()
+            .filter(source -> !source.getName().equals(TestPropertySourceUtils.INLINED_PROPERTIES_PROPERTY_SOURCE_NAME))
+            .map(source -> getPropertyAsInteger(source, property, environment))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(defaultValue);
   }
 
-  private Integer getPropertyAsInteger(PropertySource<?> source, String property,
-          ConfigurableEnvironment environment) {
+  private Integer getPropertyAsInteger(PropertySource<?> source,
+          String property, ConfigurableEnvironment environment) {
     Object value = source.getProperty(property);
     if (value == null) {
       return null;
