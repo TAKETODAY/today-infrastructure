@@ -57,6 +57,7 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -181,8 +182,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     String sql = insert(entityMetadata, entity, strategy);
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(
-              LogMessage.format("Persist entity: {}, generatedKeys={}", entity, returnGeneratedKeys), sql);
+      stmtLogger.logStatement(LogMessage.format("Persist entity: {}, generatedKeys={}",
+              ObjectUtils.toHexString(entity), returnGeneratedKeys), sql);
     }
 
     PropertyUpdateStrategy finalStrategy = strategy;
