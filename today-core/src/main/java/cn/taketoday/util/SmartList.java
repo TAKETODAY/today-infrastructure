@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,7 +41,8 @@ import cn.taketoday.lang.Nullable;
  * A List which is optimised for the sizes of 0 and 1,
  * in which cases it would not allocate array at all.
  *
- * The tradeoff is the following: this list is slower than {@link ArrayList} but occupies less memory in case of 0 or 1 elements.
+ * The tradeoff is the following: this list is slower than
+ * {@link ArrayList} but occupies less memory in case of 0 or 1 elements.
  * Please use it only if your code contains many near-empty lists outside the very hot loops.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -62,7 +63,8 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
     int size = elements.size();
     if (size == 1) {
       //noinspection unchecked
-      E element = elements instanceof RandomAccess ? ((List<? extends E>) elements).get(0) : elements.iterator().next();
+      E element = elements instanceof RandomAccess
+                  ? ((List<? extends E>) elements).get(0) : elements.iterator().next();
       add(element);
     }
     else if (size > 0) {
@@ -401,6 +403,16 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
         }
         break;
     }
+  }
+
+  @Override
+  public String toString() {
+    int size = this.size;
+    return switch (size) {
+      case 0 -> "[]";
+      case 1 -> element.toString();
+      default -> Arrays.toString((Object[]) element);
+    };
   }
 
 }
