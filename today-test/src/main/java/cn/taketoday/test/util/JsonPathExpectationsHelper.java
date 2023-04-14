@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -87,7 +87,6 @@ public class JsonPathExpectationsHelper {
    * @param content the JSON content
    * @param matcher the matcher with which to assert the result
    * @param targetType the expected type of the resulting value
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> void assertValue(String content, Matcher<? super T> matcher, Class<T> targetType) {
@@ -135,7 +134,6 @@ public class JsonPathExpectationsHelper {
    * and assert that the resulting value is a {@link String}.
    *
    * @param content the JSON content
-   * @since 4.0
    */
   public void assertValueIsString(String content) {
     Object value = assertExistsAndReturn(content);
@@ -147,7 +145,6 @@ public class JsonPathExpectationsHelper {
    * and assert that the resulting value is a {@link Boolean}.
    *
    * @param content the JSON content
-   * @since 4.0
    */
   public void assertValueIsBoolean(String content) {
     Object value = assertExistsAndReturn(content);
@@ -159,7 +156,6 @@ public class JsonPathExpectationsHelper {
    * and assert that the resulting value is a {@link Number}.
    *
    * @param content the JSON content
-   * @since 4.0
    */
   public void assertValueIsNumber(String content) {
     Object value = assertExistsAndReturn(content);
@@ -182,7 +178,6 @@ public class JsonPathExpectationsHelper {
    * and assert that the resulting value is a {@link Map}.
    *
    * @param content the JSON content
-   * @since 4.0
    */
   public void assertValueIsMap(String content) {
     Object value = assertExistsAndReturn(content);
@@ -263,7 +258,6 @@ public class JsonPathExpectationsHelper {
    * that the list of values at the given path is not <em>empty</em>.
    *
    * @param content the JSON content
-   * @since 4.0
    */
   public void hasJsonPath(String content) {
     Object value = evaluateJsonPath(content);
@@ -282,7 +276,6 @@ public class JsonPathExpectationsHelper {
    * that the list of values at the given path is <em>empty</em>.
    *
    * @param content the JSON content
-   * @since 4.0
    */
   public void doesNotHaveJsonPath(String content) {
     Object value;
