@@ -22,6 +22,8 @@ package cn.taketoday.expression.spel;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -40,6 +42,7 @@ import cn.taketoday.expression.MethodFilter;
 import cn.taketoday.expression.ParseException;
 import cn.taketoday.expression.spel.standard.SpelExpression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
+import cn.taketoday.expression.spel.support.SimpleEvaluationContext;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.expression.spel.support.StandardTypeLocator;
 import cn.taketoday.expression.spel.testresources.TestPerson;
@@ -63,6 +66,20 @@ class EvaluationTests extends AbstractExpressionTests {
 
   @Nested
   class MiscellaneousTests {
+
+    @Test
+    void expressionLength() {
+      String expression = "'X' + '%s'".formatted(" ".repeat(9_992));
+      assertThat(expression).hasSize(10_000);
+      Expression expr = parser.parseExpression(expression);
+      String result = expr.getValue(context, String.class);
+      assertThat(result).hasSize(9_993);
+      assertThat(result.trim()).isEqualTo("X");
+
+      expression = "'X' + '%s'".formatted(" ".repeat(9_993));
+      assertThat(expression).hasSize(10_001);
+      evaluateAndCheckError(expression, String.class, SpelMessage.MAX_EXPRESSION_LENGTH_EXCEEDED);
+    }
 
     @Test
     void createListsOnAttemptToIndexNull01() throws EvaluationException, ParseException {
@@ -139,8 +156,24 @@ class EvaluationTests extends AbstractExpressionTests {
 
     // assignment
     @Test
-    void assignmentToVariables() {
-      evaluate("#var1='value1'", "value1", String.class);
+    void assignmentToVariableWithStandardEvaluationContext() {
+      evaluate("#var1 = 'value1'", "value1", String.class);
+    }
+
+    @ParameterizedTest
+    @CsvSource(quoteCharacter = '"', delimiterString = "->", textBlock = """
+            "#var1 = 'value1'"      -> #var1
+            "true ? #myVar = 4 : 0" -> #myVar
+            """)
+    void assignmentToVariableWithSimpleEvaluationContext(String expression, String varName) {
+      EvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding().build();
+      Expression expr = parser.parseExpression(expression);
+      assertThatExceptionOfType(SpelEvaluationException.class)
+              .isThrownBy(() -> expr.getValue(context))
+              .satisfies(ex -> {
+                assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.VARIABLE_ASSIGNMENT_NOT_SUPPORTED);
+                assertThat(ex.getInserts()).as("inserts").containsExactly(varName);
+              });
     }
 
     @Test
@@ -326,7 +359,7 @@ class EvaluationTests extends AbstractExpressionTests {
       assertThat(value).isEqualTo("def");
       e = parser.parseExpression("listOfStrings[2]");
       value = e.getValue(ctx, String.class);
-      assertThat(value).isEqualTo("");
+      assertThat(value).isEmpty();
 
       // Now turn off growing and reference off the end
       StandardEvaluationContext failCtx = new StandardEvaluationContext(instance);
@@ -489,15 +522,13 @@ class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     void matchesWithPatternLengthThreshold() {
-      String pattern = "(0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
-              "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" +
-              "01234567890123456789012345678901234567890123456789|abc)";
-      assertThat(pattern).hasSize(256);
-      Expression expr = parser.parseExpression("'abc' matches '" + pattern + "'");
+      String pattern = "^(%s|X)".formatted("12345".repeat(199));
+      assertThat(pattern).hasSize(1000);
+      Expression expr = parser.parseExpression("'X' matches '" + pattern + "'");
       assertThat(expr.getValue(context, Boolean.class)).isTrue();
 
       pattern += "?";
-      assertThat(pattern).hasSize(257);
+      assertThat(pattern).hasSize(1001);
       evaluateAndCheckError("'abc' matches '" + pattern + "'", Boolean.class, SpelMessage.MAX_REGEX_LENGTH_EXCEEDED);
     }
 
@@ -511,7 +542,7 @@ class EvaluationTests extends AbstractExpressionTests {
       evaluate("name", "Nikola Tesla", String.class, false);
       // not writable because (1) name is private (2) there is no setter, only a getter
       evaluateAndCheckError("madeup", SpelMessage.PROPERTY_OR_FIELD_NOT_READABLE, 0, "madeup",
-              "cn.taketoday.expression.spel.testresources.Inventor");
+              "org.springframework.expression.spel.testresources.Inventor");
     }
 
     @Test
