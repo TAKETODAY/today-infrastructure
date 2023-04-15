@@ -411,7 +411,7 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
     return switch (size) {
       case 0 -> "[]";
       case 1 -> element.toString();
-      default -> Arrays.toString((Object[]) element);
+      default -> super.toString();
     };
   }
 
