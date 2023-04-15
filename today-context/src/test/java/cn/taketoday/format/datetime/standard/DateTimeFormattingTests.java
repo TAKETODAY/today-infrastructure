@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -365,7 +365,7 @@ class DateTimeFormattingTests {
     assertThat(fieldError.unwrap(TypeMismatchException.class))
             .hasMessageContaining("for property 'isoLocalDate'")
             .hasCauseInstanceOf(ConversionFailedException.class).cause()
-            .hasMessageContaining("for value '2009-31-10'")
+            .hasMessageContaining("for value [2009-31-10]")
             .hasCauseInstanceOf(IllegalArgumentException.class).cause()
             .hasMessageContaining("Parse attempt failed for value [2009-31-10]")
             .hasCauseInstanceOf(DateTimeParseException.class).cause()
@@ -601,7 +601,7 @@ class DateTimeFormattingTests {
       assertThat(fieldError.unwrap(TypeMismatchException.class))
               .hasMessageContaining("for property 'patternLocalDateWithFallbackPatterns'")
               .hasCauseInstanceOf(ConversionFailedException.class).cause()
-              .hasMessageContaining("for value '210302'")
+              .hasMessageContaining("for value [210302]")
               .hasCauseInstanceOf(IllegalArgumentException.class).cause()
               .hasMessageContaining("Parse attempt failed for value [210302]")
               .hasCauseInstanceOf(DateTimeParseException.class).cause()

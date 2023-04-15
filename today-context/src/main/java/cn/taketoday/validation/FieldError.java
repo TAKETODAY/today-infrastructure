@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -70,7 +70,7 @@ public class FieldError extends ObjectError {
    * @param defaultMessage the default message to be used to resolve this message
    */
   public FieldError(String objectName, String field, @Nullable Object rejectedValue, boolean bindingFailure,
-                    @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
+          @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
 
     super(objectName, codes, arguments, defaultMessage);
     Assert.notNull(field, "Field must not be null");
@@ -128,7 +128,7 @@ public class FieldError extends ObjectError {
   @Override
   public String toString() {
     return "Field error in object '" + getObjectName() + "' on field '" + this.field +
-            "': rejected value [" + ObjectUtils.nullSafeToString(this.rejectedValue) + "]; " +
+            "': rejected value [" + ObjectUtils.nullSafeConciseToString(this.rejectedValue) + "]; " +
             resolvableToString();
   }
 
