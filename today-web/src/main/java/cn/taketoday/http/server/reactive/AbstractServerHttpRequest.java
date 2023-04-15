@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -64,6 +66,9 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   @Nullable
   private String logPrefix;
 
+  @Nullable
+  private HttpMethod method;
+
   /**
    * Constructor with the URI and headers for the request.
    *
@@ -90,6 +95,27 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
     this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
   }
 
+  /**
+   * Constructor with the method, URI and headers for the request.
+   *
+   * @param method the HTTP method for the request
+   * @param uri the URI for the request
+   * @param contextPath the context path for the request
+   * @param headers the headers for the request (as {@link MultiValueMap})
+   */
+  public AbstractServerHttpRequest(HttpMethod method, URI uri, @Nullable String contextPath,
+          MultiValueMap<String, String> headers) {
+
+    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(uri, "Uri must not be null");
+    Assert.notNull(headers, "Headers must not be null");
+
+    this.method = method;
+    this.uri = uri;
+    this.path = RequestPath.parse(uri, contextPath);
+    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+  }
+
   @Override
   public String getId() {
     if (this.id == null) {
@@ -108,6 +134,14 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   @Nullable
   protected String initId() {
     return null;
+  }
+
+  @Override
+  public HttpMethod getMethod() {
+    if (method == null) {
+      method = HttpMethod.from(getMethodValue());
+    }
+    return method;
   }
 
   @Override

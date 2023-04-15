@@ -31,7 +31,6 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.Netty5DataBufferFactory;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpLogging;
-import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -138,11 +137,6 @@ class ReactorNetty2ServerHttpRequest extends AbstractServerHttpRequest {
       }
     }
     return uri;
-  }
-
-  @Override
-  public HttpMethod getMethod() {
-    return HttpMethod.valueOf(this.request.method().name());
   }
 
   @Override

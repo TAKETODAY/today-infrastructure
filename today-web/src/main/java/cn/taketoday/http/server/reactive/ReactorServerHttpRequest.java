@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.http.server.reactive;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
@@ -33,13 +32,13 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpLogging;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.ssl.SslHandler;
 import reactor.core.publisher.Flux;
@@ -52,6 +51,7 @@ import reactor.netty.http.server.HttpServerRequest;
  *
  * @author Stephane Maldini
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ReactorServerHttpRequest extends AbstractServerHttpRequest {
@@ -63,77 +63,13 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   private final HttpServerRequest request;
   private final NettyDataBufferFactory bufferFactory;
 
-  public ReactorServerHttpRequest(
-          HttpServerRequest request, NettyDataBufferFactory bufferFactory) throws URISyntaxException {
-    super(initUri(request), "", new NettyHeadersAdapter(request.requestHeaders()));
+  public ReactorServerHttpRequest(HttpServerRequest request,
+          NettyDataBufferFactory bufferFactory) throws URISyntaxException {
+    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), "",
+            new NettyHeadersAdapter(request.requestHeaders()));
     Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
     this.request = request;
     this.bufferFactory = bufferFactory;
-  }
-
-  private static URI initUri(HttpServerRequest request) throws URISyntaxException {
-    Assert.notNull(request, "HttpServerRequest must not be null");
-    return new URI(resolveBaseUrl(request) + resolveRequestUri(request));
-  }
-
-  private static URI resolveBaseUrl(HttpServerRequest request) throws URISyntaxException {
-    String scheme = getScheme(request);
-
-    InetSocketAddress hostAddress = request.hostAddress();
-    if (hostAddress != null) {
-      return new URI(scheme, null, hostAddress.getHostString(), hostAddress.getPort(), null, null, null);
-    }
-
-    String header = request.requestHeaders().get(HttpHeaderNames.HOST);
-    if (header != null) {
-      final int portIndex;
-      if (header.startsWith("[")) {
-        portIndex = header.indexOf(':', header.indexOf(']'));
-      }
-      else {
-        portIndex = header.indexOf(':');
-      }
-      if (portIndex != -1) {
-        try {
-          return new URI(scheme, null, header.substring(0, portIndex),
-                  Integer.parseInt(header, portIndex + 1, header.length(), 10), null, null, null);
-        }
-        catch (NumberFormatException ex) {
-          throw new URISyntaxException(header, "Unable to parse port", portIndex);
-        }
-      }
-      else {
-        return new URI(scheme, header, null, null);
-      }
-    }
-
-    throw new IllegalStateException("Neither local hostAddress nor HOST header available");
-  }
-
-  private static String getScheme(HttpServerRequest request) {
-    return request.scheme();
-  }
-
-  private static String resolveRequestUri(HttpServerRequest request) {
-    String uri = request.uri();
-    for (int i = 0; i < uri.length(); i++) {
-      char c = uri.charAt(i);
-      if (c == '/' || c == '?' || c == '#') {
-        break;
-      }
-      if (c == ':' && (i + 2 < uri.length())) {
-        if (uri.charAt(i + 1) == '/' && uri.charAt(i + 2) == '/') {
-          for (int j = i + 3; j < uri.length(); j++) {
-            c = uri.charAt(j);
-            if (c == '/' || c == '?' || c == '#') {
-              return uri.substring(j);
-            }
-          }
-          return "";
-        }
-      }
-    }
-    return uri;
   }
 
   @Override
