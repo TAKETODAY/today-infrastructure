@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,6 +43,7 @@ import reactor.core.publisher.Mono;
  * @param <T> the type of elements in the output stream
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface Decoder<T> {
@@ -70,7 +71,7 @@ public interface Decoder<T> {
    * @return the output stream with decoded elements
    */
   Flux<T> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
-                 @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
+          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
 
   /**
    * Decode a {@link DataBuffer} input stream into a Mono of {@code T}.
@@ -83,8 +84,7 @@ public interface Decoder<T> {
    * @param hints additional information about how to do decode
    * @return the output stream with the decoded element
    */
-  Mono<T> decodeToMono(
-          Publisher<DataBuffer> inputStream, ResolvableType elementType,
+  Mono<T> decodeToMono(Publisher<DataBuffer> inputStream, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
 
   /**
@@ -99,8 +99,7 @@ public interface Decoder<T> {
    * @return the decoded value, possibly {@code null}
    */
   @Nullable
-  default T decode(
-          DataBuffer buffer, ResolvableType targetType,
+  default T decode(DataBuffer buffer, ResolvableType targetType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
 
     CompletableFuture<T> future = decodeToMono(Mono.just(buffer), targetType, mimeType, hints).toFuture();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -287,7 +287,9 @@ final class ConstructorResolver {
         }
         throw new BeanCreationException(merged.getResourceDescription(), beanName,
                 "Could not resolve matching constructor on bean class [" + merged.getBeanClassName() + "] " +
-                        "(hint: specify index/type/name arguments for simple parameters to avoid type ambiguities)");
+                        "(hint: specify index/type/name arguments for simple parameters to avoid type ambiguities. " +
+                        "You should also check the consistency of arguments when mixing indexed and named arguments, " +
+                        "especially in case of bean definition inheritance)");
       }
       else if (ambiguousConstructors != null && !merged.isLenientConstructorResolution()) {
         throw new BeanCreationException(merged.getResourceDescription(), beanName,

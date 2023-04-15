@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -64,7 +64,9 @@ import reactor.util.context.ContextView;
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
- * @see <a href="https://github.com/FasterXML/jackson-core/issues/57" target="_blank">Add support for non-blocking ("async") JSON parsing</a>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see <a href="https://github.com/FasterXML/jackson-core/issues/57" target="_blank">
+ * Add support for non-blocking ("async") JSON parsing</a>
  * @since 4.0
  */
 public abstract class AbstractJackson2Decoder
@@ -101,15 +103,17 @@ public abstract class AbstractJackson2Decoder
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    ObjectMapper mapper = selectObjectMapper(elementType, mimeType);
-    if (mapper == null) {
-      return false;
-    }
-    JavaType javaType = mapper.constructType(elementType.getType());
     // Skip String: CharSequenceDecoder + "*/*" comes after
     if (CharSequence.class.isAssignableFrom(elementType.toClass()) || notSupportsMimeType(mimeType)) {
       return false;
     }
+
+    ObjectMapper mapper = selectObjectMapper(elementType, mimeType);
+    if (mapper == null) {
+      return false;
+    }
+
+    JavaType javaType = mapper.constructType(elementType.getType());
     if (!logger.isDebugEnabled()) {
       return mapper.canDeserialize(javaType);
     }
@@ -124,8 +128,7 @@ public abstract class AbstractJackson2Decoder
   }
 
   @Override
-  public Flux<Object> decode(
-          Publisher<DataBuffer> input, ResolvableType elementType,
+  public Flux<Object> decode(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     ObjectMapper mapper = selectObjectMapper(elementType, mimeType);
@@ -143,7 +146,6 @@ public abstract class AbstractJackson2Decoder
             processed, mapper.getFactory(), mapper, true, forceUseOfBigDecimal, getMaxInMemorySize());
 
     return Flux.deferContextual(contextView -> {
-
       Map<String, Object> hintsToUse = contextView.isEmpty() ? hints :
                                        Hints.merge(hints, ContextView.class.getName(), contextView);
 
@@ -175,8 +177,7 @@ public abstract class AbstractJackson2Decoder
    * @param hints additional information about how to do encode
    * @return the processed flux
    */
-  protected Flux<DataBuffer> processInput(
-          Publisher<DataBuffer> input, ResolvableType elementType,
+  protected Flux<DataBuffer> processInput(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return Flux.from(input);
@@ -199,8 +200,7 @@ public abstract class AbstractJackson2Decoder
   }
 
   @Override
-  public Object decode(
-          DataBuffer dataBuffer, ResolvableType targetType,
+  public Object decode(DataBuffer dataBuffer, ResolvableType targetType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
     ObjectMapper mapper = selectObjectMapper(targetType, mimeType);
     if (mapper == null) {
@@ -220,8 +220,8 @@ public abstract class AbstractJackson2Decoder
     }
   }
 
-  private ObjectReader createObjectReader(
-          ObjectMapper mapper, ResolvableType elementType, @Nullable Map<String, Object> hints) {
+  private ObjectReader createObjectReader(ObjectMapper mapper,
+          ResolvableType elementType, @Nullable Map<String, Object> hints) {
     Assert.notNull(elementType, "'elementType' must not be null");
     Class<?> contextClass = getContextClass(elementType);
     if (contextClass == null && hints != null) {
@@ -248,9 +248,8 @@ public abstract class AbstractJackson2Decoder
    * {@code ContextView.class.getName()}
    * @return the customized {@code ObjectReader} to use
    */
-  protected ObjectReader customizeReader(
-          ObjectReader reader, ResolvableType elementType, @Nullable Map<String, Object> hints) {
-
+  protected ObjectReader customizeReader(ObjectReader reader,
+          ResolvableType elementType, @Nullable Map<String, Object> hints) {
     return reader;
   }
 
@@ -284,9 +283,8 @@ public abstract class AbstractJackson2Decoder
   // HttpMessageDecoder
 
   @Override
-  public Map<String, Object> getDecodeHints(
-          ResolvableType actualType, ResolvableType elementType,
-          ServerHttpRequest request, ServerHttpResponse response) {
+  public Map<String, Object> getDecodeHints(ResolvableType actualType,
+          ResolvableType elementType, ServerHttpRequest request, ServerHttpResponse response) {
     return getHints(actualType);
   }
 
