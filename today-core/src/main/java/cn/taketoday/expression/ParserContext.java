@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,10 +31,11 @@ package cn.taketoday.expression;
 public interface ParserContext {
 
   /**
-   * Whether or not the expression being parsed is a template. A template expression
-   * consists of literal text that can be mixed with evaluatable blocks. Some examples:
+   * Whether the expression being parsed is a template.
+   * <p>A template consists of literal text that can be mixed with expressions.
+   * Some examples:
    * <pre class="code">
-   * 	   Some literal text
+   *     Some literal text
    *     Hello #{name.firstName}!
    *     #{3 + 4}
    * </pre>
