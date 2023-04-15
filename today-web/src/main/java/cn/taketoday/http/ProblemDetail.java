@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -324,7 +324,7 @@ public class ProblemDetail {
     if (other instanceof ProblemDetail otherDetail) {
       return status == otherDetail.status
               && Objects.equals(type, otherDetail.type)
-              && Objects.equals(title, otherDetail.title)
+              && Objects.equals(getTitle(), otherDetail.getTitle())
               && Objects.equals(detail, otherDetail.detail)
               && Objects.equals(instance, otherDetail.instance)
               && Objects.equals(properties, otherDetail.properties);
@@ -335,7 +335,7 @@ public class ProblemDetail {
   @Override
   public int hashCode() {
     int result = type.hashCode();
-    result = 31 * result + Objects.hashCode(title);
+    result = 31 * result + Objects.hashCode(getTitle());
     result = 31 * result + status;
     result = 31 * result + Objects.hashCode(detail);
     result = 31 * result + Objects.hashCode(instance);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,8 @@
  */
 
 package cn.taketoday.http;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
 
@@ -53,4 +55,17 @@ class ProblemDetailTests {
     assertThat(pd1.hashCode()).isNotEqualTo(pd4.hashCode());
   }
 
+  @Test
+    // gh-30294
+  void equalsAndHashCodeWithDeserialization() throws Exception {
+    ProblemDetail originalDetail = ProblemDetail.forRawStatusCode(500);
+
+    ObjectMapper mapper = new ObjectMapper();
+    byte[] bytes = mapper.writeValueAsBytes(originalDetail);
+    ProblemDetail deserializedDetail = mapper.readValue(bytes, ProblemDetail.class);
+
+    assertThat(originalDetail).isEqualTo(deserializedDetail);
+    assertThat(deserializedDetail).isEqualTo(originalDetail);
+    assertThat(originalDetail.hashCode()).isEqualTo(deserializedDetail.hashCode());
+  }
 }
