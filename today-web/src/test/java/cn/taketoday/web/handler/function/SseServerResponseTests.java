@@ -100,6 +100,35 @@ class SseServerResponseTests {
   }
 
   @Test
+  void sendObjectWithPrettyPrint() throws Throwable {
+    Person person = new Person("John Doe", 42);
+    ServerResponse response = ServerResponse.sse(sse -> {
+      try {
+        sse.send(person);
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    });
+
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+    converter.setPrettyPrint(true);
+    ServerResponse.Context context = () -> Collections.singletonList(converter);
+
+    var requestContext = new ServletRequestContext(null, this.mockRequest, mockResponse);
+
+    Object mav = response.writeTo(requestContext, context);
+    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+
+    String expected = "data:{\n" +
+            "data:  \"name\" : \"John Doe\",\n" +
+            "data:  \"age\" : 42\n" +
+            "data:}\n" +
+            "\n";
+    assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
+  }
+
+  @Test
   void builder() throws Throwable {
     ServerResponse response = ServerResponse.sse(sse -> {
       try {

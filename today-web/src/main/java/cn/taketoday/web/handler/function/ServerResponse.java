@@ -99,7 +99,7 @@ public interface ServerResponse {
    *
    * @param request the current request
    * @param context the context to use when writing
-   * @return a {@code ModelAndView} to render, or {@code null} if handled directly
+   * @return a Web result to render, or {@code null} if handled directly
    */
   @Nullable
   Object writeTo(RequestContext request, Context context) throws Throwable;
