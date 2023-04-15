@@ -109,6 +109,11 @@ public class CookieAssertionTests {
     client.get().uri("/").exchange().expectCookie().httpOnly(COOKIE_NAME, true);
   }
 
+  @Test
+  public void sameSite() {
+    client.get().uri("/").exchange().expectCookie().sameSite(COOKIE_NAME, "Strict");
+  }
+
   @Controller
   private static class SimpleController {
 
