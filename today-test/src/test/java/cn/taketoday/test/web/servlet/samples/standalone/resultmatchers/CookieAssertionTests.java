@@ -23,8 +23,11 @@ package cn.taketoday.test.web.servlet.samples.standalone.resultmatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.i18n.CookieLocaleResolver;
 import cn.taketoday.web.i18n.LocaleChangeInterceptor;
@@ -33,6 +36,7 @@ import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 
@@ -45,6 +49,7 @@ import static org.hamcrest.Matchers.startsWith;
 public class CookieAssertionTests {
 
   private static final String COOKIE_NAME = CookieLocaleResolver.DEFAULT_COOKIE_NAME;
+  private static final String COOKIE_WITH_ATTRIBUTES_NAME = "SecondCookie";
 
   private MockMvc mockMvc;
 
@@ -53,9 +58,22 @@ public class CookieAssertionTests {
     CookieLocaleResolver localeResolver = new CookieLocaleResolver();
     localeResolver.setCookieDomain("domain");
     localeResolver.setCookieHttpOnly(true);
+    localeResolver.setCookieSameSite("foo");
+
+    ResponseCookie cookie = ResponseCookie.from(COOKIE_WITH_ATTRIBUTES_NAME, "value")
+            .sameSite("Strict")
+            .build();
 
     this.mockMvc = standaloneSetup(new SimpleController())
             .addInterceptors(new LocaleChangeInterceptor())
+            .addInterceptors(new HandlerInterceptor() {
+
+              @Override
+              public boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
+                request.addCookie(cookie);
+                return true;
+              }
+            })
             .setLocaleResolver(localeResolver)
             .defaultRequest(get("/").param("locale", "en_US"))
             .alwaysExpect(status().isOk())
@@ -94,7 +112,27 @@ public class CookieAssertionTests {
   }
 
   @Test
-  public void testPath() throws Exception {
+  void sameSite() throws Exception {
+    this.mockMvc.perform(get("/")).andExpect(cookie()
+            .sameSite(COOKIE_NAME, "foo"));
+  }
+
+  @Test
+  void sameSiteMatcher() throws Exception {
+    this.mockMvc.perform(get("/")).andExpect(cookie()
+            .sameSite(COOKIE_WITH_ATTRIBUTES_NAME, startsWith("Str")));
+  }
+
+  @Test
+  void sameSiteNotEquals() throws Exception {
+    assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
+                    this.mockMvc.perform(get("/")).andExpect(cookie()
+                            .sameSite(COOKIE_WITH_ATTRIBUTES_NAME, "Str")))
+            .withMessage("Response cookie 'SecondCookie' attribute 'SameSite' expected:<Str> but was:<Strict>");
+  }
+
+  @Test
+  public void path() throws Exception {
     this.mockMvc.perform(get("/")).andExpect(cookie().path(COOKIE_NAME, "/"));
   }
 

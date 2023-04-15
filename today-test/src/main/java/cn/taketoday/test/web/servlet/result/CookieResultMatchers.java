@@ -163,6 +163,27 @@ public class CookieResultMatchers {
   }
 
   /**
+   * Assert a cookie's SameSite attribute with a Hamcrest {@link Matcher}.
+   */
+  public ResultMatcher sameSite(String name, Matcher<? super String> matcher) {
+    return result -> {
+      ResponseCookie cookie = getCookie(result, name);
+      assertThat("Response cookie '" + name + "' SameSite", cookie.getSameSite(), matcher);
+    };
+
+  }
+
+  /**
+   * Assert a cookie's SameSite attribute.
+   */
+  public ResultMatcher sameSite(String name, String sameSite) {
+    return result -> {
+      ResponseCookie cookie = getCookie(result, name);
+      assertEquals("Response cookie '" + name + "' SameSite", sameSite, cookie.getSameSite());
+    };
+  }
+
+  /**
    * Assert whether the cookie must be sent over a secure protocol or not.
    */
   public ResultMatcher secure(String name, boolean secure) {
