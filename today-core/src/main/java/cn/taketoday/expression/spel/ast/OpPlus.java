@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,14 +23,16 @@ package cn.taketoday.expression.spel.ast;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.Operation;
 import cn.taketoday.expression.TypeConverter;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
+import cn.taketoday.expression.spel.SpelEvaluationException;
+import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.NumberUtils;
@@ -50,9 +52,15 @@ import cn.taketoday.util.NumberUtils;
  * @author Juergen Hoeller
  * @author Ivo Smid
  * @author Giovanni Dall'Oglio Risso
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class OpPlus extends Operator {
+
+  /**
+   * Maximum number of characters permitted in a concatenated string.
+   */
+  private static final int MAX_CONCATENATED_STRING_LENGTH = 100_000;
 
   public OpPlus(int startPos, int endPos, SpelNodeImpl... operands) {
     super("+", startPos, endPos, operands);
@@ -123,20 +131,39 @@ public class OpPlus extends Operator {
 
     if (leftOperand instanceof String leftString && rightOperand instanceof String rightString) {
       this.exitTypeDescriptor = "Ljava/lang/String";
-      return new TypedValue(leftString + rightString);
+      checkStringLength(leftString);
+      checkStringLength(rightString);
+      return concatenate(leftString, rightString);
     }
 
-    if (leftOperand instanceof String) {
-      return new TypedValue(
-              leftOperand + (rightOperand == null ? "null" : convertTypedValueToString(operandTwoValue, state)));
+    if (leftOperand instanceof String leftString) {
+      checkStringLength(leftString);
+      String rightString = (rightOperand == null ? "null" : convertTypedValueToString(operandTwoValue, state));
+      checkStringLength(rightString);
+      return concatenate(leftString, rightString);
     }
 
-    if (rightOperand instanceof String) {
-      return new TypedValue(
-              (leftOperand == null ? "null" : convertTypedValueToString(operandOneValue, state)) + rightOperand);
+    if (rightOperand instanceof String rightString) {
+      checkStringLength(rightString);
+      String leftString = (leftOperand == null ? "null" : convertTypedValueToString(operandOneValue, state));
+      checkStringLength(leftString);
+      return concatenate(leftString, rightString);
     }
 
     return state.operate(Operation.ADD, leftOperand, rightOperand);
+  }
+
+  private void checkStringLength(String string) {
+    if (string.length() > MAX_CONCATENATED_STRING_LENGTH) {
+      throw new SpelEvaluationException(getStartPosition(),
+              SpelMessage.MAX_CONCATENATED_STRING_LENGTH_EXCEEDED, MAX_CONCATENATED_STRING_LENGTH);
+    }
+  }
+
+  private TypedValue concatenate(String leftString, String rightString) {
+    String result = leftString + rightString;
+    checkStringLength(result);
+    return new TypedValue(result);
   }
 
   @Override
