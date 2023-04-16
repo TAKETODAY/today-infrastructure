@@ -128,7 +128,7 @@ public class CookieAssertionTests {
     assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
                     this.mockMvc.perform(get("/")).andExpect(cookie()
                             .sameSite(COOKIE_WITH_ATTRIBUTES_NAME, "Str")))
-            .withMessage("Response cookie 'SecondCookie' attribute 'SameSite' expected:<Str> but was:<Strict>");
+            .withMessage("Response cookie 'SecondCookie' SameSite expected:<Str> but was:<Strict>");
   }
 
   @Test
