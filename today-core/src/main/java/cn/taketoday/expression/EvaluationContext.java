@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,20 +21,30 @@
 package cn.taketoday.expression;
 
 import java.util.List;
+import java.util.function.Supplier;
 
-import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Nullable;
 
 /**
  * Expressions are executed in an evaluation context. It is in this context that
  * references are resolved when encountered during expression evaluation.
  *
- * <p>There is a default implementation of this EvaluationContext interface:
- * {@link StandardEvaluationContext}
- * which can be extended, rather than having to implement everything manually.
+ * <p>There are two default implementations of this interface.
+ * <ul>
+ * <li>{@link cn.taketoday.expression.spel.support.SimpleEvaluationContext
+ * SimpleEvaluationContext}: a simpler builder-style {@code EvaluationContext}
+ * variant for data-binding purposes, which allows for opting into several SpEL
+ * features as needed.</li>
+ * <li>{@link cn.taketoday.expression.spel.support.StandardEvaluationContext
+ * StandardEvaluationContext}: a powerful and highly configurable {@code EvaluationContext}
+ * implementation, which can be extended, rather than having to implement everything
+ * manually.</li>
+ * </ul>
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface EvaluationContext {
@@ -88,6 +98,25 @@ public interface EvaluationContext {
    * between more than the standard set of types.
    */
   OperatorOverloader getOperatorOverloader();
+
+  /**
+   * Assign the value created by the specified {@link Supplier} to a named variable
+   * within this evaluation context.
+   * <p>In contrast to {@link #setVariable(String, Object)}, this method should only
+   * be invoked to support the assignment operator ({@code =}) within an expression.
+   * <p>By default, this method delegates to {@code setVariable(String, Object)},
+   * providing the value created by the {@code valueSupplier}. Concrete implementations
+   * may override this <em>default</em> method to provide different semantics.
+   *
+   * @param name the name of the variable to assign
+   * @param valueSupplier the supplier of the value to be assigned to the variable
+   * @return a {@link TypedValue} wrapping the assigned value
+   */
+  default TypedValue assignVariable(String name, Supplier<TypedValue> valueSupplier) {
+    TypedValue typedValue = valueSupplier.get();
+    setVariable(name, typedValue.getValue());
+    return typedValue;
+  }
 
   /**
    * Set a named variable within this evaluation context to a specified value.

@@ -30,7 +30,7 @@ import jakarta.xml.bind.annotation.XmlRegistry;
 /**
  * This object contains factory methods for each
  * Java content interface and Java element interface
- * generated in the org.springframework.oxm.jaxb.test package.
+ * generated in the cn.taketoday.oxm.jaxb.test package.
  * &lt;p&gt;An ObjectFactory allows you to programatically
  * construct new instances of the Java representation
  * for XML content. The Java representation of XML
@@ -46,7 +46,7 @@ public class ObjectFactory {
   private final static QName _Flight_QNAME = new QName("http://samples.springframework.org/flight", "flight");
 
   /**
-   * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.springframework.oxm.jaxb.test
+   * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: cn.taketoday.oxm.jaxb.test
    */
   public ObjectFactory() {
   }

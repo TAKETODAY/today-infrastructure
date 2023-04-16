@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,13 +23,14 @@ package cn.taketoday.expression.spel.ast;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.common.ExpressionUtils;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -44,6 +45,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class SpelNodeImpl implements SpelNode, Opcodes {
@@ -131,6 +133,27 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
 
   @Override
   public void setValue(ExpressionState expressionState, @Nullable Object newValue) throws EvaluationException {
+    setValueInternal(expressionState, () -> new TypedValue(newValue));
+  }
+
+  /**
+   * Evaluate the expression to a node and then set the new value created by the
+   * specified {@link Supplier} on that node.
+   * <p>For example, if the expression evaluates to a property reference, then the
+   * property will be set to the new value.
+   * <p>Favor this method over {@link #setValue(ExpressionState, Object)} when
+   * the value should be lazily computed.
+   * <p>By default, this method throws a {@link SpelEvaluationException},
+   * effectively disabling this feature. Subclasses may override this method to
+   * provide an actual implementation.
+   *
+   * @param state the current expression state (includes the context)
+   * @param valueSupplier a supplier of the new value
+   * @throws EvaluationException if any problem occurs evaluating the expression or
+   * setting the new value
+   */
+  public TypedValue setValueInternal(ExpressionState state,
+          Supplier<TypedValue> valueSupplier) throws EvaluationException {
     throw new SpelEvaluationException(getStartPosition(), SpelMessage.SETVALUE_NOT_SUPPORTED, getClass());
   }
 

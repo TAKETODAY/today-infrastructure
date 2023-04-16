@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,20 +21,21 @@
 package cn.taketoday.expression.spel.ast;
 
 import java.util.StringJoiner;
+import java.util.function.Supplier;
 
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Represents a DOT separated expression sequence, such as
  * {@code 'property1.property2.methodOne()'}.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class CompoundExpression extends SpelNodeImpl {
@@ -100,8 +101,12 @@ public class CompoundExpression extends SpelNodeImpl {
   }
 
   @Override
-  public void setValue(ExpressionState state, @Nullable Object value) throws EvaluationException {
-    getValueRef(state).setValue(value);
+  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier)
+          throws EvaluationException {
+
+    TypedValue typedValue = valueSupplier.get();
+    getValueRef(state).setValue(typedValue.getValue());
+    return typedValue;
   }
 
   @Override

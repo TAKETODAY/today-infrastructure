@@ -40,6 +40,7 @@ import cn.taketoday.expression.spel.support.BooleanTypedValue;
  * @author Andy Clement
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class OperatorMatches extends Operator {
@@ -49,7 +50,7 @@ public class OperatorMatches extends Operator {
   /**
    * Maximum number of characters permitted in a regular expression.
    */
-  private static final int MAX_REGEX_LENGTH = 1024;
+  private static final int MAX_REGEX_LENGTH = 1000;
 
   private final ConcurrentMap<String, Pattern> patternCache;
 

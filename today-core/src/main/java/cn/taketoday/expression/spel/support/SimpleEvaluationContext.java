@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
@@ -206,6 +207,17 @@ public final class SimpleEvaluationContext implements EvaluationContext {
   @Override
   public OperatorOverloader getOperatorOverloader() {
     return this.operatorOverloader;
+  }
+
+  /**
+   * {@code SimpleEvaluationContext} does not support variable assignment within
+   * expressions.
+   *
+   * @throws SpelEvaluationException with {@link SpelMessage#VARIABLE_ASSIGNMENT_NOT_SUPPORTED}
+   */
+  @Override
+  public TypedValue assignVariable(String name, Supplier<TypedValue> valueSupplier) {
+    throw new SpelEvaluationException(SpelMessage.VARIABLE_ASSIGNMENT_NOT_SUPPORTED, "#" + name);
   }
 
   @Override

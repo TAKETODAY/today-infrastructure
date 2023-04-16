@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import cn.taketoday.expression.spel.ExpressionState;
  * <p>Example: 'someNumberProperty=42'
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Assign extends SpelNodeImpl {
@@ -41,9 +42,7 @@ public class Assign extends SpelNodeImpl {
 
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
-    TypedValue newValue = this.children[1].getValueInternal(state);
-    getChild(0).setValue(state, newValue.getValue());
-    return newValue;
+    return this.children[0].setValueInternal(state, () -> this.children[1].getValueInternal(state));
   }
 
   @Override
