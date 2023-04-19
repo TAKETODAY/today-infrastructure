@@ -218,10 +218,10 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
 
   private void ports(UriComponents uriComponents, MockHttpServletRequest request) {
     int serverPort = uriComponents.getPort();
-    request.setServerPort(serverPort);
     if (serverPort == -1) {
       int portConnection = this.webRequest.getUrl().getDefaultPort();
-      request.setLocalPort(serverPort);
+      request.setLocalPort(portConnection);
+      request.setServerPort(portConnection);
       request.setRemotePort(portConnection);
     }
     else {

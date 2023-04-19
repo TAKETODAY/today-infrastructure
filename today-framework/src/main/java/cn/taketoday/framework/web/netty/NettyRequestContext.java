@@ -67,6 +67,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
@@ -487,6 +488,7 @@ public class NettyRequestContext extends RequestContext {
             nettyCookie.setMaxAge(responseCookie.getMaxAge().getSeconds());
             nettyCookie.setSecure(responseCookie.isSecure());
             nettyCookie.setHttpOnly(responseCookie.isHttpOnly());
+            nettyCookie.setSameSite(forSameSite(responseCookie.getSameSite()));
           }
 
           responseHeaders.add(setCookie, cookieEncoder.encode(nettyCookie));
@@ -503,16 +505,6 @@ public class NettyRequestContext extends RequestContext {
       channelContext.write(noBody);
     }
 
-  }
-
-  /**
-   * Checks to see if the transfer encoding in a specified {@link HttpMessage} is chunked
-   *
-   * @return True if transfer encoding is chunked, otherwise false
-   */
-  private static boolean isTransferEncodingChunked(HttpHeaders responseHeaders) {
-    return responseHeaders.containsValue(
-            DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, true);
   }
 
   @Override
@@ -615,6 +607,34 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected String doGetContextPath() {
     return config.getContextPath();
+  }
+
+  /**
+   * Return the enum value corresponding to the passed in same-site-flag, using a case insensitive comparison.
+   *
+   * @param name value for the SameSite Attribute
+   * @return enum value for the provided name or null
+   */
+  @Nullable
+  static CookieHeaderNames.SameSite forSameSite(@Nullable String name) {
+    if (name != null) {
+      for (CookieHeaderNames.SameSite each : CookieHeaderNames.SameSite.class.getEnumConstants()) {
+        if (each.name().equalsIgnoreCase(name)) {
+          return each;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Checks to see if the transfer encoding in a specified {@link HttpMessage} is chunked
+   *
+   * @return True if transfer encoding is chunked, otherwise false
+   */
+  private static boolean isTransferEncodingChunked(HttpHeaders responseHeaders) {
+    return responseHeaders.containsValue(
+            DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, true);
   }
 
   private static final class TrailerHeaders extends io.netty.handler.codec.http.DefaultHttpHeaders {

@@ -204,6 +204,11 @@ public final class MockMvc {
     MockFilterChain filterChain = new MockFilterChain(this.servlet, this.filters);
     filterChain.doFilter(request, servletResponse);
 
+    RequestContext maybeNew = RequestContextHolder.getRequired();
+    if (maybeNew != context) {
+      mvcResult.setRequestContext(maybeNew);
+    }
+
     if (DispatcherType.ASYNC.equals(request.getDispatcherType()) &&
             asyncContext != null && !request.isAsyncStarted()) {
       asyncContext.complete();

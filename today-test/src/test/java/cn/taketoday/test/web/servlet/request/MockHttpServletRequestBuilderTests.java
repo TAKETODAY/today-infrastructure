@@ -43,10 +43,10 @@ import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.SessionRedirectModelManager;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Cookie;
 
@@ -561,8 +561,8 @@ class MockHttpServletRequestBuilderTests {
     this.builder.flashAttr("foo", "bar");
     MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
 
-    RedirectModel flashMap = new SessionRedirectModelManager()
-            .retrieveAndUpdate(new ServletRequestContext(null, request, new MockHttpServletResponse()));
+    RedirectModel flashMap = RequestContextUtils.getInputRedirectModel(
+            new ServletRequestContext(null, request, new MockHttpServletResponse()));
 
     assertThat(flashMap.get("foo")).isEqualTo("bar");
   }

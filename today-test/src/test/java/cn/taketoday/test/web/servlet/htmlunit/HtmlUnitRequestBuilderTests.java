@@ -353,7 +353,7 @@ public class HtmlUnitRequestBuilderTests {
     webRequest.setUrl(new URL("http://localhost/test/this"));
     MockHttpServletRequest actualRequest = requestBuilder.buildRequest(servletContext);
 
-    assertThat(actualRequest.getLocalPort()).isEqualTo(-1);
+    assertThat(actualRequest.getLocalPort()).isEqualTo(80);
   }
 
   @Test
@@ -638,7 +638,7 @@ public class HtmlUnitRequestBuilderTests {
     webRequest.setUrl(new URL("https://example.com/"));
     MockHttpServletRequest actualRequest = requestBuilder.buildRequest(servletContext);
 
-    assertThat(actualRequest.getServerPort()).isEqualTo(-1);
+    assertThat(actualRequest.getServerPort()).isEqualTo(443);
   }
 
   @Test

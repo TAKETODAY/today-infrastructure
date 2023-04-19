@@ -400,6 +400,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
             servletCookie.setSecure(responseCookie.isSecure());
             servletCookie.setHttpOnly(responseCookie.isHttpOnly());
             servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
+            servletCookie.setAttribute("SameSite", responseCookie.getSameSite());
           }
 
           response.addCookie(servletCookie);

@@ -319,7 +319,7 @@ class PrintingResultHandlerTests {
   void flashMap() throws Exception {
     RedirectModel flashMap = new RedirectModel();
     flashMap.put("attrName", "attrValue");
-    this.request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, flashMap);
+    this.request.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, flashMap);
 
     this.handler.handle(this.mvcResult);
 

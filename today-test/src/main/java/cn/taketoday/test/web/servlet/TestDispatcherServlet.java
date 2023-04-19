@@ -71,9 +71,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
     HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
 
-    RequestContext previous = null;
     if (request != servletRequest && response != servletResponse) {
-      previous = context;
       context = new ServletRequestContext(
               getApplicationContext(), (HttpServletRequest) request, (HttpServletResponse) response);
       RequestContextHolder.set(context);
@@ -83,35 +81,29 @@ final class TestDispatcherServlet extends DispatcherServlet {
 
     registerAsyncResultInterceptors(context);
 
-    try {
-      super.service(request, response);
+    super.service(request, response);
 
-      if (request.getAsyncContext() != null) {
-        MockAsyncContext asyncContext;
-        if (request.getAsyncContext() instanceof MockAsyncContext mockAsyncContext) {
-          asyncContext = mockAsyncContext;
-        }
-        else {
-          var mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
-          Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
-          asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
-          Assert.notNull(asyncContext, () ->
-                  "Outer request wrapper " + request.getClass().getName() + " has an AsyncContext," +
-                          "but it is not a MockAsyncContext, while the nested " +
-                          mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
-        }
-
-        CountDownLatch dispatchLatch = new CountDownLatch(1);
-        asyncContext.addDispatchHandler(dispatchLatch::countDown);
-
-        getMvcResult(context).setAsyncDispatchLatch(dispatchLatch);
+    if (request.getAsyncContext() != null) {
+      MockAsyncContext asyncContext;
+      if (request.getAsyncContext() instanceof MockAsyncContext mockAsyncContext) {
+        asyncContext = mockAsyncContext;
       }
-    }
-    finally {
-      if (previous != null) {
-        RequestContextHolder.set(previous);
+      else {
+        var mockRequest = ServletUtils.getNativeRequest(request, MockHttpServletRequest.class);
+        Assert.notNull(mockRequest, "Expected MockHttpServletRequest");
+        asyncContext = (MockAsyncContext) mockRequest.getAsyncContext();
+        Assert.notNull(asyncContext, () ->
+                "Outer request wrapper " + request.getClass().getName() + " has an AsyncContext," +
+                        "but it is not a MockAsyncContext, while the nested " +
+                        mockRequest.getClass().getName() + " does not have an AsyncContext at all.");
       }
+
+      CountDownLatch dispatchLatch = new CountDownLatch(1);
+      asyncContext.addDispatchHandler(dispatchLatch::countDown);
+
+      getMvcResult(context).setAsyncDispatchLatch(dispatchLatch);
     }
+
   }
 
   private void registerAsyncResultInterceptors(RequestContext context) {

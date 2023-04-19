@@ -55,7 +55,7 @@ class DefaultMvcResult implements MvcResult {
   private final MockHttpServletRequest mockRequest;
   private final MockHttpServletResponse mockResponse;
 
-  private final RequestContext requestContext;
+  private RequestContext requestContext;
 
   @Nullable
   private Object handler;
@@ -213,6 +213,10 @@ class DefaultMvcResult implements MvcResult {
 
   void setAsyncDispatchLatch(CountDownLatch asyncDispatchLatch) {
     this.asyncDispatchLatch = asyncDispatchLatch;
+  }
+
+  void setRequestContext(RequestContext maybeNew) {
+    this.requestContext = maybeNew;
   }
 
   static DefaultMvcResult forContext(RequestContext request) {

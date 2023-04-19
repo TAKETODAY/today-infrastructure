@@ -53,6 +53,7 @@ public class CookieAssertionTests {
     CookieLocaleResolver localeResolver = new CookieLocaleResolver();
     localeResolver.setCookieDomain("domain");
     localeResolver.setCookieHttpOnly(true);
+    localeResolver.setCookieSameSite("Strict");
 
     client = MockMvcWebTestClient.bindToController(new SimpleController())
             .interceptors(new LocaleChangeInterceptor())
@@ -111,7 +112,10 @@ public class CookieAssertionTests {
 
   @Test
   public void sameSite() {
-    client.get().uri("/").exchange().expectCookie().sameSite(COOKIE_NAME, "Strict");
+    client.get().uri("/")
+            .exchange()
+            .expectCookie()
+            .sameSite(COOKIE_NAME, "Strict");
   }
 
   @Controller
