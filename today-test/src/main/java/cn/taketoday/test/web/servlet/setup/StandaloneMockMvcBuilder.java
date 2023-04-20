@@ -33,6 +33,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanInitializationException;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
@@ -449,7 +450,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     @ConditionalOnMissingBean(ViewReturnValueHandler.class)
     public ViewAttributeReturnValueHandler viewReturnValueHandler(
-            LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
+            @Qualifier(LocaleResolver.BEAN_NAME) LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
       ViewResolver viewResolver;
       if (viewResolvers.size() == 1) {
         viewResolver = CollectionUtils.firstElement(viewResolvers);

@@ -37,6 +37,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
+import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
@@ -237,7 +238,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ViewReturnValueHandler.class)
   public ViewReturnValueHandler viewReturnValueHandler(
-          LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
+          @Qualifier(LocaleResolver.BEAN_NAME) LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
     ViewReturnValueHandler handler = super.viewReturnValueHandler(localeResolver, viewResolvers);
     handler.setPutAllOutputRedirectModel(mvcProperties.getView().isPutAllOutputRedirectModel());
     return handler;

@@ -518,7 +518,7 @@ public class WebMvcConfigurationSupport extends ApplicationContextSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ViewReturnValueHandler.class)
   public ViewReturnValueHandler viewReturnValueHandler(
-          LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
+          @Qualifier(LocaleResolver.BEAN_NAME) LocaleResolver localeResolver, List<ViewResolver> viewResolvers) {
     ViewResolver viewResolver;
     if (viewResolvers.size() == 1) {
       viewResolver = CollectionUtils.firstElement(viewResolvers);
