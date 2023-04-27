@@ -351,7 +351,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    *
    * @throws IllegalArgumentException if the profile is null, empty, whitespace-only or
    * begins with the profile NOT operator (!).
-   * @see #acceptsProfiles
+   * @see #matchesProfiles
    * @see #addActiveProfile
    * @see #setDefaultProfiles
    */

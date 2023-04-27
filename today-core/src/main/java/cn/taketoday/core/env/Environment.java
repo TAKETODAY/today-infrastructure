@@ -56,6 +56,7 @@ import cn.taketoday.lang.Constant;
  * of property sources prior to application context {@code refresh()}.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyResolver
  * @see EnvironmentCapable
  * @see ConfigurableEnvironment
@@ -167,26 +168,34 @@ public interface Environment extends PropertyResolver {
   String[] getDefaultProfiles();
 
   /**
-   * Return whether one or more of the given profiles is active or, in the case of no
-   * explicit active profiles, whether one or more of the given profiles is included in
-   * the set of default profiles. If a profile begins with '!' the logic is inverted,
-   * i.e. the method will return {@code true} if the given profile is <em>not</em> active.
-   * For example, {@code env.acceptsProfiles("p1", "!p2")} will return {@code true} if
-   * profile 'p1' is active or 'p2' is not active.
+   * Determine whether one of the given profile expressions matches the
+   * {@linkplain #getActiveProfiles() active profiles} &mdash; or in the case
+   * of no explicit active profiles, whether one of the given profile expressions
+   * matches the {@linkplain #getDefaultProfiles() default profiles}.
+   * <p>Profile expressions allow for complex, boolean profile logic to be
+   * expressed &mdash; for example {@code "p1 & p2"}, {@code "(p1 & p2) | p3"},
+   * etc. See {@link Profiles#of(String...)} for details on the supported
+   * expression syntax.
+   * <p>This method is a convenient shortcut for
+   * {@code env.acceptsProfiles(Profiles.of(profileExpressions))}.
    *
-   * @throws IllegalArgumentException if called with zero arguments
-   * or if any profile is {@code null}, empty, or whitespace only
-   * @see #getActiveProfiles
-   * @see #getDefaultProfiles
+   * @see Profiles#of(String...)
    * @see #acceptsProfiles(Profiles)
    */
-  default boolean acceptsProfiles(String... profiles) {
-    return acceptsProfiles(Profiles.of(profiles));
+  default boolean matchesProfiles(String... profileExpressions) {
+    return acceptsProfiles(Profiles.of(profileExpressions));
   }
 
   /**
-   * Return whether the {@linkplain #getActiveProfiles() active profiles}
-   * match the given {@link Profiles} predicate.
+   * Determine whether the given {@link Profiles} predicate matches the
+   * {@linkplain #getActiveProfiles() active profiles} &mdash; or in the case
+   * of no explicit active profiles, whether the given {@code Profiles} predicate
+   * matches the {@linkplain #getDefaultProfiles() default profiles}.
+   * <p>If you wish provide profile expressions directly as strings, use
+   * {@link #matchesProfiles(String...)} instead.
+   *
+   * @see #matchesProfiles(String...)
+   * @see Profiles#of(String...)
    */
   boolean acceptsProfiles(Profiles profiles);
 
