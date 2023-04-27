@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,7 @@ package cn.taketoday.context.support;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -190,24 +190,23 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   }
 
   private void stopBeans() {
-    HashMap<Integer, LifecycleGroup> phases = new HashMap<>();
     Map<String, Lifecycle> lifecycleBeans = getLifecycleBeans();
+    TreeMap<Integer, LifecycleGroup> phases = new TreeMap<>(Comparator.reverseOrder());
     for (Map.Entry<String, Lifecycle> entry : lifecycleBeans.entrySet()) {
       String beanName = entry.getKey();
       Lifecycle bean = entry.getValue();
       int shutdownPhase = getPhase(bean);
       LifecycleGroup group = phases.get(shutdownPhase);
       if (group == null) {
-        group = new LifecycleGroup(shutdownPhase, this.timeoutPerShutdownPhase, lifecycleBeans, false);
+        group = new LifecycleGroup(shutdownPhase,
+                timeoutPerShutdownPhase, lifecycleBeans, false);
         phases.put(shutdownPhase, group);
       }
       group.add(beanName, bean);
     }
     if (!phases.isEmpty()) {
-      ArrayList<Integer> keys = new ArrayList<>(phases.keySet());
-      keys.sort(Collections.reverseOrder());
-      for (Integer key : keys) {
-        phases.get(key).stop();
+      for (LifecycleGroup group : phases.values()) {
+        group.stop();
       }
     }
   }
@@ -271,7 +270,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    */
   protected Map<String, Lifecycle> getLifecycleBeans() {
     ConfigurableBeanFactory beanFactory = getBeanFactory();
-    Map<String, Lifecycle> beans = new LinkedHashMap<>();
+    LinkedHashMap<String, Lifecycle> beans = new LinkedHashMap<>();
     Set<String> beanNames = beanFactory.getBeanNamesForType(Lifecycle.class, false, false);
     for (String beanName : beanNames) {
       String beanNameToRegister = BeanFactoryUtils.transformedBeanName(beanName);
@@ -311,6 +310,8 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   /**
    * Helper class for maintaining a group of Lifecycle beans that should be started
    * and stopped together based on their 'phase' value (or the default value of 0).
+   * The group is expected to be created in an ad-hoc fashion and group members are
+   * expected to always have the same 'phase' value.
    */
   private class LifecycleGroup {
 
@@ -322,8 +323,8 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     private final Map<String, ? extends Lifecycle> lifecycleBeans;
     private final ArrayList<LifecycleGroupMember> members = new ArrayList<>();
 
-    public LifecycleGroup(
-            int phase, long timeout, Map<String, ? extends Lifecycle> lifecycleBeans, boolean autoStartupOnly) {
+    public LifecycleGroup(int phase, long timeout,
+            Map<String, ? extends Lifecycle> lifecycleBeans, boolean autoStartupOnly) {
 
       this.phase = phase;
       this.timeout = timeout;
@@ -339,13 +340,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     }
 
     public void start() {
-      if (this.members.isEmpty()) {
+      if (members.isEmpty()) {
         return;
       }
-      log.debug("Starting beans in phase {}", this.phase);
-      Collections.sort(this.members);
-      for (LifecycleGroupMember member : this.members) {
-        doStart(this.lifecycleBeans, member.name, this.autoStartupOnly);
+      log.debug("Starting beans in phase {}", phase);
+      for (LifecycleGroupMember member : members) {
+        doStart(lifecycleBeans, member.name, autoStartupOnly);
       }
     }
 
@@ -355,7 +355,6 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       }
       log.debug("Stopping beans in phase {}", phase);
 
-      members.sort(Collections.reverseOrder());
       CountDownLatch latch = new CountDownLatch(smartMemberCount);
       Set<String> countDownBeanNames = Collections.synchronizedSet(new LinkedHashSet<>());
       Set<String> lifecycleBeanNames = new HashSet<>(lifecycleBeans.keySet());
@@ -382,24 +381,10 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   }
 
   /**
-   * Adapts the Comparable interface onto the lifecycle phase model.
+   * A simple record of a LifecycleGroup member.
    */
-  private class LifecycleGroupMember implements Comparable<LifecycleGroupMember> {
+  private record LifecycleGroupMember(String name, Lifecycle bean) {
 
-    private final String name;
-    private final Lifecycle bean;
-
-    LifecycleGroupMember(String name, Lifecycle bean) {
-      this.name = name;
-      this.bean = bean;
-    }
-
-    @Override
-    public int compareTo(LifecycleGroupMember other) {
-      int thisPhase = getPhase(this.bean);
-      int otherPhase = getPhase(other.bean);
-      return Integer.compare(thisPhase, otherPhase);
-    }
   }
 
 }
