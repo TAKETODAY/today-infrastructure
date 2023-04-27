@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -176,6 +176,7 @@ class ApplicationShutdownHook implements Runnable {
     @Override
     public void add(Runnable action) {
       Assert.notNull(action, "Action must not be null");
+      addRuntimeShutdownHookIfNecessary();
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
         this.actions.add(action);

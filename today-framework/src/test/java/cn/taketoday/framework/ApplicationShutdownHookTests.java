@@ -58,6 +58,16 @@ class ApplicationShutdownHookTests {
   }
 
   @Test
+  void shutdownHookIsNotAddedUntilHandlerIsRegistered() {
+    TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
+    assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isFalse();
+    shutdownHook.getHandlers().add(() -> {
+
+    });
+    assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isTrue();
+  }
+
+  @Test
   void runClosesContextsBeforeRunningHandlerActions() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     List<Object> finished = new CopyOnWriteArrayList<>();
