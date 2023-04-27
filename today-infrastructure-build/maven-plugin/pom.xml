@@ -26,7 +26,7 @@
 
   <groupId>cn.taketoday</groupId>
   <artifactId>today-infra-maven-plugin</artifactId>
-  <version>4.0.0-Draft.3-SNAPSHOT</version>
+  <version>4.0.0-Draft.3</version>
 
   <packaging>maven-plugin</packaging>
 

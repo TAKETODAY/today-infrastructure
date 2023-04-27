@@ -42,7 +42,7 @@
 <dependency>
   <groupId>cn.taketoday</groupId>
   <artifactId>today-framework</artifactId>
-  <version>4.0.0-Draft.3-SNAPSHOT</version>
+  <version>4.0.0-Draft.3</version>
 </dependency>
 ```
 
