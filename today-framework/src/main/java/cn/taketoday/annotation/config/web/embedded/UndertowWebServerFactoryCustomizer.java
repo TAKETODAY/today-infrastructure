@@ -111,10 +111,8 @@ public class UndertowWebServerFactoryCustomizer
     map.from(properties.getOptions()::getSocket).to(socketOptions.forEach(socketOptions::option));
   }
 
-  @SuppressWarnings("deprecation")
   private void mapSlashProperties(ServerProperties.Undertow properties, ServerOptions serverOptions) {
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(properties::isAllowEncodedSlash).to(serverOptions.option(UndertowOptions.ALLOW_ENCODED_SLASH));
     map.from(properties::getDecodeSlash).to(serverOptions.option(UndertowOptions.DECODE_SLASH));
   }
 

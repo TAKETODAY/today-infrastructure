@@ -1719,14 +1719,6 @@ public class ServerProperties {
       this.maxCookies = maxCookies;
     }
 
-    public boolean isAllowEncodedSlash() {
-      return this.allowEncodedSlash;
-    }
-
-    public void setAllowEncodedSlash(boolean allowEncodedSlash) {
-      this.allowEncodedSlash = allowEncodedSlash;
-    }
-
     public Boolean getDecodeSlash() {
       return this.decodeSlash;
     }
