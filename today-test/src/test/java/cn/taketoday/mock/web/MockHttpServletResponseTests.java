@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -197,6 +197,18 @@ class MockHttpServletResponseTests {
     response.setContentType("test/plain");
     assertThat(response.getContentType()).isEqualTo("test/plain;charset=UTF-8");
     assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo("test/plain;charset=UTF-8");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
+  }
+
+  @Test
+  void setCharacterEncodingNull() {
+    response.setContentType("test/plain");
+    response.setCharacterEncoding("UTF-8");
+    assertThat(response.getContentType()).isEqualTo("test/plain;charset=UTF-8");
+    assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo("test/plain;charset=UTF-8");
+    response.setCharacterEncoding(null);
+    assertThat(response.getContentType()).isEqualTo("test/plain");
+    assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo("test/plain");
     assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
   }
 
