@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -122,6 +123,12 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
 
   @Override
   @Nullable
+  public List<V> putIfAbsent(K key, List<V> value) {
+    return this.targetMap.putIfAbsent(key, value);
+  }
+
+  @Override
+  @Nullable
   public List<V> remove(Object key) {
     return this.targetMap.remove(key);
   }
@@ -149,6 +156,11 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
   @Override
   public Set<Entry<K, List<V>>> entrySet() {
     return this.targetMap.entrySet();
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super K, ? super List<V>> action) {
+    this.targetMap.forEach(action);
   }
 
   @Override

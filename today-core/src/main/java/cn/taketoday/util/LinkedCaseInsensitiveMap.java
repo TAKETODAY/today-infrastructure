@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,10 +31,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link LinkedHashMap} variant that stores String keys in a case-insensitive
@@ -271,13 +273,18 @@ public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable
   }
 
   @Override
+  public void forEach(BiConsumer<? super String, ? super V> action) {
+    this.targetMap.forEach(action);
+  }
+
+  @Override
   public LinkedCaseInsensitiveMap<V> clone() {
     return new LinkedCaseInsensitiveMap<>(this);
   }
 
   @Override
-  public boolean equals(Object obj) {
-    return this.targetMap.equals(obj);
+  public boolean equals(@Nullable Object other) {
+    return (this == other || this.targetMap.equals(other));
   }
 
   @Override

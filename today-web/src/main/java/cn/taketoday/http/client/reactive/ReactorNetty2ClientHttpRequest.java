@@ -24,11 +24,13 @@ import org.reactivestreams.Publisher;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.Netty5DataBufferFactory;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
@@ -128,14 +130,19 @@ class ReactorNetty2ClientHttpRequest extends AbstractClientHttpRequest implement
 
   @Override
   protected void applyHeaders() {
-    getHeaders().forEach((key, value) -> this.request.requestHeaders().set(key, value));
+    for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+      request.requestHeaders().set(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override
   protected void applyCookies() {
-    getCookies().values().stream().flatMap(Collection::stream)
-            .map(cookie -> new DefaultHttpCookiePair(cookie.getName(), cookie.getValue()))
-            .forEach(this.request::addCookie);
+    for (List<HttpCookie> values : getCookies().values()) {
+      for (HttpCookie value : values) {
+        DefaultHttpCookiePair cookie = new DefaultHttpCookiePair(value.getName(), value.getValue());
+        this.request.addCookie(cookie);
+      }
+    }
   }
 
   @Override

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
@@ -301,6 +302,16 @@ public class WebSocketHttpHeaders extends HttpHeaders {
   @Override
   public Set<Map.Entry<String, List<String>>> entrySet() {
     return this.headers.entrySet();
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
+    this.headers.forEach(action);
+  }
+
+  @Override
+  public List<String> putIfAbsent(String key, List<String> value) {
+    return this.headers.putIfAbsent(key, value);
   }
 
   @Override

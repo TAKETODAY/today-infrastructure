@@ -39,6 +39,7 @@ import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -689,6 +690,31 @@ public class HttpHeadersTests {
     assertThat(headers.isEmpty()).isTrue();
     headers.add(headerName, headerValue);
     assertThat(headers.get(headerName).get(0)).isEqualTo(headerValue);
+  }
+
+  @Test
+  void readOnlyHttpHeadersCopyOrderTest() {
+    headers.add("aardvark", "enigma");
+    headers.add("beaver", "enigma");
+    headers.add("cat", "enigma");
+    headers.add("dog", "enigma");
+    headers.add("elephant", "enigma");
+
+    String[] expectedKeys = new String[] { "aardvark", "beaver", "cat", "dog", "elephant" };
+
+    HttpHeaders readOnlyHttpHeaders = HttpHeaders.readOnlyHttpHeaders(headers);
+
+    HttpHeaders forEachHeaders = HttpHeaders.create();
+    readOnlyHttpHeaders.forEach(forEachHeaders::putIfAbsent);
+    assertThat(forEachHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+
+    HttpHeaders putAllHeaders = HttpHeaders.create();
+    putAllHeaders.putAll(readOnlyHttpHeaders);
+    assertThat(putAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+
+    HttpHeaders addAllHeaders = HttpHeaders.create();
+    addAllHeaders.addAll(readOnlyHttpHeaders);
+    assertThat(addAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
   }
 
   @Test // gh-25034

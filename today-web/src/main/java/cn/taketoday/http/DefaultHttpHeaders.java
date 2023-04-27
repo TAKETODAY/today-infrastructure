@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
@@ -162,6 +163,16 @@ public class DefaultHttpHeaders extends HttpHeaders {
   @Override
   public void copyToArrayMap(Map<String, String[]> newMap, IntFunction<String[]> function) {
     headers.copyToArrayMap(newMap, function);
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
+    this.headers.forEach(action);
+  }
+
+  @Override
+  public List<String> putIfAbsent(String key, List<String> value) {
+    return this.headers.putIfAbsent(key, value);
   }
 
   @Override
