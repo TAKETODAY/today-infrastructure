@@ -40,7 +40,7 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
 
       - name: Deploy snapshots
-        run: mvn --batch-mode deploy -P release -DCI=true
+        run: mvn --batch-mode deploy -P release-snapshot -DCI=true
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
