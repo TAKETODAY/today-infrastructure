@@ -78,6 +78,7 @@ import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.ThrowingConsumer;
 import cn.taketoday.util.function.ThrowingSupplier;
 
 /**
@@ -1443,6 +1444,22 @@ public class Application {
     }
   }
 
+  /**
+   * Create an application from an existing {@code main} method that can run with
+   * additional {@code @Configuration} or bean classes. This method can be helpful when
+   * writing a test harness that needs to start an application with additional
+   * configuration.
+   *
+   * @param main the main method entry point that runs the {@link Application}
+   * @return an {@link Application.Augmented} instance that can be used to add
+   * configuration and run the application.
+   * @see #withHook(ApplicationHook, Runnable)
+   */
+  public static Application.Augmented from(ThrowingConsumer<String[]> main) {
+    Assert.notNull(main, "Main must not be null");
+    return new Augmented(main, Collections.emptySet());
+  }
+
   private static void close(ApplicationContext context) {
     if (context instanceof ConfigurableApplicationContext closable) {
       closable.close();
@@ -1489,6 +1506,50 @@ public class Application {
      */
     public ConfigurableApplicationContext getApplicationContext() {
       return this.applicationContext;
+    }
+
+  }
+
+  /**
+   * Used to configure and run an augmented {@link SpringApplication} where additional
+   * configuration should be applied.
+   */
+  public static class Augmented {
+
+    private final ThrowingConsumer<String[]> main;
+
+    private final Set<Class<?>> sources;
+
+    Augmented(ThrowingConsumer<String[]> main, Set<Class<?>> sources) {
+      this.main = main;
+      this.sources = Set.copyOf(sources);
+    }
+
+    /**
+     * Return a new {@link SpringApplication.Augmented} instance with additional
+     * sources that should be applied when the application runs.
+     *
+     * @param sources the sources that should be applied
+     * @return a new {@link SpringApplication.Augmented} instance
+     */
+    public Augmented with(Class<?>... sources) {
+      LinkedHashSet<Class<?>> merged = new LinkedHashSet<>(this.sources);
+      merged.addAll(Arrays.asList(sources));
+      return new Augmented(this.main, merged);
+    }
+
+    /**
+     * Run the application using the given args.
+     *
+     * @param args the main method args
+     */
+    public void run(String... args) {
+      withHook(this::getRunListener, () -> this.main.accept(args));
+    }
+
+    private ApplicationStartupListener getRunListener(Application application) {
+      application.addPrimarySources(this.sources);
+      return null;
     }
 
   }

@@ -1267,6 +1267,14 @@ class ApplicationTests {
     then(listener).should(never()).onApplicationEvent(any(ApplicationFailedEvent.class));
   }
 
+  @Test
+  void fromRunsWithAdditionalSources() {
+    assertThat(ExampleAdditionalConfig.local.get()).isNull();
+    Application.from(ExampleFromMainMethod::main).with(ExampleAdditionalConfig.class).run();
+    assertThat(ExampleAdditionalConfig.local.get()).isNotNull();
+    ExampleAdditionalConfig.local.set(null);
+  }
+
   private <S extends AvailabilityState> ArgumentMatcher<ApplicationEvent> isAvailabilityChangeEventWithState(
           S state) {
     return (argument) -> (argument instanceof AvailabilityChangeEvent<?>)
@@ -1805,6 +1813,27 @@ class ApplicationTests {
     ExampleConfigurer configurer() {
       return (example) -> {
       };
+    }
+
+  }
+
+  static class ExampleFromMainMethod {
+
+    static void main(String[] args) {
+      Application application = new Application(ExampleConfig.class);
+      application.setApplicationType(ApplicationType.NONE_WEB);
+      application.run(args);
+    }
+
+  }
+
+  @Configuration
+  static class ExampleAdditionalConfig {
+
+    static ThreadLocal<ExampleAdditionalConfig> local = new ThreadLocal<>();
+
+    ExampleAdditionalConfig() {
+      local.set(this);
     }
 
   }
