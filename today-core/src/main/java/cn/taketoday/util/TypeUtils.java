@@ -143,7 +143,7 @@ public abstract class TypeUtils {
   }
 
   private static boolean isAssignable(WildcardType lhsType, Type rhsType) {
-    Type[] lUpperBounds = getLowerBounds(lhsType);
+    Type[] lUpperBounds = getUpperBounds(lhsType);
     Type[] lLowerBounds = getLowerBounds(lhsType);
 
     if (rhsType instanceof WildcardType rhsWcType) {
