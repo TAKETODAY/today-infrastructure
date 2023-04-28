@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.jta.UserTransactionAdapter;
-import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
 import cn.taketoday.transaction.testfixture.jndi.ExpectedLookupTemplate;
@@ -106,13 +105,10 @@ public class JndiJtaTransactionManagerTests {
     boolean condition1 = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition1).isTrue();
     assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-    tt.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        // something transactional
-        assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
-        assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      }
+    tt.executeWithoutResult(status -> {
+      // something transactional
+      assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
     });
     boolean condition = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition).isTrue();
@@ -152,13 +148,10 @@ public class JndiJtaTransactionManagerTests {
     boolean condition1 = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition1).isTrue();
     assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-    tt.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        // something transactional
-        assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
-        assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      }
+    tt.executeWithoutResult(status -> {
+      // something transactional
+      assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
     });
     boolean condition = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition).isTrue();
@@ -188,23 +181,17 @@ public class JndiJtaTransactionManagerTests {
     boolean condition1 = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition1).isTrue();
     assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-    tt.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        // something transactional
-        assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
-        assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      }
+    tt.executeWithoutResult(status -> {
+      // something transactional
+      assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
     });
 
     ptm.setJndiTemplate(new ExpectedLookupTemplate("java:comp/UserTransaction", ut2));
-    tt.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-        // something transactional
-        assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
-        assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
-      }
+    tt.executeWithoutResult(status -> {
+      // something transactional
+      assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
     });
     boolean condition = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition).isTrue();

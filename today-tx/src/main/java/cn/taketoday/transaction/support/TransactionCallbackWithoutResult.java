@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,14 +29,16 @@ import cn.taketoday.transaction.TransactionStatus;
  * i.e. without the need for a return statement.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionTemplate
  * @since 4.0
  */
-public abstract class TransactionCallbackWithoutResult implements TransactionCallback<Object> {
+@FunctionalInterface
+public interface TransactionCallbackWithoutResult extends TransactionCallback<Object> {
 
   @Override
   @Nullable
-  public final Object doInTransaction(TransactionStatus status) {
+  default Object doInTransaction(TransactionStatus status) {
     doInTransactionWithoutResult(status);
     return null;
   }
@@ -56,6 +58,6 @@ public abstract class TransactionCallbackWithoutResult implements TransactionCal
    * @param status associated transaction status
    * @see TransactionTemplate#execute
    */
-  protected abstract void doInTransactionWithoutResult(TransactionStatus status);
+  void doInTransactionWithoutResult(TransactionStatus status);
 
 }

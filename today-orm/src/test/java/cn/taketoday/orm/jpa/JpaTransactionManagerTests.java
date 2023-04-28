@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,9 +29,7 @@ import java.util.List;
 
 import cn.taketoday.transaction.InvalidIsolationLevelException;
 import cn.taketoday.transaction.TransactionDefinition;
-import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
-import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
@@ -746,10 +744,7 @@ public class JpaTransactionManagerTests {
     given(manager.isOpen()).willReturn(true);
 
     assertThatExceptionOfType(InvalidIsolationLevelException.class).isThrownBy(() ->
-            tt.execute(new TransactionCallbackWithoutResult() {
-              @Override
-              protected void doInTransactionWithoutResult(TransactionStatus status) {
-              }
+            tt.executeWithoutResult(status -> {
             }));
 
     verify(manager).close();
@@ -764,12 +759,9 @@ public class JpaTransactionManagerTests {
     boolean condition2 = !TransactionSynchronizationManager.isSynchronizationActive();
     assertThat(condition2).isTrue();
 
-    tt.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      public void doInTransactionWithoutResult(TransactionStatus status) {
-        assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
-        status.flush();
-      }
+    tt.executeWithoutResult(status -> {
+      assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
+      status.flush();
     });
 
     boolean condition1 = !TransactionSynchronizationManager.hasResource(factory);

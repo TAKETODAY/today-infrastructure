@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,6 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.DefaultTransactionStatus;
-import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
 
@@ -157,10 +156,7 @@ public class TransactionSupportTests {
   public void transactionTemplate() {
     TestTransactionManager tm = new TestTransactionManager(false, true);
     TransactionTemplate template = new TransactionTemplate(tm);
-    template.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-      }
+    template.executeWithoutResult(status -> {
     });
 
     assertThat(tm.begin).as("triggered begin").isTrue();
@@ -173,10 +169,7 @@ public class TransactionSupportTests {
   public void transactionTemplateWithCallbackPreference() {
     MockCallbackPreferringTransactionManager ptm = new MockCallbackPreferringTransactionManager();
     TransactionTemplate template = new TransactionTemplate(ptm);
-    template.execute(new TransactionCallbackWithoutResult() {
-      @Override
-      protected void doInTransactionWithoutResult(TransactionStatus status) {
-      }
+    template.executeWithoutResult(status -> {
     });
 
     assertThat(ptm.getDefinition()).isSameAs(template);
@@ -189,11 +182,8 @@ public class TransactionSupportTests {
     TransactionTemplate template = new TransactionTemplate(tm);
     final RuntimeException ex = new RuntimeException("Some application exception");
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-                    template.execute(new TransactionCallbackWithoutResult() {
-                      @Override
-                      protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        throw ex;
-                      }
+                    template.executeWithoutResult(status -> {
+                      throw ex;
                     }))
             .isSameAs(ex);
     assertThat(tm.begin).as("triggered begin").isTrue();
@@ -202,7 +192,6 @@ public class TransactionSupportTests {
     assertThat(tm.rollbackOnly).as("no rollbackOnly").isFalse();
   }
 
-  @SuppressWarnings("serial")
   @Test
   public void transactionTemplateWithRollbackException() {
     final TransactionSystemException tex = new TransactionSystemException("system exception");
@@ -216,11 +205,8 @@ public class TransactionSupportTests {
     TransactionTemplate template = new TransactionTemplate(tm);
     final RuntimeException ex = new RuntimeException("Some application exception");
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-                    template.execute(new TransactionCallbackWithoutResult() {
-                      @Override
-                      protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        throw ex;
-                      }
+                    template.executeWithoutResult(status -> {
+                      throw ex;
                     }))
             .isSameAs(tex);
     assertThat(tm.begin).as("triggered begin").isTrue();
@@ -234,11 +220,8 @@ public class TransactionSupportTests {
     TestTransactionManager tm = new TestTransactionManager(false, true);
     TransactionTemplate template = new TransactionTemplate(tm);
     assertThatExceptionOfType(Error.class).isThrownBy(() ->
-            template.execute(new TransactionCallbackWithoutResult() {
-              @Override
-              protected void doInTransactionWithoutResult(TransactionStatus status) {
-                throw new Error("Some application error");
-              }
+            template.executeWithoutResult(status -> {
+              throw new Error("Some application error");
             }));
     assertThat(tm.begin).as("triggered begin").isTrue();
     assertThat(tm.commit).as("no commit").isFalse();
