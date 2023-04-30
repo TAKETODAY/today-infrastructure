@@ -19,13 +19,11 @@
  */
 
 /**
- * Core Infra App classes.
- *
- * @since 4.0 2022/1/16 11:14
+ * Support for 'Java Util Logging'.
  */
 @NonNullApi
 @NonNullFields
-package cn.taketoday.framework;
+package cn.taketoday.framework.logging.java;
 
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.NonNullFields;

@@ -19,13 +19,13 @@
  */
 
 /**
- * Core Infra App classes.
+ * Support and abstractions across several logging libraries.
  *
- * @since 4.0 2022/1/16 11:14
+ * @see cn.taketoday.framework.logging.LoggingSystem
  */
 @NonNullApi
 @NonNullFields
-package cn.taketoday.framework;
+package cn.taketoday.framework.logging;
 
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.NonNullFields;

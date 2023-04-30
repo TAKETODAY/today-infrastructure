@@ -18,14 +18,24 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Core Infra App classes.
- *
- * @since 4.0 2022/1/16 11:14
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.framework;
+package cn.taketoday.framework.logging.logback;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import ch.qos.logback.classic.pattern.ExtendedThrowableProxyConverter;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.core.CoreConstants;
+
+/**
+ * {@link ExtendedThrowableProxyConverter} that adds some additional whitespace around the
+ * stack trace.
+ *
+ * @author Phillip Webb
+ * @since 4.0
+ */
+public class ExtendedWhitespaceThrowableProxyConverter extends ExtendedThrowableProxyConverter {
+
+  @Override
+  protected String throwableProxyToString(IThrowableProxy tp) {
+    return CoreConstants.LINE_SEPARATOR + super.throwableProxyToString(tp) + CoreConstants.LINE_SEPARATOR;
+  }
+
+}

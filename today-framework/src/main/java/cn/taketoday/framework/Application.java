@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1511,7 +1511,7 @@ public class Application {
   }
 
   /**
-   * Used to configure and run an augmented {@link SpringApplication} where additional
+   * Used to configure and run an augmented {@link Application} where additional
    * configuration should be applied.
    */
   public static class Augmented {
@@ -1526,11 +1526,11 @@ public class Application {
     }
 
     /**
-     * Return a new {@link SpringApplication.Augmented} instance with additional
+     * Return a new {@link Application.Augmented} instance with additional
      * sources that should be applied when the application runs.
      *
      * @param sources the sources that should be applied
-     * @return a new {@link SpringApplication.Augmented} instance
+     * @return a new {@link Application.Augmented} instance
      */
     public Augmented with(Class<?>... sources) {
       LinkedHashSet<Class<?>> merged = new LinkedHashSet<>(this.sources);

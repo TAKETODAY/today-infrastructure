@@ -18,14 +18,48 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Core Infra App classes.
- *
- * @since 4.0 2022/1/16 11:14
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.framework;
+package cn.taketoday.framework.logging.logback;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import ch.qos.logback.core.model.NamedModel;
+
+/**
+ * Logback {@link NamedModel model} to support {@code <infra-property>} tags. Allows
+ * Logback properties to be sourced from the Infra environment.
+ *
+ * @author Andy Wilkinson
+ * @see InfraPropertyAction
+ * @see InfraPropertyModelHandler
+ */
+class InfraPropertyModel extends NamedModel {
+
+  private String scope;
+
+  private String defaultValue;
+
+  private String source;
+
+  String getScope() {
+    return this.scope;
+  }
+
+  void setScope(String scope) {
+    this.scope = scope;
+  }
+
+  String getDefaultValue() {
+    return this.defaultValue;
+  }
+
+  void setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+  }
+
+  String getSource() {
+    return this.source;
+  }
+
+  void setSource(String source) {
+    this.source = source;
+  }
+
+}

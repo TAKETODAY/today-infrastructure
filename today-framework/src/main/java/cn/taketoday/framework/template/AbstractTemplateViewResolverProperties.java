@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -149,9 +149,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
     resolver.setPrefix(getPrefix());
     resolver.setSuffix(getSuffix());
     resolver.setCache(isCache());
-    if (getContentType() != null) {
-      resolver.setContentType(getContentType().toString());
-    }
+    resolver.setContentType(getContentType().toString());
     resolver.setViewNames(getViewNames());
     resolver.setExposeRequestAttributes(isExposeRequestAttributes());
     resolver.setAllowRequestOverride(isAllowRequestOverride());

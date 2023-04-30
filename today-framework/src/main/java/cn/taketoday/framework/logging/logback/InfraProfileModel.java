@@ -18,14 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Core Infra App classes.
- *
- * @since 4.0 2022/1/16 11:14
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.framework;
+package cn.taketoday.framework.logging.logback;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import ch.qos.logback.core.model.NamedModel;
+
+/**
+ * Logback {@link NamedModel model} to support {@code <infra-profile>} tags.
+ *
+ * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see InfraProfileAction
+ * @see InfraProfileModelHandler
+ * @since 4.0
+ */
+class InfraProfileModel extends NamedModel {
+
+}

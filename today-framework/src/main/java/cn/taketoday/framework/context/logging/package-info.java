@@ -19,13 +19,6 @@
  */
 
 /**
- * Core Infra App classes.
- *
- * @since 4.0 2022/1/16 11:14
+ * Logging integration with Spring's Application Context.
  */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.framework;
-
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+package cn.taketoday.framework.context.logging;
