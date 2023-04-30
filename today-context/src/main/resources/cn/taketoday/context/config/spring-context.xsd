@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
 <xsd:schema xmlns="http://www.springframework.org/schema/context" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:beans="http://www.springframework.org/schema/beans" xmlns:tool="http://www.springframework.org/schema/tool"
     targetNamespace="http://www.springframework.org/schema/context" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -89,7 +109,7 @@
 	Activates replacement of ${...} placeholders by registering a
 	PropertySourcesPlaceholderConfigurer within the application context. Properties will
 	be resolved against the specified properties file or Properties object -- so called
-	"local properties", if any, and against the Spring Environment's current set of
+	"local properties", if any, and against the Infra environment's current set of
 	PropertySources.
 
 	Note that as of Spring 3.1 the system-properties-mode attribute has been removed in
@@ -116,12 +136,12 @@
 	Controls how to resolve placeholders against system properties. this
 	attribute value defaults to "ENVIRONMENT", indicating that resolution of placeholders
 	against system properties is handled via PropertySourcesPlaceholderConfigurer and its
-	delegation to the current Spring Environment object.
+	delegation to the current Infra environment object.
 
 	For maximum backward compatibility, this attribute is preserved going forward with the
 	3.1 version of the context schema, and any values other than the default "ENVIRONMENT"
 	will cause a traditional PropertyPlaceholderConfigurer to be registered instead of the
-	newer PropertySourcesPlaceholderConfigurer variant. In this case, the Spring Environment
+	newer PropertySourcesPlaceholderConfigurer variant. In this case, the Infra environment
 	and its property sources are not interrogated when resolving placeholders. Users are
 	encouraged to consider this attribute deprecated, and to take advantage of the
 	Environment and PropertySource mechanisms. See ConfigurableEnvironment javadoc for examples.

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.freemarker;
+package cn.taketoday.ui.freemarker;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ import freemarker.template.TemplateException;
  * you do not need any further configuration then. For example, in a web
  * application context:
  *
- * <pre class="code"> &lt;bean id="freemarkerConfiguration" class="cn.taketoday.web.view.freemarker.FreeMarkerConfigurationFactoryBean"&gt;
+ * <pre class="code"> &lt;bean id="freemarkerConfiguration" class="cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactoryBean"&gt;
  *   &lt;property name="templateLoaderPath" value="/WEB-INF/freemarker/"/&gt;
  * &lt;/bean&gt;</pre>
  *
