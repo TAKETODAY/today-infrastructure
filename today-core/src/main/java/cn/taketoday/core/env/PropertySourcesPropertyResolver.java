@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertySource
  * @see PropertySources
  * @see AbstractEnvironment
@@ -43,6 +44,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class PropertySourcesPropertyResolver
         extends TypedPropertyResolver implements IterablePropertyResolver {
+
   private static final Logger log = LoggerFactory.getLogger(PropertySourcesPropertyResolver.class);
 
   @Nullable
@@ -116,8 +118,8 @@ public class PropertySourcesPropertyResolver
     ArrayList<String> ret = new ArrayList<>();
     if (propertySources != null) {
       for (PropertySource<?> propertySource : propertySources) {
-        if (propertySource instanceof EnumerablePropertySource enumerablePropertySource) {
-          String[] propertyNames = enumerablePropertySource.getPropertyNames();
+        if (propertySource instanceof EnumerablePropertySource<?> source) {
+          String[] propertyNames = source.getPropertyNames();
           CollectionUtils.addAll(ret, propertyNames);
         }
       }
