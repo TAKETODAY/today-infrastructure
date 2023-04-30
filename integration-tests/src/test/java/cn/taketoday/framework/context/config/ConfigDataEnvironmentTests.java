@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -237,7 +237,7 @@ class ConfigDataEnvironmentTests {
 
   @ParameterizedTest
   @CsvSource({ "infra.profiles.include", "infra.profiles.include[0]" })
-  void processAndApplyIncludesProfilesFromSpringProfilesInclude(String property, TestInfo info) {
+  void processAndApplyIncludesProfilesFrominfraProfilesInclude(String property, TestInfo info) {
     this.environment.setProperty("app.config.location", getConfigLocation(info));
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null) {

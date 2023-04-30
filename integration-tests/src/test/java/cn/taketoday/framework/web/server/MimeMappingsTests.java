@@ -218,7 +218,7 @@ class MimeMappingsTests {
   @Test
   void mimeMappingsMatchesTomcatDefaults() throws IOException {
     Properties ourDefaultMimeMappings = PropertiesUtils
-            .loadProperties(new ClassPathResource("cn/taketoday/framework/web/server/mime-mappings.properties", getClass()));
+            .loadProperties(new ClassPathResource("mime-mappings.properties", getClass()));
     Properties tomcatDefaultMimeMappings = PropertiesUtils
             .loadProperties(new ClassPathResource("MimeTypeMappings.properties", Tomcat.class));
     assertThat(ourDefaultMimeMappings).containsExactlyInAnyOrderEntriesOf(tomcatDefaultMimeMappings);
