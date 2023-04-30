@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.annotation.config.freemarker;
 
 import java.util.Properties;
 
-import cn.taketoday.web.view.freemarker.FreeMarkerConfigurationFactory;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
 
 /**
  * Base class for shared FreeMarker configuration.

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.framework.annotation.ConditionalOnNotWebApplication;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.web.view.freemarker.FreeMarkerConfigurationFactoryBean;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
 /**
  * Configuration for FreeMarker when used in a non-web context.

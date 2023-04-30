@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,7 @@ import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.framework.template.TemplateLocation;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.view.freemarker.FreeMarkerConfigurationFactory;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for FreeMarker.
