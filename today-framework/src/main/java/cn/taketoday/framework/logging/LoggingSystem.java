@@ -153,6 +153,7 @@ public abstract class LoggingSystem {
    * @param loggerName the name of the logger
    * @return the current configuration
    */
+  @Nullable
   public LoggerConfiguration getLoggerConfiguration(String loggerName) {
     throw new UnsupportedOperationException("Unable to get logger configuration");
   }

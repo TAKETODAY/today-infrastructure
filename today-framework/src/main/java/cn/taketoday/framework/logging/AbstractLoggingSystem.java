@@ -39,6 +39,7 @@ import cn.taketoday.util.SystemPropertyUtils;
  *
  * @author Phillip Webb
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractLoggingSystem extends LoggingSystem {
@@ -108,6 +109,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    *
    * @return the infra initialization config or {@code null}
    */
+  @Nullable
   protected String getInfraInitializationConfig() {
     return findConfig(getInfraConfigLocations());
   }
@@ -151,11 +153,11 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
   /**
    * Load sensible defaults for the logging system.
    *
-   * @param initializationContext the logging initialization context
+   * @param startupContext the logging startup context
    * @param logFile the file to load or {@code null} if no log file is to be written
    */
   protected abstract void loadDefaults(
-          LoggingStartupContext initializationContext, @Nullable LogFile logFile);
+          LoggingStartupContext startupContext, @Nullable LogFile logFile);
 
   /**
    * Load a specific configuration.
@@ -173,9 +175,9 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    * be used to reload configuration (for example to pick up additional System
    * properties).
    *
-   * @param initializationContext the logging initialization context
+   * @param startupContext the logging startup context
    */
-  protected void reinitialize(LoggingStartupContext initializationContext) {
+  protected void reinitialize(LoggingStartupContext startupContext) {
 
   }
 

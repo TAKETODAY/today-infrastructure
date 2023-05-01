@@ -59,7 +59,6 @@ import cn.taketoday.framework.logging.LoggingStartupContext;
 import cn.taketoday.framework.logging.LoggingSystem;
 import cn.taketoday.framework.logging.LoggingSystemFactory;
 import cn.taketoday.framework.logging.LoggingSystemProperties;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.SLF4JBridgeHandler;
 import cn.taketoday.util.ClassUtils;
@@ -304,7 +303,8 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem {
     return name;
   }
 
-  private LoggerConfiguration getLoggerConfiguration(ch.qos.logback.classic.Logger logger) {
+  @Nullable
+  private LoggerConfiguration getLoggerConfiguration(@Nullable ch.qos.logback.classic.Logger logger) {
     if (logger == null) {
       return null;
     }
@@ -339,15 +339,16 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem {
 
   private LoggerContext getLoggerContext() {
     ILoggerFactory factory = LoggerFactory.getILoggerFactory();
-    Assert.isInstanceOf(LoggerContext.class, factory,
-            () -> String.format(
-                    "LoggerFactory is not a Logback LoggerContext but Logback is on "
+    if (factory instanceof LoggerContext context) {
+      return context;
+    }
+    throw new IllegalArgumentException(
+            String.format("LoggerFactory is not a Logback LoggerContext but Logback is on "
                             + "the classpath. Either remove Logback or the competing "
                             + "implementation (%s loaded from %s). If you are using "
                             + "WebLogic you will need to add 'org.slf4j' to "
                             + "prefer-application-packages in WEB-INF/weblogic.xml",
                     factory.getClass(), getLocation(factory)));
-    return (LoggerContext) factory;
   }
 
   private Object getLocation(ILoggerFactory factory) {

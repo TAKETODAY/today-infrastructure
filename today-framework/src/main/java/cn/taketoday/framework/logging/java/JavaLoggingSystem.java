@@ -55,6 +55,7 @@ import cn.taketoday.util.StringUtils;
  * @author Dave Syer
  * @author Andy Wilkinson
  * @author Ben Hale
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class JavaLoggingSystem extends AbstractLoggingSystem {
@@ -89,7 +90,7 @@ public class JavaLoggingSystem extends AbstractLoggingSystem {
   }
 
   @Override
-  protected void loadDefaults(LoggingStartupContext initializationContext, @Nullable LogFile logFile) {
+  protected void loadDefaults(LoggingStartupContext startupContext, @Nullable LogFile logFile) {
     if (logFile != null) {
       loadConfiguration(getPackagedConfigFile("logging-file.properties"), logFile);
     }

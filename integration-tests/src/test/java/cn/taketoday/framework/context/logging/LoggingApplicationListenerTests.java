@@ -632,7 +632,7 @@ class LoggingApplicationListenerTests {
     }
 
     @Override
-    protected void loadDefaults(LoggingStartupContext initializationContext, LogFile logFile) {
+    protected void loadDefaults(LoggingStartupContext startupContext, LogFile logFile) {
     }
 
     @Override
