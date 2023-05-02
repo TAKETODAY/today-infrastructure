@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <included>
-	<include resource="cn/taketoday/framework/logging/logback/defaults.xml" />
-	<property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/infra-app.log}"/>
-	<include resource="cn/taketoday/framework/logging/logback/console-appender.xml" />
-	<include resource="cn/taketoday/framework/logging/logback/file-appender.xml" />
-	<root level="INFO">
-		<appender-ref ref="CONSOLE" />
-		<appender-ref ref="FILE" />
-	</root>
+  <include resource="cn/taketoday/framework/logging/logback/defaults.xml" />
+  <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/infra-app.log}" />
+  <include resource="cn/taketoday/framework/logging/logback/console-appender.xml" />
+  <include resource="cn/taketoday/framework/logging/logback/file-appender.xml" />
+  <root level="INFO">
+    <appender-ref ref="CONSOLE" />
+    <appender-ref ref="FILE" />
+  </root>
 </included>
