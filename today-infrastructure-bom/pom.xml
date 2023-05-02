@@ -45,7 +45,7 @@
     <netty.version>4.1.89.Final</netty.version>
     <netty5.version>5.0.0.Alpha5</netty5.version>
     <jetty.version>11.0.13</jetty.version>
-    <undertow.version>2.3.4.Final</undertow.version>
+    <undertow.version>2.3.5.Final</undertow.version>
     <embed.tomcat.version>10.1.8</embed.tomcat.version>
     <servlet.version>6.0.0</servlet.version>
 
