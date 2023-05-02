@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -146,10 +146,6 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   }
 
   public static void addToEnvironment(ConfigurableEnvironment environment) {
-    addToEnvironment(environment, logger);
-  }
-
-  static void addToEnvironment(ConfigurableEnvironment environment, Logger logger) {
     PropertySources sources = environment.getPropertySources();
     PropertySource<?> existing = sources.get(RANDOM_PROPERTY_SOURCE_NAME);
     if (existing != null) {

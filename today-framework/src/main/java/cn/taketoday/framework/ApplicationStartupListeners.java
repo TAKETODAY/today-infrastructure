@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.framework;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Consumer;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -52,37 +51,51 @@ class ApplicationStartupListeners {
     this.listeners = new ArrayList<>(listeners);
   }
 
-  void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
-    doWithListeners(listener -> listener.starting(bootstrapContext, mainApplicationClass, arguments));
+  void starting(ConfigurableBootstrapContext bootstrapContext,
+          @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) {
+    for (ApplicationStartupListener listener : listeners) {
+      listener.starting(bootstrapContext, mainApplicationClass, arguments);
+    }
   }
 
   void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-    doWithListeners(listener -> listener.environmentPrepared(bootstrapContext, environment));
+    for (ApplicationStartupListener listener : listeners) {
+      listener.environmentPrepared(bootstrapContext, environment);
+    }
   }
 
   void contextPrepared(ConfigurableApplicationContext context) {
-    doWithListeners(listener -> listener.contextPrepared(context));
+    for (ApplicationStartupListener listener : listeners) {
+      listener.contextPrepared(context);
+    }
   }
 
   void contextLoaded(ConfigurableApplicationContext context) {
-    doWithListeners(listener -> listener.contextLoaded(context));
+    for (ApplicationStartupListener listener : listeners) {
+      listener.contextLoaded(context);
+    }
   }
 
   void started(ConfigurableApplicationContext context, Duration timeTaken) {
-    doWithListeners(listener -> listener.started(context, timeTaken));
+    for (ApplicationStartupListener listener : listeners) {
+      listener.started(context, timeTaken);
+    }
   }
 
   void ready(ConfigurableApplicationContext context, Duration timeTaken) {
-    doWithListeners(listener -> listener.ready(context, timeTaken));
+    for (ApplicationStartupListener listener : listeners) {
+      listener.ready(context, timeTaken);
+    }
   }
 
-  void failed(ConfigurableApplicationContext context, Throwable exception) {
-    doWithListeners(listener -> callFailedListener(listener, context, exception));
+  void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
+    for (ApplicationStartupListener listener : listeners) {
+      callFailedListener(listener, context, exception);
+    }
   }
 
-  private void callFailedListener(
-          ApplicationStartupListener listener,
-          ConfigurableApplicationContext context, @Nullable Throwable exception) {
+  private void callFailedListener(ApplicationStartupListener listener,
+          @Nullable ConfigurableApplicationContext context, Throwable exception) {
     try {
       listener.failed(context, exception);
     }
@@ -92,14 +105,12 @@ class ApplicationStartupListeners {
       }
       else {
         String message = ex.getMessage();
-        message = (message != null) ? message : "no error message";
+        if (message == null) {
+          message = "no error message";
+        }
         log.warn("Error handling failed ({})", message);
       }
     }
-  }
-
-  private void doWithListeners(Consumer<ApplicationStartupListener> listenerAction) {
-    this.listeners.forEach(listenerAction);
   }
 
 }

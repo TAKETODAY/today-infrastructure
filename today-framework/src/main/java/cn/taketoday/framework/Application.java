@@ -164,6 +164,7 @@ public class Application {
   @Nullable
   private ConfigurableEnvironment environment;
 
+  @Nullable
   private Map<String, Object> defaultProperties;
 
   private Set<String> additionalProfiles = Collections.emptySet();
@@ -682,12 +683,12 @@ public class Application {
    */
   protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
     PropertySources sources = environment.getPropertySources();
-    if (CollectionUtils.isNotEmpty(this.defaultProperties)) {
-      DefaultPropertiesPropertySource.addOrMerge(this.defaultProperties, sources);
+    if (CollectionUtils.isNotEmpty(defaultProperties)) {
+      DefaultPropertiesPropertySource.addOrMerge(defaultProperties, sources);
     }
 
     // CommandLine
-    if (this.addCommandLineProperties && args.length > 0) {
+    if (addCommandLineProperties && args.length > 0) {
       String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
       if (sources.contains(name)) {
         PropertySource<?> source = sources.get(name);
@@ -945,10 +946,15 @@ public class Application {
    * @return a ClassLoader (never null)
    */
   public ClassLoader getClassLoader() {
-    if (this.resourceLoader != null) {
-      return this.resourceLoader.getClassLoader();
+    ClassLoader classLoader = null;
+    if (resourceLoader != null) {
+      classLoader = resourceLoader.getClassLoader();
     }
-    return ClassUtils.getDefaultClassLoader();
+    if (classLoader == null) {
+      classLoader = ClassUtils.getDefaultClassLoader();
+    }
+    Assert.state(classLoader != null, "Cannot determine ClassLoader");
+    return classLoader;
   }
 
   /**
@@ -1189,7 +1195,7 @@ public class Application {
     ReflectionUtils.rethrowRuntimeException(exception);
   }
 
-  private List<ApplicationExceptionReporter> getExceptionReporters(ConfigurableApplicationContext context) {
+  private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {
     ClassLoader classLoader = getClassLoader();
     var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class, parameters -> {
       parameters.add(ConfigurableApplicationContext.class, context);
@@ -1244,7 +1250,7 @@ public class Application {
             && "main".equals(currentThread.getThreadGroup().getName());
   }
 
-  private void handleExitCode(ConfigurableApplicationContext context, Throwable exception) {
+  private void handleExitCode(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     int exitCode = getExitCodeFromException(context, exception);
     if (exitCode != 0) {
       if (context != null) {
@@ -1257,7 +1263,7 @@ public class Application {
     }
   }
 
-  private int getExitCodeFromException(ConfigurableApplicationContext context, Throwable exception) {
+  private int getExitCodeFromException(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     int exitCode = getExitCodeFromMappedException(context, exception);
     if (exitCode == 0) {
       exitCode = getExitCodeFromExitCodeGeneratorException(exception);
@@ -1265,7 +1271,7 @@ public class Application {
     return exitCode;
   }
 
-  private int getExitCodeFromMappedException(ConfigurableApplicationContext context, Throwable exception) {
+  private int getExitCodeFromMappedException(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     if (context == null || context.getState() == ApplicationContext.State.NONE) {
       return 0;
     }
@@ -1275,7 +1281,7 @@ public class Application {
     return generators.getExitCode();
   }
 
-  private int getExitCodeFromExitCodeGeneratorException(Throwable exception) {
+  private int getExitCodeFromExitCodeGeneratorException(@Nullable Throwable exception) {
     if (exception == null) {
       return 0;
     }
@@ -1547,6 +1553,7 @@ public class Application {
       withHook(this::getRunListener, () -> this.main.accept(args));
     }
 
+    @Nullable
     private ApplicationStartupListener getRunListener(Application application) {
       application.addPrimarySources(this.sources);
       return null;

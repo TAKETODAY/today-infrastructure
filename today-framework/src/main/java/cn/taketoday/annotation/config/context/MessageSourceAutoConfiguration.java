@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -65,12 +65,12 @@ public class MessageSourceAutoConfiguration {
 
   @Component
   @ConfigurationProperties(prefix = "infra.messages")
-  public MessageSourceProperties messageSourceProperties() {
+  public static MessageSourceProperties messageSourceProperties() {
     return new MessageSourceProperties();
   }
 
   @Component
-  public MessageSource messageSource(MessageSourceProperties properties) {
+  public static MessageSource messageSource(MessageSourceProperties properties) {
     ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
     if (StringUtils.hasText(properties.getBasename())) {
       messageSource.setBasenames(

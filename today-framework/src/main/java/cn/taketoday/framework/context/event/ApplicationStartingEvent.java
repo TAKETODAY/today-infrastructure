@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,8 +51,7 @@ public class ApplicationStartingEvent extends ApplicationStartupEvent {
    * @param application the current application
    * @param args the arguments the application is running with
    */
-  public ApplicationStartingEvent(
-          ConfigurableBootstrapContext bootstrapContext,
+  public ApplicationStartingEvent(ConfigurableBootstrapContext bootstrapContext,
           Application application, ApplicationArguments args) {
     super(application, args);
     this.bootstrapContext = bootstrapContext;

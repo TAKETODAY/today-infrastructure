@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.LivenessState;
 import cn.taketoday.framework.availability.ReadinessState;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ErrorHandler;
@@ -71,7 +72,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
 
   @Override
   public int getOrder() {
-    return 0;
+    return LOWEST_PRECEDENCE;
   }
 
   @Override
@@ -80,8 +81,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
-  public void environmentPrepared(
-          ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
+  public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
     multicastInitialEvent(
             new ApplicationEnvironmentPreparedEvent(bootstrapContext, application, args, environment));
   }
@@ -103,19 +103,19 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
   }
 
   @Override
-  public void started(ConfigurableApplicationContext context, Duration timeTaken) {
+  public void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     context.publishEvent(new ApplicationStartedEvent(application, args, context, timeTaken));
     AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
   }
 
   @Override
-  public void ready(ConfigurableApplicationContext context, Duration timeTaken) {
+  public void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     context.publishEvent(new ApplicationReadyEvent(application, args, context, timeTaken));
     AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
   }
 
   @Override
-  public void failed(ConfigurableApplicationContext context, Throwable exception) {
+  public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {
       // Listeners have been registered to the application context, so we should

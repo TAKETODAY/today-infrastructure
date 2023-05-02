@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,13 +54,13 @@ class InfraBannerPrinter {
     this.fallbackBanner = fallbackBanner;
   }
 
-  Banner print(Environment environment, Class<?> sourceClass, Logger logger) {
+  Banner print(Environment environment, @Nullable Class<?> sourceClass, Logger logger) {
     Banner banner = getBanner(environment);
     logger.info(createStringFromBanner(banner, environment, sourceClass));
     return new PrintedBanner(banner, sourceClass);
   }
 
-  Banner print(Environment environment, Class<?> sourceClass, PrintStream out) {
+  Banner print(Environment environment, @Nullable Class<?> sourceClass, PrintStream out) {
     Banner banner = getBanner(environment);
     banner.printBanner(environment, sourceClass, out);
     return new PrintedBanner(banner, sourceClass);
@@ -85,8 +85,8 @@ class InfraBannerPrinter {
     return new DefaultBanner();
   }
 
-  private String createStringFromBanner(
-          Banner banner, Environment environment, Class<?> mainApplicationClass) {
+  private String createStringFromBanner(Banner banner,
+          Environment environment, @Nullable Class<?> mainApplicationClass) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     banner.printBanner(environment, mainApplicationClass, new PrintStream(baos));
     Charset charset = environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8);
@@ -97,10 +97,10 @@ class InfraBannerPrinter {
    * Decorator that allows a {@link Banner} to be printed again without needing to
    * specify the source class.
    */
-  private record PrintedBanner(Banner banner, Class<?> sourceClass) implements Banner {
+  private record PrintedBanner(Banner banner, @Nullable Class<?> sourceClass) implements Banner {
 
     @Override
-    public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
+    public void printBanner(Environment environment, @Nullable Class<?> sourceClass, PrintStream out) {
       if (sourceClass == null) {
         sourceClass = this.sourceClass;
       }

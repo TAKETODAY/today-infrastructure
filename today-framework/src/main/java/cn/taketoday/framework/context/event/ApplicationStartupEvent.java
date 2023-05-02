@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.framework.context.event;
 
+import java.io.Serial;
+
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationArguments;
@@ -31,8 +33,9 @@ import cn.taketoday.framework.ApplicationArguments;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public abstract class ApplicationStartupEvent extends ApplicationEvent {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final ApplicationArguments arguments;
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,17 +22,18 @@ package cn.taketoday.framework.env;
 
 import java.util.List;
 
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.event.SmartApplicationListener;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.Application;
-import cn.taketoday.framework.ApplicationStartupListener;
 import cn.taketoday.framework.BootstrapContext;
 import cn.taketoday.framework.BootstrapRegistry;
 import cn.taketoday.framework.ConfigurableBootstrapContext;
+import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.util.Instantiator;
 
 /**
@@ -43,30 +44,38 @@ import cn.taketoday.util.Instantiator;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/3 00:32
  */
-public class EnvironmentPostProcessorApplicationStartupListener implements ApplicationStartupListener, Ordered {
+public class EnvironmentPostProcessorApplicationListener implements SmartApplicationListener, Ordered {
 
-  private int order = 10;
-  private final Logger applicationLog;
+  /**
+   * The default order for the processor.
+   */
+  public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
 
-  public EnvironmentPostProcessorApplicationStartupListener(Logger applicationLog) {
-    this.applicationLog = applicationLog;
+  private int order = DEFAULT_ORDER;
+
+  @Override
+  public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+    return ApplicationEnvironmentPreparedEvent.class.isAssignableFrom(eventType);
   }
 
   @Override
-  public void environmentPrepared(ConfigurableBootstrapContext context, ConfigurableEnvironment environment) {
-    Application application = context.get(Application.class);
-    for (var postProcessor : getEnvironmentPostProcessors(application.getResourceLoader(), context)) {
-      postProcessor.postProcessEnvironment(environment, application);
+  public void onApplicationEvent(ApplicationEvent event) {
+    if (event instanceof ApplicationEnvironmentPreparedEvent e) {
+      Application application = e.getApplication();
+      ConfigurableEnvironment environment = e.getEnvironment();
+      ResourceLoader resourceLoader = application.getResourceLoader();
+      for (var postProcessor : getPostProcessors(resourceLoader, e.getBootstrapContext())) {
+        postProcessor.postProcessEnvironment(environment, application);
+      }
     }
   }
 
-  List<EnvironmentPostProcessor> getEnvironmentPostProcessors(
-          ResourceLoader resourceLoader, ConfigurableBootstrapContext bootstrapContext) {
+  List<EnvironmentPostProcessor> getPostProcessors(
+          @Nullable ResourceLoader resourceLoader, ConfigurableBootstrapContext bootstrapContext) {
     ClassLoader classLoader = resourceLoader != null ? resourceLoader.getClassLoader() : null;
 
     Instantiator<EnvironmentPostProcessor> instantiator = new Instantiator<>(EnvironmentPostProcessor.class,
             parameters -> {
-              parameters.add(Logger.class, applicationLog);
               parameters.add(BootstrapContext.class, bootstrapContext);
               parameters.add(BootstrapRegistry.class, bootstrapContext);
               parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);

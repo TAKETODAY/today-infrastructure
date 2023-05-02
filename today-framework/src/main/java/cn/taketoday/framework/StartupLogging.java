@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,9 +44,10 @@ final class StartupLogging {
 
   private static final long HOST_NAME_RESOLVE_THRESHOLD = 200;
 
+  @Nullable
   private final Class<?> sourceClass;
 
-  StartupLogging(Class<?> sourceClass) {
+  StartupLogging(@Nullable Class<?> sourceClass) {
     this.sourceClass = sourceClass;
   }
 
@@ -99,12 +100,14 @@ final class StartupLogging {
   }
 
   private void appendApplicationName(StringBuilder message) {
-    String name = (this.sourceClass != null) ? ClassUtils.getShortName(this.sourceClass) : "application";
+    String name = sourceClass != null ? ClassUtils.getShortName(this.sourceClass) : "application";
     message.append(name);
   }
 
-  private void appendVersion(StringBuilder message, Class<?> source) {
-    append(message, "v", () -> source.getPackage().getImplementationVersion());
+  private void appendVersion(StringBuilder message, @Nullable Class<?> source) {
+    if (source != null) {
+      append(message, "v", () -> source.getPackage().getImplementationVersion());
+    }
   }
 
   private void appendOn(StringBuilder message) {
@@ -148,12 +151,12 @@ final class StartupLogging {
     append(message, "using Java ", () -> System.getProperty("java.version"));
   }
 
-  private void append(StringBuilder message, String prefix, Callable<Object> call) {
+  private void append(StringBuilder message, @Nullable String prefix, Callable<Object> call) {
     append(message, prefix, call, "");
   }
 
-  private void append(
-          StringBuilder message, @Nullable String prefix, Callable<Object> call, String defaultValue) {
+  private void append(StringBuilder message,
+          @Nullable String prefix, Callable<Object> call, String defaultValue) {
     Object result = callIfPossible(call);
     String value = (result != null) ? result.toString() : null;
     if (StringUtils.isEmpty(value)) {
@@ -168,6 +171,7 @@ final class StartupLogging {
     }
   }
 
+  @Nullable
   private Object callIfPossible(Callable<Object> call) {
     try {
       return call.call();

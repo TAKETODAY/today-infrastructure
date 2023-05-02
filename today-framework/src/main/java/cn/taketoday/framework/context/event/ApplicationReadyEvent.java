@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,13 @@
 
 package cn.taketoday.framework.context.event;
 
+import java.io.Serial;
 import java.time.Duration;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationArguments;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Event published as late as conceivably possible to indicate that the application is
@@ -38,11 +40,14 @@ import cn.taketoday.framework.ApplicationArguments;
  * @see ApplicationFailedEvent
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class ApplicationReadyEvent extends ApplicationStartupEvent {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final ConfigurableApplicationContext context;
 
+  @Nullable
   private final Duration timeTaken;
 
   /**
@@ -54,7 +59,7 @@ public class ApplicationReadyEvent extends ApplicationStartupEvent {
    * @param timeTaken the time taken to get the application ready to service requests
    */
   public ApplicationReadyEvent(Application application,
-          ApplicationArguments args, ConfigurableApplicationContext context, Duration timeTaken) {
+          ApplicationArguments args, ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     super(application, args);
     this.context = context;
     this.timeTaken = timeTaken;
@@ -75,6 +80,7 @@ public class ApplicationReadyEvent extends ApplicationStartupEvent {
    *
    * @return the time taken to be ready to service requests
    */
+  @Nullable
   public Duration getTimeTaken() {
     return this.timeTaken;
   }
