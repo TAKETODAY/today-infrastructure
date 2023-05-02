@@ -30,6 +30,7 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -181,7 +182,7 @@ public abstract class LoggingSystem {
     try {
       Class<?> systemClass = ClassUtils.forName(loggingSystemClassName, classLoader);
       Constructor<?> constructor = systemClass.getDeclaredConstructor(ClassLoader.class);
-      constructor.setAccessible(true);
+      ReflectionUtils.makeAccessible(constructor);
       return (LoggingSystem) constructor.newInstance(classLoader);
     }
     catch (Exception ex) {

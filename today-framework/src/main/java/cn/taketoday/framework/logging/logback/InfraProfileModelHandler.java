@@ -30,6 +30,7 @@ import ch.qos.logback.core.util.OptionHelper;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -75,7 +76,7 @@ class InfraProfileModelHandler extends ModelHandlerBase {
         profileNames[i] = OptionHelper.substVars(profileNames[i], ic, this.context);
       }
       catch (ScanException ex) {
-        throw new RuntimeException(ex);
+        throw ExceptionUtils.sneakyThrow(ex);
       }
     }
     return this.environment.acceptsProfiles(Profiles.of(profileNames));

@@ -35,6 +35,7 @@ import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.OptionHelper;
 import cn.taketoday.framework.logging.LogFile;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Default logback configuration used by Infra. Uses {@link LogbackConfigurator} to
@@ -169,7 +170,7 @@ class DefaultLogbackConfiguration {
       return OptionHelper.substVars(val, config.getContext());
     }
     catch (ScanException ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
   }
 
