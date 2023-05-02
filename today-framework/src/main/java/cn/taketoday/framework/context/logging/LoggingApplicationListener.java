@@ -98,15 +98,17 @@ import cn.taketoday.util.StringUtils;
  */
 public class LoggingApplicationListener implements GenericApplicationListener {
 
-  private static final ConfigurationPropertyName LOGGING_LEVEL = ConfigurationPropertyName.of("logging.level");
+  private static final ConfigurationPropertyName LOGGING_LEVEL = ConfigurationPropertyName.of(
+          "logging.level");
 
-  private static final ConfigurationPropertyName LOGGING_GROUP = ConfigurationPropertyName.of("logging.group");
+  private static final ConfigurationPropertyName LOGGING_GROUP = ConfigurationPropertyName.of(
+          "logging.group");
 
-  private static final Bindable<Map<String, LogLevel>> STRING_LOGLEVEL_MAP = Bindable.mapOf(String.class,
-          LogLevel.class);
+  private static final Bindable<Map<String, LogLevel>> STRING_LOGLEVEL_MAP = Bindable.mapOf(
+          String.class, LogLevel.class);
 
-  private static final Bindable<Map<String, List<String>>> STRING_STRINGS_MAP = Bindable
-          .of(ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class).asMap());
+  private static final Bindable<Map<String, List<String>>> STRING_STRINGS_MAP = Bindable.of(
+          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class).asMap());
 
   /**
    * The default order for the LoggingApplicationListener.

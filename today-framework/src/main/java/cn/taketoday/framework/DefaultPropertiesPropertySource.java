@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -76,8 +76,8 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
    * @param action the action used to consume the
    * {@link DefaultPropertiesPropertySource}
    */
-  public static void ifNotEmpty(
-          @Nullable Map<String, Object> source, Consumer<DefaultPropertiesPropertySource> action) {
+  public static void ifNotEmpty(@Nullable Map<String, Object> source,
+          @Nullable Consumer<DefaultPropertiesPropertySource> action) {
     if (CollectionUtils.isNotEmpty(source) && action != null) {
       action.accept(new DefaultPropertiesPropertySource(source));
     }
@@ -104,9 +104,9 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private static void mergeIfPossible(
-          Map<String, Object> source, PropertySources sources, Map<String, Object> resultingSource) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private static void mergeIfPossible(Map<String, Object> source,
+          PropertySources sources, Map<String, Object> resultingSource) {
     PropertySource<?> existingSource = sources.get(NAME);
     if (existingSource != null) {
       if (existingSource.getSource() instanceof Map underlyingSource) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,7 +61,7 @@ public class ResourceBanner implements Banner {
   }
 
   @Override
-  public void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
+  public void printBanner(Environment environment, @Nullable Class<?> sourceClass, PrintStream out) {
     try {
       String banner = StreamUtils.copyToString(resource.getInputStream(),
               environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8));
@@ -78,7 +78,7 @@ public class ResourceBanner implements Banner {
     }
   }
 
-  protected List<PropertyResolver> getPropertyResolvers(Environment environment, Class<?> sourceClass) {
+  protected List<PropertyResolver> getPropertyResolvers(Environment environment, @Nullable Class<?> sourceClass) {
     PropertySources propertySources = new PropertySources();
 
     propertySources.addLast(getVersionPropertySource(sourceClass));
@@ -89,11 +89,11 @@ public class ResourceBanner implements Banner {
     return List.of(environment, resolver);
   }
 
-  private MapPropertySource getVersionPropertySource(Class<?> sourceClass) {
+  private MapPropertySource getVersionPropertySource(@Nullable Class<?> sourceClass) {
     return new MapPropertySource("version", getVersionsMap(sourceClass));
   }
 
-  private Map<String, Object> getVersionsMap(Class<?> sourceClass) {
+  private Map<String, Object> getVersionsMap(@Nullable Class<?> sourceClass) {
     String appVersion = getApplicationVersion(sourceClass);
     String version = getInfraVersion();
     HashMap<String, Object> versions = new HashMap<>();
@@ -104,13 +104,14 @@ public class ResourceBanner implements Banner {
     return versions;
   }
 
-  private MapPropertySource getTitlePropertySource(Class<?> sourceClass) {
+  private MapPropertySource getTitlePropertySource(@Nullable Class<?> sourceClass) {
     String applicationTitle = getApplicationTitle(sourceClass);
     Map<String, Object> titleMap = Collections.singletonMap("app.title",
             (applicationTitle != null) ? applicationTitle : "");
     return new MapPropertySource("title", titleMap);
   }
 
+  @Nullable
   protected String getApplicationVersion(@Nullable Class<?> sourceClass) {
     if (sourceClass != null) {
       return sourceClass.getPackage().getImplementationVersion();
@@ -122,7 +123,7 @@ public class ResourceBanner implements Banner {
     return Version.instance.implementationVersion();
   }
 
-  private String getVersionString(String version, boolean format) {
+  private String getVersionString(@Nullable String version, boolean format) {
     if (version == null) {
       return "";
     }
@@ -133,6 +134,7 @@ public class ResourceBanner implements Banner {
     return new AnsiPropertySource("ansi", true);
   }
 
+  @Nullable
   protected String getApplicationTitle(@Nullable Class<?> sourceClass) {
     if (sourceClass != null) {
       return sourceClass.getPackage().getImplementationTitle();
