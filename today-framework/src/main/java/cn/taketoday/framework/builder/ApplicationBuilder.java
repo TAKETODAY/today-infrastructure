@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -216,7 +216,7 @@ public class ApplicationBuilder {
     // It's not possible if embedded web server are enabled to support web contexts as
     // parents because the servlets cannot be initialized at the right point in
     // lifecycle.
-    type(ApplicationType.NONE_WEB);
+    type(ApplicationType.NORMAL);
 
     // Probably not interested in multiple banners
     bannerMode(Banner.Mode.OFF);
@@ -237,7 +237,7 @@ public class ApplicationBuilder {
   public ApplicationBuilder parent(Class<?>... sources) {
     if (parent == null) {
       this.parent = new ApplicationBuilder(sources)
-              .type(ApplicationType.NONE_WEB)
+              .type(ApplicationType.NORMAL)
               .properties(defaultProperties)
               .environment(environment);
     }

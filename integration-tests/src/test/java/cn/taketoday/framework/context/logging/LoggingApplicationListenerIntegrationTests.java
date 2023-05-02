@@ -54,7 +54,7 @@ class LoggingApplicationListenerIntegrationTests {
   @Test
   void loggingSystemRegisteredInTheContext() {
     try (ConfigurableApplicationContext context = new ApplicationBuilder(SampleService.class)
-            .type(ApplicationType.NONE_WEB)
+            .type(ApplicationType.NORMAL)
             .run()) {
       SampleService service = context.getBean(SampleService.class);
       assertThat(service.loggingSystem).isNotNull();
@@ -65,7 +65,7 @@ class LoggingApplicationListenerIntegrationTests {
   void logFileRegisteredInTheContextWhenApplicable(@TempDir File tempDir) {
     String logFile = new File(tempDir, "test.log").getAbsolutePath();
     try (ConfigurableApplicationContext context = new ApplicationBuilder(SampleService.class)
-            .type(ApplicationType.NONE_WEB)
+            .type(ApplicationType.NORMAL)
             .properties("logging.file.name=" + logFile)
             .run()) {
       SampleService service = context.getBean(SampleService.class);
@@ -79,9 +79,9 @@ class LoggingApplicationListenerIntegrationTests {
 
   @Test
   void loggingPerformedDuringChildApplicationStartIsNotLost(CapturedOutput output) {
-    new ApplicationBuilder(Config.class).type(ApplicationType.NONE_WEB)
+    new ApplicationBuilder(Config.class).type(ApplicationType.NORMAL)
             .child(Config.class)
-            .type(ApplicationType.NONE_WEB)
+            .type(ApplicationType.NORMAL)
             .listeners(new ApplicationListener<ApplicationStartingEvent>() {
 
               private final Logger logger = LoggerFactory.getLogger(getClass());

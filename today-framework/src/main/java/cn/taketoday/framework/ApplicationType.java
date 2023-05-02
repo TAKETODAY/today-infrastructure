@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ public enum ApplicationType {
    * The application should not run as a web application and should not start an
    * embedded web server.
    */
-  NONE_WEB,
+  NORMAL,
 
   /**
    * The application should run as a servlet-based web application and should start an
@@ -74,7 +74,7 @@ public enum ApplicationType {
         return ApplicationType.NETTY_WEB;
       }
     }
-    return ApplicationType.NONE_WEB;
+    return ApplicationType.NORMAL;
   }
 
 }

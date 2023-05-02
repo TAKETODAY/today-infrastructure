@@ -525,7 +525,7 @@ class LoggingApplicationListenerTests {
   @Test
   void cleanupOccursAfterWebServerShutdown() {
     System.setProperty(LoggingSystem.SYSTEM_PROPERTY, TestCleanupLoggingSystem.class.getName());
-    this.infraApplication.setApplicationType(ApplicationType.NONE_WEB);
+    this.infraApplication.setApplicationType(ApplicationType.NORMAL);
     ConfigurableApplicationContext context = this.infraApplication.run();
     ApplicationListener<?> listener = this.infraApplication.getListeners()
             .stream()
