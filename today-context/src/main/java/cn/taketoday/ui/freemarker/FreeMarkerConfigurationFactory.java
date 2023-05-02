@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.freemarker;
+package cn.taketoday.ui.freemarker;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,7 +114,7 @@ public class FreeMarkerConfigurationFactory {
    * @see #setFreemarkerSettings
    * @see #setTemplateLoaderPath
    */
-  public void setConfigLocation(Resource resource) {
+  public void setConfigLocation(@Nullable Resource resource) {
     this.configLocation = resource;
   }
 
@@ -124,7 +124,7 @@ public class FreeMarkerConfigurationFactory {
    *
    * @see freemarker.template.Configuration#setSettings
    */
-  public void setFreemarkerSettings(Properties settings) {
+  public void setFreemarkerSettings(@Nullable Properties settings) {
     this.freemarkerSettings = settings;
   }
 
@@ -134,7 +134,7 @@ public class FreeMarkerConfigurationFactory {
    *
    * @see freemarker.template.Configuration#setAllSharedVariables
    */
-  public void setFreemarkerVariables(Map<String, Object> variables) {
+  public void setFreemarkerVariables(@Nullable Map<String, Object> variables) {
     this.freemarkerVariables = variables;
   }
 
@@ -147,7 +147,7 @@ public class FreeMarkerConfigurationFactory {
    * @see freemarker.template.Configuration#setDefaultEncoding
    * @see cn.taketoday.web.view.freemarker.FreeMarkerView#setEncoding
    */
-  public void setDefaultEncoding(String defaultEncoding) {
+  public void setDefaultEncoding(@Nullable String defaultEncoding) {
     this.defaultEncoding = defaultEncoding;
   }
 
@@ -211,7 +211,7 @@ public class FreeMarkerConfigurationFactory {
    * @see freemarker.template.Configuration#setDirectoryForTemplateLoading
    * @see InfraTemplateLoader
    */
-  public void setTemplateLoaderPaths(String... templateLoaderPaths) {
+  public void setTemplateLoaderPaths(@Nullable String... templateLoaderPaths) {
     this.templateLoaderPaths = templateLoaderPaths;
   }
 

@@ -567,7 +567,7 @@ instance of `RetryTemplate` into the interceptor.
 
 ## Contributing
 
-Spring Retry is released under the non-restrictive Apache 2.0 license and follows a very standard Github development process, using Github
+Infra Retry is released under the non-restrictive Apache 2.0 license and follows a very standard Github development process, using Github
 tracker for issues and merging pull requests into the main branch. If you want to contribute even something trivial, please do not hesitate,
 but do please follow the guidelines in the next paragraph.
 

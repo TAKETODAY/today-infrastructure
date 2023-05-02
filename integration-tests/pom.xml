@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -548,7 +548,6 @@
       <artifactId>websocket-jetty-client</artifactId>
       <scope>test</scope>
     </dependency>
-
 
     <dependency>
       <groupId>org.eclipse.jetty.websocket</groupId>

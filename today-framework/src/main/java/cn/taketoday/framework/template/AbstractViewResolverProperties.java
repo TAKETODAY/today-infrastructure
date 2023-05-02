@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.util.Map;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -118,8 +119,8 @@ public abstract class AbstractViewResolverProperties {
     return this.contentType;
   }
 
-  public void setContentType(MimeType contentType) {
-    this.contentType = contentType;
+  public void setContentType(@Nullable MimeType contentType) {
+    this.contentType = contentType == null ? DEFAULT_CONTENT_TYPE : contentType;
   }
 
   public Charset getCharset() {
@@ -127,11 +128,11 @@ public abstract class AbstractViewResolverProperties {
   }
 
   public String getCharsetName() {
-    return (this.charset != null) ? this.charset.name() : null;
+    return this.charset.name();
   }
 
-  public void setCharset(Charset charset) {
-    this.charset = charset;
+  public void setCharset(@Nullable Charset charset) {
+    this.charset = charset == null ? DEFAULT_CHARSET : charset;
   }
 
 }

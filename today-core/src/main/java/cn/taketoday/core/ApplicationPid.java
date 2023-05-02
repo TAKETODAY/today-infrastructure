@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,6 +30,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -44,6 +45,7 @@ public class ApplicationPid {
           PosixFilePermission.OTHERS_WRITE
   };
 
+  @Nullable
   private final String pid;
 
   public ApplicationPid() {
@@ -54,6 +56,7 @@ public class ApplicationPid {
     this.pid = pid;
   }
 
+  @Nullable
   private String getPid() {
     try {
       String jvmName = ManagementFactory.getRuntimeMXBean().getName();

@@ -75,7 +75,9 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
   public MimeMappings(Map<String, String> mappings) {
     Assert.notNull(mappings, "Mappings must not be null");
     this.map = new LinkedHashMap<>();
-    mappings.forEach(this::add);
+    for (Map.Entry<String, String> entry : mappings.entrySet()) {
+      add(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -99,8 +101,8 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
   public String add(String extension, String mimeType) {
     Assert.notNull(extension, "Extension must not be null");
     Assert.notNull(mimeType, "MimeType must not be null");
-    Mapping previous = this.map.put(extension.toLowerCase(Locale.ENGLISH), new Mapping(extension, mimeType));
-    return (previous != null) ? previous.getMimeType() : null;
+    Mapping previous = map.put(extension.toLowerCase(Locale.ENGLISH), new Mapping(extension, mimeType));
+    return previous != null ? previous.getMimeType() : null;
   }
 
   /**
@@ -111,8 +113,8 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    */
   public String remove(String extension) {
     Assert.notNull(extension, "Extension must not be null");
-    Mapping previous = this.map.remove(extension.toLowerCase(Locale.ENGLISH));
-    return (previous != null) ? previous.getMimeType() : null;
+    Mapping previous = map.remove(extension.toLowerCase(Locale.ENGLISH));
+    return previous != null ? previous.getMimeType() : null;
   }
 
   /**
@@ -123,8 +125,8 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    */
   public String get(String extension) {
     Assert.notNull(extension, "Extension must not be null");
-    Mapping mapping = this.map.get(extension.toLowerCase(Locale.ENGLISH));
-    return (mapping != null) ? mapping.getMimeType() : null;
+    Mapping mapping = map.get(extension.toLowerCase(Locale.ENGLISH));
+    return mapping != null ? mapping.getMimeType() : null;
   }
 
   /**
@@ -334,9 +336,8 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
       }
       try {
         loaded = new LinkedHashMap<>();
-        for (Map.Entry<?, ?> entry : PropertiesUtils
-                .loadProperties(new ClassPathResource(MIME_MAPPINGS_PROPERTIES, getClass()))
-                .entrySet()) {
+        for (var entry : PropertiesUtils.loadProperties(
+                new ClassPathResource(MIME_MAPPINGS_PROPERTIES, getClass())).entrySet()) {
           loaded.put((String) entry.getKey(),
                   new Mapping((String) entry.getKey(), (String) entry.getValue()));
         }

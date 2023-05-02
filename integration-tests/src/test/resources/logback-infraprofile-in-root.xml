@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -19,29 +20,14 @@
   -->
 
 <configuration>
-  <contextName>TODAY Framework</contextName>
-
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>
-        %red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %cyan(%-40.40logger{40}) %4.4L - %m%n
-      </pattern>
-      <!-- 	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c{1}:%L [%t:%r] - %m%n</pattern> -->
+      <pattern>%property{LOG_FILE} [%t] ${PID:-????} %c{1}: %m%n BOOTBOOT</pattern>
     </encoder>
   </appender>
-
-  <logger name="org.apache" level="WARN" />
-  <logger name="org.osjava.sj.jndi" level="OFF" />
-  <logger name="cn.taketoday.context.annotation" level="OFF" />
-  <logger name="org.apache.tomcat.util.scan" level="OFF" />
-
-  <!--  <root level="TRACE">-->
-  <!--  <root level="DEBUG">-->
   <root level="INFO">
-    <appender-ref ref="STDOUT" />
+    <infra-profile name="profile">
+      <appender-ref ref="CONSOLE" />
+    </infra-profile>
   </root>
-
 </configuration>
-
-
-

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -184,7 +184,7 @@ public class ApplicationConversionService extends FormattingConversionService {
    * @return the shared {@code ApplicationConversionService} instance (never
    * {@code null})
    */
-  public static ConversionService getSharedInstance() {
+  public static ApplicationConversionService getSharedInstance() {
     ApplicationConversionService sharedInstance = ApplicationConversionService.sharedInstance;
     if (sharedInstance == null) {
       synchronized(ApplicationConversionService.class) {
