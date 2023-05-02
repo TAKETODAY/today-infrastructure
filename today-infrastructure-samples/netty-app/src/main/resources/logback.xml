@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -19,27 +19,20 @@
   -->
 
 <configuration>
-  <contextName>Netty App</contextName>
+  <contextName>Servlet App Demo</contextName>
+  <include resource="cn/taketoday/framework/logging/logback/base.xml" />
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>
-        %red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) - %blue([%16.16t]) %cyan(%-40.40logger{40}) %4.4L - %m%n
-      </pattern>
-      <!-- 	<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %c{1}:%L [%t:%r] - %m%n</pattern> -->
-    </encoder>
-  </appender>
+  <infra-profile name="dev">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE" />
+    </root>
+  </infra-profile>
 
-  <logger name="org.apache" level="WARN" />
-  <logger name="cn.taketoday.web" level="DEBUG" />
-  <logger name="cn.taketoday.framework" level="DEBUG" />
-  <logger name="_cn.taketoday.web" level="DEBUG" />
-
-  <!--    <root level="TRACE">-->
-  <!--    <root level="DEBUG">-->
-  <root level="INFO">
-    <appender-ref ref="STDOUT" />
-  </root>
+  <infra-profile name="prod">
+    <root level="INFO">
+      <appender-ref ref="FILE" />
+    </root>
+  </infra-profile>
 
 </configuration>
 
