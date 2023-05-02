@@ -11,27 +11,29 @@ example.
 The following example shows how to use Infra Retry in its declarative style:
 
 ```java
+
 @Configuration
 @EnableRetry
 public class Application {
 
-    @Bean
-    public Service service() {
-        return new Service();
-    }
+  @Bean
+  public Service service() {
+    return new Service();
+  }
 
 }
 
 @Service
 class Service {
-    @Retryable(RemoteAccessException.class)
-    public void service() {
-        // ... do something
-    }
-    @Recover
-    public void recover(RemoteAccessException e) {
-       // ... panic
-    }
+  @Retryable(RemoteAccessException.class)
+  public void service() {
+    // ... do something
+  }
+
+  @Recover
+  public void recover(RemoteAccessException e) {
+    // ... panic
+  }
 }
 ```
 
@@ -48,15 +50,15 @@ on AOP classes. For details on how to resolve this dependency in your project, s
 The following example shows how to use Infra Retry in its imperative style (available since version 1.3):
 
 ```java
-RetryTemplate template = RetryTemplate.builder()
-				.maxAttempts(3)
-				.fixedBackoff(1000)
-				.retryOn(RemoteAccessException.class)
-				.build();
+RetryTemplate template=RetryTemplate.builder()
+        .maxAttempts(3)
+        .fixedBackoff(1000)
+        .retryOn(RemoteAccessException.class)
+        .build();
 
-template.execute(ctx -> {
-    // ... do something
-});
+        template.execute(ctx->{
+        // ... do something
+        });
 ```
 
 For versions prior to 1.3, see the examples in the [RetryTemplate](#retryTemplate) section.
@@ -84,16 +86,16 @@ itself after a short wait. To automate the retry of such operations, Infra Retry
 ```java
 public interface RetryOperations {
 
-    <T> T execute(RetryCallback<T> retryCallback) throws Exception;
+  <T> T execute(RetryCallback<T> retryCallback) throws Exception;
 
-    <T> T execute(RetryCallback<T> retryCallback, RecoveryCallback<T> recoveryCallback)
-        throws Exception;
+  <T> T execute(RetryCallback<T> retryCallback, RecoveryCallback<T> recoveryCallback)
+          throws Exception;
 
-    <T> T execute(RetryCallback<T> retryCallback, RetryState retryState)
-        throws Exception, ExhaustedRetryException;
+  <T> T execute(RetryCallback<T> retryCallback, RetryState retryState)
+          throws Exception, ExhaustedRetryException;
 
-    <T> T execute(RetryCallback<T> retryCallback, RecoveryCallback<T> recoveryCallback,
-        RetryState retryState) throws Exception;
+  <T> T execute(RetryCallback<T> retryCallback, RecoveryCallback<T> recoveryCallback,
+          RetryState retryState) throws Exception;
 
 }
 ```
@@ -103,7 +105,7 @@ The basic callback is a simple interface that lets you insert some business logi
 ```java
 public interface RetryCallback<T> {
 
-    T doWithRetry(RetryContext context) throws Throwable;
+  T doWithRetry(RetryContext context) throws Throwable;
 
 }
 ```
@@ -116,21 +118,21 @@ between calls (more on this later).
 The simplest general purpose implementation of `RetryOperations` is `RetryTemplate`. The following example shows how to use it:
 
 ```java
-RetryTemplate template = new RetryTemplate();
+RetryTemplate template=new RetryTemplate();
 
-TimeoutRetryPolicy policy = new TimeoutRetryPolicy();
-policy.setTimeout(30000L);
+        TimeoutRetryPolicy policy=new TimeoutRetryPolicy();
+        policy.setTimeout(30000L);
 
-template.setRetryPolicy(policy);
+        template.setRetryPolicy(policy);
 
-Foo result = template.execute(new RetryCallback<Foo>() {
+        Foo result=template.execute(new RetryCallback<Foo>(){
 
-    public Foo doWithRetry(RetryContext context) {
+public Foo doWithRetry(RetryContext context){
         // Do stuff that might fail, e.g. webservice operation
         return result;
-    }
+        }
 
-});
+        });
 ```
 
 In the preceding example, we execute a web service call and return the result to the user. If that call fails, it is retried until a timeout
@@ -140,22 +142,22 @@ Since version 1.3, fluent configuration of `RetryTemplate` is also available, as
 
 ```java
 RetryTemplate.builder()
-      .maxAttempts(10)
-      .exponentialBackoff(100, 2, 10000)
-      .retryOn(IOException.class)
-      .traversingCauses()
-      .build();
+        .maxAttempts(10)
+        .exponentialBackoff(100,2,10000)
+        .retryOn(IOException.class)
+        .traversingCauses()
+        .build();
 
-RetryTemplate.builder()
-      .fixedBackoff(10)
-      .withinMillis(3000)
-      .build();
+        RetryTemplate.builder()
+        .fixedBackoff(10)
+        .withinMillis(3000)
+        .build();
 
-RetryTemplate.builder()
-      .infiniteRetry()
-      .retryOn(IOException.class)
-      .uniformRandomBackoff(1000, 3000)
-      .build();
+        RetryTemplate.builder()
+        .infiniteRetry()
+        .retryOn(IOException.class)
+        .uniformRandomBackoff(1000,3000)
+        .build();
 ```
 
 ### Using `RetryContext`
@@ -220,7 +222,9 @@ provide a `RetryState` object that is responsible for returning a unique key tha
 the `RetryContextCache`.
 
 > *Warning:*
-Be very careful with the implementation of `Object.equals()` and `Object.hashCode()` in the key returned by `RetryState`. The best advice is to use a business key to identify the items. In the case of a JMS message, you can use the message ID.
+> Be very careful with the implementation of `Object.equals()` and `Object.hashCode()` in the key returned by `RetryState`. The best advice
+> is
+> to use a business key to identify the items. In the case of a JMS message, you can use the message ID.
 
 When the retry is exhausted, you also have the option to handle the failed item in a different way, instead of calling the `RetryCallback` (
 which is now presumed to be likely to fail). As in the stateless case, this option is provided by the `RecoveryCallback`, which you can
@@ -243,7 +247,10 @@ In that case, it throws `RetryExhaustedException`. You can also set a flag in th
 `RetryTemplate` to have it unconditionally throw the original exception from the callback (that is, from user code) instead.
 
 > *Tip:*
-Failures are inherently either retryable or not -- if the same exception is always going to be thrown from the business logic, it does not help to retry it. So you should not retry on all exception types. Rather, try to focus on only those exceptions that you expect to be retryable. It is not usually harmful to the business logic to retry more aggressively, but it is wasteful, because, if a failure is deterministic, time is spent retrying something that you know in advance is fatal.
+> Failures are inherently either retryable or not -- if the same exception is always going to be thrown from the business logic, it does not
+> help to retry it. So you should not retry on all exception types. Rather, try to focus on only those exceptions that you expect to be
+> retryable. It is not usually harmful to the business logic to retry more aggressively, but it is wasteful, because, if a failure is
+> deterministic, time is spent retrying something that you know in advance is fatal.
 
 Infra Retry provides some simple general-purpose implementations of stateless
 `RetryPolicy` (for example, a `SimpleRetryPolicy`) and the `TimeoutRetryPolicy` used in the preceding example.
@@ -254,16 +261,16 @@ how to use it:
 ```java
 // Set the max attempts including the initial attempt before retrying
 // and retry on all exceptions (this is the default):
-SimpleRetryPolicy policy = new SimpleRetryPolicy(5, Collections.singletonMap(Exception.class, true));
+SimpleRetryPolicy policy=new SimpleRetryPolicy(5,Collections.singletonMap(Exception.class,true));
 
 // Use the policy...
-RetryTemplate template = new RetryTemplate();
-template.setRetryPolicy(policy);
-template.execute(new RetryCallback<Foo>() {
-    public Foo doWithRetry(RetryContext context) {
+        RetryTemplate template=new RetryTemplate();
+        template.setRetryPolicy(policy);
+        template.execute(new RetryCallback<Foo>(){
+public Foo doWithRetry(RetryContext context){
         // business logic here
-    }
-});
+        }
+        });
 ```
 
 A more flexible implementation called `ExceptionClassifierRetryPolicy` is also available. It lets you configure different retry behavior for
@@ -284,10 +291,10 @@ interface:
 ```java
 public interface BackoffPolicy {
 
-    BackOffContext start(RetryContext context);
+  BackOffContext start(RetryContext context);
 
-    void backOff(BackOffContext backOffContext)
-        throws BackOffInterruptedException;
+  void backOff(BackOffContext backOffContext)
+          throws BackOffInterruptedException;
 
 }
 ```
@@ -308,11 +315,11 @@ The following listing shows the `RetryListener` interface:
 ```java
 public interface RetryListener {
 
-    void open(RetryContext context, RetryCallback<T> callback);
+  void open(RetryContext context, RetryCallback<T> callback);
 
-    void onError(RetryContext context, RetryCallback<T> callback, Throwable e);
+  void onError(RetryContext context, RetryCallback<T> callback, Throwable e);
 
-    void close(RetryContext context, RetryCallback<T> callback, Throwable e);
+  void close(RetryContext context, RetryCallback<T> callback, Throwable e);
 }
 ```
 
@@ -335,21 +342,21 @@ The following example registers such a listener:
 
 ```java
 
-template.registerListener(new MethodInvocationRetryListenerSupport() {
-      @Override
-      protected <T, E extends Throwable> void doClose(RetryContext context,
-          MethodInvocationRetryCallback<T, E> callback, Throwable throwable) {
-        monitoringTags.put(labelTagName, callback.getLabel());
-        Method method = callback.getInvocation()
-            .getMethod();
+template.registerListener(new MethodInvocationRetryListenerSupport(){
+@Override
+protected<T, E extends Throwable> void doClose(RetryContext context,
+        MethodInvocationRetryCallback<T, E> callback,Throwable throwable){
+        monitoringTags.put(labelTagName,callback.getLabel());
+        Method method=callback.getInvocation()
+        .getMethod();
         monitoringTags.put(classTagName,
-            method.getDeclaringClass().getSimpleName());
-        monitoringTags.put(methodTagName, method.getName());
+        method.getDeclaringClass().getSimpleName());
+        monitoringTags.put(methodTagName,method.getName());
 
         // register a monitoring counter with appropriate tags
         // ...
-      }
-    });
+        }
+        });
 ```
 
 ## Declarative Retry
@@ -366,43 +373,51 @@ You can add the `@EnableRetry` annotation to one of your `@Configuration` classe
 listeners. The following example shows how to do so:
 
 ```java
+
 @Configuration
 @EnableRetry
 public class Application {
 
-    @Bean
-    public Service service() {
-        return new Service();
-    }
+  @Bean
+  public Service service() {
+    return new Service();
+  }
 
-    @Bean public RetryListener retryListener1() {
-        return new RetryListener() {...}
-    }
+  @Bean
+  public RetryListener retryListener1() {
+    return new RetryListener() {
+      // ...
+    };
+  }
 
-    @Bean public RetryListener retryListener2() {
-        return new RetryListener() {...}
-    }
+  @Bean
+  public RetryListener retryListener2() {
+    return new RetryListener() {
+      // ...
+    };
+  }
 
 }
 
 @Service
 class Service {
-    @Retryable(RemoteAccessException.class)
-    public service() {
-        // ... do something
-    }
+  @Retryable(RemoteAccessException.class)
+  public service() {
+    // ... do something
+  }
 }
 ```
 
 You can use the attributes of `@Retryable` to control the `RetryPolicy` and `BackoffPolicy`, as follows:
 
 ```java
+
 @Service
 class Service {
-    @Retryable(maxAttempts=12, backoff=@Backoff(delay=100, maxDelay=500))
-    public service() {
-        // ... do something
-    }
+  @Retryable(maxAttempts = 12, backoff = @Backoff(delay = 100, maxDelay = 500))
+  public service() {
+    // ... do something
+  }
 }
 ```
 
@@ -426,16 +441,18 @@ include the exception that was thrown and
 needed). The following example shows how to do so:
 
 ```java
+
 @Service
 class Service {
-    @Retryable(RemoteAccessException.class)
-    public void service(String str1, String str2) {
-        // ... do something
-    }
-    @Recover
-    public void recover(RemoteAccessException e, String str1, String str2) {
-       // ... error handling making use of original args if required
-    }
+  @Retryable(RemoteAccessException.class)
+  public void service(String str1, String str2) {
+    // ... do something
+  }
+
+  @Recover
+  public void recover(RemoteAccessException e, String str1, String str2) {
+    // ... error handling making use of original args if required
+  }
 }
 ```
 
@@ -445,53 +462,54 @@ following example shows how to do so:
 ```java
 @Service
 class Service {
-    @Retryable(recover = "service1Recover", value = RemoteAccessException.class)
-    public void service1(String str1, String str2) {
-        // ... do something
-    }
+  @Retryable(recover = "service1Recover", value = RemoteAccessException.class)
+  public void service1(String str1, String str2) {
+    // ... do something
+  }
 
-    @Retryable(recover = "service2Recover", value = RemoteAccessException.class)
-    public void service2(String str1, String str2) {
-        // ... do something
-    }
+  @Retryable(recover = "service2Recover", value = RemoteAccessException.class)
+  public void service2(String str1, String str2) {
+    // ... do something
+  }
 
-    @Recover
-    public void service1Recover(RemoteAccessException e, String str1, String str2) {
-        // ... error handling making use of original args if required
-    }
+  @Recover
+  public void service1Recover(RemoteAccessException e, String str1, String str2) {
+    // ... error handling making use of original args if required
+  }
 
-    @Recover
-    public void service2Recover(RemoteAccessException e, String str1, String str2) {
-        // ... error handling making use of original args if required
-    }
+  @Recover
+  public void service2Recover(RemoteAccessException e, String str1, String str2) {
+    // ... error handling making use of original args if required
+  }
 }
 ```
 
 Version 1.3.2 and later supports matching a parameterized (generic) return type to detect the correct recovery method:
 
 ```java
+
 @Service
 class Service {
 
-    @Retryable(RemoteAccessException.class)
-    public List<Thing1> service1(String str1, String str2) {
-        // ... do something
-    }
+  @Retryable(RemoteAccessException.class)
+  public List<Thing1> service1(String str1, String str2) {
+    // ... do something
+  }
 
-    @Retryable(RemoteAccessException.class)
-    public List<Thing2> service2(String str1, String str2) {
-        // ... do something
-    }
+  @Retryable(RemoteAccessException.class)
+  public List<Thing2> service2(String str1, String str2) {
+    // ... do something
+  }
 
-    @Recover
-    public List<Thing1> recover1(RemoteAccessException e, String str1, String str2) {
-       // ... error handling for service1
-    }
+  @Recover
+  public List<Thing1> recover1(RemoteAccessException e, String str1, String str2) {
+    // ... error handling for service1
+  }
 
-    @Recover
-    public List<Thing2> recover2(RemoteAccessException e, String str1, String str2) {
-       // ... error handling for service2
-    }
+  @Recover
+  public List<Thing2> recover2(RemoteAccessException e, String str1, String str2) {
+    // ... error handling for service2
+  }
 
 }
 ```
@@ -500,21 +518,21 @@ Version 1.2 introduced the ability to use expressions for certain properties. Th
 
 ```java
 
-@Retryable(exceptionExpression="message.contains('this can be retried')")
-public void service1() {
-  ...
+@Retryable(exceptionExpression = "message.contains('this can be retried')")
+public void service1(){
+  // ...
 }
 
-@Retryable(exceptionExpression="message.contains('this can be retried')")
-public void service2() {
-  ...
+@Retryable(exceptionExpression = "message.contains('this can be retried')")
+public void service2(){
+  // ...
 }
 
-@Retryable(exceptionExpression="@exceptionChecker.shouldRetry(#root)",
-    maxAttemptsExpression = "#{@integerFiveBean}",
-  backoff = @Backoff(delayExpression = "#{1}", maxDelayExpression = "#{5}", multiplierExpression = "#{1.1}"))
-public void service3() {
-  ...
+@Retryable(exceptionExpression = "@exceptionChecker.shouldRetry(#root)",
+           maxAttemptsExpression = "#{@integerFiveBean}",
+           backoff = @Backoff(delayExpression = "#{1}", maxDelayExpression = "#{5}", multiplierExpression = "#{1.1}"))
+public void service3(){
+  // ...
 }
 ```
 
@@ -559,7 +577,7 @@ The following example of declarative iteration uses Infra AOP to repeat a servic
 </aop:config>
 
 <bean id="retryAdvice"
-class="cn.taketoday.retry.interceptor.RetryOperationsInterceptor" />
+  class="cn.taketoday.retry.interceptor.RetryOperationsInterceptor" />
 ```
 
 The preceding example uses a default `RetryTemplate` inside the interceptor. To change the policies or listeners, you need only inject an
