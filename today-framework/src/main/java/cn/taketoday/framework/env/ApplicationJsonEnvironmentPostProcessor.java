@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,12 +60,12 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
   /**
    * Name of the {@code application.json} property.
    */
-  public static final String APPLICATION_JSON_PROPERTY = "application.json";
+  public static final String APPLICATION_JSON_PROPERTY = "infra.application.json";
 
   /**
    * Name of the {@code APPLICATION_JSON} environment variable.
    */
-  public static final String APPLICATION_JSON_ENVIRONMENT_VARIABLE = "APPLICATION_JSON";
+  public static final String APPLICATION_JSON_ENVIRONMENT_VARIABLE = "INFRA_APPLICATION_JSON";
 
   private static final String SERVLET_ENVIRONMENT_CLASS = "cn.taketoday.web.servlet.support.StandardServletEnvironment";
 
