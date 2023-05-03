@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -89,35 +89,33 @@ public class UrlResource extends AbstractFileResolvingResource {
   }
 
   /**
-   * Create a new {@code UrlResource} based on a URL path.
+   * Create a new {@code UrlResource} based on a URI path.
    * <p>Note: The given path needs to be pre-encoded if necessary.
    *
-   * @param path a URL path
-   * @throws MalformedURLException if the given URL path is not valid
-   * @see java.net.URL#URL(String)
+   * @param path a URI path
+   * @throws MalformedURLException if the given URI path is not valid
+   * @see ResourceUtils#toURI(String)
    * @since 4.0
    */
   public UrlResource(String path) throws MalformedURLException {
     Assert.notNull(path, "Path must not be null");
+    String cleanedPath = StringUtils.cleanPath(path);
+    URI uri;
+    URL url;
 
-    // Equivalent without java.net.URL constructor - for building on JDK 20+
-		/*
-		try {
-			String cleanedPath = StringUtils.cleanPath(path);
-			this.uri = ResourceUtils.toURI(cleanedPath);
-			this.url = this.uri.toURL();
-			this.cleanedUrl = cleanedPath;
-		}
-		catch (URISyntaxException | IllegalArgumentException ex) {
-			MalformedURLException exToThrow = new MalformedURLException(ex.getMessage());
-			exToThrow.initCause(ex);
-			throw exToThrow;
-		}
-		*/
+    try {
+      // Prefer URI construction with toURL conversion (as of 6.1)
+      uri = ResourceUtils.toURI(cleanedPath);
+      url = uri.toURL();
+    }
+    catch (URISyntaxException | IllegalArgumentException ex) {
+      uri = null;
+      url = ResourceUtils.toURL(path);
+    }
 
-    this.uri = null;
-    this.url = ResourceUtils.toURL(path);
-    this.cleanedUrl = StringUtils.cleanPath(path);
+    this.uri = uri;
+    this.url = url;
+    this.cleanedUrl = cleanedPath;
   }
 
   /**

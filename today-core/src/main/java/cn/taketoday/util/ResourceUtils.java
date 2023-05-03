@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -539,19 +539,15 @@ public abstract class ResourceUtils {
    * @since 4.0
    */
   public static URL toURL(String location) throws MalformedURLException {
-    // Equivalent without java.net.URL constructor - for building on JDK 20+
-		/*
-		try {
-			return toURI(StringUtils.cleanPath(location)).toURL();
-		}
-		catch (URISyntaxException | IllegalArgumentException ex) {
-			MalformedURLException exToThrow = new MalformedURLException(ex.getMessage());
-			exToThrow.initCause(ex);
-			throw exToThrow;
-		}
-		*/
-
-    return new URL(location);
+    try {
+      // Prefer URI construction with toURL conversion (as of 6.1)
+      return toURI(StringUtils.cleanPath(location)).toURL();
+    }
+    catch (URISyntaxException | IllegalArgumentException ex) {
+      // Lenient fallback to deprecated (on JDK 20) URL constructor,
+      // e.g. for decoded location Strings with percent characters.
+      return new URL(location);
+    }
   }
 
   /**
@@ -567,14 +563,7 @@ public abstract class ResourceUtils {
   public static URL toRelativeURL(URL root, String relativePath) throws MalformedURLException {
     // # can appear in filenames, java.net.URL should not treat it as a fragment
     relativePath = StringUtils.replace(relativePath, "#", "%23");
-
-    // Not fully equivalent - but to be moved in the given direction
-    // since JDK 20 deprecates all direct java.net.URL constructors.
-		/*
-		return toURL(StringUtils.applyRelativePath(root.toString(), relativePath));
-		*/
-
-    return new URL(root, relativePath);
+    return toURL(getRelativePath(root.toString(), relativePath));
   }
 
 }
