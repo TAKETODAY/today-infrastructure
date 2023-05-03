@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -874,8 +874,8 @@ class BeanFactoryGenericsTests {
       resolved.add(instance);
     }
     assertThat(resolved).hasSize(2);
-    assertThat(resolved.get(0)).isSameAs(bf.getBean("store1"));
-    assertThat(resolved.get(1)).isSameAs(bf.getBean("store2"));
+    assertThat(resolved.get(0)).isSameAs(bf.getBean("store2"));
+    assertThat(resolved.get(1)).isSameAs(bf.getBean("store1"));
 
     resolved = numberStoreProvider.stream().toList();
     assertThat(resolved).hasSize(2);

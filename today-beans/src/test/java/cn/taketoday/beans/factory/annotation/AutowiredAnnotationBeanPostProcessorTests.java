@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1444,12 +1444,12 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     List<?> testBeans = bean.iterateTestBeans();
     assertThat(testBeans.size()).isEqualTo(2);
-    assertThat(testBeans.get(0)).isSameAs(bf.getBean("testBean1"));
-    assertThat(testBeans.get(1)).isSameAs(bf.getBean("testBean2"));
+    assertThat(testBeans.get(0)).isSameAs(bf.getBean("testBean2"));
+    assertThat(testBeans.get(1)).isSameAs(bf.getBean("testBean1"));
     testBeans = bean.forEachTestBeans();
     assertThat(testBeans.size()).isEqualTo(2);
-    assertThat(testBeans.get(0)).isSameAs(bf.getBean("testBean1"));
-    assertThat(testBeans.get(1)).isSameAs(bf.getBean("testBean2"));
+    assertThat(testBeans.get(0)).isSameAs(bf.getBean("testBean2"));
+    assertThat(testBeans.get(1)).isSameAs(bf.getBean("testBean1"));
     testBeans = bean.streamTestBeans();
     assertThat(testBeans.size()).isEqualTo(2);
     assertThat(testBeans.get(0)).isSameAs(bf.getBean("testBean1"));
