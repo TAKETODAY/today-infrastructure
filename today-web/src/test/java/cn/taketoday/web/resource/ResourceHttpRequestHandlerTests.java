@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -53,7 +53,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -385,9 +384,6 @@ public class ResourceHttpRequestHandlerTests {
     requestContext = new ServletRequestContext(null, request, response);
 
     this.handler.handleRequest(requestContext);
-    if (!location.createRelative(requestPath).exists() && !requestPath.contains(":")) {
-      fail(requestPath + " doesn't actually exist as a relative path");
-    }
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }
 

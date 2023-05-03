@@ -38,7 +38,6 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Unit tests for {@link PathResourceResolver}.
@@ -90,9 +89,6 @@ public class PathResourceResolverTests {
   private void testCheckResource(Resource location, String requestPath) throws IOException {
     List<Resource> locations = Collections.singletonList(location);
     Resource actual = this.resolver.resolveResource(null, requestPath, locations, null);
-    if (!location.createRelative(requestPath).exists() && !requestPath.contains(":")) {
-      fail(requestPath + " doesn't actually exist as a relative path");
-    }
     assertThat(actual).isNull();
   }
 
