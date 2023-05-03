@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,9 @@
 
 package cn.taketoday.beans.factory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -173,14 +175,19 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
   }
 
   /**
-   * Return an {@link Iterator} over all matching object instances,
-   * without specific ordering guarantees (but typically in registration order).
+   * Return a sequential {@link Iterator} over all matching object instances,
+   * pre-ordered according to the factory's common order comparator.
+   * <p>In a standard application context, this will be ordered
+   * according to {@link Ordered} conventions,
+   * and in case of annotation-based configuration also considering the
+   * {@link Order} annotation,
+   * analogous to multi-element injection points of list/array type.
    *
    * @see #stream()
    */
   @Override
   default Iterator<T> iterator() {
-    return stream().iterator();
+    return orderedStream().iterator();
   }
 
   /**
@@ -208,6 +215,26 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    */
   default Stream<T> orderedStream() {
     throw new UnsupportedOperationException("Ordered element access not supported");
+  }
+
+  /**
+   * Return a {@link List} over all matching object instances,
+   * pre-ordered according to the factory's common order comparator.
+   * <p>In a standard application context, this will be ordered
+   * according to {@link Ordered} conventions,
+   * and in case of annotation-based configuration also considering the
+   * {@link Order} annotation,
+   * analogous to multi-element injection points of list/array type.
+   *
+   * @see Stream#toList()
+   * @see #iterator()
+   */
+  default ArrayList<T> toList() {
+    ArrayList<T> ret = new ArrayList<>();
+    for (T t : this) {
+      ret.add(t);
+    }
+    return ret;
   }
 
 }
