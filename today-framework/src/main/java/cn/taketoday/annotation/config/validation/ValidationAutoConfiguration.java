@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -66,23 +66,23 @@ public class ValidationAutoConfiguration {
 
     LocalValidatorFactoryBean factoryBean = new LocalValidatorFactoryBean();
 
-    factoryBean.setConfigurationInitializer(configuration -> customizers.orderedStream()
-            .forEach(customizer -> customizer.customize(configuration))
-    );
+    factoryBean.setConfigurationInitializer(configuration -> {
+      for (ValidationConfigurationCustomizer customizer : customizers) {
+        customizer.customize(configuration);
+      }
+    });
 
-    MessageInterpolatorFactory interpolatorFactory = new MessageInterpolatorFactory(applicationContext);
-    factoryBean.setMessageInterpolator(interpolatorFactory.get());
+    factoryBean.setMessageInterpolator(new MessageInterpolatorFactory(applicationContext).get());
     return factoryBean;
   }
 
   @Component
   @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
   public static MethodValidationPostProcessor methodValidationPostProcessor(
-          Environment environment,
-          ObjectProvider<Validator> validator,
+          Environment environment, ObjectProvider<Validator> validator,
           ObjectProvider<MethodValidationExcludeFilter> excludeFilters) {
 
-    var processor = new FilteredMethodValidationPostProcessor(excludeFilters.orderedStream());
+    var processor = new FilteredMethodValidationPostProcessor(excludeFilters.toList());
     boolean proxyTargetClass = environment.getProperty("infra.aop.proxy-target-class", Boolean.class, true);
     processor.setProxyTargetClass(proxyTargetClass);
     processor.setValidator(new SuppliedValidator(validator));

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.validation.executable.ExecutableValidator;
@@ -35,6 +36,9 @@ import jakarta.validation.metadata.BeanDescriptor;
  */
 public class SuppliedValidator implements Validator {
   private final Supplier<Validator> validatorSupplier;
+
+  @Nullable
+  private volatile Validator validator;
 
   public SuppliedValidator(Supplier<Validator> validatorSupplier) {
     Assert.notNull(validatorSupplier, "validatorSupplier is required");
@@ -79,7 +83,17 @@ public class SuppliedValidator implements Validator {
   }
 
   public Validator getValidator() {
-    return validatorSupplier.get();
+    Validator validator = this.validator;
+    if (validator == null) {
+      synchronized(validatorSupplier) {
+        validator = this.validator;
+        if (validator == null) {
+          validator = validatorSupplier.get();
+          this.validator = validator;
+        }
+      }
+    }
+    return validator;
   }
 
 }
