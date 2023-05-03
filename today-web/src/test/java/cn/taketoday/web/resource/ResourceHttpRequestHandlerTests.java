@@ -387,15 +387,15 @@ public class ResourceHttpRequestHandlerTests {
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }
 
-//  @Test
-//  public void ignoreInvalidEscapeSequence() throws Throwable {
-//    request.setRequestURI("/%foo%/bar.txt");
-//    this.response = new MockHttpServletResponse();
-//    requestContext = new ServletRequestContext(null, request, response);
-//
-//    this.handler.handleRequest(requestContext);
-//    assertThat(this.response.getStatus()).isEqualTo(404);
-//  }
+  @Test
+  public void ignoreInvalidEscapeSequence() throws Throwable {
+    request.setRequestURI("/%foo%/bar.txt");
+    this.response = new MockHttpServletResponse();
+    requestContext = new ServletRequestContext(null, request, response);
+
+    this.handler.handleRequest(requestContext);
+    assertThat(this.response.getStatus()).isEqualTo(404);
+  }
 
   @Test
   public void processPath() {
