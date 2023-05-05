@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -41,6 +42,13 @@ import cn.taketoday.lang.Nullable;
  * <p>this interface extends {@link Iterable} and provides {@link Stream}
  * support. It can be therefore be used in {@code for} loops, provides {@link #forEach}
  * iteration and allows for collection-style {@link #stream} access.
+ * <p>
+ * Iteration pre-ordered according to the factory's common order comparator.
+ * <p>In a standard application context, this will be ordered
+ * according to {@link Ordered} conventions,
+ * and in case of annotation-based configuration also considering the
+ * {@link Order} annotation,
+ * analogous to multi-element injection points of list/array type.
  *
  * @param <T> the object type
  * @author Juergen Hoeller
@@ -228,13 +236,51 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    *
    * @see Stream#toList()
    * @see #iterator()
+   * @see #orderedStream()
+   * @since 4.0
    */
-  default ArrayList<T> toList() {
+  default ArrayList<T> orderedList() {
     ArrayList<T> ret = new ArrayList<>();
     for (T t : this) {
       ret.add(t);
     }
     return ret;
+  }
+
+  /**
+   * Return a {@link List} over all matching object instances,
+   * without specific ordering guarantees (but typically in registration order).
+   *
+   * @see Stream#toList()
+   * @see #iterator()
+   * @since 4.0
+   */
+  default ArrayList<T> toList() {
+    ArrayList<T> ret = new ArrayList<>();
+    Iterator<T> iterator = stream().iterator();
+    while (iterator.hasNext()) {
+      ret.add(iterator.next());
+    }
+    return ret;
+  }
+
+  /**
+   * Add over all matching object instances to a {@link List}
+   * pre-ordered according to the factory's common order comparator.
+   * <p>In a standard application context, this will be ordered
+   * according to {@link Ordered} conventions,
+   * and in case of annotation-based configuration also considering the
+   * {@link Order} annotation,
+   * analogous to multi-element injection points of list/array type.
+   *
+   * @see Stream#toList()
+   * @see #iterator()
+   * @since 4.0
+   */
+  default void addTo(Collection<T> destination) {
+    for (T t : this) {
+      destination.add(t);
+    }
   }
 
 }
