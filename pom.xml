@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -53,6 +53,7 @@
     <module>today-retry</module>
     <module>today-jcache</module>
     <module>today-context</module>
+    <module>today-starter</module>
     <module>today-aspects</module>
     <module>today-mybatis</module>
     <module>today-redisson</module>

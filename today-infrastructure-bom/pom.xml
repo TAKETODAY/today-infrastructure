@@ -523,6 +523,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${embed.tomcat.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>io.undertow</groupId>
         <artifactId>undertow-core</artifactId>
         <version>${undertow.version}</version>
