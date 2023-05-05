@@ -82,7 +82,7 @@ public class ValidationAutoConfiguration {
           Environment environment, ObjectProvider<Validator> validator,
           ObjectProvider<MethodValidationExcludeFilter> excludeFilters) {
 
-    var processor = new FilteredMethodValidationPostProcessor(excludeFilters.toList());
+    var processor = new FilteredMethodValidationPostProcessor(excludeFilters.orderedList());
     boolean proxyTargetClass = environment.getProperty("infra.aop.proxy-target-class", Boolean.class, true);
     processor.setProxyTargetClass(proxyTargetClass);
     processor.setValidator(new SuppliedValidator(validator));

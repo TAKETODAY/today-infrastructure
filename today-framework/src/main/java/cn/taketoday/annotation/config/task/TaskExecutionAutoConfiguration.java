@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -73,7 +73,7 @@ public class TaskExecutionAutoConfiguration {
     builder = builder.awaitTermination(shutdown.isAwaitTermination());
     builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
     builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-    builder = builder.customizers(taskExecutorCustomizers.orderedStream()::iterator);
+    builder = builder.customizers(taskExecutorCustomizers);
     builder = builder.taskDecorator(taskDecorator.getIfUnique());
     return builder;
   }

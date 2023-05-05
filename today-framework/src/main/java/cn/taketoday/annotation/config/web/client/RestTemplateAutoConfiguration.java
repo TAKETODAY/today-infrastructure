@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,8 +19,6 @@
  */
 
 package cn.taketoday.annotation.config.web.client;
-
-import java.util.stream.Collectors;
 
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.beans.factory.ObjectProvider;
@@ -60,9 +58,8 @@ public class RestTemplateAutoConfiguration {
 
     RestTemplateBuilderConfigurer configurer = new RestTemplateBuilderConfigurer();
     configurer.setHttpMessageConverters(messageConverters.getIfUnique());
-    configurer.setRestTemplateCustomizers(restTemplateCustomizers.orderedStream().collect(Collectors.toList()));
-    configurer.setRestTemplateRequestCustomizers(
-            restTemplateRequestCustomizers.orderedStream().collect(Collectors.toList()));
+    configurer.setRestTemplateCustomizers(restTemplateCustomizers.orderedList());
+    configurer.setRestTemplateRequestCustomizers(restTemplateRequestCustomizers.orderedList());
     return configurer;
   }
 

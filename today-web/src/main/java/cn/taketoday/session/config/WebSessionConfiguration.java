@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -105,8 +105,8 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
           ObjectProvider<WebSessionAttributeListener> webSessionAttributeListeners) {
 
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
-    eventDispatcher.addSessionListeners(webSessionListeners.orderedStream().toList());
-    eventDispatcher.addAttributeListeners(webSessionAttributeListeners.stream().toList());
+    eventDispatcher.addSessionListeners(webSessionListeners.orderedList());
+    eventDispatcher.addAttributeListeners(webSessionAttributeListeners.toList());
     return eventDispatcher;
   }
 

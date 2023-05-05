@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -77,8 +77,10 @@ abstract class ReactiveWebServerFactoryConfiguration {
 
       ReactorNettyReactiveWebServerFactory serverFactory = new ReactorNettyReactiveWebServerFactory();
       serverFactory.setResourceFactory(resourceFactory);
-      routes.orderedStream().forEach(serverFactory::addRouteProviders);
-      serverFactory.getServerCustomizers().addAll(serverCustomizers.orderedStream().toList());
+      for (NettyRouteProvider route : routes) {
+        serverFactory.addRouteProviders(route);
+      }
+      serverCustomizers.addTo(serverFactory.getServerCustomizers());
       return serverFactory;
     }
 
@@ -95,9 +97,9 @@ abstract class ReactiveWebServerFactoryConfiguration {
             ObjectProvider<TomcatContextCustomizer> contextCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
       TomcatReactiveWebServerFactory factory = new TomcatReactiveWebServerFactory();
-      factory.getTomcatConnectorCustomizers().addAll(connectorCustomizers.orderedStream().toList());
-      factory.getTomcatContextCustomizers().addAll(contextCustomizers.orderedStream().toList());
-      factory.getTomcatProtocolHandlerCustomizers().addAll(protocolHandlerCustomizers.orderedStream().toList());
+      contextCustomizers.addTo(factory.getTomcatContextCustomizers());
+      connectorCustomizers.addTo(factory.getTomcatConnectorCustomizers());
+      protocolHandlerCustomizers.addTo(factory.getTomcatProtocolHandlerCustomizers());
       return factory;
     }
 
@@ -118,7 +120,7 @@ abstract class ReactiveWebServerFactoryConfiguration {
     JettyReactiveWebServerFactory jettyReactiveWebServerFactory(JettyResourceFactory resourceFactory,
             ObjectProvider<JettyServerCustomizer> serverCustomizers) {
       JettyReactiveWebServerFactory serverFactory = new JettyReactiveWebServerFactory();
-      serverFactory.getServerCustomizers().addAll(serverCustomizers.orderedStream().toList());
+      serverCustomizers.addTo(serverFactory.getServerCustomizers());
       serverFactory.setResourceFactory(resourceFactory);
       return serverFactory;
     }
@@ -134,7 +136,7 @@ abstract class ReactiveWebServerFactoryConfiguration {
     UndertowReactiveWebServerFactory undertowReactiveWebServerFactory(
             ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
       UndertowReactiveWebServerFactory factory = new UndertowReactiveWebServerFactory();
-      factory.getBuilderCustomizers().addAll(builderCustomizers.orderedStream().toList());
+      builderCustomizers.addTo(factory.getBuilderCustomizers());
       return factory;
     }
 

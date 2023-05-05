@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,8 +22,6 @@ package cn.taketoday.annotation.config.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-
-import java.util.stream.Collectors;
 
 import cn.taketoday.annotation.config.gson.GsonAutoConfiguration;
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
@@ -84,7 +82,7 @@ public class HttpMessageConvertersAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   public HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
-    return new HttpMessageConverters(converters.orderedStream().collect(Collectors.toList()));
+    return new HttpMessageConverters(converters.orderedList());
   }
 
   @Configuration(proxyBeanMethods = false)

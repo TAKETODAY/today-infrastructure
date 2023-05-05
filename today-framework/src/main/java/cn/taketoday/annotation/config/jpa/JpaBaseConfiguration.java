@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -112,8 +112,10 @@ public abstract class JpaBaseConfiguration {
           ObjectProvider<PersistenceUnitManager> persistenceUnitManager,
           ObjectProvider<EntityManagerFactoryBuilderCustomizer> customizers) {
     EntityManagerFactoryBuilder builder = new EntityManagerFactoryBuilder(jpaVendorAdapter,
-            this.properties.getProperties(), persistenceUnitManager.getIfAvailable());
-    customizers.orderedStream().forEach((customizer) -> customizer.customize(builder));
+            properties.getProperties(), persistenceUnitManager.getIfAvailable());
+    for (EntityManagerFactoryBuilderCustomizer customizer : customizers) {
+      customizer.customize(builder);
+    }
     return builder;
   }
 

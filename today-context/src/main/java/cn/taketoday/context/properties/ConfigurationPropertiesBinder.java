@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.context.properties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistry;
@@ -170,8 +169,7 @@ class ConfigurationPropertiesBinder {
   }
 
   private List<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
-    return this.applicationContext.getBeanProvider(
-            ConfigurationPropertiesBindHandlerAdvisor.class).orderedStream().collect(Collectors.toList());
+    return applicationContext.getBeanProvider(ConfigurationPropertiesBindHandlerAdvisor.class).orderedList();
   }
 
   private Binder getBinder() {

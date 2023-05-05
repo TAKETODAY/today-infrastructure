@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -105,8 +105,8 @@ public class ErrorMvcAutoConfiguration {
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
   public BasicErrorController basicErrorController(
           ErrorAttributes errorAttributes, ObjectProvider<ErrorViewResolver> errorViewResolvers) {
-    return new BasicErrorController(errorAttributes, serverProperties.getError(),
-            errorViewResolvers.orderedStream().toList());
+    return new BasicErrorController(errorAttributes,
+            serverProperties.getError(), errorViewResolvers.orderedList());
   }
 
   @Component

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -186,16 +186,17 @@ public class MybatisAutoConfiguration implements InitializingBean {
     }
 
     if (configuration != null) {
-      Configuration finalConfiguration = configuration;
-      configurationCustomizers.orderedStream()
-              .forEach(customizer -> customizer.customize(finalConfiguration));
+      for (ConfigurationCustomizer customizer : configurationCustomizers) {
+        customizer.customize(configuration);
+      }
     }
     factory.setConfiguration(configuration);
   }
 
   private void applySqlSessionFactoryBeanCustomizers(SqlSessionFactoryBean factory) {
-    sqlSessionFactoryBeanCustomizers.orderedStream()
-            .forEach(customizer -> customizer.customize(factory));
+    for (SqlSessionFactoryBeanCustomizer customizer : sqlSessionFactoryBeanCustomizers) {
+      customizer.customize(factory);
+    }
   }
 
   @MissingBean

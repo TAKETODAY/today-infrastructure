@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,8 +19,6 @@
  */
 
 package cn.taketoday.annotation.config.web.servlet;
-
-import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -87,8 +85,7 @@ public class ServletWebServerFactoryAutoConfiguration {
           ObjectProvider<WebListenerRegistrar> webListenerRegistrars,
           ObjectProvider<CookieSameSiteSupplier> cookieSameSiteSuppliers) {
     return new ServletWebServerFactoryCustomizer(serverProperties,
-            webListenerRegistrars.orderedStream().collect(Collectors.toList()),
-            cookieSameSiteSuppliers.orderedStream().collect(Collectors.toList()));
+            webListenerRegistrars.orderedList(), cookieSameSiteSuppliers.orderedList());
   }
 
   @Component

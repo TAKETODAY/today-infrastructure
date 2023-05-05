@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -104,22 +104,21 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
     this.poolMetadataProvider = new CompositeDataSourcePoolMetadataProvider(metadataProviders.getIfAvailable());
     this.hibernatePropertiesCustomizers = determineHibernatePropertiesCustomizers(
             physicalNamingStrategy.getIfAvailable(), implicitNamingStrategy.getIfAvailable(), beanFactory,
-            hibernatePropertiesCustomizers.orderedStream().toList());
+            hibernatePropertiesCustomizers.orderedList());
   }
 
   private List<HibernatePropertiesCustomizer> determineHibernatePropertiesCustomizers(
           PhysicalNamingStrategy physicalNamingStrategy, ImplicitNamingStrategy implicitNamingStrategy,
-          ConfigurableBeanFactory beanFactory,
-          List<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
+          ConfigurableBeanFactory beanFactory, List<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
     List<HibernatePropertiesCustomizer> customizers = new ArrayList<>();
     if (ClassUtils.isPresent("org.hibernate.resource.beans.container.spi.BeanContainer",
             getClass().getClassLoader())) {
-      customizers.add((properties) -> properties.put(AvailableSettings.BEAN_CONTAINER,
-              new HibernateBeanContainer(beanFactory)));
+      customizers.add(properties ->
+              properties.put(AvailableSettings.BEAN_CONTAINER, new HibernateBeanContainer(beanFactory)));
     }
     if (physicalNamingStrategy != null || implicitNamingStrategy != null) {
-      customizers.add(
-              new NamingStrategiesHibernatePropertiesCustomizer(physicalNamingStrategy, implicitNamingStrategy));
+      customizers.add(new NamingStrategiesHibernatePropertiesCustomizer(
+              physicalNamingStrategy, implicitNamingStrategy));
     }
     customizers.addAll(hibernatePropertiesCustomizers);
     return customizers;
@@ -134,8 +133,10 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
   protected Map<String, Object> getVendorProperties() {
     Supplier<String> defaultDdlMode = () -> this.defaultDdlAutoProvider.getDefaultDdlAuto(getDataSource());
     return new LinkedHashMap<>(this.hibernateProperties
-            .determineHibernateProperties(getProperties().getProperties(), new HibernateSettings()
-                    .ddlAuto(defaultDdlMode).hibernatePropertiesCustomizers(this.hibernatePropertiesCustomizers)));
+            .determineHibernateProperties(getProperties().getProperties(),
+                    new HibernateSettings()
+                            .ddlAuto(defaultDdlMode)
+                            .hibernatePropertiesCustomizers(this.hibernatePropertiesCustomizers)));
   }
 
   @Override

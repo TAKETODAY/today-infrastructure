@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -164,9 +164,9 @@ public class PersistenceExceptionTranslationInterceptor
   protected PersistenceExceptionTranslator detectPersistenceExceptionTranslators(BeanFactory bf) {
     // Find all translators, being careful not to activate FactoryBeans.
     ChainedPersistenceExceptionTranslator cpet = new ChainedPersistenceExceptionTranslator();
-    bf.getBeanProvider(PersistenceExceptionTranslator.class, false)
-            .orderedStream()
-            .forEach(cpet::addDelegate);
+    for (var translator : bf.getBeanProvider(PersistenceExceptionTranslator.class, false)) {
+      cpet.addDelegate(translator);
+    }
     return cpet;
   }
 

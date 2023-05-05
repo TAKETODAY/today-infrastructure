@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -77,9 +77,9 @@ class ServletWebServerFactoryConfiguration {
             ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
       TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
-      factory.getTomcatContextCustomizers().addAll(contextCustomizers.orderedStream().toList());
-      factory.getTomcatConnectorCustomizers().addAll(connectorCustomizers.orderedStream().toList());
-      factory.getTomcatProtocolHandlerCustomizers().addAll(protocolHandlerCustomizers.orderedStream().toList());
+      contextCustomizers.addTo(factory.getTomcatContextCustomizers());
+      connectorCustomizers.addTo(factory.getTomcatConnectorCustomizers());
+      protocolHandlerCustomizers.addTo(factory.getTomcatProtocolHandlerCustomizers());
       return factory;
     }
 
@@ -97,7 +97,7 @@ class ServletWebServerFactoryConfiguration {
     JettyServletWebServerFactory JettyServletWebServerFactory(
             ObjectProvider<JettyServerCustomizer> serverCustomizers) {
       JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
-      factory.getServerCustomizers().addAll(serverCustomizers.orderedStream().toList());
+      serverCustomizers.addTo(factory.getServerCustomizers());
       return factory;
     }
 
@@ -116,8 +116,8 @@ class ServletWebServerFactoryConfiguration {
             ObjectProvider<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers,
             ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
       UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
-      factory.getBuilderCustomizers().addAll(builderCustomizers.orderedStream().toList());
-      factory.getDeploymentInfoCustomizers().addAll(deploymentInfoCustomizers.orderedStream().toList());
+      builderCustomizers.addTo(factory.getBuilderCustomizers());
+      deploymentInfoCustomizers.addTo(factory.getDeploymentInfoCustomizers());
       return factory;
     }
 
