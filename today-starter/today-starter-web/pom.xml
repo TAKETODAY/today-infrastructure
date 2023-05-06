@@ -26,46 +26,27 @@
 
   <parent>
     <groupId>cn.taketoday</groupId>
-    <artifactId>today-infrastructure</artifactId>
+    <artifactId>today-starter</artifactId>
     <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <packaging>pom</packaging>
+  <artifactId>today-starter-web</artifactId>
 
-  <artifactId>today-starter</artifactId>
-
-  <description>Infrastructure starters parent</description>
-
-  <modules>
-    <module>today-starter-tomcat</module>
-    <module>today-starter-netty</module>
-    <module>today-starter-web</module>
-    <module>today-starter-websocket</module>
-    <module>today-starter-test</module>
-    <module>today-starter-json</module>
-    <module>today-starter-undertow</module>
-    <module>today-starter-validation</module>
-    <module>today-starter-reactor-netty</module>
-    <module>today-starter-jetty</module>
-    <module>today-starter-jdbc</module>
-  </modules>
+  <description>
+    Starter for building web, including RESTful, applications using Web MVC.
+  </description>
 
   <dependencies>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
-      <artifactId>today-framework</artifactId>
+      <artifactId>today-web</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-starter-json</artifactId>
     </dependency>
 
   </dependencies>

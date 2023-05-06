@@ -207,6 +207,83 @@
         <version>${project.version}</version>
       </dependency>
 
+      <!--
+        Starters
+      -->
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-tomcat</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-netty</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-web</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-websocket</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-test</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-json</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-undertow</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-validation</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-reactor-netty</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-jetty</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-starter-jdbc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+
       <!-- dependencies -->
 
       <dependency>

@@ -26,46 +26,43 @@
 
   <parent>
     <groupId>cn.taketoday</groupId>
-    <artifactId>today-infrastructure</artifactId>
+    <artifactId>today-starter</artifactId>
     <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <packaging>pom</packaging>
-
-  <artifactId>today-starter</artifactId>
-
-  <description>Infrastructure starters parent</description>
-
-  <modules>
-    <module>today-starter-tomcat</module>
-    <module>today-starter-netty</module>
-    <module>today-starter-web</module>
-    <module>today-starter-websocket</module>
-    <module>today-starter-test</module>
-    <module>today-starter-json</module>
-    <module>today-starter-undertow</module>
-    <module>today-starter-validation</module>
-    <module>today-starter-reactor-netty</module>
-    <module>today-starter-jetty</module>
-    <module>today-starter-jdbc</module>
-  </modules>
+  <artifactId>today-starter-test</artifactId>
 
   <dependencies>
 
     <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-framework</artifactId>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
+      <groupId>org.skyscreamer</groupId>
+      <artifactId>jsonassert</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
     </dependency>
 
   </dependencies>

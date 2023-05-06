@@ -26,46 +26,25 @@
 
   <parent>
     <groupId>cn.taketoday</groupId>
-    <artifactId>today-infrastructure</artifactId>
+    <artifactId>today-starter</artifactId>
     <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <packaging>pom</packaging>
+  <artifactId>today-starter-netty</artifactId>
 
-  <artifactId>today-starter</artifactId>
-
-  <description>Infrastructure starters parent</description>
-
-  <modules>
-    <module>today-starter-tomcat</module>
-    <module>today-starter-netty</module>
-    <module>today-starter-web</module>
-    <module>today-starter-websocket</module>
-    <module>today-starter-test</module>
-    <module>today-starter-json</module>
-    <module>today-starter-undertow</module>
-    <module>today-starter-validation</module>
-    <module>today-starter-reactor-netty</module>
-    <module>today-starter-jetty</module>
-    <module>today-starter-jdbc</module>
-  </modules>
+  <description>Starter for using Netty as the embedded container.</description>
 
   <dependencies>
 
     <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-framework</artifactId>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-kqueue</artifactId>
     </dependency>
 
   </dependencies>

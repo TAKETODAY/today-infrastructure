@@ -33,9 +33,7 @@
 
   <artifactId>today-starter-tomcat</artifactId>
 
-  <description>
-    Starter for using Tomcat as the embedded servlet container. Default servlet container starter used by today-starter-web
-  </description>
+  <description>Starter for using Tomcat as the embedded servlet container.</description>
 
   <dependencies>
 
