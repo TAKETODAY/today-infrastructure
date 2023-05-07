@@ -24,6 +24,6 @@
 /build/
 /tmp/
 /today-framework/target/
-*/target/
 .flattened-pom.xml
 */.flattened-pom.xml
+**/target/**
