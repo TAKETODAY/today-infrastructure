@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,8 +27,10 @@ import java.lang.module.ResolvedModule;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
@@ -45,6 +47,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipException;
 
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
@@ -504,17 +507,23 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     scan(rootDirPath, rootDirResource -> rootDirResource(subPattern, rootDirResource, consumer));
   }
 
-  protected void rootDirResource(
-          String subPattern, Resource rootResource, ResourceConsumer consumer) throws IOException {
-    if (rootResource instanceof JarResource) {
-      doFindPathMatchingJarResources((JarResource) rootResource, subPattern, consumer);
+  protected void rootDirResource(String subPattern,
+          Resource rootDirResource, ResourceConsumer consumer) throws IOException {
+    if (rootDirResource instanceof JarResource) {
+      doFindPathMatchingJarResources((JarResource) rootDirResource, subPattern, consumer);
     }
-    else if (rootResource instanceof ClassPathResource) {
-      Resource originalResource = ((ClassPathResource) rootResource).getOriginalResource();
+    else if (rootDirResource instanceof ClassPathResource) {
+      Resource originalResource = ((ClassPathResource) rootDirResource).getOriginalResource();
       rootDirResource(subPattern, originalResource, consumer);
     }
     else {
-      doFindPathMatchingFileResources(rootResource, subPattern, consumer);
+      URL rootDirURL = rootDirResource.getURL();
+      if (ResourceUtils.isJarURL(rootDirURL) || isJarResource(rootDirResource)) {
+        doFindPathMatchingJarResources(rootDirResource, rootDirURL, subPattern, consumer);
+      }
+      else {
+        doFindPathMatchingFileResources(rootDirResource, subPattern, consumer);
+      }
     }
   }
 
@@ -541,6 +550,23 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       rootDirEnd = prefixEnd;
     }
     return location.substring(0, rootDirEnd);
+  }
+
+  /**
+   * Return whether the given resource handle indicates a jar resource
+   * that the {@link #doFindPathMatchingJarResources} method can handle.
+   * <p>By default, the URL protocols "jar", "zip", "vfszip, and "wsjar"
+   * will be treated as jar resources. This template method allows for
+   * detecting further kinds of jar-like resources, e.g. through
+   * {@code instanceof} checks on the resource handle type.
+   *
+   * @param resource the resource handle to check
+   * (usually the root directory to start path matching from)
+   * @see #doFindPathMatchingJarResources
+   * @see ResourceUtils#isJarURL
+   */
+  protected boolean isJarResource(Resource resource) throws IOException {
+    return false;
   }
 
   /**
@@ -595,6 +621,115 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       if (closeJarFile) {
         jarFile.close();
       }
+    }
+  }
+
+  /**
+   * Find all resources in jar files that match the given location pattern
+   * via the Ant-style PathMatcher.
+   *
+   * @param rootDirResource the root directory as Resource
+   * @param rootDirURL the pre-resolved root directory URL
+   * @param subPattern the sub pattern to match (below the root directory)
+   * @throws IOException in case of I/O errors
+   * @see java.net.JarURLConnection
+   * @since 4.0
+   */
+  protected void doFindPathMatchingJarResources(Resource rootDirResource,
+          URL rootDirURL, String subPattern, ResourceConsumer consumer) throws IOException {
+
+    URLConnection con = rootDirURL.openConnection();
+    JarFile jarFile;
+    String jarFileUrl;
+    String rootEntryPath;
+    boolean closeJarFile;
+
+    if (con instanceof JarURLConnection jarCon) {
+      // Should usually be the case for traditional JAR files.
+      ResourceUtils.useCachesIfNecessary(jarCon);
+      jarFile = jarCon.getJarFile();
+      jarFileUrl = jarCon.getJarFileURL().toExternalForm();
+      JarEntry jarEntry = jarCon.getJarEntry();
+      rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
+      closeJarFile = !jarCon.getUseCaches();
+    }
+    else {
+      // No JarURLConnection -> need to resort to URL file parsing.
+      // We'll assume URLs of the format "jar:path!/entry", with the protocol
+      // being arbitrary as long as following the entry format.
+      // We'll also handle paths with and without leading "file:" prefix.
+      String urlFile = rootDirURL.getFile();
+      try {
+        int separatorIndex = urlFile.indexOf(ResourceUtils.WAR_URL_SEPARATOR);
+        if (separatorIndex == -1) {
+          separatorIndex = urlFile.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
+        }
+        if (separatorIndex != -1) {
+          jarFileUrl = urlFile.substring(0, separatorIndex);
+          rootEntryPath = urlFile.substring(separatorIndex + 2);  // both separators are 2 chars
+          jarFile = getJarFile(jarFileUrl);
+        }
+        else {
+          jarFile = new JarFile(urlFile);
+          jarFileUrl = urlFile;
+          rootEntryPath = "";
+        }
+        closeJarFile = true;
+      }
+      catch (ZipException ex) {
+        if (log.isDebugEnabled()) {
+          log.debug("Skipping invalid jar classpath entry [{}]", urlFile);
+        }
+        return;
+      }
+    }
+
+    try {
+      if (log.isTraceEnabled()) {
+        log.trace("Looking for matching resources in jar file [{}]", jarFileUrl);
+      }
+      if (StringUtils.isNotEmpty(rootEntryPath) && !rootEntryPath.endsWith("/")) {
+        // Root entry path must end with slash to allow for proper matching.
+        // The Sun JRE does not return a slash here, but BEA JRockit does.
+        rootEntryPath = rootEntryPath + "/";
+      }
+
+      PathMatcher pathMatcher = getPathMatcher();
+      Enumeration<JarEntry> entries = jarFile.entries();
+      while (entries.hasMoreElements()) {
+        JarEntry entry = entries.nextElement();
+        String entryPath = entry.getName();
+        if (entryPath.startsWith(rootEntryPath)) {
+          String relativePath = entryPath.substring(rootEntryPath.length());
+          if (pathMatcher.match(subPattern, relativePath)) {
+            consumer.accept(rootDirResource.createRelative(relativePath)); ;
+          }
+        }
+      }
+
+    }
+    finally {
+      if (closeJarFile) {
+        jarFile.close();
+      }
+    }
+  }
+
+  /**
+   * Resolve the given jar file URL into a JarFile object.
+   */
+  protected JarFile getJarFile(String jarFileUrl) throws IOException {
+    if (jarFileUrl.startsWith(ResourceUtils.FILE_URL_PREFIX)) {
+      try {
+        return new JarFile(ResourceUtils.toURI(jarFileUrl).getSchemeSpecificPart());
+      }
+      catch (URISyntaxException ex) {
+        // Fallback for URLs that are not valid URIs (should hardly ever happen).
+        return new JarFile(jarFileUrl.substring(ResourceUtils.FILE_URL_PREFIX.length()));
+      }
+    }
+    else {
+      return new JarFile(jarFileUrl);
     }
   }
 
