@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -65,32 +65,35 @@ public abstract class CollectionUtils {
    */
   static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
-  private static final HashSet<Class<?>> approximableMapTypes = new HashSet<>();
-  private static final HashSet<Class<?>> approximableCollectionTypes = new HashSet<>();
+  private static final Set<Class<?>> approximableCollectionTypes = Set.of(
+          // Standard collection interfaces
+          Collection.class,
+          List.class,
+          Set.class,
+          SortedSet.class,
+          NavigableSet.class,
+          // Common concrete collection classes
+          ArrayList.class,
+          LinkedList.class,
+          HashSet.class,
+          LinkedHashSet.class,
+          TreeSet.class,
+          EnumSet.class
+  );
 
-  static {
-    // Standard collection interfaces
-    approximableCollectionTypes.add(Collection.class);
-    approximableCollectionTypes.add(List.class);
-    approximableCollectionTypes.add(Set.class);
-    approximableCollectionTypes.add(SortedSet.class);
-    approximableCollectionTypes.add(NavigableSet.class);
-    approximableMapTypes.add(Map.class);
-    approximableMapTypes.add(SortedMap.class);
-    approximableMapTypes.add(NavigableMap.class);
-
-    // Common concrete collection classes
-    approximableCollectionTypes.add(ArrayList.class);
-    approximableCollectionTypes.add(LinkedList.class);
-    approximableCollectionTypes.add(HashSet.class);
-    approximableCollectionTypes.add(LinkedHashSet.class);
-    approximableCollectionTypes.add(TreeSet.class);
-    approximableCollectionTypes.add(EnumSet.class);
-    approximableMapTypes.add(HashMap.class);
-    approximableMapTypes.add(LinkedHashMap.class);
-    approximableMapTypes.add(TreeMap.class);
-    approximableMapTypes.add(EnumMap.class);
-  }
+  private static final Set<Class<?>> approximableMapTypes = Set.of(
+          // Standard map interfaces
+          Map.class,
+          MultiValueMap.class,
+          SortedMap.class,
+          NavigableMap.class,
+          // Common concrete map classes
+          HashMap.class,
+          LinkedHashMap.class,
+          LinkedMultiValueMap.class,
+          TreeMap.class,
+          EnumMap.class
+  );
 
   /**
    * Return {@code true} if the supplied Collection is {@code null} or empty.
@@ -225,7 +228,10 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static boolean isApproximableCollectionType(@Nullable Class<?> collectionType) {
-    return (collectionType != null && approximableCollectionTypes.contains(collectionType));
+    return collectionType != null &&
+            (approximableCollectionTypes.contains(collectionType)
+                    || collectionType.getName().equals("java.util.SequencedSet")
+                    || collectionType.getName().equals("java.util.SequencedCollection"));
   }
 
   /**
@@ -252,20 +258,19 @@ public abstract class CollectionUtils {
    */
   @SuppressWarnings({ "rawtypes", "unchecked", "cast" })
   public static <E> Collection<E> createApproximateCollection(Object collection, int capacity) {
-    if (collection instanceof LinkedList) {
+    if (collection instanceof EnumSet enumSet) {
+      Collection<E> copy = EnumSet.copyOf(enumSet);
+      copy.clear();
+      return copy;
+    }
+    else if (collection instanceof SortedSet sortedSet) {
+      return new TreeSet<>(sortedSet.comparator());
+    }
+    else if (collection instanceof LinkedList) {
       return new LinkedList<>();
     }
     else if (collection instanceof List) {
       return new ArrayList<>(capacity);
-    }
-    else if (collection instanceof EnumSet) {
-      // Cast is necessary for compilation in Eclipse 4.4.1.
-      Collection<E> enumSet = (Collection<E>) EnumSet.copyOf((EnumSet) collection);
-      enumSet.clear();
-      return enumSet;
-    }
-    else if (collection instanceof SortedSet) {
-      return new TreeSet<>(((SortedSet<E>) collection).comparator());
     }
     else {
       return new LinkedHashSet<>(capacity);
@@ -336,7 +341,9 @@ public abstract class CollectionUtils {
     if (LinkedHashSet.class == collectionType
             || HashSet.class == collectionType
             || Set.class == collectionType
-            || Collection.class == collectionType) {
+            || Collection.class == collectionType
+            || collectionType.getName().equals("java.util.SequencedSet")
+            || collectionType.getName().equals("java.util.SequencedCollection")) {
       return new LinkedHashSet<>(capacity);
     }
     else if (ArrayList.class == collectionType || List.class == collectionType) {
@@ -346,8 +353,8 @@ public abstract class CollectionUtils {
       return new LinkedList<>();
     }
     else if (TreeSet.class == collectionType
-            || SortedSet.class == collectionType
-            || NavigableSet.class == collectionType) {
+            || NavigableSet.class == collectionType
+            || SortedSet.class == collectionType) {
       return new TreeSet<>();
     }
     else if (EnumSet.class.isAssignableFrom(collectionType)) {
@@ -377,7 +384,9 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   public static boolean isApproximableMapType(@Nullable Class<?> mapType) {
-    return (mapType != null && approximableMapTypes.contains(mapType));
+    return mapType != null &&
+            (approximableMapTypes.contains(mapType)
+                    || mapType.getName().equals("java.util.SequencedMap"));
   }
 
   /**
@@ -427,13 +436,16 @@ public abstract class CollectionUtils {
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static <K, V> Map<K, V> createApproximateMap(@Nullable Object map, int capacity) {
-    if (map instanceof EnumMap) {
-      EnumMap enumMap = new EnumMap((EnumMap) map);
-      enumMap.clear();
-      return enumMap;
+    if (map instanceof EnumMap enumMap) {
+      EnumMap copy = new EnumMap(enumMap);
+      copy.clear();
+      return copy;
     }
-    else if (map instanceof SortedMap) {
-      return new TreeMap<>(((SortedMap<K, V>) map).comparator());
+    else if (map instanceof SortedMap sortedMap) {
+      return new TreeMap<>(sortedMap.comparator());
+    }
+    else if (map instanceof MultiValueMap) {
+      return new LinkedMultiValueMap(capacity);
     }
     else {
       return new LinkedHashMap<>(capacity);
@@ -501,26 +513,24 @@ public abstract class CollectionUtils {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static <K, V> Map<K, V> createMap(Class<?> mapType, Class<?> keyType, int capacity) {
     Assert.notNull(mapType, "Map type must not be null");
-    if (mapType.isInterface()) {
-      if (Map.class == mapType) {
-        return new LinkedHashMap<>(capacity);
-      }
-      else if (SortedMap.class == mapType || NavigableMap.class == mapType) {
-        return new TreeMap<>();
-      }
-      else if (MultiValueMap.class == mapType) {
-        return new DefaultMultiValueMap();
-      }
-      else {
-        throw new IllegalArgumentException("Unsupported Map interface: " + mapType.getName());
-      }
+    if (LinkedHashMap.class == mapType
+            || HashMap.class == mapType
+            || Map.class == mapType
+            || mapType.getName().equals("java.util.SequencedMap")) {
+      return new LinkedHashMap<>(capacity);
+    }
+    else if (LinkedMultiValueMap.class == mapType || MultiValueMap.class == mapType) {
+      return new LinkedMultiValueMap();
+    }
+    else if (TreeMap.class == mapType || SortedMap.class == mapType || NavigableMap.class == mapType) {
+      return new TreeMap<>();
     }
     else if (EnumMap.class == mapType) {
       Assert.notNull(keyType, "Cannot create EnumMap for unknown key type");
       return new EnumMap(asEnumType(keyType));
     }
     else {
-      if (!Map.class.isAssignableFrom(mapType)) {
+      if (mapType.isInterface() || !Map.class.isAssignableFrom(mapType)) {
         throw new IllegalArgumentException("Unsupported Map type: " + mapType.getName());
       }
       try {
