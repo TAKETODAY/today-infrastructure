@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.transaction.annotation;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.transaction.CallCountingTransactionManager;
@@ -251,6 +252,50 @@ public class AnnotationTransactionInterceptorTests {
 
     StepVerifier.withVirtualTime(proxy::fluxSuccess).thenAwait(Duration.ofSeconds(1)).thenCancel().verify();
     assertReactiveGetTransactionAndRollbackCount(1);
+  }
+
+  @Test
+  public void withCompletableFutureSuccess() {
+    ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setTarget(new TestWithCompletableFuture());
+    proxyFactory.addAdvice(this.ti);
+    TestWithCompletableFuture proxy = (TestWithCompletableFuture) proxyFactory.getProxy();
+
+    proxy.doSomething();
+    assertGetTransactionAndCommitCount(1);
+  }
+
+  @Test
+  public void withCompletableFutureRuntimeException() {
+    ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setTarget(new TestWithCompletableFuture());
+    proxyFactory.addAdvice(this.ti);
+    TestWithCompletableFuture proxy = (TestWithCompletableFuture) proxyFactory.getProxy();
+
+    proxy.doSomethingErroneous();
+    assertGetTransactionAndRollbackCount(1);
+  }
+
+  @Test
+  public void withCompletableFutureCheckedException() {
+    ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setTarget(new TestWithCompletableFuture());
+    proxyFactory.addAdvice(this.ti);
+    TestWithCompletableFuture proxy = (TestWithCompletableFuture) proxyFactory.getProxy();
+
+    proxy.doSomethingErroneousWithCheckedException();
+    assertGetTransactionAndCommitCount(1);
+  }
+
+  @Test
+  public void withCompletableFutureCheckedExceptionAndRollbackRule() {
+    ProxyFactory proxyFactory = new ProxyFactory();
+    proxyFactory.setTarget(new TestWithCompletableFuture());
+    proxyFactory.addAdvice(this.ti);
+    TestWithCompletableFuture proxy = (TestWithCompletableFuture) proxyFactory.getProxy();
+
+    proxy.doSomethingErroneousWithCheckedExceptionAndRollbackRule();
+    assertGetTransactionAndRollbackCount(1);
   }
 
   @Test
@@ -583,6 +628,35 @@ public class AnnotationTransactionInterceptorTests {
 
     @Override
     public void foo() {
+    }
+  }
+
+  @Transactional
+  public static class TestWithCompletableFuture {
+
+    public CompletableFuture<String> doSomething() {
+      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
+      return CompletableFuture.completedFuture("ok");
+    }
+
+    public CompletableFuture<String> doSomethingErroneous() {
+      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
+      return CompletableFuture.failedFuture(new IllegalStateException());
+    }
+
+    public CompletableFuture<String> doSomethingErroneousWithCheckedException() {
+      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
+      return CompletableFuture.failedFuture(new Exception());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public CompletableFuture<String> doSomethingErroneousWithCheckedExceptionAndRollbackRule() {
+      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
+      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
+      return CompletableFuture.failedFuture(new Exception());
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,8 @@ package cn.taketoday.transaction.interceptor;
 
 import java.lang.reflect.Method;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
@@ -355,6 +357,24 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
       }
       finally {
         cleanupTransactionInfo(txInfo);
+      }
+
+      if (retVal != null && txAttr != null) {
+        if (txInfo.transactionStatus != null) {
+          if (retVal instanceof Future<?> future && future.isDone()) {
+            try {
+              future.get();
+            }
+            catch (ExecutionException ex) {
+              if (txAttr.rollbackOn(ex.getCause())) {
+                txInfo.transactionStatus.setRollbackOnly();
+              }
+            }
+            catch (InterruptedException ex) {
+              Thread.currentThread().interrupt();
+            }
+          }
+        }
       }
 
       commitTransactionAfterReturning(txInfo);
