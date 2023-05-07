@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,8 +30,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * Represents the elvis operator ?:. For an expression "a?:b" if a is not null, the value
- * of the expression is "a", if a is null then the value of the expression is "b".
+ * Represents the Elvis operator <code>?:</code>. For an expression <code>a?:b</code> if <code>a</code> is neither null
+ * nor an empty String, the value of the expression is <code>a</code>.
+ * If <code>a</code> is null or the empty String, then the value of the expression is <code>b</code>.
  *
  * @author Andy Clement
  * @author Juergen Hoeller
@@ -44,8 +45,8 @@ public class Elvis extends SpelNodeImpl {
   }
 
   /**
-   * Evaluate the condition and if not null, return it.
-   * If it is null, return the other value.
+   * Evaluate the condition and if neither null nor an empty String, return it.
+   * If it is null or an empty String, return the other value.
    *
    * @param state the expression state
    * @throws EvaluationException if the condition does not evaluate correctly
