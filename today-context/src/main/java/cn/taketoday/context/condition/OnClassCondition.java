@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,34 +45,32 @@ import cn.taketoday.util.StringUtils;
 final class OnClassCondition extends FilteringInfraCondition implements Condition, Ordered {
 
   @Override
-  protected ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
-          AutoConfigurationMetadata autoConfigurationMetadata) {
+  protected ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     // Split the work and perform half in a background thread if more than one
     // processor is available. Using a single additional thread seems to offer the
     // best performance. More threads make things worse.
-    if (autoConfigurationClasses.length > 1 && Runtime.getRuntime().availableProcessors() > 1) {
-      return resolveOutcomesThreaded(autoConfigurationClasses, autoConfigurationMetadata);
+    if (configClasses.length > 1 && Runtime.getRuntime().availableProcessors() > 1) {
+      return resolveOutcomesThreaded(configClasses, configMetadata);
     }
     else {
-      OutcomesResolver outcomesResolver = new StandardOutcomesResolver(autoConfigurationClasses, 0,
-              autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
+      OutcomesResolver outcomesResolver = new StandardOutcomesResolver(configClasses, 0,
+              configClasses.length, configMetadata, getBeanClassLoader());
       return outcomesResolver.resolveOutcomes();
     }
   }
 
   private ConditionOutcome[] resolveOutcomesThreaded(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-    int split = autoConfigurationClasses.length / 2;
+          String[] configClasses, AutoConfigurationMetadata configMetadata) {
+    int split = configClasses.length / 2;
     OutcomesResolver firstHalfResolver = createOutcomesResolver(
-            autoConfigurationClasses, 0, split, autoConfigurationMetadata);
+            configClasses, 0, split, configMetadata);
 
     OutcomesResolver secondHalfResolver = new StandardOutcomesResolver(
-            autoConfigurationClasses, split,
-            autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
+            configClasses, split, configClasses.length, configMetadata, getBeanClassLoader());
 
     ConditionOutcome[] secondHalf = secondHalfResolver.resolveOutcomes();
     ConditionOutcome[] firstHalf = firstHalfResolver.resolveOutcomes();
-    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     System.arraycopy(firstHalf, 0, outcomes, 0, firstHalf.length);
     System.arraycopy(secondHalf, 0, outcomes, split, secondHalf.length);
     return outcomes;
@@ -173,12 +171,12 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
   }
 
   private record StandardOutcomesResolver(
-          String[] autoConfigurationClasses, int start, int end,
-          AutoConfigurationMetadata autoConfigurationMetadata, ClassLoader beanClassLoader) implements OutcomesResolver {
+          String[] configClasses, int start, int end,
+          AutoConfigurationMetadata configMetadata, ClassLoader beanClassLoader) implements OutcomesResolver {
 
     @Override
     public ConditionOutcome[] resolveOutcomes() {
-      return getOutcomes(this.autoConfigurationClasses, this.start, this.end, this.autoConfigurationMetadata);
+      return getOutcomes(this.configClasses, this.start, this.end, this.configMetadata);
     }
 
     private ConditionOutcome[] getOutcomes(

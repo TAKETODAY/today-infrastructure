@@ -30,7 +30,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandler;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -234,7 +233,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
         }
       }
 
-      BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
+      var builder = BeanDefinitionBuilder.genericBeanDefinition(MapperScannerConfigurer.class);
       builder.addPropertyValue("annotationClass", Mapper.class);
       builder.addPropertyValue("processPropertyPlaceHolders", true);
       builder.addPropertyValue("defaultScope", "${mybatis.mapper-default-scope:}");
@@ -242,7 +241,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
       builder.addPropertyValue("basePackage", StringUtils.collectionToCommaDelimitedString(packages));
 
       Environment environment = context.getEnvironment();
-      if (environment.getProperty("mybatis.inject-sql-session-on-mapper-scan", Boolean.class, Boolean.TRUE)) {
+      if (environment.getFlag("mybatis.inject-sql-session-on-mapper-scan", true)) {
         String sqlSessionFactoryBeanName = getBeanNameForType(SqlSessionFactory.class, beanFactory);
         String sqlSessionTemplateBeanName = getBeanNameForType(SqlSessionTemplate.class, beanFactory);
         if (sqlSessionTemplateBeanName != null || sqlSessionFactoryBeanName == null) {
@@ -260,8 +259,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
 
     @Nullable
     private String getBeanNameForType(Class<?> type, BeanFactory factory) {
-      Set<String> beanNames = factory.getBeanNamesForType(type);
-      return beanNames.size() > 0 ? CollectionUtils.firstElement(beanNames) : null;
+      return CollectionUtils.firstElement(factory.getBeanNamesForType(type));
     }
 
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,16 +68,16 @@ public abstract class FilteringInfraCondition extends InfraCondition
   }
 
   @Override
-  public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
+  public boolean[] match(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionEvaluationReport report = ConditionEvaluationReport.find(this.beanFactory);
-    ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, autoConfigurationMetadata);
+    ConditionOutcome[] outcomes = getOutcomes(configClasses, configMetadata);
     boolean[] match = new boolean[outcomes.length];
     for (int i = 0; i < outcomes.length; i++) {
       match[i] = (outcomes[i] == null || outcomes[i].isMatch());
       if (!match[i] && outcomes[i] != null) {
-        logOutcome(autoConfigurationClasses[i], outcomes[i]);
+        logOutcome(configClasses[i], outcomes[i]);
         if (report != null) {
-          report.recordConditionEvaluation(autoConfigurationClasses[i], this, outcomes[i]);
+          report.recordConditionEvaluation(configClasses[i], this, outcomes[i]);
         }
       }
     }
@@ -85,10 +85,10 @@ public abstract class FilteringInfraCondition extends InfraCondition
   }
 
   protected abstract ConditionOutcome[] getOutcomes(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata);
+          String[] configClasses, AutoConfigurationMetadata configMetadata);
 
-  protected final List<String> filter(
-          Collection<String> classNames, ClassNameFilter classNameFilter, ClassLoader classLoader) {
+  protected final List<String> filter(Collection<String> classNames,
+          ClassNameFilter classNameFilter, ClassLoader classLoader) {
     if (CollectionUtils.isEmpty(classNames)) {
       return Collections.emptyList();
     }

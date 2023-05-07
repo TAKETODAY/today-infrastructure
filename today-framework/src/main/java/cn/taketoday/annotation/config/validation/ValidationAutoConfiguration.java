@@ -20,6 +20,8 @@
 
 package cn.taketoday.annotation.config.validation;
 
+import java.util.Collection;
+
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
@@ -80,10 +82,10 @@ public class ValidationAutoConfiguration {
   @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
   public static MethodValidationPostProcessor methodValidationPostProcessor(
           Environment environment, ObjectProvider<Validator> validator,
-          ObjectProvider<MethodValidationExcludeFilter> excludeFilters) {
+          Collection<MethodValidationExcludeFilter> excludeFilters) {
 
-    var processor = new FilteredMethodValidationPostProcessor(excludeFilters.orderedList());
-    boolean proxyTargetClass = environment.getProperty("infra.aop.proxy-target-class", Boolean.class, true);
+    var processor = new FilteredMethodValidationPostProcessor(excludeFilters);
+    boolean proxyTargetClass = environment.getFlag("infra.aop.proxy-target-class", true);
     processor.setProxyTargetClass(proxyTargetClass);
     processor.setValidator(new SuppliedValidator(validator));
     return processor;

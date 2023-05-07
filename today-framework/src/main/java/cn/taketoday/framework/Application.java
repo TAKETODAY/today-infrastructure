@@ -475,9 +475,8 @@ public class Application {
 
   private void configureIgnoreBeanInfo(ConfigurableEnvironment environment) {
     if (System.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME) == null) {
-      Boolean ignore = environment.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME,
-              Boolean.class, Boolean.TRUE);
-      System.setProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, ignore.toString());
+      boolean ignore = environment.getFlag(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, true);
+      System.setProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, Boolean.toString(ignore));
     }
   }
 

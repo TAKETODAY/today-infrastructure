@@ -441,7 +441,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
   }
 
   private void registerShutdownHookIfNecessary(Environment environment, LoggingSystem loggingSystem) {
-    if (environment.getProperty(REGISTER_SHUTDOWN_HOOK_PROPERTY, Boolean.class, true)) {
+    if (environment.getFlag(REGISTER_SHUTDOWN_HOOK_PROPERTY, true)) {
       Runnable shutdownHandler = loggingSystem.getShutdownHandler();
       if (shutdownHandler != null && shutdownHookRegistered.compareAndSet(false, true)) {
         registerShutdownHook(shutdownHandler);

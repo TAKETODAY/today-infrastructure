@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,8 +46,9 @@ import cn.taketoday.transaction.TransactionException;
  */
 public class MyBatisExceptionTranslator implements PersistenceExceptionTranslator {
 
-  private final Supplier<SQLExceptionTranslator> exceptionTranslatorSupplier;
   private SQLExceptionTranslator exceptionTranslator;
+
+  private final Supplier<SQLExceptionTranslator> exceptionTranslatorSupplier;
 
   /**
    * Creates a new {@code PersistenceExceptionTranslator} instance with {@code SQLErrorCodeSQLExceptionTranslator}.
@@ -67,8 +68,8 @@ public class MyBatisExceptionTranslator implements PersistenceExceptionTranslato
    * @param exceptionTranslatorLazyInit if true, the translator instantiates internal stuff only the first time will have the need to translate
    * exceptions.
    */
-  public MyBatisExceptionTranslator(
-          Supplier<SQLExceptionTranslator> exceptionTranslatorSupplier, boolean exceptionTranslatorLazyInit) {
+  public MyBatisExceptionTranslator(Supplier<SQLExceptionTranslator> exceptionTranslatorSupplier,
+          boolean exceptionTranslatorLazyInit) {
     this.exceptionTranslatorSupplier = exceptionTranslatorSupplier;
     if (!exceptionTranslatorLazyInit) {
       this.initExceptionTranslator();

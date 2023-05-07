@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,14 +58,14 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   }
 
   @Override
-  protected ConditionOutcome[] getOutcomes(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+  protected ConditionOutcome[] getOutcomes(String[] configClasses,
+          AutoConfigurationMetadata configMetadata) {
+    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
-      String autoConfigurationClass = autoConfigurationClasses[i];
+      String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
         outcomes[i] = getOutcome(
-                autoConfigurationMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
+                configMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
       }
     }
     return outcomes;
@@ -147,7 +147,8 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isServletWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
+    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())
+            || !ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
     }
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {

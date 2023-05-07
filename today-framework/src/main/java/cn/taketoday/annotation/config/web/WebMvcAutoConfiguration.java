@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,6 +55,7 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
@@ -120,6 +121,7 @@ import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration
         TaskExecutionAutoConfiguration.class,
         ValidationAutoConfiguration.class
 })
+@ConditionalOnWebApplication
 @DisableDependencyInjection
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,12 +21,12 @@
 package cn.taketoday.annotation.config.transaction.jta;
 
 import cn.taketoday.annotation.config.transaction.TransactionManagerCustomizers;
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnJndi;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 
@@ -48,9 +48,11 @@ class JndiJtaConfiguration {
 
   @Bean
   JtaTransactionManager transactionManager(
-          ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
+          @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
     JtaTransactionManager jtaTransactionManager = new JtaTransactionManager();
-    transactionManagerCustomizers.ifAvailable((customizers) -> customizers.customize(jtaTransactionManager));
+    if (transactionManagerCustomizers != null) {
+      transactionManagerCustomizers.customize(jtaTransactionManager);
+    }
     return jtaTransactionManager;
   }
 

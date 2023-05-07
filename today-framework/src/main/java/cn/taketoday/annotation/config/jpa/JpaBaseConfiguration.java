@@ -37,6 +37,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.domain.EntityScanPackages;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.jpa.JpaTransactionManager;
 import cn.taketoday.orm.jpa.JpaVendorAdapter;
 import cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -85,9 +86,11 @@ public abstract class JpaBaseConfiguration {
   @Bean
   @ConditionalOnMissingBean(TransactionManager.class)
   public PlatformTransactionManager transactionManager(
-          ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
+          @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
     JpaTransactionManager transactionManager = new JpaTransactionManager();
-    transactionManagerCustomizers.ifAvailable((customizers) -> customizers.customize(transactionManager));
+    if (transactionManagerCustomizers != null) {
+      transactionManagerCustomizers.customize(transactionManager);
+    }
     return transactionManager;
   }
 

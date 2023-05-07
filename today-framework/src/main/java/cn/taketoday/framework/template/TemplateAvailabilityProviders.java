@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
 /**
@@ -77,7 +78,7 @@ public class TemplateAvailabilityProviders {
    *
    * @param applicationContext the source application context
    */
-  public TemplateAvailabilityProviders(ApplicationContext applicationContext) {
+  public TemplateAvailabilityProviders(@Nullable ApplicationContext applicationContext) {
     this((applicationContext != null) ? applicationContext.getClassLoader() : null);
   }
 
@@ -86,8 +87,7 @@ public class TemplateAvailabilityProviders {
    *
    * @param classLoader the source class loader
    */
-  public TemplateAvailabilityProviders(ClassLoader classLoader) {
-    Assert.notNull(classLoader, "ClassLoader must not be null");
+  public TemplateAvailabilityProviders(@Nullable ClassLoader classLoader) {
     this.providers = TodayStrategies.find(TemplateAvailabilityProvider.class, classLoader);
   }
 
@@ -117,6 +117,7 @@ public class TemplateAvailabilityProviders {
    * @param applicationContext the application context
    * @return a {@link TemplateAvailabilityProvider} or null
    */
+  @Nullable
   public TemplateAvailabilityProvider getProvider(String view, ApplicationContext applicationContext) {
     Assert.notNull(applicationContext, "ApplicationContext must not be null");
     return getProvider(view, applicationContext.getEnvironment(),
@@ -132,13 +133,14 @@ public class TemplateAvailabilityProviders {
    * @param resourceLoader the resource loader
    * @return a {@link TemplateAvailabilityProvider} or null
    */
+  @Nullable
   public TemplateAvailabilityProvider getProvider(String view,
           Environment environment, ClassLoader classLoader, ResourceLoader resourceLoader) {
     Assert.notNull(view, "View must not be null");
     Assert.notNull(environment, "Environment must not be null");
     Assert.notNull(classLoader, "ClassLoader must not be null");
     Assert.notNull(resourceLoader, "ResourceLoader must not be null");
-    Boolean useCache = environment.getProperty("infra.template.provider.cache", Boolean.class, true);
+    boolean useCache = environment.getFlag("infra.template.provider.cache", true);
     if (!useCache) {
       return findProvider(view, environment, classLoader, resourceLoader);
     }
@@ -146,7 +148,9 @@ public class TemplateAvailabilityProviders {
     if (provider == null) {
       synchronized(this.cache) {
         provider = findProvider(view, environment, classLoader, resourceLoader);
-        provider = (provider != null) ? provider : NONE;
+        if (provider == null) {
+          provider = NONE;
+        }
         this.resolved.put(view, provider);
         this.cache.put(view, provider);
       }
@@ -154,6 +158,7 @@ public class TemplateAvailabilityProviders {
     return provider != NONE ? provider : null;
   }
 
+  @Nullable
   private TemplateAvailabilityProvider findProvider(String view,
           Environment environment, ClassLoader classLoader, ResourceLoader resourceLoader) {
     for (TemplateAvailabilityProvider candidate : this.providers) {

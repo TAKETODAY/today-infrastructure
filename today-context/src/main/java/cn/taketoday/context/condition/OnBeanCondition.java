@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -84,15 +84,15 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
   @Override
   protected final ConditionOutcome[] getOutcomes(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+          String[] configClasses, AutoConfigurationMetadata configMetadata) {
+    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
-      String autoConfigurationClass = autoConfigurationClasses[i];
+      String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
-        Set<String> onBeanTypes = autoConfigurationMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
+        Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
         outcomes[i] = getOutcome(onBeanTypes, ConditionalOnBean.class);
         if (outcomes[i] == null) {
-          Set<String> onSingleCandidateTypes = autoConfigurationMetadata.getSet(
+          Set<String> onSingleCandidateTypes = configMetadata.getSet(
                   autoConfigurationClass, "ConditionalOnSingleCandidate");
           outcomes[i] = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
         }

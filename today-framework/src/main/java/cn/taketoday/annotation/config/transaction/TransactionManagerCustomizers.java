@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,12 +40,12 @@ public class TransactionManagerCustomizers {
   private final List<PlatformTransactionManagerCustomizer<?>> customizers;
 
   public TransactionManagerCustomizers(Collection<? extends PlatformTransactionManagerCustomizer<?>> customizers) {
-    this.customizers = (customizers != null) ? new ArrayList<>(customizers) : Collections.emptyList();
+    this.customizers = customizers != null ? new ArrayList<>(customizers) : Collections.emptyList();
   }
 
   @SuppressWarnings("unchecked")
   public void customize(PlatformTransactionManager transactionManager) {
-    LambdaSafe.callbacks(PlatformTransactionManagerCustomizer.class, this.customizers, transactionManager)
+    LambdaSafe.callbacks(PlatformTransactionManagerCustomizer.class, customizers, transactionManager)
             .withLogger(TransactionManagerCustomizers.class)
             .invoke((customizer) -> customizer.customize(transactionManager));
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,8 +24,6 @@ import javax.sql.DataSource;
 
 import cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration;
 import cn.taketoday.annotation.config.transaction.TransactionManagerCustomizers;
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
@@ -39,6 +37,8 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.support.JdbcTransactionManager;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.TransactionManager;
 
 /**
@@ -51,28 +51,31 @@ import cn.taketoday.transaction.TransactionManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 11:51
  */
-@AutoConfiguration(before = TransactionAutoConfiguration.class)
-@ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
 @EnableConfigurationProperties(DataSourceProperties.class)
+@AutoConfiguration(before = TransactionAutoConfiguration.class)
+@ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
 public class DataSourceTransactionManagerAutoConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnSingleCandidate(DataSource.class)
   static class JdbcTransactionManagerConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean(TransactionManager.class)
-    DataSourceTransactionManager transactionManager(Environment environment,
-            DataSource dataSource, ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
+    DataSourceTransactionManager transactionManager(Environment environment, DataSource dataSource,
+            @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
       DataSourceTransactionManager transactionManager = createTransactionManager(environment, dataSource);
-      transactionManagerCustomizers.ifAvailable((customizers) -> customizers.customize(transactionManager));
+      if (transactionManagerCustomizers != null) {
+        transactionManagerCustomizers.customize(transactionManager);
+      }
       return transactionManager;
     }
 
     private DataSourceTransactionManager createTransactionManager(Environment environment, DataSource dataSource) {
-      return environment.getProperty("dao.exceptiontranslation.enabled", Boolean.class, Boolean.TRUE)
-             ? new JdbcTransactionManager(dataSource) : new DataSourceTransactionManager(dataSource);
+      return environment.getFlag("dao.exceptiontranslation.enabled", Boolean.TRUE)
+             ? new JdbcTransactionManager(dataSource)
+             : new DataSourceTransactionManager(dataSource);
     }
 
   }

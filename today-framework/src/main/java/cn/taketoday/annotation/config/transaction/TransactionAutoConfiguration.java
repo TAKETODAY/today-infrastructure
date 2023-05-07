@@ -20,8 +20,8 @@
 
 package cn.taketoday.annotation.config.transaction;
 
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
+import java.util.Collection;
+
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -31,6 +31,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.ReactiveTransactionManager;
 import cn.taketoday.transaction.TransactionManager;
@@ -52,14 +53,14 @@ import cn.taketoday.transaction.support.TransactionTemplate;
 @EnableConfigurationProperties(TransactionProperties.class)
 public class TransactionAutoConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   public TransactionManagerCustomizers platformTransactionManagerCustomizers(
-          ObjectProvider<PlatformTransactionManagerCustomizer<?>> customizers) {
-    return new TransactionManagerCustomizers(customizers.orderedList());
+          Collection<PlatformTransactionManagerCustomizer<?>> customizers) {
+    return new TransactionManagerCustomizers(customizers);
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   @ConditionalOnSingleCandidate(ReactiveTransactionManager.class)
   public TransactionalOperator transactionalOperator(ReactiveTransactionManager transactionManager) {
@@ -70,7 +71,7 @@ public class TransactionAutoConfiguration {
   @ConditionalOnSingleCandidate(PlatformTransactionManager.class)
   public static class TransactionTemplateConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean(TransactionOperations.class)
     public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
       return new TransactionTemplate(transactionManager);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.core.env;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Interface for resolving properties against any underlying source.
@@ -103,13 +102,15 @@ public interface PropertyResolver {
 
   /**
    * Retrieve the flag for the given property key.
+   * <p>
+   * Returns {@code false} if key not found
    *
    * @param key the property key
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise
    */
   default boolean getFlag(String key) {
-    return Boolean.parseBoolean(getProperty(key));
+    return getFlag(key, false);
   }
 
   /**
@@ -119,12 +120,12 @@ public interface PropertyResolver {
    * </p>
    *
    * @param key the property key
+   * @param defaultFlag default return value if key not found
    * @return {@code true} if the property is set to "true", {@code} false
    * otherwise ,If there isn't a key returns defaultFlag
    */
   default boolean getFlag(String key, boolean defaultFlag) {
-    final String property = getProperty(key);
-    return StringUtils.isEmpty(property) ? defaultFlag : Boolean.parseBoolean(property);
+    return getProperty(key, Boolean.class, defaultFlag);
   }
 
   /**
