@@ -73,9 +73,9 @@ class OnEnabledResourceChainCondition extends InfraCondition {
   public ConditionOutcome getMatchOutcome(
           ConditionContext context, AnnotatedTypeMetadata metadata) {
     ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
-    boolean fixed = getEnabledProperty(environment, "strategy.fixed.", false);
-    boolean content = getEnabledProperty(environment, "strategy.content.", false);
-    Boolean chain = getEnabledProperty(environment, "", null);
+    boolean fixed = getEnabledProperty(environment, "strategy.fixed.");
+    boolean content = getEnabledProperty(environment, "strategy.content.");
+    Boolean chain = getEnabledProperty(environment, "");
     Boolean match = WebProperties.Resources.Chain.getEnabled(fixed, content, chain);
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnEnabledResourceChain.class);
     if (match == null) {
@@ -90,9 +90,9 @@ class OnEnabledResourceChainCondition extends InfraCondition {
     return ConditionOutcome.noMatch(message.because("disabled"));
   }
 
-  private Boolean getEnabledProperty(ConfigurableEnvironment environment, String key, Boolean defaultValue) {
+  private boolean getEnabledProperty(ConfigurableEnvironment environment, String key) {
     String name = "web.resources.chain." + key + "enabled";
-    return environment.getFlag(name, defaultValue);
+    return environment.getFlag(name, false);
   }
 
 }
