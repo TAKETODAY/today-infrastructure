@@ -42,11 +42,6 @@
       <artifactId>netty-codec-http</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-kqueue</artifactId>
-    </dependency>
-
   </dependencies>
 
 </project>
