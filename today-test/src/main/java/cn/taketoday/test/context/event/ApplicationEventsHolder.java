@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,7 +49,7 @@ import cn.taketoday.test.context.junit.jupiter.InfraExtension;
  */
 public abstract class ApplicationEventsHolder {
 
-  private static final ThreadLocal<DefaultApplicationEvents> applicationEvents = new ThreadLocal<>();
+  private static final ThreadLocal<DefaultApplicationEvents> applicationEvents = new InheritableThreadLocal<>();
 
   private ApplicationEventsHolder() {
     // no-op to prevent instantiation of this holder class

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -36,6 +37,8 @@ import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.annotation.Testable;
 
 import java.lang.annotation.Annotation;
@@ -58,8 +61,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.TestContext;
+import cn.taketoday.test.context.TestContextAnnotationUtils;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.event.ApplicationEvents;
+import cn.taketoday.test.context.event.RecordApplicationEvents;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.support.PropertyProvider;
 import cn.taketoday.test.context.support.TestConstructorUtils;
@@ -99,6 +104,13 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
           Namespace.create(InfraExtension.class.getName() + "#autowired.validation");
 
   private static final String NO_AUTOWIRED_VIOLATIONS_DETECTED = "NO AUTOWIRED VIOLATIONS DETECTED";
+
+  /**
+   * {@link Namespace} in which {@code @RecordApplicationEvents} validation error messages
+   * are stored, keyed by test class.
+   */
+  private static final Namespace RECORD_APPLICATION_EVENTS_VALIDATION_NAMESPACE =
+          Namespace.create(InfraExtension.class.getName() + "#recordApplicationEvents.validation");
 
   // Note that @Test, @TestFactory, @TestTemplate, @RepeatedTest, and @ParameterizedTest
   // are all meta-annotated with @Testable.
@@ -140,7 +152,48 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
   @Override
   public void postProcessTestInstance(Object testInstance, ExtensionContext context) throws Exception {
     validateAutowiredConfig(context);
+    validateRecordApplicationEventsConfig(context);
     getTestContextManager(context).prepareTestInstance(testInstance);
+  }
+
+  /**
+   * Validate that test class or its enclosing class doesn't attempt to record
+   * application events in a parallel mode that makes it un-deterministic
+   * ({@code @TestInstance(PER_CLASS)} and {@code @Execution(CONCURRENT)}
+   * combination).
+   */
+  private void validateRecordApplicationEventsConfig(ExtensionContext context) {
+    // We save the result in the ExtensionContext.Store so that we don't
+    // re-validate all methods for the same test class multiple times.
+    Store store = context.getStore(RECORD_APPLICATION_EVENTS_VALIDATION_NAMESPACE);
+
+    String errorMessage = store.getOrComputeIfAbsent(context.getRequiredTestClass(), testClass -> {
+      boolean record = TestContextAnnotationUtils.hasAnnotation(testClass, RecordApplicationEvents.class);
+      if (!record) {
+        return NO_AUTOWIRED_VIOLATIONS_DETECTED;
+      }
+      final TestInstance testInstance = TestContextAnnotationUtils.findMergedAnnotation(testClass, TestInstance.class);
+
+      if (testInstance == null || testInstance.value() != TestInstance.Lifecycle.PER_CLASS) {
+        return NO_AUTOWIRED_VIOLATIONS_DETECTED;
+      }
+
+      final Execution execution = TestContextAnnotationUtils.findMergedAnnotation(testClass, Execution.class);
+
+      if (execution == null || execution.value() != ExecutionMode.CONCURRENT) {
+        return NO_AUTOWIRED_VIOLATIONS_DETECTED;
+      }
+
+      return "Test classes or inner classes that @RecordApplicationEvents must not be run in parallel "
+              + "with the @TestInstance(Lifecycle.PER_CLASS) configuration. Use either @Execution(SAME_THREAD), "
+              + "@TestInstance(PER_METHOD) or disable parallel execution altogether. Note that when recording "
+              + "events in parallel, one might see events published by other tests as the application context "
+              + "can be common.";
+    }, String.class);
+
+    if (errorMessage != NO_AUTOWIRED_VIOLATIONS_DETECTED) {
+      throw new IllegalStateException(errorMessage);
+    }
   }
 
   /**
