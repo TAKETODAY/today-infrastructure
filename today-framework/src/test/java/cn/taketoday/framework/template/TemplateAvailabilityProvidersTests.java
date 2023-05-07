@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -67,10 +67,9 @@ class TemplateAvailabilityProvidersTests {
   }
 
   @Test
-  void createWhenApplicationContextIsNullShouldThrowException() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> new TemplateAvailabilityProviders((ApplicationContext) null))
-            .withMessageContaining("ClassLoader must not be null");
+  void createWhenApplicationContextIsNull() {
+    TemplateAvailabilityProviders providers = new TemplateAvailabilityProviders((ApplicationContext) null);
+    assertThat(providers.getProviders()).isNotEmpty();
   }
 
   @Test
@@ -83,9 +82,9 @@ class TemplateAvailabilityProvidersTests {
   }
 
   @Test
-  void createWhenClassLoaderIsNullShouldThrowException() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new TemplateAvailabilityProviders((ClassLoader) null))
-            .withMessageContaining("ClassLoader must not be null");
+  void createWhenClassLoaderIsNull() {
+    TemplateAvailabilityProviders providers = new TemplateAvailabilityProviders((ClassLoader) null);
+    assertThat(providers.getProviders()).isNotEmpty();
   }
 
   @Test
