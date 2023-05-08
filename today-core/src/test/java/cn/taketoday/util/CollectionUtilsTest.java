@@ -285,7 +285,7 @@ public class CollectionUtilsTest {
     testMap(MultiValueMap.class, LinkedMultiValueMap.class);
 
     // concrete types
-    testMap(HashMap.class, LinkedHashMap.class);
+    testMap(HashMap.class, HashMap.class);
     testMap(LinkedHashMap.class, LinkedHashMap.class);
     testMap(TreeMap.class, TreeMap.class);
     testMap(LinkedMultiValueMap.class, LinkedMultiValueMap.class);
