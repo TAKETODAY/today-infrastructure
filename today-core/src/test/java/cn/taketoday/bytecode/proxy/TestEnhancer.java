@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,7 +19,6 @@
  */
 package cn.taketoday.bytecode.proxy;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -1059,11 +1058,7 @@ public class TestEnhancer {
 
     AbstractCallbackFilter helper = new AbstractCallbackFilter(sc, interfaces) {
       protected Object getCallback(final Method method) {
-        return new FixedValue() {
-          public Object loadObject() {
-            return "You called method " + method.getName();
-          }
-        };
+        return (FixedValue) () -> "You called method " + method.getName();
       }
     };
 
@@ -1224,11 +1219,7 @@ public class TestEnhancer {
 
     Enhancer e = new Enhancer();
     e.setSuperclass(Impl.class);
-    e.setCallbackFilter(new CallbackFilter() {
-      public int accept(Method method) {
-        return method.getDeclaringClass() != Object.class ? 0 : 1;
-      }
-    });
+    e.setCallbackFilter(method -> method.getDeclaringClass() != Object.class ? 0 : 1);
     e.setCallbacks(interceptor, NoOp.INSTANCE);
     // We expect the bridge ('ret') to be called & forward us to the non-bridge
     // 'erased'
@@ -1271,16 +1262,14 @@ public class TestEnhancer {
 
     Enhancer e = new Enhancer();
     e.setSuperclass(Impl.class);
-    e.setCallbackFilter(new CallbackFilter() {
-      public int accept(Method method) {
-        // Ideally this would be:
-        // return !method.isBridge() && method.getDeclaringClass() != Object.class ? 0 :
-        // 1;
-        // But Eclipse sometimes labels the wrong things as bridge methods, so we're
-        // more
-        // explicit:
-        return method.getDeclaringClass() != Object.class && method.getReturnType() != RetType.class ? 0 : 1;
-      }
+    e.setCallbackFilter(method -> {
+      // Ideally this would be:
+      // return !method.isBridge() && method.getDeclaringClass() != Object.class ? 0 :
+      // 1;
+      // But Eclipse sometimes labels the wrong things as bridge methods, so we're
+      // more
+      // explicit:
+      return method.getDeclaringClass() != Object.class && method.getReturnType() != RetType.class ? 0 : 1;
     });
     e.setCallbacks(interceptor, NoOp.INSTANCE);
     // We expect the bridge ('ret') to be called & forward us to non-bridge
@@ -1310,11 +1299,7 @@ public class TestEnhancer {
 
     Enhancer e = new Enhancer();
     e.setSuperclass(ReverseImpl.class);
-    e.setCallbackFilter(new CallbackFilter() {
-      public int accept(Method method) {
-        return method.getDeclaringClass() != Object.class ? 0 : 1;
-      }
-    });
+    e.setCallbackFilter(method -> method.getDeclaringClass() != Object.class ? 0 : 1);
     e.setCallbacks(interceptor, NoOp.INSTANCE);
     // We expect the bridge ('erased') to be called & forward us to 'ret'
     // (non-bridge)
@@ -1341,11 +1326,7 @@ public class TestEnhancer {
 
     Enhancer e = new Enhancer();
     e.setSuperclass(PublicViz.class);
-    e.setCallbackFilter(new CallbackFilter() {
-      public int accept(Method method) {
-        return method.getDeclaringClass() != Object.class ? 0 : 1;
-      }
-    });
+    e.setCallbackFilter(method -> method.getDeclaringClass() != Object.class ? 0 : 1);
     e.setCallbacks(interceptor, NoOp.INSTANCE);
 
     VizIntf intf = (VizIntf) e.create();
@@ -1615,18 +1596,12 @@ public class TestEnhancer {
     e.setClassLoader(classLoader);
     e.setInterfaces(classLoader.loadClass("B"));
     e.setCallbackFilter(
-            new CallbackFilter() {
-              public int accept(Method method) {
-                return method.isBridge() ? 1 : 0;
-              }
-            });
-    e.setCallbacks(new MethodInterceptor() {
-      public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) {
-        if (method.getParameterTypes().length > 0) {
-          paramTypes.add(method.getParameterTypes()[0]);
-        }
-        return null;
+            method -> method.isBridge() ? 1 : 0);
+    e.setCallbacks((MethodInterceptor) (obj, method, args, proxy) -> {
+      if (method.getParameterTypes().length > 0) {
+        paramTypes.add(method.getParameterTypes()[0]);
       }
+      return null;
     }, NoOp.INSTANCE);
 
     Object c = e.create();

@@ -513,8 +513,10 @@ public abstract class CollectionUtils {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static <K, V> Map<K, V> createMap(Class<?> mapType, Class<?> keyType, int capacity) {
     Assert.notNull(mapType, "Map type must not be null");
-    if (LinkedHashMap.class == mapType
-            || HashMap.class == mapType
+    if (HashMap.class == mapType) {
+      return new HashMap<>(capacity);
+    }
+    else if (LinkedHashMap.class == mapType
             || Map.class == mapType
             || mapType.getName().equals("java.util.SequencedMap")) {
       return new LinkedHashMap<>(capacity);
