@@ -63,6 +63,7 @@
     <module>today-test-support</module>
     <module>today-context-indexer</module>
     <module>integration-tests</module>
+    <module>today-infra-maven-plugin</module>
   </modules>
 
   <description>
