@@ -203,7 +203,13 @@
 
       <dependency>
         <groupId>cn.taketoday</groupId>
-        <artifactId>today-infrastructure-maven-plugin</artifactId>
+        <artifactId>today-infra-maven-plugin</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>code-coverage-plugin</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -1292,4 +1298,24 @@
     </dependencies>
 
   </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>cn.taketoday</groupId>
+          <artifactId>today-infra-maven-plugin</artifactId>
+          <version>${project.version}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>cn.taketoday</groupId>
+          <artifactId>code-coverage-plugin</artifactId>
+          <version>${project.version}</version>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+  </build>
+
 </project>
