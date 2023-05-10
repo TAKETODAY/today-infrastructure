@@ -35,7 +35,7 @@ import java.util.Objects;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/15 14:23
  */
-@Mojo(name = "code-coverage", threadSafe = true, aggregator = true)
+@Mojo(name = "analysis", threadSafe = true, aggregator = true)
 public class CodeCoverageMojo extends AbstractReportMojo {
 
   public static final String DATA_FILE = "/jacoco/jacoco-unit.exec";

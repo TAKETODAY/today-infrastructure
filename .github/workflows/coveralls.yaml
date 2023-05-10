@@ -39,12 +39,12 @@ jobs:
         run: mvn install -f today-infrastructure-build/code-coverage-plugin/pom.xml
       - name: Report Coverage to Coveralls for Pull Requests
         if: github.event_name == 'pull_request'
-        run: mvn test -B today-infra:code-coverage coveralls:report -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER -Pcoverage -Dcoverage=true -DCI=true
+        run: mvn test -B code-coverage:analysis coveralls:report -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER -Pcoverage -Dcoverage=true -DCI=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
       - name: Report Coverage to Coveralls for General Push
         if: github.event_name == 'push'
-        run: mvn test -B today-infra:code-coverage coveralls:report -DrepoToken=$GITHUB_TOKEN -DserviceName=github -Pcoverage -Dcoverage=true -DCI=true
+        run: mvn test -B code-coverage:analysis coveralls:report -DrepoToken=$GITHUB_TOKEN -DserviceName=github -Pcoverage -Dcoverage=true -DCI=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
