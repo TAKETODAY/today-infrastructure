@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -442,12 +442,12 @@
 
           <plugin>
             <groupId>cn.taketoday</groupId>
-            <artifactId>today-infra-maven-plugin</artifactId>
+            <artifactId>code-coverage-plugin</artifactId>
             <version>${revision}</version>
             <configuration>
               <!--put parent dir-->
               <destFile>${project.parent.build.directory}/jacoco/jacoco-unit.exec</destFile>
-              <formats>XML,HTML</formats>
+              <formats>XML</formats>
               <append>true</append>
             </configuration>
 

@@ -36,7 +36,7 @@ jobs:
           java-version: 17
           distribution: adopt
       - name: Install Maven plugin for Coveralls
-        run: mvn install -f today-infrastructure-build/maven-plugin/pom.xml
+        run: mvn install -f today-infrastructure-build/code-coverage-plugin/pom.xml
       - name: Report Coverage to Coveralls for Pull Requests
         if: github.event_name == 'pull_request'
         run: mvn test -B today-infra:code-coverage coveralls:report -DrepoToken=$GITHUB_TOKEN -DserviceName=github -DpullRequest=$PR_NUMBER -Pcoverage -Dcoverage=true -DCI=true
