@@ -13,7 +13,8 @@
 
 ## 主要目的
 
-主要为了学习技术，顺便给自己的博客网站 https://taketoday.cn 提供基础框架（其实写的博客网站也是为了学习练习技术）。博客也开源了：https://github.com/TAKETODAY/today-blog
+主要为了学习技术，顺便给自己的博客网站 https://taketoday.cn
+提供基础框架（其实写的博客网站也是为了学习练习技术）。博客也开源了：https://github.com/TAKETODAY/today-blog
 
 ## 背景
 
@@ -75,23 +76,16 @@ public class DemoApplication {
 
   @GET("/request-context")
   public String context(RequestContext context) {
-    String requestURL = context.requestURL();
-    String queryString = context.queryString();
+    String requestURL = context.getRequestURL();
+    String queryString = context.getQueryString();
     System.out.println(requestURL);
     System.out.println(queryString);
 
     return queryString;
   }
 
-  @Getter
-  static class Body {
-    final String name;
-    final int age;
+  record Body(String name, int age) {
 
-    Body(String name, int age) {
-      this.name = name;
-      this.age = age;
-    }
   }
 
   @Configuration
@@ -103,13 +97,8 @@ public class DemoApplication {
     }
   }
 
-  @ToString
-  static class MyEvent {
-    final String name;
-
-    MyEvent(String name) {
-      this.name = name;
-    }
+  record MyEvent(String name) {
+    
   }
 
   @ExceptionHandler(Throwable.class)
