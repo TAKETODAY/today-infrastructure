@@ -31,42 +31,44 @@ import java.util.Objects;
  * Parse and expose arguments specified in a single string.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class RunArguments {
 
-	private static final String[] NO_ARGS = {};
+  private static final String[] NO_ARGS = {};
 
-	private final Deque<String> args = new LinkedList<>();
+  private final Deque<String> args = new LinkedList<>();
 
-	RunArguments(String arguments) {
-		this(parseArgs(arguments));
-	}
+  RunArguments(String arguments) {
+    this(parseArgs(arguments));
+  }
 
-	RunArguments(String[] args) {
-		if (args != null) {
-			Arrays.stream(args).filter(Objects::nonNull).forEach(this.args::add);
-		}
-	}
+  RunArguments(String[] args) {
+    if (args != null) {
+      Arrays.stream(args).filter(Objects::nonNull).forEach(this.args::add);
+    }
+  }
 
-	Deque<String> getArgs() {
-		return this.args;
-	}
+  Deque<String> getArgs() {
+    return this.args;
+  }
 
-	String[] asArray() {
-		return this.args.toArray(new String[0]);
-	}
+  String[] asArray() {
+    return this.args.toArray(new String[0]);
+  }
 
-	private static String[] parseArgs(String arguments) {
-		if (arguments == null || arguments.trim().isEmpty()) {
-			return NO_ARGS;
-		}
-		try {
-			arguments = arguments.replace('\n', ' ').replace('\t', ' ');
-			return CommandLineUtils.translateCommandline(arguments);
-		}
-		catch (Exception ex) {
-			throw new IllegalArgumentException("Failed to parse arguments [" + arguments + "]", ex);
-		}
-	}
+  private static String[] parseArgs(String arguments) {
+    if (arguments == null || arguments.trim().isEmpty()) {
+      return NO_ARGS;
+    }
+    try {
+      arguments = arguments.replace('\n', ' ').replace('\t', ' ');
+      return CommandLineUtils.translateCommandline(arguments);
+    }
+    catch (Exception ex) {
+      throw new IllegalArgumentException("Failed to parse arguments [" + arguments + "]", ex);
+    }
+  }
 
 }

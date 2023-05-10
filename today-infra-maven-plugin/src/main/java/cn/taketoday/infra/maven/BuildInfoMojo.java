@@ -47,7 +47,8 @@ import cn.taketoday.infra.maven.BuildPropertiesWriter.ProjectDetails;
  *
  * @author Stephane Nicoll
  * @author Vedran Pavic
- * @since 1.4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @Mojo(name = "build-info", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, threadSafe = true)
 public class BuildInfoMojo extends AbstractMojo {

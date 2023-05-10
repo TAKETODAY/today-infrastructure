@@ -30,6 +30,8 @@ import java.util.Map;
  * Utility class for working with Env variables.
  *
  * @author Dmytro Nosan
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class EnvVariables {
 

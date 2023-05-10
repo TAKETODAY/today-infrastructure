@@ -33,39 +33,42 @@ import java.util.jar.JarFile;
  *
  * @author Andy Wilkinson
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class VersionExtractor {
 
-	private VersionExtractor() {
-	}
+  private VersionExtractor() {
+  }
 
-	/**
-	 * Return the version information for the provided {@link Class}.
-	 * @param cls the Class to retrieve the version for
-	 * @return the version, or {@code null} if a version can not be extracted
-	 */
-	static String forClass(Class<?> cls) {
-		String implementationVersion = cls.getPackage().getImplementationVersion();
-		if (implementationVersion != null) {
-			return implementationVersion;
-		}
-		URL codeSourceLocation = cls.getProtectionDomain().getCodeSource().getLocation();
-		try {
-			URLConnection connection = codeSourceLocation.openConnection();
-			if (connection instanceof JarURLConnection jarURLConnection) {
-				return getImplementationVersion(jarURLConnection.getJarFile());
-			}
-			try (JarFile jarFile = new JarFile(new File(codeSourceLocation.toURI()))) {
-				return getImplementationVersion(jarFile);
-			}
-		}
-		catch (Exception ex) {
-			return null;
-		}
-	}
+  /**
+   * Return the version information for the provided {@link Class}.
+   *
+   * @param cls the Class to retrieve the version for
+   * @return the version, or {@code null} if a version can not be extracted
+   */
+  static String forClass(Class<?> cls) {
+    String implementationVersion = cls.getPackage().getImplementationVersion();
+    if (implementationVersion != null) {
+      return implementationVersion;
+    }
+    URL codeSourceLocation = cls.getProtectionDomain().getCodeSource().getLocation();
+    try {
+      URLConnection connection = codeSourceLocation.openConnection();
+      if (connection instanceof JarURLConnection jarURLConnection) {
+        return getImplementationVersion(jarURLConnection.getJarFile());
+      }
+      try (JarFile jarFile = new JarFile(new File(codeSourceLocation.toURI()))) {
+        return getImplementationVersion(jarFile);
+      }
+    }
+    catch (Exception ex) {
+      return null;
+    }
+  }
 
-	private static String getImplementationVersion(JarFile jarFile) throws IOException {
-		return jarFile.getManifest().getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
-	}
+  private static String getImplementationVersion(JarFile jarFile) throws IOException {
+    return jarFile.getManifest().getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+  }
 
 }

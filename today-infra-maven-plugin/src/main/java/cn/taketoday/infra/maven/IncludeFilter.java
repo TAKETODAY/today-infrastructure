@@ -35,18 +35,18 @@ import java.util.List;
  */
 public class IncludeFilter extends DependencyFilter {
 
-	public IncludeFilter(List<Include> includes) {
-		super(includes);
-	}
+  public IncludeFilter(List<Include> includes) {
+    super(includes);
+  }
 
-	@Override
-	protected boolean filter(Artifact artifact) {
-		for (FilterableDependency dependency : getFilters()) {
-			if (equals(artifact, dependency)) {
-				return false;
-			}
-		}
-		return true;
-	}
+  @Override
+  protected boolean filter(Artifact artifact) {
+    for (FilterableDependency dependency : getFilters()) {
+      if (equals(artifact, dependency)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
 }
