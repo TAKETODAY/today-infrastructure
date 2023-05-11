@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,7 @@ package cn.taketoday.transaction.annotation;
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AdviceModeImportSelector;
 import cn.taketoday.context.annotation.AutoProxyRegistrar;
-import cn.taketoday.transaction.TransactionManagementConfigUtils;
+import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -33,6 +33,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableTransactionManagement
  * @see ProxyTransactionManagementConfiguration
  * @see TransactionManagementConfigUtils#TRANSACTION_ASPECT_CONFIGURATION_CLASS_NAME

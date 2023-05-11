@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.transaction.TransactionManagementConfigUtils;
+import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.interceptor.BeanFactoryTransactionAttributeSourceAdvisor;
 import cn.taketoday.transaction.interceptor.TransactionAttributeSource;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;

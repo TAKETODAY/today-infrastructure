@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Service;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
-import cn.taketoday.transaction.TransactionManagementConfigUtils;
+import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 

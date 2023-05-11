@@ -30,8 +30,8 @@ import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.transaction.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.TransactionManager;
+import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.util.CollectionUtils;
 
