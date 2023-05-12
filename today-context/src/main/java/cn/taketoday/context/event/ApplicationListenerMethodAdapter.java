@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -203,12 +203,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       }
       if (PayloadApplicationEvent.class.isAssignableFrom(eventType.toClass())) {
         ResolvableType payloadType = eventType.as(PayloadApplicationEvent.class).getGeneric();
-        if (declaredEventType.isAssignableFrom(payloadType)) {
+        if (declaredEventType.isAssignableFrom(payloadType) || eventType.hasUnresolvableGenerics()) {
           return true;
         }
       }
     }
-    return eventType.hasUnresolvableGenerics();
+    return false;
   }
 
   @Override
