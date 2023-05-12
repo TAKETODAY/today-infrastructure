@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,10 +59,10 @@ public abstract class Dialect {
    * Characters used as closing for quoting SQL identifiers
    */
   public static final String CLOSED_QUOTE = "`\"]";
-  private static final Pattern SINGLE_QUOTE_PATTERN = Pattern.compile(
-          "'",
-          Pattern.LITERAL
-  );
+//  private static final Pattern SINGLE_QUOTE_PATTERN = Pattern.compile(
+//          "'",
+//          Pattern.LITERAL
+//  );
 
   private static final Pattern ESCAPE_CLOSING_COMMENT_PATTERN = Pattern.compile("\\*/");
   private static final Pattern ESCAPE_OPENING_COMMENT_PATTERN = Pattern.compile("/\\*");

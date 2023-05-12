@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -295,9 +295,8 @@ public class ConstructorArgumentValues {
    * @return the ValueHolder for the argument, or {@code null} if none found
    */
   @Nullable
-  public ValueHolder getGenericArgumentValue(
-          @Nullable Class<?> requiredType, @Nullable String requiredName,
-          @Nullable Set<ValueHolder> usedValueHolders) {
+  public ValueHolder getGenericArgumentValue(@Nullable Class<?> requiredType,
+          @Nullable String requiredName, @Nullable Set<ValueHolder> usedValueHolders) {
 
     for (ValueHolder valueHolder : genericArgumentValues) {
       if (usedValueHolders != null && usedValueHolders.contains(valueHolder)) {
@@ -373,8 +372,7 @@ public class ConstructorArgumentValues {
    * @return the ValueHolder for the argument, or {@code null} if none set
    */
   @Nullable
-  public ValueHolder getArgumentValue(
-          int index, @Nullable Class<?> requiredType,
+  public ValueHolder getArgumentValue(int index, @Nullable Class<?> requiredType,
           @Nullable String requiredName, @Nullable Set<ValueHolder> usedValueHolders) {
     Assert.isTrue(index >= 0, "Index must not be negative");
 
