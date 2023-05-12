@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.ExpressionParser;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,7 +87,8 @@ public abstract class AbstractExpressionTests {
     }
   }
 
-  public void evaluateAndAskForReturnType(String expression, Object expectedValue, Class<?> expectedResultType) {
+  public void evaluateAndAskForReturnType(String expression,
+          @Nullable Object expectedValue, Class<?> expectedResultType) {
     Expression expr = parser.parseExpression(expression);
     assertThat(expr).as("expression").isNotNull();
     if (DEBUG) {
@@ -118,7 +120,7 @@ public abstract class AbstractExpressionTests {
    * @param expectedResultType the expected class of the evaluation result
    * @param shouldBeWritable should the parsed expression be writable?
    */
-  public void evaluate(String expression, Object expectedValue, Class<?> expectedResultType, boolean shouldBeWritable) {
+  public void evaluate(String expression, @Nullable Object expectedValue, Class<?> expectedResultType, boolean shouldBeWritable) {
     Expression expr = parser.parseExpression(expression);
     assertThat(expr).as("expression").isNotNull();
     if (DEBUG) {
@@ -168,8 +170,26 @@ public abstract class AbstractExpressionTests {
    * @param expectedMessage the expected message
    * @param otherProperties the expected inserts within the message
    */
-  protected void evaluateAndCheckError(String expression, Class<?> expectedReturnType, SpelMessage expectedMessage,
-          Object... otherProperties) {
+  protected void evaluateAndCheckError(String expression, @Nullable Class<?> expectedReturnType,
+          SpelMessage expectedMessage, Object... otherProperties) {
+
+    evaluateAndCheckError(this.parser, expression, expectedReturnType, expectedMessage, otherProperties);
+  }
+
+  /**
+   * Evaluate the specified expression and ensure the expected message comes out.
+   * The message may have inserts and they will be checked if otherProperties is specified.
+   * The first entry in otherProperties should always be the position.
+   *
+   * @param parser the expression parser to use
+   * @param expression the expression to evaluate
+   * @param expectedReturnType ask the expression return value to be of this type if possible
+   * ({@code null} indicates don't ask for conversion)
+   * @param expectedMessage the expected message
+   * @param otherProperties the expected inserts within the message
+   */
+  protected void evaluateAndCheckError(ExpressionParser parser, String expression,
+          @Nullable Class<?> expectedReturnType, SpelMessage expectedMessage, Object... otherProperties) {
     assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> {
       Expression expr = parser.parseExpression(expression);
       assertThat(expr).as("expression").isNotNull();

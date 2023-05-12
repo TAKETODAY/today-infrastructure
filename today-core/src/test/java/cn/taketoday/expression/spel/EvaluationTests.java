@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,7 +60,6 @@ import static org.assertj.core.api.Assertions.within;
  * @author Sam Brannen
  * @author Phillip Webb
  * @author Giovanni Dall'Oglio Risso
- * @since 3.0
  */
 class EvaluationTests extends AbstractExpressionTests {
 
@@ -79,6 +78,26 @@ class EvaluationTests extends AbstractExpressionTests {
       expression = "'X' + '%s'".formatted(" ".repeat(9_993));
       assertThat(expression).hasSize(10_001);
       evaluateAndCheckError(expression, String.class, SpelMessage.MAX_EXPRESSION_LENGTH_EXCEEDED);
+    }
+
+    @Test
+    void maxExpressionLengthIsConfigurable() {
+      int maximumExpressionLength = 20_000;
+
+      String expression = "'%s'".formatted("Y".repeat(19_998));
+      assertThat(expression).hasSize(maximumExpressionLength);
+
+      SpelParserConfiguration configuration =
+              new SpelParserConfiguration(null, null, false, false, 0, maximumExpressionLength);
+      ExpressionParser parser = new SpelExpressionParser(configuration);
+
+      Expression expr = parser.parseExpression(expression);
+      String result = expr.getValue(String.class);
+      assertThat(result).hasSize(19_998);
+
+      expression = "'%s'".formatted("Y".repeat(25_000));
+      assertThat(expression).hasSize(25_002);
+      evaluateAndCheckError(parser, expression, String.class, SpelMessage.MAX_EXPRESSION_LENGTH_EXCEEDED);
     }
 
     @Test
