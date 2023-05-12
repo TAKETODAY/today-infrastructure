@@ -191,7 +191,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
               + "can be common.";
     }, String.class);
 
-    if (errorMessage != NO_AUTOWIRED_VIOLATIONS_DETECTED) {
+    if (!Objects.equals(errorMessage, NO_AUTOWIRED_VIOLATIONS_DETECTED)) {
       throw new IllegalStateException(errorMessage);
     }
   }

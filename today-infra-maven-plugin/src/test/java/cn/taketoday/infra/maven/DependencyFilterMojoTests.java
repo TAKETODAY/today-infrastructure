@@ -40,6 +40,8 @@ import java.util.UUID;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
+import cn.taketoday.util.ExceptionUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -149,7 +151,7 @@ class DependencyFilterMojoTests {
       new JarOutputStream(new FileOutputStream(jarPath.toFile()), manifest).close();
     }
     catch (IOException ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     return jarPath.toFile();
   }

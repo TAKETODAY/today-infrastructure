@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -44,6 +44,7 @@ import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * {@link DataObjectBinder} for mutable Java Beans.
@@ -380,8 +381,8 @@ class JavaBeanBinder implements DataObjectBinder {
       }
       return () -> {
         try {
-          this.getter.setAccessible(true);
-          return this.getter.invoke(instance.get());
+          ReflectionUtils.makeAccessible(getter);
+          return getter.invoke(instance.get());
         }
         catch (Exception ex) {
           throw new IllegalStateException("Unable to get value for property " + this.name, ex);
@@ -395,8 +396,8 @@ class JavaBeanBinder implements DataObjectBinder {
 
     void setValue(Supplier<?> instance, Object value) {
       try {
-        this.setter.setAccessible(true);
-        this.setter.invoke(instance.get(), value);
+        ReflectionUtils.makeAccessible(setter);
+        setter.invoke(instance.get(), value);
       }
       catch (Exception ex) {
         throw new IllegalStateException("Unable to set value for property " + this.name, ex);

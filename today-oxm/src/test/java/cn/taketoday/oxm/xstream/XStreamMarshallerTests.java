@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,6 +46,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +65,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import cn.taketoday.oxm.XmlContent;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.xml.StaxUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,7 +154,7 @@ class XStreamMarshallerTests {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     StreamResult result = new StreamResult(os);
     marshaller.marshal(flight, result);
-    String s = os.toString("UTF-8");
+    String s = os.toString(StandardCharsets.UTF_8);
     assertThat(XmlContent.of(s)).isSimilarToIgnoringWhitespace(EXPECTED_STRING);
   }
 
@@ -225,7 +227,7 @@ class XStreamMarshallerTests {
         assertThat(bufResult).as("Invalid result").isEqualTo(buf);
       }
       catch (Exception ex) {
-        throw new RuntimeException(ex);
+        throw ExceptionUtils.sneakyThrow(ex);
       }
     });
   }
