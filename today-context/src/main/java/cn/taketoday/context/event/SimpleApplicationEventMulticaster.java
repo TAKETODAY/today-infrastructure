@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -127,13 +127,13 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
   @Override
   public void multicastEvent(ApplicationEvent event) {
-    multicastEvent(event, resolveDefaultEventType(event));
+    multicastEvent(event, null);
   }
 
   @Override
   public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
     if (eventType == null) {
-      eventType = resolveDefaultEventType(event);
+      eventType = ResolvableType.fromInstance(event);
     }
     Executor executor = getTaskExecutor();
     if (executor != null) {
@@ -146,10 +146,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
         invokeListener(listener, event);
       }
     }
-  }
-
-  private ResolvableType resolveDefaultEventType(ApplicationEvent event) {
-    return ResolvableType.fromInstance(event);
   }
 
   /**

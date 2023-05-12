@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1394,28 +1394,54 @@ public abstract class AbstractApplicationContext
 
   /**
    * Publish the given event to all listeners.
+   * <p>This is the internal delegate that all other {@code publishEvent}
+   * methods refer to. It is not meant to be called directly but rather serves
+   * as a propagation mechanism between application contexts in a hierarchy,
+   * potentially overridden in subclasses for a custom propagation arrangement.
    *
    * @param event the event to publish (may be an {@link ApplicationEvent}
-   * @param eventType the resolved event type, if known
+   * or a payload object to be turned into a {@link PayloadApplicationEvent})
+   * @param typeHint the resolved event type, if known.
+   * The implementation of this method also tolerates a payload type hint for
+   * a payload object to be turned into a {@link PayloadApplicationEvent}.
+   * However, the recommended way is to construct an actual event object via
+   * {@link PayloadApplicationEvent#PayloadApplicationEvent(Object, Object, ResolvableType)}
+   * instead for such scenarios.
+   * @see ApplicationEventMulticaster#multicastEvent(ApplicationEvent, ResolvableType)
    * @since 4.0
    */
-  protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
+  protected void publishEvent(Object event, @Nullable ResolvableType typeHint) {
     Assert.notNull(event, "Event is required");
-    // Decorate event as an ApplicationEvent if necessary
+    ResolvableType eventType = null;
 
+    // Decorate event as an ApplicationEvent if necessary
     ApplicationEvent applicationEvent;
-    if (event instanceof ApplicationEvent) {
-      applicationEvent = (ApplicationEvent) event;
+    if (event instanceof ApplicationEvent applEvent) {
+      applicationEvent = applEvent;
+      eventType = typeHint;
     }
     else {
-      applicationEvent = new PayloadApplicationEvent<>(this, event, eventType);
-      if (eventType == null) {
-        eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
+      ResolvableType payloadType = null;
+      if (typeHint != null && ApplicationEvent.class.isAssignableFrom(typeHint.toClass())) {
+        eventType = typeHint;
+      }
+      else {
+        payloadType = typeHint;
+      }
+      applicationEvent = new PayloadApplicationEvent<>(this, event, payloadType);
+    }
+
+    // Determine event type only once (for multicast and parent publish)
+    if (eventType == null) {
+      eventType = ResolvableType.fromInstance(applicationEvent);
+      if (typeHint == null) {
+        typeHint = eventType;
       }
     }
+
     // Multicast right now if possible - or lazily once the multicaster is initialized
-    if (earlyApplicationEvents != null) {
-      earlyApplicationEvents.add(applicationEvent);
+    if (this.earlyApplicationEvents != null) {
+      this.earlyApplicationEvents.add(applicationEvent);
     }
     else {
       getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
@@ -1424,13 +1450,12 @@ public abstract class AbstractApplicationContext
     // Publish event via parent context as well...
     if (parent != null) {
       if (parent instanceof AbstractApplicationContext parentCtx) {
-        parentCtx.publishEvent(event, eventType);
+        parentCtx.publishEvent(event, typeHint);
       }
       else {
-        parent.publishEvent(event);
+        this.parent.publishEvent(event);
       }
     }
-
   }
 
   protected void registerApplicationListeners() {
