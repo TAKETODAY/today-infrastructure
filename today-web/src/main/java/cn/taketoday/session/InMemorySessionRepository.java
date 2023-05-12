@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -234,7 +234,7 @@ public class InMemorySessionRepository implements SessionRepository {
       return null;
     }
     else {
-      session.updateLastAccessTime(now);
+      session.lastAccessTime = now;
       return session;
     }
   }
@@ -412,10 +412,6 @@ public class InMemorySessionRepository implements SessionRepository {
       return isStarted()
               && !maxIdleTime.isNegative()
               && currentTime.minus(maxIdleTime).isAfter(lastAccessTime);
-    }
-
-    private void updateLastAccessTime(Instant currentTime) {
-      this.lastAccessTime = currentTime;
     }
 
     // Serializable

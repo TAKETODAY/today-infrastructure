@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,13 +83,14 @@ import cn.taketoday.util.StringUtils;
  * @author Andreas Neiser
  * @since 4.0
  */
-public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor, BeanClassLoaderAware, DependenciesBeanPostProcessor,
+public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor,
+        BeanClassLoaderAware, DependenciesBeanPostProcessor,
         BeanFactoryAware, BeanFactoryPostProcessor, Ordered {
 
   private static final String BEAN_NAME = MockitoPostProcessor.class.getName();
 
-  private static final String CONFIGURATION_CLASS_ATTRIBUTE = Conventions
-          .getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "configurationClass");
+  private static final String CONFIGURATION_CLASS_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          ConfigurationClassPostProcessor.class, "configurationClass");
 
   private static final BeanNameGenerator beanNameGenerator = new DefaultBeanNameGenerator();
 
@@ -362,7 +363,7 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
 
   private void inject(Field field, Object target, String beanName) {
     try {
-      field.setAccessible(true);
+      ReflectionUtils.makeAccessible(field);
       Object existingValue = ReflectionUtils.getField(field, target);
       Object bean = this.beanFactory.getBean(beanName, field.getType());
       if (existingValue == bean) {
@@ -417,8 +418,9 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
     SpyPostProcessor.register(registry);
     BeanDefinition definition = getOrAddBeanDefinition(registry, postProcessor);
     ValueHolder constructorArg = definition.getConstructorArgumentValues().getIndexedArgumentValue(0, Set.class);
+    Assert.state(constructorArg != null, "No constructorArg");
     Set<Definition> existing = (Set<Definition>) constructorArg.getValue();
-    if (definitions != null) {
+    if (definitions != null && existing != null) {
       existing.addAll(definitions);
     }
   }

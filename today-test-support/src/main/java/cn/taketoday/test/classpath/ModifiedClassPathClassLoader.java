@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,6 +47,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +60,9 @@ import java.util.stream.Stream;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -68,6 +71,8 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Andy Wilkinson
  * @author Christoph Dreis
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class ModifiedClassPathClassLoader extends URLClassLoader {
 
@@ -87,7 +92,8 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
 
   @Override
   public Class<?> loadClass(String name) throws ClassNotFoundException {
-    if (name.startsWith("org.junit") || name.startsWith("org.hamcrest")
+    if (name.startsWith("org.junit")
+            || name.startsWith("org.hamcrest")
             || name.startsWith("io.netty.internal.tcnative")) {
       return Class.forName(name, false, this.junitLoader);
     }
@@ -99,12 +105,13 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
     candidates.add(testClass);
     candidates.add(testMethod);
     candidates.addAll(getAnnotatedElements(arguments.toArray()));
-    List<AnnotatedElement> annotatedElements = candidates.stream()
-            .filter(ModifiedClassPathClassLoader::hasAnnotation).collect(Collectors.toList());
+    var annotatedElements = candidates.stream()
+            .filter(ModifiedClassPathClassLoader::hasAnnotation)
+            .collect(Collectors.toList());
     if (annotatedElements.isEmpty()) {
       return null;
     }
-    return cache.computeIfAbsent(annotatedElements, (key) -> compute(testClass.getClassLoader(), key));
+    return cache.computeIfAbsent(annotatedElements, key -> compute(testClass.getClassLoader(), key));
   }
 
   private static Collection<AnnotatedElement> getAnnotatedElements(Object[] array) {
@@ -121,16 +128,16 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
   }
 
   private static boolean hasAnnotation(AnnotatedElement element) {
-    MergedAnnotations annotations = MergedAnnotations.from(element,
-            MergedAnnotations.SearchStrategy.TYPE_HIERARCHY);
-    return annotations.isPresent(ForkedClassPath.class) || annotations.isPresent(ClassPathOverrides.class)
+    MergedAnnotations annotations = MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY);
+    return annotations.isPresent(ForkedClassPath.class)
+            || annotations.isPresent(ClassPathOverrides.class)
             || annotations.isPresent(ClassPathExclusions.class);
   }
 
   private static ModifiedClassPathClassLoader compute(
           ClassLoader classLoader, List<AnnotatedElement> annotatedClasses) {
     List<MergedAnnotations> annotations = annotatedClasses.stream()
-            .map((source) -> MergedAnnotations.from(source, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY))
+            .map(source -> MergedAnnotations.from(source, SearchStrategy.TYPE_HIERARCHY))
             .toList();
     return new ModifiedClassPathClassLoader(processUrls(extractUrls(classLoader), annotations),
             classLoader.getParent(), classLoader);
@@ -192,7 +199,7 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
       }
     }
     catch (Exception ex) {
-      throw new RuntimeException(ex);
+      throw ExceptionUtils.sneakyThrow(ex);
     }
     return urls;
   }
@@ -243,7 +250,7 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
             "https://repo.maven.apache.org/maven2").build();
     session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, localRepository));
     for (int i = 0; i < MAX_RESOLUTION_ATTEMPTS; i++) {
-      CollectRequest collectRequest = new CollectRequest(null, Arrays.asList(remoteRepository));
+      CollectRequest collectRequest = new CollectRequest(null, Collections.singletonList(remoteRepository));
       collectRequest.setDependencies(createDependencies(coordinates));
       DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, null);
       try {
@@ -258,8 +265,8 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
         latestFailure = ex;
       }
     }
-    throw new IllegalStateException("Resolution failed after " + MAX_RESOLUTION_ATTEMPTS + " attempts",
-            latestFailure);
+    throw new IllegalStateException("Resolution failed after " +
+            MAX_RESOLUTION_ATTEMPTS + " attempts", latestFailure);
   }
 
   private static List<Dependency> createDependencies(String[] allCoordinates) {
@@ -300,7 +307,7 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
             }
           }
         }
-        catch (URISyntaxException ex) {
+        catch (URISyntaxException ignored) {
         }
       }
       return false;

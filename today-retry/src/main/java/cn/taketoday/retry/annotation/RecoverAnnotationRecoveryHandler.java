@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -106,6 +106,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public T recover(Object[] args, Throwable cause) {
     Method method = findClosestMatch(args, cause.getClass());
     if (method == null) {
@@ -113,35 +114,25 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     }
     SimpleMetadata meta = this.methods.get(method);
     Object[] argsToUse = meta.getArgs(cause, args);
-    boolean methodAccessible = method.isAccessible();
-    try {
-      ReflectionUtils.makeAccessible(method);
-      RetryContext context = RetrySynchronizationManager.getContext();
-      Object proxy = null;
-      if (context != null) {
-        proxy = context.getAttribute("___proxy___");
-        if (proxy != null) {
-          Method proxyMethod = findMethodOnProxy(method, proxy);
-          if (proxyMethod == null) {
-            proxy = null;
-          }
-          else {
-            method = proxyMethod;
-          }
+    ReflectionUtils.makeAccessible(method);
+    RetryContext context = RetrySynchronizationManager.getContext();
+    Object proxy = null;
+    if (context != null) {
+      proxy = context.getAttribute("___proxy___");
+      if (proxy != null) {
+        Method proxyMethod = findMethodOnProxy(method, proxy);
+        if (proxyMethod == null) {
+          proxy = null;
+        }
+        else {
+          method = proxyMethod;
         }
       }
-      if (proxy == null) {
-        proxy = this.target;
-      }
-      @SuppressWarnings("unchecked")
-      T result = (T) ReflectionUtils.invokeMethod(method, proxy, argsToUse);
-      return result;
     }
-    finally {
-      if (methodAccessible != method.isAccessible()) {
-        method.setAccessible(methodAccessible);
-      }
+    if (proxy == null) {
+      proxy = this.target;
     }
+    return (T) ReflectionUtils.invokeMethod(method, proxy, argsToUse);
   }
 
   private Method findMethodOnProxy(Method method, Object proxy) {

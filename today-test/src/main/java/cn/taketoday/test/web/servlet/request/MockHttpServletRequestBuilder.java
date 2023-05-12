@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.beans.Mergeable;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpMethod;
@@ -51,13 +50,9 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.UrlPathHelper;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelManager;
-import cn.taketoday.web.view.SessionRedirectModelManager;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
@@ -849,19 +844,6 @@ public class MockHttpServletRequestBuilder
     catch (IOException ex) {
       throw new IllegalStateException("Failed to parse form data in request body", ex);
     }
-  }
-
-  private RedirectModelManager getFlashMapManager(MockHttpServletRequest request) {
-    RedirectModelManager flashMapManager = null;
-    try {
-      ServletContext servletContext = request.getServletContext();
-      WebApplicationContext wac = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-      flashMapManager = wac.getBean(RedirectModelManager.BEAN_NAME, RedirectModelManager.class);
-    }
-    catch (IllegalStateException | NoSuchBeanDefinitionException ex) {
-      // ignore
-    }
-    return (flashMapManager != null ? flashMapManager : new SessionRedirectModelManager());
   }
 
   @Override

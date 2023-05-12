@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -780,7 +780,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       Field factoryDataField = klass.getField(FACTORY_DATA_FIELD);
       factoryDataField.set(null, factoryData);
       Field callbackFilterField = klass.getDeclaredField(CALLBACK_FILTER_FIELD);
-      callbackFilterField.setAccessible(true);
+      ReflectionUtils.makeAccessible(callbackFilterField);
       callbackFilterField.set(null, this.filter);
     }
     catch (NoSuchFieldException | IllegalAccessException e) {
