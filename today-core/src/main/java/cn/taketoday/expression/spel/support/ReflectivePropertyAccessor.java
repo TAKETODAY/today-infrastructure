@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,6 +58,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see StandardEvaluationContext
  * @see SimpleEvaluationContext
  * @see DataBindingPropertyAccessor
@@ -78,9 +79,6 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
   private final Map<PropertyCacheKey, TypeDescriptor> typeDescriptorCache = new ConcurrentHashMap<>(64);
 
   private final Map<Class<?>, Method[]> sortedMethodsCache = new ConcurrentHashMap<>(64);
-
-  @Nullable
-  private volatile InvokerPair lastReadInvokerPair;
 
   /**
    * Create a new property accessor for reading as well writing.
@@ -164,7 +162,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
     PropertyCacheKey cacheKey = new PropertyCacheKey(type, name, target instanceof Class);
     InvokerPair invoker = this.readerCache.get(cacheKey);
-    this.lastReadInvokerPair = invoker;
+    // this.lastReadInvokerPair = invoker;
 
     if (invoker == null || invoker.member instanceof Method) {
       Method method = (Method) (invoker != null ? invoker.member : null);
@@ -176,7 +174,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           TypeDescriptor typeDescriptor = getTypeDescriptor(method, null, type);
           method = ReflectionUtils.getInterfaceMethodIfPossible(method, type);
           invoker = new InvokerPair(method, typeDescriptor);
-          this.lastReadInvokerPair = invoker;
+          // this.lastReadInvokerPair = invoker;
           this.readerCache.put(cacheKey, invoker);
         }
       }
@@ -198,7 +196,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
         field = findField(name, type, target);
         if (field != null) {
           invoker = new InvokerPair(field, new TypeDescriptor(field));
-          this.lastReadInvokerPair = invoker;
+          // this.lastReadInvokerPair = invoker;
           this.readerCache.put(cacheKey, invoker);
         }
       }
@@ -406,10 +404,11 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     Method[] methods = getSortedMethods(clazz);
     for (String methodSuffix : methodSuffixes) {
       for (Method method : methods) {
-        if (isCandidateForProperty(method, clazz) && method.getName().equals(prefix + methodSuffix) &&
-                method.getParameterCount() == numberOfParams &&
-                (!mustBeStatic || Modifier.isStatic(method.getModifiers())) &&
-                (requiredReturnTypes.isEmpty() || requiredReturnTypes.contains(method.getReturnType()))) {
+        if (isCandidateForProperty(method, clazz)
+                && method.getName().equals(prefix + methodSuffix)
+                && method.getParameterCount() == numberOfParams
+                && (!mustBeStatic || Modifier.isStatic(method.getModifiers()))
+                && (requiredReturnTypes.isEmpty() || requiredReturnTypes.contains(method.getReturnType()))) {
           return method;
         }
       }
@@ -421,7 +420,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
    * Return class methods ordered with non-bridge methods appearing higher.
    */
   private Method[] getSortedMethods(Class<?> clazz) {
-    return this.sortedMethodsCache.computeIfAbsent(clazz, key -> {
+    return sortedMethodsCache.computeIfAbsent(clazz, key -> {
       Method[] methods = key.getMethods();
       Arrays.sort(methods, (o1, o2) -> (o1.isBridge() == o2.isBridge() ? 0 : (o1.isBridge() ? 1 : -1)));
       return methods;

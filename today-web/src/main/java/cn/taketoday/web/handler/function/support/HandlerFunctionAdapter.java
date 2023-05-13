@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -93,7 +93,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
   }
 
   @Nullable
-  private ServerResponse handleAsync(WebAsyncManager asyncManager) throws Exception {
+  private ServerResponse handleAsync(WebAsyncManager asyncManager) throws Throwable {
     Object result = asyncManager.getConcurrentResult();
     asyncManager.clearConcurrentResult();
     LogFormatUtils.traceDebug(logger, traceOn -> {
@@ -103,11 +103,8 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     if (result instanceof ServerResponse) {
       return (ServerResponse) result;
     }
-    else if (result instanceof Exception) {
-      throw (Exception) result;
-    }
     else if (result instanceof Throwable) {
-      throw new Exception("Async processing failed", (Throwable) result);
+      throw (Throwable) result;
     }
     else if (result == null) {
       return null;
