@@ -241,7 +241,7 @@ public class WebProperties {
           return this.content;
         }
 
-        private boolean hasBeenCustomized() {
+        public boolean hasBeenCustomized() {
           return getFixed().hasBeenCustomized() || getContent().hasBeenCustomized();
         }
 
@@ -281,7 +281,7 @@ public class WebProperties {
             this.paths = paths;
           }
 
-          private boolean hasBeenCustomized() {
+          public boolean hasBeenCustomized() {
             return this.customized;
           }
 
@@ -337,7 +337,7 @@ public class WebProperties {
             this.version = version;
           }
 
-          private boolean hasBeenCustomized() {
+          public boolean hasBeenCustomized() {
             return this.customized;
           }
 
@@ -395,7 +395,7 @@ public class WebProperties {
         this.useLastModified = useLastModified;
       }
 
-      private boolean hasBeenCustomized() {
+      public boolean hasBeenCustomized() {
         return this.customized || cachecontrol.hasBeenCustomized();
       }
 
