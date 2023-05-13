@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.support;
 
 import cn.taketoday.beans.BeansException;
@@ -35,10 +36,21 @@ import cn.taketoday.logging.LoggerFactory;
  * context reference and provides an initialization callback method.
  * Furthermore, it offers numerous convenience methods for message lookup.
  *
- * @author TODAY <br>
+ * <p>There is no requirement to subclass this class: It just makes things
+ * a little easier if you need access to the context, e.g. for access to
+ * file resources or to the message source. Note that many application
+ * objects do not need to be aware of the application context at all,
+ * as they can receive collaborating beans via bean references.
+ *
+ * <p>Many framework classes are derived from this class, particularly
+ * within the web support.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-12-21 15:45
  */
-public abstract class ApplicationContextSupport implements ApplicationContextAware {
+public abstract class ApplicationObjectSupport implements ApplicationContextAware {
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   @Nullable
@@ -62,7 +74,6 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
                 "Invalid application context: needs to be of type [" + requiredContextClass().getName() + "]");
       }
       this.applicationContext = context;
-      this.messageSourceAccessor = new MessageSourceAccessor(context);
       initApplicationContext(context);
     }
     else {
@@ -162,10 +173,21 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
   @Nullable
   protected final MessageSourceAccessor getMessageSourceAccessor() throws IllegalStateException {
     MessageSourceAccessor accessor = this.messageSourceAccessor;
-    if (accessor == null && isContextRequired()) {
-      throw new IllegalStateException(
-              "ApplicationObjectSupport instance [" + this + "] does not run in an ApplicationContext");
+    if (accessor == null) {
+      ApplicationContext context = this.applicationContext;
+      if (context == null) {
+        if (isContextRequired()) {
+          throw new IllegalStateException(
+                  "ApplicationObjectSupport instance [" + this + "] does not run in an ApplicationContext");
+        }
+        return null;
+      }
+      else {
+        accessor = new MessageSourceAccessor(context);
+        this.messageSourceAccessor = accessor;
+      }
     }
+
     return accessor;
   }
 

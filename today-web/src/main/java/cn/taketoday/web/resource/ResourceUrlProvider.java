@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,11 +25,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.event.ContextRefreshedEvent;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -53,23 +53,16 @@ import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ResourceUrlProvider implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
+public class ResourceUrlProvider extends ApplicationObjectSupport
+        implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-  @Nullable
-  private ApplicationContext applicationContext;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
 
   private final Map<String, ResourceHttpRequestHandler> handlerMap = new LinkedHashMap<>();
 
   private boolean autodetect = true;
-
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    this.applicationContext = applicationContext;
-  }
 
   /**
    * Configure a {@code PathMatcher} to use when comparing target lookup path

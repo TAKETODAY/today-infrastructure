@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -43,7 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @see #loadView
  */
-public abstract class AbstractCachingViewResolver extends ApplicationContextSupport implements ViewResolver {
+public abstract class AbstractCachingViewResolver extends ApplicationObjectSupport implements ViewResolver {
 
   /** Default maximum number of entries for the view cache: 1024. */
   public static final int DEFAULT_CACHE_LIMIT = 1024;

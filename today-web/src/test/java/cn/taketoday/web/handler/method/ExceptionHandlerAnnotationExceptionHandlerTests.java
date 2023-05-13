@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,7 +56,7 @@ import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.WebApplicationContextSupport;
+import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
@@ -456,7 +456,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   @Controller
-  static class ResponseBodyController extends WebApplicationContextSupport implements ResponseBodyInterface {
+  static class ResponseBodyController extends WebApplicationObjectSupport implements ResponseBodyInterface {
 
     @Override
     public void handle() { }
@@ -573,7 +573,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     }
   }
 
-  @RestControllerAdvice(assignableTypes = WebApplicationContextSupport.class)
+  @RestControllerAdvice(assignableTypes = WebApplicationObjectSupport.class)
   @Order(2)
   static class BasePackageTestExceptionResolver {
 

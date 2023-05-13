@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
@@ -188,7 +188,7 @@ import jakarta.servlet.ServletContext;
  * @since 4.0 2022/1/27 23:43
  */
 @DisableAllDependencyInjection
-public class WebMvcConfigurationSupport extends ApplicationContextSupport {
+public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
   private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.lang.Assert;
@@ -63,7 +63,7 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * @see HandlerInterceptor
  * @since 2019-12-24 15:02
  */
-public abstract class AbstractHandlerMapping extends ApplicationContextSupport
+public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
         implements HandlerMapping, Ordered, EmbeddedValueResolverAware, BeanNameAware {
 
   /**

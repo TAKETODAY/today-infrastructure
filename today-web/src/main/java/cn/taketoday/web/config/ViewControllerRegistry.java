@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -58,7 +58,7 @@ import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/18 22:20
  */
-public class ViewControllerRegistry extends ApplicationContextSupport {
+public class ViewControllerRegistry extends ApplicationObjectSupport {
   public static final String webMvcConfigLocation = "classpath:web-mvc.xml";
 
   // the dtd

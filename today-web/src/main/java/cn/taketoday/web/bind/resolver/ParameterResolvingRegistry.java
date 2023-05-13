@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind.resolver;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
@@ -65,7 +66,7 @@ import jakarta.servlet.ServletContext;
  * @since 3.0
  */
 public class ParameterResolvingRegistry
-        extends ApplicationContextSupport implements ArraySizeTrimmer, InitializingBean {
+        extends ApplicationObjectSupport implements ArraySizeTrimmer, InitializingBean {
 
   private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
   private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();

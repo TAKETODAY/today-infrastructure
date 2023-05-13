@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.context;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 
 /**
  * Interface to be implemented by any object that wishes to be notified
@@ -46,7 +46,7 @@ import cn.taketoday.context.support.ApplicationContextSupport;
  * for implementing any callback interface just for the purpose of accessing
  * a specific file resource.
  *
- * <p>{@link ApplicationContextSupport} is a
+ * <p>{@link ApplicationObjectSupport} is a
  * convenience base class for application objects, implementing this interface.
  *
  * <p>For a list of all bean lifecycle methods, see the

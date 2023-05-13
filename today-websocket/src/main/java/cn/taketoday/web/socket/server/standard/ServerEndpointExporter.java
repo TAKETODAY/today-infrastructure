@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.WebApplicationContextSupport;
+import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 import jakarta.servlet.ServletContext;
 import jakarta.websocket.DeploymentException;
 import jakarta.websocket.server.ServerContainer;
@@ -56,7 +56,7 @@ import jakarta.websocket.server.ServerEndpointConfig;
  * @see ServletServerContainerFactoryBean
  * @since 4.0
  */
-public class ServerEndpointExporter extends WebApplicationContextSupport
+public class ServerEndpointExporter extends WebApplicationObjectSupport
         implements InitializingBean, SmartInitializingSingleton {
 
   @Nullable

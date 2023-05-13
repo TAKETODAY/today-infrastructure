@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,20 +23,26 @@ package cn.taketoday.web.servlet;
 import java.io.File;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ServletContext;
 
 /**
  * Convenient superclass for application objects running in a {@link WebApplicationContext}.
- * Provides {@code getWebApplicationContext()}
+ * Provides {@code getWebApplicationContext()}, {@code getServletContext()}, and
+ * {@code getTempDir()} accessors.
  *
+ * <p>Note: It is generally recommended to use individual callback interfaces for the actual
+ * callbacks needed. This broad base class is primarily intended for use within the framework,
+ * in case of {@link ServletContext} access etc typically being needed.
+ *
+ * @author Juergen Hoeller
  * @author TODAY <br>
  * @since 2019-12-27 09:36
  */
-public class WebApplicationContextSupport
-        extends ApplicationContextSupport implements ServletContextAware {
+public class WebApplicationObjectSupport
+        extends ApplicationObjectSupport implements ServletContextAware {
 
   @Nullable
   private ServletContext servletContext;

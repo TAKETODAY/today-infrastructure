@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.style.ToStringBuilder;
@@ -72,7 +72,7 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  * @author TODAY 2019-12-28 13:47
  */
 public class ReturnValueHandlerManager
-        extends ApplicationContextSupport implements ArraySizeTrimmer, ReturnValueHandler {
+        extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
 

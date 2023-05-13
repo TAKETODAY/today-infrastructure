@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
@@ -41,7 +41,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.WebApplicationContextSupport;
+import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 
 /**
  * Abstract base class for {@link View}
@@ -53,7 +53,7 @@ import cn.taketoday.web.servlet.WebApplicationContextSupport;
  * with the given dynamic attributes (the model that the controller returned)
  * for each render operation.
  *
- * <p>Extends {@link WebApplicationContextSupport}, which will be helpful to
+ * <p>Extends {@link WebApplicationObjectSupport}, which will be helpful to
  * some views. Subclasses just need to implement the actual rendering.
  *
  * @author Rod Johnson
@@ -63,7 +63,7 @@ import cn.taketoday.web.servlet.WebApplicationContextSupport;
  * @see #renderMergedOutputModel
  * @since 4.0
  */
-public abstract class AbstractView extends ApplicationContextSupport implements View, BeanNameAware {
+public abstract class AbstractView extends ApplicationObjectSupport implements View, BeanNameAware {
 
   /** Default content type. Overridable as bean property. */
   public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=UTF-8";
