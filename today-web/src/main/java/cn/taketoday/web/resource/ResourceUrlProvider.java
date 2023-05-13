@@ -223,10 +223,9 @@ public class ResourceUrlProvider extends ApplicationObjectSupport
         var chain = new DefaultResourceResolvingChain(handler.getResourceResolvers());
 
         String resolved = chain.resolveUrlPath(pathWithinMapping, handler.getLocations());
-        if (resolved == null) {
-          continue;
+        if (resolved != null) {
+          return pathMapping + resolved;
         }
-        return pathMapping + resolved;
       }
     }
 
