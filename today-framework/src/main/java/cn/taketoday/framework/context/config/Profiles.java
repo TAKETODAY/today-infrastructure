@@ -60,11 +60,11 @@ public class Profiles implements Iterable<String> {
    */
   public static final String INCLUDE_PROFILES_PROPERTY_NAME = "infra.profiles.include";
 
-  static final ConfigurationPropertyName INCLUDE_PROFILES = ConfigurationPropertyName
-          .of(Profiles.INCLUDE_PROFILES_PROPERTY_NAME);
+  static final ConfigurationPropertyName INCLUDE_PROFILES = ConfigurationPropertyName.of(
+          Profiles.INCLUDE_PROFILES_PROPERTY_NAME);
 
-  private static final Bindable<MultiValueMap<String, String>> STRING_STRINGS_MAP = Bindable
-          .of(ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class));
+  private static final Bindable<MultiValueMap<String, String>> STRING_STRINGS_MAP = Bindable.of(
+          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class));
 
   private static final Bindable<Set<String>> STRING_SET = Bindable.setOf(String.class);
 
@@ -99,10 +99,12 @@ public class Profiles implements Iterable<String> {
 
   private Collection<String> getProfiles(Environment environment, Binder binder, Type type) {
     String environmentPropertyValue = environment.getProperty(type.name);
-    Set<String> environmentPropertyProfiles = (StringUtils.isEmpty(environmentPropertyValue))
-                                              ? Collections.emptySet()
-                                              : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
-    Set<String> environmentProfiles = new LinkedHashSet<>(Arrays.asList(type.get(environment)));
+    Set<String> environmentPropertyProfiles
+            = StringUtils.isEmpty(environmentPropertyValue)
+              ? Collections.emptySet()
+              : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
+
+    LinkedHashSet<String> environmentProfiles = new LinkedHashSet<>(Arrays.asList(type.get(environment)));
     BindResult<Set<String>> boundProfiles = binder.bind(type.name, STRING_SET);
     if (hasProgrammaticallySetProfiles(type,
             environmentPropertyValue, environmentPropertyProfiles, environmentProfiles)) {
@@ -133,7 +135,9 @@ public class Profiles implements Iterable<String> {
 
   private List<String> expandProfiles(List<String> profiles) {
     ArrayDeque<String> stack = new ArrayDeque<>();
-    asReversedList(profiles).forEach(stack::push);
+    for (String profile : asReversedList(profiles)) {
+      stack.push(profile);
+    }
     LinkedHashSet<String> expandedProfiles = new LinkedHashSet<>();
     while (!stack.isEmpty()) {
       String current = stack.pop();

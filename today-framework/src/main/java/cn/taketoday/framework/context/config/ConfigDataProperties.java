@@ -46,7 +46,10 @@ class ConfigDataProperties {
 
   private static final Bindable<ConfigDataProperties> BINDABLE_PROPERTIES = Bindable.of(ConfigDataProperties.class);
 
-  private final List<ConfigDataLocation> imports;
+  /**
+   * any additional imports requested.
+   */
+  public final List<ConfigDataLocation> imports;
 
   @Nullable
   private final Activate activate;
@@ -60,15 +63,6 @@ class ConfigDataProperties {
   ConfigDataProperties(@Name("import") @Nullable List<ConfigDataLocation> imports, @Nullable Activate activate) {
     this.imports = (imports != null) ? imports : Collections.emptyList();
     this.activate = activate;
-  }
-
-  /**
-   * Return any additional imports requested.
-   *
-   * @return the requested imports
-   */
-  List<ConfigDataLocation> getImports() {
-    return this.imports;
   }
 
   /**
@@ -136,8 +130,8 @@ class ConfigDataProperties {
       if (activationContext == null) {
         return false;
       }
-      boolean activate = isActive(activationContext.getCloudPlatform());
-      activate = activate && isActive(activationContext.getProfiles());
+      boolean activate = isActive(activationContext.cloudPlatform);
+      activate = activate && isActive(activationContext.profiles);
       return activate;
     }
 

@@ -342,7 +342,7 @@ class ConfigDataEnvironment {
     PropertySources propertySources = environment.getPropertySources();
     applyContributor(contributors, activationContext, propertySources);
     DefaultPropertiesPropertySource.moveToEnd(propertySources);
-    Profiles profiles = activationContext.getProfiles();
+    Profiles profiles = activationContext.profiles;
     if (profiles != null) {
       if (traceEnabled) {
         log.trace("Setting default profiles: {}", profiles.getDefault());

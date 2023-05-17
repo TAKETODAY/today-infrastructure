@@ -36,11 +36,17 @@ import cn.taketoday.lang.Nullable;
  */
 class ConfigDataActivationContext {
 
+  /**
+   * the active {@link CloudPlatform} or {@code null}.
+   */
   @Nullable
-  private final CloudPlatform cloudPlatform;
+  public final CloudPlatform cloudPlatform;
 
+  /**
+   * profile information if it is available.
+   */
   @Nullable
-  private final Profiles profiles;
+  public final Profiles profiles;
 
   /**
    * Create a new {@link ConfigDataActivationContext} instance before any profiles have
@@ -84,26 +90,6 @@ class ConfigDataActivationContext {
    */
   ConfigDataActivationContext withProfiles(Profiles profiles) {
     return new ConfigDataActivationContext(this.cloudPlatform, profiles);
-  }
-
-  /**
-   * Return the active {@link CloudPlatform} or {@code null}.
-   *
-   * @return the active cloud platform
-   */
-  @Nullable
-  CloudPlatform getCloudPlatform() {
-    return this.cloudPlatform;
-  }
-
-  /**
-   * Return profile information if it is available.
-   *
-   * @return profile information or {@code null}
-   */
-  @Nullable
-  Profiles getProfiles() {
-    return this.profiles;
   }
 
   @Override
