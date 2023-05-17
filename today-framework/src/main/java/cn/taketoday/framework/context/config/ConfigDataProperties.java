@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,6 +37,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ConfigDataProperties {
@@ -140,7 +141,7 @@ class ConfigDataProperties {
       return activate;
     }
 
-    private boolean isActive(CloudPlatform cloudPlatform) {
+    private boolean isActive(@Nullable CloudPlatform cloudPlatform) {
       return this.onCloudPlatform == null || this.onCloudPlatform == cloudPlatform;
     }
 

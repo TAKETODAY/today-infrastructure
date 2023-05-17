@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,21 +29,22 @@ import cn.taketoday.util.StringUtils;
  * be resolved to one or more {@link StandardConfigDataResource resources}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class StandardConfigDataReference {
 
-  private final ConfigDataLocation configDataLocation;
+  public final ConfigDataLocation configDataLocation;
 
-  private final String resourceLocation;
-
-  @Nullable
-  private final String directory;
+  public final String resourceLocation;
 
   @Nullable
-  private final String profile;
+  public final String directory;
 
-  private final PropertySourceLoader propertySourceLoader;
+  @Nullable
+  public final String profile;
+
+  public final PropertySourceLoader propertySourceLoader;
 
   /**
    * Create a new {@link StandardConfigDataReference} instance.
@@ -57,49 +58,23 @@ class StandardConfigDataReference {
    * @param propertySourceLoader the property source loader that should be used for this
    * reference
    */
-  StandardConfigDataReference(
-          ConfigDataLocation configDataLocation,
-          @Nullable String directory,
-          String root,
-          @Nullable String profile,
-          @Nullable String extension,
-          PropertySourceLoader propertySourceLoader) {
+  StandardConfigDataReference(ConfigDataLocation configDataLocation,
+          @Nullable String directory, String root, @Nullable String profile,
+          @Nullable String extension, PropertySourceLoader propertySourceLoader) {
     this.configDataLocation = configDataLocation;
-    String profileSuffix = (StringUtils.hasText(profile)) ? "-" + profile : "";
+    String profileSuffix = StringUtils.hasText(profile) ? "-" + profile : "";
     this.resourceLocation = root + profileSuffix + ((extension != null) ? "." + extension : "");
     this.directory = directory;
     this.profile = profile;
     this.propertySourceLoader = propertySourceLoader;
   }
 
-  ConfigDataLocation getConfigDataLocation() {
-    return this.configDataLocation;
-  }
-
-  String getResourceLocation() {
-    return this.resourceLocation;
-  }
-
   boolean isMandatoryDirectory() {
     return !this.configDataLocation.isOptional() && this.directory != null;
   }
 
-  @Nullable
-  String getDirectory() {
-    return this.directory;
-  }
-
-  @Nullable
-  String getProfile() {
-    return this.profile;
-  }
-
   boolean isSkippable() {
     return this.configDataLocation.isOptional() || this.directory != null || this.profile != null;
-  }
-
-  PropertySourceLoader getPropertySourceLoader() {
-    return this.propertySourceLoader;
   }
 
   @Override

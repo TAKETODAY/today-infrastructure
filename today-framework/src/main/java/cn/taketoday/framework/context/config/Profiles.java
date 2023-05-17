@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,7 +36,6 @@ import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Nullable;
@@ -52,6 +50,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Profiles implements Iterable<String> {
@@ -99,28 +98,28 @@ public class Profiles implements Iterable<String> {
   }
 
   private Collection<String> getProfiles(Environment environment, Binder binder, Type type) {
-    String environmentPropertyValue = environment.getProperty(type.getName());
+    String environmentPropertyValue = environment.getProperty(type.name);
     Set<String> environmentPropertyProfiles = (StringUtils.isEmpty(environmentPropertyValue))
                                               ? Collections.emptySet()
                                               : StringUtils.commaDelimitedListToSet(StringUtils.trimAllWhitespace(environmentPropertyValue));
     Set<String> environmentProfiles = new LinkedHashSet<>(Arrays.asList(type.get(environment)));
-    BindResult<Set<String>> boundProfiles = binder.bind(type.getName(), STRING_SET);
-    if (hasProgrammaticallySetProfiles(type, environmentPropertyValue, environmentPropertyProfiles,
-            environmentProfiles)) {
-      if (!type.isMergeWithEnvironmentProfiles() || !boundProfiles.isBound()) {
+    BindResult<Set<String>> boundProfiles = binder.bind(type.name, STRING_SET);
+    if (hasProgrammaticallySetProfiles(type,
+            environmentPropertyValue, environmentPropertyProfiles, environmentProfiles)) {
+      if (!type.mergeWithEnvironmentProfiles || !boundProfiles.isBound()) {
         return environmentProfiles;
       }
-      return boundProfiles.map((bound) -> merge(environmentProfiles, bound)).get();
+      return boundProfiles.map(bound -> merge(environmentProfiles, bound)).get();
     }
-    return boundProfiles.orElse(type.getDefaultValue());
+    return boundProfiles.orElse(type.defaultValue);
   }
 
   private boolean hasProgrammaticallySetProfiles(Type type, @Nullable String environmentPropertyValue,
           Set<String> environmentPropertyProfiles, Set<String> environmentProfiles) {
     if (StringUtils.isEmpty(environmentPropertyValue)) {
-      return !type.getDefaultValue().equals(environmentProfiles);
+      return !type.defaultValue.equals(environmentProfiles);
     }
-    if (type.getDefaultValue().equals(environmentProfiles)) {
+    if (type.defaultValue.equals(environmentProfiles)) {
       return false;
     }
     return !environmentPropertyProfiles.equals(environmentProfiles);
@@ -133,9 +132,9 @@ public class Profiles implements Iterable<String> {
   }
 
   private List<String> expandProfiles(List<String> profiles) {
-    Deque<String> stack = new ArrayDeque<>();
+    ArrayDeque<String> stack = new ArrayDeque<>();
     asReversedList(profiles).forEach(stack::push);
-    Set<String> expandedProfiles = new LinkedHashSet<>();
+    LinkedHashSet<String> expandedProfiles = new LinkedHashSet<>();
     while (!stack.isEmpty()) {
       String current = stack.pop();
       if (expandedProfiles.add(current)) {
@@ -226,42 +225,30 @@ public class Profiles implements Iterable<String> {
    */
   private enum Type {
 
-    ACTIVE(AbstractEnvironment.KEY_ACTIVE_PROFILES, Environment::getActiveProfiles, true,
+    ACTIVE(Environment.KEY_ACTIVE_PROFILES,
+            Environment::getActiveProfiles, true,
             Collections.emptySet()),
 
-    DEFAULT(AbstractEnvironment.KEY_DEFAULT_PROFILES, Environment::getDefaultProfiles, false,
-            Collections.singleton("default"));
+    DEFAULT(Environment.KEY_DEFAULT_PROFILES,
+            Environment::getDefaultProfiles, false,
+            Collections.singleton(Environment.DEFAULT_PROFILE));
+
+    public final String name;
+    public final Set<String> defaultValue;
+    public final boolean mergeWithEnvironmentProfiles;
 
     private final Function<Environment, String[]> getter;
 
-    private final boolean mergeWithEnvironmentProfiles;
-
-    private final String name;
-
-    private final Set<String> defaultValue;
-
-    Type(String name, Function<Environment, String[]> getter, boolean mergeWithEnvironmentProfiles,
-            Set<String> defaultValue) {
+    Type(String name, Function<Environment, String[]> getter,
+            boolean mergeWithEnvironmentProfiles, Set<String> defaultValue) {
       this.name = name;
       this.getter = getter;
-      this.mergeWithEnvironmentProfiles = mergeWithEnvironmentProfiles;
       this.defaultValue = defaultValue;
+      this.mergeWithEnvironmentProfiles = mergeWithEnvironmentProfiles;
     }
 
-    String getName() {
-      return this.name;
-    }
-
-    String[] get(Environment environment) {
+    public String[] get(Environment environment) {
       return this.getter.apply(environment);
-    }
-
-    Set<String> getDefaultValue() {
-      return this.defaultValue;
-    }
-
-    boolean isMergeWithEnvironmentProfiles() {
-      return this.mergeWithEnvironmentProfiles;
     }
 
   }

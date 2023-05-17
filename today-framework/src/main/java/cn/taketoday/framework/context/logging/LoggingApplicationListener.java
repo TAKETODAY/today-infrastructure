@@ -55,7 +55,6 @@ import cn.taketoday.framework.logging.LoggingStartupContext;
 import cn.taketoday.framework.logging.LoggingSystem;
 import cn.taketoday.framework.logging.LoggingSystemProperties;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -361,7 +360,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
       }
       exceptionToReport = (exceptionToReport != null) ? exceptionToReport : ex;
       // NOTE: We can't use the logger here to report the problem
-      System.err.println("Logging system failed to initialize using configuration from '" + logConfig + "'");
+      System.err.printf("Logging system failed to initialize using configuration from '%s'%n", logConfig);
       exceptionToReport.printStackTrace(System.err);
       throw new IllegalStateException(ex);
     }
@@ -435,7 +434,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
         system.setLogLevel(name, level);
       }
       catch (RuntimeException ex) {
-        logger.error(LogMessage.format("Cannot set level '%s' for '%s'", level, name));
+        logger.error("Cannot set level '{}' for '{}'", level, name);
       }
     };
   }

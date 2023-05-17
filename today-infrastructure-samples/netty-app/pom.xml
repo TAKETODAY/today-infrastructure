@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -65,5 +65,31 @@
     </dependency>
 
   </dependencies>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>cn.taketoday</groupId>
+        <artifactId>today-infra-maven-plugin</artifactId>
+        <version>${revision}</version>
+
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+              <goal>build</goal>
+            </goals>
+            <configuration>
+              <additionalProperties>
+                <encoding.source>UTF-8</encoding.source>
+                <encoding.reporting>UTF-8</encoding.reporting>
+              </additionalProperties>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
