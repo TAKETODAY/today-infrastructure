@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,6 +41,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -68,6 +69,7 @@ class ApplicationBeanDefinitionLoader {
 
   private final ClassPathBeanDefinitionScanner scanner;
 
+  @Nullable
   private ResourceLoader resourceLoader;
 
   /**
@@ -157,7 +159,8 @@ class ApplicationBeanDefinitionLoader {
   }
 
   private void load(Resource source) {
-    if (source.getName().endsWith(".xml")) {
+    String name = source.getName();
+    if (name != null && name.endsWith(".xml")) {
       this.xmlReader.loadBeanDefinitions(source);
     }
   }
@@ -218,7 +221,7 @@ class ApplicationBeanDefinitionLoader {
     }
   }
 
-  private boolean isLoadCandidate(Resource resource) {
+  private boolean isLoadCandidate(@Nullable Resource resource) {
     if (resource == null || !resource.exists()) {
       return false;
     }
@@ -240,6 +243,7 @@ class ApplicationBeanDefinitionLoader {
     return true;
   }
 
+  @Nullable
   private Package findPackage(CharSequence source) {
     Package pkg = getClass().getClassLoader().getDefinedPackage(source.toString());
     if (pkg != null) {
@@ -251,7 +255,9 @@ class ApplicationBeanDefinitionLoader {
       Set<Resource> resources = resolver.getResources(
               ClassUtils.convertClassNameToResourcePath(source.toString()) + "/*.class");
       for (Resource resource : resources) {
-        String className = StringUtils.stripFilenameExtension(resource.getName());
+        String name = resource.getName();
+        Assert.state(name != null, "No name");
+        String className = StringUtils.stripFilenameExtension(name);
         load(Class.forName(source + "." + className));
         break;
       }
