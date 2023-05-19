@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,9 +22,9 @@ package cn.taketoday.framework.context;
 
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.ansi.AnsiOutput;
+import cn.taketoday.core.ansi.AnsiOutput.Enabled;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.framework.ansi.AnsiOutput;
-import cn.taketoday.framework.ansi.AnsiOutput.Enabled;
 import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
 
 /**

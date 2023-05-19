@@ -28,7 +28,7 @@ import java.util.Collections;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
-import cn.taketoday.framework.ansi.AnsiOutput;
+import cn.taketoday.core.ansi.AnsiOutput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -31,8 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import cn.taketoday.framework.ansi.AnsiOutput;
-import cn.taketoday.framework.ansi.AnsiOutput.Enabled;
+import cn.taketoday.core.ansi.AnsiOutput;
+import cn.taketoday.core.ansi.AnsiOutput.Enabled;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 

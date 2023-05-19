@@ -104,12 +104,12 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
     this.poolMetadataProvider = new CompositeDataSourcePoolMetadataProvider(metadataProviders.getIfAvailable());
     this.hibernatePropertiesCustomizers = determineHibernatePropertiesCustomizers(
             physicalNamingStrategy.getIfAvailable(), implicitNamingStrategy.getIfAvailable(), beanFactory,
-            hibernatePropertiesCustomizers.orderedList());
+            hibernatePropertiesCustomizers);
   }
 
   private List<HibernatePropertiesCustomizer> determineHibernatePropertiesCustomizers(
           PhysicalNamingStrategy physicalNamingStrategy, ImplicitNamingStrategy implicitNamingStrategy,
-          ConfigurableBeanFactory beanFactory, List<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
+          ConfigurableBeanFactory beanFactory, ObjectProvider<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
     List<HibernatePropertiesCustomizer> customizers = new ArrayList<>();
     if (ClassUtils.isPresent("org.hibernate.resource.beans.container.spi.BeanContainer",
             getClass().getClassLoader())) {
@@ -120,7 +120,8 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
       customizers.add(new NamingStrategiesHibernatePropertiesCustomizer(
               physicalNamingStrategy, implicitNamingStrategy));
     }
-    customizers.addAll(hibernatePropertiesCustomizers);
+
+    hibernatePropertiesCustomizers.addOrderedTo(customizers);
     return customizers;
   }
 

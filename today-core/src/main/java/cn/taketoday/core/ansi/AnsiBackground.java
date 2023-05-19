@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,29 +18,54 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.ansi;
+package cn.taketoday.core.ansi;
 
 /**
- * {@link AnsiElement Ansi} styles.
+ * {@link AnsiElement Ansi} background colors.
  *
  * @author Phillip Webb
+ * @author Geoffrey Chandler
  * @since 4.0
  */
-public enum AnsiStyle implements AnsiElement {
+public enum AnsiBackground implements AnsiElement {
 
-  NORMAL("0"),
+  DEFAULT("49"),
 
-  BOLD("1"),
+  BLACK("40"),
 
-  FAINT("2"),
+  RED("41"),
 
-  ITALIC("3"),
+  GREEN("42"),
 
-  UNDERLINE("4");
+  YELLOW("43"),
 
-  private final String code;
+  BLUE("44"),
 
-  AnsiStyle(String code) {
+  MAGENTA("45"),
+
+  CYAN("46"),
+
+  WHITE("47"),
+
+  BRIGHT_BLACK("100"),
+
+  BRIGHT_RED("101"),
+
+  BRIGHT_GREEN("102"),
+
+  BRIGHT_YELLOW("103"),
+
+  BRIGHT_BLUE("104"),
+
+  BRIGHT_MAGENTA("105"),
+
+  BRIGHT_CYAN("106"),
+
+  BRIGHT_WHITE("107");
+
+  private String code;
+
+  AnsiBackground(String code) {
     this.code = code;
   }
 

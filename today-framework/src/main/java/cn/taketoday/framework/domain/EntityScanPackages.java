@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -49,6 +48,7 @@ import cn.taketoday.util.StringUtils;
  * (e.g. by JPA auto-configuration).
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EntityScan
  * @see EntityScanner
  * @since 4.0
@@ -138,13 +138,13 @@ public class EntityScanPackages {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
       register(context.getRegistry(), getPackagesToScan(importMetadata, context.getEnvironment()));
-
     }
 
     private Set<String> getPackagesToScan(AnnotationMetadata metadata, Environment environment) {
-      AnnotationAttributes attributes = AnnotationAttributes
-              .fromMap(metadata.getAnnotationAttributes(EntityScan.class.getName()));
+      AnnotationAttributes attributes = AnnotationAttributes.fromMap(
+              metadata.getAnnotationAttributes(EntityScan.class.getName()));
       Set<String> packagesToScan = new LinkedHashSet<>();
+      Assert.state(attributes != null, "EntityScan Error");
       for (String basePackage : attributes.getStringArray("basePackages")) {
         String[] tokenized = StringUtils.tokenizeToStringArray(
                 environment.resolvePlaceholders(basePackage),
@@ -172,11 +172,8 @@ public class EntityScanPackages {
       setBeanClass(EntityScanPackages.class);
       setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       addPackageNames(packageNames);
-    }
 
-    @Override
-    public Supplier<?> getInstanceSupplier() {
-      return () -> new EntityScanPackages(StringUtils.toStringArray(this.packageNames));
+      setInstanceSupplier(() -> new EntityScanPackages(StringUtils.toStringArray(this.packageNames)));
     }
 
     private void addPackageNames(Collection<String> additionalPackageNames) {

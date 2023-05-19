@@ -26,11 +26,11 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.core.ansi.AnsiColor;
+import cn.taketoday.core.ansi.AnsiOutput;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.framework.ansi.AnsiColor;
-import cn.taketoday.framework.ansi.AnsiOutput;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;

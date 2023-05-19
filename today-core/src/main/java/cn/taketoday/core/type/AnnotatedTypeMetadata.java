@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -105,6 +105,17 @@ public interface AnnotatedTypeMetadata {
    * Get the fully qualified class names of all meta-annotation types that
    * are <em>present</em> on the given annotation type on the underlying class.
    *
+   * @param annotationType the class of the meta-annotation type to look for
+   * @return the meta-annotation type names, or an empty set if none found
+   */
+  default Set<String> getMetaAnnotationTypes(Class<? extends Annotation> annotationType) {
+    return getMetaAnnotationTypes(annotationType.getName());
+  }
+
+  /**
+   * Get the fully qualified class names of all meta-annotation types that
+   * are <em>present</em> on the given annotation type on the underlying class.
+   *
    * @param annotationName the fully qualified class name of the meta-annotation
    * type to look for
    * @return the meta-annotation type names, or an empty set if none found
@@ -124,12 +135,34 @@ public interface AnnotatedTypeMetadata {
    * Determine whether an annotation of the given type is <em>present</em> on
    * the underlying class.
    *
+   * @param annotationType the class of the annotation type to look for
+   * @return {@code true} if a matching annotation is present
+   */
+  default boolean hasAnnotation(Class<? extends Annotation> annotationType) {
+    return hasAnnotation(annotationType.getName());
+  }
+
+  /**
+   * Determine whether an annotation of the given type is <em>present</em> on
+   * the underlying class.
+   *
    * @param annotationName the fully qualified class name of the annotation
    * type to look for
    * @return {@code true} if a matching annotation is present
    */
   default boolean hasAnnotation(String annotationName) {
     return getAnnotations().isDirectlyPresent(annotationName);
+  }
+
+  /**
+   * Determine whether the underlying class has an annotation that is itself
+   * annotated with the meta-annotation of the given type.
+   *
+   * @param metaAnnotationType the class of the meta-annotation type to look for
+   * @return {@code true} if a matching meta-annotation is present
+   */
+  default boolean hasMetaAnnotation(Class<? extends Annotation> metaAnnotationType) {
+    return hasMetaAnnotation(metaAnnotationType.getName());
   }
 
   /**
@@ -152,12 +185,40 @@ public interface AnnotatedTypeMetadata {
    * <p>If this method returns {@code true}, then
    * {@link #getAnnotationAttributes} will return a non-null Map.
    *
+   * @param annotationType the class of the annotation type to look for
+   * @return whether a matching annotation is defined
+   */
+  default boolean isAnnotated(Class<? extends Annotation> annotationType) {
+    return isAnnotated(annotationType.getName());
+  }
+
+  /**
+   * Determine whether the underlying element has an annotation or meta-annotation
+   * of the given type defined.
+   * <p>If this method returns {@code true}, then
+   * {@link #getAnnotationAttributes} will return a non-null Map.
+   *
    * @param annotationName the fully qualified class name of the annotation
    * type to look for
    * @return whether a matching annotation is defined
    */
   default boolean isAnnotated(String annotationName) {
     return getAnnotations().isPresent(annotationName);
+  }
+
+  /**
+   * Retrieve the attributes of the annotation of the given type, if any (i.e. if
+   * defined on the underlying element, as direct annotation or meta-annotation),
+   * also taking attribute overrides on composed annotations into account.
+   *
+   * @param annotationType the class of the annotation type to look for
+   * @return a Map of attributes, with the attribute name as key (e.g. "value")
+   * and the defined attribute value as Map value. This return value will be
+   * {@code null} if no matching annotation is defined.
+   */
+  @Nullable
+  default Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType) {
+    return getAnnotationAttributes(annotationType.getName(), false);
   }
 
   /**
@@ -174,6 +235,25 @@ public interface AnnotatedTypeMetadata {
   @Nullable
   default Map<String, Object> getAnnotationAttributes(String annotationName) {
     return getAnnotationAttributes(annotationName, false);
+  }
+
+  /**
+   * Retrieve the attributes of the annotation of the given type, if any (i.e. if
+   * defined on the underlying element, as direct annotation or meta-annotation),
+   * also taking attribute overrides on composed annotations into account.
+   *
+   * @param annotationType the class of the annotation type to look for
+   * @param classValuesAsString whether to convert class references to String
+   * class names for exposure as values in the returned Map, instead of Class
+   * references which might potentially have to be loaded first
+   * @return a Map of attributes, with the attribute name as key (e.g. "value")
+   * and the defined attribute value as Map value. This return value will be
+   * {@code null} if no matching annotation is defined.
+   */
+  @Nullable
+  default Map<String, Object> getAnnotationAttributes(
+          Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+    return getAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
   /**
@@ -205,6 +285,22 @@ public interface AnnotatedTypeMetadata {
    * defined on the underlying element, as direct annotation or meta-annotation).
    * Note that this variant does <i>not</i> take attribute overrides into account.
    *
+   * @param annotationType the class of the annotation type to look for
+   * @return a MultiMap of attributes, with the attribute name as key (e.g. "value")
+   * and a list of the defined attribute values as Map value. This return value will
+   * be {@code null} if no matching annotation is defined.
+   * @see #getAllAnnotationAttributes(String, boolean)
+   */
+  @Nullable
+  default MultiValueMap<String, Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType) {
+    return getAllAnnotationAttributes(annotationType.getName());
+  }
+
+  /**
+   * Retrieve all attributes of all annotations of the given type, if any (i.e. if
+   * defined on the underlying element, as direct annotation or meta-annotation).
+   * Note that this variant does <i>not</i> take attribute overrides into account.
+   *
    * @param annotationName the fully qualified class name of the annotation
    * type to look for
    * @return a MultiMap of attributes, with the attribute name as key (e.g. "value")
@@ -215,6 +311,24 @@ public interface AnnotatedTypeMetadata {
   @Nullable
   default MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName) {
     return getAllAnnotationAttributes(annotationName, false);
+  }
+
+  /**
+   * Retrieve all attributes of all annotations of the given type, if any (i.e. if
+   * defined on the underlying element, as direct annotation or meta-annotation).
+   * Note that this variant does <i>not</i> take attribute overrides into account.
+   *
+   * @param annotationType the class of the annotation type to look for
+   * @param classValuesAsString whether to convert class references to String
+   * @return a MultiMap of attributes, with the attribute name as key (e.g. "value")
+   * and a list of the defined attribute values as Map value. This return value will
+   * be {@code null} if no matching annotation is defined.
+   * @see #getAllAnnotationAttributes(String)
+   */
+  @Nullable
+  default MultiValueMap<String, Object> getAllAnnotationAttributes(
+          Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+    return getAllAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
   /**

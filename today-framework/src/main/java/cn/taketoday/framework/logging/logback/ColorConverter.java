@@ -25,10 +25,10 @@ import java.util.Map;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.pattern.CompositeConverter;
-import cn.taketoday.framework.ansi.AnsiColor;
-import cn.taketoday.framework.ansi.AnsiElement;
-import cn.taketoday.framework.ansi.AnsiOutput;
-import cn.taketoday.framework.ansi.AnsiStyle;
+import cn.taketoday.core.ansi.AnsiColor;
+import cn.taketoday.core.ansi.AnsiElement;
+import cn.taketoday.core.ansi.AnsiOutput;
+import cn.taketoday.core.ansi.AnsiStyle;
 
 /**
  * Logback {@link CompositeConverter} colors output using the {@link AnsiOutput} class. A

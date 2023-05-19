@@ -80,7 +80,7 @@ abstract class ReactiveWebServerFactoryConfiguration {
       for (NettyRouteProvider route : routes) {
         serverFactory.addRouteProviders(route);
       }
-      serverCustomizers.addTo(serverFactory.getServerCustomizers());
+      serverCustomizers.addOrderedTo(serverFactory.getServerCustomizers());
       return serverFactory;
     }
 
@@ -97,9 +97,9 @@ abstract class ReactiveWebServerFactoryConfiguration {
             ObjectProvider<TomcatContextCustomizer> contextCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
       TomcatReactiveWebServerFactory factory = new TomcatReactiveWebServerFactory();
-      contextCustomizers.addTo(factory.getTomcatContextCustomizers());
-      connectorCustomizers.addTo(factory.getTomcatConnectorCustomizers());
-      protocolHandlerCustomizers.addTo(factory.getTomcatProtocolHandlerCustomizers());
+      contextCustomizers.addOrderedTo(factory.getTomcatContextCustomizers());
+      connectorCustomizers.addOrderedTo(factory.getTomcatConnectorCustomizers());
+      protocolHandlerCustomizers.addOrderedTo(factory.getTomcatProtocolHandlerCustomizers());
       return factory;
     }
 
@@ -120,7 +120,7 @@ abstract class ReactiveWebServerFactoryConfiguration {
     JettyReactiveWebServerFactory jettyReactiveWebServerFactory(JettyResourceFactory resourceFactory,
             ObjectProvider<JettyServerCustomizer> serverCustomizers) {
       JettyReactiveWebServerFactory serverFactory = new JettyReactiveWebServerFactory();
-      serverCustomizers.addTo(serverFactory.getServerCustomizers());
+      serverCustomizers.addOrderedTo(serverFactory.getServerCustomizers());
       serverFactory.setResourceFactory(resourceFactory);
       return serverFactory;
     }
@@ -136,7 +136,7 @@ abstract class ReactiveWebServerFactoryConfiguration {
     UndertowReactiveWebServerFactory undertowReactiveWebServerFactory(
             ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
       UndertowReactiveWebServerFactory factory = new UndertowReactiveWebServerFactory();
-      builderCustomizers.addTo(factory.getBuilderCustomizers());
+      builderCustomizers.addOrderedTo(factory.getBuilderCustomizers());
       return factory;
     }
 

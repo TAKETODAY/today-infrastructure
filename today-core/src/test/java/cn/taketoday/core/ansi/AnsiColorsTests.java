@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,13 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.ansi;
+package cn.taketoday.core.ansi;
 
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 
-import cn.taketoday.framework.ansi.AnsiColors.BitDepth;
+import cn.taketoday.core.ansi.AnsiColors.BitDepth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

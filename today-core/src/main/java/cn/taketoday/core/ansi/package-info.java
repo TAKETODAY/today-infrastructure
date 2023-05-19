@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,60 +18,15 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.ansi;
-
 /**
- * {@link AnsiElement Ansi} colors.
+ * Support classes to provide ANSI color output.
  *
- * @author Phillip Webb
- * @author Geoffrey Chandler
+ * @see cn.taketoday.core.ansi.AnsiOutput
  * @since 4.0
  */
-public enum AnsiColor implements AnsiElement {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.core.ansi;
 
-	DEFAULT("39"),
-
-	BLACK("30"),
-
-	RED("31"),
-
-	GREEN("32"),
-
-	YELLOW("33"),
-
-	BLUE("34"),
-
-	MAGENTA("35"),
-
-	CYAN("36"),
-
-	WHITE("37"),
-
-	BRIGHT_BLACK("90"),
-
-	BRIGHT_RED("91"),
-
-	BRIGHT_GREEN("92"),
-
-	BRIGHT_YELLOW("93"),
-
-	BRIGHT_BLUE("94"),
-
-	BRIGHT_MAGENTA("95"),
-
-	BRIGHT_CYAN("96"),
-
-	BRIGHT_WHITE("97");
-
-	private final String code;
-
-	AnsiColor(String code) {
-		this.code = code;
-	}
-
-	@Override
-	public String toString() {
-		return this.code;
-	}
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

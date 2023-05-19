@@ -277,9 +277,24 @@ public interface ObjectProvider<T> extends Supplier<T>, Iterable<T> {
    * @see #iterator()
    * @since 4.0
    */
-  default void addTo(Collection<T> destination) {
+  default void addOrderedTo(Collection<T> destination) {
     for (T t : this) {
       destination.add(t);
+    }
+  }
+
+  /**
+   * Add a {@link List} over all matching object instances,
+   * without specific ordering guarantees (but typically in registration order).
+   *
+   * @see Stream#toList()
+   * @see #iterator()
+   * @since 4.0
+   */
+  default void addTo(Collection<T> destination) {
+    Iterator<T> iterator = stream().iterator();
+    while (iterator.hasNext()) {
+      destination.add(iterator.next());
     }
   }
 

@@ -77,9 +77,9 @@ class ServletWebServerFactoryConfiguration {
             ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
       TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
-      contextCustomizers.addTo(factory.getTomcatContextCustomizers());
-      connectorCustomizers.addTo(factory.getTomcatConnectorCustomizers());
-      protocolHandlerCustomizers.addTo(factory.getTomcatProtocolHandlerCustomizers());
+      contextCustomizers.addOrderedTo(factory.getTomcatContextCustomizers());
+      connectorCustomizers.addOrderedTo(factory.getTomcatConnectorCustomizers());
+      protocolHandlerCustomizers.addOrderedTo(factory.getTomcatProtocolHandlerCustomizers());
       return factory;
     }
 
@@ -97,7 +97,7 @@ class ServletWebServerFactoryConfiguration {
     JettyServletWebServerFactory JettyServletWebServerFactory(
             ObjectProvider<JettyServerCustomizer> serverCustomizers) {
       JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
-      serverCustomizers.addTo(factory.getServerCustomizers());
+      serverCustomizers.addOrderedTo(factory.getServerCustomizers());
       return factory;
     }
 
@@ -116,8 +116,8 @@ class ServletWebServerFactoryConfiguration {
             ObjectProvider<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers,
             ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
       UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
-      builderCustomizers.addTo(factory.getBuilderCustomizers());
-      deploymentInfoCustomizers.addTo(factory.getDeploymentInfoCustomizers());
+      builderCustomizers.addOrderedTo(factory.getBuilderCustomizers());
+      deploymentInfoCustomizers.addOrderedTo(factory.getDeploymentInfoCustomizers());
       return factory;
     }
 

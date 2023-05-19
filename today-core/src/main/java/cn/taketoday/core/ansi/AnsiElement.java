@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,20 +18,20 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.ansi;
+package cn.taketoday.core.ansi;
 
 /**
- * Public access to {@link AnsiOutput#getEnabled()} for other tests to use.
+ * An ANSI encodable element.
  *
  * @author Phillip Webb
+ * @since 4.0
  */
-public final class AnsiOutputEnabledValue {
+public interface AnsiElement {
 
-  private AnsiOutputEnabledValue() {
-  }
-
-  public static AnsiOutput.Enabled get() {
-    return AnsiOutput.getEnabled();
-  }
+  /**
+   * @return the ANSI escape code
+   */
+  @Override
+  String toString();
 
 }
