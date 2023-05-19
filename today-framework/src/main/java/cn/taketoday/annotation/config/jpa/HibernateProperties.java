@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,14 +25,17 @@ import org.hibernate.cfg.AvailableSettings;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.hibernate5.support.HibernateImplicitNamingStrategy;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+
+import static org.hibernate.cfg.AvailableSettings.IMPLICIT_NAMING_STRATEGY;
+import static org.hibernate.cfg.AvailableSettings.PHYSICAL_NAMING_STRATEGY;
 
 /**
  * Configuration properties for Hibernate.
@@ -77,18 +80,18 @@ public class HibernateProperties {
    * @param settings the settings to apply when determining the configuration properties
    * @return the Hibernate properties to use
    */
-  public Map<String, Object> determineHibernateProperties(Map<String, String> jpaProperties,
-          HibernateSettings settings) {
-    Assert.notNull(jpaProperties, "JpaProperties must not be null");
-    Assert.notNull(settings, "Settings must not be null");
+  public Map<String, Object> determineHibernateProperties(
+          Map<String, String> jpaProperties, HibernateSettings settings) {
+    Assert.notNull(settings, "Settings is required");
+    Assert.notNull(jpaProperties, "JpaProperties is required");
     return getAdditionalProperties(jpaProperties, settings);
   }
 
   private Map<String, Object> getAdditionalProperties(Map<String, String> existing, HibernateSettings settings) {
-    Map<String, Object> result = new HashMap<>(existing);
+    var result = new HashMap<String, Object>(existing);
     applyScanner(result);
     getNaming().applyNamingStrategies(result);
-    String ddlAuto = determineDdlAuto(existing, settings::getDdlAuto);
+    String ddlAuto = determineDdlAuto(existing, settings);
     if (StringUtils.hasText(ddlAuto) && !"none".equals(ddlAuto)) {
       result.put(AvailableSettings.HBM2DDL_AUTO, ddlAuto);
     }
@@ -110,7 +113,7 @@ public class HibernateProperties {
     }
   }
 
-  private String determineDdlAuto(Map<String, String> existing, Supplier<String> defaultDdlAuto) {
+  private String determineDdlAuto(Map<String, String> existing, HibernateSettings settings) {
     String ddlAuto = existing.get(AvailableSettings.HBM2DDL_AUTO);
     if (ddlAuto != null) {
       return ddlAuto;
@@ -121,7 +124,7 @@ public class HibernateProperties {
     if (existing.get(AvailableSettings.JAKARTA_HBM2DDL_DATABASE_ACTION) != null) {
       return null;
     }
-    return defaultDdlAuto.get();
+    return settings.getDdlAuto();
   }
 
   public static class Naming {
@@ -153,19 +156,17 @@ public class HibernateProperties {
     }
 
     private void applyNamingStrategies(Map<String, Object> properties) {
-      applyNamingStrategy(properties, AvailableSettings.IMPLICIT_NAMING_STRATEGY, this.implicitStrategy,
-              HibernateImplicitNamingStrategy.class::getName);
-      applyNamingStrategy(properties, AvailableSettings.PHYSICAL_NAMING_STRATEGY, this.physicalStrategy,
-              CamelCaseToUnderscoresNamingStrategy.class::getName);
+      applyStrategy(properties, IMPLICIT_NAMING_STRATEGY, implicitStrategy, HibernateImplicitNamingStrategy.class);
+      applyStrategy(properties, PHYSICAL_NAMING_STRATEGY, physicalStrategy, CamelCaseToUnderscoresNamingStrategy.class);
     }
 
-    private void applyNamingStrategy(Map<String, Object> properties, String key, Object strategy,
-            Supplier<String> defaultStrategy) {
+    private void applyStrategy(Map<String, Object> properties,
+            String key, @Nullable Object strategy, Class<?> defaultStrategy) {
       if (strategy != null) {
         properties.put(key, strategy);
       }
       else {
-        properties.computeIfAbsent(key, (k) -> defaultStrategy.get());
+        properties.computeIfAbsent(key, (k) -> defaultStrategy.getName());
       }
     }
 

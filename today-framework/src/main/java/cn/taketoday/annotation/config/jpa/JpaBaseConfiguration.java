@@ -27,8 +27,6 @@ import javax.sql.DataSource;
 
 import cn.taketoday.annotation.config.transaction.TransactionManagerCustomizers;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
@@ -47,6 +45,7 @@ import cn.taketoday.orm.jpa.persistenceunit.PersistenceUnitManager;
 import cn.taketoday.orm.jpa.support.EntityManagerFactoryBuilder;
 import cn.taketoday.orm.jpa.support.EntityManagerFactoryBuilderCustomizer;
 import cn.taketoday.orm.jpa.vendor.AbstractJpaVendorAdapter;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
@@ -70,20 +69,27 @@ import jakarta.persistence.EntityManagerFactory;
 @EnableConfigurationProperties(JpaProperties.class)
 public abstract class JpaBaseConfiguration {
 
-  private final DataSource dataSource;
+  protected final DataSource dataSource;
 
-  private final JpaProperties properties;
+  /**
+   * the {@link JpaProperties}.
+   */
+  protected final JpaProperties properties;
 
-  private final JtaTransactionManager jtaTransactionManager;
+  /**
+   * the JTA transaction manager or {@code null}
+   */
+  @Nullable
+  protected final JtaTransactionManager jtaTransactionManager;
 
   protected JpaBaseConfiguration(DataSource dataSource, JpaProperties properties,
-          ObjectProvider<JtaTransactionManager> jtaTransactionManager) {
+          @Nullable JtaTransactionManager jtaTransactionManager) {
     this.dataSource = dataSource;
     this.properties = properties;
-    this.jtaTransactionManager = jtaTransactionManager.getIfAvailable();
+    this.jtaTransactionManager = jtaTransactionManager;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean(TransactionManager.class)
   public PlatformTransactionManager transactionManager(
           @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
@@ -94,7 +100,7 @@ public abstract class JpaBaseConfiguration {
     return transactionManager;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   public JpaVendorAdapter jpaVendorAdapter() {
     AbstractJpaVendorAdapter adapter = createJpaVendorAdapter();
@@ -109,21 +115,22 @@ public abstract class JpaBaseConfiguration {
     return adapter;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
-  public EntityManagerFactoryBuilder entityManagerFactoryBuilder(JpaVendorAdapter jpaVendorAdapter,
-          ObjectProvider<PersistenceUnitManager> persistenceUnitManager,
-          ObjectProvider<EntityManagerFactoryBuilderCustomizer> customizers) {
-    EntityManagerFactoryBuilder builder = new EntityManagerFactoryBuilder(jpaVendorAdapter,
-            properties.getProperties(), persistenceUnitManager.getIfAvailable());
+  public EntityManagerFactoryBuilder entityManagerFactoryBuilder(
+          JpaVendorAdapter jpaVendorAdapter,
+          @Nullable PersistenceUnitManager persistenceUnitManager,
+          List<EntityManagerFactoryBuilderCustomizer> customizers) {
+    var builder = new EntityManagerFactoryBuilder(
+            jpaVendorAdapter, properties.getProperties(), persistenceUnitManager);
     for (EntityManagerFactoryBuilderCustomizer customizer : customizers) {
       customizer.customize(builder);
     }
     return builder;
   }
 
-  @Bean
   @Primary
+  @Component
   @ConditionalOnMissingBean({ LocalContainerEntityManagerFactoryBean.class, EntityManagerFactory.class })
   public LocalContainerEntityManagerFactoryBean entityManagerFactory(
           EntityManagerFactoryBuilder factoryBuilder, PersistenceManagedTypes persistenceManagedTypes) {
@@ -157,15 +164,6 @@ public abstract class JpaBaseConfiguration {
   }
 
   /**
-   * Return the JTA transaction manager.
-   *
-   * @return the transaction manager or {@code null}
-   */
-  protected JtaTransactionManager getJtaTransactionManager() {
-    return this.jtaTransactionManager;
-  }
-
-  /**
    * Returns if a JTA {@link PlatformTransactionManager} is being used.
    *
    * @return if a JTA transaction manager is being used
@@ -196,8 +194,8 @@ public abstract class JpaBaseConfiguration {
   @ConditionalOnMissingBean({ LocalContainerEntityManagerFactoryBean.class, EntityManagerFactory.class })
   static class PersistenceManagedTypesConfiguration {
 
-    @Bean
     @Primary
+    @Component
     @ConditionalOnMissingBean
     static PersistenceManagedTypes persistenceManagedTypes(BeanFactory beanFactory, ResourceLoader resourceLoader) {
       String[] packagesToScan = getPackagesToScan(beanFactory);

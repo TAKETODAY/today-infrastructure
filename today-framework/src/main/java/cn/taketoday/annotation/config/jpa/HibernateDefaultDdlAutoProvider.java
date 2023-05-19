@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.annotation.config.jpa;
 
+import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 import javax.sql.DataSource;
@@ -38,13 +39,15 @@ import cn.taketoday.framework.jdbc.SchemaManagementProvider;
  */
 class HibernateDefaultDdlAutoProvider implements SchemaManagementProvider {
 
+  private final DataSource dataSource;
   private final Iterable<SchemaManagementProvider> providers;
 
-  HibernateDefaultDdlAutoProvider(Iterable<SchemaManagementProvider> providers) {
+  HibernateDefaultDdlAutoProvider(Iterable<SchemaManagementProvider> providers, DataSource dataSource) {
     this.providers = providers;
+    this.dataSource = dataSource;
   }
 
-  String getDefaultDdlAuto(DataSource dataSource) {
+  String getDefaultDdlAuto() {
     if (!EmbeddedDatabaseConnection.isEmbedded(dataSource)) {
       return "none";
     }
@@ -57,9 +60,11 @@ class HibernateDefaultDdlAutoProvider implements SchemaManagementProvider {
 
   @Override
   public SchemaManagement getSchemaManagement(DataSource dataSource) {
-    return StreamSupport.stream(this.providers.spliterator(), false)
-            .map((provider) -> provider.getSchemaManagement(dataSource)).filter(SchemaManagement.MANAGED::equals)
-            .findFirst().orElse(SchemaManagement.UNMANAGED);
+    return StreamSupport.stream(providers.spliterator(), false)
+            .map(provider -> provider.getSchemaManagement(dataSource))
+            .filter(Predicate.isEqual(SchemaManagement.MANAGED))
+            .findFirst()
+            .orElse(SchemaManagement.UNMANAGED);
   }
 
 }

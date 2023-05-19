@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.framework.builder.ParentContextApplicationContextInitializer.ParentContextAvailableEvent;
 import cn.taketoday.util.ObjectUtils;
 
@@ -39,18 +40,16 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Dave Syer
  * @author Eric Bottard
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ParentContextCloserApplicationListener
+public class ParentContextCloserApplicationListener extends OrderedSupport
         implements ApplicationListener<ParentContextAvailableEvent>, ApplicationContextAware, Ordered {
-
-  private int order = Ordered.LOWEST_PRECEDENCE - 10;
 
   private ApplicationContext context;
 
-  @Override
-  public int getOrder() {
-    return this.order;
+  public ParentContextCloserApplicationListener() {
+    super(Ordered.LOWEST_PRECEDENCE - 10);
   }
 
   @Override
@@ -85,7 +84,7 @@ public class ParentContextCloserApplicationListener
    */
   protected static class ContextCloserListener implements ApplicationListener<ContextClosedEvent> {
 
-    private WeakReference<ConfigurableApplicationContext> childContext;
+    private final WeakReference<ConfigurableApplicationContext> childContext;
 
     public ContextCloserListener(ConfigurableApplicationContext childContext) {
       this.childContext = new WeakReference<>(childContext);

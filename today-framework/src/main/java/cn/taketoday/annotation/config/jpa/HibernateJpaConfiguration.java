@@ -26,11 +26,9 @@ import org.hibernate.cfg.AvailableSettings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
@@ -41,9 +39,9 @@ import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.framework.jdbc.SchemaManagementProvider;
 import cn.taketoday.framework.jdbc.metadata.CompositeDataSourcePoolMetadataProvider;
-import cn.taketoday.framework.jdbc.metadata.DataSourcePoolMetadata;
 import cn.taketoday.framework.jdbc.metadata.DataSourcePoolMetadataProvider;
 import cn.taketoday.jndi.JndiLocatorDelegate;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.orm.hibernate5.HibernateBeanContainer;
@@ -80,37 +78,36 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
    */
   private static final String[] NO_JTA_PLATFORM_CLASSES = {
           "org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform",
-          "org.hibernate.service.jta.platform.internal.NoJtaPlatform" };
+          "org.hibernate.service.jta.platform.internal.NoJtaPlatform"
+  };
 
   private final HibernateProperties hibernateProperties;
-
-  private final HibernateDefaultDdlAutoProvider defaultDdlAutoProvider;
-
   private final DataSourcePoolMetadataProvider poolMetadataProvider;
-
+  private final HibernateDefaultDdlAutoProvider defaultDdlAutoProvider;
   private final List<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers;
 
   HibernateJpaConfiguration(DataSource dataSource, JpaProperties jpaProperties,
-          ConfigurableBeanFactory beanFactory, ObjectProvider<JtaTransactionManager> jtaTransactionManager,
-          HibernateProperties hibernateProperties,
-          ObjectProvider<Collection<DataSourcePoolMetadataProvider>> metadataProviders,
+          ConfigurableBeanFactory beanFactory, HibernateProperties hibernateProperties,
+          @Nullable JtaTransactionManager jtaTransactionManager,
+          @Nullable PhysicalNamingStrategy physicalNamingStrategy,
+          @Nullable ImplicitNamingStrategy implicitNamingStrategy,
           ObjectProvider<SchemaManagementProvider> providers,
-          ObjectProvider<PhysicalNamingStrategy> physicalNamingStrategy,
-          ObjectProvider<ImplicitNamingStrategy> implicitNamingStrategy,
+          ObjectProvider<DataSourcePoolMetadataProvider> metadataProviders,
           ObjectProvider<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
     super(dataSource, jpaProperties, jtaTransactionManager);
     this.hibernateProperties = hibernateProperties;
-    this.defaultDdlAutoProvider = new HibernateDefaultDdlAutoProvider(providers);
-    this.poolMetadataProvider = new CompositeDataSourcePoolMetadataProvider(metadataProviders.getIfAvailable());
+    this.defaultDdlAutoProvider = new HibernateDefaultDdlAutoProvider(providers, dataSource);
+    this.poolMetadataProvider = new CompositeDataSourcePoolMetadataProvider(metadataProviders);
     this.hibernatePropertiesCustomizers = determineHibernatePropertiesCustomizers(
-            physicalNamingStrategy.getIfAvailable(), implicitNamingStrategy.getIfAvailable(), beanFactory,
-            hibernatePropertiesCustomizers);
+            beanFactory, physicalNamingStrategy, implicitNamingStrategy, hibernatePropertiesCustomizers);
   }
 
   private List<HibernatePropertiesCustomizer> determineHibernatePropertiesCustomizers(
-          PhysicalNamingStrategy physicalNamingStrategy, ImplicitNamingStrategy implicitNamingStrategy,
-          ConfigurableBeanFactory beanFactory, ObjectProvider<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
-    List<HibernatePropertiesCustomizer> customizers = new ArrayList<>();
+          ConfigurableBeanFactory beanFactory,
+          @Nullable PhysicalNamingStrategy physicalNamingStrategy,
+          @Nullable ImplicitNamingStrategy implicitNamingStrategy,
+          ObjectProvider<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers) {
+    var customizers = new ArrayList<HibernatePropertiesCustomizer>();
     if (ClassUtils.isPresent("org.hibernate.resource.beans.container.spi.BeanContainer",
             getClass().getClassLoader())) {
       customizers.add(properties ->
@@ -132,12 +129,11 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
 
   @Override
   protected Map<String, Object> getVendorProperties() {
-    Supplier<String> defaultDdlMode = () -> this.defaultDdlAutoProvider.getDefaultDdlAuto(getDataSource());
-    return new LinkedHashMap<>(this.hibernateProperties
-            .determineHibernateProperties(getProperties().getProperties(),
+    return new LinkedHashMap<>(hibernateProperties
+            .determineHibernateProperties(properties.getProperties(),
                     new HibernateSettings()
-                            .ddlAuto(defaultDdlMode)
-                            .hibernatePropertiesCustomizers(this.hibernatePropertiesCustomizers)));
+                            .ddlAuto(defaultDdlAutoProvider)
+                            .hibernatePropertiesCustomizers(hibernatePropertiesCustomizers)));
   }
 
   @Override
@@ -152,7 +148,6 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
   }
 
   private void configureJtaPlatform(Map<String, Object> vendorProperties) throws LinkageError {
-    JtaTransactionManager jtaTransactionManager = getJtaTransactionManager();
     // Make sure Hibernate doesn't attempt to auto-detect a JTA platform
     if (jtaTransactionManager == null) {
       vendorProperties.put(JTA_PLATFORM, getNoJtaPlatformManager());
@@ -171,7 +166,7 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
   }
 
   private boolean isDataSourceAutoCommitDisabled() {
-    DataSourcePoolMetadata poolMetadata = this.poolMetadataProvider.getDataSourcePoolMetadata(getDataSource());
+    var poolMetadata = poolMetadataProvider.getDataSourcePoolMetadata(dataSource);
     return poolMetadata != null && Boolean.FALSE.equals(poolMetadata.getDefaultAutoCommit());
   }
 
@@ -223,12 +218,15 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
 
   private static class NamingStrategiesHibernatePropertiesCustomizer implements HibernatePropertiesCustomizer {
 
+    @Nullable
     private final PhysicalNamingStrategy physicalNamingStrategy;
 
+    @Nullable
     private final ImplicitNamingStrategy implicitNamingStrategy;
 
-    NamingStrategiesHibernatePropertiesCustomizer(PhysicalNamingStrategy physicalNamingStrategy,
-            ImplicitNamingStrategy implicitNamingStrategy) {
+    NamingStrategiesHibernatePropertiesCustomizer(
+            @Nullable PhysicalNamingStrategy physicalNamingStrategy,
+            @Nullable ImplicitNamingStrategy implicitNamingStrategy) {
       this.physicalNamingStrategy = physicalNamingStrategy;
       this.implicitNamingStrategy = implicitNamingStrategy;
     }

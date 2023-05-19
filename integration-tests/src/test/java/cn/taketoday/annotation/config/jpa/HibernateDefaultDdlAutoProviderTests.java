@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,16 +44,15 @@ import static org.mockito.Mockito.mock;
 class HibernateDefaultDdlAutoProviderTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withConfiguration(
-                  AutoConfigurations.of(DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class))
-          .withPropertyValues("spring.sql.init.mode:never");
+          .withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class))
+          .withPropertyValues("infra.sql.init.mode:never");
 
   @Test
   void defaultDDlAutoForEmbedded() {
     this.contextRunner.run((context) -> {
-      HibernateDefaultDdlAutoProvider ddlAutoProvider = new HibernateDefaultDdlAutoProvider(
-              Collections.emptyList());
-      assertThat(ddlAutoProvider.getDefaultDdlAuto(context.getBean(DataSource.class))).isEqualTo("create-drop");
+      DataSource dataSource = context.getBean(DataSource.class);
+      var ddlAutoProvider = new HibernateDefaultDdlAutoProvider(Collections.emptyList(), dataSource);
+      assertThat(ddlAutoProvider.getDefaultDdlAuto()).isEqualTo("create-drop");
     });
   }
 
@@ -63,9 +62,8 @@ class HibernateDefaultDdlAutoProviderTests {
       DataSource dataSource = context.getBean(DataSource.class);
       SchemaManagementProvider provider = mock(SchemaManagementProvider.class);
       given(provider.getSchemaManagement(dataSource)).willReturn(SchemaManagement.MANAGED);
-      HibernateDefaultDdlAutoProvider ddlAutoProvider = new HibernateDefaultDdlAutoProvider(
-              Collections.singletonList(provider));
-      assertThat(ddlAutoProvider.getDefaultDdlAuto(dataSource)).isEqualTo("none");
+      var ddlAutoProvider = new HibernateDefaultDdlAutoProvider(Collections.singletonList(provider), dataSource);
+      assertThat(ddlAutoProvider.getDefaultDdlAuto()).isEqualTo("none");
     });
   }
 
@@ -75,9 +73,8 @@ class HibernateDefaultDdlAutoProviderTests {
       DataSource dataSource = context.getBean(DataSource.class);
       SchemaManagementProvider provider = mock(SchemaManagementProvider.class);
       given(provider.getSchemaManagement(dataSource)).willReturn(SchemaManagement.UNMANAGED);
-      HibernateDefaultDdlAutoProvider ddlAutoProvider = new HibernateDefaultDdlAutoProvider(
-              Collections.singletonList(provider));
-      assertThat(ddlAutoProvider.getDefaultDdlAuto(dataSource)).isEqualTo("create-drop");
+      var ddlAutoProvider = new HibernateDefaultDdlAutoProvider(Collections.singletonList(provider), dataSource);
+      assertThat(ddlAutoProvider.getDefaultDdlAuto()).isEqualTo("create-drop");
     });
   }
 

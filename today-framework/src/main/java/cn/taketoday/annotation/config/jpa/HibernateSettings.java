@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Settings to apply when configuring Hibernate.
  *
@@ -32,17 +34,33 @@ import java.util.function.Supplier;
  */
 public class HibernateSettings {
 
+  @Nullable
   private Supplier<String> ddlAuto;
 
+  @Nullable
+  private HibernateDefaultDdlAutoProvider defaultDdlAutoProvider;
+
   private Collection<HibernatePropertiesCustomizer> hibernatePropertiesCustomizers;
+
+  public HibernateSettings ddlAuto(HibernateDefaultDdlAutoProvider defaultDdlAutoProvider) {
+    this.defaultDdlAutoProvider = defaultDdlAutoProvider;
+    return this;
+  }
 
   public HibernateSettings ddlAuto(Supplier<String> ddlAuto) {
     this.ddlAuto = ddlAuto;
     return this;
   }
 
+  @Nullable
   public String getDdlAuto() {
-    return (this.ddlAuto != null) ? this.ddlAuto.get() : null;
+    if (ddlAuto != null) {
+      return ddlAuto.get();
+    }
+    if (defaultDdlAutoProvider != null) {
+      return defaultDdlAutoProvider.getDefaultDdlAuto();
+    }
+    return null;
   }
 
   public HibernateSettings hibernatePropertiesCustomizers(

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,12 +20,9 @@
 
 package cn.taketoday.framework.jdbc.metadata;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import javax.sql.DataSource;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link DataSourcePoolMetadataProvider} implementation that returns the first
@@ -37,7 +34,8 @@ import javax.sql.DataSource;
  */
 public class CompositeDataSourcePoolMetadataProvider implements DataSourcePoolMetadataProvider {
 
-  private final List<DataSourcePoolMetadataProvider> providers;
+  @Nullable
+  private final Iterable<DataSourcePoolMetadataProvider> providers;
 
   /**
    * Create a {@link CompositeDataSourcePoolMetadataProvider} instance with an initial
@@ -45,17 +43,18 @@ public class CompositeDataSourcePoolMetadataProvider implements DataSourcePoolMe
    *
    * @param providers the data source pool metadata providers
    */
-  public CompositeDataSourcePoolMetadataProvider(Collection<? extends DataSourcePoolMetadataProvider> providers) {
-    this.providers = (providers != null) ? Collections.unmodifiableList(new ArrayList<>(providers))
-                                         : Collections.emptyList();
+  public CompositeDataSourcePoolMetadataProvider(@Nullable Iterable<DataSourcePoolMetadataProvider> providers) {
+    this.providers = providers;
   }
 
   @Override
   public DataSourcePoolMetadata getDataSourcePoolMetadata(DataSource dataSource) {
-    for (DataSourcePoolMetadataProvider provider : this.providers) {
-      DataSourcePoolMetadata metadata = provider.getDataSourcePoolMetadata(dataSource);
-      if (metadata != null) {
-        return metadata;
+    if (providers != null) {
+      for (DataSourcePoolMetadataProvider provider : providers) {
+        DataSourcePoolMetadata metadata = provider.getDataSourcePoolMetadata(dataSource);
+        if (metadata != null) {
+          return metadata;
+        }
       }
     }
     return null;

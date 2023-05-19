@@ -119,10 +119,9 @@ public class EntityScanPackages {
   public static void register(BeanDefinitionRegistry registry, Collection<String> packageNames) {
     Assert.notNull(registry, "Registry must not be null");
     Assert.notNull(packageNames, "PackageNames must not be null");
-    if (registry.containsBeanDefinition(BEAN)) {
-      EntityScanPackagesBeanDefinition beanDefinition = (EntityScanPackagesBeanDefinition) registry
-              .getBeanDefinition(BEAN);
-      beanDefinition.addPackageNames(packageNames);
+    if (registry.containsBeanDefinition(BEAN)
+            && registry.getBeanDefinition(BEAN) instanceof EntityScanPackagesBeanDefinition definition) {
+      definition.addPackageNames(packageNames);
     }
     else {
       registry.registerBeanDefinition(BEAN, new EntityScanPackagesBeanDefinition(packageNames));

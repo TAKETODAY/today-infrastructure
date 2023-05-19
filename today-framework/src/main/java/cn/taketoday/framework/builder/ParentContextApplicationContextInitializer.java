@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.framework.builder;
 
+import java.io.Serial;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ApplicationEvent;
@@ -27,6 +29,7 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.OrderedSupport;
 
 /**
  * {@link ApplicationContextInitializer} for setting the parent context. Also publishes
@@ -38,29 +41,19 @@ import cn.taketoday.core.Ordered;
  * @since 4.0
  */
 public class ParentContextApplicationContextInitializer
-        implements ApplicationContextInitializer, Ordered {
-
-  private int order = Ordered.HIGHEST_PRECEDENCE;
+        extends OrderedSupport implements ApplicationContextInitializer, Ordered {
 
   private final ApplicationContext parent;
 
   public ParentContextApplicationContextInitializer(ApplicationContext parent) {
+    super(Ordered.HIGHEST_PRECEDENCE);
     this.parent = parent;
-  }
-
-  public void setOrder(int order) {
-    this.order = order;
-  }
-
-  @Override
-  public int getOrder() {
-    return this.order;
   }
 
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
-    if (applicationContext != this.parent) {
-      applicationContext.setParent(this.parent);
+    if (applicationContext != parent) {
+      applicationContext.setParent(parent);
       applicationContext.addApplicationListener(new EventPublisher());
     }
   }
@@ -85,8 +78,10 @@ public class ParentContextApplicationContextInitializer
   /**
    * {@link ApplicationEvent} fired when a parent context is available.
    */
-  @SuppressWarnings("serial")
   public static class ParentContextAvailableEvent extends ApplicationEvent {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public ParentContextAvailableEvent(ConfigurableApplicationContext applicationContext) {
       super(applicationContext);

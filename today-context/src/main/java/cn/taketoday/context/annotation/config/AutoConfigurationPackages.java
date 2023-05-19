@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -96,9 +95,9 @@ public abstract class AutoConfigurationPackages {
    * @param packageNames the package names to set
    */
   public static void register(BeanDefinitionRegistry registry, String... packageNames) {
-    if (registry.containsBeanDefinition(BEAN_NAME)) {
-      BasePackagesBeanDefinition beanDefinition = (BasePackagesBeanDefinition) registry.getBeanDefinition(BEAN_NAME);
-      beanDefinition.addBasePackages(packageNames);
+    if (registry.containsBeanDefinition(BEAN_NAME)
+            && registry.getBeanDefinition(BEAN_NAME) instanceof BasePackagesBeanDefinition definition) {
+      definition.addBasePackages(packageNames);
     }
     else {
       registry.registerBeanDefinition(BEAN_NAME, new BasePackagesBeanDefinition(packageNames));
@@ -177,7 +176,7 @@ public abstract class AutoConfigurationPackages {
 
     private boolean loggedBasePackageInfo;
 
-    BasePackages(String... names) {
+    BasePackages(LinkedHashSet<String> names) {
       ArrayList<String> packages = new ArrayList<>();
       for (String name : names) {
         if (StringUtils.hasText(name)) {
@@ -217,11 +216,7 @@ public abstract class AutoConfigurationPackages {
       setBeanClass(BasePackages.class);
       setRole(ROLE_INFRASTRUCTURE);
       addBasePackages(basePackages);
-    }
-
-    @Override
-    public Supplier<?> getInstanceSupplier() {
-      return () -> new BasePackages(StringUtils.toStringArray(basePackages));
+      setInstanceSupplier(() -> new BasePackages(this.basePackages));
     }
 
     private void addBasePackages(String[] additionalBasePackages) {

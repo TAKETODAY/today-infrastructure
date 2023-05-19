@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,8 @@ package cn.taketoday.framework.jdbc.metadata;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Provide a {@link DataSourcePoolMetadata} based on a {@link DataSource}.
  *
@@ -39,6 +41,7 @@ public interface DataSourcePoolMetadataProvider {
    * @param dataSource the data source
    * @return the data source pool metadata
    */
+  @Nullable
   DataSourcePoolMetadata getDataSourcePoolMetadata(DataSource dataSource);
 
 }
