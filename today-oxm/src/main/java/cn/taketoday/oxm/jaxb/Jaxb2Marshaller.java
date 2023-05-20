@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -120,6 +120,7 @@ import jakarta.xml.bind.attachment.AttachmentUnmarshaller;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setContextPath
  * @see #setClassesToBeBound
  * @see #setJaxbContextProperties
@@ -132,8 +133,8 @@ import jakarta.xml.bind.attachment.AttachmentUnmarshaller;
  * @see #setAdapters
  * @since 4.0
  */
-public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, GenericMarshaller, GenericUnmarshaller,
-        BeanClassLoaderAware, InitializingBean {
+public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
+        GenericMarshaller, GenericUnmarshaller, BeanClassLoaderAware, InitializingBean {
 
   private static final String CID = "cid:";
 
@@ -252,7 +253,7 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, Generi
 
   /**
    * Set the packages to search for classes with JAXB2 annotations in the classpath.
-   * This is using a Spring-bases search and therefore analogous to Spring's component-scan
+   * This is using a Infra-bases search and therefore analogous to Infra component-scan
    * feature ({@link cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner}).
    * <p>Setting either this property, {@link #setContextPath "contextPath"} or
    * {@link #setClassesToBeBound "classesToBeBound"} is required.
@@ -587,7 +588,8 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, Generi
     }
   }
 
-  private Schema loadSchema(Resource[] resources, String schemaLanguage) throws IOException, SAXException, ParserConfigurationException {
+  private Schema loadSchema(Resource[] resources, String schemaLanguage)
+          throws IOException, SAXException, ParserConfigurationException {
     if (logger.isDebugEnabled()) {
       logger.debug("Setting validation schema to {}",
               StringUtils.arrayToCommaDelimitedString(this.schemaResources));
@@ -602,7 +604,10 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, Generi
     XMLReader xmlReader = saxParser.getXMLReader();
     for (int i = 0; i < resources.length; i++) {
       Resource resource = resources[i];
-      Assert.isTrue(resource != null && resource.exists(), () -> "Resource does not exist: " + resource);
+      if (resource == null || !resource.exists()) {
+        throw new IllegalArgumentException("Resource does not exist: " + resource);
+      }
+
       InputSource inputSource = SaxResourceUtils.createInputSource(resource);
       schemaSources[i] = new SAXSource(xmlReader, inputSource);
     }
@@ -626,9 +631,10 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, Generi
               parameterizedType.getActualTypeArguments().length == 1) {
         Type typeArgument = parameterizedType.getActualTypeArguments()[0];
         if (typeArgument instanceof Class<?> classArgument) {
-          return ((classArgument.isArray() && Byte.TYPE == classArgument.getComponentType()) ||
-                  isPrimitiveWrapper(classArgument) || isStandardClass(classArgument) ||
-                  supportsInternal(classArgument, false));
+          return (classArgument.isArray() && Byte.TYPE == classArgument.getComponentType())
+                  || isPrimitiveWrapper(classArgument)
+                  || isStandardClass(classArgument)
+                  || supportsInternal(classArgument, false);
         }
         else if (typeArgument instanceof GenericArrayType arrayType) {
           return (Byte.TYPE == arrayType.getGenericComponentType());
@@ -666,13 +672,13 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, Generi
    * Compare section 8.5.1 of the JAXB2 spec.
    */
   private boolean isPrimitiveWrapper(Class<?> clazz) {
-    return (Boolean.class == clazz ||
-            Byte.class == clazz ||
-            Short.class == clazz ||
-            Integer.class == clazz ||
-            Long.class == clazz ||
-            Float.class == clazz ||
-            Double.class == clazz);
+    return Boolean.class == clazz
+            || Byte.class == clazz
+            || Short.class == clazz
+            || Integer.class == clazz
+            || Long.class == clazz
+            || Float.class == clazz
+            || Double.class == clazz;
   }
 
   /**
@@ -829,7 +835,6 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller, Generi
   /**
    * Return a newly created JAXB unmarshaller.
    * <p>Note: JAXB unmarshallers are not necessarily thread-safe.
-   * This method is public as of 5.2.
    *
    * @see #createMarshaller()
    */

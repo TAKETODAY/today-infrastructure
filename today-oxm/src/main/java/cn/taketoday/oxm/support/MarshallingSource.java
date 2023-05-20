@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,13 +45,16 @@ import cn.taketoday.oxm.Marshaller;
  * {@link Source} implementation that uses a {@link Marshaller}.Can be constructed with a
  * {@code Marshaller} and an object to be marshalled.
  *
- * <p>Even though {@code MarshallingSource} extends from {@code SAXSource}, calling the methods of
- * {@code SAXSource} is <strong>not supported</strong>. In general, the only supported operation on this class is
- * to use the {@code XMLReader} obtained via {@link #getXMLReader()} to parse the input source obtained via {@link
- * #getInputSource()}. Calling {@link #setXMLReader(XMLReader)} or {@link #setInputSource(InputSource)} will result in
- * {@code UnsupportedOperationException}s.
+ * <p>Even though {@code MarshallingSource} extends from {@code SAXSource},
+ * calling the methods of {@code SAXSource} is <strong>not supported</strong>.
+ * In general, the only supported operation on this class is to use the
+ * {@code XMLReader} obtained via {@link #getXMLReader()} to parse the
+ * input source obtained via {@link #getInputSource()}. Calling
+ * {@link #setXMLReader(XMLReader)} or {@link #setInputSource(InputSource)}
+ * will result in {@code UnsupportedOperationException}s.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see javax.xml.transform.Transformer
  * @since 4.0
  */
@@ -105,7 +108,7 @@ public class MarshallingSource extends SAXSource {
     throw new UnsupportedOperationException("setXMLReader is not supported");
   }
 
-  private static final class MarshallingXMLReader implements XMLReader {
+  static final class MarshallingXMLReader implements XMLReader {
 
     private final Marshaller marshaller;
 
@@ -177,11 +180,6 @@ public class MarshallingSource extends SAXSource {
       return this.errorHandler;
     }
 
-    @Nullable
-    protected LexicalHandler getLexicalHandler() {
-      return this.lexicalHandler;
-    }
-
     @Override
     public boolean getFeature(String name) throws SAXNotRecognizedException {
       throw new SAXNotRecognizedException(name);
@@ -225,7 +223,7 @@ public class MarshallingSource extends SAXSource {
 
     private void parse() throws SAXException {
       SAXResult result = new SAXResult(getContentHandler());
-      result.setLexicalHandler(getLexicalHandler());
+      result.setLexicalHandler(lexicalHandler);
       try {
         this.marshaller.marshal(this.content, result);
       }

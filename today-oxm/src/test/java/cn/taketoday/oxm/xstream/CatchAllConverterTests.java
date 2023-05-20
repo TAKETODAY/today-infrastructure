@@ -44,6 +44,7 @@ class CatchAllConverterTests {
             .withMessage("Marshalling not supported");
 
     assertThatThrownBy(() -> converter.unmarshal(null, null))
+            .isInstanceOf(UnsupportedOperationException.class)
             .hasMessage("Unmarshalling not supported");
 
   }
