@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,19 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.aop.aspectj.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package cn.taketoday.aop;
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author TODAY <br>
- * 2018-11-12 17:49
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/5/20 22:53
  */
-@Target({ ElementType.PARAMETER })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Annotated {
+class TruePointcutTests {
 
+  @Test
+  void trueMethodMatcher() {
+    assertThat(TruePointcut.TRUE).isSameAs(TruePointcut.INSTANCE);
+    assertThat(TruePointcut.INSTANCE.getMethodMatcher()).isSameAs(MethodMatcher.TRUE).isSameAs(TrueMethodMatcher.INSTANCE);
+    assertThat(TruePointcut.INSTANCE.getClassFilter()).isSameAs(ClassFilter.TRUE).isSameAs(TrueClassFilter.INSTANCE);
+    assertThat(TruePointcut.INSTANCE.toString()).isEqualTo("Pointcut.TRUE");
+  }
 }

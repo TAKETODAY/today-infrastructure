@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,42 +17,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.aop;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.aspectj.annotation.Returning;
-import cn.taketoday.core.annotation.Order;
-import lombok.extern.slf4j.Slf4j;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Today <br>
- *
- * 2018-12-25 21:41
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/5/20 22:42
  */
-@Slf4j
-@Order(10)
-//@Advice(pointcut = "test.demo.service.impl.*", method = "login")
-public class TestInterceptor implements MethodInterceptor {
+class TrueClassFilterTests {
 
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
-
-    log.debug("MethodInterceptor before");
-
-    Object proceed = invocation.proceed();
-
-    log.debug("MethodInterceptor after");
-
-    return proceed;
-  }
-
-  public Object after(@Returning Object value) {
-
-    log.debug("value: {}", value);
-
-    return value;
+  @Test
+  void trueClassFilter() {
+    assertThat(TrueClassFilter.TRUE).isSameAs(TrueClassFilter.INSTANCE);
+    assertThat(TrueClassFilter.INSTANCE.matches(int.class)).isTrue();
+    assertThat(TrueClassFilter.INSTANCE.matches(long.class)).isTrue();
+    assertThat(TrueClassFilter.INSTANCE.matches(double.class)).isTrue();
+    assertThat(TrueClassFilter.INSTANCE.toString()).isEqualTo("ClassFilter.TRUE");
   }
 
 }
