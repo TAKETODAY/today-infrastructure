@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -574,6 +574,15 @@ class MockHttpServletRequestBuilderTests {
     MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
 
     assertThat(request.getUserPrincipal()).isEqualTo(user);
+  }
+
+  @Test
+  void remoteAddress() {
+    String ip = "10.0.0.1";
+    this.builder.remoteAddress(ip);
+    MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
+
+    assertThat(request.getRemoteAddr()).isEqualTo(ip);
   }
 
   @Test

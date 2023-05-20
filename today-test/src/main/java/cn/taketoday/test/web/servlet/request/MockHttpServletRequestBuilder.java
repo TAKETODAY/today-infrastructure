@@ -97,6 +97,9 @@ public class MockHttpServletRequestBuilder
   private Principal principal;
 
   @Nullable
+  private String remoteAddress;
+
+  @Nullable
   private MockHttpSession session;
 
   @Nullable
@@ -547,6 +550,17 @@ public class MockHttpServletRequestBuilder
   }
 
   /**
+   * Set the remote address of the request.
+   *
+   * @param remoteAddress the remote address (IP)
+   */
+  public MockHttpServletRequestBuilder remoteAddress(String remoteAddress) {
+    Assert.hasText(remoteAddress, "'remoteAddress' must not be null or blank");
+    this.remoteAddress = remoteAddress;
+    return this;
+  }
+
+  /**
    * An extension point for further initialization of {@link MockHttpServletRequest}
    * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
    * Implementation of this interface can have builder-style methods themselves
@@ -604,6 +618,9 @@ public class MockHttpServletRequestBuilder
     }
     if (this.session == null) {
       this.session = parentBuilder.session;
+    }
+    if (this.remoteAddress == null) {
+      this.remoteAddress = parentBuilder.remoteAddress;
     }
 
     if (this.characterEncoding == null) {
@@ -712,7 +729,9 @@ public class MockHttpServletRequestBuilder
     if (this.session != null) {
       request.setSession(this.session);
     }
-
+    if (this.remoteAddress != null) {
+      request.setRemoteAddr(this.remoteAddress);
+    }
     request.setCharacterEncoding(this.characterEncoding);
     request.setContent(this.content);
     request.setContentType(this.contentType);
