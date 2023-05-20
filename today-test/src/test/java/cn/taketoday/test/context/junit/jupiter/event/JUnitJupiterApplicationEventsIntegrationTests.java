@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.parallel.Execution;
 
 import java.util.stream.Stream;
 
@@ -43,6 +44,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * Integration tests for {@link ApplicationEvents} in conjunction with JUnit Jupiter.
@@ -50,6 +52,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
  * @author Sam Brannen
  * @since 4.0
  */
+@Execution(SAME_THREAD)
 @JUnitConfig
 @RecordApplicationEvents
 class JUnitJupiterApplicationEventsIntegrationTests {
