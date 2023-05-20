@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,14 +22,15 @@ package cn.taketoday.aop;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import cn.taketoday.aop.framework.Advised;
-import cn.taketoday.aop.framework.adapter.DefaultAdvisorAdapterRegistry;
 import cn.taketoday.aop.framework.adapter.AdvisorAdapterRegistry;
+import cn.taketoday.aop.framework.adapter.DefaultAdvisorAdapterRegistry;
 import cn.taketoday.aop.support.RuntimeMethodInterceptor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -43,21 +44,27 @@ import cn.taketoday.util.CollectionUtils;
  * @author Juergen Hoeller
  * @author Rod Johnson
  * @author Adrian Colyer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DefaultInterceptorChainFactory implements InterceptorChainFactory, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  public static DefaultInterceptorChainFactory INSTANCE = new DefaultInterceptorChainFactory();
+
   private AdvisorAdapterRegistry registry = DefaultAdvisorAdapterRegistry.getInstance();
 
   @Override
-  public MethodInterceptor[] getInterceptorsAndDynamicInterceptionAdvice(
+  public MethodInterceptor[] getInterceptors(
           Advised config, Method method, @Nullable Class<?> targetClass) {
 
     // This is somewhat tricky... We have to process introductions first,
     // but we need to preserve order in the ultimate list.
     Advisor[] advisors = config.getAdvisors();
     ArrayList<MethodInterceptor> interceptorList = new ArrayList<>(advisors.length);
-    Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
+    Class<?> actualClass = targetClass != null ? targetClass : method.getDeclaringClass();
     Boolean hasIntroductions = null;
 
     for (Advisor advisor : advisors) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,7 @@ import cn.taketoday.aop.framework.ProxyCreatorSupport;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -112,7 +113,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
   public void addAspect(Class<?> aspectClass) {
     String aspectName = aspectClass.getName();
     AspectMetadata am = createAspectMetadata(aspectClass, aspectName);
-    MetadataAwareAspectInstanceFactory instanceFactory = createAspectInstanceFactory(am, aspectClass, aspectName);
+    var instanceFactory = createAspectInstanceFactory(am, aspectClass, aspectName);
     addAdvisorsFromAspectInstanceFactory(instanceFactory);
   }
 
@@ -134,13 +135,11 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
 
   /**
    * Create an {@link AspectMetadata} instance for the supplied aspect type.
+   *
+   * @throws IllegalArgumentException aspectClass is not an @AspectJ aspect
    */
   private AspectMetadata createAspectMetadata(Class<?> aspectClass, String aspectName) {
-    AspectMetadata am = new AspectMetadata(aspectClass, aspectName);
-    if (!am.getAjType().isAspect()) {
-      throw new IllegalArgumentException("Class [" + aspectClass.getName() + "] is not a valid aspect type");
-    }
-    return am;
+    return new AspectMetadata(aspectClass, aspectName);
   }
 
   /**
@@ -197,7 +196,7 @@ public class AspectJProxyFactory extends ProxyCreatorSupport {
    * @return the new proxy
    */
   @SuppressWarnings("unchecked")
-  public <T> T getProxy(ClassLoader classLoader) {
+  public <T> T getProxy(@Nullable ClassLoader classLoader) {
     return (T) createAopProxy().getProxy(classLoader);
   }
 

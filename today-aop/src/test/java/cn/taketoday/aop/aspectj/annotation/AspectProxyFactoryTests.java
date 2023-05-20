@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,9 +28,10 @@ import org.junit.jupiter.api.Test;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import cn.taketoday.aop.testfixture.SerializationTestUtils;
 import cn.taketoday.aop.testfixture.PerThisAspect;
+import cn.taketoday.aop.testfixture.SerializationTestUtils;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -47,6 +48,10 @@ public class AspectProxyFactoryTests {
     AspectJProxyFactory proxyFactory = new AspectJProxyFactory(new TestBean());
     assertThatIllegalArgumentException().isThrownBy(() ->
             proxyFactory.addAspect(TestBean.class));
+
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> proxyFactory.addAspect(new TestBean()))
+            .withMessage("Class '" + TestBean.class.getName() + "' is not an @AspectJ aspect");
   }
 
   @Test
@@ -57,6 +62,20 @@ public class AspectProxyFactoryTests {
     proxyFactory.addAspect(MultiplyReturnValue.class);
     ITestBean proxy = proxyFactory.getProxy();
     assertThat(proxy.getAge()).as("Multiplication did not occur").isEqualTo((bean.getAge() * 2));
+
+    ITestBean proxy1 = proxyFactory.getProxy(ClassUtils.getDefaultClassLoader());
+    assertThat(proxy1.getAge()).as("Multiplication did not occur").isEqualTo((bean.getAge() * 2));
+    assertThat(proxy1).isEqualTo(proxy);
+  }
+
+  @Test
+  void aspectJProxyFactory() {
+    TestBean bean = new TestBean();
+    bean.setAge(2);
+    AspectJProxyFactory proxyFactory = new AspectJProxyFactory(MyInterface.class, ITestBean.class);
+    proxyFactory.setTarget(bean);
+    ITestBean proxy = proxyFactory.getProxy(ClassUtils.getDefaultClassLoader());
+    assertThat(proxy).isInstanceOf(MyInterface.class);
   }
 
   @Test
