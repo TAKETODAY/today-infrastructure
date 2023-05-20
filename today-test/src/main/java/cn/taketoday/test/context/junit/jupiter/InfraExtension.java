@@ -188,7 +188,7 @@ public class InfraExtension implements BeforeAllCallback, AfterAllCallback, Test
               published by other tests since the application context may be shared.""";
     }, String.class);
 
-    if (errorMessage != NO_VIOLATIONS_DETECTED) {
+    if (!Objects.equals(errorMessage, NO_VIOLATIONS_DETECTED)) {
       throw new IllegalStateException(errorMessage);
     }
   }
