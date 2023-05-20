@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,12 +47,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * </pre>
  *
  * @author Arjen Poutsma
- * @since 3.2.5
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class CatchAllConverter implements Converter {
 
   @Override
-  @SuppressWarnings("rawtypes")
   public boolean canConvert(Class type) {
     return true;
   }

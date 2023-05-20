@@ -20,13 +20,17 @@
 
 package cn.taketoday.oxm.xstream;
 
+import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.extended.EncodedByteArrayConverter;
+import com.thoughtworks.xstream.core.DefaultConverterLookup;
+import com.thoughtworks.xstream.core.TreeMarshallingStrategy;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.json.JsonWriter;
 import com.thoughtworks.xstream.io.xml.QNameMap;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
+import com.thoughtworks.xstream.io.xml.XmlFriendlyNameCoder;
 import com.thoughtworks.xstream.security.AnyTypePermission;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +94,14 @@ class XStreamMarshallerTests {
   @BeforeEach
   void createMarshaller() {
     marshaller = new XStreamMarshaller();
+    marshaller.setConverterLookup(new DefaultConverterLookup());
+    marshaller.setMarshallingStrategy(new TreeMarshallingStrategy());
     marshaller.setTypePermissions(AnyTypePermission.ANY);
+    marshaller.setMode(XStream.NO_REFERENCES);
+    marshaller.setAutodetectAnnotations(false);
+    marshaller.setSupportedClasses(Flight.class);
+    marshaller.setNameCoder(new XmlFriendlyNameCoder());
+    marshaller.setEncoding(XStreamMarshaller.DEFAULT_ENCODING);
     marshaller.setAliases(Collections.singletonMap("flight", Flight.class.getName()));
     flight.setFlightNumber(42L);
   }

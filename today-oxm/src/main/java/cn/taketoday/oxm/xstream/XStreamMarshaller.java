@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -255,7 +255,7 @@ public class XStreamMarshaller extends AbstractMarshaller implements BeanClassLo
   public void setConverterLookup(ConverterLookup converterLookup) {
     this.converterLookup = converterLookup;
     if (converterLookup instanceof ConverterRegistry registry) {
-      this.converterRegistry = registry;
+      setConverterRegistry(registry);
     }
   }
 
