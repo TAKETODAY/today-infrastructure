@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import cn.taketoday.aop.AdvisedSupportListener;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Base class for proxy factories.
@@ -42,6 +43,8 @@ public class ProxyCreatorSupport extends AdvisedSupport {
   private boolean active = false;
 
   private AopProxyFactory aopProxyFactory;
+
+  @Nullable
   private ArrayList<AdvisedSupportListener> listeners;
 
   /**
@@ -57,7 +60,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    * @param aopProxyFactory the AopProxyFactory to use
    */
   public ProxyCreatorSupport(AopProxyFactory aopProxyFactory) {
-    Assert.notNull(aopProxyFactory, "AopProxyFactory must not be null");
+    Assert.notNull(aopProxyFactory, "AopProxyFactory is required");
     this.aopProxyFactory = aopProxyFactory;
   }
 
@@ -68,7 +71,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    * proxies or CGLIB proxies based on the requirements.
    */
   public void setAopProxyFactory(AopProxyFactory aopProxyFactory) {
-    Assert.notNull(aopProxyFactory, "AopProxyFactory must not be null");
+    Assert.notNull(aopProxyFactory, "AopProxyFactory is required");
     this.aopProxyFactory = aopProxyFactory;
   }
 
@@ -134,7 +137,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    * @param listener the listener to register
    */
   public void addListener(AdvisedSupportListener listener) {
-    Assert.notNull(listener, "AdvisedSupportListener must not be null");
+    Assert.notNull(listener, "AdvisedSupportListener is required");
     if (listeners == null) {
       listeners = new ArrayList<>(1);
     }
@@ -147,7 +150,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    * @param listener the listener to deregister
    */
   public void removeListener(AdvisedSupportListener listener) {
-    Assert.notNull(listener, "AdvisedSupportListener must not be null");
+    Assert.notNull(listener, "AdvisedSupportListener is required");
     if (listeners != null) {
       listeners.remove(listener);
     }

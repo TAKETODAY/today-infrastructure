@@ -26,7 +26,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.adapter.AdvisorAdapterRegistry;
@@ -52,7 +52,7 @@ public class DefaultInterceptorChainFactory implements InterceptorChainFactory, 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public static DefaultInterceptorChainFactory INSTANCE = new DefaultInterceptorChainFactory();
+  public static final DefaultInterceptorChainFactory INSTANCE = new DefaultInterceptorChainFactory();
 
   private AdvisorAdapterRegistry registry = DefaultAdvisorAdapterRegistry.getInstance();
 
@@ -83,7 +83,7 @@ public class DefaultInterceptorChainFactory implements InterceptorChainFactory, 
             match = matcher.matches(method, actualClass);
           }
           if (match) {
-            MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
+            List<MethodInterceptor> interceptors = registry.getInterceptors(advisor);
             if (matcher.isRuntime()) {
               // Creating a new object instance in the getInterceptors() method
               // isn't a problem as we normally cache created chains.
@@ -99,19 +99,19 @@ public class DefaultInterceptorChainFactory implements InterceptorChainFactory, 
       }
       else if (advisor instanceof IntroductionAdvisor ia) {
         if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
-          MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
-          Collections.addAll(interceptorList, interceptors);
+          List<MethodInterceptor> interceptors = registry.getInterceptors(advisor);
+          interceptorList.addAll(interceptors);
         }
       }
       else {
-        MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
-        Collections.addAll(interceptorList, interceptors);
+        List<MethodInterceptor> interceptors = registry.getInterceptors(advisor);
+        interceptorList.addAll(interceptors);
       }
     }
     if (interceptorList.isEmpty()) {
-      return AdvisorAdapterRegistry.EMPTY_INTERCEPTOR;
+      return EMPTY_INTERCEPTOR;
     }
-    return interceptorList.toArray(AdvisorAdapterRegistry.EMPTY_INTERCEPTOR);
+    return interceptorList.toArray(EMPTY_INTERCEPTOR);
   }
 
   /**

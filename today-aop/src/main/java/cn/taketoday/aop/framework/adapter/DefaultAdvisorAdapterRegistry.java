@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.aop.framework.adapter;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,16 +44,20 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
  * @author Rod Johnson
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   /**
    * Keep track of a single instance so we can return it to classes that request it.
    */
   private static AdvisorAdapterRegistry instance = new DefaultAdvisorAdapterRegistry();
 
-  private final List<AdvisorAdapter> adapters = new ArrayList<>(3);
+  private final ArrayList<AdvisorAdapter> adapters = new ArrayList<>(3);
 
   /**
    * Create a new DefaultAdvisorAdapterRegistry, registering well-known adapters.
@@ -85,8 +90,8 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
   }
 
   @Override
-  public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
-    List<MethodInterceptor> interceptors = new ArrayList<>(3);
+  public List<MethodInterceptor> getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
+    ArrayList<MethodInterceptor> interceptors = new ArrayList<>(3);
     Advice advice = advisor.getAdvice();
     if (advice instanceof MethodInterceptor) {
       interceptors.add((MethodInterceptor) advice);
@@ -99,7 +104,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
     if (interceptors.isEmpty()) {
       throw new UnknownAdviceTypeException(advisor.getAdvice());
     }
-    return interceptors.toArray(new MethodInterceptor[0]);
+    return interceptors;
   }
 
   @Override

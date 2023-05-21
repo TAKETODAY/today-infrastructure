@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,8 @@ package cn.taketoday.aop.framework.adapter;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.util.List;
+
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.MethodBeforeAdvice;
@@ -35,9 +37,9 @@ import cn.taketoday.aop.ThrowsAdvice;
  *
  * @author Rod Johnson
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public interface AdvisorAdapterRegistry {
-  MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
 
   /**
    * Return an {@link Advisor} wrapping the given advice.
@@ -62,11 +64,11 @@ public interface AdvisorAdapterRegistry {
    * a {@link PointcutAdvisor}: just return an interceptor.
    *
    * @param advisor the Advisor to find an interceptor for
-   * @return an array of MethodInterceptors to expose this Advisor's behavior
+   * @return a list of MethodInterceptors to expose this Advisor's behavior
    * @throws UnknownAdviceTypeException if the Advisor type is
    * not understood by any registered AdvisorAdapter
    */
-  MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException;
+  List<MethodInterceptor> getInterceptors(Advisor advisor) throws UnknownAdviceTypeException;
 
   /**
    * Register the given {@link AdvisorAdapter}. Note that it is not necessary to register

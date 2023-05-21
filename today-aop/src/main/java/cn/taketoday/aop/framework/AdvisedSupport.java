@@ -45,6 +45,7 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
@@ -129,7 +130,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   }
 
   @Override
-  public void setTargetSource(TargetSource targetSource) {
+  public void setTargetSource(@Nullable TargetSource targetSource) {
     this.targetSource = (targetSource != null ? targetSource : EMPTY_TARGET_SOURCE);
   }
 
@@ -177,6 +178,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   }
 
   @Override
+  @Nullable
   public Class<?> getTargetClass() {
     return this.targetSource.getTargetClass();
   }
@@ -440,7 +442,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * @param advice the advice to check inclusion of
    * @return whether this advice instance is included
    */
-  public boolean adviceIncluded(Advice advice) {
+  public boolean adviceIncluded(@Nullable Advice advice) {
     if (advice != null) {
       for (Advisor advisor : this.advisors) {
         if (advisor.getAdvice() == advice) {
@@ -457,7 +459,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * @param adviceClass the advice class to check
    * @return the count of the interceptors of this class or subclasses
    */
-  public int countAdvicesOfType(Class<?> adviceClass) {
+  public int countAdvicesOfType(@Nullable Class<?> adviceClass) {
     int count = 0;
     if (adviceClass != null) {
       for (Advisor advisor : this.advisors) {

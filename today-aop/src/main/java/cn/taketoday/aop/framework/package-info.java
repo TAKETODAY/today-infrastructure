@@ -18,32 +18,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aop;
-
-import cn.taketoday.aop.framework.Advised;
-import cn.taketoday.lang.Nullable;
-
 /**
- * Minimal interface for exposing the target class behind a proxy.
+ * Package containing Infra basic AOP infrastructure, compliant with the
+ * <a href="http://aopalliance.sourceforge.net">AOP Alliance</a> interfaces.
  *
- * <p>Implemented by AOP proxy objects and proxy factories
- * (via {@link Advised})
- * as well as by {@link TargetSource TargetSources}.
+ * <p>Infra AOP supports proxying interfaces or classes, introductions, and offers
+ * static and dynamic pointcuts.
  *
- * @author Juergen Hoeller
- * @author TODAY 2021/2/1 18:45
- * @see cn.taketoday.aop.support.AopUtils#getTargetClass(Object)
- * @since 3.0
+ * <p>Any Infra AOP proxy can be cast to the ProxyConfig AOP configuration interface
+ * in this package to add or remove interceptors.
+ *
+ * <p>The ProxyFactoryBean is a convenient way to create AOP proxies in a BeanFactory
+ * or ApplicationContext. However, proxies can be created programmatically using the
+ * ProxyFactory class.
  */
-public interface TargetClassAware {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.aop.framework;
 
-  /**
-   * Return the target class behind the implementing object
-   * (typically a proxy configuration or an actual proxy).
-   *
-   * @return the target Class, or {@code null} if not known
-   */
-  @Nullable
-  Class<?> getTargetClass();
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

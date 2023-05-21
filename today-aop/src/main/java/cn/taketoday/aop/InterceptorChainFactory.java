@@ -36,6 +36,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public interface InterceptorChainFactory {
+  MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
 
   /**
    * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -219,7 +219,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       // TODO: small memory optimization here (can skip creation for methods with no advice)
       for (int x = 0; x < methods.length; x++) {
         Method method = methods[x];
-        org.aopalliance.intercept.MethodInterceptor[] chain = config.getInterceptors(method, rootClass);
+        var chain = config.getInterceptors(method, rootClass);
 
         fixedCallbacks[x] = new FixedChainStaticTargetInterceptor(chain, config);
         this.fixedInterceptorMap.put(method, x);
@@ -465,7 +465,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         // Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
         target = targetSource.getTarget();
         Class<?> targetClass = target != null ? target.getClass() : null;
-        org.aopalliance.intercept.MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
+        var chain = advised.getInterceptors(method, targetClass);
         // Check whether we only have one InvokerInterceptor: that is,
         // no real advice, but just reflective invocation of the target.
         if (chain.length == 0 && isMethodProxyCompatible(method)) {
@@ -666,7 +666,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
       }
       Class<?> targetClass = advised.getTargetClass();
       // Proxy is not yet available, but that shouldn't matter.
-      org.aopalliance.intercept.MethodInterceptor[] chain = advised.getInterceptors(method, targetClass);
+      var chain = advised.getInterceptors(method, targetClass);
       boolean haveAdvice = ObjectUtils.isNotEmpty(chain);
       boolean exposeProxy = advised.isExposeProxy();
       boolean isStatic = advised.getTargetSource().isStatic();
