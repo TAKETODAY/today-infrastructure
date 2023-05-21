@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,7 @@ import cn.taketoday.aop.testfixture.beans.ITestBean;
 import cn.taketoday.aop.testfixture.beans.TestBean;
 import cn.taketoday.aop.testfixture.beans.subpkg.DeepBean;
 
+import static cn.taketoday.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -205,10 +206,10 @@ public class AspectJExpressionPointcutTests {
     //assertDoesNotMatchStringClass(classFilter);
 
     DefaultMethodInvocation invocation = new DefaultMethodInvocation(
-            null, new TestBean(), setSomeNumber, TestBean.class, new Object[] { 12D }, null);
+            null, new TestBean(), setSomeNumber, TestBean.class, new Object[] { 12D }, EMPTY_INTERCEPTOR);
 
     DefaultMethodInvocation invocation1 = new DefaultMethodInvocation(
-            null, new TestBean(), setSomeNumber, TestBean.class, new Object[] { 11 }, null);
+            null, new TestBean(), setSomeNumber, TestBean.class, new Object[] { 11 }, EMPTY_INTERCEPTOR);
 
     assertThat(methodMatcher.matches(invocation)).as("Should match with setSomeNumber with Double input").isTrue();
     assertThat(methodMatcher.matches(invocation1)).as("Should not match setSomeNumber with Integer input").isFalse();

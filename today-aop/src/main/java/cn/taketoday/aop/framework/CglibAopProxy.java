@@ -83,7 +83,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see DefaultAopProxyFactory
  * @since 3.0 2021/2/1 21:47
  */
-public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Serializable {
+class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -115,21 +116,22 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   @Override
-  protected Object getProxyInternal(Class<?> proxySuperClass, @Nullable ClassLoader classLoader) throws Exception {
+  protected Object getProxyInternal(Class<?> rootClass,
+          Class<?> proxySuperClass, @Nullable ClassLoader classLoader) throws Exception {
     if (log.isTraceEnabled()) {
       log.trace("Creating CGLIB proxy: {}", config.getTargetSource());
     }
-    Class<?> rootClass = config.getTargetClass();
 
     // Configure CGLIB Enhancer...
     Enhancer enhancer = createEnhancer();
     if (classLoader != null) {
       enhancer.setClassLoader(classLoader);
-      if (classLoader instanceof SmartClassLoader &&
-              ((SmartClassLoader) classLoader).isClassReloadable(proxySuperClass)) {
+      if (classLoader instanceof SmartClassLoader smart
+              && smart.isClassReloadable(proxySuperClass)) {
         enhancer.setUseCache(false);
       }
     }
+
     enhancer.setSuperclass(proxySuperClass);
     enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
     enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
@@ -169,7 +171,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
     return new Enhancer();
   }
 
-  Callback[] getCallbacks(Class<?> rootClass) throws Exception {
+  private Callback[] getCallbacks(Class<?> rootClass) throws Exception {
     // Parameters used for optimization choices...
     boolean exposeProxy = config.isExposeProxy();
     boolean isFrozen = config.isFrozen();
@@ -260,7 +262,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * passed directly back to the target. Used when the proxy needs to be exposed
    * and it can't be determined that the method won't return {@code this}.
    */
-  private record StaticUnadvisedInterceptor(Object target) implements MethodInterceptor, Serializable {
+  private record StaticUnadvisedInterceptor(@Nullable Object target) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -275,10 +277,11 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * Method interceptor used for static targets with no advice chain, when the
    * proxy is to be exposed.
    */
-  private record StaticUnadvisedExposedInterceptor(Object target) implements MethodInterceptor, Serializable {
+  private record StaticUnadvisedExposedInterceptor(@Nullable Object target) implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Nullable
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
       Object oldProxy = null;
@@ -347,10 +350,11 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * This will be used whenever it can be determined that a method definitely does
    * not return "this"
    */
-  private record StaticDispatcher(Object target) implements Dispatcher, Serializable {
+  private record StaticDispatcher(@Nullable Object target) implements Dispatcher, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Nullable
     @Override
     public Object loadObject() {
       return this.target;
@@ -418,8 +422,13 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   static class FixedChainStaticTargetInterceptor implements MethodInterceptor, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @Nullable
     final Object target;
+
+    @Nullable
     final Class<?> targetClass;
+
     final org.aopalliance.intercept.MethodInterceptor[] adviceChain;
 
     public FixedChainStaticTargetInterceptor(
@@ -431,8 +440,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
 
     @Override
     public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-      Object retVal = new CglibMethodInvocation(
-              proxy, target, method, targetClass, methodProxy, args, adviceChain).proceed();
+      Object retVal = new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, adviceChain)
+              .proceed();
       return processReturnValue(proxy, target, method, retVal);
     }
   }
@@ -478,8 +487,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
         }
         else {
           // We need to create a CglibMethodInvocation...
-          retVal = new CglibMethodInvocation(
-                  proxy, target, method, targetClass, methodProxy, args, chain).proceed();
+          retVal = new CglibMethodInvocation(proxy, target, method, targetClass, methodProxy, args, chain)
+                  .proceed();
         }
         return processReturnValue(proxy, target, method, retVal);
       }
@@ -501,8 +510,8 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * to a plain reflection invocation in case of a fast-class generation failure.
    */
   @Nullable
-  private static Object invokeMethod(@Nullable Object target, Method method, Object[] args, MethodProxy methodProxy)
-          throws Throwable {
+  private static Object invokeMethod(@Nullable Object target,
+          Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
     try {
       return methodProxy.invoke(target, args);
     }
@@ -517,9 +526,11 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * {@code proxy} and also verifies that {@code null} is not returned as a primitive.
    */
   @Nullable
-  private static Object processReturnValue(Object proxy, @Nullable Object target, Method method, @Nullable Object retVal) {
+  private static Object processReturnValue(Object proxy,
+          @Nullable Object target, Method method, @Nullable Object retVal) {
     // Massage return value if necessary
-    if (retVal != null && retVal == target && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
+    if (retVal != null && retVal == target
+            && !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) {
       // Special case: it returned "this". Note that we can't help
       // if the target sets a reference to itself in another returned object.
       retVal = proxy;
@@ -536,9 +547,12 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
+
+    @Nullable
     final MethodProxy methodProxy;
 
-    public CglibMethodInvocation(Object proxyObject, Object target, Method method, Class<?> targetClass,
+    public CglibMethodInvocation(Object proxyObject, @Nullable Object target,
+            Method method, @Nullable Class<?> targetClass,
             MethodProxy methodProxy, Object[] arguments,
             org.aopalliance.intercept.MethodInterceptor[] advices) {
       super(proxyObject, target, method, targetClass, arguments, advices);
@@ -584,9 +598,11 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
   }
 
   static boolean isMethodProxyCompatible(Method method) {
-    return Modifier.isPublic(method.getModifiers()) &&
-            method.getDeclaringClass() != Object.class && !ReflectionUtils.isEqualsMethod(method)
-            && !ReflectionUtils.isHashCodeMethod(method) && !ReflectionUtils.isToStringMethod(method);
+    return Modifier.isPublic(method.getModifiers())
+            && method.getDeclaringClass() != Object.class
+            && !ReflectionUtils.isEqualsMethod(method)
+            && !ReflectionUtils.isHashCodeMethod(method)
+            && !ReflectionUtils.isToStringMethod(method);
   }
 
   static void logFastClassGenerationFailure(Method method) {
@@ -597,8 +613,7 @@ public class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProx
    * CallbackFilter to assign Callbacks to methods.
    */
   private record ProxyCallbackFilter(
-          AdvisedSupport advised, Map<Method, Integer> fixedInterceptorMap, int fixedInterceptorOffset)
-          implements CallbackFilter {
+          AdvisedSupport advised, Map<Method, Integer> fixedInterceptorMap, int fixedInterceptorOffset) implements CallbackFilter {
 
     /**
      * Implementation of CallbackFilter.accept() to return the index of the callback

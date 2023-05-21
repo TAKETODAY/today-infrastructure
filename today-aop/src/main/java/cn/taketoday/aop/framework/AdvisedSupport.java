@@ -99,7 +99,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   private ArrayList<Advisor> advisors = new ArrayList<>();
 
   /** The InterceptorChainFactory to use. */
-  InterceptorChainFactory interceptorChainFactory = DefaultInterceptorChainFactory.INSTANCE;
+  private InterceptorChainFactory interceptorChainFactory = DefaultInterceptorChainFactory.INSTANCE;
 
   /**
    * No-arg constructor for use as a JavaBean.
@@ -484,7 +484,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * {@link cn.taketoday.aop.support.RuntimeMethodInterceptor})
    * @see cn.taketoday.aop.support.RuntimeMethodInterceptor
    */
-  public MethodInterceptor[] getInterceptors(Method method, Class<?> targetClass) {
+  public MethodInterceptor[] getInterceptors(Method method, @Nullable Class<?> targetClass) {
     MethodCacheKey cacheKey = new MethodCacheKey(method);
     MethodInterceptor[] cached = this.methodCache.get(cacheKey);
     if (cached == null) {
@@ -541,9 +541,10 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   AdvisedSupport getConfigurationOnlyCopy() {
     AdvisedSupport copy = new AdvisedSupport();
     copy.copyFrom(this);
+    copy.advisors = new ArrayList<>(this.advisors);
+    copy.interfaces = new ArrayList<>(this.interfaces);
+    copy.interceptorChainFactory = this.interceptorChainFactory;
     copy.targetSource = EmptyTargetSource.forClass(getTargetClass(), getTargetSource().isStatic());
-    copy.interfaces = this.interfaces;
-    copy.advisors = this.advisors;
     return copy;
   }
 

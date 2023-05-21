@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -119,7 +119,8 @@ public abstract class Pointcuts {
       MethodMatcher mm = pointcut.getMethodMatcher();
       if (mm.matches(method, targetClass)) {
         // We may need additional runtime (argument) check.
-        return (!mm.isRuntime() || mm.matches(new DefaultMethodInvocation(null, method, targetClass, args)));
+        return !mm.isRuntime() || mm.matches(
+                new DefaultMethodInvocation(null, method, targetClass, args));
       }
     }
     return false;

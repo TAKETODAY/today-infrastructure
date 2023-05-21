@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,7 +47,10 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   /** The configuration used to configure this proxy. */
   final AdvisedSupport config;
 
+  @Nullable
   protected Object[] constructorArgs;
+
+  @Nullable
   protected Class<?>[] constructorArgTypes;
 
   /**
@@ -72,7 +75,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    * @param constructorArgs the constructor argument values
    * @param constructorArgTypes the constructor argument types
    */
-  public void setConstructorArguments(Object[] constructorArgs, Class<?>[] constructorArgTypes) {
+  public void setConstructorArguments(@Nullable Object[] constructorArgs, @Nullable Class<?>[] constructorArgTypes) {
     if (constructorArgs == null || constructorArgTypes == null) {
       throw new IllegalArgumentException("Both 'constructorArgs' and 'constructorArgTypes' need to be specified");
     }
@@ -107,7 +110,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
       // Validate the class, writing log messages as necessary.
       validateClassIfNecessary(proxySuperClass, classLoader);
 
-      return getProxyInternal(proxySuperClass, classLoader);
+      return getProxyInternal(rootClass, proxySuperClass, classLoader);
     }
     catch (CodeGenerationException | IllegalArgumentException ex) {
       throw new AopConfigException(
@@ -134,7 +137,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   }
 
   protected abstract Object getProxyInternal(
-          Class<?> proxySuperClass, @Nullable ClassLoader loader) throws Exception;
+          Class<?> rootClass, Class<?> proxySuperClass, @Nullable ClassLoader loader) throws Exception;
 
   /**
    * Checks to see whether the supplied {@code Class} has already been validated

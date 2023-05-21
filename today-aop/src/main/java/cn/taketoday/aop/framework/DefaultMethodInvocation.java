@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,19 +28,29 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+
+import static cn.taketoday.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 
 /**
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
 public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
+
   private final Object proxy;
 
   protected Object[] args;
+
+  @Nullable
   protected final Object target;
+
   protected final Method method;
+
+  @Nullable
   protected final Class<?> targetClass;
+
   protected final MethodInterceptor[] advices;
 
   /**
@@ -51,14 +61,12 @@ public class DefaultMethodInvocation extends AbstractMethodInvocation implements
   private final int adviceLength;
 
   public DefaultMethodInvocation(Object proxy, Method method, Class<?> targetClass, Object[] arguments) {
-    this(proxy, null, method, targetClass, arguments, null);
+    this(proxy, null, method, targetClass, arguments, EMPTY_INTERCEPTOR);
   }
 
-  public DefaultMethodInvocation(Object proxy, Object target,
-          Method method,
-          Class<?> targetClass,
-          Object[] arguments,
-          MethodInterceptor[] advices) {
+  public DefaultMethodInvocation(Object proxy, @Nullable Object target,
+          Method method, @Nullable Class<?> targetClass,
+          Object[] arguments, MethodInterceptor[] advices) {
     this.proxy = proxy;
     this.target = target;
     this.method = method;
