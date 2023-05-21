@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -284,9 +283,9 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
-  @Disabled("Disabled until infra.profiles support is dropped")
+//  @Disabled("Disabled until infra.profiles support is dropped")
   void processAndApplyWhenHasInvalidPropertyThrowsException() {
-    this.environment.setProperty("context.profile", "a");
+    this.environment.setProperty("infra.profile", "a");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)

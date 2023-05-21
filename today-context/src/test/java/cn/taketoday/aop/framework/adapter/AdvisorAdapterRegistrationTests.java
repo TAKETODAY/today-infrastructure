@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,23 +54,24 @@ public class AdvisorAdapterRegistrationTests {
 
   @Test
   public void testAdvisorAdapterRegistrationManagerNotPresentInContext() {
-    ClassPathXmlApplicationContext ctx =
-            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-without-bpp.xml", getClass());
-    ITestBean tb = (ITestBean) ctx.getBean("testBean");
-    // just invoke any method to see if advice fired
-    assertThatExceptionOfType(UnknownAdviceTypeException.class).isThrownBy(
-            tb::getName);
-    assertThat(getAdviceImpl(tb).getInvocationCounter()).isZero();
+    try (var ctx = new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-without-bpp.xml", getClass())) {
+      ITestBean tb = (ITestBean) ctx.getBean("testBean");
+      // just invoke any method to see if advice fired
+      assertThatExceptionOfType(UnknownAdviceTypeException.class)
+              .isThrownBy(tb::getName);
+      assertThat(getAdviceImpl(tb).getInvocationCounter()).isZero();
+    }
   }
 
   @Test
   public void testAdvisorAdapterRegistrationManagerPresentInContext() {
-    ClassPathXmlApplicationContext ctx =
-            new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-with-bpp.xml", getClass());
-    ITestBean tb = (ITestBean) ctx.getBean("testBean");
-    // just invoke any method to see if advice fired
-    tb.getName();
-    getAdviceImpl(tb).getInvocationCounter();
+    try (var ctx = new ClassPathXmlApplicationContext(getClass().getSimpleName() + "-with-bpp.xml", getClass())) {
+      ITestBean tb = (ITestBean) ctx.getBean("testBean");
+
+      // just invoke any method to see if advice fired
+      tb.getName();
+      getAdviceImpl(tb).getInvocationCounter();
+    }
   }
 
   private SimpleBeforeAdviceImpl getAdviceImpl(ITestBean tb) {

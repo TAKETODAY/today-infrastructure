@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -76,7 +76,7 @@ public interface ContextCache {
    * @see #DEFAULT_MAX_CONTEXT_CACHE_SIZE
    * @since 4.0
    */
-  String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "context.test.context.cache.maxSize";
+  String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "infra.test.context.cache.maxSize";
 
   /**
    * Determine whether there is a cached context for the given key.

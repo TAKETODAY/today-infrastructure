@@ -85,16 +85,18 @@ import cn.taketoday.util.StringUtils;
  */
 public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper {
 
-  private static final String[] WEB_ENVIRONMENT_CLASSES = { "jakarta.servlet.Servlet",
-          "cn.taketoday.web.servlet.ConfigurableWebApplicationContext" };
+  private static final String[] WEB_ENVIRONMENT_CLASSES = {
+          "jakarta.servlet.Servlet",
+          "cn.taketoday.web.servlet.ConfigurableWebApplicationContext"
+  };
 
-  private static final String REACTIVE_WEB_ENVIRONMENT_CLASS = "cn.taketoday."
-          + "web.reactive.DispatcherHandler";
+  private static final String REACTIVE_WEB_ENVIRONMENT_CLASS =
+          "cn.taketoday.web.reactive.DispatcherHandler";
 
   private static final String MVC_WEB_ENVIRONMENT_CLASS = "cn.taketoday.web.servlet.DispatcherServlet";
 
-  private static final String ACTIVATE_SERVLET_LISTENER = "cn.taketoday.test."
-          + "context.web.ServletTestExecutionListener.activateListener";
+  private static final String ACTIVATE_SERVLET_LISTENER
+          = "cn.taketoday.test.context.web.ServletTestExecutionListener.activateListener";
 
   private static final Logger logger = LoggerFactory.getLogger(InfraTestContextBootstrapper.class);
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -99,7 +99,7 @@ public @interface TestConstructor {
    *
    * @see #autowireMode
    */
-  String TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME = "context.test.constructor.autowire.mode";
+  String TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME = "infra.test.constructor.autowire.mode";
 
   /**
    * Flag for setting the <em>test constructor {@linkplain AutowireMode autowire

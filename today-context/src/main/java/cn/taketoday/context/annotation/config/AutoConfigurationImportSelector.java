@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.annotation.Configuration;
@@ -73,12 +74,12 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/1 02:37
  */
 public class AutoConfigurationImportSelector
-        implements DeferredImportSelector, BeanClassLoaderAware,
-        ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {
+        implements DeferredImportSelector, BeanClassLoaderAware, BootstrapContextAware,
+        ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered, Predicate<String> {
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
-  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.autoconfigure.exclude";
+  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "infra.autoconfigure.exclude";
 
   private ConfigurableBeanFactory beanFactory;
 
@@ -87,6 +88,8 @@ public class AutoConfigurationImportSelector
   private ClassLoader beanClassLoader;
 
   private ResourceLoader resourceLoader;
+
+  private BootstrapContext bootstrapContext;
 
   private ConfigurationClassFilter configurationClassFilter;
 
@@ -101,7 +104,12 @@ public class AutoConfigurationImportSelector
 
   @Override
   public Predicate<String> getExclusionFilter() {
-    return this::shouldExclude;
+    return this;
+  }
+
+  @Override
+  public boolean test(String configurationClassName) {
+    return shouldExclude(configurationClassName);
   }
 
   private boolean shouldExclude(String configurationClassName) {
@@ -139,8 +147,8 @@ public class AutoConfigurationImportSelector
 
   protected boolean isEnabled(AnnotationMetadata metadata) {
     if (getClass() == AutoConfigurationImportSelector.class) {
-      return getEnvironment().getProperty(
-              EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, Boolean.class, true);
+      return getEnvironment().getFlag(
+              EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, true);
     }
     return true;
   }
@@ -207,8 +215,10 @@ public class AutoConfigurationImportSelector
 
   private void checkExcludedClasses(List<String> configurations, Set<String> exclusions) {
     ArrayList<String> invalidExcludes = new ArrayList<>(exclusions.size());
+    ClassLoader classLoader = getClass().getClassLoader();
     for (String exclusion : exclusions) {
-      if (ClassUtils.isPresent(exclusion, getClass().getClassLoader()) && !configurations.contains(exclusion)) {
+      if (ClassUtils.isPresent(exclusion, classLoader)
+              && !configurations.contains(exclusion)) {
         invalidExcludes.add(exclusion);
       }
     }
@@ -251,7 +261,7 @@ public class AutoConfigurationImportSelector
 
   /**
    * Returns the auto-configurations excluded by the
-   * {@code context.autoconfigure.exclude} property.
+   * {@code infra.autoconfigure.exclude} property.
    *
    * @return excluded auto-configurations
    */
@@ -311,17 +321,20 @@ public class AutoConfigurationImportSelector
 
   private void invokeAwareMethods(Object instance) {
     if (instance instanceof Aware) {
-      if (instance instanceof BeanClassLoaderAware) {
-        ((BeanClassLoaderAware) instance).setBeanClassLoader(this.beanClassLoader);
+      if (instance instanceof BeanClassLoaderAware aware) {
+        aware.setBeanClassLoader(this.beanClassLoader);
       }
-      if (instance instanceof BeanFactoryAware) {
-        ((BeanFactoryAware) instance).setBeanFactory(this.beanFactory);
+      if (instance instanceof BeanFactoryAware aware) {
+        aware.setBeanFactory(this.beanFactory);
       }
-      if (instance instanceof EnvironmentAware) {
-        ((EnvironmentAware) instance).setEnvironment(this.environment);
+      if (instance instanceof EnvironmentAware aware) {
+        aware.setEnvironment(this.environment);
       }
-      if (instance instanceof ResourceLoaderAware) {
-        ((ResourceLoaderAware) instance).setResourceLoader(this.resourceLoader);
+      if (instance instanceof ResourceLoaderAware aware) {
+        aware.setResourceLoader(this.resourceLoader);
+      }
+      if (instance instanceof BootstrapContextAware aware) {
+        aware.setBootstrapContext(bootstrapContext);
       }
     }
   }
@@ -339,6 +352,11 @@ public class AutoConfigurationImportSelector
   @Override
   public void setBeanClassLoader(ClassLoader classLoader) {
     this.beanClassLoader = classLoader;
+  }
+
+  @Override
+  public void setBootstrapContext(BootstrapContext context) {
+    this.bootstrapContext = context;
   }
 
   protected ClassLoader getBeanClassLoader() {
@@ -440,7 +458,7 @@ public class AutoConfigurationImportSelector
       }
       else {
         throw new IllegalStateException(
-                String.format("Only %s implementations are supported, got %s",
+                String.format("Only %configurationClassName implementations are supported, got %configurationClassName",
                         AutoConfigurationImportSelector.class.getSimpleName(),
                         selector.getClass().getName()));
       }

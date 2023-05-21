@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
  * {@link ContextLoader} or {@link SmartContextLoader} interface.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface CacheAwareContextLoaderDelegate {
@@ -52,7 +53,7 @@ public interface CacheAwareContextLoaderDelegate {
    * DefaultCacheAwareContextLoaderDelegate} will be used as the default.
    */
   String DEFAULT_CACHE_AWARE_CONTEXT_LOADER_DELEGATE_PROPERTY_NAME =
-          "context.test.context.default.CacheAwareContextLoaderDelegate";
+          "infra.test.context.default.CacheAwareContextLoaderDelegate";
 
   /**
    * Determine if the {@linkplain ApplicationContext application context} for
@@ -73,7 +74,6 @@ public interface CacheAwareContextLoaderDelegate {
    * @return {@code true} if the application context has been loaded
    * @see #loadContext
    * @see #closeContext
-   * @since 4.0
    */
   default boolean isContextLoaded(MergedContextConfiguration mergedContextConfiguration) {
     return false;
@@ -117,7 +117,6 @@ public interface CacheAwareContextLoaderDelegate {
    * is not part of a hierarchy
    * @see #isContextLoaded
    * @see #loadContext
-   * @since 4.0
    */
   void closeContext(MergedContextConfiguration mergedContextConfiguration, @Nullable HierarchyMode hierarchyMode);
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,7 +51,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
  * define more of your own configuration. You can always manually {@link #exclude()} any
  * configuration that you never want to apply (use {@link #excludeName()} if you don't
  * have access to them). You can also exclude them via the
- * {@code context.autoconfigure.exclude} property. Auto-configuration is always applied
+ * {@code infra.autoconfigure.exclude} property. Auto-configuration is always applied
  * after user-defined beans have been registered.
  * <p>
  * The package of the class that is annotated with {@code @EnableAutoConfiguration},
@@ -90,7 +90,7 @@ public @interface EnableAutoConfiguration {
    * Environment property that can be used to override when autoconfiguration is
    * enabled.
    */
-  String ENABLED_OVERRIDE_PROPERTY = "enable-autoconfiguration";
+  String ENABLED_OVERRIDE_PROPERTY = "infra.enable-auto-configuration";
 
   /**
    * Exclude specific auto-configuration classes such that they will never be applied.

@@ -146,15 +146,22 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
 
   }
 
-  private static final class ThreadedOutcomesResolver implements OutcomesResolver {
+  private static final class ThreadedOutcomesResolver implements OutcomesResolver, Runnable {
 
     private final Thread thread;
+    private final OutcomesResolver outcomesResolver;
 
     private volatile ConditionOutcome[] outcomes;
 
     private ThreadedOutcomesResolver(OutcomesResolver outcomesResolver) {
-      this.thread = new Thread(() -> this.outcomes = outcomesResolver.resolveOutcomes());
+      this.thread = new Thread(this);
+      this.outcomesResolver = outcomesResolver;
       this.thread.start();
+    }
+
+    @Override
+    public void run() {
+      this.outcomes = outcomesResolver.resolveOutcomes();
     }
 
     @Override
@@ -179,9 +186,8 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
       return getOutcomes(this.configClasses, this.start, this.end, this.configMetadata);
     }
 
-    private ConditionOutcome[] getOutcomes(
-            String[] autoConfigurationClasses, int start, int end,
-            AutoConfigurationMetadata autoConfigurationMetadata) {
+    private ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
+            int start, int end, AutoConfigurationMetadata autoConfigurationMetadata) {
       ConditionOutcome[] outcomes = new ConditionOutcome[end - start];
       for (int i = start; i < end; i++) {
         String autoConfigurationClass = autoConfigurationClasses[i];

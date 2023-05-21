@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -116,7 +116,7 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void propertyExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude", LifecycleAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.autoconfigure.exclude", LifecycleAutoConfiguration.class.getName());
     String[] imports = selectImports(BasicEnableAutoConfiguration.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 1);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions())
@@ -125,22 +125,22 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void severalPropertyExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude",
+    this.environment.setProperty("infra.autoconfigure.exclude",
             LifecycleAutoConfiguration.class.getName() + "," + PropertyPlaceholderAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyExclusionsAreAppliedWithExtraSpaces() {
-    this.environment.setProperty("context.autoconfigure.exclude",
+    this.environment.setProperty("infra.autoconfigure.exclude",
             LifecycleAutoConfiguration.class.getName() + " , " + PropertyPlaceholderAutoConfiguration.class.getName() + " ");
     testSeveralPropertyExclusionsAreApplied();
   }
 
   @Test
   void severalPropertyYamlExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude[0]", LifecycleAutoConfiguration.class.getName());
-    this.environment.setProperty("context.autoconfigure.exclude[1]", PropertyPlaceholderAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.autoconfigure.exclude[0]", LifecycleAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.autoconfigure.exclude[1]", PropertyPlaceholderAutoConfiguration.class.getName());
     testSeveralPropertyExclusionsAreApplied();
   }
 
@@ -153,7 +153,7 @@ class AutoConfigurationImportSelectorTests {
 
   @Test
   void combinedExclusionsAreApplied() {
-    this.environment.setProperty("context.autoconfigure.exclude", MessageSourceAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.autoconfigure.exclude", MessageSourceAutoConfiguration.class.getName());
     String[] imports = selectImports(EnableAutoConfigurationWithClassAndClassNameExclusions.class);
     assertThat(imports).hasSize(getAutoConfigurationClassNames().size() - 3);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).contains(
@@ -176,14 +176,14 @@ class AutoConfigurationImportSelectorTests {
   @Test
   void nonAutoConfigurationPropertyExclusionsWhenPresentOnClassPathShouldThrowException() {
 //    /AutoConfigurationImportSelectorTests.java:165
-    this.environment.setProperty("context.autoconfigure.exclude",
+    this.environment.setProperty("infra.autoconfigure.exclude",
             "cn.taketoday.annotation.config.AutoConfigurationImportSelectorTests.TestConfiguration");
     assertThatIllegalStateException().isThrownBy(() -> selectImports(BasicEnableAutoConfiguration.class));
   }
 
   @Test
   void nameAndPropertyExclusionsWhenNotPresentOnClasspathShouldNotThrowException() {
-    this.environment.setProperty("context.autoconfigure.exclude",
+    this.environment.setProperty("infra.autoconfigure.exclude",
             "cn.taketoday.context.annotation.config.DoesNotExist2");
     selectImports(EnableAutoConfigurationWithAbsentClassNameExclude.class);
     Assertions.assertThat(this.importSelector.getLastEvent().getExclusions()).containsExactlyInAnyOrder(

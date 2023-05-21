@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -80,7 +80,7 @@ class ImportAutoConfigurationImportSelectorTests {
 
   @Test
   void propertyExclusionsAreApplied() throws IOException {
-    this.environment.setProperty("context.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
+    this.environment.setProperty("infra.autoconfigure.exclude", WebMvcAutoConfiguration.class.getName());
     AnnotationMetadata annotationMetadata = getAnnotationMetadata(MultipleImports.class);
     String[] imports = this.importSelector.selectImports(annotationMetadata);
     assertThat(imports).containsExactly(JacksonAutoConfiguration.class.getName());
