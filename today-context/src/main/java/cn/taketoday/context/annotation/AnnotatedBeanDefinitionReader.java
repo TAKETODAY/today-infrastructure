@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -275,6 +275,7 @@ public class AnnotatedBeanDefinitionReader extends BeanDefinitionCustomizers {
       return;
     }
 
+    definition.setAttribute(ConfigurationClassUtils.CANDIDATE_ATTRIBUTE, Boolean.TRUE);
     definition.setInstanceSupplier(supplier);
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(definition);
     definition.setScope(scopeMetadata.getScopeName());
