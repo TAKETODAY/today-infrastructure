@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -438,5 +438,18 @@ public @interface Configuration {
    * @since 4.0
    */
   boolean proxyBeanMethods() default true;
+
+  /**
+   * Specify whether {@code @Bean} methods need to have unique method names,
+   * raising an exception otherwise in order to prevent accidental overloading.
+   * <p>The default is {@code true}, preventing accidental method overloads which
+   * get interpreted as overloaded factory methods for the same bean definition
+   * (as opposed to separate bean definitions with individual conditions etc).
+   * Switch this flag to {@code false} in order to allow for method overloading
+   * according to those semantics, accepting the risk for accidental overlaps.
+   *
+   * @since 4.0
+   */
+  boolean enforceUniqueMethods() default true;
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,6 +32,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
@@ -45,6 +46,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ComponentMethod
  * @see ConfigurationClassParser
  * @since 4.0
@@ -192,6 +194,18 @@ final class ConfigurationClass {
         componentMethod.validate(problemReporter);
       }
     }
+
+    // A configuration class may not contain overloaded bean methods unless it declares enforceUniqueMethods=false
+    if (annotation.isPresent() && annotation.getBoolean("enforceUniqueMethods")) {
+      Map<String, MethodMetadata> beanMethodsByName = new LinkedHashMap<>();
+      for (ComponentMethod beanMethod : componentMethods) {
+        MethodMetadata current = beanMethod.metadata;
+        MethodMetadata existing = beanMethodsByName.put(current.getMethodName(), current);
+        if (existing != null && existing.getDeclaringClassName().equals(current.getDeclaringClassName())) {
+          problemReporter.error(new BeanMethodOverloadingProblem(existing.getMethodName()));
+        }
+      }
+    }
   }
 
   @Override
@@ -218,6 +232,20 @@ final class ConfigurationClass {
     FinalConfigurationProblem() {
       super(String.format("@Configuration class '%s' may not be final, when proxyBeanMethods is enabled. Remove the final modifier to continue.",
               getSimpleName()), new Location(resource, metadata));
+    }
+  }
+
+  /**
+   * Configuration classes are not allowed to contain overloaded bean methods
+   * by default
+   */
+  private class BeanMethodOverloadingProblem extends Problem {
+
+    BeanMethodOverloadingProblem(String methodName) {
+      super(String.format("@Configuration class '%s' contains overloaded @Bean methods with name '%s'. Use " +
+                      "unique method names for separate bean definitions (with individual conditions etc) " +
+                      "or switch '@Configuration.enforceUniqueMethods' to 'false'.",
+              getSimpleName(), methodName), new Location(resource, metadata));
     }
   }
 
