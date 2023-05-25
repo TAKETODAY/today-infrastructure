@@ -131,6 +131,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * to prevent the configuration from becoming frozen too early.
    */
   private boolean freezeProxy = false;
+
   @Nullable
   private transient TargetSourceCreator[] customTargetSourceCreators;
 
@@ -173,6 +174,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see DefaultAdvisorAdapterRegistry
    */
   public void setAdvisorAdapterRegistry(AdvisorAdapterRegistry advisorAdapterRegistry) {
+    Assert.notNull(advisorAdapterRegistry, "AdvisorAdapterRegistry is required");
     this.advisorAdapterRegistry = advisorAdapterRegistry;
   }
 
