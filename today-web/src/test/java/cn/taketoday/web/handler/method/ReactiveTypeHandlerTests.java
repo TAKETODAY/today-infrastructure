@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -250,6 +250,33 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitComplete();
 
     assertThat(requestContext.responseHeaders().getContentType().toString()).isEqualTo("application/x-ndjson");
+    assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
+  }
+
+  @Test
+  public void writeStreamJsonWithVendorSubtype() throws Exception {
+    this.servletRequest.addHeader("Accept", "application/vnd.myapp.v1+x-ndjson");
+
+    Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
+    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.fromClass(Bar.class));
+
+    assertThat(emitter).as("emitter").isNotNull();
+
+    EmitterHandler emitterHandler = new EmitterHandler();
+    emitter.initialize(emitterHandler);
+
+    ServletRequestContext requestContext = new ServletRequestContext(null, null, servletResponse);
+//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
+    emitter.extendResponse(requestContext);
+
+    Bar bar1 = new Bar("foo");
+    Bar bar2 = new Bar("bar");
+
+    sink.tryEmitNext(bar1);
+    sink.tryEmitNext(bar2);
+    sink.tryEmitComplete();
+
+    assertThat(requestContext.getResponseContentType()).isEqualTo("application/vnd.myapp.v1+x-ndjson");
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 
