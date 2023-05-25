@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,16 +20,15 @@
 
 package cn.taketoday.context.support.mail.javamail;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import cn.taketoday.context.support.mail.MailParseException;
 import cn.taketoday.context.support.mail.MailSendException;
@@ -49,6 +48,8 @@ import jakarta.mail.internet.MimeMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * @author Juergen Hoeller
@@ -57,9 +58,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class JavaMailSenderTests {
 
+  private final MockJavaMailSender sender = new MockJavaMailSender();
+
   @Test
-  public void javaMailSenderWithSimpleMessage() throws MessagingException, IOException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithSimpleMessage() throws Exception {
     sender.setHost("host");
     sender.setPort(30);
     sender.setUsername("username");
@@ -83,32 +85,21 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
 
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
+    assertThat(sender.transport.getSentMessages()).hasSize(1);
     MimeMessage sentMessage = sender.transport.getSentMessage(0);
-    List<Address> froms = Arrays.asList(sentMessage.getFrom());
-    assertThat(froms.size()).isEqualTo(1);
-    assertThat(((InternetAddress) froms.get(0)).getAddress()).isEqualTo("me@mail.org");
-    List<Address> replyTos = Arrays.asList(sentMessage.getReplyTo());
-    assertThat(((InternetAddress) replyTos.get(0)).getAddress()).isEqualTo("reply@mail.org");
-    List<Address> tos = Arrays.asList(sentMessage.getRecipients(Message.RecipientType.TO));
-    assertThat(tos.size()).isEqualTo(1);
-    assertThat(((InternetAddress) tos.get(0)).getAddress()).isEqualTo("you@mail.org");
-    List<Address> ccs = Arrays.asList(sentMessage.getRecipients(Message.RecipientType.CC));
-    assertThat(ccs.size()).isEqualTo(2);
-    assertThat(((InternetAddress) ccs.get(0)).getAddress()).isEqualTo("he@mail.org");
-    assertThat(((InternetAddress) ccs.get(1)).getAddress()).isEqualTo("she@mail.org");
-    List<Address> bccs = Arrays.asList(sentMessage.getRecipients(Message.RecipientType.BCC));
-    assertThat(bccs.size()).isEqualTo(2);
-    assertThat(((InternetAddress) bccs.get(0)).getAddress()).isEqualTo("us@mail.org");
-    assertThat(((InternetAddress) bccs.get(1)).getAddress()).isEqualTo("them@mail.org");
+    assertThat(addresses(sentMessage.getFrom())).containsExactly("me@mail.org");
+    assertThat(addresses(sentMessage.getReplyTo())).containsExactly("reply@mail.org");
+    assertThat(addresses(sentMessage.getRecipients(Message.RecipientType.TO))).containsExactly("you@mail.org");
+    assertThat(addresses(sentMessage.getRecipients(Message.RecipientType.CC))).containsExactly("he@mail.org", "she@mail.org");
+    assertThat(addresses(sentMessage.getRecipients(Message.RecipientType.BCC))).containsExactly("us@mail.org", "them@mail.org");
+
     assertThat(sentMessage.getSentDate().getTime()).isEqualTo(sentDate.getTime());
     assertThat(sentMessage.getSubject()).isEqualTo("my subject");
     assertThat(sentMessage.getContent()).isEqualTo("my text");
   }
 
   @Test
-  public void javaMailSenderWithSimpleMessages() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithSimpleMessages() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -124,20 +115,15 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
 
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(2);
+    assertThat(sender.transport.getSentMessages()).hasSize(2);
     MimeMessage sentMessage1 = sender.transport.getSentMessage(0);
-    List<Address> tos1 = Arrays.asList(sentMessage1.getRecipients(Message.RecipientType.TO));
-    assertThat(tos1.size()).isEqualTo(1);
-    assertThat(((InternetAddress) tos1.get(0)).getAddress()).isEqualTo("he@mail.org");
     MimeMessage sentMessage2 = sender.transport.getSentMessage(1);
-    List<Address> tos2 = Arrays.asList(sentMessage2.getRecipients(Message.RecipientType.TO));
-    assertThat(tos2.size()).isEqualTo(1);
-    assertThat(((InternetAddress) tos2.get(0)).getAddress()).isEqualTo("she@mail.org");
+    assertThat(addresses(sentMessage1.getRecipients(Message.RecipientType.TO))).containsExactly("he@mail.org");
+    assertThat(addresses(sentMessage2.getRecipients(Message.RecipientType.TO))).containsExactly("she@mail.org");
   }
 
   @Test
-  public void javaMailSenderWithMimeMessage() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessage() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -150,13 +136,11 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(mimeMessage);
+    assertThat(sender.transport.getSentMessages()).containsExactly(mimeMessage);
   }
 
   @Test
-  public void javaMailSenderWithMimeMessages() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessages() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -171,14 +155,11 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(2);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(mimeMessage1);
-    assertThat(sender.transport.getSentMessage(1)).isEqualTo(mimeMessage2);
+    assertThat(sender.transport.getSentMessages()).containsExactly(mimeMessage1, mimeMessage2);
   }
 
   @Test
-  public void javaMailSenderWithMimeMessagePreparator() {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessagePreparator() {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -195,13 +176,11 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(messages.get(0));
+    assertThat(sender.transport.getSentMessages()).containsExactly(messages.get(0));
   }
 
   @Test
-  public void javaMailSenderWithMimeMessagePreparators() {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessagePreparators() {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -222,22 +201,19 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(2);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(messages.get(0));
-    assertThat(sender.transport.getSentMessage(1)).isEqualTo(messages.get(1));
+    assertThat(messages).hasSize(2);
+    assertThat(sender.transport.getSentMessages()).containsExactlyElementsOf(messages);
   }
 
   @Test
-  public void javaMailSenderWithMimeMessageHelper() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessageHelper() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
 
     MimeMessageHelper message = new MimeMessageHelper(sender.createMimeMessage());
     assertThat(message.getEncoding()).isNull();
-    boolean condition = message.getFileTypeMap() instanceof ConfigurableMimeFileTypeMap;
-    assertThat(condition).isTrue();
+    assertThat(message.getFileTypeMap()).isInstanceOf(ConfigurableMimeFileTypeMap.class);
 
     message.setTo("you@mail.org");
     sender.send(message.getMimeMessage());
@@ -246,13 +222,11 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(message.getMimeMessage());
+    assertThat(sender.transport.getSentMessages()).containsExactly(message.getMimeMessage());
   }
 
   @Test
-  public void javaMailSenderWithMimeMessageHelperAndSpecificEncoding() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessageHelperAndSpecificEncoding() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -270,13 +244,11 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(message.getMimeMessage());
+    assertThat(sender.transport.getSentMessages()).containsExactly(message.getMimeMessage());
   }
 
   @Test
-  public void javaMailSenderWithMimeMessageHelperAndDefaultEncoding() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithMimeMessageHelperAndDefaultEncoding() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -295,41 +267,29 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(message.getMimeMessage());
+    assertThat(sender.transport.getSentMessages()).containsExactly(message.getMimeMessage());
   }
 
   @Test
-  public void javaMailSenderWithParseExceptionOnSimpleMessage() {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithParseExceptionOnSimpleMessage() {
     SimpleMailMessage simpleMessage = new SimpleMailMessage();
     simpleMessage.setFrom("");
-    try {
-      sender.send(simpleMessage);
-    }
-    catch (MailParseException ex) {
-      // expected
-      boolean condition = ex.getCause() instanceof AddressException;
-      assertThat(condition).isTrue();
-    }
+
+    assertThatExceptionOfType(MailParseException.class)
+            .isThrownBy(() -> sender.send(simpleMessage))
+            .withCauseInstanceOf(AddressException.class);
   }
 
   @Test
-  public void javaMailSenderWithParseExceptionOnMimeMessagePreparator() {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void javaMailSenderWithParseExceptionOnMimeMessagePreparator() {
     MimeMessagePreparator preparator = mimeMessage -> mimeMessage.setFrom(new InternetAddress(""));
-    try {
-      sender.send(preparator);
-    }
-    catch (MailParseException ex) {
-      // expected
-      boolean condition = ex.getCause() instanceof AddressException;
-      assertThat(condition).isTrue();
-    }
+    assertThatExceptionOfType(MailParseException.class)
+            .isThrownBy(() -> sender.send(preparator))
+            .withCauseInstanceOf(AddressException.class);
   }
 
   @Test
-  public void javaMailSenderWithCustomSession() throws MessagingException {
+  void javaMailSenderWithCustomSession() throws Exception {
     final Session session = Session.getInstance(new Properties());
     MockJavaMailSender sender = new MockJavaMailSender() {
       @Override
@@ -353,12 +313,11 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(mimeMessage);
+    assertThat(sender.transport.getSentMessages()).containsExactly(mimeMessage);
   }
 
   @Test
-  public void javaMailProperties() throws MessagingException {
+  void javaMailProperties() throws Exception {
     Properties props = new Properties();
     props.setProperty("bogusKey", "bogusValue");
     MockJavaMailSender sender = new MockJavaMailSender() {
@@ -381,37 +340,33 @@ public class JavaMailSenderTests {
     assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
     assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
     assertThat(sender.transport.isCloseCalled()).isTrue();
-    assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-    assertThat(sender.transport.getSentMessage(0)).isEqualTo(mimeMessage);
+    assertThat(sender.transport.getSentMessages()).containsExactly(mimeMessage);
   }
 
   @Test
-  public void failedMailServerConnect() {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void failedMailServerConnect() {
     sender.setHost(null);
     sender.setUsername("username");
     sender.setPassword("password");
     SimpleMailMessage simpleMessage1 = new SimpleMailMessage();
-    assertThatExceptionOfType(MailSendException.class).isThrownBy(() ->
-                    sender.send(simpleMessage1))
-            .satisfies(ex -> assertThat(ex.getFailedMessages()).containsExactly(Assertions.entry(simpleMessage1, (Exception) ex.getCause())));
+    assertThatExceptionOfType(MailSendException.class)
+            .isThrownBy(() -> sender.send(simpleMessage1))
+            .satisfies(ex -> assertThat(ex.getFailedMessages()).containsExactly(entry(simpleMessage1, (Exception) ex.getCause())));
   }
 
   @Test
-  public void failedMailServerClose() {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void failedMailServerClose() {
     sender.setHost("");
     sender.setUsername("username");
     sender.setPassword("password");
     SimpleMailMessage simpleMessage1 = new SimpleMailMessage();
-    assertThatExceptionOfType(MailSendException.class).isThrownBy(() ->
-                    sender.send(simpleMessage1))
+    assertThatExceptionOfType(MailSendException.class)
+            .isThrownBy(() -> sender.send(simpleMessage1))
             .satisfies(ex -> assertThat(ex.getFailedMessages()).isEmpty());
   }
 
   @Test
-  public void failedSimpleMessage() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void failedSimpleMessage() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -430,20 +385,16 @@ public class JavaMailSenderTests {
       assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
       assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
       assertThat(sender.transport.isCloseCalled()).isTrue();
-      assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
+      assertThat(sender.transport.getSentMessages()).hasSize(1);
       assertThat(sender.transport.getSentMessage(0).getAllRecipients()[0]).isEqualTo(new InternetAddress("she@mail.org"));
-      assertThat(ex.getFailedMessages().size()).isEqualTo(1);
-      assertThat(ex.getFailedMessages().keySet().iterator().next()).isEqualTo(simpleMessage1);
-      Object subEx = ex.getFailedMessages().values().iterator().next();
-      boolean condition = subEx instanceof MessagingException;
-      assertThat(condition).isTrue();
-      assertThat(((MessagingException) subEx).getMessage()).isEqualTo("failed");
+      assertThat(ex.getFailedMessages().keySet()).containsExactly(simpleMessage1);
+      Exception subEx = ex.getFailedMessages().values().iterator().next();
+      assertThat(subEx).isInstanceOf(MessagingException.class).hasMessage("failed");
     }
   }
 
   @Test
-  public void failedMimeMessage() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void failedMimeMessage() throws Exception {
     sender.setHost("host");
     sender.setUsername("username");
     sender.setPassword("password");
@@ -462,30 +413,27 @@ public class JavaMailSenderTests {
       assertThat(sender.transport.getConnectedUsername()).isEqualTo("username");
       assertThat(sender.transport.getConnectedPassword()).isEqualTo("password");
       assertThat(sender.transport.isCloseCalled()).isTrue();
-      assertThat(sender.transport.getSentMessages().size()).isEqualTo(1);
-      assertThat(sender.transport.getSentMessage(0)).isEqualTo(mimeMessage2);
-      assertThat(ex.getFailedMessages().size()).isEqualTo(1);
-      assertThat(ex.getFailedMessages().keySet().iterator().next()).isEqualTo(mimeMessage1);
-      Object subEx = ex.getFailedMessages().values().iterator().next();
-      boolean condition = subEx instanceof MessagingException;
-      assertThat(condition).isTrue();
-      assertThat(((MessagingException) subEx).getMessage()).isEqualTo("failed");
+      assertThat(sender.transport.getSentMessages()).containsExactly(mimeMessage2);
+      assertThat(ex.getFailedMessages().keySet()).containsExactly(mimeMessage1);
+      Exception subEx = ex.getFailedMessages().values().iterator().next();
+      assertThat(subEx).isInstanceOf(MessagingException.class).hasMessage("failed");
     }
   }
 
   @Test
-  public void testConnection() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void testConnection() {
     sender.setHost("host");
-    sender.testConnection();
+    assertThatNoException().isThrownBy(sender::testConnection);
   }
 
   @Test
-  public void testConnectionWithFailure() throws MessagingException {
-    MockJavaMailSender sender = new MockJavaMailSender();
+  void testConnectionWithFailure() {
     sender.setHost(null);
-    assertThatExceptionOfType(MessagingException.class).isThrownBy(
-            sender::testConnection);
+    assertThatExceptionOfType(MessagingException.class).isThrownBy(sender::testConnection);
+  }
+
+  private static Stream<String> addresses(Address[] addresses) {
+    return Arrays.stream(addresses).map(InternetAddress.class::cast).map(InternetAddress::getAddress);
   }
 
   private static class MockJavaMailSender extends JavaMailSenderImpl {
