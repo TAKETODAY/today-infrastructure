@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,6 +59,17 @@ public class TimeoutRetryPolicyTests {
     RetryContext child = policy.open(context);
     assertThat(context).isNotSameAs(child);
     assertThat(child.getParent()).isSameAs(context);
+  }
+
+  @Test
+  public void testConstructorWithCustomTimeout() throws Exception {
+    TimeoutRetryPolicy policy = new TimeoutRetryPolicy(100);
+    RetryContext context = policy.open(null);
+    policy.registerThrowable(context, new Exception());
+    assertThat(policy.canRetry(context)).isTrue();
+    Thread.sleep(200);
+    assertThat(policy.canRetry(context)).isFalse();
+    policy.close(context);
   }
 
 }
