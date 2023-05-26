@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -530,7 +530,7 @@ public class RetryTemplate implements RetryOperations {
    * cache. If there is a recovery callback, execute that and return its result.
    * Otherwise throw an exception.
    *
-   * @param recoveryCallback the callback for recovery (might be null)
+   * @param recovery the callback for recovery (might be null)
    * @param context the current retry context
    * @param state the {@link RetryState}
    * @param <T> the type to classify
@@ -541,26 +541,33 @@ public class RetryTemplate implements RetryOperations {
    * callback
    * @throws Throwable if there is an error
    */
-  protected <T> T handleRetryExhausted(RecoveryCallback<T> recoveryCallback, RetryContext context, RetryState state)
-          throws Throwable {
+  protected <T> T handleRetryExhausted(RecoveryCallback<T> recovery,
+          RetryContext context, RetryState state) throws Throwable {
     context.setAttribute(RetryContext.EXHAUSTED, true);
     if (state != null && !context.hasAttribute(GLOBAL_STATE)) {
-      retryContextCache.remove(state.getKey());
+      this.retryContextCache.remove(state.getKey());
     }
-    if (recoveryCallback != null) {
-      T recovered = recoveryCallback.recover(context);
-      context.setAttribute(RetryContext.RECOVERED, true);
-      return recovered;
+    boolean doRecover = !Boolean.TRUE.equals(context.getAttribute(RetryContext.NO_RECOVERY));
+    if (recovery != null) {
+      if (doRecover) {
+        T recovered = recovery.recover(context);
+        context.setAttribute(RetryContext.RECOVERED, true);
+        return recovered;
+      }
+      else {
+        logger.debug("Retry exhausted and recovery disabled for this throwable");
+      }
     }
     if (state != null) {
-      logger.debug("Retry exhausted after last attempt with no recovery path.");
-      rethrow(context, "Retry exhausted after last attempt with no recovery path");
+      this.logger.debug("Retry exhausted after last attempt with no recovery path.");
+      rethrow(context, "Retry exhausted after last attempt with no recovery path",
+              this.throwLastExceptionOnExhausted || !doRecover);
     }
     throw wrapIfNecessary(context.getLastThrowable());
   }
 
-  protected <E extends Throwable> void rethrow(RetryContext context, String message) throws E {
-    if (throwLastExceptionOnExhausted) {
+  protected <E extends Throwable> void rethrow(RetryContext context, String message, boolean wrap) throws E {
+    if (wrap) {
       @SuppressWarnings("unchecked")
       E rethrow = (E) context.getLastThrowable();
       throw rethrow;

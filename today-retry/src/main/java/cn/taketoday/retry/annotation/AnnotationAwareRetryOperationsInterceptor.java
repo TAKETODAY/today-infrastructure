@@ -69,6 +69,7 @@ import cn.taketoday.retry.support.Args;
 import cn.taketoday.retry.support.RetrySynchronizationManager;
 import cn.taketoday.retry.support.RetryTemplate;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -354,19 +355,18 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     return new RecoverAnnotationRecoveryHandler<>(target, method);
   }
 
+  @SuppressWarnings("unchecked")
   private RetryPolicy getRetryPolicy(Annotation retryable, boolean stateless) {
     Map<String, Object> attrs = AnnotationUtils.getAnnotationAttributes(retryable);
     @SuppressWarnings("unchecked")
-    Class<? extends Throwable>[] includes = (Class<? extends Throwable>[]) attrs.get("value");
+    Class<? extends Throwable>[] retryFor = (Class<? extends Throwable>[]) attrs.get("value");
     String exceptionExpression = (String) attrs.get("exceptionExpression");
     boolean hasExpression = StringUtils.hasText(exceptionExpression);
-    if (includes.length == 0) {
-      @SuppressWarnings("unchecked")
-      Class<? extends Throwable>[] value = (Class<? extends Throwable>[]) attrs.get("retryFor");
-      includes = value;
+    if (ObjectUtils.isEmpty(retryFor)) {
+      retryFor = (Class<? extends Throwable>[]) attrs.get("retryFor");
     }
     @SuppressWarnings("unchecked")
-    Class<? extends Throwable>[] excludes = (Class<? extends Throwable>[]) attrs.get("noRetryFor");
+    Class<? extends Throwable>[] noRetryFor = (Class<? extends Throwable>[]) attrs.get("noRetryFor");
     Integer maxAttempts = (Integer) attrs.get("maxAttempts");
     String maxAttemptsExpression = (String) attrs.get("maxAttemptsExpression");
     Expression parsedExpression = null;
@@ -379,7 +379,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     }
     final Expression expression = parsedExpression;
     SimpleRetryPolicy simple = null;
-    if (includes.length == 0 && excludes.length == 0) {
+    if (retryFor.length == 0 && noRetryFor.length == 0) {
       simple = hasExpression
                ? new ExpressionRetryPolicy(resolve(exceptionExpression)).withBeanFactory(this.beanFactory)
                : new SimpleRetryPolicy();
@@ -391,13 +391,13 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       }
     }
     Map<Class<? extends Throwable>, Boolean> policyMap = new HashMap<>();
-    for (Class<? extends Throwable> type : includes) {
+    for (Class<? extends Throwable> type : retryFor) {
       policyMap.put(type, true);
     }
-    for (Class<? extends Throwable> type : excludes) {
+    for (Class<? extends Throwable> type : noRetryFor) {
       policyMap.put(type, false);
     }
-    boolean retryNotExcluded = includes.length == 0;
+    boolean retryNotExcluded = retryFor.length == 0;
     if (simple == null) {
       if (hasExpression) {
         simple = new ExpressionRetryPolicy(maxAttempts, policyMap,
@@ -413,16 +413,15 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     }
     @SuppressWarnings("unchecked")
     Class<? extends Throwable>[] noRecovery = (Class<? extends Throwable>[]) attrs.get("notRecoverable");
-    if (noRecovery != null && noRecovery.length > 0) {
+    if (ObjectUtils.isNotEmpty(noRecovery)) {
       simple.setNotRecoverable(noRecovery);
     }
     return simple;
   }
 
   private BackOffPolicy getBackoffPolicy(Backoff backoff, boolean stateless) {
-    Map<String, Object> attrs = AnnotationUtils.getAnnotationAttributes(backoff);
     long min = backoff.delay() == 0 ? backoff.value() : backoff.delay();
-    String delayExpression = (String) attrs.get("delayExpression");
+    String delayExpression = backoff.delayExpression();
     Expression parsedMinExp = null;
     if (StringUtils.hasText(delayExpression)) {
       parsedMinExp = parse(delayExpression);
@@ -432,7 +431,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       }
     }
     long max = backoff.maxDelay();
-    String maxDelayExpression = (String) attrs.get("maxDelayExpression");
+    String maxDelayExpression = backoff.maxDelayExpression();
     Expression parsedMaxExp = null;
     if (StringUtils.hasText(maxDelayExpression)) {
       parsedMaxExp = parse(maxDelayExpression);
@@ -442,7 +441,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       }
     }
     double multiplier = backoff.multiplier();
-    String multiplierExpression = (String) attrs.get("multiplierExpression");
+    String multiplierExpression = backoff.multiplierExpression();
     Expression parsedMultExp = null;
     if (StringUtils.hasText(multiplierExpression)) {
       parsedMultExp = parse(multiplierExpression);
@@ -452,7 +451,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       }
     }
     boolean isRandom = false;
-    String randomExpression = (String) attrs.get("randomExpression");
+    String randomExpression = backoff.randomExpression();
     Expression parsedRandomExp = null;
     if (multiplier > 0) {
       isRandom = backoff.random();
