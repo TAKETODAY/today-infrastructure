@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.classify.SubclassClassifier;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.ExhaustedRetryException;
 import cn.taketoday.retry.RetryContext;
@@ -76,7 +76,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     this.target = target;
     var types = new HashMap<Class<? extends Throwable>, Method>();
     final Method failingMethod = method;
-    Retryable retryable = AnnotationUtils.findAnnotation(method, Retryable.class);
+    Retryable retryable = AnnotatedElementUtils.findMergedAnnotation(method, Retryable.class);
     if (retryable != null) {
       String recoverMethodName = retryable.recover();
       if (StringUtils.hasText(recoverMethodName)) {
@@ -84,7 +84,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
       }
     }
     ReflectionUtils.doWithMethods(target.getClass(), candidate -> {
-      Recover recover = AnnotationUtils.findAnnotation(candidate, Recover.class);
+      Recover recover = AnnotatedElementUtils.findMergedAnnotation(candidate, Recover.class);
       if (recover == null) {
         recover = findAnnotationOnTarget(target, candidate);
       }
@@ -220,7 +220,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
    *
    * @return true if the parameterized return types match.
    */
-  private boolean isParameterizedTypeAssignable(
+  private static boolean isParameterizedTypeAssignable(
           ParameterizedType methodReturnType, ParameterizedType failingMethodReturnType) {
 
     Type[] methodActualArgs = methodReturnType.getActualTypeArguments();
@@ -261,7 +261,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   private Recover findAnnotationOnTarget(Object target, Method method) {
     try {
       Method targetMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
-      return AnnotationUtils.findAnnotation(targetMethod, Recover.class);
+      return AnnotatedElementUtils.findMergedAnnotation(targetMethod, Recover.class);
     }
     catch (Exception e) {
       return null;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,12 +22,20 @@ package cn.taketoday.retry.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.retry.ExhaustedRetryException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -43,6 +51,30 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Maksim Kita
  */
 public class RecoverAnnotationRecoveryHandlerTests {
+
+  @Test
+  public void genericReturnTypesMatch() throws InvocationTargetException, IllegalAccessException {
+    Method isParameterizedTypeAssignable = ReflectionUtils.findMethod(RecoverAnnotationRecoveryHandler.class,
+            "isParameterizedTypeAssignable", ParameterizedType.class, ParameterizedType.class);
+    isParameterizedTypeAssignable.setAccessible(true);
+
+    assertThat(isParameterizedTypeAssignable.invoke(null, getGenericReturnTypeByName("m1"),
+            getGenericReturnTypeByName("m2")))
+            .isEqualTo(Boolean.TRUE);
+    assertThat(isParameterizedTypeAssignable.invoke(null, getGenericReturnTypeByName("m2"),
+            getGenericReturnTypeByName("m2_1")))
+            .isEqualTo(Boolean.FALSE);
+    assertThat(isParameterizedTypeAssignable.invoke(null, getGenericReturnTypeByName("m3"),
+            getGenericReturnTypeByName("m4")))
+            .isEqualTo(Boolean.FALSE);
+    assertThat(isParameterizedTypeAssignable.invoke(null, getGenericReturnTypeByName("m5"),
+            getGenericReturnTypeByName("m6")))
+            .isEqualTo(Boolean.TRUE);
+  }
+
+  private static ParameterizedType getGenericReturnTypeByName(String name) {
+    return (ParameterizedType) ReflectionUtils.findMethod(ParameterTest.class, name).getGenericReturnType();
+  }
 
   @Test
   public void defaultRecoverMethod() {
@@ -280,6 +312,46 @@ public class RecoverAnnotationRecoveryHandlerTests {
     RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
             new RecoverByRetryableNameWithPrimitiveArgs(), foo);
     assertThat(handler.recover(new Object[] { 2 }, new RuntimeException("Planned"))).isEqualTo(2);
+  }
+
+  @Test
+  public void recoverByComposedRetryableAnnotationName() {
+    Method foo = ReflectionUtils.findMethod(RecoverByComposedRetryableAnnotationName.class, "foo", String.class);
+    RecoverAnnotationRecoveryHandler<?> handler = new RecoverAnnotationRecoveryHandler<Integer>(
+            new RecoverByComposedRetryableAnnotationName(), foo);
+    assertThat(handler.recover(new Object[] { "Kevin" }, new RuntimeException("Planned"))).isEqualTo(4);
+  }
+
+  private static class ParameterTest<T, M> {
+
+    List<T> m1() {
+      return null;
+    }
+
+    List<T> m2() {
+      return null;
+    }
+
+    List<M> m2_1() {
+      return null;
+    }
+
+    Map<List<String>, Byte> m3() {
+      return null;
+    }
+
+    Map<List<String>, Integer> m4() {
+      return null;
+    }
+
+    Map<List<Integer>, Byte> m5() {
+      return null;
+    }
+
+    Map<List<Integer>, Byte> m6() {
+      return null;
+    }
+
   }
 
   private static class InAccessibleRecover {
@@ -586,11 +658,10 @@ public class RecoverAnnotationRecoveryHandlerTests {
       return 0;
     }
 
-    // FIXME
-//    @Recover
-//    public int fooRecover(IllegalArgumentException e, String name) {
-//      return 1;
-//    }
+    @Recover
+    public int fooRecover(IllegalArgumentException e, String name) {
+      return 1;
+    }
 
     @Recover
     public int barRecover(IllegalArgumentException e, String name) {
@@ -639,6 +710,23 @@ public class RecoverAnnotationRecoveryHandlerTests {
 
   }
 
+  protected static class RecoverByComposedRetryableAnnotationName
+          implements RecoverByComposedRetryableAnnotationNameInterface {
+
+    public int foo(String name) {
+      return 0;
+    }
+
+    public int fooRecover(Throwable throwable, String name) {
+      return 1;
+    }
+
+    public int barRecover(Throwable throwable, String name) {
+      return 4;
+    }
+
+  }
+
   protected interface RecoverByRetryableNameInterface {
 
     @Retryable(recover = "barRecover")
@@ -679,6 +767,30 @@ public class RecoverAnnotationRecoveryHandlerTests {
 
     @Recover
     public int barRecover(Throwable throwable, int number);
+
+  }
+
+  protected interface RecoverByComposedRetryableAnnotationNameInterface {
+
+    @ComposedRetryable(recover = "barRecover")
+    public int foo(String name);
+
+    @Recover
+    public int fooRecover(Throwable throwable, String name);
+
+    @Recover
+    public int barRecover(Throwable throwable, String name);
+
+  }
+
+  @Target({ ElementType.METHOD, ElementType.TYPE })
+  @Retention(RetentionPolicy.RUNTIME)
+  @Documented
+  @Retryable(maxAttempts = 4)
+  public @interface ComposedRetryable {
+
+    @AliasFor(annotation = Retryable.class, attribute = "recover")
+    String recover() default "";
 
   }
 
