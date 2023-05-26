@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,8 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
  * Global enabler for <code>@Retryable</code> annotations in Infra beans. If this is
@@ -51,6 +53,7 @@ public @interface EnableRetry {
    *
    * @return whether to proxy or not to proxy the class
    */
+  @AliasFor(annotation = EnableAspectJAutoProxy.class)
   boolean proxyTargetClass() default false;
 
 }
