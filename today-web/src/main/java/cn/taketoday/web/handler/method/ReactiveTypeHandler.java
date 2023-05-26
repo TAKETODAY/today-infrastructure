@@ -156,7 +156,7 @@ final class ReactiveTypeHandler {
         for (MediaType streamingType : JSON_STREAMING_MEDIA_TYPES) {
           if (streamingType.includes(type)) {
             logExecutorWarning(returnType);
-            var emitter = getEmitter(streamingType);
+            var emitter = getEmitter(type);
             new JsonEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
             return emitter;
           }
