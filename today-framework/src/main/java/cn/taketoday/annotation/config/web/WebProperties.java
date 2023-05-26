@@ -396,7 +396,7 @@ public class WebProperties {
       }
 
       public boolean hasBeenCustomized() {
-        return this.customized || cachecontrol.hasBeenCustomized();
+        return this.customized || cachecontrol.customized;
       }
 
       public CacheControl getHttpCacheControl() {
@@ -605,10 +605,6 @@ public class WebProperties {
         public void setSMaxAge(Duration sMaxAge) {
           this.customized = true;
           this.sMaxAge = sMaxAge;
-        }
-
-        private boolean hasBeenCustomized() {
-          return this.customized;
         }
 
       }

@@ -95,10 +95,10 @@ final class ReactiveTypeHandler {
     this(ReactiveAdapterRegistry.getSharedInstance(), new SyncTaskExecutor(), manager);
   }
 
-  public ReactiveTypeHandler(
-          ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
-    Assert.notNull(registry, "ReactiveAdapterRegistry is required");
+  public ReactiveTypeHandler(ReactiveAdapterRegistry registry,
+          TaskExecutor executor, ContentNegotiationManager manager) {
     Assert.notNull(executor, "TaskExecutor is required");
+    Assert.notNull(registry, "ReactiveAdapterRegistry is required");
     Assert.notNull(manager, "ContentNegotiationManager is required");
     this.adapterRegistry = registry;
     this.taskExecutor = executor;

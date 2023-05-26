@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.context.expression.AnnotatedElementKey;
@@ -79,6 +80,7 @@ import cn.taketoday.util.function.SupplierUtils;
  * @author Phillip Webb
  * @author Sam Brannen
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class CacheAspectSupport extends AbstractCacheInvoker
@@ -214,12 +216,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   @Override
-  public void afterSingletonsInstantiated() {
+  public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
     if (getCacheResolver() == null) {
       // Lazily initialize cache resolver via default cache manager...
-      Assert.state(this.beanFactory != null, "CacheResolver or BeanFactory must be set on cache aspect");
       try {
-        setCacheManager(this.beanFactory.getBean(CacheManager.class));
+        setCacheManager(beanFactory.getBean(CacheManager.class));
       }
       catch (NoUniqueBeanDefinitionException ex) {
         throw new IllegalStateException("No CacheResolver specified, and no unique bean of type " +
