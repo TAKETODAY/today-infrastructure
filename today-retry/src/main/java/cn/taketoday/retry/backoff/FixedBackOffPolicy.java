@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,9 +35,11 @@ import cn.taketoday.lang.Assert;
  * @author Rob Harrop
  * @author Dave Syer
  * @author Artem Bilan
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class FixedBackOffPolicy extends StatelessBackOffPolicy implements SleepingBackOffPolicy<FixedBackOffPolicy> {
+public class FixedBackOffPolicy extends StatelessBackOffPolicy
+        implements SleepingBackOffPolicy<FixedBackOffPolicy> {
 
   /**
    * Default back off period - 1000ms.
@@ -53,7 +55,7 @@ public class FixedBackOffPolicy extends StatelessBackOffPolicy implements Sleepi
 
   public FixedBackOffPolicy withSleeper(Sleeper sleeper) {
     FixedBackOffPolicy res = new FixedBackOffPolicy();
-    res.setBackOffPeriod(backOffPeriod);
+    res.backOffPeriodSupplier(backOffPeriod);
     res.setSleeper(sleeper);
     return res;
   }
@@ -82,8 +84,8 @@ public class FixedBackOffPolicy extends StatelessBackOffPolicy implements Sleepi
    *
    * @param backOffPeriodSupplier the back off period
    */
-  public void setBackOffPeriod(Supplier<Long> backOffPeriodSupplier) {
-    Assert.notNull(backOffPeriodSupplier, "backOffPeriodSupplier is required");
+  public void backOffPeriodSupplier(Supplier<Long> backOffPeriodSupplier) {
+    Assert.notNull(backOffPeriodSupplier, "'backOffPeriodSupplier' is required");
     this.backOffPeriod = backOffPeriodSupplier;
   }
 
@@ -104,7 +106,7 @@ public class FixedBackOffPolicy extends StatelessBackOffPolicy implements Sleepi
   @Override
   protected void doBackOff() throws BackOffInterruptedException {
     try {
-      sleeper.sleep(backOffPeriod.get());
+      sleeper.sleep(this.backOffPeriod.get());
     }
     catch (InterruptedException e) {
       throw new BackOffInterruptedException("Thread interrupted while sleeping", e);
@@ -113,7 +115,7 @@ public class FixedBackOffPolicy extends StatelessBackOffPolicy implements Sleepi
 
   @Override
   public String toString() {
-    return "FixedBackOffPolicy[backOffPeriod=" + backOffPeriod.get() + "]";
+    return "FixedBackOffPolicy[backOffPeriod=" + this.backOffPeriod.get() + "]";
   }
 
 }

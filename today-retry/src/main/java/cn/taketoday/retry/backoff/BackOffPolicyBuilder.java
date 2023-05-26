@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -72,6 +72,7 @@ import java.util.function.Supplier;
  * load concurrent access.
  *
  * @author Tomaz Fernandes
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class BackOffPolicyBuilder {
@@ -89,12 +90,15 @@ public class BackOffPolicyBuilder {
   private Sleeper sleeper;
 
   private Supplier<Long> delaySupplier;
+
   private Supplier<Long> maxDelaySupplier;
+
   private Supplier<Double> multiplierSupplier;
 
   private Supplier<Boolean> randomSupplier;
 
-  private BackOffPolicyBuilder() { }
+  private BackOffPolicyBuilder() {
+  }
 
   /**
    * Creates a new {@link BackOffPolicyBuilder} instance.
@@ -236,20 +240,20 @@ public class BackOffPolicyBuilder {
         policy.setInitialInterval(this.delay);
       }
       if (this.delaySupplier != null) {
-        policy.setInitialInterval(this.delaySupplier);
+        policy.initialIntervalSupplier(this.delaySupplier);
       }
       if (this.multiplier != null) {
         policy.setMultiplier(this.multiplier);
       }
       if (this.multiplierSupplier != null) {
-        policy.setMultiplier(this.multiplierSupplier);
+        policy.multiplierSupplier(this.multiplierSupplier);
       }
       if (this.maxDelay != null && this.delay != null) {
         policy.setMaxInterval(
                 this.maxDelay > this.delay ? this.maxDelay : ExponentialBackOffPolicy.DEFAULT_MAX_INTERVAL);
       }
       if (this.maxDelaySupplier != null) {
-        policy.setMaxInterval(this.maxDelaySupplier);
+        policy.maxIntervalSupplier(this.maxDelaySupplier);
       }
       if (this.sleeper != null) {
         policy.setSleeper(this.sleeper);
@@ -262,13 +266,13 @@ public class BackOffPolicyBuilder {
         policy.setMinBackOffPeriod(this.delay);
       }
       if (this.delaySupplier != null) {
-        policy.setMinBackOffPeriod(this.delaySupplier);
+        policy.minBackOffPeriodSupplier(this.delaySupplier);
       }
       if (this.maxDelay != null) {
         policy.setMaxBackOffPeriod(this.maxDelay);
       }
       if (this.maxDelaySupplier != null) {
-        policy.setMaxBackOffPeriod(this.maxDelaySupplier);
+        policy.maxBackOffPeriodSupplier(this.maxDelaySupplier);
       }
       if (this.sleeper != null) {
         policy.setSleeper(this.sleeper);
@@ -276,7 +280,10 @@ public class BackOffPolicyBuilder {
       return policy;
     }
     FixedBackOffPolicy policy = new FixedBackOffPolicy();
-    if (this.delay != null) {
+    if (this.delaySupplier != null) {
+      policy.backOffPeriodSupplier(this.delaySupplier);
+    }
+    else if (this.delay != null) {
       policy.setBackOffPeriod(this.delay);
     }
     if (this.sleeper != null) {

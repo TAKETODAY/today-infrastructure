@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,6 +37,7 @@ import cn.taketoday.lang.Assert;
  * @author Rob Harrop
  * @author Dave Syer
  * @author Tomaz Fernandes
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
@@ -62,8 +63,8 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
 
   public UniformRandomBackOffPolicy withSleeper(Sleeper sleeper) {
     UniformRandomBackOffPolicy res = new UniformRandomBackOffPolicy();
-    res.setMinBackOffPeriod(minBackOffPeriod);
-    res.setMaxBackOffPeriod(maxBackOffPeriod);
+    res.minBackOffPeriodSupplier(minBackOffPeriod);
+    res.maxBackOffPeriodSupplier(maxBackOffPeriod);
     res.setSleeper(sleeper);
     return res;
   }
@@ -93,8 +94,8 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    *
    * @param backOffPeriodSupplier the backoff period
    */
-  public void setMinBackOffPeriod(Supplier<Long> backOffPeriodSupplier) {
-    Assert.notNull(backOffPeriodSupplier, "backOffPeriodSupplier is required");
+  public void minBackOffPeriodSupplier(Supplier<Long> backOffPeriodSupplier) {
+    Assert.notNull(backOffPeriodSupplier, "'backOffPeriodSupplier' is required");
     this.minBackOffPeriod = backOffPeriodSupplier;
   }
 
@@ -123,8 +124,8 @@ public class UniformRandomBackOffPolicy extends StatelessBackOffPolicy
    *
    * @param backOffPeriodSupplier the back off period
    */
-  public void setMaxBackOffPeriod(Supplier<Long> backOffPeriodSupplier) {
-    Assert.notNull(backOffPeriodSupplier, "backOffPeriodSupplier is required");
+  public void maxBackOffPeriodSupplier(Supplier<Long> backOffPeriodSupplier) {
+    Assert.notNull(backOffPeriodSupplier, "'backOffPeriodSupplier' cannot be null");
     this.maxBackOffPeriod = backOffPeriodSupplier;
   }
 
