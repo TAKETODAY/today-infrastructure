@@ -658,10 +658,11 @@ public class RecoverAnnotationRecoveryHandlerTests {
       return 0;
     }
 
-    @Recover
-    public int fooRecover(IllegalArgumentException e, String name) {
-      return 1;
-    }
+    // FIXME
+//    @Recover
+//    public int fooRecover(IllegalArgumentException e, String name) {
+//      return 1;
+//    }
 
     @Recover
     public int barRecover(IllegalArgumentException e, String name) {

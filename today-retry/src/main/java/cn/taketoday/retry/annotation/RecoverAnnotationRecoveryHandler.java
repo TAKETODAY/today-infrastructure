@@ -182,7 +182,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     return result;
   }
 
-  private int calculateDistance(Class<? extends Throwable> cause, Class<? extends Throwable> type) {
+  private int calculateDistance(Class<? extends Throwable> cause, @Nullable Class<? extends Throwable> type) {
     int result = 0;
     Class<?> current = cause;
     while (current != type && current != Throwable.class) {
@@ -218,6 +218,8 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
    * failingMethodReturnType. Takes nested generics into consideration as well, while
    * deciding a match.
    *
+   * @param methodReturnType the method return type
+   * @param failingMethodReturnType the failing method return type
    * @return true if the parameterized return types match.
    */
   private static boolean isParameterizedTypeAssignable(
@@ -232,12 +234,18 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     for (int i = startingIndex; i < methodActualArgs.length; i++) {
       Type methodArgType = methodActualArgs[i];
       Type failingMethodArgType = failingMethodActualArgs[i];
-      if (methodArgType instanceof ParameterizedType pType && failingMethodArgType instanceof ParameterizedType fPtype) {
-        return isParameterizedTypeAssignable(pType, fPtype);
+      if (methodArgType instanceof ParameterizedType pType
+              && failingMethodArgType instanceof ParameterizedType fPtype) {
+        if (!isParameterizedTypeAssignable(pType, fPtype)) {
+          return false;
+        }
       }
-      if (methodArgType instanceof Class
-              && failingMethodArgType instanceof Class
-              && !failingMethodArgType.equals(methodArgType)) {
+      else if (methodArgType instanceof Class && failingMethodArgType instanceof Class) {
+        if (!failingMethodArgType.equals(methodArgType)) {
+          return false;
+        }
+      }
+      else if (!methodArgType.equals(failingMethodArgType)) {
         return false;
       }
     }

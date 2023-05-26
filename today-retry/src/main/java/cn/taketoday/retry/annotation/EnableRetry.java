@@ -38,6 +38,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * the annotations.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Documented
@@ -56,4 +57,13 @@ public @interface EnableRetry {
   @AliasFor(annotation = EnableAspectJAutoProxy.class)
   boolean proxyTargetClass() default false;
 
+  /**
+   * Indicate the order in which the {@link RetryConfiguration} AOP <b>advice</b> should
+   * be applied.
+   * <p>
+   * The default is {@code Ordered.LOWEST_PRECEDENCE - 1} in order to make sure the
+   * advice is applied before other advices with {@link Ordered#LOWEST_PRECEDENCE} order
+   * (e.g. an advice responsible for {@code @Transactional} behavior).
+   */
+  int order() default Ordered.LOWEST_PRECEDENCE - 1;
 }
