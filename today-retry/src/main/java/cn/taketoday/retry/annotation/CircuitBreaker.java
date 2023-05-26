@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,12 +26,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
+
 /**
  * Annotation for a method invocation that is retryable.
  *
  * @author Dave Syer
  * @author Artem Bilan
  * @author Gary Russell
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Documented
@@ -41,33 +44,47 @@ import java.lang.annotation.Target;
 public @interface CircuitBreaker {
 
   /**
-   * Exception types that are retryable. Synonym for includes(). Defaults to empty (and
-   * if excludes is also empty all exceptions are retried).
-   *
-   * @return exception types to retry
-   */
-  Class<? extends Throwable>[] value() default {};
-
-  /**
    * Exception types that are retryable. Defaults to empty (and if excludes is also
    * empty all exceptions are retried).
    *
    * @return exception types to retry
    */
-  Class<? extends Throwable>[] include() default {};
+  @AliasFor(annotation = Retryable.class)
+  Class<? extends Throwable>[] value() default {};
 
   /**
-   * Exception types that are not retryable. Defaults to empty (and if includes is also
-   * empty all exceptions are retried). If includes is empty but excludes is not, all
-   * not excluded exceptions are retried
+   * Exception types that are retryable. Defaults to empty (and, if noRetryFor is also
+   * empty, all exceptions are retried).
+   *
+   * @return exception types to retry
+   */
+  @AliasFor(annotation = Retryable.class)
+  Class<? extends Throwable>[] retryFor() default {};
+
+  /**
+   * Exception types that are not retryable. Defaults to empty (and, if retryFor is also
+   * empty, all exceptions are retried). If retryFor is empty but excludes is not, all
+   * other exceptions are retried
    *
    * @return exception types not to retry
    */
-  Class<? extends Throwable>[] exclude() default {};
+  @AliasFor(annotation = Retryable.class)
+  Class<? extends Throwable>[] noRetryFor() default {};
+
+  /**
+   * Exception types that are not recoverable; these exceptions are thrown to the caller
+   * without calling any recoverer (immediately if also in {@link #noRetryFor()}).
+   * Defaults to empty.
+   *
+   * @return exception types not to retry
+   */
+  @AliasFor(annotation = Retryable.class)
+  Class<? extends Throwable>[] notRecoverable() default {};
 
   /**
    * @return the maximum number of attempts (including the first failure), defaults to 3
    */
+  @AliasFor(annotation = Retryable.class)
   int maxAttempts() default 3;
 
   /**
@@ -76,6 +93,7 @@ public @interface CircuitBreaker {
    * for one-time evaluation during initialization, omit the delimiters for evaluation
    * at runtime.
    */
+  @AliasFor(annotation = Retryable.class)
   String maxAttemptsExpression() default "";
 
   /**
@@ -84,6 +102,7 @@ public @interface CircuitBreaker {
    *
    * @return the label for the circuit
    */
+  @AliasFor(annotation = Retryable.class)
   String label() default "";
 
   /**
@@ -109,7 +128,7 @@ public @interface CircuitBreaker {
    * When {@link #maxAttempts()} failures are reached within this timeout, the circuit
    * is opened automatically, preventing access to the downstream component.
    *
-   * @return the timeout before an closed circuit is opened in milliseconds, defaults to
+   * @return the timeout before a closed circuit is opened in milliseconds, defaults to
    * 5000
    */
   long openTimeout() default 5000;
@@ -120,7 +139,7 @@ public @interface CircuitBreaker {
    * {@link #openTimeout()}. Use {@code #{...}} for one-time evaluation during
    * initialization, omit the delimiters for evaluation at runtime.
    *
-   * @return the timeout before an closed circuit is opened in milliseconds, no default.
+   * @return the timeout before a closed circuit is opened in milliseconds, no default.
    */
   String openTimeoutExpression() default "";
 
@@ -143,6 +162,7 @@ public @interface CircuitBreaker {
    *
    * @return the expression.
    */
+  @AliasFor(annotation = Retryable.class)
   String exceptionExpression() default "";
 
 }

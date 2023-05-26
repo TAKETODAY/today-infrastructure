@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -79,6 +79,7 @@ import cn.taketoday.util.StringUtils;
  * @author Dave Syer
  * @author Artem Bilan
  * @author Gary Russell
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class AnnotationAwareRetryOperationsInterceptor implements IntroductionInterceptor, BeanFactoryAware {
@@ -292,7 +293,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
         }
       }
       else {
-        breaker.setOpenTimeout(() -> evaluate(parsed, Long.class, false));
+        breaker.openTimeoutSupplier(() -> evaluate(parsed, Long.class, false));
         return;
       }
     }
@@ -311,7 +312,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
         }
       }
       else {
-        breaker.setResetTimeout(() -> evaluate(parsed, Long.class, false));
+        breaker.resetTimeoutSupplier(() -> evaluate(parsed, Long.class, false));
       }
     }
     breaker.setResetTimeout(circuit.resetTimeout());
@@ -361,11 +362,11 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     boolean hasExpression = StringUtils.hasText(exceptionExpression);
     if (includes.length == 0) {
       @SuppressWarnings("unchecked")
-      Class<? extends Throwable>[] value = (Class<? extends Throwable>[]) attrs.get("include");
+      Class<? extends Throwable>[] value = (Class<? extends Throwable>[]) attrs.get("retryFor");
       includes = value;
     }
     @SuppressWarnings("unchecked")
-    Class<? extends Throwable>[] excludes = (Class<? extends Throwable>[]) attrs.get("exclude");
+    Class<? extends Throwable>[] excludes = (Class<? extends Throwable>[]) attrs.get("noRetryFor");
     Integer maxAttempts = (Integer) attrs.get("maxAttempts");
     String maxAttemptsExpression = (String) attrs.get("maxAttemptsExpression");
     Expression parsedExpression = null;
@@ -377,17 +378,17 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       }
     }
     final Expression expression = parsedExpression;
+    SimpleRetryPolicy simple = null;
     if (includes.length == 0 && excludes.length == 0) {
-      SimpleRetryPolicy simple = hasExpression
-                                 ? new ExpressionRetryPolicy(resolve(exceptionExpression)).withBeanFactory(this.beanFactory)
-                                 : new SimpleRetryPolicy();
+      simple = hasExpression
+               ? new ExpressionRetryPolicy(resolve(exceptionExpression)).withBeanFactory(this.beanFactory)
+               : new SimpleRetryPolicy();
       if (expression != null) {
-        simple.setMaxAttempts(() -> evaluate(expression, Integer.class, stateless));
+        simple.maxAttemptsSupplier(() -> evaluate(expression, Integer.class, stateless));
       }
       else {
         simple.setMaxAttempts(maxAttempts);
       }
-      return simple;
     }
     Map<Class<? extends Throwable>, Boolean> policyMap = new HashMap<>();
     for (Class<? extends Throwable> type : includes) {
@@ -397,17 +398,25 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
       policyMap.put(type, false);
     }
     boolean retryNotExcluded = includes.length == 0;
-    if (hasExpression) {
-      return new ExpressionRetryPolicy(maxAttempts, policyMap, true, exceptionExpression, retryNotExcluded)
-              .withBeanFactory(this.beanFactory);
-    }
-    else {
-      SimpleRetryPolicy policy = new SimpleRetryPolicy(maxAttempts, policyMap, true, retryNotExcluded);
-      if (expression != null) {
-        policy.setMaxAttempts(() -> evaluate(expression, Integer.class, stateless));
+    if (simple == null) {
+      if (hasExpression) {
+        simple = new ExpressionRetryPolicy(maxAttempts, policyMap,
+                true, resolve(exceptionExpression), retryNotExcluded)
+                .withBeanFactory(this.beanFactory);
       }
-      return policy;
+      else {
+        simple = new SimpleRetryPolicy(maxAttempts, policyMap, true, retryNotExcluded);
+        if (expression != null) {
+          simple.maxAttemptsSupplier(() -> evaluate(expression, Integer.class, stateless));
+        }
+      }
     }
+    @SuppressWarnings("unchecked")
+    Class<? extends Throwable>[] noRecovery = (Class<? extends Throwable>[]) attrs.get("notRecoverable");
+    if (noRecovery != null && noRecovery.length > 0) {
+      simple.setNotRecoverable(noRecovery);
+    }
+    return simple;
   }
 
   private BackOffPolicy getBackoffPolicy(Backoff backoff, boolean stateless) {
@@ -455,11 +464,12 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
         }
       }
     }
-    return buildBackOff(min, parsedMinExp, max, parsedMaxExp, multiplier, parsedMultExp, isRandom, parsedRandomExp,
-            stateless);
+    return buildBackOff(min, parsedMinExp, max, parsedMaxExp, multiplier,
+            parsedMultExp, isRandom, parsedRandomExp, stateless);
   }
 
-  private BackOffPolicy buildBackOff(long min, Expression minExp, long max, Expression maxExp, double multiplier,
+  private BackOffPolicy buildBackOff(long min, Expression minExp, long max,
+          Expression maxExp, double multiplier,
           Expression multExp, boolean isRandom, Expression randomExp, boolean stateless) {
 
     BackOffPolicyBuilder builder = BackOffPolicyBuilder.newBuilder();

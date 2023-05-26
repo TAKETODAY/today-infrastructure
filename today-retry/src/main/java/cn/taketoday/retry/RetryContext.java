@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import cn.taketoday.core.AttributeAccessor;
  * used to alter the course of the retry, e.g. force an early termination.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface RetryContext extends AttributeAccessor {
@@ -58,6 +59,12 @@ public interface RetryContext extends AttributeAccessor {
    * Retry context attribute that is non-null (and true) if the retry was exhausted.
    */
   String EXHAUSTED = "context.exhausted";
+
+  /**
+   * Retry context attribute that is non-null (and true) if the exception is not
+   * recoverable.
+   */
+  String NO_RECOVERY = "context.no-recovery";
 
   /**
    * Signal to the framework that no more attempts should be made to try or retry the

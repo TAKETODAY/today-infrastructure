@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -91,7 +91,7 @@ public class CircuitBreakerResetTimeoutTests {
 
     private RetryContext context;
 
-    @CircuitBreaker(include = { RuntimeException.class }, openTimeout = 10000, resetTimeout = 15000)
+    @CircuitBreaker(retryFor = { RuntimeException.class }, openTimeout = 10000, resetTimeout = 15000)
     String service(String payload) {
       this.context = RetrySynchronizationManager.getContext();
       System.out.println("real service called");

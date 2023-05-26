@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -269,7 +269,8 @@ public class RetryTemplateTests {
               throw new RuntimeException("Realllly bad!");
             }))
             .withCauseInstanceOf(RuntimeException.class)
-            .withMessageContaining("Could not register throwable");
+            .withMessageContaining("Could not register throwable")
+            .withStackTraceContaining("Planned");
   }
 
   @Test

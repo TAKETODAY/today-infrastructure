@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -76,7 +76,7 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
    *
    * @param timeoutSupplier a supplier for the timeout to set in milliseconds
    */
-  public void setResetTimeout(Supplier<Long> timeoutSupplier) {
+  public void resetTimeoutSupplier(Supplier<Long> timeoutSupplier) {
     this.resetTimeoutSupplier = timeoutSupplier;
   }
 
@@ -98,7 +98,7 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
    *
    * @param timeoutSupplier a supplier for the timeout to set in milliseconds
    */
-  public void setOpenTimeout(Supplier<Long> timeoutSupplier) {
+  public void openTimeoutSupplier(Supplier<Long> timeoutSupplier) {
     this.openTimeoutSupplier = timeoutSupplier;
   }
 

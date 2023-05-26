@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -176,7 +176,7 @@ public class StatefulRecoveryRetryTests {
     assertThatExceptionOfType(RetryException.class).isThrownBy(() -> this.retryTemplate.execute(callback, state))
             .withMessage("Could not register throwable")
             .havingRootCause()
-            .withMessageContaining("inconsistent");
+            .withStackTraceContaining("inconsistent");
 
     RetryContext context = this.retryTemplate.open(retryPolicy, state);
     // True after exhausted - the history is reset...
@@ -203,7 +203,7 @@ public class StatefulRecoveryRetryTests {
             .isThrownBy(() -> this.retryTemplate.execute(callback, new DefaultRetryState("bar")))
             .withMessage("Could not register throwable")
             .havingRootCause()
-            .withMessageContaining("capacity");
+            .withStackTraceContaining("capacity");
   }
 
   @Test
