@@ -283,9 +283,8 @@ class ConfigDataEnvironmentTests {
   }
 
   @Test
-//  @Disabled("Disabled until infra.profiles support is dropped")
   void processAndApplyWhenHasInvalidPropertyThrowsException() {
-    this.environment.setProperty("infra.profile", "a");
+    this.environment.setProperty("infra.profiles", "a");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
