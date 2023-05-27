@@ -132,7 +132,7 @@ public class ServletWebServerFactoryAutoConfiguration {
 
     private <T> void registerSyntheticBeanIfMissing(
             cn.taketoday.context.BootstrapContext context, String name, Class<T> beanClass) {
-      if (ObjectUtils.isEmpty(context.beanFactory.getBeanNamesForType(beanClass, true, false))) {
+      if (ObjectUtils.isEmpty(context.getBeanFactory().getBeanNamesForType(beanClass, true, false))) {
         RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
         beanDefinition.setSynthetic(true);
         context.registerBeanDefinition(name, beanDefinition);

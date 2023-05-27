@@ -73,8 +73,8 @@ import cn.taketoday.util.CollectionUtils;
 public class BootstrapContext extends BeanDefinitionCustomizers {
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
-  public final BeanDefinitionRegistry registry;
-  public final ConfigurableBeanFactory beanFactory;
+  private final BeanDefinitionRegistry registry;
+  private final ConfigurableBeanFactory beanFactory;
 
   @Nullable
   private final ApplicationContext applicationContext;
@@ -485,8 +485,13 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     problemReporter.fatal(problem);
   }
 
+  @Nullable
   public ClassLoader getClassLoader() {
-    return getResourceLoader().getClassLoader();
+    ClassLoader classLoader = getResourceLoader().getClassLoader();
+    if (classLoader == null) {
+      classLoader = getBeanFactory().getBeanClassLoader();
+    }
+    return classLoader;
   }
 
   // static

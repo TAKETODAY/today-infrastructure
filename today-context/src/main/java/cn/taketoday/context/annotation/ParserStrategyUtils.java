@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.env.Environment;
@@ -48,6 +49,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class ParserStrategyUtils {
@@ -60,27 +62,25 @@ abstract class ParserStrategyUtils {
    * invoked if they are implemented by the given object.
    */
   @SuppressWarnings("unchecked")
-  static <T> T newInstance(
-          Class<?> clazz, Class<T> assignableTo, BootstrapContext loadingContext) {
-
+  static <T> T newInstance(Class<?> clazz, Class<T> assignableTo, BootstrapContext context) {
     Assert.notNull(clazz, "Class must not be null");
     Assert.isAssignable(assignableTo, clazz);
     if (clazz.isInterface()) {
       throw new BeanInstantiationException(clazz, "Specified class is an interface");
     }
-    BeanDefinitionRegistry registry = loadingContext.getRegistry();
-    PatternResourceLoader resourceLoader = loadingContext.getResourceLoader();
-    Environment environment = loadingContext.getEnvironment();
-    ClassLoader classLoader = registry instanceof ConfigurableBeanFactory
-                              ? ((ConfigurableBeanFactory) registry).getBeanClassLoader()
+    BeanDefinitionRegistry registry = context.getRegistry();
+    PatternResourceLoader resourceLoader = context.getResourceLoader();
+    Environment environment = context.getEnvironment();
+    ClassLoader classLoader = registry instanceof ConfigurableBeanFactory cbf
+                              ? cbf.getBeanClassLoader()
                               : resourceLoader.getClassLoader();
     T instance = (T) createInstance(clazz, environment, resourceLoader, registry, classLoader);
-    ParserStrategyUtils.invokeAwareMethods(instance, environment, resourceLoader, registry, classLoader);
+    ParserStrategyUtils.invokeAwareMethods(instance, environment,
+            resourceLoader, registry, classLoader, context);
     return instance;
   }
 
-  private static Object createInstance(
-          Class<?> clazz, Environment environment,
+  private static Object createInstance(Class<?> clazz, Environment environment,
           ResourceLoader resourceLoader, BeanDefinitionRegistry registry,
           @Nullable ClassLoader classLoader) {
 
@@ -103,8 +103,7 @@ abstract class ParserStrategyUtils {
     return BeanUtils.newInstance(clazz);
   }
 
-  private static Object[] resolveArgs(
-          Constructor<?> constructor,
+  private static Object[] resolveArgs(Constructor<?> constructor,
           Environment environment, ResourceLoader resourceLoader,
           BeanDefinitionRegistry registry, @Nullable ClassLoader classLoader) {
     int i = 0;
@@ -124,22 +123,25 @@ abstract class ParserStrategyUtils {
     return args;
   }
 
-  private static void invokeAwareMethods(
-          Object parserStrategyBean, Environment environment,
-          ResourceLoader resourceLoader, BeanDefinitionRegistry registry, @Nullable ClassLoader classLoader) {
+  private static void invokeAwareMethods(Object parserStrategyBean, Environment environment,
+          ResourceLoader resourceLoader, BeanDefinitionRegistry registry,
+          @Nullable ClassLoader classLoader, BootstrapContext loadingContext) {
 
     if (parserStrategyBean instanceof Aware) {
-      if (parserStrategyBean instanceof BeanClassLoaderAware && classLoader != null) {
-        ((BeanClassLoaderAware) parserStrategyBean).setBeanClassLoader(classLoader);
+      if (parserStrategyBean instanceof BeanClassLoaderAware aware && classLoader != null) {
+        aware.setBeanClassLoader(classLoader);
       }
-      if (parserStrategyBean instanceof BeanFactoryAware && registry instanceof BeanFactory) {
-        ((BeanFactoryAware) parserStrategyBean).setBeanFactory((BeanFactory) registry);
+      if (parserStrategyBean instanceof BeanFactoryAware aware && registry instanceof BeanFactory) {
+        aware.setBeanFactory((BeanFactory) registry);
       }
-      if (parserStrategyBean instanceof EnvironmentAware) {
-        ((EnvironmentAware) parserStrategyBean).setEnvironment(environment);
+      if (parserStrategyBean instanceof EnvironmentAware aware) {
+        aware.setEnvironment(environment);
       }
-      if (parserStrategyBean instanceof ResourceLoaderAware) {
-        ((ResourceLoaderAware) parserStrategyBean).setResourceLoader(resourceLoader);
+      if (parserStrategyBean instanceof ResourceLoaderAware aware) {
+        aware.setResourceLoader(resourceLoader);
+      }
+      if (parserStrategyBean instanceof BootstrapContextAware aware) {
+        aware.setBootstrapContext(loadingContext);
       }
     }
   }

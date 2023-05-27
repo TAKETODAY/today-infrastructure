@@ -79,6 +79,9 @@ public class ParserStrategyUtilsTests {
     given(this.loadingContext.getBeanFactory()).willReturn((ConfigurableBeanFactory) this.registry);
     given(this.loadingContext.getClassLoader()).willReturn(beanClassLoader);
     given(this.resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
+
+    ConfigurableBeanFactory beanFactory = (ConfigurableBeanFactory) registry;
+    given(beanFactory.getBeanClassLoader()).willReturn(beanClassLoader);
   }
 
   @Test
@@ -145,6 +148,7 @@ public class ParserStrategyUtilsTests {
   @Test
   public void instantiateClassWhenHasNoBeanClassLoaderDoesNotCallAware() {
     reset(this.resourceLoader);
+    reset(registry);
     NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
     assertThat(instance.setBeanClassLoader).isNull();
     assertThat(instance.setBeanClassLoaderCalled).isFalse();
