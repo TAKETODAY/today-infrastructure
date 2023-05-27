@@ -20,33 +20,24 @@
 
 package cn.taketoday.framework.test.context.filter;
 
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.test.context.ContextCustomizer;
-import cn.taketoday.test.context.MergedContextConfiguration;
+import cn.taketoday.framework.Application;
 
 /**
- * {@link ContextCustomizer} to add the {@link TestTypeExcludeFilter} to the
- * {@link ApplicationContext}.
+ * {@link ApplicationContextInitializer} to register the {@link TestTypeExcludeFilter} for
+ * when {@link Application#from} is being used with the test classpath.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-class ExcludeFilterContextCustomizer implements ContextCustomizer {
+class ExcludeFilterApplicationContextInitializer
+        implements ApplicationContextInitializer {
 
   @Override
-  public void customizeContext(ConfigurableApplicationContext context,
-          MergedContextConfiguration mergedContextConfiguration) {
-    TestTypeExcludeFilter.registerWith(context.getBeanFactory());
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return (obj != null) && (getClass() == obj.getClass());
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
+  public void initialize(ConfigurableApplicationContext applicationContext) {
+    TestTypeExcludeFilter.registerWith(applicationContext.getBeanFactory());
   }
 
 }
