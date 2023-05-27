@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.YamlProcessor;
 import cn.taketoday.core.io.Resource;
@@ -56,6 +55,7 @@ import cn.taketoday.origin.TextResourceOrigin.Location;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class OriginTrackedYamlLoader extends YamlProcessor {
@@ -86,7 +86,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
   }
 
   List<Map<String, Object>> load() {
-    final List<Map<String, Object>> result = new ArrayList<>();
+    List<Map<String, Object>> result = new ArrayList<>();
     process((properties, map) -> result.add(getFlattenedMap(map)));
     return result;
   }
@@ -103,7 +103,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
     @Override
     public Object getData() throws NoSuchElementException {
       Object data = super.getData();
-      if (data instanceof CharSequence && ((CharSequence) data).length() == 0) {
+      if (data instanceof CharSequence charSequence && charSequence.isEmpty()) {
         return null;
       }
       return data;
@@ -119,14 +119,18 @@ class OriginTrackedYamlLoader extends YamlProcessor {
           return constructTrackedObject(node, super.constructObject(node));
         }
       }
-      if (node instanceof MappingNode) {
-        replaceMappingNodeKeys((MappingNode) node);
+      if (node instanceof MappingNode mappingNode) {
+        replaceMappingNodeKeys(mappingNode);
       }
       return super.constructObject(node);
     }
 
     private void replaceMappingNodeKeys(MappingNode node) {
-      node.setValue(node.getValue().stream().map(KeyScalarNode::get).collect(Collectors.toList()));
+      ArrayList<NodeTuple> newValue = new ArrayList<>();
+      for (NodeTuple nodeTuple : node.getValue()) {
+        newValue.add(KeyScalarNode.get(nodeTuple));
+      }
+      node.setValue(newValue);
     }
 
     private Object constructTrackedObject(Node node, Object value) {
@@ -135,7 +139,7 @@ class OriginTrackedYamlLoader extends YamlProcessor {
     }
 
     private Object getValue(Object value) {
-      return (value != null) ? value : "";
+      return value != null ? value : "";
     }
 
     private Origin getOrigin(Node node) {
@@ -162,8 +166,8 @@ class OriginTrackedYamlLoader extends YamlProcessor {
     }
 
     private static Node get(Node node) {
-      if (node instanceof ScalarNode) {
-        return new KeyScalarNode((ScalarNode) node);
+      if (node instanceof ScalarNode scalarNode) {
+        return new KeyScalarNode(scalarNode);
       }
       return node;
     }
@@ -176,11 +180,11 @@ class OriginTrackedYamlLoader extends YamlProcessor {
   private static class NoTimestampResolver extends Resolver {
 
     @Override
-    public void addImplicitResolver(Tag tag, Pattern regexp, String first) {
+    public void addImplicitResolver(Tag tag, Pattern regexp, String first, int limit) {
       if (tag == Tag.TIMESTAMP) {
         return;
       }
-      super.addImplicitResolver(tag, regexp, first);
+      super.addImplicitResolver(tag, regexp, first, limit);
     }
 
   }
