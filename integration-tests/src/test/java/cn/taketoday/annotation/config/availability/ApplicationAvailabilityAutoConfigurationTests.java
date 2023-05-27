@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,10 @@ package cn.taketoday.annotation.config.availability;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.framework.LazyInitializationBeanFactoryPostProcessor;
 import cn.taketoday.framework.availability.ApplicationAvailability;
+import cn.taketoday.framework.availability.AvailabilityChangeEvent;
+import cn.taketoday.framework.availability.ReadinessState;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +54,15 @@ class ApplicationAvailabilityAutoConfigurationTests {
                     () -> mock(ApplicationAvailability.class))
             .run(((context) -> assertThat(context).hasSingleBean(ApplicationAvailability.class)
                     .hasBean("customApplicationAvailability")));
+  }
+
+  @Test
+  void whenLazyInitializationIsEnabledApplicationAvailabilityBeanShouldStillReceiveAvailabilityChangeEvents() {
+    this.contextRunner.withBean(LazyInitializationBeanFactoryPostProcessor.class).run((context) -> {
+      AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
+      ApplicationAvailability applicationAvailability = context.getBean(ApplicationAvailability.class);
+      assertThat(applicationAvailability.getLastChangeEvent(ReadinessState.class)).isNotNull();
+    });
   }
 
 }
