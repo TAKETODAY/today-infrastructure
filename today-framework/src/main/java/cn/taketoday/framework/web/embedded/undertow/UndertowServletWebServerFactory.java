@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -307,7 +307,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   @Override
   public WebServer getWebServer(ServletContextInitializer... initializers) {
-    Builder builder = delegate.createBuilder(this);
+    Builder builder = delegate.createBuilder(this, this::getSslBundle);
     DeploymentManager manager = createManager(initializers);
     return getUndertowWebServer(builder, manager, getPort());
   }

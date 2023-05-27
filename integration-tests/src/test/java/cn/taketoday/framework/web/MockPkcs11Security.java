@@ -18,12 +18,21 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Support for embedded web servers.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.framework.web.server;
+package cn.taketoday.framework.web;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+/**
+ * JUnit {@link ExtendWith @ExtendWith} annotation to support
+ * {@link MockPkcs11SecurityProvider}.
+ *
+ * @author Phillip Webb
+ */
+@ExtendWith(MockPkcs11SecurityProviderExtension.class)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MockPkcs11Security {
+
+}

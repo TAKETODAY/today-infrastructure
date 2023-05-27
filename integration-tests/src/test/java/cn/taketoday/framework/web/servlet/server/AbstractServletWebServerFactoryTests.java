@@ -112,7 +112,6 @@ import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.Ssl.ClientAuth;
-import cn.taketoday.framework.web.server.SslStoreProvider;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
@@ -158,9 +157,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
@@ -635,32 +632,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
     assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
-  }
-
-  @Test
-  void sslWithCustomSslStoreProvider() throws Exception {
-    AbstractServletWebServerFactory factory = getFactory();
-    addTestTxtFile(factory);
-    Ssl ssl = new Ssl();
-    ssl.setClientAuth(ClientAuth.NEED);
-    ssl.setKeyPassword("password");
-    factory.setSsl(ssl);
-    SslStoreProvider sslStoreProvider = mock(SslStoreProvider.class);
-    given(sslStoreProvider.getKeyStore()).willReturn(loadStore());
-    given(sslStoreProvider.getTrustStore()).willReturn(loadStore());
-    factory.setSslStoreProvider(sslStoreProvider);
-    this.webServer = factory.getWebServer();
-    this.webServer.start();
-    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-    loadStore(keyStore, new FileSystemResource("src/test/resources/test.jks"));
-    SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
-            new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy())
-                    .loadKeyMaterial(keyStore, "password".toCharArray()).build());
-    HttpClient httpClient = this.httpClientBuilder.get().setSSLSocketFactory(socketFactory).build();
-    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-    assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
-    then(sslStoreProvider).should(atLeastOnce()).getKeyStore();
-    then(sslStoreProvider).should(atLeastOnce()).getTrustStore();
   }
 
   @Test

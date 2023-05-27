@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
@@ -54,18 +55,22 @@ public class ServletWebServerFactoryCustomizer
   @Nullable
   private final List<CookieSameSiteSupplier> cookieSameSiteSuppliers;
 
+  private final SslBundles sslBundles;
+
   public ServletWebServerFactoryCustomizer(ServerProperties serverProperties) {
     this(serverProperties, Collections.emptyList());
   }
 
   public ServletWebServerFactoryCustomizer(ServerProperties serverProperties,
           List<WebListenerRegistrar> webListenerRegistrars) {
-    this(serverProperties, webListenerRegistrars, null);
+    this(serverProperties, webListenerRegistrars, null, null);
   }
 
   ServletWebServerFactoryCustomizer(ServerProperties serverProperties,
           List<WebListenerRegistrar> webListenerRegistrars,
-          @Nullable List<CookieSameSiteSupplier> cookieSameSiteSuppliers) {
+          @Nullable List<CookieSameSiteSupplier> cookieSameSiteSuppliers,
+          @Nullable SslBundles sslBundles) {
+    this.sslBundles = sslBundles;
     this.serverProperties = serverProperties;
     this.webListenerRegistrars = webListenerRegistrars;
     this.cookieSameSiteSuppliers = cookieSameSiteSuppliers;
@@ -94,6 +99,8 @@ public class ServletWebServerFactoryCustomizer
     map.from(serverProperties::getHttp2).to(factory::setHttp2);
     map.from(serverProperties::getServerHeader).to(factory::setServerHeader);
     map.from(serverProperties.getShutdown()).to(factory::setShutdown);
+
+    map.from(sslBundles).to(factory::setSslBundles);
 
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);

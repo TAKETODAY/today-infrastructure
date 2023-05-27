@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,8 +68,10 @@ import java.util.Set;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.web.server.ErrorPage;
+import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.server.Shutdown;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
@@ -167,8 +169,8 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     configureWebAppContext(context, initializers);
     server.setHandler(addHandlerWrappers(context));
     this.logger.info("Server initialized with port: {}", port);
-    if (getSsl() != null && getSsl().isEnabled()) {
-      customizeSsl(server, address);
+    if (Ssl.isEnabled(getSsl())) {
+      customizeSsl(getSsl(), server, address);
     }
     for (JettyServerCustomizer customizer : getServerCustomizers()) {
       customizer.customize(server);
@@ -196,7 +198,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     httpConfiguration.setSendServerVersion(false);
     List<ConnectionFactory> connectionFactories = new ArrayList<>();
     connectionFactories.add(new HttpConnectionFactory(httpConfiguration));
-    if (getHttp2() != null && getHttp2().isEnabled()) {
+    if (Http2.isEnabled(getHttp2())) {
       connectionFactories.add(new HTTP2CServerConnectionFactory(httpConfiguration));
     }
     ServerConnector connector = new ServerConnector(server, this.acceptors, this.selectors,
@@ -224,8 +226,8 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     return wrapper;
   }
 
-  private void customizeSsl(Server server, InetSocketAddress address) {
-    new SslServerCustomizer(address, getSsl(), getOrCreateSslStoreProvider(), getHttp2()).customize(server);
+  private void customizeSsl(Ssl ssl, Server server, InetSocketAddress address) {
+    new SslServerCustomizer(getHttp2(), address, ssl.getClientAuth(), getSslBundle()).customize(server);
   }
 
   /**

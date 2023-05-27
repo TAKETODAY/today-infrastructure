@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,6 +32,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.EnvironmentAware;
@@ -57,7 +58,7 @@ public class ParserStrategyUtilsTests {
   @Mock
   private Environment environment;
 
-  @Mock(extraInterfaces = BeanFactory.class)
+  @Mock(extraInterfaces = ConfigurableBeanFactory.class)
   private BeanDefinitionRegistry registry;
 
   @Mock
@@ -75,7 +76,7 @@ public class ParserStrategyUtilsTests {
     given(this.loadingContext.getRegistry()).willReturn(this.registry);
     given(this.loadingContext.getEnvironment()).willReturn(this.environment);
     given(this.loadingContext.getResourceLoader()).willReturn(resourceLoader);
-    given(this.loadingContext.getBeanFactory()).willReturn((BeanFactory) this.registry);
+    given(this.loadingContext.getBeanFactory()).willReturn((ConfigurableBeanFactory) this.registry);
     given(this.loadingContext.getClassLoader()).willReturn(beanClassLoader);
     given(this.resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
   }

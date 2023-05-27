@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,7 +44,9 @@ import java.util.Set;
 
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Shutdown;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.client.reactive.JettyResourceFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
@@ -191,9 +193,10 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", false, false);
     contextHandler.addServlet(servletHolder, "/");
     server.setHandler(addHandlerWrappers(contextHandler));
-    JettyReactiveWebServerFactory.logger.info("Server initialized with port: " + port);
-    if (getSsl() != null && getSsl().isEnabled()) {
-      customizeSsl(server, address);
+    JettyReactiveWebServerFactory.logger.info("Server initialized with port: {}", port);
+
+    if (Ssl.isEnabled(getSsl())) {
+      customizeSsl(getSsl(), server, address);
     }
     for (JettyServerCustomizer customizer : getServerCustomizers()) {
       customizer.customize(server);
@@ -214,7 +217,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
     httpConfiguration.setSendServerVersion(false);
     List<ConnectionFactory> connectionFactories = new ArrayList<>();
     connectionFactories.add(new HttpConnectionFactory(httpConfiguration));
-    if (getHttp2() != null && getHttp2().isEnabled()) {
+    if (Http2.isEnabled(getHttp2())) {
       connectionFactories.add(new HTTP2CServerConnectionFactory(httpConfiguration));
     }
     JettyResourceFactory resourceFactory = getResourceFactory();
@@ -248,8 +251,9 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
     return wrapper;
   }
 
-  private void customizeSsl(Server server, InetSocketAddress address) {
-    new SslServerCustomizer(address, getSsl(), getOrCreateSslStoreProvider(), getHttp2()).customize(server);
+  private void customizeSsl(Ssl ssl, Server server, InetSocketAddress address) {
+    new SslServerCustomizer(getHttp2(), address, ssl.getClientAuth(), getSslBundle()).customize(server);
+
   }
 
 }

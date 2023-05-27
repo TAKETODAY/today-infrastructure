@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,11 +23,15 @@ package cn.taketoday.framework.web.server;
 import java.net.InetAddress;
 import java.util.Set;
 
+import cn.taketoday.core.ssl.SslBundles;
+import cn.taketoday.lang.Nullable;
+
 /**
  * A configurable {@link WebServerFactory}.
  *
  * @author Phillip Webb
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ErrorPageRegistry
  * @since 4.0
  */
@@ -35,7 +39,7 @@ public interface ConfigurableWebServerFactory extends WebServerFactory, ErrorPag
 
   /**
    * Sets the port that the web server should listen on. If not specified port '8080'
-   * will be used. Use port -1 to disable auto-start (i.e start the web application
+   * will be used. Use port -1 to disable auto-start (i.e. start the web application
    * context but not have it listen to any port).
    *
    * @param port the port to set
@@ -47,7 +51,7 @@ public interface ConfigurableWebServerFactory extends WebServerFactory, ErrorPag
    *
    * @param address the address to set (defaults to {@code null})
    */
-  void setAddress(InetAddress address);
+  void setAddress(@Nullable InetAddress address);
 
   /**
    * Sets the error pages that will be used when handling exceptions.
@@ -61,21 +65,21 @@ public interface ConfigurableWebServerFactory extends WebServerFactory, ErrorPag
    *
    * @param ssl the SSL configuration
    */
-  void setSsl(Ssl ssl);
+  void setSsl(@Nullable Ssl ssl);
 
   /**
-   * Sets a provider that will be used to obtain SSL stores.
+   * Sets the SSL bundles that can be used to configure SSL connections.
    *
-   * @param sslStoreProvider the SSL store provider
+   * @param sslBundles the SSL bundles
    */
-  void setSslStoreProvider(SslStoreProvider sslStoreProvider);
+  void setSslBundles(SslBundles sslBundles);
 
   /**
    * Sets the HTTP/2 configuration that will be applied to the server.
    *
    * @param http2 the HTTP/2 configuration
    */
-  void setHttp2(Http2 http2);
+  void setHttp2(@Nullable Http2 http2);
 
   /**
    * Sets the compression configuration that will be applied to the server's default
@@ -83,14 +87,14 @@ public interface ConfigurableWebServerFactory extends WebServerFactory, ErrorPag
    *
    * @param compression the compression configuration
    */
-  void setCompression(Compression compression);
+  void setCompression(@Nullable Compression compression);
 
   /**
    * Sets the server header value.
    *
    * @param serverHeader the server header value
    */
-  void setServerHeader(String serverHeader);
+  void setServerHeader(@Nullable String serverHeader);
 
   /**
    * Sets the shutdown configuration that will be applied to the server.

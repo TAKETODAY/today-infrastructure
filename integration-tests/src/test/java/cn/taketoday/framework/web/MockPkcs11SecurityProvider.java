@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,33 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.server;
+package cn.taketoday.framework.web;
 
-import java.security.KeyStore;
+import java.security.Provider;
 
 /**
- * Interface to provide SSL key stores for an {@link WebServer} to use. Can be used when
- * file based key stores cannot be used.
+ * Mock PKCS#11 Security Provider for testing purposes.
  *
- * @author Phillip Webb
- * @since 4.0
+ * @author Cyril Dangerville
  */
-public interface SslStoreProvider {
+public class MockPkcs11SecurityProvider extends Provider {
 
   /**
-   * Return the key store that should be used.
-   *
-   * @return the key store to use
-   * @throws Exception on load error
+   * The name of the mock provider.
    */
-  KeyStore getKeyStore() throws Exception;
+  public static final String NAME = "Mock-PKCS11";
 
-  /**
-   * Return the trust store that should be used.
-   *
-   * @return the trust store to use
-   * @throws Exception on load error
-   */
-  KeyStore getTrustStore() throws Exception;
+  static final MockPkcs11SecurityProvider INSTANCE = new MockPkcs11SecurityProvider();
+
+  MockPkcs11SecurityProvider() {
+    super(NAME, "0.1", "Mock PKCS11 Provider");
+    putService(new Service(this, "KeyStore", "PKCS11", MockKeyStoreSpi.class.getName(), null, null));
+  }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LambdaSafe;
 
 /**
@@ -40,6 +41,7 @@ import cn.taketoday.util.LambdaSafe;
  * @author Dave Syer
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class WebServerFactoryCustomizerBeanPostProcessor
@@ -47,6 +49,7 @@ public class WebServerFactoryCustomizerBeanPostProcessor
 
   private BeanFactory beanFactory;
 
+  @Nullable
   private List<WebServerFactoryCustomizer<?>> customizers;
 
   @Override
@@ -59,11 +62,6 @@ public class WebServerFactoryCustomizerBeanPostProcessor
     if (bean instanceof WebServerFactory) {
       postProcessBeforeInitialization((WebServerFactory) bean);
     }
-    return bean;
-  }
-
-  @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }
 

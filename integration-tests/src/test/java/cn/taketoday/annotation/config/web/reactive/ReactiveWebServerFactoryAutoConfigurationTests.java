@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,10 +26,12 @@ import org.apache.catalina.startup.Tomcat;
 import org.eclipse.jetty.server.Server;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.annotation.config.ssl.SslAutoConfiguration;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.core.ssl.NoSuchSslBundleException;
 import cn.taketoday.framework.test.context.FilteredClassLoader;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
 import cn.taketoday.framework.web.embedded.jetty.JettyReactiveWebServerFactory;
@@ -71,7 +73,8 @@ class ReactiveWebServerFactoryAutoConfigurationTests {
 
   private final ReactiveWebApplicationContextRunner contextRunner = new ReactiveWebApplicationContextRunner(
           AnnotationConfigReactiveWebServerApplicationContext::new)
-          .withConfiguration(AutoConfigurations.of(ReactiveWebServerFactoryAutoConfiguration.class));
+          .withConfiguration(
+                  AutoConfigurations.of(ReactiveWebServerFactoryAutoConfiguration.class, SslAutoConfiguration.class));
 
   @Test
   void createFromConfigClass() {
@@ -116,6 +119,17 @@ class ReactiveWebServerFactoryAutoConfigurationTests {
     this.contextRunner.withUserConfiguration(HttpHandlerConfiguration.class).withPropertyValues("server.port=0")
             .run((context) -> assertThat(context.getBean(ReactiveWebServerFactory.class))
                     .isInstanceOf(TomcatReactiveWebServerFactory.class));
+  }
+
+  @Test
+  void webServerFailsWithInvalidSslBundle() {
+    this.contextRunner.withUserConfiguration(HttpHandlerConfiguration.class)
+            .withPropertyValues("server.port=0", "server.ssl.bundle=test-bundle")
+            .run((context) -> {
+              assertThat(context).hasFailed();
+              assertThat(context.getStartupFailure().getCause()).isInstanceOf(NoSuchSslBundleException.class)
+                      .withFailMessage("test");
+            });
   }
 
   @Test

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -140,7 +140,7 @@ public class UndertowReactiveWebServerFactory extends AbstractReactiveWebServerF
 
   @Override
   public WebServer getWebServer(cn.taketoday.http.server.reactive.HttpHandler httpHandler) {
-    Undertow.Builder builder = delegate.createBuilder(this);
+    Undertow.Builder builder = delegate.createBuilder(this, this::getSslBundle);
     var httpHandlerFactories = delegate.createHttpHandlerFactories(
             this, next -> new UndertowHttpHandlerAdapter(httpHandler));
     return new UndertowWebServer(builder, httpHandlerFactories, getPort() >= 0);

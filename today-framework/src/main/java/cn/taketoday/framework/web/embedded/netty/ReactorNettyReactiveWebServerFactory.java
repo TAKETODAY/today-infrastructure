@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,9 @@ import java.util.Set;
 
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Shutdown;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.client.reactive.ReactorResourceFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
@@ -162,8 +164,8 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
     else {
       server = server.bindAddress(this::getListenAddress);
     }
-    if (getSsl() != null && getSsl().isEnabled()) {
-      server = customizeSslConfiguration(server);
+    if (Ssl.isEnabled(getSsl())) {
+      server = customizeSslConfiguration(getSsl(), server);
     }
     if (getCompression() != null && getCompression().isEnabled()) {
       CompressionCustomizer compressionCustomizer = new CompressionCustomizer(getCompression());
@@ -173,17 +175,15 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
     return applyCustomizers(server);
   }
 
-  private HttpServer customizeSslConfiguration(HttpServer httpServer) {
-    SslServerCustomizer sslServerCustomizer = new SslServerCustomizer(
-            getSsl(), getHttp2(), getOrCreateSslStoreProvider());
-    return sslServerCustomizer.apply(httpServer);
+  private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {
+    return new SslServerCustomizer(getHttp2(), ssl.getClientAuth(), getSslBundle()).apply(httpServer);
   }
 
   private HttpProtocol[] listProtocols() {
     ArrayList<HttpProtocol> protocols = new ArrayList<>();
     protocols.add(HttpProtocol.HTTP11);
-    if (getHttp2() != null && getHttp2().isEnabled()) {
-      if (getSsl() != null && getSsl().isEnabled()) {
+    if (Http2.isEnabled(getHttp2())) {
+      if (Ssl.isEnabled(getSsl())) {
         protocols.add(HttpProtocol.H2);
       }
       else {

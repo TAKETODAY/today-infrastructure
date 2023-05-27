@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -989,8 +989,8 @@ public class TestRestTemplate {
 
   private URI applyRootUriIfNecessary(URI uri) {
     UriTemplateHandler uriTemplateHandler = this.restTemplate.getUriTemplateHandler();
-    if ((uriTemplateHandler instanceof RootUriTemplateHandler) && uri.toString().startsWith("/")) {
-      return URI.create(((RootUriTemplateHandler) uriTemplateHandler).getRootUri() + uri.toString());
+    if ((uriTemplateHandler instanceof RootUriTemplateHandler handler) && uri.toString().startsWith("/")) {
+      return URI.create(handler.getRootUri() + uri);
     }
     return uri;
   }
@@ -1082,6 +1082,7 @@ public class TestRestTemplate {
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
+
     }
 
   }

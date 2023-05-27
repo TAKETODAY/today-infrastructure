@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,7 +63,9 @@ import java.util.Set;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.web.server.ErrorPage;
+import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.MimeMappings;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
@@ -95,6 +97,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Eddú Meléndez
  * @author Christoffer Sawicki
  * @author Dawid Antecki
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setPort(int)
  * @see #setContextLifecycleListeners(Collection)
  * @see TomcatWebServer
@@ -324,7 +327,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     if (StringUtils.hasText(getServerHeader())) {
       connector.setProperty("server", getServerHeader());
     }
-    if (connector.getProtocolHandler() instanceof AbstractProtocol abstractProtocol) {
+    if (connector.getProtocolHandler() instanceof AbstractProtocol<?> abstractProtocol) {
       customizeProtocol(abstractProtocol);
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
@@ -332,11 +335,11 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
     // Don't bind to the socket prematurely if ApplicationContext is slow to start
     connector.setProperty("bindOnInit", "false");
-    if (getHttp2() != null && getHttp2().isEnabled()) {
+    if (Http2.isEnabled(getHttp2())) {
       connector.addUpgradeProtocol(new Http2Protocol());
     }
-    if (getSsl() != null && getSsl().isEnabled()) {
-      customizeSsl(connector);
+    if (Ssl.isEnabled(getSsl())) {
+      customizeSsl(getSsl(), connector);
     }
     CompressionConnectorCustomizer.customize(connector, getCompression());
     for (TomcatConnectorCustomizer customizer : tomcatConnectorCustomizers) {
@@ -356,8 +359,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
             .invoke(customizer -> customizer.customize(protocolHandler));
   }
 
-  private void customizeSsl(Connector connector) {
-    new SslConnectorCustomizer(getSsl(), getOrCreateSslStoreProvider()).customize(connector);
+  private void customizeSsl(Ssl ssl, Connector connector) {
+    new SslConnectorCustomizer(ssl.getClientAuth(), getSslBundle()).customize(connector);
   }
 
   /**
@@ -509,7 +512,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   /**
    * Returns a mutable set of the patterns that match jars to ignore for TLD scanning.
    *
-   * @return the list of jars to ignore for TLD scanning
+   * @return the set of jars to ignore for TLD scanning
    */
   public Set<String> getTldSkipPatterns() {
     return this.tldSkipPatterns;

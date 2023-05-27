@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,10 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.core.ssl.SslBundle;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Abstract base class for {@link ConfigurableWebServerFactory} implementations.
@@ -40,24 +43,30 @@ import cn.taketoday.lang.Assert;
  * @author Ivan Sopov
  * @author Eddú Meléndez
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractConfigurableWebServerFactory implements ConfigurableWebServerFactory {
 
   private int port = 8080;
 
+  @Nullable
   private InetAddress address;
 
   private Set<ErrorPage> errorPages = new LinkedHashSet<>();
 
+  @Nullable
   private Ssl ssl;
 
-  private SslStoreProvider sslStoreProvider;
+  private SslBundles sslBundles;
 
+  @Nullable
   private Http2 http2;
 
+  @Nullable
   private Compression compression;
 
+  @Nullable
   private String serverHeader;
 
   private Shutdown shutdown = Shutdown.IMMEDIATE;
@@ -97,12 +106,13 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    *
    * @return the address
    */
+  @Nullable
   public InetAddress getAddress() {
     return this.address;
   }
 
   @Override
-  public void setAddress(InetAddress address) {
+  public void setAddress(@Nullable InetAddress address) {
     this.address = address;
   }
 
@@ -128,61 +138,48 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.errorPages.addAll(Arrays.asList(errorPages));
   }
 
+  @Nullable
   public Ssl getSsl() {
     return this.ssl;
   }
 
   @Override
-  public void setSsl(Ssl ssl) {
+  public void setSsl(@Nullable Ssl ssl) {
     this.ssl = ssl;
   }
 
-  public SslStoreProvider getSslStoreProvider() {
-    return this.sslStoreProvider;
-  }
-
-  /**
-   * Return the provided {@link SslStoreProvider} or create one using {@link Ssl}
-   * properties.
-   *
-   * @return the {@code SslStoreProvider}
-   */
-  public final SslStoreProvider getOrCreateSslStoreProvider() {
-    if (this.sslStoreProvider != null) {
-      return this.sslStoreProvider;
-    }
-    return CertificateFileSslStoreProvider.from(this.ssl);
-  }
-
   @Override
-  public void setSslStoreProvider(SslStoreProvider sslStoreProvider) {
-    this.sslStoreProvider = sslStoreProvider;
+  public void setSslBundles(SslBundles sslBundles) {
+    this.sslBundles = sslBundles;
   }
 
+  @Nullable
   public Http2 getHttp2() {
     return this.http2;
   }
 
   @Override
-  public void setHttp2(Http2 http2) {
+  public void setHttp2(@Nullable Http2 http2) {
     this.http2 = http2;
   }
 
+  @Nullable
   public Compression getCompression() {
     return this.compression;
   }
 
   @Override
-  public void setCompression(Compression compression) {
+  public void setCompression(@Nullable Compression compression) {
     this.compression = compression;
   }
 
+  @Nullable
   public String getServerHeader() {
     return this.serverHeader;
   }
 
   @Override
-  public void setServerHeader(String serverHeader) {
+  public void setServerHeader(@Nullable String serverHeader) {
     this.serverHeader = serverHeader;
   }
 
@@ -198,6 +195,15 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    */
   public Shutdown getShutdown() {
     return this.shutdown;
+  }
+
+  /**
+   * Return the {@link SslBundle} that should be used with this server.
+   *
+   * @return the SSL bundle
+   */
+  protected final SslBundle getSslBundle() {
+    return WebServerSslBundle.get(this.ssl, this.sslBundles);
   }
 
   /**

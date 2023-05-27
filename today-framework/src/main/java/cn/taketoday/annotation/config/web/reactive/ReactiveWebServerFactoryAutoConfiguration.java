@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,14 +20,9 @@
 
 package cn.taketoday.annotation.config.web.reactive;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
@@ -38,13 +33,16 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.server.reactive.ForwardedHeaderTransformer;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a reactive web server.
@@ -67,19 +65,20 @@ import cn.taketoday.util.ObjectUtils;
 })
 public class ReactiveWebServerFactoryAutoConfiguration {
 
-  @Bean
-  public ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(ServerProperties serverProperties) {
-    return new ReactiveWebServerFactoryCustomizer(serverProperties);
+  @Component
+  public ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(
+          ServerProperties serverProperties, @Nullable SslBundles sslBundles) {
+    return new ReactiveWebServerFactoryCustomizer(serverProperties, sslBundles);
   }
 
-  @Bean
+  @Component
   @ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
   public TomcatReactiveWebServerFactoryCustomizer tomcatReactiveWebServerFactoryCustomizer(
           ServerProperties serverProperties) {
     return new TomcatReactiveWebServerFactoryCustomizer(serverProperties);
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
   public ForwardedHeaderTransformer forwardedHeaderTransformer() {
@@ -90,33 +89,16 @@ public class ReactiveWebServerFactoryAutoConfiguration {
    * Registers a {@link WebServerFactoryCustomizerBeanPostProcessor}. Registered via
    * {@link ImportBeanDefinitionRegistrar} for early registration.
    */
-  public static class BeanPostProcessorsRegistrar implements ImportBeanDefinitionRegistrar, BeanFactoryAware {
-
-    private ConfigurableBeanFactory beanFactory;
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-      if (beanFactory instanceof ConfigurableBeanFactory factory) {
-        this.beanFactory = factory;
-      }
-    }
+  public static class BeanPostProcessorsRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-      if (this.beanFactory == null) {
-        return;
-      }
-      registerSyntheticBeanIfMissing(context.getRegistry(),
-              "webServerFactoryCustomizerBeanPostProcessor",
-              WebServerFactoryCustomizerBeanPostProcessor.class);
-    }
-
-    private <T> void registerSyntheticBeanIfMissing(
-            BeanDefinitionRegistry registry, String name, Class<T> beanClass) {
-      if (ObjectUtils.isEmpty(this.beanFactory.getBeanNamesForType(beanClass, true, false))) {
-        RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+      ConfigurableBeanFactory beanFactory = context.getBeanFactory();
+      if (CollectionUtils.isEmpty(beanFactory.getBeanNamesForType(
+              WebServerFactoryCustomizerBeanPostProcessor.class, true, false))) {
+        RootBeanDefinition beanDefinition = new RootBeanDefinition(WebServerFactoryCustomizerBeanPostProcessor.class);
         beanDefinition.setSynthetic(true);
-        registry.registerBeanDefinition(name, beanDefinition);
+        context.registerBeanDefinition("webServerFactoryCustomizerBeanPostProcessor", beanDefinition);
       }
     }
 

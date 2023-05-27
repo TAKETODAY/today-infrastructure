@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,16 +22,18 @@ package cn.taketoday.annotation.config.web.reactive;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.net.InetAddress;
 
+import cn.taketoday.core.ssl.DefaultSslBundleRegistry;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.reactive.server.ConfigurableReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
@@ -43,13 +45,15 @@ import static org.mockito.Mockito.mock;
  */
 class ReactiveWebServerFactoryCustomizerTests {
 
-  private ServerProperties properties = new ServerProperties();
+  private final ServerProperties properties = new ServerProperties();
+
+  private final SslBundles sslBundles = new DefaultSslBundleRegistry();
 
   private ReactiveWebServerFactoryCustomizer customizer;
 
   @BeforeEach
   void setup() {
-    this.customizer = new ReactiveWebServerFactoryCustomizer(this.properties);
+    this.customizer = new ReactiveWebServerFactoryCustomizer(this.properties, this.sslBundles);
   }
 
   @Test
@@ -76,6 +80,7 @@ class ReactiveWebServerFactoryCustomizerTests {
     this.properties.setSsl(ssl);
     this.customizer.customize(factory);
     then(factory).should().setSsl(ssl);
+    then(factory).should().setSslBundles(this.sslBundles);
   }
 
   @Test
@@ -83,9 +88,7 @@ class ReactiveWebServerFactoryCustomizerTests {
     this.properties.setShutdown(Shutdown.GRACEFUL);
     ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
     this.customizer.customize(factory);
-    ArgumentCaptor<Shutdown> shutdownCaptor = ArgumentCaptor.forClass(Shutdown.class);
-    then(factory).should().setShutdown(shutdownCaptor.capture());
-    assertThat(shutdownCaptor.getValue()).isEqualTo(Shutdown.GRACEFUL);
+    then(factory).should().setShutdown(assertArg(shutdown -> assertThat(shutdown).isEqualTo(Shutdown.GRACEFUL)));
   }
 
 }

@@ -18,12 +18,31 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Support for embedded web servers.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.framework.web.server;
+package cn.taketoday.framework.web;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.Extension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+
+import java.security.Security;
+
+/**
+ * {@link Extension} to support {@link MockPkcs11SecurityProvider}.
+ *
+ * @author Phillip Webb
+ * @see MockPkcs11Security
+ */
+class MockPkcs11SecurityProviderExtension implements BeforeAllCallback, AfterAllCallback {
+
+  @Override
+  public void beforeAll(ExtensionContext context) throws Exception {
+    Security.addProvider(MockPkcs11SecurityProvider.INSTANCE);
+  }
+
+  @Override
+  public void afterAll(ExtensionContext context) throws Exception {
+    Security.removeProvider(MockPkcs11SecurityProvider.NAME);
+  }
+
+}

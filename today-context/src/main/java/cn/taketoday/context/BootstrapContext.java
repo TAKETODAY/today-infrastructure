@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ExpressionEvaluator;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
@@ -72,12 +73,15 @@ import cn.taketoday.util.CollectionUtils;
 public class BootstrapContext extends BeanDefinitionCustomizers {
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
-  private final BeanDefinitionRegistry registry;
+  public final BeanDefinitionRegistry registry;
+  public final ConfigurableBeanFactory beanFactory;
 
   @Nullable
   private final ApplicationContext applicationContext;
 
+  @Nullable
   private ConditionEvaluator conditionEvaluator;
+
   private BeanFactoryAwareInstantiator instantiator;
   private MetadataReaderFactory metadataReaderFactory;
 
@@ -95,8 +99,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   @Nullable
   private Environment environment;
 
-  private BeanFactory beanFactory;
-
   public BootstrapContext(ApplicationContext context) {
     this(new SimpleBeanDefinitionRegistry(), context);
   }
@@ -105,8 +107,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     this(registry, null, context);
   }
 
-  public BootstrapContext(
-          BeanDefinitionRegistry registry,
+  public BootstrapContext(BeanDefinitionRegistry registry,
           @Nullable ConditionEvaluator conditionEvaluator, @Nullable ApplicationContext context) {
     Assert.notNull(registry, "registry is required");
     this.registry = registry;
@@ -115,11 +116,20 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     this.conditionEvaluator = conditionEvaluator;
     if (context == null) {
       // context is null detect beanFactory
-      if (registry instanceof BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+      if (registry instanceof ConfigurableBeanFactory factory) {
+        this.beanFactory = factory;
       }
       else {
         throw new IllegalArgumentException("'registry' expect a BeanFactory when No ApplicationContext available");
+      }
+    }
+    else {
+      if (context.getBeanFactory() instanceof ConfigurableBeanFactory factory) {
+        this.beanFactory = factory;
+      }
+      else {
+        throw new IllegalArgumentException(
+                "ApplicationContext#getBeanFactory() expect a ConfigurableBeanFactory not available");
       }
     }
   }
@@ -152,10 +162,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     this.environment = environment;
   }
 
-  public BeanFactory getBeanFactory() {
-    if (applicationContext != null) {
-      return applicationContext.getBeanFactory();
-    }
+  public ConfigurableBeanFactory getBeanFactory() {
     return beanFactory;
   }
 
