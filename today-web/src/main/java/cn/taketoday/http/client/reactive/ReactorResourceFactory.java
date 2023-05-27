@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,7 @@ import reactor.netty.resources.LoopResources;
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReactorResourceFactory implements InitializingBean, DisposableBean {
@@ -57,8 +58,8 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean 
   @Nullable
   private Consumer<HttpResources> globalResourcesConsumer;
 
-  private Supplier<LoopResources> loopResourcesSupplier = () -> LoopResources.create("webflux-http");
-  private Supplier<ConnectionProvider> connectionProviderSupplier = () -> ConnectionProvider.create("webflux", 500);
+  private Supplier<LoopResources> loopResourcesSupplier = () -> LoopResources.create("reactive-http");
+  private Supplier<ConnectionProvider> connectionProviderSupplier = () -> ConnectionProvider.create("reactive", 500);
 
   private boolean manageLoopResources = false;
   private boolean manageConnectionProvider = false;
@@ -202,7 +203,7 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean 
   public void afterPropertiesSet() {
     if (this.useGlobalResources) {
       Assert.isTrue(this.loopResources == null && this.connectionProvider == null,
-                    "'useGlobalResources' is mutually exclusive with explicitly configured resources");
+              "'useGlobalResources' is mutually exclusive with explicitly configured resources");
       HttpResources httpResources = HttpResources.get();
       if (this.globalResourcesConsumer != null) {
         this.globalResourcesConsumer.accept(httpResources);

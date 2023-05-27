@@ -419,6 +419,24 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-reactive-httpclient</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5-reactive</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <!--
         ======================================================
              test
