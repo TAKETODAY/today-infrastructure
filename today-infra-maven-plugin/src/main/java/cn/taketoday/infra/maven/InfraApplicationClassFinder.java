@@ -24,6 +24,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Find a single Infra Application class match based on directory.
@@ -38,11 +39,17 @@ abstract class InfraApplicationClassFinder {
   private static final String INFRA_APPLICATION_CLASS_NAME = "cn.taketoday.framework.InfraApplication";
 
   static String findSingleClass(File classesDirectory) throws MojoExecutionException {
+    return findSingleClass(List.of(classesDirectory));
+  }
+
+  static String findSingleClass(List<File> classesDirectories) throws MojoExecutionException {
     try {
-      String mainClass = MainClassFinder.findSingleMainClass(
-              classesDirectory, INFRA_APPLICATION_CLASS_NAME);
-      if (mainClass != null) {
-        return mainClass;
+      for (File classesDirectory : classesDirectories) {
+        String mainClass = MainClassFinder.findSingleMainClass(classesDirectory,
+                INFRA_APPLICATION_CLASS_NAME);
+        if (mainClass != null) {
+          return mainClass;
+        }
       }
       throw new MojoExecutionException("Unable to find a suitable main class, please add a 'mainClass' property");
     }
