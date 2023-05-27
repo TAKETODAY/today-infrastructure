@@ -29,3 +29,4 @@ cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration
 cn.taketoday.annotation.config.freemarker.FreeMarkerAutoConfiguration
 cn.taketoday.annotation.config.web.socket.WebSocketAutoConfiguration
 cn.taketoday.annotation.config.availability.ApplicationAvailabilityAutoConfiguration
+cn.taketoday.annotation.config.ssl.SslAutoConfiguration
