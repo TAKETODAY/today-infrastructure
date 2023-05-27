@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
+import cn.taketoday.core.ssl.SslBundle;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,6 +43,7 @@ class ClientHttpRequestFactorySettingsTests {
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.bufferRequestBody()).isNull();
+    assertThat(settings.sslBundle()).isNull();
   }
 
   @Test
@@ -49,6 +53,7 @@ class ClientHttpRequestFactorySettingsTests {
     assertThat(settings.connectTimeout()).isEqualTo(ONE_SECOND);
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.bufferRequestBody()).isNull();
+    assertThat(settings.sslBundle()).isNull();
   }
 
   @Test
@@ -58,6 +63,7 @@ class ClientHttpRequestFactorySettingsTests {
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isEqualTo(ONE_SECOND);
     assertThat(settings.bufferRequestBody()).isNull();
+    assertThat(settings.sslBundle()).isNull();
   }
 
   @Test
@@ -67,6 +73,17 @@ class ClientHttpRequestFactorySettingsTests {
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.bufferRequestBody()).isTrue();
+    assertThat(settings.sslBundle()).isNull();
+  }
+
+  @Test
+  void withSslBundleReturnsInstanceWithUpdatedSslBundle() {
+    SslBundle sslBundle = mock(SslBundle.class);
+    ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS.withSslBundle(sslBundle);
+    assertThat(settings.connectTimeout()).isNull();
+    assertThat(settings.readTimeout()).isNull();
+    assertThat(settings.bufferRequestBody()).isNull();
+    assertThat(settings.sslBundle()).isSameAs(sslBundle);
   }
 
 }

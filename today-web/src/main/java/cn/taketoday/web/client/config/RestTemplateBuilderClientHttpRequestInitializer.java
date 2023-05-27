@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LambdaSafe;
 
 /**
@@ -41,18 +42,20 @@ import cn.taketoday.util.LambdaSafe;
  */
 class RestTemplateBuilderClientHttpRequestInitializer implements ClientHttpRequestInitializer {
 
+  @Nullable
   private final BasicAuthentication basicAuthentication;
+
   private final Map<String, List<String>> defaultHeaders;
   private final Set<RestTemplateRequestCustomizer<?>> requestCustomizers;
 
   RestTemplateBuilderClientHttpRequestInitializer(
-          BasicAuthentication basicAuthentication,
+          @Nullable BasicAuthentication basicAuthentication,
           Map<String, List<String>> defaultHeaders,
           Set<RestTemplateRequestCustomizer<?>> requestCustomizers
   ) {
     this.defaultHeaders = defaultHeaders;
-    this.basicAuthentication = basicAuthentication;
     this.requestCustomizers = requestCustomizers;
+    this.basicAuthentication = basicAuthentication;
   }
 
   @Override

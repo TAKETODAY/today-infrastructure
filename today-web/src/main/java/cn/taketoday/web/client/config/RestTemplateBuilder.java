@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,6 +35,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
@@ -85,6 +86,7 @@ public class RestTemplateBuilder {
 
   private final Set<ClientHttpRequestInterceptor> interceptors;
 
+  @Nullable
   private final Function<ClientHttpRequestFactorySettings, ClientHttpRequestFactory> requestFactory;
 
   @Nullable
@@ -124,10 +126,8 @@ public class RestTemplateBuilder {
     this.requestCustomizers = Collections.emptySet();
   }
 
-  private RestTemplateBuilder(
-          ClientHttpRequestFactorySettings requestFactorySettings,
-          boolean detectRequestFactory,
-          @Nullable String rootUri,
+  private RestTemplateBuilder(ClientHttpRequestFactorySettings requestFactorySettings,
+          boolean detectRequestFactory, @Nullable String rootUri,
           @Nullable Set<HttpMessageConverter<?>> messageConverters,
           Set<ClientHttpRequestInterceptor> interceptors,
           @Nullable Function<ClientHttpRequestFactorySettings, ClientHttpRequestFactory> requestFactorySupplier,
@@ -478,6 +478,19 @@ public class RestTemplateBuilder {
   }
 
   /**
+   * Sets the SSL bundle on the underlying {@link ClientHttpRequestFactory}.
+   *
+   * @param sslBundle the SSL bundle
+   * @return a new builder instance
+   */
+  public RestTemplateBuilder setSslBundle(SslBundle sslBundle) {
+    return new RestTemplateBuilder(requestFactorySettings.withSslBundle(sslBundle), detectRequestFactory,
+            rootUri, messageConverters, interceptors, requestFactory, uriTemplateHandler,
+            errorHandler, basicAuthentication, defaultHeaders, customizers,
+            requestCustomizers);
+  }
+
+  /**
    * Set the {@link RestTemplateCustomizer RestTemplateCustomizers} that should be
    * applied to the {@link RestTemplate}. Customizers are applied in the order that they
    * were added after builder configuration has been applied. Setting this value will
@@ -708,7 +721,8 @@ public class RestTemplateBuilder {
     return List.of(Arrays.copyOf(items, items.length));
   }
 
-  private static <T> Set<T> append(Collection<? extends T> collection, Collection<? extends T> additions) {
+  private static <T> Set<T> append(
+          @Nullable Collection<? extends T> collection, @Nullable Collection<? extends T> additions) {
     LinkedHashSet<T> result = new LinkedHashSet<>(
             collection != null ? collection : Collections.emptySet());
     if (additions != null) {
@@ -717,7 +731,7 @@ public class RestTemplateBuilder {
     return Collections.unmodifiableSet(result);
   }
 
-  private static <K, V> Map<K, List<V>> append(Map<K, List<V>> map, K key, V[] values) {
+  private static <K, V> Map<K, List<V>> append(@Nullable Map<K, List<V>> map, K key, @Nullable V[] values) {
     LinkedHashMap<K, List<V>> result = new LinkedHashMap<>(map != null ? map : Collections.emptyMap());
     if (values != null) {
       result.put(key, copiedListOf(values));

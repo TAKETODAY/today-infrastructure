@@ -20,20 +20,37 @@
 
 package cn.taketoday.web.client.config;
 
+import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 import java.time.Duration;
 import java.util.function.Supplier;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import cn.taketoday.core.ssl.SslBundle;
+import cn.taketoday.core.ssl.SslOptions;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.PropertyMapper;
 import cn.taketoday.util.ReflectionUtils;
+import okhttp3.OkHttpClient;
 
 /**
  * Utility class that can be used to create {@link ClientHttpRequestFactory} instances
@@ -125,7 +142,19 @@ public abstract class ClientHttpRequestFactories {
 
     static HttpComponentsClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
       var requestFactory = new HttpComponentsClientHttpRequestFactory();
-
+      SslBundle sslBundle = settings.sslBundle();
+      if (sslBundle != null) {
+        SslOptions options = sslBundle.getOptions();
+        SSLConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(sslBundle.createSslContext(),
+                options.getEnabledProtocols(), options.getCiphers(), new DefaultHostnameVerifier());
+        CloseableHttpClient client = HttpClients.custom()
+                .setSSLSocketFactory(sslFactory)
+                .build();
+        requestFactory = new HttpComponentsClientHttpRequestFactory(client);
+      }
+      else {
+        requestFactory = new HttpComponentsClientHttpRequestFactory();
+      }
       if (settings.readTimeout() != null) {
         requestFactory.setReadTimeout((int) settings.readTimeout().toMillis());
       }
@@ -149,11 +178,31 @@ public abstract class ClientHttpRequestFactories {
     static OkHttp3ClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
       Assert.state(settings.bufferRequestBody() == null,
               () -> "OkHttp3ClientHttpRequestFactory does not support request body buffering");
-      OkHttp3ClientHttpRequestFactory requestFactory = new OkHttp3ClientHttpRequestFactory();
-      PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-      map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
-      map.from(settings::readTimeout).asInt(Duration::toMillis).to(requestFactory::setReadTimeout);
+      OkHttp3ClientHttpRequestFactory requestFactory = createRequestFactory(settings.sslBundle());
+
+      if (settings.readTimeout() != null) {
+        requestFactory.setReadTimeout((int) settings.readTimeout().toMillis());
+      }
+      if (settings.connectTimeout() != null) {
+        requestFactory.setConnectTimeout((int) settings.connectTimeout().toMillis());
+      }
+
       return requestFactory;
+    }
+
+    private static OkHttp3ClientHttpRequestFactory createRequestFactory(@Nullable SslBundle sslBundle) {
+      if (sslBundle != null) {
+        Assert.state(!sslBundle.getOptions().isSpecified(), "SSL Options cannot be specified with OkHttp");
+        SSLSocketFactory socketFactory = sslBundle.createSslContext().getSocketFactory();
+        TrustManager[] trustManagers = sslBundle.getManagers().getTrustManagers();
+        Assert.state(trustManagers.length == 1,
+                "Trust material must be provided in the SSL bundle for OkHttp3ClientHttpRequestFactory");
+        OkHttpClient client = new OkHttpClient.Builder()
+                .sslSocketFactory(socketFactory, (X509TrustManager) trustManagers[0])
+                .build();
+        return new OkHttp3ClientHttpRequestFactory(client);
+      }
+      return new OkHttp3ClientHttpRequestFactory();
     }
 
   }
@@ -164,12 +213,41 @@ public abstract class ClientHttpRequestFactories {
   static class Simple {
 
     static SimpleClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
-      SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+      SslBundle sslBundle = settings.sslBundle();
+      SimpleClientHttpRequestFactory requestFactory =
+              sslBundle != null
+              ? new SimpleClientHttpsRequestFactory(sslBundle)
+              : new SimpleClientHttpRequestFactory();
+      Assert.state(sslBundle == null || !sslBundle.getOptions().isSpecified(),
+              "SSL Options cannot be specified with Java connections");
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(settings::readTimeout).asInt(Duration::toMillis).to(requestFactory::setReadTimeout);
       map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
       map.from(settings::bufferRequestBody).to(requestFactory::setBufferRequestBody);
       return requestFactory;
+    }
+
+    /**
+     * {@link SimpleClientHttpsRequestFactory} to configure SSL from an
+     * {@link SslBundle}.
+     */
+    private static class SimpleClientHttpsRequestFactory extends SimpleClientHttpRequestFactory {
+
+      @Nullable
+      private final SslBundle sslBundle;
+
+      SimpleClientHttpsRequestFactory(@Nullable SslBundle sslBundle) {
+        this.sslBundle = sslBundle;
+      }
+
+      @Override
+      protected void prepareConnection(HttpURLConnection connection, HttpMethod httpMethod) throws IOException {
+        if (sslBundle != null && connection instanceof HttpsURLConnection secureConnection) {
+          SSLSocketFactory socketFactory = this.sslBundle.createSslContext().getSocketFactory();
+          secureConnection.setSSLSocketFactory(socketFactory);
+        }
+      }
+
     }
 
   }
@@ -191,10 +269,9 @@ public abstract class ClientHttpRequestFactories {
             ClientHttpRequestFactorySettings settings) {
       ClientHttpRequestFactory unwrapped = unwrapIfNecessary(requestFactory);
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-      map.from(settings::connectTimeout).to((connectTimeout) -> setConnectTimeout(unwrapped, connectTimeout));
-      map.from(settings::readTimeout).to((readTimeout) -> setReadTimeout(unwrapped, readTimeout));
-      map.from(settings::bufferRequestBody)
-              .to((bufferRequestBody) -> setBufferRequestBody(unwrapped, bufferRequestBody));
+      map.from(settings::readTimeout).to(readTimeout -> setReadTimeout(unwrapped, readTimeout));
+      map.from(settings::connectTimeout).to(connectTimeout -> setConnectTimeout(unwrapped, connectTimeout));
+      map.from(settings::bufferRequestBody).to(bufferRequestBody -> setBufferRequestBody(unwrapped, bufferRequestBody));
     }
 
     private static ClientHttpRequestFactory unwrapIfNecessary(
