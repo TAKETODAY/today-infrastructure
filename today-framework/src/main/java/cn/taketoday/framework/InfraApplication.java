@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * Indicates a {@link Configuration configuration} class that declares one or more
  * {@link Bean @Bean} methods and also triggers {@link EnableAutoConfiguration
  * auto-configuration} and {@link ComponentScan component scanning}. This is a convenience
- * annotation that is equivalent to declaring {@code @Configuration},
+ * annotation that is equivalent to declaring {@code @InfraApplication},
  * {@code @EnableAutoConfiguration} and {@code @ComponentScan}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
