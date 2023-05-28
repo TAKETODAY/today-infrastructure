@@ -82,13 +82,19 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   @Nullable
   private ConditionEvaluator conditionEvaluator;
 
+  @Nullable
   private BeanFactoryAwareInstantiator instantiator;
+
+  @Nullable
   private MetadataReaderFactory metadataReaderFactory;
 
   @Nullable
   private PatternResourceLoader resourceLoader;
 
+  @Nullable
   private ScopeMetadataResolver scopeMetadataResolver;
+
+  @Nullable
   private PropertySourceFactory propertySourceFactory;
 
   /* Using short class names as default bean names by default. */
@@ -520,6 +526,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     throw new IllegalArgumentException("Expect a BeanDefinitionRegistry");
   }
 
+  @Nullable
   static ApplicationContext deduceContext(BeanFactory beanFactory) {
     if (beanFactory instanceof ApplicationContext context) {
       return context;

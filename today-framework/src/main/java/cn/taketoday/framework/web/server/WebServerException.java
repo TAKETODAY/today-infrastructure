@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,16 +20,19 @@
 
 package cn.taketoday.framework.web.server;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Exceptions thrown by a web server.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
 public class WebServerException extends RuntimeException {
 
-  public WebServerException(String message, Throwable cause) {
+  public WebServerException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 

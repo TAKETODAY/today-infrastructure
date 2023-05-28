@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Simple server-independent abstraction for mime mappings. Roughly equivalent to the
@@ -98,6 +99,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * @param mimeType the mime type to map
    * @return any previous mapping or {@code null}
    */
+  @Nullable
   public String add(String extension, String mimeType) {
     Assert.notNull(extension, "Extension must not be null");
     Assert.notNull(mimeType, "MimeType must not be null");
@@ -111,6 +113,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * @param extension the file extension (excluding '.')
    * @return the removed mime mapping or {@code null} if no item was removed
    */
+  @Nullable
   public String remove(String extension) {
     Assert.notNull(extension, "Extension must not be null");
     Mapping previous = map.remove(extension.toLowerCase(Locale.ENGLISH));
@@ -123,6 +126,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * @param extension the file extension (excluding '.')
    * @return a mime mapping or {@code null}
    */
+  @Nullable
   public String get(String extension) {
     Assert.notNull(extension, "Extension must not be null");
     Mapping mapping = map.get(extension.toLowerCase(Locale.ENGLISH));
@@ -292,6 +296,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
       COMMON = unmodifiableMappings(mappings);
     }
 
+    @Nullable
     private volatile Map<String, Mapping> loaded;
 
     DefaultMimeMappings() {
@@ -319,6 +324,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
       return get(loaded, extension);
     }
 
+    @Nullable
     private String get(Map<String, Mapping> mappings, String extension) {
       Mapping mapping = mappings.get(extension);
       return (mapping != null) ? mapping.getMimeType() : null;

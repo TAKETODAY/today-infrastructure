@@ -468,7 +468,7 @@ public abstract class AbstractServletWebServerFactoryTests {
             new ExampleServlet(true, false), "/hello");
     this.webServer = factory.getWebServer(registration);
     this.webServer.start();
-    TrustStrategy trustStrategy = new SerialNumberValidatingTrustSelfSignedStrategy("3a3aaec8");
+    TrustStrategy trustStrategy = new SerialNumberValidatingTrustSelfSignedStrategy("14ca9ba6abe2a70d");
     SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, trustStrategy).build();
     HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(new SSLConnectionSocketFactory(sslContext))
             .build();
@@ -489,7 +489,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   protected void assertThatSslWithInvalidAliasCallFails(ThrowingCallable call) {
-    assertThatThrownBy(call).hasStackTraceContaining("Keystore does not contain specified alias 'test-alias-404'");
+    assertThatThrownBy(call).hasStackTraceContaining("Keystore does not contain alias 'test-alias-404'");
   }
 
   @Test

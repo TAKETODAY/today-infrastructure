@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,9 +28,10 @@ import java.util.List;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link BeanPostProcessor} that applies all {@link ErrorPageRegistrar}s from the bean
@@ -38,12 +39,14 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ErrorPageRegistrarBeanPostProcessor implements InitializationBeanPostProcessor, BeanFactoryAware {
 
   private BeanFactory beanFactory;
 
+  @Nullable
   private List<ErrorPageRegistrar> registrars;
 
   @Override
@@ -59,11 +62,6 @@ public class ErrorPageRegistrarBeanPostProcessor implements InitializationBeanPo
     return bean;
   }
 
-  @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-    return bean;
-  }
-
   private void postProcessBeforeInitialization(ErrorPageRegistry registry) {
     for (ErrorPageRegistrar registrar : getRegistrars()) {
       registrar.registerErrorPages(registry);
@@ -71,14 +69,14 @@ public class ErrorPageRegistrarBeanPostProcessor implements InitializationBeanPo
   }
 
   private Collection<ErrorPageRegistrar> getRegistrars() {
-    if (this.registrars == null) {
+    if (registrars == null) {
       // Look up does not include the parent context
-      this.registrars = new ArrayList<>(
-              this.beanFactory.getBeansOfType(ErrorPageRegistrar.class, false, false).values());
-      this.registrars.sort(AnnotationAwareOrderComparator.INSTANCE);
-      this.registrars = Collections.unmodifiableList(this.registrars);
+      var registrars = new ArrayList<>(
+              beanFactory.getBeansOfType(ErrorPageRegistrar.class, false, false).values());
+      registrars.sort(AnnotationAwareOrderComparator.INSTANCE);
+      this.registrars = Collections.unmodifiableList(registrars);
     }
-    return this.registrars;
+    return registrars;
   }
 
 }

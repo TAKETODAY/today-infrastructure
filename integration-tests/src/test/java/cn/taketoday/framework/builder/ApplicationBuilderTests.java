@@ -268,7 +268,7 @@ class ApplicationBuilderTests {
     ApplicationBuilder application = new ApplicationBuilder(ExampleConfig.class)
             .type(ApplicationType.NORMAL);
     this.context = application.run();
-    assertThat(application.application().getInitializers()).hasSize(3);
+    assertThat(application.application().getInitializers()).hasSize(4);
   }
 
   @Test
@@ -277,17 +277,18 @@ class ApplicationBuilderTests {
             .child(ChildConfig.class)
             .type(ApplicationType.NORMAL);
     this.context = application.run();
-    assertThat(application.application().getInitializers()).hasSize(4);
+    assertThat(application.application().getInitializers()).hasSize(5);
   }
 
   @Test
   void initializersIncludeDefaults() {
-    ApplicationBuilder application = new ApplicationBuilder(ExampleConfig.class)
+    ApplicationBuilder application = ApplicationBuilder.from(ExampleConfig.class)
             .type(ApplicationType.NORMAL)
-            .initializers((ConfigurableApplicationContext applicationContext) -> {
+            .initializers((ConfigurableApplicationContext context) -> {
+
             });
     this.context = application.run();
-    assertThat(application.application().getInitializers()).hasSize(4);
+    assertThat(application.application().getInitializers()).hasSize(5);
   }
 
   @Test
