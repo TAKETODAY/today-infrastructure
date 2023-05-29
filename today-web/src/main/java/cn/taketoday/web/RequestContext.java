@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -384,6 +384,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   public HandlerMatchingMetadata getMatchingMetadata() {
     return this.matchingMetadata;
+  }
+
+  /**
+   * @throws IllegalStateException if HandlerMatchingMetadata is not set
+   * @since 4.0
+   */
+  public HandlerMatchingMetadata matchingMetadata() {
+    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
+    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
+    return matchingMetadata;
   }
 
   public boolean hasMatchingMetadata() {
