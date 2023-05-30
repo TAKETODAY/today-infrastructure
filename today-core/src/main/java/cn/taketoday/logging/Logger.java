@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,13 +15,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.logging;
 
 import java.io.Serializable;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -550,18 +551,33 @@ public abstract class Logger implements Serializable {
 
   // internal
 
-  private void logInternal(Object[] arguments, Level trace, String format) {
+  private void logInternal(Object[] arguments, Level level, String format) {
     Object lastElement = CollectionUtils.lastElement(arguments);
     if (lastElement instanceof Throwable throwable) {
-      logInternal(trace, format, throwable, arguments);
+      logInternal(level, format, throwable, arguments);
     }
     else {
-      logInternal(trace, format, null, arguments);
+      logInternal(level, format, null, arguments);
     }
   }
 
-  protected abstract void logInternal(Level level, String msg, Throwable t, Object[] args);
+  protected void logInternal(Level level, Object msg, Throwable t) {
+    if (isEnabled(level)) {
+      String message = String.valueOf(msg);
+      logInternal(level, message, t, null);
+    }
+  }
 
-  protected abstract void logInternal(Level level, Object msg, Throwable t);
+  protected boolean isEnabled(Level level) {
+    return switch (level) {
+      case INFO -> isInfoEnabled();
+      case WARN -> isWarnEnabled();
+      case DEBUG -> isDebugEnabled();
+      case ERROR -> isErrorEnabled();
+      case TRACE -> isTraceEnabled();
+    };
+  }
+
+  protected abstract void logInternal(Level level, String msg, Throwable t, @Nullable Object[] args);
 
 }

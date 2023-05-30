@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,13 +21,13 @@
 package cn.taketoday.logging;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Implementation of {@link Logger} that wraps a list of loggers and delegates
  * to the first one for which logging is enabled at the given level.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LogDelegateFactory#getCompositeLog
  * @since 4.0
  */
@@ -49,18 +49,18 @@ final class CompositeLogger extends Logger {
    * @param name logger name
    */
   public CompositeLogger(List<Logger> loggers, String name) {
-    super(initLogger(loggers, Logger::isDebugEnabled) != NO_OP_LOG);
-    this.errorLogger = initLogger(loggers, Logger::isErrorEnabled);
-    this.warnLogger = initLogger(loggers, Logger::isWarnEnabled);
-    this.infoLogger = initLogger(loggers, Logger::isInfoEnabled);
-    this.debugLogger = initLogger(loggers, Logger::isDebugEnabled);
-    this.traceLogger = initLogger(loggers, Logger::isTraceEnabled);
+    super(initLogger(loggers, Level.DEBUG) != NO_OP_LOG);
+    this.errorLogger = initLogger(loggers, Level.ERROR);
+    this.warnLogger = initLogger(loggers, Level.WARN);
+    this.infoLogger = initLogger(loggers, Level.INFO);
+    this.debugLogger = initLogger(loggers, Level.DEBUG);
+    this.traceLogger = initLogger(loggers, Level.TRACE);
     this.name = name;
   }
 
-  private static Logger initLogger(List<Logger> loggers, Predicate<Logger> predicate) {
+  private static Logger initLogger(List<Logger> loggers, Level level) {
     for (Logger logger : loggers) {
-      if (predicate.test(logger)) {
+      if (logger.isEnabled(level)) {
         return logger;
       }
     }
@@ -90,11 +90,6 @@ final class CompositeLogger extends Logger {
   @Override
   public boolean isTraceEnabled() {
     return this.traceLogger != NO_OP_LOG;
-  }
-
-  @Override
-  protected void logInternal(Level level, Object msg, Throwable t) {
-    logger(level).logInternal(level, msg, t);
   }
 
   private Logger logger(Level level) {

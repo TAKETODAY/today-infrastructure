@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,10 +35,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @Order(Integer.MAX_VALUE)
 @Execution(ExecutionMode.SAME_THREAD)
-public class LoggerTest {
+class LoggerTests {
 
   @Test
-  public void testSlf4jLogger() throws Exception {
+  void slf4jLogger() throws Exception {
     Logger logger = createLogger(new Slf4jLoggerFactory());
 
     assertTrue(logger instanceof Slf4jLogger);
@@ -174,5 +174,17 @@ public class LoggerTest {
     LogMessage msg = LogMessage.format("a {} {} {} {} {}", "b", "c", "d", "e", "f");
     assertThat(msg.toString()).isEqualTo("a b c d e f");
     assertThat(msg.toString()).isSameAs(msg.toString());
+  }
+
+  @Test
+  void isEnabled() {
+    Logger logger = createLogger(new Slf4jLoggerFactory());
+
+    assertThat(logger.isEnabled(Level.DEBUG)).isTrue();
+    assertThat(logger.isEnabled(Level.WARN)).isTrue();
+    assertThat(logger.isEnabled(Level.INFO)).isTrue();
+    assertThat(logger.isEnabled(Level.TRACE)).isTrue();
+    assertThat(logger.isEnabled(Level.ERROR)).isTrue();
+
   }
 }

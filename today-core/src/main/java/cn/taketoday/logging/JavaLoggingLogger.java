@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.logging;
 
@@ -75,25 +75,6 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
       case ERROR -> java.util.logging.Level.SEVERE;
       case INFO -> java.util.logging.Level.INFO;
     };
-  }
-
-  @Override
-  protected void logInternal(Level level, Object message, Throwable t) {
-    final java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
-    if (logger.isLoggable(levelToJavaLevel)) {
-      LogRecord rec;
-      if (message instanceof LogRecord) {
-        rec = (LogRecord) message;
-      }
-      else {
-        rec = new LocationResolvingLogRecord(levelToJavaLevel, String.valueOf(message));
-        rec.setLoggerName(getName());
-        rec.setResourceBundleName(logger.getResourceBundleName());
-        rec.setResourceBundle(logger.getResourceBundle());
-        rec.setThrown(t);
-      }
-      logger.log(rec);
-    }
   }
 
   @Override
