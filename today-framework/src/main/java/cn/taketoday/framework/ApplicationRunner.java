@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,8 @@
 
 package cn.taketoday.framework;
 
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 
 /**
  * Interface used to indicate that a bean should <em>run</em> when it is contained within

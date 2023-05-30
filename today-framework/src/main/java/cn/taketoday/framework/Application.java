@@ -1291,12 +1291,9 @@ public class Application {
   }
 
   private void callRunners(ApplicationContext context, ApplicationArguments args) {
-    ArrayList<Object> runners = new ArrayList<>();
-    runners.addAll(context.getBeansOfType(ApplicationRunner.class).values());
-    runners.addAll(context.getBeansOfType(CommandLineRunner.class).values());
+    ArrayList<Object> runners = new ArrayList<>(context.getBeansOfType(ApplicationRunner.class).values());
     AnnotationAwareOrderComparator.sort(runners);
 
-    String[] sourceArgs = args.getSourceArgs();
     for (Object runner : new LinkedHashSet<>(runners)) {
       if (runner instanceof ApplicationRunner applicationRunner) {
         try {
@@ -1304,15 +1301,6 @@ public class Application {
         }
         catch (Exception ex) {
           throw new IllegalStateException("Failed to execute ApplicationRunner: " + applicationRunner, ex);
-        }
-      }
-
-      if (runner instanceof CommandLineRunner commandLineRunner) {
-        try {
-          commandLineRunner.run(sourceArgs);
-        }
-        catch (Exception ex) {
-          throw new IllegalStateException("Failed to execute CommandLineRunner: " + commandLineRunner, ex);
         }
       }
     }

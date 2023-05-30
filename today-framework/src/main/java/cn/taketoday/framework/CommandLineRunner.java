@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,8 @@
 
 package cn.taketoday.framework;
 
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 
 /**
  * Interface used to indicate that a bean should <em>run</em> when it is contained within
@@ -30,7 +30,7 @@ import cn.taketoday.core.Ordered;
  * interface or {@link Order @Order} annotation.
  * <p>
  * If you need access to {@link ApplicationArguments} instead of the raw String array
- * consider using {@link ApplicationRunner}.
+ * consider using {@link ApplicationRunner#run(ApplicationArguments)}.
  *
  * @author Dave Syer
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,7 +38,12 @@ import cn.taketoday.core.Ordered;
  * @since 4.0 2022/1/16 20:54
  */
 @FunctionalInterface
-public interface CommandLineRunner {
+public interface CommandLineRunner extends ApplicationRunner {
+
+  @Override
+  default void run(ApplicationArguments args) throws Exception {
+    run(args.getSourceArgs());
+  }
 
   /**
    * Callback used to run the bean.
