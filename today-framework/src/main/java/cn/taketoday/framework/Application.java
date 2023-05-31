@@ -98,8 +98,8 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * In most circumstances the static {@link #run(Class, String[])} method can be called
  * directly from your {@literal main} method to bootstrap your application:
  *
- * <pre class="code">
- * &#064;Configuration
+ * <pre>{@code
+ * @Configuration
  * public class MyApplication  {
  *
  *   // ... Bean definitions
@@ -109,19 +109,19 @@ import cn.taketoday.util.function.ThrowingSupplier;
  *     WebApplication.run(MyApplication.class, args);
  *   }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>
  * For more advanced configuration a {@link Application} instance can be created and
  * customized before being run:
  *
- * <pre class="code">
+ * <pre> {@code
  * public static void main(String[] args) {
  *   Application application = new Application(MyApplication.class);
  *   // ... customize application settings here
  *   application.run(args)
  * }
- * </pre>
+ * }</pre>
  *
  * {@link Application}s can read beans from a {@code mainApplicationClass} or {@code configSources}
  *
@@ -237,7 +237,7 @@ public class Application {
     Assert.notNull(primarySources, "PrimarySources is required");
     this.resourceLoader = resourceLoader;
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
-    this.applicationType = ApplicationType.fromClasspath();
+    this.applicationType = ApplicationType.forClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
     this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);
     setInitializers(TodayStrategies.find(ApplicationContextInitializer.class));
@@ -1313,7 +1313,7 @@ public class Application {
    * @return a {@link ApplicationShutdownHandlers} instance
    */
   public static ApplicationShutdownHandlers getShutdownHandlers() {
-    return shutdownHook.getHandlers();
+    return shutdownHook.handlers;
   }
 
   /**
@@ -1471,6 +1471,7 @@ public class Application {
    */
   public static class AbandonedRunException extends RuntimeException {
 
+    @Nullable
     private final ConfigurableApplicationContext applicationContext;
 
     /**
@@ -1487,7 +1488,7 @@ public class Application {
      * @param applicationContext the application context that was available when the
      * run was abandoned
      */
-    public AbandonedRunException(ConfigurableApplicationContext applicationContext) {
+    public AbandonedRunException(@Nullable ConfigurableApplicationContext applicationContext) {
       this.applicationContext = applicationContext;
     }
 
@@ -1497,6 +1498,7 @@ public class Application {
      *
      * @return the application context
      */
+    @Nullable
     public ConfigurableApplicationContext getApplicationContext() {
       return this.applicationContext;
     }

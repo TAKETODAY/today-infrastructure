@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,7 +57,7 @@ class ApplicationShutdownHook implements Runnable {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicationShutdownHook.class);
 
-  private final Handlers handlers = new Handlers();
+  public final Handlers handlers = new Handlers();
 
   private final Set<ConfigurableApplicationContext> contexts = new LinkedHashSet<>();
 
@@ -69,21 +69,17 @@ class ApplicationShutdownHook implements Runnable {
 
   private boolean inProgress;
 
-  ApplicationShutdownHandlers getHandlers() {
-    return this.handlers;
-  }
-
   void registerApplicationContext(ConfigurableApplicationContext context) {
     addRuntimeShutdownHookIfNecessary();
     synchronized(ApplicationShutdownHook.class) {
       assertNotInProgress();
-      context.addApplicationListener(this.contextCloseListener);
-      this.contexts.add(context);
+      context.addApplicationListener(contextCloseListener);
+      contexts.add(context);
     }
   }
 
   private void addRuntimeShutdownHookIfNecessary() {
-    if (this.shutdownHookAdded.compareAndSet(false, true)) {
+    if (shutdownHookAdded.compareAndSet(false, true)) {
       addRuntimeShutdownHook();
     }
   }
@@ -95,7 +91,7 @@ class ApplicationShutdownHook implements Runnable {
   void deregisterFailedApplicationContext(ConfigurableApplicationContext applicationContext) {
     synchronized(ApplicationShutdownHook.class) {
       Assert.state(!applicationContext.isActive(), "Cannot unregister active application context");
-      ApplicationShutdownHook.this.contexts.remove(applicationContext);
+      contexts.remove(applicationContext);
     }
   }
 
@@ -108,7 +104,7 @@ class ApplicationShutdownHook implements Runnable {
       this.inProgress = true;
       contexts = new LinkedHashSet<>(this.contexts);
       closedContexts = new LinkedHashSet<>(this.closedContexts);
-      actions = new LinkedHashSet<>(this.handlers.getActions());
+      actions = new LinkedHashSet<>(this.handlers.actions);
     }
     contexts.forEach(this::closeAndWait);
     closedContexts.forEach(this::closeAndWait);
@@ -117,15 +113,15 @@ class ApplicationShutdownHook implements Runnable {
 
   boolean isApplicationContextRegistered(ConfigurableApplicationContext context) {
     synchronized(ApplicationShutdownHook.class) {
-      return this.contexts.contains(context);
+      return contexts.contains(context);
     }
   }
 
   void reset() {
     synchronized(ApplicationShutdownHook.class) {
-      this.contexts.clear();
-      this.closedContexts.clear();
-      this.handlers.getActions().clear();
+      contexts.clear();
+      closedContexts.clear();
+      handlers.actions.clear();
       this.inProgress = false;
     }
   }
@@ -163,15 +159,15 @@ class ApplicationShutdownHook implements Runnable {
   }
 
   private void assertNotInProgress() {
-    Assert.state(!ApplicationShutdownHook.this.inProgress, "Shutdown in progress");
+    Assert.state(!inProgress, "Shutdown in progress");
   }
 
   /**
    * The handler actions for this shutdown hook.
    */
-  private class Handlers implements ApplicationShutdownHandlers {
+  class Handlers implements ApplicationShutdownHandlers {
 
-    private final Set<Runnable> actions = Collections.newSetFromMap(new IdentityHashMap<>());
+    public final Set<Runnable> actions = Collections.newSetFromMap(new IdentityHashMap<>());
 
     @Override
     public void add(Runnable action) {
@@ -179,7 +175,7 @@ class ApplicationShutdownHook implements Runnable {
       addRuntimeShutdownHookIfNecessary();
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
-        this.actions.add(action);
+        actions.add(action);
       }
     }
 
@@ -188,12 +184,8 @@ class ApplicationShutdownHook implements Runnable {
       Assert.notNull(action, "Action must not be null");
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
-        this.actions.remove(action);
+        actions.remove(action);
       }
-    }
-
-    Set<Runnable> getActions() {
-      return this.actions;
     }
 
   }

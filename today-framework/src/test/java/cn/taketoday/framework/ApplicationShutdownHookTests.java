@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,7 +61,7 @@ class ApplicationShutdownHookTests {
   void shutdownHookIsNotAddedUntilHandlerIsRegistered() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isFalse();
-    shutdownHook.getHandlers().add(() -> {
+    shutdownHook.handlers.add(() -> {
 
     });
     assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isTrue();
@@ -75,7 +75,7 @@ class ApplicationShutdownHookTests {
     shutdownHook.registerApplicationContext(context);
     context.refresh();
     Runnable handlerAction = new TestHandlerAction(finished);
-    shutdownHook.getHandlers().add(handlerAction);
+    shutdownHook.handlers.add(handlerAction);
     shutdownHook.run();
     assertThat(finished).containsExactly(context, handlerAction);
   }
@@ -92,7 +92,7 @@ class ApplicationShutdownHookTests {
     shutdownHook.registerApplicationContext(context);
     context.refresh();
     Runnable handlerAction = new TestHandlerAction(finished);
-    shutdownHook.getHandlers().add(handlerAction);
+    shutdownHook.handlers.add(handlerAction);
     Thread contextThread = new Thread(context::close);
     contextThread.start();
     // Wait for context thread to begin closing the context
@@ -128,8 +128,8 @@ class ApplicationShutdownHookTests {
     context.close();
     Runnable handlerAction1 = new TestHandlerAction(finished);
     Runnable handlerAction2 = new TestHandlerAction(finished);
-    shutdownHook.getHandlers().add(handlerAction1);
-    shutdownHook.getHandlers().add(handlerAction2);
+    shutdownHook.handlers.add(handlerAction1);
+    shutdownHook.handlers.add(handlerAction2);
     shutdownHook.run();
     assertThat(finished).contains(handlerAction1, handlerAction2);
   }
@@ -137,7 +137,7 @@ class ApplicationShutdownHookTests {
   @Test
   void addHandlerActionWhenNullThrowsException() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
-    assertThatIllegalArgumentException().isThrownBy(() -> shutdownHook.getHandlers().add(null))
+    assertThatIllegalArgumentException().isThrownBy(() -> shutdownHook.handlers.add(null))
             .withMessage("Action must not be null");
   }
 
@@ -146,14 +146,14 @@ class ApplicationShutdownHookTests {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     shutdownHook.run();
     Runnable handlerAction = new TestHandlerAction(new ArrayList<>());
-    assertThatIllegalStateException().isThrownBy(() -> shutdownHook.getHandlers().add(handlerAction))
+    assertThatIllegalStateException().isThrownBy(() -> shutdownHook.handlers.add(handlerAction))
             .withMessage("Shutdown in progress");
   }
 
   @Test
   void removeHandlerActionWhenNullThrowsException() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
-    assertThatIllegalArgumentException().isThrownBy(() -> shutdownHook.getHandlers().remove(null))
+    assertThatIllegalArgumentException().isThrownBy(() -> shutdownHook.handlers.remove(null))
             .withMessage("Action must not be null");
   }
 
@@ -161,9 +161,9 @@ class ApplicationShutdownHookTests {
   void removeHandlerActionWhenShuttingDownThrowsException() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     Runnable handlerAction = new TestHandlerAction(new ArrayList<>());
-    shutdownHook.getHandlers().add(handlerAction);
+    shutdownHook.handlers.add(handlerAction);
     shutdownHook.run();
-    assertThatIllegalStateException().isThrownBy(() -> shutdownHook.getHandlers().remove(handlerAction))
+    assertThatIllegalStateException().isThrownBy(() -> shutdownHook.handlers.remove(handlerAction))
             .withMessage("Shutdown in progress");
   }
 
