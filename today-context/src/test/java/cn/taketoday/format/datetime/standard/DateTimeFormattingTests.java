@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -616,6 +616,20 @@ class DateTimeFormattingTests {
               .hasMessageStartingWith("Text '210302'")
               .hasNoCause();
     }
+
+    @Test
+    void testBindInstantAsLongEpochMillis() {
+      PropertyValues propertyValues = new PropertyValues();
+      propertyValues.add("instant", 1234L);
+      binder.bind(propertyValues);
+      assertThat(binder.getBindingResult().getErrorCount()).isZero();
+      assertThat(binder.getBindingResult().getRawFieldValue("instant"))
+              .isInstanceOf(Instant.class)
+              .isEqualTo(Instant.ofEpochMilli(1234L));
+      assertThat(binder.getBindingResult().getFieldValue("instant"))
+              .hasToString("1970-01-01T00:00:01.234Z");
+    }
+
   }
 
   public static class DateTimeBean {
