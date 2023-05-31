@@ -80,6 +80,7 @@ import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -130,6 +131,20 @@ class AutowiredAnnotationBeanPostProcessorTests {
     bean = (ResourceInjectionBean) bf.getBean("annotatedBean");
     assertThat(bean.getTestBean()).isSameAs(tb);
     assertThat(bean.getTestBean2()).isSameAs(tb);
+  }
+
+  @Test
+  void resourceInjectionWithNullBean() {
+    RootBeanDefinition bd = new RootBeanDefinition(NonPublicResourceInjectionBean.class);
+    bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bf.registerBeanDefinition("annotatedBean", bd);
+    RootBeanDefinition tb = new RootBeanDefinition(NullFactoryMethods.class);
+    tb.setFactoryMethodName("createTestBean");
+    bf.registerBeanDefinition("testBean", tb);
+
+    assertThatThrownBy(() -> bf.getBean("annotatedBean"))
+            .hasMessageContaining("Only one bean which qualifies as autowire candidate, but its factory method");
+
   }
 
   @Test
@@ -2384,7 +2399,6 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
     @Override
     @Autowired
-    @SuppressWarnings("deprecation")
     public void setTestBean2(TestBean testBean2) {
       super.setTestBean2(testBean2);
     }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1456,6 +1456,20 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       Object result = instanceCandidate;
       if (result == null) {
         if (isRequired(descriptor)) {
+          if (matchingBeans.size() == 1) {
+            // factory method returns null
+            BeanDefinition merged = getMergedBeanDefinition(autowiredBeanName);
+            String factoryMethodName = merged.getFactoryMethodName();
+            if (factoryMethodName != null) {
+              String factoryBeanName = merged.getFactoryBeanName();
+              if (factoryBeanName == null) {
+                factoryBeanName = merged.getBeanClassName();
+              }
+              throw new FactoryMethodBeanException(merged,
+                      "Only one bean which qualifies as autowire candidate, but its factory method '"
+                              + factoryMethodName + "' in '" + factoryBeanName + "' returns null");
+            }
+          }
           raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
         }
       }
@@ -1661,9 +1675,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Add an entry to the candidate map: a bean instance if available or just the resolved
    * type, preventing early bean initialization ahead of primary candidate selection.
    */
-  private void addCandidateEntry(
-          Map<String, Object> candidates, String candidateName,
-          DependencyDescriptor descriptor, Class<?> requiredType) {
+  private void addCandidateEntry(Map<String, Object> candidates,
+          String candidateName, DependencyDescriptor descriptor, Class<?> requiredType) {
 
     if (descriptor instanceof MultiElementDescriptor) {
       Object beanInstance = descriptor.resolveCandidate(candidateName, requiredType, this);
@@ -1858,8 +1871,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Raise a NoSuchBeanDefinitionException or BeanNotOfRequiredTypeException
    * for an unresolvable dependency.
    */
-  private void raiseNoMatchingBeanFound(
-          Class<?> type, ResolvableType resolvableType, DependencyDescriptor descriptor) throws BeansException {
+  private void raiseNoMatchingBeanFound(Class<?> type,
+          ResolvableType resolvableType, DependencyDescriptor descriptor) throws BeansException {
 
     checkBeanNotOfRequiredType(type, descriptor);
     throw new NoSuchBeanDefinitionException(resolvableType,
@@ -1894,9 +1907,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
 
-    BeanFactory parent = getParentBeanFactory();
-    if (parent instanceof StandardBeanFactory) {
-      ((StandardBeanFactory) parent).checkBeanNotOfRequiredType(type, descriptor);
+    if (getParentBeanFactory() instanceof StandardBeanFactory parent) {
+      parent.checkBeanNotOfRequiredType(type, descriptor);
     }
   }
 

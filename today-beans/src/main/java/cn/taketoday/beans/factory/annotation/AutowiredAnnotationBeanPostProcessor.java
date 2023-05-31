@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -457,19 +457,17 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       return InjectionMetadata.EMPTY;
     }
 
-    List<InjectedElement> elements = new ArrayList<>();
+    ArrayList<InjectedElement> elements = new ArrayList<>();
     Class<?> targetClass = clazz;
 
     do {
-      final List<InjectedElement> currElements = new ArrayList<>();
+      final ArrayList<InjectedElement> currElements = new ArrayList<>();
 
       ReflectionUtils.doWithLocalFields(targetClass, field -> {
         MergedAnnotation<?> ann = findAutowiredAnnotation(field);
         if (ann != null) {
           if (Modifier.isStatic(field.getModifiers())) {
-            if (log.isInfoEnabled()) {
-              log.info("Autowired annotation is not supported on static fields: " + field);
-            }
+            log.warn("Autowired annotation is not supported on static fields: {}", field);
             return;
           }
           boolean required = determineRequiredStatus(ann);
@@ -485,16 +483,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         MergedAnnotation<?> ann = findAutowiredAnnotation(bridgedMethod);
         if (ann != null && method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
           if (Modifier.isStatic(method.getModifiers())) {
-            if (log.isInfoEnabled()) {
-              log.info("Autowired annotation is not supported on static methods: " + method);
-            }
+            log.warn("Autowired annotation is not supported on static methods: {}", method);
             return;
           }
           if (method.getParameterCount() == 0) {
-            if (log.isInfoEnabled()) {
-              log.info("Autowired annotation should only be used on methods with parameters: " +
-                      method);
-            }
+            log.warn("Autowired annotation should only be used on methods with parameters: {}", method);
           }
           boolean required = determineRequiredStatus(ann);
           PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
@@ -641,7 +634,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
           if (value != null || this.required) {
             cachedFieldValue = desc;
             registerDependentBeans(beanName, autowiredBeanNames);
-            if (autowiredBeanNames.size() == 1) {
+            if (value != null && autowiredBeanNames.size() == 1) {
               String autowiredBeanName = autowiredBeanNames.iterator().next();
               if (beanFactory.containsBean(autowiredBeanName) &&
                       beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
