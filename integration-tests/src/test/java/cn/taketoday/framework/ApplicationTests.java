@@ -684,7 +684,7 @@ class ApplicationTests {
     application.addListeners(listener);
     CommandLineRunner runner = mock(CommandLineRunner.class);
     Exception failure = new Exception();
-    willThrow(failure).given(runner).run();
+    willThrow(failure).given(runner).run(any(ApplicationArguments.class));
     application.addInitializers((context) -> context.getBeanFactory().registerSingleton("runner", runner));
     assertThatIllegalStateException().isThrownBy(application::run).withCause(failure);
     then(listener).should().onApplicationEvent(isA(ApplicationStartedEvent.class));
