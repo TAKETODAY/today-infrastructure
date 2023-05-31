@@ -100,6 +100,53 @@ class ReactiveTypeHandlerTests {
   }
 
   @Test
+  void findsConcreteStreamingMediaType() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .isEqualTo(MediaType.APPLICATION_NDJSON);
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType_vendorFirst() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"),
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.APPLICATION_NDJSON);
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .hasToString("application/vnd.myapp.v1+x-ndjson");
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType_plainNdJsonFirst() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.APPLICATION_NDJSON,
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .isEqualTo(MediaType.APPLICATION_NDJSON);
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType_plainStreamingJsonFirst() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.APPLICATION_STREAM_JSON,
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .isEqualTo(MediaType.APPLICATION_STREAM_JSON);
+  }
+
+  @Test
   public void deferredResultSubscriberWithOneValue() throws Exception {
 
     // Mono
