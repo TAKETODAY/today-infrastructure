@@ -220,7 +220,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   private Set<String> getNamesOfBeansIgnoredByType(
-          ClassLoader classLoader, BeanFactory beanFactory,
+          @Nullable ClassLoader classLoader, BeanFactory beanFactory,
           boolean considerHierarchy, Set<String> ignoredTypes, Set<Class<?>> parameterizedContainers) {
     Set<String> result = null;
     for (String ignoredType : ignoredTypes) {
@@ -232,7 +232,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   private Set<String> getBeanNamesForType(
-          ClassLoader classLoader, boolean considerHierarchy,
+          @Nullable ClassLoader classLoader, boolean considerHierarchy,
           BeanFactory beanFactory, String type, Set<Class<?>> parameterizedContainers) throws LinkageError {
     try {
       return getBeanNamesForType(

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,6 +51,7 @@ public class ConditionContext {
 
   private final ResourceLoader resourceLoader;
 
+  @Nullable
   private final ClassLoader classLoader;
 
   public ConditionContext(ApplicationContext context, @Nullable BeanDefinitionRegistry registry) {
@@ -61,8 +62,7 @@ public class ConditionContext {
     this.classLoader = deduceClassLoader(resourceLoader, this.beanFactory);
   }
 
-  public ConditionContext(
-          @Nullable BeanDefinitionRegistry registry,
+  public ConditionContext(@Nullable BeanDefinitionRegistry registry,
           @Nullable Environment environment, @Nullable ResourceLoader resourceLoader) {
 
     this.registry = registry;
@@ -99,9 +99,7 @@ public class ConditionContext {
 
   @Nullable
   private ClassLoader deduceClassLoader(
-          @Nullable ResourceLoader resourceLoader,
-          @Nullable ConfigurableBeanFactory beanFactory) {
-
+          @Nullable ResourceLoader resourceLoader, @Nullable ConfigurableBeanFactory beanFactory) {
     if (resourceLoader != null) {
       ClassLoader classLoader = resourceLoader.getClassLoader();
       if (classLoader != null) {
@@ -138,6 +136,7 @@ public class ConditionContext {
     return this.resourceLoader;
   }
 
+  @Nullable
   public ClassLoader getClassLoader() {
     return this.classLoader;
   }

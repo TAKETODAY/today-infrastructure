@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -174,6 +174,7 @@ public final class ConditionEvaluationReport {
    *
    * @return the parent report (or null if there isn't one)
    */
+  @Nullable
   public ConditionEvaluationReport getParent() {
     return this.parent;
   }
@@ -239,7 +240,7 @@ public final class ConditionEvaluationReport {
     newExclusions.removeAll(previousReport.getExclusions());
     delta.recordExclusions(newExclusions);
 
-    var newUnconditionalClasses = new ArrayList<>(this.unconditionalClasses);
+    var newUnconditionalClasses = new ArrayList<>(unconditionalClasses);
     newUnconditionalClasses.removeAll(previousReport.unconditionalClasses);
     delta.unconditionalClasses.addAll(newUnconditionalClasses);
     return delta;

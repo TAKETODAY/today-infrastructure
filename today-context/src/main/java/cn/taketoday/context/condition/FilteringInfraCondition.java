@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportFilter;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
@@ -110,7 +111,7 @@ public abstract class FilteringInfraCondition extends InfraCondition
    * @return a resolved class
    * @throws ClassNotFoundException if the class cannot be found
    */
-  protected static Class<?> resolve(String className, ClassLoader classLoader) throws ClassNotFoundException {
+  protected static Class<?> resolve(String className, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
     if (classLoader != null) {
       return Class.forName(className, false, classLoader);
     }
@@ -121,7 +122,7 @@ public abstract class FilteringInfraCondition extends InfraCondition
 
     PRESENT {
       @Override
-      public boolean matches(String className, ClassLoader classLoader) {
+      public boolean matches(String className, @Nullable ClassLoader classLoader) {
         return isPresent(className, classLoader);
       }
 
@@ -129,15 +130,15 @@ public abstract class FilteringInfraCondition extends InfraCondition
 
     MISSING {
       @Override
-      public boolean matches(String className, ClassLoader classLoader) {
+      public boolean matches(String className, @Nullable ClassLoader classLoader) {
         return !isPresent(className, classLoader);
       }
 
     };
 
-    public abstract boolean matches(String className, ClassLoader classLoader);
+    public abstract boolean matches(String className, @Nullable ClassLoader classLoader);
 
-    public static boolean isPresent(String className, ClassLoader classLoader) {
+    public static boolean isPresent(String className, @Nullable ClassLoader classLoader) {
       if (classLoader == null) {
         classLoader = ClassUtils.getDefaultClassLoader();
       }

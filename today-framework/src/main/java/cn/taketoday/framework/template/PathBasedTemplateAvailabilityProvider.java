@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,18 +54,18 @@ public abstract class PathBasedTemplateAvailabilityProvider implements TemplateA
   }
 
   @Override
-  public boolean isTemplateAvailable(String view, Environment environment, ClassLoader classLoader,
-          ResourceLoader resourceLoader) {
+  public boolean isTemplateAvailable(String view, Environment environment,
+          ClassLoader classLoader, ResourceLoader resourceLoader) {
     if (ClassUtils.isPresent(this.className, classLoader)) {
       Binder binder = Binder.get(environment);
-      TemplateAvailabilityProperties properties = binder.bindOrCreate(this.propertyPrefix, this.propertiesClass);
+      var properties = binder.bindOrCreate(this.propertyPrefix, this.propertiesClass);
       return isTemplateAvailable(view, resourceLoader, properties);
     }
     return false;
   }
 
-  private boolean isTemplateAvailable(String view, ResourceLoader resourceLoader,
-          TemplateAvailabilityProperties properties) {
+  private boolean isTemplateAvailable(String view,
+          ResourceLoader resourceLoader, TemplateAvailabilityProperties properties) {
     String location = properties.getPrefix() + view + properties.getSuffix();
     for (String path : properties.getLoaderPath()) {
       if (resourceLoader.getResource(path + location).exists()) {

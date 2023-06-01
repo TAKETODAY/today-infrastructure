@@ -46,7 +46,6 @@ import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.template.TemplateAvailabilityProvider;
 import cn.taketoday.framework.template.TemplateAvailabilityProviders;
 import cn.taketoday.framework.web.error.BasicErrorController;
 import cn.taketoday.framework.web.error.DefaultErrorAttributes;
@@ -165,8 +164,8 @@ public class ErrorMvcAutoConfiguration {
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       ConditionMessage.Builder message = ConditionMessage.forCondition("ErrorTemplate Missing");
-      TemplateAvailabilityProviders providers = new TemplateAvailabilityProviders(context.getClassLoader());
-      TemplateAvailabilityProvider provider = providers.getProvider("error", context.getEnvironment(),
+      var providers = new TemplateAvailabilityProviders(context.getClassLoader());
+      var provider = providers.getProvider("error", context.getEnvironment(),
               context.getClassLoader(), context.getResourceLoader());
       if (provider != null) {
         return ConditionOutcome.noMatch(message.foundExactly("template from " + provider));
