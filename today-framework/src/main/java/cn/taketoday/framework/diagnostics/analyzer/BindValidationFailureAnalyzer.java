@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -70,14 +70,14 @@ class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
 
   private FailureAnalysis analyzeBindValidationException(ExceptionDetails details) {
     StringBuilder description = new StringBuilder(
-            String.format("Binding to target %s failed:%n", details.getTarget()));
-    for (ObjectError error : details.getErrors()) {
+            String.format("Binding to target %s failed:%n", details.target));
+    for (ObjectError error : details.errors) {
       if (error instanceof FieldError) {
         appendFieldError(description, (FieldError) error);
       }
       description.append(String.format("%n    Reason: %s%n", error.getDefaultMessage()));
     }
-    return getFailureAnalysis(description, details.getCause());
+    return getFailureAnalysis(description, details.cause);
   }
 
   private void appendFieldError(StringBuilder description, FieldError error) {
@@ -95,28 +95,16 @@ class BindValidationFailureAnalyzer extends AbstractFailureAnalyzer<Throwable> {
 
   private static class ExceptionDetails {
 
-    private List<ObjectError> errors;
+    public final List<ObjectError> errors;
 
-    private Object target;
+    public final Object target;
 
-    private Throwable cause;
+    public final Throwable cause;
 
     ExceptionDetails(List<ObjectError> errors, Object target, Throwable cause) {
       this.errors = errors;
       this.target = target;
       this.cause = cause;
-    }
-
-    Object getTarget() {
-      return this.target;
-    }
-
-    List<ObjectError> getErrors() {
-      return this.errors;
-    }
-
-    Throwable getCause() {
-      return this.cause;
     }
 
   }

@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.FatalBeanException;
+import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 
 /**
@@ -29,15 +30,28 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
  */
 public class FactoryMethodBeanException extends FatalBeanException {
 
+  private final String beanName;
   private final BeanDefinition merged;
+  private final InjectionPoint injectionPoint;
 
-  public FactoryMethodBeanException(BeanDefinition merged, String message) {
+  public FactoryMethodBeanException(BeanDefinition merged,
+          InjectionPoint injectionPoint, String beanName, String message) {
     super(message);
     this.merged = merged;
+    this.injectionPoint = injectionPoint;
+    this.beanName = beanName;
   }
 
   public BeanDefinition getBeanDefinition() {
     return merged;
+  }
+
+  public InjectionPoint getInjectionPoint() {
+    return injectionPoint;
+  }
+
+  public String getBeanName() {
+    return beanName;
   }
 
 }

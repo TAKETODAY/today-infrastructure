@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,8 +46,8 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -77,8 +77,8 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     if (cause.getNumberOfBeansFound() != 0) {
       return null;
     }
-    List<AutoConfigurationResult> autoConfigurationResults = getAutoConfigurationResults(cause);
-    List<UserConfigurationResult> userConfigurationResults = getUserConfigurationResults(cause);
+    var autoConfigurationResults = getAutoConfigurationResults(cause);
+    var userConfigurationResults = getUserConfigurationResults(cause);
     StringBuilder message = new StringBuilder();
     message.append(String.format("%s required %s that could not be found.%n",
             (description != null) ? description : "A component", getBeanDescription(cause)));
@@ -134,7 +134,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     }
     Set<String> beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.beanFactory, type);
     return beanNames.stream()
-            .map((beanName) -> new UserConfigurationResult(getFactoryMethodMetadata(beanName),
+            .map(beanName -> new UserConfigurationResult(getFactoryMethodMetadata(beanName),
                     beanFactory.getBean(beanName) == null))
             .collect(Collectors.toList());
   }
@@ -155,9 +155,8 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
                     sourceOutcomes, results));
   }
 
-  private void collectReportedConditionOutcomes(
-          NoSuchBeanDefinitionException cause, Source source,
-          ConditionAndOutcomes sourceOutcomes, List<AutoConfigurationResult> results) {
+  private void collectReportedConditionOutcomes(NoSuchBeanDefinitionException cause,
+          Source source, ConditionAndOutcomes sourceOutcomes, List<AutoConfigurationResult> results) {
     if (sourceOutcomes.isFullMatch()) {
       return;
     }
@@ -186,8 +185,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
 
   @Nullable
   private InjectionPoint findInjectionPoint(Throwable failure) {
-    UnsatisfiedDependencyException unsatisfiedDependencyException = findCause(failure,
-            UnsatisfiedDependencyException.class);
+    var unsatisfiedDependencyException = findCause(failure, UnsatisfiedDependencyException.class);
     if (unsatisfiedDependencyException == null) {
       return null;
     }
@@ -196,24 +194,15 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
 
   private static class Source {
 
-    private final String className;
+    public final String className;
 
     @Nullable
-    private final String methodName;
+    public final String methodName;
 
     Source(String source) {
       String[] tokens = source.split("#");
       this.className = (tokens.length > 1) ? tokens[0] : source;
       this.methodName = (tokens.length != 2) ? null : tokens[1];
-    }
-
-    String getClassName() {
-      return this.className;
-    }
-
-    @Nullable
-    String getMethodName() {
-      return this.methodName;
     }
 
   }
@@ -228,8 +217,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
 
     private List<MethodMetadata> findBeanMethods(Source source, NoSuchBeanDefinitionException cause) {
       try {
-        MetadataReader classMetadata = NoSuchBeanDefinitionFailureAnalyzer.this.metadataReaderFactory
-                .getMetadataReader(source.getClassName());
+        MetadataReader classMetadata = metadataReaderFactory.getMetadataReader(source.className);
         Set<MethodMetadata> candidates = classMetadata.getAnnotationMetadata()
                 .getAnnotatedMethods(Component.class.getName());
         List<MethodMetadata> result = new ArrayList<>();
@@ -246,7 +234,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     }
 
     private boolean isMatch(MethodMetadata candidate, Source source, NoSuchBeanDefinitionException cause) {
-      if (source.getMethodName() != null && !source.getMethodName().equals(candidate.getMethodName())) {
+      if (source.methodName != null && !source.methodName.equals(candidate.getMethodName())) {
         return false;
       }
       String name = cause.getBeanName();
