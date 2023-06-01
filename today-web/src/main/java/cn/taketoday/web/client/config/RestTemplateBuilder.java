@@ -40,7 +40,6 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -467,7 +466,6 @@ public class RestTemplateBuilder {
    *
    * @param bufferRequestBody value of the bufferRequestBody parameter
    * @return a new builder instance.
-   * @see SimpleClientHttpRequestFactory#setBufferRequestBody(boolean)
    * @see HttpComponentsClientHttpRequestFactory#setBufferRequestBody(boolean)
    */
   public RestTemplateBuilder setBufferRequestBody(boolean bufferRequestBody) {

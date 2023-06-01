@@ -223,7 +223,6 @@ public abstract class ClientHttpRequestFactories {
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(settings::readTimeout).asInt(Duration::toMillis).to(requestFactory::setReadTimeout);
       map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
-      map.from(settings::bufferRequestBody).to(requestFactory::setBufferRequestBody);
       return requestFactory;
     }
 

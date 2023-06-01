@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,23 +21,14 @@
 package cn.taketoday.http.client;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 import okhttp3.Cache;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 
 /**
  * {@link ClientHttpRequestFactory} implementation that uses
@@ -119,38 +110,6 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
       this.client.dispatcher().executorService().shutdown();
       this.client.connectionPool().evictAll();
     }
-  }
-
-  static Request buildRequest(
-          HttpHeaders headers, byte[] content, URI uri, HttpMethod method) throws MalformedURLException {
-    MediaType contentType = getContentType(headers);
-    RequestBody body = getRequestBody(content, method, contentType);
-
-    Request.Builder builder = new Request.Builder()
-            .url(uri.toURL())
-            .method(method.name(), body);
-
-    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-      String headerName = entry.getKey();
-      for (String headerValue : entry.getValue()) {
-        builder.addHeader(headerName, headerValue);
-      }
-    }
-
-    return builder.build();
-  }
-
-  @Nullable
-  private static RequestBody getRequestBody(
-          byte[] content, HttpMethod method, @Nullable MediaType contentType) {
-    return content.length > 0 || okhttp3.internal.http.HttpMethod.requiresRequestBody(method.name())
-           ? RequestBody.create(content, contentType) : null;
-  }
-
-  @Nullable
-  private static MediaType getContentType(HttpHeaders headers) {
-    String rawContentType = headers.getFirst(HttpHeaders.CONTENT_TYPE);
-    return StringUtils.hasText(rawContentType) ? MediaType.parse(rawContentType) : null;
   }
 
 }

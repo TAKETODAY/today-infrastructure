@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,36 +20,37 @@
 
 package cn.taketoday.http.client;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.util.FastByteArrayOutputStream;
 
 /**
  * Base implementation of {@link ClientHttpRequest} that buffers output
  * in a byte array before sending it over the wire.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractBufferingClientHttpRequest extends AbstractClientHttpRequest {
 
-  private ByteArrayOutputStream bufferedOutput = new ByteArrayOutputStream(1024);
+  private final FastByteArrayOutputStream bufferedOutput = new FastByteArrayOutputStream(1024);
 
   @Override
-  protected OutputStream getBodyInternal(HttpHeaders headers) throws IOException {
+  protected OutputStream getBodyInternal(HttpHeaders headers) {
     return this.bufferedOutput;
   }
 
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
-    byte[] bytes = this.bufferedOutput.toByteArray();
+    byte[] bytes = bufferedOutput.toByteArrayUnsafe();
     if (headers.getContentLength() < 0) {
       headers.setContentLength(bytes.length);
     }
     ClientHttpResponse result = executeInternal(headers, bytes);
-    this.bufferedOutput = new ByteArrayOutputStream(0);
+    bufferedOutput.reset();
     return result;
   }
 

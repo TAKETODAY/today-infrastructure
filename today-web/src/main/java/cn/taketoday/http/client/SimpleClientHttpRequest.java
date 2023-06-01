@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.http.client;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,7 +30,7 @@ import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.util.FileCopyUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -41,20 +42,25 @@ import cn.taketoday.util.StringUtils;
  * @see SimpleClientHttpRequestFactory#createRequest(URI, HttpMethod)
  * @since 4.0
  */
-final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttpRequest {
+final class SimpleClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private final HttpURLConnection connection;
 
-  private final boolean outputStreaming;
+  private final int chunkSize;
 
-  SimpleBufferingClientHttpRequest(HttpURLConnection connection, boolean outputStreaming) {
+  SimpleClientHttpRequest(HttpURLConnection connection, int chunkSize) {
     this.connection = connection;
-    this.outputStreaming = outputStreaming;
+    this.chunkSize = chunkSize;
+  }
+
+  @Override
+  public HttpMethod getMethod() {
+    return HttpMethod.valueOf(this.connection.getRequestMethod());
   }
 
   @Override
   public String getMethodValue() {
-    return this.connection.getRequestMethod();
+    return connection.getRequestMethod();
   }
 
   @Override
@@ -68,24 +74,29 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
   }
 
   @Override
-  protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
-    addHeaders(this.connection, headers);
-    // JDK <1.8 doesn't support getOutputStream with HTTP DELETE
-    if (getMethod() == HttpMethod.DELETE && bufferedOutput.length == 0) {
-      this.connection.setDoOutput(false);
+  protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
+    if (connection.getDoOutput()) {
+      long contentLength = headers.getContentLength();
+      if (contentLength >= 0) {
+        connection.setFixedLengthStreamingMode(contentLength);
+      }
+      else {
+        connection.setChunkedStreamingMode(chunkSize);
+      }
     }
-    if (this.connection.getDoOutput() && this.outputStreaming) {
-      this.connection.setFixedLengthStreamingMode(bufferedOutput.length);
-    }
-    this.connection.connect();
-    if (this.connection.getDoOutput()) {
-      FileCopyUtils.copy(bufferedOutput, this.connection.getOutputStream());
+    addHeaders(connection, headers);
+    connection.connect();
+
+    if (connection.getDoOutput() && body != null) {
+      try (OutputStream os = connection.getOutputStream()) {
+        body.writeTo(os);
+      }
     }
     else {
       // Immediately trigger the request in a no-output scenario as well
-      this.connection.getResponseCode();
+      connection.getResponseCode();
     }
-    return new SimpleClientHttpResponse(this.connection);
+    return new SimpleClientHttpResponse(connection);
   }
 
   /**

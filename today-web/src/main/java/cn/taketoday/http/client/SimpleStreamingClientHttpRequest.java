@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,7 +85,7 @@ final class SimpleStreamingClientHttpRequest extends AbstractClientHttpRequest {
           this.connection.setChunkedStreamingMode(this.chunkSize);
         }
       }
-      SimpleBufferingClientHttpRequest.addHeaders(this.connection, headers);
+      SimpleClientHttpRequest.addHeaders(this.connection, headers);
       this.connection.connect();
       this.body = this.connection.getOutputStream();
     }
@@ -99,7 +99,7 @@ final class SimpleStreamingClientHttpRequest extends AbstractClientHttpRequest {
         this.body.close();
       }
       else {
-        SimpleBufferingClientHttpRequest.addHeaders(this.connection, headers);
+        SimpleClientHttpRequest.addHeaders(this.connection, headers);
         this.connection.connect();
         // Immediately trigger the request in a no-output scenario as well
         this.connection.getResponseCode();
