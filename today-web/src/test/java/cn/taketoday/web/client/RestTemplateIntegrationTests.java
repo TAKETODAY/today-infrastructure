@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,6 +54,7 @@ import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
@@ -92,12 +93,12 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   @interface ParameterizedRestTemplateTest {
   }
 
-  @SuppressWarnings("deprecation")
   static Stream<ClientHttpRequestFactory> clientHttpRequestFactories() {
     return Stream.of(
             new SimpleClientHttpRequestFactory(),
             new HttpComponentsClientHttpRequestFactory(),
-            new OkHttp3ClientHttpRequestFactory()
+            new OkHttp3ClientHttpRequestFactory(),
+            new JettyClientHttpRequestFactory()
     );
   }
 

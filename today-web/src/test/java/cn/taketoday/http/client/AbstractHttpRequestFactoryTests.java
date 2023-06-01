@@ -108,23 +108,22 @@ abstract class AbstractHttpRequestFactoryTests extends AbstractMockWebServerTest
 
   @Test
   void multipleWrites() throws Exception {
-    ClientHttpRequest request = factory.createRequest(new URI(baseUrl + "/echo"), HttpMethod.POST);
+    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/echo"), HttpMethod.POST);
 
     final byte[] body = "Hello World".getBytes(StandardCharsets.UTF_8);
+    request.getHeaders().setContentLength(body.length);
     if (request instanceof StreamingHttpOutputMessage streamingRequest) {
-      streamingRequest.setBody(outputStream -> {
-        StreamUtils.copy(body, outputStream);
-        outputStream.flush();
-        outputStream.close();
-      });
+      streamingRequest.setBody(outputStream -> StreamUtils.copy(body, outputStream));
     }
     else {
       StreamUtils.copy(body, request.getBody());
     }
 
-    request.execute();
-    assertThatIllegalStateException()
-            .isThrownBy(() -> FileCopyUtils.copy(body, request.getBody()));
+    try (ClientHttpResponse response = request.execute()) {
+      assertThatIllegalStateException().isThrownBy(() ->
+              FileCopyUtils.copy(body, request.getBody()));
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+    }
   }
 
   @Test

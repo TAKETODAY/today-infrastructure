@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.http.client.reactive;
+package cn.taketoday.http.client;
 
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpFields;
@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -45,13 +46,21 @@ import cn.taketoday.util.MultiValueMap;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class JettyHeadersAdapter implements MultiValueMap<String, String> {
+public final class JettyHeadersAdapter implements MultiValueMap<String, String> {
 
   private final HttpFields headers;
 
-  JettyHeadersAdapter(HttpFields headers) {
+  /**
+   * Creates a new {@code JettyHeadersAdapter} based on the given
+   * {@code HttpFields} instance.
+   *
+   * @param headers the {@code HttpFields} to base this adapter on
+   */
+  public JettyHeadersAdapter(HttpFields headers) {
+    Assert.notNull(headers, "Headers must not be null");
     this.headers = headers;
   }
 
