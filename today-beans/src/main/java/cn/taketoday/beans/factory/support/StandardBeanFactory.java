@@ -1465,7 +1465,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
               if (factoryBeanName == null) {
                 factoryBeanName = merged.getBeanClassName();
               }
-              throw new FactoryMethodBeanException(merged,
+              throw new FactoryMethodBeanException(merged, descriptor, autowiredBeanName,
                       "Only one bean which qualifies as autowire candidate, but its factory method '"
                               + factoryMethodName + "' in '" + factoryBeanName + "' returns null");
             }
