@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
@@ -166,10 +167,13 @@ public interface WebMvcConfigurer {
    * <p>By default, all built-in converters are configured as long as the
    * corresponding 3rd party libraries such Jackson JSON, JAXB2, and others
    * are present on the classpath.
-   * <p><strong>Note</strong> use of this method turns off default converter
-   * registration. Alternatively, use
-   * {@link #extendMessageConverters(java.util.List)} to modify that default
-   * list of converters.
+   * <p>Note that use of this method turns off default converter
+   * registration. However, in a Infra application the
+   * {@code WebMvcAutoConfiguration} adds any {@code HttpMessageConverter}
+   * beans as well as default converters. Hence, in a Infra application use
+   * {@link HttpMessageConverters} Alternatively, for any scenario, use
+   * {@link #extendMessageConverters(java.util.List)} to modify the configured
+   * list of message converters.
    *
    * @param converters initially an empty list of converters
    * @since 4.0

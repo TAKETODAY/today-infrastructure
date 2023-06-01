@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -395,30 +395,29 @@ public final class HttpRequestValues {
       Map<String, String> uriVars = (this.uriVars != null ? new HashMap<>(this.uriVars) : Collections.emptyMap());
 
       Object bodyValue = this.bodyValue;
+      if (this.multipartBuilder != null) {
+        Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request parts, not both");
+        bodyValue = this.multipartBuilder.build();
+      }
 
-      if (!CollectionUtils.isEmpty(this.requestParams)) {
-
-        boolean isFormData = (this.headers != null &&
-                MediaType.APPLICATION_FORM_URLENCODED.equals(this.headers.getContentType()));
-
-        if (isFormData) {
-          Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request params, not both");
+      if (CollectionUtils.isNotEmpty(this.requestParams)) {
+        if (hasContentType(MediaType.APPLICATION_FORM_URLENCODED)) {
+          Assert.isTrue(this.multipartBuilder == null, "Cannot add parts to form data request");
+          Assert.isTrue(bodyValue == null && this.body == null, "Cannot set body of form data request");
           bodyValue = new LinkedMultiValueMap<>(this.requestParams);
         }
         else if (uri != null) {
+          // insert into prepared URI
           uri = UriComponentsBuilder.fromUri(uri)
                   .queryParams(UriUtils.encodeQueryParams(this.requestParams))
                   .build(true)
                   .toUri();
         }
         else {
+          // append to URI template
           uriVars = (uriVars.isEmpty() ? new HashMap<>() : uriVars);
           uriTemplate = appendQueryParams(uriTemplate, uriVars, this.requestParams);
         }
-      }
-      else if (this.multipartBuilder != null) {
-        Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request parts, not both");
-        bodyValue = this.multipartBuilder.build();
       }
 
       HttpHeaders headers = HttpHeaders.empty();
@@ -436,6 +435,10 @@ public final class HttpRequestValues {
       return new HttpRequestValues(
               this.httpMethod, uri, uriTemplate, uriVars, headers, cookies, attributes,
               bodyValue, this.body, this.bodyElementType);
+    }
+
+    private boolean hasContentType(MediaType mediaType) {
+      return headers != null && mediaType.equals(headers.getContentType());
     }
 
     private String appendQueryParams(

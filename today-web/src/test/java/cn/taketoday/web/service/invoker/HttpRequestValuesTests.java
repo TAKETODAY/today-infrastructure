@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.net.URI;
 import java.util.List;
 
+import cn.taketoday.http.HttpEntity;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MultiValueMap;
@@ -111,6 +113,44 @@ public class HttpRequestValuesTests {
 
     assertThat(requestValues.getUri().toString())
             .isEqualTo("/path?param1=1st%20value&param2=2nd%20value%20A&param2=2nd%20value%20B");
+  }
+
+  @Test
+  void requestPart() {
+    HttpHeaders headers = HttpHeaders.create();
+    headers.add("foo", "bar");
+    HttpEntity<String> entity = new HttpEntity<>("body", headers);
+
+    HttpRequestValues requestValues = HttpRequestValues.builder()
+            .addRequestPart("form field", "form value")
+            .addRequestPart("entity", entity)
+            .build();
+
+    @SuppressWarnings("unchecked")
+    MultiValueMap<String, HttpEntity<?>> map = (MultiValueMap<String, HttpEntity<?>>) requestValues.getBodyValue();
+    assertThat(map).hasSize(2);
+    assertThat(map.getFirst("form field").getBody()).isEqualTo("form value");
+    assertThat(map.getFirst("entity")).isEqualTo(entity);
+  }
+
+  @Test
+  void requestPartAndRequestParam() {
+
+    HttpRequestValues requestValues = HttpRequestValues.builder()
+            .setUriTemplate("/path")
+            .addRequestPart("form field", "form value")
+            .addRequestParameter("query param", "query value")
+            .build();
+
+    String uriTemplate = requestValues.getUriTemplate();
+    assertThat(uriTemplate).isNotNull();
+
+    assertThat(uriTemplate).isEqualTo("/path?{queryParam0}={queryParam0[0]}");
+
+    @SuppressWarnings("unchecked")
+    MultiValueMap<String, HttpEntity<?>> map = (MultiValueMap<String, HttpEntity<?>>) requestValues.getBodyValue();
+    assertThat(map).hasSize(1);
+    assertThat(map.getFirst("form field").getBody()).isEqualTo("form value");
   }
 
 }
