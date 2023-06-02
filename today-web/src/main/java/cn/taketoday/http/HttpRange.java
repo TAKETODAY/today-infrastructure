@@ -68,7 +68,10 @@ public abstract class HttpRange {
     long contentLength = getLengthFor(resource);
     long start = getRangeStart(contentLength);
     long end = getRangeEnd(contentLength);
-    Assert.isTrue(start < contentLength, "'position' exceeds the resource length " + contentLength);
+    if (start >= contentLength) {
+      throw new IllegalArgumentException("'position' exceeds the resource length " + contentLength);
+    }
+
     return new ResourceRegion(resource, start, end - start + 1);
   }
 

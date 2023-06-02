@@ -119,11 +119,11 @@ class JOptCommandLinePropertySourceTests {
   @Test
   void withDottedOptionName() {
     OptionParser parser = new OptionParser();
-    parser.accepts("context.profiles.active").withRequiredArg();
-    OptionSet options = parser.parse("--context.profiles.active=p1");
+    parser.accepts("infra.profiles.active").withRequiredArg();
+    OptionSet options = parser.parse("--infra.profiles.active=p1");
 
     CommandLinePropertySource<?> ps = new JOptCommandLinePropertySource(options);
-    assertThat(ps.getProperty("context.profiles.active")).isEqualTo("p1");
+    assertThat(ps.getProperty("infra.profiles.active")).isEqualTo("p1");
   }
 
   @Test

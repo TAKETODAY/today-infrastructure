@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -26,6 +26,7 @@ import java.util.Arrays;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.properties.bind.BindConstructorProvider;
 import cn.taketoday.context.properties.bind.Bindable;
+import cn.taketoday.context.properties.bind.ConstructorBinding;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Nullable;
 
@@ -51,7 +52,7 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
   }
 
   @Nullable
-  Constructor<?> getBindConstructor(@Nullable Class<?> type, boolean isNestedConstructorBinding) {
+  public Constructor<?> getBindConstructor(@Nullable Class<?> type, boolean isNestedConstructorBinding) {
     if (type == null) {
       return null;
     }
@@ -68,11 +69,6 @@ public class ConfigurationPropertiesBindConstructorProvider implements BindConst
    * Data holder for autowired and bind constructors.
    */
   private record Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
-
-    Constructors(boolean hasAutowired, @Nullable Constructor<?> bind) {
-      this.hasAutowired = hasAutowired;
-      this.bind = bind;
-    }
 
     @Nullable
     Constructor<?> getBind() {

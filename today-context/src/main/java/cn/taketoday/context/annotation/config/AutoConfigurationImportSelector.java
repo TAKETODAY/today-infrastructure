@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.Aware;
@@ -39,11 +38,12 @@ import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.BootstrapContextAware;
+import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DeferredImportSelector;
-import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -53,6 +53,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -73,14 +74,12 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/1 02:37
  */
 public class AutoConfigurationImportSelector
-        implements DeferredImportSelector, BeanClassLoaderAware,
-        ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {
+        implements DeferredImportSelector, BeanClassLoaderAware, BootstrapContextAware,
+        ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered, Predicate<String> {
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
-  private static final AutoConfigurationEntry EMPTY_ENTRY = new AutoConfigurationEntry();
-
-  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "context.autoconfigure.exclude";
+  private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "infra.autoconfigure.exclude";
 
   private ConfigurableBeanFactory beanFactory;
 
@@ -90,24 +89,33 @@ public class AutoConfigurationImportSelector
 
   private ResourceLoader resourceLoader;
 
+  private BootstrapContext bootstrapContext;
+
   private ConfigurationClassFilter configurationClassFilter;
 
   @Override
   public String[] selectImports(AnnotationMetadata annotationMetadata) {
-    if (!isEnabled(annotationMetadata)) {
-      return NO_IMPORTS;
+    if (isEnabled(annotationMetadata)) {
+      AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(annotationMetadata);
+      return StringUtils.toStringArray(autoConfigurationEntry.configurations);
     }
-    AutoConfigurationEntry autoConfigurationEntry = getAutoConfigurationEntry(annotationMetadata);
-    return StringUtils.toStringArray(autoConfigurationEntry.getConfigurations());
+    return NO_IMPORTS;
   }
 
   @Override
   public Predicate<String> getExclusionFilter() {
-    return this::shouldExclude;
+    return this;
+  }
+
+  @Override
+  public boolean test(String configurationClassName) {
+    return shouldExclude(configurationClassName);
   }
 
   private boolean shouldExclude(String configurationClassName) {
-    return getConfigurationClassFilter().filter(Collections.singletonList(configurationClassName)).isEmpty();
+    return getConfigurationClassFilter()
+            .filter(Collections.singletonList(configurationClassName))
+            .isEmpty();
   }
 
   /**
@@ -118,18 +126,18 @@ public class AutoConfigurationImportSelector
    * @return the auto-configurations that should be imported
    */
   protected AutoConfigurationEntry getAutoConfigurationEntry(AnnotationMetadata annotationMetadata) {
-    if (!isEnabled(annotationMetadata)) {
-      return EMPTY_ENTRY;
+    if (isEnabled(annotationMetadata)) {
+      AnnotationAttributes attributes = getAttributes(annotationMetadata);
+      List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
+      configurations = removeDuplicates(configurations);
+      Set<String> exclusions = getExclusions(annotationMetadata, attributes);
+      checkExcludedClasses(configurations, exclusions);
+      configurations.removeAll(exclusions);
+      configurations = getConfigurationClassFilter().filter(configurations);
+      fireAutoConfigurationImportEvents(configurations, exclusions);
+      return new AutoConfigurationEntry(configurations, exclusions);
     }
-    AnnotationAttributes attributes = getAttributes(annotationMetadata);
-    List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
-    configurations = removeDuplicates(configurations);
-    Set<String> exclusions = getExclusions(annotationMetadata, attributes);
-    checkExcludedClasses(configurations, exclusions);
-    configurations.removeAll(exclusions);
-    configurations = getConfigurationClassFilter().filter(configurations);
-    fireAutoConfigurationImportEvents(configurations, exclusions);
-    return new AutoConfigurationEntry(configurations, exclusions);
+    return AutoConfigurationEntry.empty();
   }
 
   @Override
@@ -139,8 +147,8 @@ public class AutoConfigurationImportSelector
 
   protected boolean isEnabled(AnnotationMetadata metadata) {
     if (getClass() == AutoConfigurationImportSelector.class) {
-      return getEnvironment().getProperty(
-              EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, Boolean.class, true);
+      return getEnvironment().getFlag(
+              EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, true);
     }
     return true;
   }
@@ -153,9 +161,11 @@ public class AutoConfigurationImportSelector
    * @param metadata the annotation metadata
    * @return annotation attributes
    */
+  @Nullable
   protected AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
     String name = getAnnotationClass().getName();
-    AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(name, true));
+    AnnotationAttributes attributes = AnnotationAttributes.fromMap(
+            metadata.getAnnotationAttributes(name, true));
     if (attributes == null) {
       throw new IllegalArgumentException("No auto-configuration attributes found. Is " + metadata.getClassName()
               + " annotated with " + ClassUtils.getShortName(name) + "?");
@@ -181,10 +191,11 @@ public class AutoConfigurationImportSelector
    * @param attributes the {@link #getAttributes(AnnotationMetadata) annotation attributes}
    * @return a list of candidate configurations
    */
-  protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
-    List<String> configurations = TodayStrategies.getStrategiesNames(
-            getStrategyClass(), getBeanClassLoader());
-    ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).forEach(configurations::add);
+  protected List<String> getCandidateConfigurations(
+          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
+    var configurations = ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).getCandidates();
+    configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
+
     Assert.notEmpty(configurations,
             "No auto configuration classes found in META-INF/today-strategies.properties " +
                     "nor in META-INF/config/cn.taketoday.context.annotation.config.AutoConfiguration.imports." +
@@ -204,8 +215,10 @@ public class AutoConfigurationImportSelector
 
   private void checkExcludedClasses(List<String> configurations, Set<String> exclusions) {
     ArrayList<String> invalidExcludes = new ArrayList<>(exclusions.size());
+    ClassLoader classLoader = getClass().getClassLoader();
     for (String exclusion : exclusions) {
-      if (ClassUtils.isPresent(exclusion, getClass().getClassLoader()) && !configurations.contains(exclusion)) {
+      if (ClassUtils.isPresent(exclusion, classLoader)
+              && !configurations.contains(exclusion)) {
         invalidExcludes.add(exclusion);
       }
     }
@@ -238,7 +251,7 @@ public class AutoConfigurationImportSelector
    * attributes}
    * @return exclusions or an empty set
    */
-  protected Set<String> getExclusions(AnnotationMetadata metadata, AnnotationAttributes attributes) {
+  protected Set<String> getExclusions(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     LinkedHashSet<String> excluded = new LinkedHashSet<>();
     excluded.addAll(asList(attributes, "exclude"));
     excluded.addAll(asList(attributes, "excludeName"));
@@ -248,7 +261,7 @@ public class AutoConfigurationImportSelector
 
   /**
    * Returns the auto-configurations excluded by the
-   * {@code context.autoconfigure.exclude} property.
+   * {@code infra.autoconfigure.exclude} property.
    *
    * @return excluded auto-configurations
    */
@@ -268,7 +281,7 @@ public class AutoConfigurationImportSelector
   }
 
   protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {
-    return TodayStrategies.get(AutoConfigurationImportFilter.class, this.beanClassLoader);
+    return TodayStrategies.find(AutoConfigurationImportFilter.class, this.beanClassLoader);
   }
 
   private ConfigurationClassFilter getConfigurationClassFilter() {
@@ -303,22 +316,25 @@ public class AutoConfigurationImportSelector
   }
 
   protected List<AutoConfigurationImportListener> getAutoConfigurationImportListeners() {
-    return TodayStrategies.get(AutoConfigurationImportListener.class, this.beanClassLoader);
+    return TodayStrategies.find(AutoConfigurationImportListener.class, beanClassLoader);
   }
 
   private void invokeAwareMethods(Object instance) {
     if (instance instanceof Aware) {
-      if (instance instanceof BeanClassLoaderAware) {
-        ((BeanClassLoaderAware) instance).setBeanClassLoader(this.beanClassLoader);
+      if (instance instanceof BeanClassLoaderAware aware) {
+        aware.setBeanClassLoader(this.beanClassLoader);
       }
-      if (instance instanceof BeanFactoryAware) {
-        ((BeanFactoryAware) instance).setBeanFactory(this.beanFactory);
+      if (instance instanceof BeanFactoryAware aware) {
+        aware.setBeanFactory(this.beanFactory);
       }
-      if (instance instanceof EnvironmentAware) {
-        ((EnvironmentAware) instance).setEnvironment(this.environment);
+      if (instance instanceof EnvironmentAware aware) {
+        aware.setEnvironment(this.environment);
       }
-      if (instance instanceof ResourceLoaderAware) {
-        ((ResourceLoaderAware) instance).setResourceLoader(this.resourceLoader);
+      if (instance instanceof ResourceLoaderAware aware) {
+        aware.setResourceLoader(this.resourceLoader);
+      }
+      if (instance instanceof BootstrapContextAware aware) {
+        aware.setBootstrapContext(bootstrapContext);
       }
     }
   }
@@ -336,6 +352,11 @@ public class AutoConfigurationImportSelector
   @Override
   public void setBeanClassLoader(ClassLoader classLoader) {
     this.beanClassLoader = classLoader;
+  }
+
+  @Override
+  public void setBootstrapContext(BootstrapContext context) {
+    this.bootstrapContext = context;
   }
 
   protected ClassLoader getBeanClassLoader() {
@@ -431,13 +452,13 @@ public class AutoConfigurationImportSelector
       if (selector instanceof AutoConfigurationImportSelector autoConfigSelector) {
         AutoConfigurationEntry entry = autoConfigSelector.getAutoConfigurationEntry(annotationMetadata);
         autoConfigurationEntries.add(entry);
-        for (String importClassName : entry.getConfigurations()) {
+        for (String importClassName : entry.configurations) {
           entries.putIfAbsent(importClassName, annotationMetadata);
         }
       }
       else {
         throw new IllegalStateException(
-                String.format("Only %s implementations are supported, got %s",
+                String.format("Only %configurationClassName implementations are supported, got %configurationClassName",
                         AutoConfigurationImportSelector.class.getSimpleName(),
                         selector.getClass().getName()));
       }
@@ -448,21 +469,25 @@ public class AutoConfigurationImportSelector
       if (autoConfigurationEntries.isEmpty()) {
         return Collections.emptyList();
       }
-      var allExclusions = autoConfigurationEntries.stream()
-              .map(AutoConfigurationEntry::getExclusions)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toSet());
 
-      var processedConfigurations = autoConfigurationEntries.stream()
-              .map(AutoConfigurationEntry::getConfigurations)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toCollection(LinkedHashSet::new));
-      processedConfigurations.removeAll(allExclusions);
+      var processedConfigurations = new LinkedHashSet<String>();
+      for (AutoConfigurationEntry entry : autoConfigurationEntries) {
+        processedConfigurations.addAll(entry.configurations);
+      }
 
-      return sortAutoConfigurations(processedConfigurations, getAutoConfigurationMetadata())
-              .stream()
-              .map((importClassName) -> new Entry(this.entries.get(importClassName), importClassName))
-              .collect(Collectors.toList());
+      for (AutoConfigurationEntry entry : autoConfigurationEntries) {
+        processedConfigurations.removeAll(entry.exclusions);
+      }
+
+      List<String> sortedConfigurations = sortAutoConfigurations(
+              processedConfigurations, getAutoConfigurationMetadata());
+
+      var entries = new ArrayList<Entry>(sortedConfigurations.size());
+      for (String importClassName : sortedConfigurations) {
+        Entry entry = new Entry(this.entries.get(importClassName), importClassName);
+        entries.add(entry);
+      }
+      return entries;
     }
 
     private AutoConfigurationMetadata getAutoConfigurationMetadata() {
@@ -487,13 +512,8 @@ public class AutoConfigurationImportSelector
 
   protected static class AutoConfigurationEntry {
 
-    private final Set<String> exclusions;
-    private final List<String> configurations;
-
-    private AutoConfigurationEntry() {
-      this.configurations = Collections.emptyList();
-      this.exclusions = Collections.emptySet();
-    }
+    public final Set<String> exclusions;
+    public final List<String> configurations;
 
     /**
      * Create an entry with the configurations that were contributed and their
@@ -513,6 +533,10 @@ public class AutoConfigurationImportSelector
 
     public Set<String> getExclusions() {
       return this.exclusions;
+    }
+
+    static AutoConfigurationEntry empty() {
+      return new AutoConfigurationEntry(Collections.emptyList(), Collections.emptyList());
     }
 
   }

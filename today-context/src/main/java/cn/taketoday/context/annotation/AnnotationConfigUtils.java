@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
+import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
@@ -35,14 +36,13 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.event.DefaultEventListenerFactory;
 import cn.taketoday.context.event.EventListenerMethodProcessor;
-import cn.taketoday.context.loader.ScopeMetadata;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -57,6 +57,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationClassPostProcessor
  * @since 4.0
  */
@@ -117,17 +118,15 @@ public abstract class AnnotationConfigUtils {
   public static final String COMMON_ANNOTATION_PROCESSOR_BEAN_NAME =
           "cn.taketoday.context.annotation.internalCommonAnnotationProcessor";
 
-  private static final ClassLoader classLoader = AnnotationConfigUtils.class.getClassLoader();
+  private static final boolean jsr250Present = isPresent("javax.annotation.PostConstruct");
+  private static final boolean jakartaAnnotationsPresent = isPresent("jakarta.annotation.PostConstruct");
+  private static final boolean jpaPresent = isPresent("jakarta.persistence.EntityManagerFactory")
+          && isPresent(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME);
 
-  private static final boolean jsr250Present =
-          ClassUtils.isPresent("javax.annotation.PostConstruct", classLoader);
-
-  private static final boolean jakartaAnnotationsPresent =
-          ClassUtils.isPresent("jakarta.annotation.PostConstruct", classLoader);
-
-  private static final boolean jpaPresent =
-          ClassUtils.isPresent("jakarta.persistence.EntityManagerFactory", classLoader) &&
-                  ClassUtils.isPresent(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, classLoader);
+  private static boolean isPresent(String className) {
+    ClassLoader classLoader = AnnotationConfigUtils.class.getClassLoader();
+    return ClassUtils.isPresent(className, classLoader);
+  }
 
   public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
     registerAnnotationConfigProcessors(registry, null);
@@ -173,8 +172,10 @@ public abstract class AnnotationConfigUtils {
     if (jsr250Present && !registry.containsBeanDefinition(JSR250_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       try {
         RootBeanDefinition def = new RootBeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
-        def.getPropertyValues().add("initAnnotationType", classLoader.loadClass("javax.annotation.PostConstruct"));
-        def.getPropertyValues().add("destroyAnnotationType", classLoader.loadClass("javax.annotation.PreDestroy"));
+        def.getPropertyValues().add("initAnnotationType",
+                AnnotationConfigUtils.class.getClassLoader().loadClass("javax.annotation.PostConstruct"));
+        def.getPropertyValues().add("destroyAnnotationType",
+                AnnotationConfigUtils.class.getClassLoader().loadClass("javax.annotation.PreDestroy"));
         registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME, consumer);
       }
       catch (ClassNotFoundException ex) {
@@ -188,7 +189,6 @@ public abstract class AnnotationConfigUtils {
       try {
         def.setBeanClass(ClassUtils.forName(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME,
                 AnnotationConfigUtils.class.getClassLoader()));
-
       }
       catch (ClassNotFoundException ex) {
         throw new IllegalStateException(
@@ -250,15 +250,11 @@ public abstract class AnnotationConfigUtils {
   }
 
   public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition) {
-    MergedAnnotations annotations;
-    MethodMetadata factoryMethodMetadata = definition.getFactoryMethodMetadata();
-    if (factoryMethodMetadata != null) {
-      annotations = factoryMethodMetadata.getAnnotations();
+    AnnotatedTypeMetadata metadata = definition.getFactoryMethodMetadata();
+    if (metadata == null) {
+      metadata = definition.getMetadata();
     }
-    else {
-      AnnotationMetadata metadata = definition.getMetadata();
-      annotations = metadata.getAnnotations();
-    }
+    MergedAnnotations annotations = metadata.getAnnotations();
     applyAnnotationMetadata(annotations, definition);
   }
 
@@ -295,10 +291,13 @@ public abstract class AnnotationConfigUtils {
       definition.setDescription(description.getStringValue());
     }
 
-    // DisableDependencyInjection
-    if (annotations.isPresent(DisableDependencyInjection.class)) {
+    if (annotations.isPresent(EnableDependencyInjection.class)) {
+      definition.setEnableDependencyInjection(true);
+    }
+    else if (annotations.isPresent(DisableDependencyInjection.class)) {
       definition.setEnableDependencyInjection(false);
     }
+
   }
 
 }

@@ -135,7 +135,7 @@ public final class CachedIntrospectionResults {
   private final Map<String, PropertyDescriptor> propertyDescriptors;
 
   static {
-    var factories = TodayStrategies.get(
+    var factories = TodayStrategies.find(
             BeanInfoFactory.class, CachedIntrospectionResults.class.getClassLoader());
     factories.add(new ExtendedBeanInfoFactory());
     beanInfoFactories = factories.toArray(new BeanInfoFactory[0]);

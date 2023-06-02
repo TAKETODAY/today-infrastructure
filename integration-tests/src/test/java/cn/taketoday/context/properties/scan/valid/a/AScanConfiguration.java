@@ -21,7 +21,7 @@
 package cn.taketoday.context.properties.scan.valid.a;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.properties.ConfigurationProperties;
@@ -52,7 +52,7 @@ public class AScanConfiguration {
   static class TestResourceCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return context.getResourceLoader().getResource("test").exists();
     }
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,13 @@
 package cn.taketoday.util;
 
 import java.lang.reflect.Array;
+import java.net.URI;
+import java.net.URL;
+import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -1041,6 +1046,53 @@ public abstract class ObjectUtils {
   }
 
   /**
+   * Generate a null-safe, concise string representation of the supplied object
+   * as described below.
+   * <p>Favor this method over {@link #nullSafeToString(Object)} when you need
+   * the length of the generated string to be limited.
+   * <p>Returns:
+   * <ul>
+   * <li>{@code "null"} if {@code obj} is {@code null}</li>
+   * <li>{@linkplain Class#getName() Class name} if {@code obj} is a {@link Class}</li>
+   * <li>Potentially {@linkplain StringUtils#truncate(CharSequence) truncated string}
+   * if {@code obj} is a {@link String} or {@link CharSequence}</li>
+   * <li>Potentially {@linkplain StringUtils#truncate(CharSequence) truncated string}
+   * if {@code obj} is a <em>simple type</em> whose {@code toString()} method returns
+   * a non-null value.</li>
+   * <li>Otherwise, a string representation of the object's type name concatenated
+   * with {@code @} and a hex string form of the object's identity hash code</li>
+   * </ul>
+   * <p>In the context of this method, a <em>simple type</em> is any of the following:
+   * a primitive wrapper (excluding {@link Void}), an {@link Enum}, a {@link Number},
+   * a {@link Date}, a {@link Temporal}, a {@link URI}, a {@link URL}, or a {@link Locale}.
+   *
+   * @param obj the object to build a string representation for
+   * @return a concise string representation of the supplied object
+   * @see #nullSafeToString(Object)
+   * @see StringUtils#truncate(CharSequence)
+   * @since 4.0
+   */
+  public static String nullSafeConciseToString(@Nullable Object obj) {
+    if (obj == null) {
+      return "null";
+    }
+    if (obj instanceof Class<?> clazz) {
+      return clazz.getName();
+    }
+    if (obj instanceof CharSequence charSequence) {
+      return StringUtils.truncate(charSequence);
+    }
+    Class<?> type = obj.getClass();
+    if (isSimpleValueType(type)) {
+      String str = obj.toString();
+      if (str != null) {
+        return StringUtils.truncate(str);
+      }
+    }
+    return type.getTypeName() + "@" + getIdentityHexString(obj);
+  }
+
+  /**
    * Return a String from none-null object's {@code toString}.
    *
    * @param obj the object to build a String representation for
@@ -1060,6 +1112,32 @@ public abstract class ObjectUtils {
    */
   public static String getClassName(Object obj) {
     return obj.getClass().getName();
+  }
+
+  /**
+   * Check if the given type represents a "simple" value type: a primitive or
+   * primitive wrapper, an enum, a String or other CharSequence, a Number, a
+   * Date, a Temporal, a URI, a URL, a Locale, or a Class.
+   * <p>{@code Void} and {@code void} are not considered simple value types.
+   *
+   * @param type the type to check
+   * @return whether the given type represents a "simple" value type
+   * @since 4.0
+   */
+  public static boolean isSimpleValueType(Class<?> type) {
+    return Void.class != type && void.class != type
+            && (
+            ClassUtils.isPrimitiveOrWrapper(type)
+                    || URI.class == type
+                    || URL.class == type
+                    || Class.class == type
+                    || Locale.class == type
+                    || Date.class.isAssignableFrom(type)
+                    || Enum.class.isAssignableFrom(type)
+                    || Number.class.isAssignableFrom(type)
+                    || Temporal.class.isAssignableFrom(type)
+                    || CharSequence.class.isAssignableFrom(type)
+    );
   }
 
 }

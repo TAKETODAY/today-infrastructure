@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,8 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -45,7 +43,9 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.mail.internet.MimeUtility;
@@ -153,7 +153,7 @@ import jakarta.mail.internet.MimeUtility;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @see AllEncompassingFormHttpMessageConverter
- * @see cn.taketoday.core.MultiValueMap
+ * @see MultiValueMap
  * @since 4.0
  */
 public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {
@@ -179,6 +179,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     this.supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
     this.supportedMediaTypes.add(MediaType.MULTIPART_FORM_DATA);
     this.supportedMediaTypes.add(MediaType.MULTIPART_MIXED);
+    this.supportedMediaTypes.add(MediaType.MULTIPART_RELATED);
 
     this.partConverters.add(new ByteArrayHttpMessageConverter());
     this.partConverters.add(new StringHttpMessageConverter());
@@ -348,11 +349,11 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {
-        result.add(URLDecoder.decode(pair, charset.name()), null);
+        result.add(URLDecoder.decode(pair, charset), null);
       }
       else {
-        String name = URLDecoder.decode(pair.substring(0, idx), charset.name());
-        String value = URLDecoder.decode(pair.substring(idx + 1), charset.name());
+        String name = URLDecoder.decode(pair.substring(0, idx), charset);
+        String value = URLDecoder.decode(pair.substring(idx + 1), charset);
         result.add(name, value);
       }
     }

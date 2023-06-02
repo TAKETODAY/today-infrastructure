@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,12 +56,19 @@ public class UnsupportedMediaTypeStatusException extends ResponseStatusException
    * Constructor for when the specified Content-Type is invalid.
    */
   public UnsupportedMediaTypeStatusException(@Nullable String reason) {
+    this(reason, Collections.emptyList());
+  }
+
+  /**
+   * Constructor for when the specified Content-Type is invalid.
+   */
+  public UnsupportedMediaTypeStatusException(@Nullable String reason, List<MediaType> supportedTypes) {
     super(HttpStatus.UNSUPPORTED_MEDIA_TYPE, reason);
     this.contentType = null;
-    this.supportedMediaTypes = Collections.emptyList();
+    this.supportedMediaTypes = Collections.unmodifiableList(supportedTypes);
     this.bodyType = null;
     this.method = null;
-    getBody().setDetail("Could not parse Content-Type.");
+    setDetail("Could not parse Content-Type.");
   }
 
   /**

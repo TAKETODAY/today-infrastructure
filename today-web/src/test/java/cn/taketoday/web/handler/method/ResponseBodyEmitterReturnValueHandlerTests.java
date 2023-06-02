@@ -37,7 +37,6 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -48,7 +47,6 @@ import reactor.core.publisher.Sinks;
 import static cn.taketoday.core.ResolvableType.fromClassWithGenerics;
 import static cn.taketoday.web.ResolvableMethod.on;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -79,7 +77,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.webRequest = new ServletRequestContext(null, this.request, this.response);
 
     AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, this.response);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
+    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }
 
@@ -155,7 +153,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test
   public void responseBodyEmitterWithTimeoutValue() throws Exception {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
+    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
 
     ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
     emitter.onTimeout(Mockito.mock(Runnable.class));
@@ -166,7 +164,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     verify(asyncWebRequest).setTimeout(19000L);
     verify(asyncWebRequest).addTimeoutHandler(ArgumentMatchers.any(Runnable.class));
-    verify(asyncWebRequest, times(2)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
     verify(asyncWebRequest).startAsync();
   }
 
@@ -175,7 +173,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   public void responseBodyEmitterWithErrorValue() throws Exception {
 
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(asyncWebRequest);
+    webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
 
     ResponseBodyEmitter emitter = new ResponseBodyEmitter(19000L);
     emitter.onError(Mockito.mock(Consumer.class));
@@ -185,7 +183,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.handler.handleReturnValue(webRequest, type, emitter);
 
     verify(asyncWebRequest).addErrorHandler(ArgumentMatchers.any(Consumer.class));
-    verify(asyncWebRequest, times(2)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
     verify(asyncWebRequest).startAsync();
   }
 
@@ -243,20 +241,15 @@ class ResponseBodyEmitterReturnValueHandlerTests {
   @Test // gh-21972
   public void responseBodyFluxWithError() throws Exception {
     this.request.addHeader("Accept", "text/event-stream");
-
+    IllegalStateException ex = new IllegalStateException("wah wah");
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(Flux.class, String.class);
-    Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
-    this.handler.handleReturnValue(webRequest, type, sink.asFlux());
+    this.handler.handleReturnValue(webRequest, type, Flux.error(ex));
 
     assertThat(this.request.isAsyncStarted()).isTrue();
 
-    IllegalStateException ex = new IllegalStateException("wah wah");
-    sink.tryEmitError(ex);
-    sink.tryEmitComplete();
-
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(this.webRequest);
+    WebAsyncManager asyncManager = webRequest.getAsyncManager();
     assertThat(asyncManager.getConcurrentResult()).isSameAs(ex);
-    assertThat(this.response.getContentType()).isNull();
+    assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
   }
 
   @Test
@@ -313,7 +306,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     ResolvableType bodyType = fromClassWithGenerics(Flux.class, SimpleBean.class);
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, bodyType);
     this.handler.handleReturnValue(webRequest, type, entity);
-
+    webRequest.flush();
     assertThat(this.request.isAsyncStarted()).isTrue();
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(this.response.getHeader("x-foo")).isEqualTo("bar");

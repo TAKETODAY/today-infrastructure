@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
 <xsd:schema xmlns="http://www.springframework.org/schema/tx"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:beans="http://www.springframework.org/schema/beans"
@@ -13,7 +33,7 @@
 
   <xsd:annotation>
     <xsd:documentation><![CDATA[
-	Defines the elements used in the Spring Framework's declarative
+	Defines the elements used in the Infra declarative
 	transaction management infrastructure.
 		]]></xsd:documentation>
   </xsd:annotation>
@@ -160,7 +180,7 @@
 	or WebSphereUowTransactionManager, respectively.
 
 	For customization needs, consider defining a JtaTransactionManager bean as a regular
-	Spring bean definition with name "transactionManager", replacing this element.
+	Infra bean definition with name "transactionManager", replacing this element.
 			]]></xsd:documentation>
       <xsd:appinfo>
         <tool:annotation>

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.context.loader.ScopeMetadataResolver;
+import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.type.filter.TypeFilter;
@@ -204,10 +205,10 @@ public @interface ComponentScan {
      * following {@link cn.taketoday.beans.factory.Aware Aware} interfaces, and
      * their respective methods will be called prior to {@link TypeFilter#match match}:
      * <ul>
-     * <li>{@link cn.taketoday.context.aware.EnvironmentAware EnvironmentAware}</li>
+     * <li>{@link EnvironmentAware EnvironmentAware}</li>
      * <li>{@link cn.taketoday.beans.factory.BeanFactoryAware BeanFactoryAware}
      * <li>{@link cn.taketoday.beans.factory.BeanClassLoaderAware BeanClassLoaderAware}
-     * <li>{@link cn.taketoday.context.aware.ResourceLoaderAware ResourceLoaderAware}
+     * <li>{@link ResourceLoaderAware ResourceLoaderAware}
      * </ul>
      * <p>Specifying zero classes is permitted but will have no effect on component
      * scanning.

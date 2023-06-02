@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.web.annotation.RequestMapping;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ConsumesRequestCondition extends AbstractRequestCondition<ConsumesRequestCondition> {
@@ -76,10 +77,11 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * @param headers as described in {@link RequestMapping#headers()}
    */
   public ConsumesRequestCondition(String[] consumes, @Nullable String[] headers) {
-    this.expressions = MediaTypeExpression.parse(HttpHeaders.CONTENT_TYPE, consumes, headers);
-    if (this.expressions.size() > 1) {
-      Collections.sort(this.expressions);
+    var expressions = MediaTypeExpression.parse(HttpHeaders.CONTENT_TYPE, consumes, headers);
+    if (expressions.size() > 1) {
+      Collections.sort(expressions);
     }
+    this.expressions = expressions;
   }
 
   /**
@@ -94,7 +96,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * Return the contained MediaType expressions.
    */
   public Set<MediaTypeExpression> getExpressions() {
-    return new LinkedHashSet<>(this.expressions);
+    return new LinkedHashSet<>(expressions);
   }
 
   /**
@@ -109,12 +111,12 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   public boolean isEmpty() {
-    return this.expressions.isEmpty();
+    return expressions.isEmpty();
   }
 
   @Override
   protected Collection<MediaTypeExpression> getContent() {
-    return this.expressions;
+    return expressions;
   }
 
   @Override
@@ -140,7 +142,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * Return the setting for {@link #setBodyRequired(boolean)}.
    */
   public boolean isBodyRequired() {
-    return this.bodyRequired;
+    return bodyRequired;
   }
 
   /**
@@ -173,7 +175,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     if (isEmpty()) {
       return this;
     }
-    if (!hasBody(request) && !this.bodyRequired) {
+    if (!hasBody(request) && !bodyRequired) {
       return EMPTY_CONDITION;
     }
 
@@ -190,7 +192,10 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     }
 
     List<MediaTypeExpression> result = getMatchingExpressions(contentType);
-    return result != null ? new ConsumesRequestCondition(result) : null;
+    if (result != null) {
+      return new ConsumesRequestCondition(result);
+    }
+    return null;
   }
 
   private boolean hasBody(RequestContext request) {
@@ -203,8 +208,8 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 
   @Nullable
   private List<MediaTypeExpression> getMatchingExpressions(MediaType contentType) {
-    List<MediaTypeExpression> result = null;
-    for (MediaTypeExpression expression : this.expressions) {
+    ArrayList<MediaTypeExpression> result = null;
+    for (MediaTypeExpression expression : expressions) {
       if (expression.matchContentType(contentType)) {
         if (result == null) {
           result = new ArrayList<>();
@@ -228,17 +233,17 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   public int compareTo(ConsumesRequestCondition other, RequestContext request) {
-    if (this.expressions.isEmpty() && other.expressions.isEmpty()) {
+    if (expressions.isEmpty() && other.expressions.isEmpty()) {
       return 0;
     }
-    else if (this.expressions.isEmpty()) {
+    else if (expressions.isEmpty()) {
       return 1;
     }
     else if (other.expressions.isEmpty()) {
       return -1;
     }
     else {
-      return this.expressions.get(0).compareTo(other.expressions.get(0));
+      return expressions.get(0).compareTo(other.expressions.get(0));
     }
   }
 

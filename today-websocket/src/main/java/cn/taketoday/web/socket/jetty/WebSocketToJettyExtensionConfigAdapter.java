@@ -1,9 +1,9 @@
 package cn.taketoday.web.socket.jetty;
 
-
-import cn.taketoday.web.socket.WebSocketExtension;
 import org.eclipse.jetty.websocket.api.ExtensionConfig;
 import org.eclipse.jetty.websocket.common.JettyExtensionConfig;
+
+import cn.taketoday.web.socket.WebSocketExtension;
 
 /**
  * Adapter class to convert a {@link WebSocketExtension} to a Jetty

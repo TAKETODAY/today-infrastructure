@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,7 +81,7 @@ public class TransactionalAnnotationParser implements TransactionAnnotationParse
 
     rbta.setTimeout(attributes.getInt("timeout"));
     String timeoutString = attributes.getString("timeoutString");
-    Assert.isTrue(!StringUtils.hasText(timeoutString) || rbta.getTimeout() < 0,
+    Assert.isTrue(StringUtils.isBlank(timeoutString) || rbta.getTimeout() < 0,
             "Specify 'timeout' or 'timeoutString', not both");
     rbta.setTimeoutString(timeoutString);
 

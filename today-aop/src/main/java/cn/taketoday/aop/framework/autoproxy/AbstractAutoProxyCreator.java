@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -131,6 +131,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * to prevent the configuration from becoming frozen too early.
    */
   private boolean freezeProxy = false;
+
   @Nullable
   private transient TargetSourceCreator[] customTargetSourceCreators;
 
@@ -138,6 +139,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   private String[] interceptorNames = new String[0];
 
   private boolean applyCommonInterceptorsFirst = true;
+
   /** Default is global AdvisorAdapterRegistry. */
   private AdvisorAdapterRegistry advisorAdapterRegistry = DefaultAdvisorAdapterRegistry.getInstance();
 
@@ -172,6 +174,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @see DefaultAdvisorAdapterRegistry
    */
   public void setAdvisorAdapterRegistry(AdvisorAdapterRegistry advisorAdapterRegistry) {
+    Assert.notNull(advisorAdapterRegistry, "AdvisorAdapterRegistry is required");
     this.advisorAdapterRegistry = advisorAdapterRegistry;
   }
 
@@ -395,8 +398,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @return the AOP proxy for the bean
    * @see #buildAdvisors
    */
-  protected Object createProxy(
-          Class<?> beanClass, @Nullable String beanName,
+  protected Object createProxy(Class<?> beanClass, @Nullable String beanName,
           @Nullable Object[] specificInterceptors, TargetSource targetSource) {
 
     if (beanFactory instanceof ConfigurableBeanFactory cbf) {
@@ -507,7 +509,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
    * @param beanName the name of the bean
    * @param specificInterceptors the set of interceptors that is
    * specific to this bean (may be empty, but not null)
-   * @return the list of Advisors for the given bean
+   * @return the array of Advisors for the given bean
    */
   protected Advisor[] buildAdvisors(@Nullable String beanName, @Nullable Object[] specificInterceptors) {
     // Handle prototypes correctly...

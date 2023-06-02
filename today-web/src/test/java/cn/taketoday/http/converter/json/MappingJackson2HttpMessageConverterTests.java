@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,9 +21,15 @@
 package cn.taketoday.http.converter.json;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -40,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.MediaType;
@@ -51,8 +58,6 @@ import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.entry;
-import static org.assertj.core.api.Assertions.within;
 
 /**
  * Jackson 2.x converter tests.
@@ -344,6 +349,18 @@ public class MappingJackson2HttpMessageConverterTests {
     JSONAssert.assertEquals(body, outputMessage.getBodyAsString(StandardCharsets.UTF_8), true);
   }
 
+  // gh-24498
+  @Test
+  public void writeOptional() throws IOException {
+    TypeReference<Optional<MyParent>> optionalParent = new TypeReference<>() { };
+    Optional<MyParent> result = Optional.of(new Impl1());
+    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    converter.write(result, optionalParent.getType(), MediaType.APPLICATION_JSON, outputMessage);
+
+    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8))
+            .contains("@type");
+  }
+
   @Test
   public void prettyPrint() throws Exception {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
@@ -531,6 +548,39 @@ public class MappingJackson2HttpMessageConverterTests {
     assertThat(outputMessage.getHeaders().getContentType()).as("Invalid content-type").isEqualTo(contentType);
   }
 
+  @Test
+  public void readWithCustomized() throws IOException {
+    MappingJackson2HttpMessageConverterWithCustomization customizedConverter =
+            new MappingJackson2HttpMessageConverterWithCustomization();
+    String body = "{\"property\":\"Value1\"}";
+    MockHttpInputMessage inputMessage1 = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
+    MockHttpInputMessage inputMessage2 = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
+    inputMessage1.getHeaders().setContentType(new MediaType("application", "json"));
+    inputMessage2.getHeaders().setContentType(new MediaType("application", "json"));
+
+    assertThatExceptionOfType(HttpMessageNotReadableException.class)
+            .isThrownBy(() -> converter.read(MyCustomizedBean.class, inputMessage1));
+
+    MyCustomizedBean customizedResult = (MyCustomizedBean) customizedConverter.read(MyCustomizedBean.class, inputMessage2);
+    assertThat(customizedResult.getProperty()).isEqualTo(MyCustomEnum.VAL1);
+  }
+
+  @Test
+  public void writeWithCustomized() throws IOException {
+    MappingJackson2HttpMessageConverterWithCustomization customizedConverter =
+            new MappingJackson2HttpMessageConverterWithCustomization();
+    MockHttpOutputMessage outputMessage1 = new MockHttpOutputMessage();
+    MockHttpOutputMessage outputMessage2 = new MockHttpOutputMessage();
+    MyCustomizedBean body = new MyCustomizedBean();
+    body.setProperty(MyCustomEnum.VAL2);
+    converter.write(body, null, outputMessage1);
+    customizedConverter.write(body, null, outputMessage2);
+    String result1 = outputMessage1.getBodyAsString(StandardCharsets.UTF_8);
+    assertThat(result1.contains("\"property\":\"VAL2\"")).isTrue();
+    String result2 = outputMessage2.getBodyAsString(StandardCharsets.UTF_8);
+    assertThat(result2.contains("\"property\":\"Value2\"")).isTrue();
+  }
+
   interface MyInterface {
 
     String getString();
@@ -705,6 +755,54 @@ public class MappingJackson2HttpMessageConverterTests {
 
     public String getProperty2() {
       return property2;
+    }
+  }
+
+  public static class MyCustomizedBean {
+
+    private MyCustomEnum property;
+
+    public MyCustomEnum getProperty() {
+      return property;
+    }
+
+    public void setProperty(MyCustomEnum property) {
+      this.property = property;
+    }
+  }
+
+  public enum MyCustomEnum {
+    VAL1,
+    VAL2;
+
+    @Override
+    public String toString() {
+      return this == VAL1 ? "Value1" : "Value2";
+    }
+  }
+
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+  @JsonSubTypes(value = { @JsonSubTypes.Type(value = Impl1.class),
+          @JsonSubTypes.Type(value = Impl2.class) })
+  public static interface MyParent {
+  }
+
+  public static class Impl1 implements MyParent {
+  }
+
+  public static class Impl2 implements MyParent {
+  }
+
+  private static class MappingJackson2HttpMessageConverterWithCustomization extends MappingJackson2HttpMessageConverter {
+
+    @Override
+    protected ObjectReader customizeReader(ObjectReader reader, JavaType javaType) {
+      return reader.with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+    }
+
+    @Override
+    protected ObjectWriter customizeWriter(ObjectWriter writer, JavaType javaType, MediaType contentType) {
+      return writer.with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
     }
   }
 

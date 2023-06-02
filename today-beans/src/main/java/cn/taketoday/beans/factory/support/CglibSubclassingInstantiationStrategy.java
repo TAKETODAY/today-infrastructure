@@ -27,7 +27,6 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.bytecode.core.DefaultNamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
@@ -37,6 +36,7 @@ import cn.taketoday.bytecode.proxy.Factory;
 import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.bytecode.proxy.NoOp;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -238,8 +238,8 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
         // Find target bean matching the (potentially generic) method return type
         ResolvableType genericReturnType = ResolvableType.forReturnType(method);
         return argsToUse != null
-               ? owner.getObjectSupplier(genericReturnType).get(argsToUse)
-               : owner.getObjectSupplier(genericReturnType).get();
+               ? owner.getBeanProvider(genericReturnType).get(argsToUse)
+               : owner.getBeanProvider(genericReturnType).get();
       }
     }
   }

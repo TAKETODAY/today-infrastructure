@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
@@ -82,20 +80,6 @@ public class MultipartWriterSupport extends LoggingCodecSupport {
 
   public List<MediaType> getWritableMediaTypes() {
     return this.supportedMediaTypes;
-  }
-
-  public boolean canWrite(ResolvableType elementType, @Nullable MediaType mediaType) {
-    if (MultiValueMap.class.isAssignableFrom(elementType.toClass())) {
-      if (mediaType == null) {
-        return true;
-      }
-      for (MediaType supportedMediaType : this.supportedMediaTypes) {
-        if (supportedMediaType.isCompatibleWith(mediaType)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   /**

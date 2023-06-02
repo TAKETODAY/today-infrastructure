@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,9 +21,12 @@
 package cn.taketoday.web.view;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -35,7 +38,6 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -79,6 +81,7 @@ import cn.taketoday.web.util.UriUtils;
  * @see #setHttp10Compatible
  * @see #setExposeModelAttributes
  * @see RequestContext#sendRedirect
+ * @since 4.0
  */
 public class RedirectView extends AbstractUrlBasedView implements SmartView {
 
@@ -91,7 +94,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   private boolean exposeModelAttributes = true;
 
   @Nullable
-  private String encodingScheme;
+  private Charset encoding;
 
   @Nullable
   private HttpStatusCode statusCode;
@@ -209,9 +212,25 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * Set the encoding scheme for this view.
    * <p>Default is the request's encoding scheme
    * (which is UTF-8 if not specified otherwise).
+   *
+   * @throws IllegalCharsetNameException If the given charset name is illegal
+   * @throws IllegalArgumentException If the given {@code charsetName} is null
+   * @throws UnsupportedCharsetException If no support for the named charset is available
+   * in this instance of the Java virtual machine
    */
   public void setEncodingScheme(String encodingScheme) {
-    this.encodingScheme = encodingScheme;
+    this.encoding = Charset.forName(encodingScheme);
+  }
+
+  /**
+   * Set the encoding scheme for this view.
+   * <p>Default is the request's encoding scheme
+   * (which is UTF-8 if not specified otherwise).
+   *
+   * @since 4.0
+   */
+  public void setEncoding(@Nullable Charset charset) {
+    this.encoding = charset;
   }
 
   /**
@@ -220,6 +239,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * {@link #setHttp10Compatible(boolean) http10Compatible} flag.
    */
   public void setStatusCode(HttpStatusCode statusCode) {
+    Assert.isTrue(statusCode.is3xxRedirection(), () -> "Not a redirect status code: " + statusCode);
     this.statusCode = statusCode;
   }
 
@@ -290,8 +310,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * expanding it with the given model, and then optionally appending simple type model
    * attributes as query String parameters.
    */
-  protected final String createTargetUrl(Map<String, Object> model, RequestContext request)
-          throws UnsupportedEncodingException {
+  protected final String createTargetUrl(Map<String, Object> model, RequestContext request) {
 
     // Prepare target URL.
     StringBuilder targetUrl = new StringBuilder();
@@ -304,9 +323,9 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     }
     targetUrl.append(url);
 
-    String enc = this.encodingScheme;
+    Charset enc = this.encoding;
     if (enc == null) {
-      enc = Constant.DEFAULT_ENCODING;
+      enc = StandardCharsets.UTF_8;
     }
 
     if (expandUriTemplateVariables && StringUtils.hasText(targetUrl)) {
@@ -343,7 +362,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    */
   protected StringBuilder replaceUriTemplateVariables(
           String targetUrl, Map<String, Object> model,
-          Map<String, String> currentUriVariables, String encodingScheme) {
+          Map<String, String> currentUriVariables, Charset encodingScheme) {
 
     StringBuilder result = new StringBuilder();
     Matcher matcher = URI_TEMPLATE_VARIABLE_PATTERN.matcher(targetUrl);
@@ -407,11 +426,10 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the StringBuilder to append the properties to
    * @param model a Map that contains model attributes
    * @param encodingScheme the encoding scheme to use
-   * @throws UnsupportedEncodingException if string encoding failed
    * @see #queryProperties
    */
-  protected void appendQueryProperties(StringBuilder targetUrl, Map<String, Object> model, String encodingScheme)
-          throws UnsupportedEncodingException {
+  protected void appendQueryProperties(
+          StringBuilder targetUrl, Map<String, Object> model, Charset encodingScheme) {
 
     // Extract anchor fragment, if any.
     String fragment = null;
@@ -549,10 +567,9 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param input the unencoded input String
    * @param encodingScheme the encoding scheme
    * @return the encoded output String
-   * @throws UnsupportedEncodingException if thrown by the JDK URLEncoder
    * @see URLEncoder#encode(String, String)
    */
-  protected String urlEncode(String input, String encodingScheme) throws UnsupportedEncodingException {
+  protected String urlEncode(String input, Charset encodingScheme) {
     return URLEncoder.encode(input, encodingScheme);
   }
 

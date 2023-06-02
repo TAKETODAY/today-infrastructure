@@ -22,7 +22,7 @@ package cn.taketoday.http.server;
 
 import java.util.List;
 
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Structured representation of a URI path parsed via {@link #parsePath(String)}
@@ -36,17 +36,17 @@ import cn.taketoday.core.MultiValueMap;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public interface PathContainer {
+public abstract class PathContainer {
 
   /**
    * The original path from which this instance was parsed.
    */
-  String value();
+  public abstract String value();
 
   /**
    * The contained path elements, either {@link Separator} or {@link PathSegment}.
    */
-  List<Element> elements();
+  public abstract List<Element> elements();
 
   /**
    * Extract a sub-path from the given offset into the elements list.
@@ -54,7 +54,7 @@ public interface PathContainer {
    * @param index the start element index (inclusive)
    * @return the sub-path
    */
-  default PathContainer subPath(int index) {
+  public PathContainer subPath(int index) {
     return subPath(index, elements().size());
   }
 
@@ -66,7 +66,7 @@ public interface PathContainer {
    * @param endIndex the end element index (exclusive)
    * @return the sub-path
    */
-  default PathContainer subPath(int startIndex, int endIndex) {
+  public PathContainer subPath(int startIndex, int endIndex) {
     return DefaultPathContainer.subPath(this, startIndex, endIndex);
   }
 
@@ -77,7 +77,7 @@ public interface PathContainer {
    * @param path the encoded, raw path value to parse
    * @return the parsed path
    */
-  static PathContainer parsePath(String path) {
+  public static PathContainer parsePath(String path) {
     return DefaultPathContainer.createFromUrlPath(path, Options.HTTP_PATH);
   }
 
@@ -89,14 +89,14 @@ public interface PathContainer {
    * @param options to customize parsing
    * @return the parsed path
    */
-  static PathContainer parsePath(String path, Options options) {
+  public static PathContainer parsePath(String path, Options options) {
     return DefaultPathContainer.createFromUrlPath(path, options);
   }
 
   /**
    * A path element, either separator or path segment.
    */
-  interface Element {
+  public interface Element {
 
     /**
      * The unmodified, original value of this element.
@@ -107,12 +107,12 @@ public interface PathContainer {
   /**
    * Path separator element.
    */
-  interface Separator extends Element { }
+  public interface Separator extends Element { }
 
   /**
    * Path segment element.
    */
-  interface PathSegment extends Element {
+  public interface PathSegment extends Element {
 
     /**
      * Return the path segment value, decoded and sanitized, for path matching.
@@ -135,7 +135,7 @@ public interface PathContainer {
   /**
    * Options to customize parsing based on the type of input path.
    */
-  record Options(char separator, boolean decodeAndParseSegments) {
+  public record Options(char separator, boolean decodeAndParseSegments) {
 
     /**
      * Options for HTTP URL paths.

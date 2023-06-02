@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,12 +45,14 @@ import cn.taketoday.web.view.View;
 public class ParameterizableViewController extends AbstractController {
 
   @Nullable
-  private Object view;
+  private Object returnValue;
 
   @Nullable
   private HttpStatusCode statusCode;
 
   private boolean statusOnly;
+  @Nullable
+  private String contentType;
 
   public ParameterizableViewController() {
     super(false);
@@ -63,7 +65,7 @@ public class ParameterizableViewController extends AbstractController {
    * view name or View.
    */
   public void setViewName(@Nullable String viewName) {
-    this.view = viewName;
+    this.returnValue = viewName;
   }
 
   /**
@@ -72,7 +74,7 @@ public class ParameterizableViewController extends AbstractController {
    */
   @Nullable
   public String getViewName() {
-    if (this.view instanceof String viewName) {
+    if (this.returnValue instanceof String viewName) {
       if (getStatusCode() != null && getStatusCode().is3xxRedirection()) {
         return viewName.startsWith("redirect:") ? viewName : "redirect:" + viewName;
       }
@@ -88,16 +90,16 @@ public class ParameterizableViewController extends AbstractController {
    * Will override any pre-existing view name or View.
    */
   public void setView(View view) {
-    this.view = view;
+    this.returnValue = view;
   }
 
   /**
    * Return the View object, or {@code null} if we are using a view name
-   * to be resolved by the DispatcherServlet via a ViewResolver.
+   * to be resolved by the DispatcherHandler via a ViewResolver.
    */
   @Nullable
   public View getView() {
-    return (this.view instanceof View ? (View) this.view : null);
+    return (this.returnValue instanceof View ? (View) this.returnValue : null);
   }
 
   /**
@@ -140,6 +142,34 @@ public class ParameterizableViewController extends AbstractController {
   }
 
   /**
+   * Set a result object to return.
+   * Will override any pre-existing view name or View.
+   */
+  public void setResult(@Nullable Object returnValue) {
+    this.returnValue = returnValue;
+  }
+
+  /**
+   * Return the result object, or {@code null} if we are not set.
+   */
+  @Nullable
+  public Object getReturnValue() {
+    return returnValue;
+  }
+
+  /**
+   * Set content type
+   */
+  public void setContentType(@Nullable String contentType) {
+    this.contentType = contentType;
+  }
+
+  @Nullable
+  public String getContentType() {
+    return contentType;
+  }
+
+  /**
    * Return a ModelAndView object with the specified view name.
    * <p>The content of the {@link RequestContextUtils#getInputRedirectModel(RequestContext)}
    * "input" RedirectModel} is also added to the model.
@@ -147,23 +177,34 @@ public class ParameterizableViewController extends AbstractController {
    * @see #getViewName()
    */
   @Override
-  protected ModelAndView handleRequestInternal(RequestContext request) {
+  protected Object handleRequestInternal(RequestContext request) {
+    String contentType = getContentType();
+    if (contentType != null) {
+      request.setContentType(contentType);
+    }
+
     String viewName = getViewName();
 
-    if (getStatusCode() != null) {
-      if (getStatusCode().is3xxRedirection()) {
-        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, getStatusCode());
+    HttpStatusCode statusCode = getStatusCode();
+    if (statusCode != null) {
+      if (statusCode.is3xxRedirection()) {
+        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, statusCode);
       }
       else {
-        request.setStatus(getStatusCode());
-        if (getStatusCode().equals(HttpStatus.NO_CONTENT) && viewName == null) {
-          return null;
+        request.setStatus(statusCode);
+        if (statusCode.equals(HttpStatus.NO_CONTENT) && viewName == null) {
+          return NONE_RETURN_VALUE;
         }
       }
     }
 
     if (isStatusOnly()) {
-      return null;
+      return NONE_RETURN_VALUE;
+    }
+
+    Object result = getReturnValue();
+    if (viewName == null && !(result instanceof View) && result != null) {
+      return result;
     }
 
     ModelAndView modelAndView = new ModelAndView();
@@ -171,6 +212,7 @@ public class ParameterizableViewController extends AbstractController {
     if (redirectModel != null) {
       modelAndView.addAllObjects(redirectModel.asMap());
     }
+
     if (viewName != null) {
       modelAndView.setViewName(viewName);
     }
@@ -190,11 +232,12 @@ public class ParameterizableViewController extends AbstractController {
     if (this.statusCode != null) {
       sb.append("status=").append(this.statusCode);
     }
-    if (this.view != null) {
+    if (this.returnValue != null) {
       sb.append(sb.length() != 0 ? ", " : "");
       String viewName = getViewName();
-      sb.append("view=").append(viewName != null ? "\"" + viewName + "\"" : this.view);
+      sb.append("view=").append(viewName != null ? "\"" + viewName + "\"" : this.returnValue);
     }
     return sb.toString();
   }
+
 }

@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.view;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,10 +34,10 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceView;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.servlet.view.JstlView;
@@ -62,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ViewResolverTests {
 
-  private final StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+  private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
   private final MockServletContext sc = new MockServletContext();
   private final MockHttpServletRequest request = new MockHttpServletRequest(this.sc);
   private final HttpServletResponse response = new MockHttpServletResponse();

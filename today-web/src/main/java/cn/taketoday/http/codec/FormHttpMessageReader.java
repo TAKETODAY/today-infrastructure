@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,14 +21,12 @@
 package cn.taketoday.http.codec;
 
 import java.net.URLDecoder;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
@@ -38,6 +36,7 @@ import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -127,8 +126,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
     return DataBufferUtils.join(message.getBody(), this.maxInMemorySize)
             .map(buffer -> {
-              CharBuffer charBuffer = charset.decode(buffer.toByteBuffer());
-              String body = charBuffer.toString();
+              String body = buffer.toString(charset);
               DataBufferUtils.release(buffer);
               MultiValueMap<String, String> formData = parseFormData(charset, body);
               if (logger.isDebugEnabled()) {

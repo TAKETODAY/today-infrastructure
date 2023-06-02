@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,8 @@ package cn.taketoday.context.annotation;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -33,7 +35,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
-import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -52,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @since 4.0
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class ImportAwareTests {
 
   @Test
@@ -356,7 +359,7 @@ public class ImportAwareTests {
   private static final class OnMissingBeanCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return (context.getBeanFactory().getBeanNamesForType(MetadataHolder.class, true, false).size() == 0);
     }
 

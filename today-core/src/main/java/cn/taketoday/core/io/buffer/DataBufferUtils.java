@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,11 +46,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.buffer.DataBuffer.ByteBufferIterator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ObjectUtils;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
@@ -106,7 +108,7 @@ public abstract class DataBufferUtils {
           Callable<ReadableByteChannel> channelSupplier, DataBufferFactory bufferFactory, int bufferSize) {
 
     Assert.notNull(channelSupplier, "'channelSupplier' must not be null");
-    Assert.notNull(bufferFactory, "'dataBufferFactory' must not be null");
+    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
     return Flux.using(channelSupplier,
@@ -148,7 +150,7 @@ public abstract class DataBufferUtils {
           DataBufferFactory bufferFactory, int bufferSize) {
 
     Assert.notNull(channelSupplier, "'channelSupplier' must not be null");
-    Assert.notNull(bufferFactory, "'dataBufferFactory' must not be null");
+    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
     Assert.isTrue(position >= 0, "'position' must be >= 0");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
 
@@ -180,12 +182,13 @@ public abstract class DataBufferUtils {
           Path path, DataBufferFactory bufferFactory, int bufferSize, OpenOption... options) {
 
     Assert.notNull(path, "Path must not be null");
-    Assert.notNull(bufferFactory, "BufferFactory must not be null");
+    Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be > 0");
-    if (options.length > 0) {
+    if (ObjectUtils.isNotEmpty(options)) {
       for (OpenOption option : options) {
-        Assert.isTrue(!(option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE),
-                "'" + option + "' not allowed");
+        if (option == StandardOpenOption.APPEND || option == StandardOpenOption.WRITE) {
+          throw new IllegalArgumentException("'" + option + "' not allowed");
+        }
       }
     }
 
@@ -430,7 +433,7 @@ public abstract class DataBufferUtils {
   @SuppressWarnings("unchecked")
   public static <T extends DataBuffer> Flux<T> takeUntilByteCount(Publisher<T> publisher, long maxByteCount) {
     Assert.notNull(publisher, "Publisher must not be null");
-    Assert.isTrue(maxByteCount >= 0, "'maxByteCount' must be a positive number");
+    Assert.isTrue(maxByteCount >= 0, "'maxByteCount' must be >= 0");
 
     return Flux.defer(() -> {
       AtomicLong countDown = new AtomicLong(maxByteCount);
@@ -464,7 +467,7 @@ public abstract class DataBufferUtils {
    */
   public static <T extends DataBuffer> Flux<T> skipUntilByteCount(Publisher<T> publisher, long maxByteCount) {
     Assert.notNull(publisher, "Publisher must not be null");
-    Assert.isTrue(maxByteCount >= 0, "'maxByteCount' must be a positive number");
+    Assert.isTrue(maxByteCount >= 0, "'maxByteCount' must be >= 0");
 
     return Flux.defer(() -> {
       AtomicLong countDown = new AtomicLong(maxByteCount);
@@ -600,7 +603,7 @@ public abstract class DataBufferUtils {
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static Mono<DataBuffer> join(Publisher<? extends DataBuffer> buffers, int maxByteCount) {
-    Assert.notNull(buffers, "'dataBuffers' must not be null");
+    Assert.notNull(buffers, "'buffers' must not be null");
 
     if (buffers instanceof Mono mono) {
       return mono;
@@ -717,8 +720,8 @@ public abstract class DataBufferUtils {
 
     @Override
     public byte[] delimiter() {
-      Assert.state(this.longestDelimiter != NO_DELIMITER, "Illegal state!");
-      return this.longestDelimiter;
+      Assert.state(longestDelimiter != NO_DELIMITER, "'delimiter' not set");
+      return longestDelimiter;
     }
 
     @Override
@@ -890,13 +893,16 @@ public abstract class DataBufferUtils {
 
     @Override
     public void accept(SynchronousSink<DataBuffer> sink) {
-      ByteBuffer byteBuffer = dataBufferFactory.isDirect()
-                              ? ByteBuffer.allocateDirect(bufferSize)
-                              : ByteBuffer.allocate(bufferSize);
+      int read = -1;
+      DataBuffer dataBuffer = dataBufferFactory.allocateBuffer(bufferSize);
       try {
-        if (this.channel.read(byteBuffer) >= 0) {
-          byteBuffer.flip();
-          DataBuffer dataBuffer = this.dataBufferFactory.wrap(byteBuffer);
+        try (ByteBufferIterator iterator = dataBuffer.writableByteBuffers()) {
+          Assert.state(iterator.hasNext(), "No ByteBuffer available");
+          ByteBuffer byteBuffer = iterator.next();
+          read = channel.read(byteBuffer);
+        }
+        if (read >= 0) {
+          dataBuffer.writePosition(read);
           sink.next(dataBuffer);
         }
         else {
@@ -906,28 +912,34 @@ public abstract class DataBufferUtils {
       catch (IOException ex) {
         sink.error(ex);
       }
+      finally {
+        if (read == -1) {
+          release(dataBuffer);
+        }
+      }
     }
   }
 
-  private static class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
+  private static class ReadCompletionHandler implements CompletionHandler<Integer, ReadCompletionHandler.Attachment> {
+
+    private final AsynchronousFileChannel channel;
 
     private final FluxSink<DataBuffer> sink;
-    private final AsynchronousFileChannel channel;
+
     private final DataBufferFactory dataBufferFactory;
 
     private final int bufferSize;
     private final AtomicLong position;
     private final AtomicReference<State> state = new AtomicReference<>(State.IDLE);
 
-    public ReadCompletionHandler(
-            AsynchronousFileChannel channel,
+    public ReadCompletionHandler(AsynchronousFileChannel channel,
             FluxSink<DataBuffer> sink, long position, DataBufferFactory dataBufferFactory, int bufferSize) {
 
-      this.sink = sink;
       this.channel = channel;
-      this.bufferSize = bufferSize;
+      this.sink = sink;
       this.position = new AtomicLong(position);
       this.dataBufferFactory = dataBufferFactory;
+      this.bufferSize = bufferSize;
     }
 
     /**
@@ -957,20 +969,27 @@ public abstract class DataBufferUtils {
     }
 
     private void read() {
-      ByteBuffer byteBuffer = dataBufferFactory.isDirect()
-                              ? ByteBuffer.allocateDirect(bufferSize)
-                              : ByteBuffer.allocate(bufferSize);
-      this.channel.read(byteBuffer, this.position.get(), byteBuffer, this);
+      DataBuffer dataBuffer = dataBufferFactory.allocateBuffer(bufferSize);
+      ByteBufferIterator iterator = dataBuffer.writableByteBuffers();
+      Assert.state(iterator.hasNext(), "No ByteBuffer available");
+      ByteBuffer byteBuffer = iterator.next();
+      Attachment attachment = new Attachment(dataBuffer, iterator);
+      channel.read(byteBuffer, position.get(), attachment, this);
     }
 
     @Override
-    public void completed(Integer read, ByteBuffer byteBuffer) {
+    public void completed(Integer read, Attachment attachment) {
+      attachment.iterator().close();
+      DataBuffer dataBuffer = attachment.dataBuffer();
+
       if (this.state.get().equals(State.DISPOSED)) {
+        release(dataBuffer);
         closeChannel(this.channel);
         return;
       }
 
       if (read == -1) {
+        release(dataBuffer);
         closeChannel(this.channel);
         this.state.set(State.DISPOSED);
         this.sink.complete();
@@ -978,9 +997,7 @@ public abstract class DataBufferUtils {
       }
 
       this.position.addAndGet(read);
-
-      byteBuffer.flip();
-      DataBuffer dataBuffer = this.dataBufferFactory.wrap(byteBuffer);
+      dataBuffer.writePosition(read);
       this.sink.next(dataBuffer);
 
       // Stay in READING mode if there is demand
@@ -996,7 +1013,10 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    public void failed(Throwable exc, ByteBuffer byteBuffer) {
+    public void failed(Throwable exc, Attachment attachment) {
+      attachment.iterator().close();
+      release(attachment.dataBuffer());
+
       closeChannel(this.channel);
       this.state.set(State.DISPOSED);
       this.sink.error(exc);
@@ -1005,10 +1025,16 @@ public abstract class DataBufferUtils {
     private enum State {
       IDLE, READING, DISPOSED
     }
+
+    private record Attachment(DataBuffer dataBuffer, ByteBufferIterator iterator) {
+
+    }
   }
 
   private static class WritableByteChannelSubscriber extends BaseSubscriber<DataBuffer> {
+
     private final FluxSink<DataBuffer> sink;
+
     private final WritableByteChannel channel;
 
     public WritableByteChannelSubscriber(FluxSink<DataBuffer> sink, WritableByteChannel channel) {
@@ -1024,9 +1050,11 @@ public abstract class DataBufferUtils {
     @Override
     protected void hookOnNext(DataBuffer dataBuffer) {
       try {
-        ByteBuffer byteBuffer = dataBuffer.toByteBuffer();
-        while (byteBuffer.hasRemaining()) {
-          this.channel.write(byteBuffer);
+        try (ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
+          ByteBuffer byteBuffer = iterator.next();
+          while (byteBuffer.hasRemaining()) {
+            this.channel.write(byteBuffer);
+          }
         }
         this.sink.next(dataBuffer);
         request(1);
@@ -1054,15 +1082,14 @@ public abstract class DataBufferUtils {
 
   }
 
-  private static class WriteCompletionHandler
-          extends BaseSubscriber<DataBuffer> implements CompletionHandler<Integer, ByteBuffer> {
-
+  private static class WriteCompletionHandler extends BaseSubscriber<DataBuffer>
+          implements CompletionHandler<Integer, WriteCompletionHandler.Attachment> {
     private final AtomicLong position;
     private final FluxSink<DataBuffer> sink;
     private final AsynchronousFileChannel channel;
+    private final AtomicBoolean writing = new AtomicBoolean();
     private final AtomicBoolean completed = new AtomicBoolean();
     private final AtomicReference<Throwable> error = new AtomicReference<>();
-    private final AtomicReference<DataBuffer> dataBuffer = new AtomicReference<>();
 
     public WriteCompletionHandler(
             FluxSink<DataBuffer> sink, AsynchronousFileChannel channel, long position) {
@@ -1078,19 +1105,22 @@ public abstract class DataBufferUtils {
     }
 
     @Override
-    protected void hookOnNext(DataBuffer value) {
-      if (!this.dataBuffer.compareAndSet(null, value)) {
-        throw new IllegalStateException();
+    protected void hookOnNext(DataBuffer dataBuffer) {
+      ByteBufferIterator iterator = dataBuffer.readableByteBuffers();
+      if (iterator.hasNext()) {
+        ByteBuffer byteBuffer = iterator.next();
+        long pos = this.position.get();
+        Attachment attachment = new Attachment(byteBuffer, dataBuffer, iterator);
+        this.writing.set(true);
+        this.channel.write(byteBuffer, pos, attachment, this);
       }
-      ByteBuffer byteBuffer = value.toByteBuffer();
-      this.channel.write(byteBuffer, this.position.get(), byteBuffer, this);
     }
 
     @Override
     protected void hookOnError(Throwable throwable) {
       this.error.set(throwable);
 
-      if (this.dataBuffer.get() == null) {
+      if (!this.writing.get()) {
         this.sink.error(throwable);
       }
     }
@@ -1099,48 +1129,61 @@ public abstract class DataBufferUtils {
     protected void hookOnComplete() {
       this.completed.set(true);
 
-      if (this.dataBuffer.get() == null) {
+      if (!this.writing.get()) {
         this.sink.complete();
       }
     }
 
     @Override
-    public void completed(Integer written, ByteBuffer byteBuffer) {
-      long pos = this.position.addAndGet(written);
-      if (byteBuffer.hasRemaining()) {
-        this.channel.write(byteBuffer, pos, byteBuffer, this);
-        return;
-      }
-      sinkDataBuffer();
+    public void completed(Integer written, Attachment attachment) {
+      ByteBufferIterator iterator = attachment.iterator();
+      iterator.close();
 
-      Throwable throwable = this.error.get();
-      if (throwable != null) {
-        this.sink.error(throwable);
+      long pos = this.position.addAndGet(written);
+      ByteBuffer byteBuffer = attachment.byteBuffer();
+
+      if (byteBuffer.hasRemaining()) {
+        this.channel.write(byteBuffer, pos, attachment, this);
       }
-      else if (this.completed.get()) {
-        this.sink.complete();
+      else if (iterator.hasNext()) {
+        ByteBuffer next = iterator.next();
+        this.channel.write(next, pos, attachment, this);
       }
       else {
-        request(1);
+        this.sink.next(attachment.dataBuffer());
+        this.writing.set(false);
+
+        Throwable throwable = this.error.get();
+        if (throwable != null) {
+          this.sink.error(throwable);
+        }
+        else if (this.completed.get()) {
+          this.sink.complete();
+        }
+        else {
+          request(1);
+        }
       }
     }
 
     @Override
-    public void failed(Throwable exc, ByteBuffer byteBuffer) {
-      sinkDataBuffer();
-      this.sink.error(exc);
-    }
+    public void failed(Throwable exc, Attachment attachment) {
+      attachment.iterator().close();
 
-    private void sinkDataBuffer() {
-      DataBuffer dataBuffer = this.dataBuffer.get();
-      Assert.state(dataBuffer != null, "DataBuffer should not be null");
-      this.sink.next(dataBuffer);
-      this.dataBuffer.set(null);
+      this.sink.next(attachment.dataBuffer());
+      this.writing.set(false);
+
+      this.sink.error(exc);
     }
 
     @Override
     public Context currentContext() {
       return Context.of(this.sink.contextView());
+    }
+
+    private record Attachment(
+            ByteBuffer byteBuffer, DataBuffer dataBuffer, ByteBufferIterator iterator) {
+
     }
 
   }

@@ -46,12 +46,12 @@ import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcesso
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.context.aware.ResourceLoaderAware;
-import cn.taketoday.core.Conventions;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.proxy.InterfaceMaker;
+import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.core.Conventions;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;

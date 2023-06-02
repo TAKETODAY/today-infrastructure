@@ -21,6 +21,7 @@
 package cn.taketoday.util;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,10 +29,10 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -111,7 +112,7 @@ public class Instantiator<T> {
    * necessary.
    *
    * @param names the class names to instantiate
-   * @return a list of instantiated instances
+   * @return a list of instantiated instances, can be modified
    */
   public List<T> instantiate(Collection<String> names) {
     return instantiate(null, names);
@@ -123,7 +124,7 @@ public class Instantiator<T> {
    *
    * @param classLoader the source classloader
    * @param names the class names to instantiate
-   * @return a list of instantiated instances
+   * @return a list of instantiated instances, can be modified
    */
   public List<T> instantiate(@Nullable ClassLoader classLoader, Collection<String> names) {
     Assert.notNull(names, "Names must not be null");
@@ -134,7 +135,7 @@ public class Instantiator<T> {
    * Instantiate the given set of classes, injecting constructor arguments as necessary.
    *
    * @param types the types to instantiate
-   * @return a list of instantiated instances
+   * @return a list of instantiated instances, can be modified
    */
   public List<T> instantiateTypes(Collection<Class<?>> types) {
     Assert.notNull(types, "Types must not be null");
@@ -142,10 +143,12 @@ public class Instantiator<T> {
   }
 
   private List<T> instantiate(Stream<TypeSupplier> typeSuppliers) {
-    List<T> instances = typeSuppliers.map(this::instantiate)
-            .collect(Collectors.toList());
+    ArrayList<T> instances = new ArrayList<>();
+    typeSuppliers.map(this::instantiate)
+            .filter(Objects::nonNull)
+            .forEach(instances::add);
     AnnotationAwareOrderComparator.sort(instances);
-    return Collections.unmodifiableList(instances);
+    return instances;
   }
 
   private T instantiate(TypeSupplier typeSupplier) {

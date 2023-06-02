@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import java.io.IOException;
@@ -58,10 +59,9 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-12-08 19:08
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MimeTypeUtils
- * @since 2.1.7
+ * @since 2.1.7 2019-12-08 19:08
  */
 public class MimeType implements Comparable<MimeType>, Serializable {
 
@@ -290,7 +290,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @return whether the subtype is a wildcard
    */
   public boolean isWildcardSubtype() {
-    return WILDCARD_TYPE.equals(getSubtype()) || getSubtype().startsWith("*+");
+    String subtype = getSubtype();
+    return WILDCARD_TYPE.equals(subtype) || subtype.startsWith("*+");
   }
 
   /**

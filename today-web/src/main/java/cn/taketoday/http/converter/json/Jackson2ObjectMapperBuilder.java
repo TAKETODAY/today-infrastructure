@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -66,14 +66,13 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLResolver;
 
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -855,7 +854,7 @@ public class Jackson2ObjectMapperBuilder {
       objectMapper.configure((MapperFeature) feature, enabled);
     }
     else {
-      throw new BeansException("Unknown feature class: " + feature.getClass().getName());
+      throw new IllegalArgumentException("Unknown feature class: " + feature.getClass().getName());
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,11 +35,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -57,11 +56,23 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.servlet.filter.OncePerRequestFilter#shouldNotFilterAsyncDispatch
  * @see cn.taketoday.web.servlet.filter.OncePerRequestFilter#isAsyncDispatch
  * @since 4.0
  */
 public final class WebAsyncManager {
+  /**
+   * The name attribute of the {@link RequestContext}.
+   */
+  public static final String WEB_ASYNC_REQUEST_ATTRIBUTE =
+          WebAsyncManager.class.getName() + ".WEB_REQUEST";
+
+  /**
+   * The name attribute containing the result.
+   */
+  public static final String WEB_ASYNC_RESULT_ATTRIBUTE =
+          WebAsyncManager.class.getName() + ".WEB_ASYNC_RESULT";
 
   private static final Object RESULT_NONE = new Object();
 
@@ -70,11 +81,8 @@ public final class WebAsyncManager {
 
   private static final Logger logger = LoggerFactory.getLogger(WebAsyncManager.class);
 
-  private static final CallableProcessingInterceptor timeoutCallableInterceptor =
-          new TimeoutCallableProcessingInterceptor();
-
-  private static final DeferredResultProcessingInterceptor timeoutDeferredResultInterceptor =
-          new TimeoutDeferredResultProcessingInterceptor();
+  private static final TimeoutAsyncProcessingInterceptor timeoutInterceptor =
+          new TimeoutAsyncProcessingInterceptor();
 
   private static Boolean taskExecutorWarning = true;
 
@@ -99,12 +107,7 @@ public final class WebAsyncManager {
 
   private final RequestContext requestContext;
 
-  /**
-   * Package-private constructor.
-   *
-   * @see WebAsyncUtils#getAsyncManager(cn.taketoday.web.RequestContext)
-   */
-  WebAsyncManager(RequestContext requestContext) {
+  public WebAsyncManager(RequestContext requestContext) {
     this.requestContext = requestContext;
   }
 
@@ -113,7 +116,7 @@ public final class WebAsyncManager {
    * more than once during a single request to accurately reflect the current
    * state of the request (e.g. following a forward, request/response
    * wrapping, etc). However, it should not be set while concurrent handling
-   * is in progress, i.e. while {@link #isConcurrentHandlingStarted()} is
+   * is in progress, i.e. while {@link RequestContext#isConcurrentHandlingStarted()} is
    * {@code true}.
    *
    * @param asyncRequest the web request to use
@@ -121,8 +124,6 @@ public final class WebAsyncManager {
   public void setAsyncRequest(AsyncWebRequest asyncRequest) {
     Assert.notNull(asyncRequest, "AsyncWebRequest is required");
     this.asyncRequest = asyncRequest;
-    this.asyncRequest.addCompletionHandler(
-            () -> requestContext.removeAttribute(WebAsyncUtils.WEB_ASYNC_MANAGER_ATTRIBUTE));
   }
 
   /**
@@ -132,18 +133,6 @@ public final class WebAsyncManager {
    */
   public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
     this.taskExecutor = taskExecutor;
-  }
-
-  /**
-   * Whether the selected handler for the current request chose to handle the
-   * request asynchronously. A return value of "true" indicates concurrent
-   * handling is under way and the response will remain open. A return value
-   * of "false" means concurrent handling was either not started or possibly
-   * that it has completed and the request was dispatched for further
-   * processing of the concurrent result.
-   */
-  public boolean isConcurrentHandlingStarted() {
-    return asyncRequest != null && asyncRequest.isAsyncStarted();
   }
 
   /**
@@ -307,10 +296,10 @@ public final class WebAsyncManager {
       logExecutorWarning();
     }
 
-    ArrayList<CallableProcessingInterceptor> interceptors = new ArrayList<>();
+    var interceptors = new ArrayList<CallableProcessingInterceptor>();
     interceptors.add(webAsyncTask.getInterceptor());
     interceptors.addAll(callableInterceptors.values());
-    interceptors.add(timeoutCallableInterceptor);
+    interceptors.add(timeoutInterceptor);
 
     Callable<?> callable = webAsyncTask.getCallable();
     CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
@@ -343,6 +332,8 @@ public final class WebAsyncManager {
     startAsyncProcessing(processingContext);
     try {
       Future<?> future = taskExecutor.submit(() -> {
+        // context aware
+        RequestContextHolder.set(requestContext);
         Object result = null;
         try {
           interceptorChain.applyPreProcess(requestContext, callable);
@@ -355,6 +346,7 @@ public final class WebAsyncManager {
           result = interceptorChain.applyPostProcess(requestContext, callable, result);
         }
         setConcurrentResultAndDispatch(result);
+        RequestContextHolder.remove();
       });
       interceptorChain.setTaskFuture(future);
     }
@@ -387,12 +379,11 @@ public final class WebAsyncManager {
   }
 
   private String formatRequestUri() {
-    HttpServletRequest request = ServletUtils.getServletRequest(requestContext);
-    return request != null ? request.getRequestURI() : "servlet container";
+    return requestContext.getRequestURI();
   }
 
   private void setConcurrentResultAndDispatch(Object result) {
-    synchronized(WebAsyncManager.this) {
+    synchronized(this) {
       if (concurrentResult != RESULT_NONE) {
         return;
       }
@@ -411,7 +402,7 @@ public final class WebAsyncManager {
       boolean isError = result instanceof Throwable;
       logger.debug("Async {}, dispatch to {}", (isError ? "error" : "result set"), formatRequestUri());
     }
-    asyncRequest.dispatch();
+    asyncRequest.dispatch(result);
   }
 
   /**
@@ -443,7 +434,7 @@ public final class WebAsyncManager {
     List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
     interceptors.add(deferredResult.getInterceptor());
     interceptors.addAll(deferredResultInterceptors.values());
-    interceptors.add(timeoutDeferredResultInterceptor);
+    interceptors.add(timeoutInterceptor);
 
     var interceptorChain = new DeferredResultInterceptorChain(interceptors);
     asyncRequest.addTimeoutHandler(() -> {
@@ -469,8 +460,8 @@ public final class WebAsyncManager {
       }
     });
 
-    asyncRequest.addCompletionHandler(()
-            -> interceptorChain.triggerAfterCompletion(requestContext, deferredResult));
+    asyncRequest.addCompletionHandler(() ->
+            interceptorChain.triggerAfterCompletion(requestContext, deferredResult));
 
     interceptorChain.applyBeforeConcurrentHandling(requestContext, deferredResult);
     startAsyncProcessing(processingContext);
@@ -500,8 +491,22 @@ public final class WebAsyncManager {
     }
   }
 
-  public BindingContext getBindingContext() {
-    return requestContext.getBindingContext();
+  //
+
+  @Nullable
+  public static Object findHttpRequestHandler(RequestContext request) {
+    var asyncManager = request.getAsyncManager();
+    Object[] concurrentResultContext = asyncManager.getConcurrentResultContext();
+    if (concurrentResultContext != null && concurrentResultContext.length == 1) {
+      return concurrentResultContext[0];
+    }
+    else {
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        return matchingMetadata.getHandler();
+      }
+    }
+    return null;
   }
 
 }

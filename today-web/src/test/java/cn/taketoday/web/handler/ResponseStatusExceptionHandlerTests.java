@@ -40,7 +40,7 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.MethodNotAllowedException;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.beans.ITestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -114,8 +114,13 @@ class ResponseStatusExceptionHandlerTests {
 
   @Nullable
   private Object handleException(Exception ex) throws Exception {
-    MockServletRequestContext context = new MockServletRequestContext(request, response);
-    return exceptionHandler.handleException(context, ex, null);
+    ServletRequestContext context = new ServletRequestContext(null, request, response);
+    try {
+      return exceptionHandler.handleException(context, ex, null);
+    }
+    finally {
+      context.flush();
+    }
   }
 
   @Test // SPR-12903

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.MimeMappings.Mapping;
@@ -48,9 +48,9 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
-import cn.taketoday.session.config.SameSite;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.config.SameSite;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
@@ -307,7 +307,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   @Override
   public WebServer getWebServer(ServletContextInitializer... initializers) {
-    Builder builder = delegate.createBuilder(this);
+    Builder builder = delegate.createBuilder(this, this::getSslBundle);
     DeploymentManager manager = createManager(initializers);
     return getUndertowWebServer(builder, manager, getPort());
   }

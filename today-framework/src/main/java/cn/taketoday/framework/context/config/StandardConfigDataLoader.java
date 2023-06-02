@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,11 +30,14 @@ import cn.taketoday.framework.context.config.ConfigData.PropertySourceOptions;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginTrackedResource;
 
+import static cn.taketoday.framework.context.config.ConfigDataResourceNotFoundException.throwIfDoesNotExist;
+
 /**
  * {@link ConfigDataLoader} for {@link Resource} backed locations.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class StandardConfigDataLoader implements ConfigDataLoader<StandardConfigDataResource> {
@@ -49,13 +52,13 @@ public class StandardConfigDataLoader implements ConfigDataLoader<StandardConfig
     if (resource.isEmptyDirectory()) {
       return ConfigData.EMPTY;
     }
-    ConfigDataResourceNotFoundException.throwIfDoesNotExist(resource, resource.getResource());
+    throwIfDoesNotExist(resource, resource.getResource());
     StandardConfigDataReference reference = resource.getReference();
-    Resource originTrackedResource = OriginTrackedResource.from(resource.getResource(), Origin.from(reference.getConfigDataLocation()));
-    String name = String.format("Config resource '%s' via location '%s'", resource,
-            reference.getConfigDataLocation());
-    List<PropertySource<?>> propertySources = reference.getPropertySourceLoader().load(name, originTrackedResource);
-    PropertySourceOptions options = (resource.getProfile() != null) ? PROFILE_SPECIFIC : NON_PROFILE_SPECIFIC;
+    Resource originTrackedResource = OriginTrackedResource.from(resource.getResource(), Origin.from(reference.configDataLocation));
+    String name = String.format("Config resource '%s' via location '%s'",
+            resource, reference.configDataLocation);
+    List<PropertySource<?>> propertySources = reference.propertySourceLoader.load(name, originTrackedResource);
+    PropertySourceOptions options = resource.getProfile() != null ? PROFILE_SPECIFIC : NON_PROFILE_SPECIFIC;
     return new ConfigData(propertySources, options);
   }
 

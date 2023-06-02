@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,14 +24,14 @@ import java.util.Collection;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.annotation.ImportAware;
+import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.TransactionManagementConfigUtils;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.TransactionManager;
+import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.util.CollectionUtils;
 
@@ -41,6 +41,7 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Chris Beams
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableTransactionManagement
  * @since 4.0
  */
@@ -77,7 +78,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
   }
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @Bean(TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME)
+  @Component(TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME)
   public static TransactionalEventListenerFactory transactionalEventListenerFactory() {
     return new TransactionalEventListenerFactory();
   }

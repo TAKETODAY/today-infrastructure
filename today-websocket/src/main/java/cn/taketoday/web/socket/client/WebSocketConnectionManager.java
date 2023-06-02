@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,17 +19,18 @@
  */
 package cn.taketoday.web.socket.client;
 
+import java.net.URI;
+import java.util.List;
+
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureCallback;
-import cn.taketoday.web.socket.LoggingWebSocketHandlerDecorator;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
-
-import java.util.List;
+import cn.taketoday.web.socket.handler.LoggingWebSocketHandlerDecorator;
 
 /**
  * A WebSocket connection manager that is given a URI, a {@link WebSocketClient}, and a
@@ -51,10 +52,23 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport {
 
   private final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
 
+  /**
+   * Constructor with the client to use and a handler to handle messages with.
+   */
   public WebSocketConnectionManager(
           WebSocketClient client, WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables) {
 
     super(uriTemplate, uriVariables);
+    this.client = client;
+    this.webSocketHandler = decorateWebSocketHandler(webSocketHandler);
+  }
+
+  /**
+   * Variant of {@link #WebSocketConnectionManager(WebSocketClient, WebSocketHandler, String, Object...)}
+   * with a prepared {@link URI}.
+   */
+  public WebSocketConnectionManager(WebSocketClient client, WebSocketHandler webSocketHandler, URI uri) {
+    super(uri);
     this.client = client;
     this.webSocketHandler = decorateWebSocketHandler(webSocketHandler);
   }

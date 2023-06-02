@@ -4,7 +4,7 @@ context:
       - B
 ---
 
-context.profiles: "!A"
+infra.profiles: "!A"
 
 version: NOT A
 

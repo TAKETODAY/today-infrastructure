@@ -30,20 +30,19 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.task.TaskExecutor;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.http.server.DelegatingServerHttpResponse;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 
@@ -160,8 +159,6 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       return;
     }
 
-    ServerHttpResponse outputMessage = request.getServerHttpResponse();
-
     // maybe nested body
     MethodParameter returnType = null;
     if (handler instanceof HandlerMethod handlerMethod) {
@@ -169,11 +166,11 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       // for ResponseEntity unwrap body
       if (returnValue instanceof ResponseEntity<?> responseEntity) {
         request.setStatus(responseEntity.getStatusCode());
-        outputMessage.getHeaders().putAll(responseEntity.getHeaders());
+        request.mergeToResponse(responseEntity.getHeaders());
         returnValue = responseEntity.getBody();
         returnType = returnType.nested();
         if (returnValue == null) {
-          outputMessage.flush();
+          request.flush();
           return;
         }
       }
@@ -189,7 +186,6 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       emitter = reactiveHandler.handleValue(returnValue, returnType, request);
       if (emitter == null) {
         // Not streaming: write headers without committing response..
-        request.mergeToResponse(outputMessage.getHeaders());
         return;
       }
     }
@@ -198,8 +194,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       throw new UnsupportedOperationException(
               "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
     }
-
-    emitter.extendResponse(outputMessage);
+    emitter.extendResponse(request);
 
     // At this point we know we're streaming..
     if (ServletDetector.runningInServlet(request)) {
@@ -207,13 +202,15 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     }
 
     HttpMessageConvertingHandler responseBodyEmitter;
-    // Wrap the response to ignore further header changes
+    // the response will ignore further header changes
     // Headers will be flushed at the first write
-    outputMessage = new StreamingServletServerHttpResponse(outputMessage);
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
-      WebAsyncUtils.getAsyncManager(request).startDeferredResultProcessing(deferredResult);
-      responseBodyEmitter = new HttpMessageConvertingHandler(outputMessage, deferredResult);
+
+      request.getAsyncManager()
+              .startDeferredResultProcessing(deferredResult, handler);
+
+      responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
     }
     catch (Throwable ex) {
       emitter.initializeWithError(ex);
@@ -227,12 +224,13 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    * ResponseBodyEmitter.Handler that writes with HttpMessageConverter's.
    */
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
+    private static final Logger log = LoggerFactory.getLogger(HttpMessageConvertingHandler.class);
 
-    private final ServerHttpResponse outputMessage;
+    private final RequestContext request;
     private final DeferredResult<?> deferredResult;
 
-    public HttpMessageConvertingHandler(ServerHttpResponse outputMessage, DeferredResult<?> deferredResult) {
-      this.outputMessage = outputMessage;
+    public HttpMessageConvertingHandler(RequestContext request, DeferredResult<?> deferredResult) {
+      this.request = request;
       this.deferredResult = deferredResult;
     }
 
@@ -242,8 +240,10 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       Class<?> dataClass = data.getClass();
       for (HttpMessageConverter converter : sseMessageConverters) {
         if (converter.canWrite(dataClass, mediaType)) {
-          converter.write(data, mediaType, outputMessage);
-          outputMessage.flush();
+          LogFormatUtils.traceDebug(log, traceOn ->
+                  "Writing [" + LogFormatUtils.formatValue(data, !traceOn) + "]");
+          converter.write(data, mediaType, request.asHttpOutputMessage());
+          request.flush();
           return;
         }
       }
@@ -253,53 +253,33 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     @Override
     public void complete() {
       try {
-        this.outputMessage.flush();
-        this.deferredResult.setResult(null);
+        request.flush();
+        deferredResult.setResult(null);
       }
       catch (IOException ex) {
-        this.deferredResult.setErrorResult(ex);
+        deferredResult.setErrorResult(ex);
       }
     }
 
     @Override
     public void completeWithError(Throwable failure) {
-      this.deferredResult.setErrorResult(failure);
+      deferredResult.setErrorResult(failure);
     }
 
     @Override
     public void onTimeout(Runnable callback) {
-      this.deferredResult.onTimeout(callback);
+      deferredResult.onTimeout(callback);
     }
 
     @Override
     public void onError(Consumer<Throwable> callback) {
-      this.deferredResult.onError(callback);
+      deferredResult.onError(callback);
     }
 
     @Override
     public void onCompletion(Runnable callback) {
-      this.deferredResult.onCompletion(callback);
+      deferredResult.onCompletion(callback);
     }
-  }
-
-  /**
-   * Wrap to silently ignore header changes HttpMessageConverter's that would
-   * otherwise cause HttpHeaders to raise exceptions.
-   */
-  private static class StreamingServletServerHttpResponse extends DelegatingServerHttpResponse {
-
-    private final HttpHeaders mutableHeaders = HttpHeaders.create();
-
-    public StreamingServletServerHttpResponse(ServerHttpResponse delegate) {
-      super(delegate);
-      this.mutableHeaders.putAll(delegate.getHeaders());
-    }
-
-    @Override
-    public HttpHeaders getHeaders() {
-      return this.mutableHeaders;
-    }
-
   }
 
 }

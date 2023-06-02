@@ -26,13 +26,13 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.condition.ConditionMessage.Style;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * {@link Conditional} that only matches when the specified resources are exits
@@ -54,10 +54,10 @@ public @interface ConditionalOnResource {
 
 }
 
-final class OnResourceCondition extends ContextCondition {
+final class OnResourceCondition extends InfraCondition {
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(ConditionalOnResource.class.getName(), true);
     ResourceLoader loader = context.getResourceLoader();
     List<String> locations = new ArrayList<>();

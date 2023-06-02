@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,11 @@ public interface HttpRequestHandler {
   Object NONE_RETURN_VALUE = new Object();
 
   /**
-   * Handle request
+   * Process the request and return a result object which the DispatcherHandler
+   * will handle. A {@code null} return value is not an error: it indicates that
+   * this handler completed request processing itself and that there is therefore no
+   * explicit result to handle. a {@link #NONE_RETURN_VALUE} indicates that no
+   * result to handle by {@link ReturnValueHandler}
    *
    * @param request Current request context
    * @return Result to be handled by {@link ReturnValueHandler}

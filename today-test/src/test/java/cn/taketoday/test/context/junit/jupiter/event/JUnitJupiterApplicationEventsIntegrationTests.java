@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,12 +20,16 @@
 
 package cn.taketoday.test.context.junit.jupiter.event;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.parallel.Execution;
 
 import java.util.stream.Stream;
 
@@ -40,6 +44,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * Integration tests for {@link ApplicationEvents} in conjunction with JUnit Jupiter.
@@ -47,6 +52,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
  * @author Sam Brannen
  * @since 4.0
  */
+@Execution(SAME_THREAD)
 @JUnitConfig
 @RecordApplicationEvents
 class JUnitJupiterApplicationEventsIntegrationTests {
@@ -238,6 +244,38 @@ class JUnitJupiterApplicationEventsIntegrationTests {
                 "CustomEvent", "AfterTestExecutionEvent", "CustomEvent");
       }
     }
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  class AsyncEventTests {
+
+    @Autowired
+    ApplicationEvents applicationEvents;
+
+    @Test
+    void asyncPublication() throws InterruptedException {
+      Thread t = new Thread(() -> context.publishEvent(new CustomEvent("async")));
+      t.start();
+      t.join();
+
+      assertThat(this.applicationEvents.stream(CustomEvent.class))
+              .singleElement()
+              .extracting(CustomEvent::getMessage, InstanceOfAssertFactories.STRING)
+              .isEqualTo("async");
+    }
+
+    @Test
+    void asyncConsumption() {
+      context.publishEvent(new CustomEvent("sync"));
+
+      Awaitility.await().atMost(Durations.ONE_SECOND)
+              .untilAsserted(() -> assertThat(assertThat(this.applicationEvents.stream(CustomEvent.class))
+                      .singleElement()
+                      .extracting(CustomEvent::getMessage, InstanceOfAssertFactories.STRING)
+                      .isEqualTo("sync")));
+    }
+
   }
 
   private static void assertEventTypes(ApplicationEvents applicationEvents, String... types) {

@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
@@ -243,7 +242,7 @@ class RestTemplateBuilderTests {
   void requestFactoryClassWhenFactoryIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.requestFactory((Class<ClientHttpRequestFactory>) null))
-            .withMessageContaining("RequestFactory must not be null");
+            .withMessageContaining("RequestFactoryType is required");
   }
 
   @Test
@@ -262,7 +261,7 @@ class RestTemplateBuilderTests {
   void requestFactoryWhenSupplierIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.builder.requestFactory((Supplier<ClientHttpRequestFactory>) null))
-            .withMessageContaining("RequestFactory Supplier must not be null");
+            .withMessageContaining("RequestFactory supplier is required");
   }
 
   @Test
@@ -544,7 +543,7 @@ class RestTemplateBuilderTests {
     assertThatIllegalStateException()
             .isThrownBy(() -> this.builder.requestFactory(OkHttp3ClientHttpRequestFactory.class)
                     .setBufferRequestBody(false).build().getRequestFactory())
-            .withMessageContaining(OkHttp3ClientHttpRequestFactory.class.getName());
+            .withMessageContaining(OkHttp3ClientHttpRequestFactory.class.getSimpleName());
   }
 
   @Test

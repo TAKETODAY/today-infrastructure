@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,16 +45,19 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.annotation.ImportAware;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.OrderComparator;
+import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.backoff.Sleeper;
 import cn.taketoday.retry.interceptor.MethodArgumentsKeyGenerator;
 import cn.taketoday.retry.interceptor.NewMethodArgumentsIdentifier;
 import cn.taketoday.retry.policy.RetryContextCache;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -72,7 +75,7 @@ import cn.taketoday.util.ReflectionUtils;
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class RetryConfiguration extends AbstractPointcutAdvisor
-        implements IntroductionAdvisor, BeanFactoryAware, InitializingBean, SmartInitializingSingleton {
+        implements IntroductionAdvisor, BeanFactoryAware, InitializingBean, SmartInitializingSingleton, ImportAware {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -90,6 +93,15 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
 
   private BeanFactory beanFactory;
 
+  @Nullable
+  protected AnnotationAttributes enableRetry;
+
+  @Override
+  public void setImportMetadata(AnnotationMetadata importMetadata) {
+    this.enableRetry = AnnotationAttributes
+            .fromMap(importMetadata.getAnnotationAttributes(EnableRetry.class.getName()));
+  }
+
   @Override
   public void afterPropertiesSet() {
     this.sleeper = findBean(Sleeper.class);
@@ -100,6 +112,9 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     retryableAnnotationTypes.add(Retryable.class);
     this.pointcut = buildPointcut(retryableAnnotationTypes);
     this.advice = buildAdvice();
+    if (enableRetry != null) {
+      setOrder(enableRetry.getNumber("order"));
+    }
   }
 
   @Nullable

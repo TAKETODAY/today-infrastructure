@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class Jackson2CodecSupport {
@@ -81,8 +82,14 @@ public abstract class Jackson2CodecSupport {
   private static final String JSON_VIEW_HINT_ERROR =
           "@JsonView only supported for write hints with exactly 1 class argument: ";
 
-  private static final List<MimeType> DEFAULT_MIME_TYPES = List.of(
-          MediaType.APPLICATION_JSON, new MediaType("application", "*+json"), MediaType.APPLICATION_NDJSON);
+  private static final List<MimeType> defaultMimeTypes = List.of(
+          MediaType.APPLICATION_JSON,
+          new MediaType("application", "*+json"),
+          MediaType.APPLICATION_NDJSON
+  );
+
+  private static final List<MimeType> problemDetailMimeTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   protected final Logger logger = HttpLogging.forLogName(getClass());
 
@@ -93,23 +100,13 @@ public abstract class Jackson2CodecSupport {
 
   private final List<MimeType> mimeTypes;
 
-  private final List<MimeType> problemDetailMimeTypes;
-
   /**
    * Constructor with a Jackson {@link ObjectMapper} to use.
    */
   protected Jackson2CodecSupport(ObjectMapper objectMapper, MimeType... mimeTypes) {
     Assert.notNull(objectMapper, "ObjectMapper must not be null");
     this.defaultObjectMapper = objectMapper;
-    this.mimeTypes = ObjectUtils.isNotEmpty(mimeTypes) ? List.of(mimeTypes) : DEFAULT_MIME_TYPES;
-    this.problemDetailMimeTypes = initProblemDetailMediaTypes(this.mimeTypes);
-  }
-
-  private static List<MimeType> initProblemDetailMediaTypes(List<MimeType> supportedMimeTypes) {
-    List<MimeType> mimeTypes = new ArrayList<>();
-    mimeTypes.add(MediaType.APPLICATION_PROBLEM_JSON);
-    mimeTypes.addAll(supportedMimeTypes);
-    return Collections.unmodifiableList(mimeTypes);
+    this.mimeTypes = ObjectUtils.isNotEmpty(mimeTypes) ? List.of(mimeTypes) : defaultMimeTypes;
   }
 
   /**
@@ -194,7 +191,9 @@ public abstract class Jackson2CodecSupport {
     if (CollectionUtils.isNotEmpty(result)) {
       return result;
     }
-    return ProblemDetail.class.isAssignableFrom(elementClass) ? problemDetailMimeTypes : getMimeTypes();
+    return ProblemDetail.class.isAssignableFrom(elementClass)
+           ? problemDetailMimeTypes
+           : getMimeTypes();
   }
 
   protected boolean notSupportsMimeType(@Nullable MimeType mimeType) {
@@ -241,7 +240,9 @@ public abstract class Jackson2CodecSupport {
       JsonView annotation = getAnnotation(param, JsonView.class);
       if (annotation != null) {
         Class<?>[] classes = annotation.value();
-        Assert.isTrue(classes.length == 1, JSON_VIEW_HINT_ERROR + param);
+        if (classes.length != 1) {
+          throw new IllegalArgumentException(JSON_VIEW_HINT_ERROR + param);
+        }
         hints = hints != null ? hints : new HashMap<>(1);
         hints.put(JSON_VIEW_HINT, classes[0]);
       }

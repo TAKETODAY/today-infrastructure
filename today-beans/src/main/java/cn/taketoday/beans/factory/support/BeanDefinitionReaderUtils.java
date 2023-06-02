@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -120,7 +120,7 @@ public abstract class BeanDefinitionReaderUtils {
         generatedBeanName = definition.getFactoryBeanName() + "$created";
       }
     }
-    if (!StringUtils.hasText(generatedBeanName)) {
+    if (StringUtils.isBlank(generatedBeanName)) {
       throw new BeanDefinitionStoreException("Unnamed bean definition specifies neither " +
               "'class' nor 'parent' nor 'factory-bean' - can't generate bean name");
     }

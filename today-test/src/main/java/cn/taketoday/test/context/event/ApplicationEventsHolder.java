@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.test.context.event;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 
 /**
  * Holder class to expose the application events published during the execution
@@ -38,7 +38,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}
  * into a field in the test class or injected via a parameter in test and
  * lifecycle methods when using JUnit Jupiter and the {@link
- * ApplicationExtension ApplicationExtension}.
+ * InfraExtension ApplicationExtension}.
  *
  * @author Sam Brannen
  * @author Oliver Drotbohm
@@ -49,7 +49,7 @@ import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
  */
 public abstract class ApplicationEventsHolder {
 
-  private static final ThreadLocal<DefaultApplicationEvents> applicationEvents = new ThreadLocal<>();
+  private static final ThreadLocal<DefaultApplicationEvents> applicationEvents = new InheritableThreadLocal<>();
 
   private ApplicationEventsHolder() {
     // no-op to prevent instantiation of this holder class

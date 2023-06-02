@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.context;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -33,13 +32,13 @@ import java.util.Set;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.context.support.ServletContextAttributeExporter;
-import cn.taketoday.web.context.support.ServletContextAttributeFactoryBean;
-import cn.taketoday.web.context.support.ServletContextParameterFactoryBean;
-import cn.taketoday.web.context.support.ServletContextResource;
-import cn.taketoday.web.context.support.ServletContextResourceLoader;
-import cn.taketoday.web.context.support.ServletContextResourcePatternLoader;
-import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
+import cn.taketoday.web.servlet.support.ServletContextAttributeExporter;
+import cn.taketoday.web.servlet.support.ServletContextAttributeFactoryBean;
+import cn.taketoday.web.servlet.support.ServletContextParameterFactoryBean;
+import cn.taketoday.web.servlet.support.ServletContextResource;
+import cn.taketoday.web.servlet.support.ServletContextResourceLoader;
+import cn.taketoday.web.servlet.support.ServletContextResourcePatternLoader;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
@@ -58,7 +57,7 @@ public class ServletContextSupportTests {
     MockServletContext sc = new MockServletContext();
     sc.setAttribute("myAttr", "myValue");
 
-    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("attributeName", "myAttr");
@@ -74,7 +73,7 @@ public class ServletContextSupportTests {
   public void testServletContextAttributeFactoryBeanWithAttributeNotFound() {
     MockServletContext sc = new MockServletContext();
 
-    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("attributeName", "myAttr");
@@ -93,7 +92,7 @@ public class ServletContextSupportTests {
     MockServletContext sc = new MockServletContext();
     sc.addInitParameter("myParam", "myValue");
 
-    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("initParamName", "myParam");
@@ -109,7 +108,7 @@ public class ServletContextSupportTests {
   public void testServletContextParameterFactoryBeanWithAttributeNotFound() {
     MockServletContext sc = new MockServletContext();
 
-    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.setServletContext(sc);
     PropertyValues pvs = new PropertyValues();
     pvs.add("initParamName", "myParam");

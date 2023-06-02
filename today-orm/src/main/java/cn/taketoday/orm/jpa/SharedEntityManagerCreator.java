@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,9 +28,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -74,26 +74,28 @@ public abstract class SharedEntityManagerCreator {
 
   private static final Class<?>[] NO_ENTITY_MANAGER_INTERFACES = new Class<?>[0];
 
-  private static final HashSet<String> queryTerminatingMethods = new HashSet<>(8);
-  private static final HashSet<String> transactionRequiringMethods = new HashSet<>(8);
   private static final ConcurrentReferenceHashMap<Class<?>, Class<?>[]>
           cachedQueryInterfaces = new ConcurrentReferenceHashMap<>(4);
 
-  static {
-    transactionRequiringMethods.add("joinTransaction");
-    transactionRequiringMethods.add("flush");
-    transactionRequiringMethods.add("persist");
-    transactionRequiringMethods.add("merge");
-    transactionRequiringMethods.add("remove");
-    transactionRequiringMethods.add("refresh");
+  private static final Set<String> transactionRequiringMethods = Set.of(
+          "joinTransaction",
+          "flush",
+          "persist",
+          "merge",
+          "remove",
+          "refresh");
 
-    queryTerminatingMethods.add("execute");  // JPA 2.1 StoredProcedureQuery
-    queryTerminatingMethods.add("executeUpdate");
-    queryTerminatingMethods.add("getSingleResult");
-    queryTerminatingMethods.add("getResultStream");
-    queryTerminatingMethods.add("getResultList");
-    queryTerminatingMethods.add("list");  // Hibernate Query.list() method
-  }
+  private static final Set<String> queryTerminatingMethods = Set.of(
+          "execute",  // jakarta.persistence.StoredProcedureQuery.execute()
+          "executeUpdate", // jakarta.persistence.Query.executeUpdate()
+          "getSingleResult",  // jakarta.persistence.Query.getSingleResult()
+          "getResultStream",  // jakarta.persistence.Query.getResultStream()
+          "getResultList",  // jakarta.persistence.Query.getResultList()
+          "list",  // org.hibernate.query.Query.list()
+          "stream",  // org.hibernate.query.Query.stream()
+          "uniqueResult",  // org.hibernate.query.Query.uniqueResult()
+          "uniqueResultOptional"  // org.hibernate.query.Query.uniqueResultOptional()
+  );
 
   /**
    * Create a transactional EntityManager proxy for the given EntityManagerFactory.
@@ -432,7 +434,7 @@ public abstract class SharedEntityManagerCreator {
                   entry.setValue(storedProc.getOutputParameterValue(key.toString()));
                 }
               }
-              catch (IllegalArgumentException ex) {
+              catch (RuntimeException ex) {
                 entry.setValue(ex);
               }
             }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,7 +60,7 @@ public class RestClientResponseException extends RestClientException {
   private final String responseCharset;
 
   @Nullable
-  private Function<ResolvableType, ?> bodyConvertFunction;
+  private transient Function<ResolvableType, ?> bodyConvertFunction;
 
   /**
    * Construct a new instance of with the given response data.

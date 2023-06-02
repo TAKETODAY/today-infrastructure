@@ -25,7 +25,7 @@ import java.util.Collections;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.DefaultServletHttpRequestHandler;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import jakarta.servlet.ServletContext;

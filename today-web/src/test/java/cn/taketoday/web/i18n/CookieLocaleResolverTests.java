@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.i18n;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -32,8 +31,8 @@ import cn.taketoday.core.i18n.SimpleLocaleContext;
 import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.session.config.EnableWebSession;
-import cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;

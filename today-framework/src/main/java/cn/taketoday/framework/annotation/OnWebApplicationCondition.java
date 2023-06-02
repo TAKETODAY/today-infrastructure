@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,22 +21,23 @@
 package cn.taketoday.framework.annotation;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.FilteringContextCondition;
+import cn.taketoday.context.condition.FilteringInfraCondition;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.framework.web.context.GenericWebServerApplicationContext;
+import cn.taketoday.framework.web.netty.ConfigurableNettyWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
+import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebEnvironment;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@link Condition} that checks for the presence or absence of
@@ -49,10 +50,7 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  * @see ConditionalOnNotWebApplication
  * @since 4.0
  */
-class OnWebApplicationCondition extends FilteringContextCondition implements Ordered {
-
-  private static final String SERVLET_WEB_APPLICATION_CLASS = "cn.taketoday.web.context.support.GenericWebApplicationContext";
-  private static final String REACTIVE_WEB_APPLICATION_CLASS = "cn.taketoday.web.reactive.HandlerResult";
+class OnWebApplicationCondition extends FilteringInfraCondition implements Ordered {
 
   @Override
   public int getOrder() {
@@ -60,14 +58,14 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
   }
 
   @Override
-  protected ConditionOutcome[] getOutcomes(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+  protected ConditionOutcome[] getOutcomes(String[] configClasses,
+          AutoConfigurationMetadata configMetadata) {
+    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
-      String autoConfigurationClass = autoConfigurationClasses[i];
+      String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
         outcomes[i] = getOutcome(
-                autoConfigurationMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
+                configMetadata.get(autoConfigurationClass, "ConditionalOnWebApplication"));
       }
     }
     return outcomes;
@@ -79,24 +77,30 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
     }
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
     if (ConditionalOnWebApplication.Type.SERVLET.name().equals(type)) {
-      if (!ClassNameFilter.isPresent(SERVLET_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
+      if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
       }
     }
-    if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
-      if (!ClassNameFilter.isPresent(REACTIVE_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
+    else if (ConditionalOnWebApplication.Type.NETTY.name().equals(type)) {
+      if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())) {
+        return ConditionOutcome.noMatch(message.didNotFind("netty web application classes").atAll());
+      }
+    }
+    else if (ConditionalOnWebApplication.Type.REACTIVE.name().equals(type)) {
+      if (!ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (!ClassNameFilter.isPresent(SERVLET_WEB_APPLICATION_CLASS, getBeanClassLoader())
-            && !ClassUtils.isPresent(REACTIVE_WEB_APPLICATION_CLASS, getBeanClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("reactive or servlet web application classes").atAll());
+    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, getBeanClassLoader())
+            && !ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
+            && !ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("reactive or servlet, netty web application classes").atAll());
     }
     return null;
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     boolean required = metadata.isAnnotated(ConditionalOnWebApplication.class.getName());
     ConditionOutcome outcome = isWebApplication(context, metadata, required);
     if (required && !outcome.isMatch()) {
@@ -109,17 +113,23 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
   }
 
   private ConditionOutcome isWebApplication(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, boolean required) {
+          ConditionContext context, AnnotatedTypeMetadata metadata, boolean required) {
     return switch (deduceType(metadata)) {
+      case NETTY -> isNettyWebApplication(context);
       case SERVLET -> isServletWebApplication(context);
       case REACTIVE -> isReactiveWebApplication(context);
       default -> isAnyApplication(context, required);
     };
   }
 
-  private ConditionOutcome isAnyApplication(ConditionEvaluationContext context, boolean required) {
+  private ConditionOutcome isAnyApplication(ConditionContext context, boolean required) {
     var message = ConditionMessage.forCondition(
             ConditionalOnWebApplication.class, required ? "(required)" : "");
+
+    ConditionOutcome nettyOutcome = isNettyWebApplication(context);
+    if (nettyOutcome.isMatch() && required) {
+      return new ConditionOutcome(nettyOutcome.isMatch(), message.because(nettyOutcome.getMessage()));
+    }
     ConditionOutcome servletOutcome = isServletWebApplication(context);
     if (servletOutcome.isMatch() && required) {
       return new ConditionOutcome(servletOutcome.isMatch(), message.because(servletOutcome.getMessage()));
@@ -128,43 +138,65 @@ class OnWebApplicationCondition extends FilteringContextCondition implements Ord
     if (reactiveOutcome.isMatch() && required) {
       return new ConditionOutcome(reactiveOutcome.isMatch(), message.because(reactiveOutcome.getMessage()));
     }
-    return new ConditionOutcome(servletOutcome.isMatch() || reactiveOutcome.isMatch(),
-            message.because(servletOutcome.getMessage()).append("and").append(reactiveOutcome.getMessage()));
+    return new ConditionOutcome(
+            servletOutcome.isMatch() || reactiveOutcome.isMatch() || nettyOutcome.isMatch(),
+            message.because(servletOutcome.getMessage())
+                    .append("and").append(nettyOutcome.getMessage())
+                    .append("and").append(reactiveOutcome.getMessage()));
   }
 
-  private ConditionOutcome isServletWebApplication(ConditionEvaluationContext context) {
+  private ConditionOutcome isServletWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    if (!ClassNameFilter.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
+    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())
+            || !ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
-    }
-    if (context.getBeanFactory() != null) {
-      String[] scopes = context.getBeanFactory().getRegisteredScopeNames();
-      if (ObjectUtils.containsElement(scopes, "session")) {
-        return ConditionOutcome.match(message.foundExactly("'session' scope"));
-      }
     }
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }
-    if (context.getResourceLoader() instanceof WebServletApplicationContext) {
+    if (context.getResourceLoader() instanceof WebApplicationContext) {
       return ConditionOutcome.match(message.foundExactly("WebApplicationContext"));
     }
     return ConditionOutcome.noMatch(message.because("not a servlet web application"));
   }
 
-  private ConditionOutcome isReactiveWebApplication(ConditionEvaluationContext context) {
+  private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    if (!ClassNameFilter.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, context.getClassLoader())) {
+
+    if (!ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
     }
+
     if (context.getEnvironment() instanceof ConfigurableReactiveWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableReactiveWebEnvironment"));
     }
+
     ResourceLoader resourceLoader = context.getResourceLoader();
-    if (resourceLoader instanceof WebApplicationContext && !(resourceLoader instanceof WebServletApplicationContext)) {
+    if (resourceLoader instanceof ReactiveWebApplicationContext) {
       return ConditionOutcome.match(message.foundExactly("ReactiveWebApplicationContext"));
     }
     return ConditionOutcome.noMatch(message.because("not a reactive web application"));
+  }
+
+  /**
+   * no Servlet classes
+   */
+  private ConditionOutcome isNettyWebApplication(ConditionContext context) {
+    var message = ConditionMessage.forCondition("");
+
+    if (context.getEnvironment() instanceof ConfigurableNettyWebEnvironment) {
+      return ConditionOutcome.match(message.foundExactly("NettyWebConfigurableEnvironment"));
+    }
+
+    if (ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.foundExactly("servlet web application classes"));
+    }
+
+    ResourceLoader resourceLoader = context.getResourceLoader();
+    if (resourceLoader instanceof GenericWebServerApplicationContext) {
+      return ConditionOutcome.match(message.foundExactly("GenericWebServerApplicationContext"));
+    }
+    return ConditionOutcome.noMatch(message.because("not a netty web application"));
   }
 
   private Type deduceType(AnnotatedTypeMetadata metadata) {

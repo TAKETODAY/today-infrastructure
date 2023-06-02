@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,8 @@
  */
 
 package cn.taketoday.aop;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@code TargetSource} is used to obtain the current "target" of
@@ -46,6 +48,7 @@ public interface TargetSource extends TargetClassAware {
    * @return the type of targets returned by this {@link TargetSource}
    */
   @Override
+  @Nullable
   Class<?> getTargetClass();
 
   /**
@@ -66,6 +69,7 @@ public interface TargetSource extends TargetClassAware {
    * or {@code null} if there is no actual target instance
    * @throws Exception if the target object can't be resolved
    */
+  @Nullable
   Object getTarget() throws Exception;
 
   /**

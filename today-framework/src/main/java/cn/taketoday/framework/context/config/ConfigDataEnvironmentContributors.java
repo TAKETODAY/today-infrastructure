@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,6 +51,8 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmentContributor> {
   private static final Logger log = LoggerFactory.getLogger(ConfigDataEnvironmentContributors.class);
@@ -67,15 +69,14 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
    * @param bootstrapContext the bootstrap context
    * @param contributors the initial set of contributors
    */
-  ConfigDataEnvironmentContributors(
-          ConfigurableBootstrapContext bootstrapContext,
+  ConfigDataEnvironmentContributors(ConfigurableBootstrapContext bootstrapContext,
           List<ConfigDataEnvironmentContributor> contributors) {
     this.bootstrapContext = bootstrapContext;
     this.root = ConfigDataEnvironmentContributor.of(contributors);
   }
 
-  private ConfigDataEnvironmentContributors(
-          ConfigurableBootstrapContext bootstrapContext, ConfigDataEnvironmentContributor root) {
+  private ConfigDataEnvironmentContributors(ConfigurableBootstrapContext bootstrapContext,
+          ConfigDataEnvironmentContributor root) {
     this.bootstrapContext = bootstrapContext;
     this.root = root;
   }
@@ -90,8 +91,8 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
    * @return a {@link ConfigDataEnvironmentContributors} instance with all relevant
    * imports have been processed
    */
-  ConfigDataEnvironmentContributors withProcessedImports(ConfigDataImporter importer,
-          @Nullable ConfigDataActivationContext activationContext) {
+  ConfigDataEnvironmentContributors withProcessedImports(
+          ConfigDataImporter importer, @Nullable ConfigDataActivationContext activationContext) {
     ImportPhase importPhase = ImportPhase.get(activationContext);
 
     boolean traceEnabled = log.isTraceEnabled();
@@ -127,8 +128,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       if (traceEnabled) {
         log.trace(getImportedMessage(imported.keySet()));
       }
-      ConfigDataEnvironmentContributor contributorAndChildren = contributor.withChildren(importPhase,
-              asContributors(imported));
+      var contributorAndChildren = contributor.withChildren(importPhase, asContributors(imported));
       result = new ConfigDataEnvironmentContributors(bootstrapContext,
               result.getRoot().withReplacement(contributor, contributorAndChildren));
       processed++;

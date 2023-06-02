@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,56 +20,32 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
-import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.ParameterNameDiscoverer;
-import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.task.AsyncTaskExecutor;
-import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
-import cn.taketoday.util.LogFormatUtils;
-import cn.taketoday.util.ReflectionUtils.MethodFilter;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.bind.annotation.InitBinder;
-import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.CallableProcessingInterceptor;
-import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
-import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncTask;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
 
 /**
@@ -87,39 +63,14 @@ import cn.taketoday.web.view.RedirectModelManager;
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
         implements BeanFactoryAware, InitializingBean {
 
-  /**
-   * MethodFilter that matches {@link InitBinder @InitBinder} methods.
-   */
-  public static final MethodFilter INIT_BINDER_METHODS = method ->
-          AnnotatedElementUtils.hasAnnotation(method, InitBinder.class);
-
-  /**
-   * MethodFilter that matches {@link ModelAttribute @ModelAttribute} methods.
-   */
-  public static final MethodFilter MODEL_ATTRIBUTE_METHODS = method ->
-          !AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class)
-                  && AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class);
-
+  @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
 
+  @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
 
   @Nullable
-  private List<ModelAndViewResolver> modelAndViewResolvers;
-
-  @Nullable
   private WebBindingInitializer webBindingInitializer;
-
-  private AsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor("MvcAsync");
-
-  @Nullable
-  private Long asyncRequestTimeout;
-
-  private CallableProcessingInterceptor[] callableInterceptors = new CallableProcessingInterceptor[0];
-
-  private DeferredResultProcessingInterceptor[] deferredResultInterceptors = new DeferredResultProcessingInterceptor[0];
-
-  private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
   private int cacheSecondsForSessionAttributeHandlers = 0;
 
@@ -132,40 +83,22 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   @Nullable
   private ConfigurableBeanFactory beanFactory;
 
-  private final Map<Class<?>, SessionAttributesHandler> sessionAttributesHandlerCache = new ConcurrentHashMap<>(64);
-
-  private final Map<Class<?>, Set<Method>> initBinderCache = new ConcurrentHashMap<>(64);
-
-  private final Map<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
-
-  private final Map<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
-
-  private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
-
-  private final Map<HandlerMethod, ActionMappingAnnotationHandler> annotationHandlerMap = new HashMap<>();
-  private final Map<HandlerMethod, ServletInvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
-
   @Nullable
   private SessionManager sessionManager;
 
   @Nullable
   private RedirectModelManager redirectModelManager;
 
-  public ParameterResolvingRegistry getResolvingRegistry() {
-    return resolvingRegistry;
+  private ControllerMethodResolver methodResolver;
+
+  private ModelHandler modelHandler;
+
+  public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
+    this.redirectModelManager = redirectModelManager;
   }
 
-  public void setResolvingRegistry(ParameterResolvingRegistry resolvingRegistry) {
+  public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
-  }
-
-  /**
-   * Provide handlers for custom return value types. Custom handlers are
-   * ordered after built-in ones. To override the built-in support for
-   * return value handling use {@link #setReturnValueHandlerManager}.
-   */
-  public void setCustomReturnValueHandlers(List<ReturnValueHandler> returnValueHandlers) {
-    returnValueHandlerManager.addHandlers(returnValueHandlers);
   }
 
   /**
@@ -173,11 +106,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * overriding handlers that would otherwise be configured by default.
    */
   public void setReturnValueHandlerManager(@Nullable ReturnValueHandlerManager manager) {
-    if (manager == null) {
-      manager = new ReturnValueHandlerManager();
-      manager.setApplicationContext(getApplicationContext());
-      manager.registerDefaultHandlers();
-    }
     this.returnValueHandlerManager = manager;
   }
 
@@ -185,34 +113,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * Return the configured handlers, or possibly {@code null} if not
    * initialized yet via {@link #afterPropertiesSet()}.
    */
+  @Nullable
   public ReturnValueHandlerManager getReturnValueHandlerManager() {
     return this.returnValueHandlerManager;
-  }
-
-  /**
-   * Provide custom {@link ModelAndViewResolver ModelAndViewResolvers}.
-   * <p><strong>Note:</strong> This method is available for backwards
-   * compatibility only. However, it is recommended to re-write a
-   * {@code ModelAndViewResolver} as {@link HandlerMethodReturnValueHandler}.
-   * An adapter between the two interfaces is not possible since the
-   * {@link HandlerMethodReturnValueHandler#supportsHandlerMethod(HandlerMethod)} method
-   * cannot be implemented. Hence {@code ModelAndViewResolver}s are limited
-   * to always being invoked at the end after all other return value
-   * handlers have been given a chance.
-   * <p>A {@code HandlerMethodReturnValueHandler} provides better access to
-   * the return type and controller method information and can be ordered
-   * freely relative to other return value handlers.
-   */
-  public void setModelAndViewResolvers(@Nullable List<ModelAndViewResolver> modelAndViewResolvers) {
-    this.modelAndViewResolvers = modelAndViewResolvers;
-  }
-
-  /**
-   * Return the configured {@link ModelAndViewResolver ModelAndViewResolvers}, or {@code null}.
-   */
-  @Nullable
-  public List<ModelAndViewResolver> getModelAndViewResolvers() {
-    return this.modelAndViewResolvers;
   }
 
   /**
@@ -229,65 +132,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   @Nullable
   public WebBindingInitializer getWebBindingInitializer() {
     return this.webBindingInitializer;
-  }
-
-  /**
-   * Set the default {@link AsyncTaskExecutor} to use when a controller method
-   * return a {@link Callable}. Controller methods can override this default on
-   * a per-request basis by returning an {@link WebAsyncTask}.
-   * <p>By default a {@link SimpleAsyncTaskExecutor} instance is used.
-   * It's recommended to change that default in production as the simple executor
-   * does not re-use threads.
-   */
-  public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
-    this.taskExecutor = taskExecutor;
-  }
-
-  /**
-   * Specify the amount of time, in milliseconds, before concurrent handling
-   * should time out. In Servlet 3, the timeout begins after the main request
-   * processing thread has exited and ends when the request is dispatched again
-   * for further processing of the concurrently produced result.
-   * <p>If this value is not set, the default timeout of the underlying
-   * implementation is used.
-   *
-   * @param timeout the timeout value in milliseconds
-   */
-  public void setAsyncRequestTimeout(long timeout) {
-    this.asyncRequestTimeout = timeout;
-  }
-
-  /**
-   * Configure {@code CallableProcessingInterceptor}'s to register on async requests.
-   *
-   * @param interceptors the interceptors to register
-   */
-  public void setCallableInterceptors(List<CallableProcessingInterceptor> interceptors) {
-    this.callableInterceptors = interceptors.toArray(new CallableProcessingInterceptor[0]);
-  }
-
-  /**
-   * Configure {@code DeferredResultProcessingInterceptor}'s to register on async requests.
-   *
-   * @param interceptors the interceptors to register
-   */
-  public void setDeferredResultInterceptors(List<DeferredResultProcessingInterceptor> interceptors) {
-    this.deferredResultInterceptors = interceptors.toArray(new DeferredResultProcessingInterceptor[0]);
-  }
-
-  /**
-   * Configure the registry for reactive library types to be supported as
-   * return values from controller methods.
-   */
-  public void setReactiveAdapterRegistry(ReactiveAdapterRegistry reactiveAdapterRegistry) {
-    this.reactiveAdapterRegistry = reactiveAdapterRegistry;
-  }
-
-  /**
-   * Return the configured reactive type registry of adapters.
-   */
-  public ReactiveAdapterRegistry getReactiveAdapterRegistry() {
-    return this.reactiveAdapterRegistry;
   }
 
   /**
@@ -378,47 +222,36 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Override
   public void afterPropertiesSet() {
-    // Do this first, it may add ResponseBody advice beans
-    initControllerAdviceCache();
+    ApplicationContext context = obtainApplicationContext();
     if (resolvingRegistry == null) {
-      this.resolvingRegistry = new ParameterResolvingRegistry();
-      resolvingRegistry.setApplicationContext(getApplicationContext());
-      resolvingRegistry.registerDefaultStrategies();
-    }
-    // prepare returnValueHandlerManager
-    setReturnValueHandlerManager(returnValueHandlerManager);
-  }
-
-  private void initControllerAdviceCache() {
-    if (getApplicationContext() == null) {
-      return;
+      var resolvingRegistry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
+      if (resolvingRegistry == null) {
+        resolvingRegistry = new ParameterResolvingRegistry();
+        resolvingRegistry.setApplicationContext(context);
+        resolvingRegistry.registerDefaultStrategies();
+      }
+      this.resolvingRegistry = resolvingRegistry;
     }
 
-    List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
-    for (ControllerAdviceBean adviceBean : adviceBeans) {
-      Class<?> beanType = adviceBean.getBeanType();
-      if (beanType == null) {
-        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
+    if (returnValueHandlerManager == null) {
+      var manager = BeanFactoryUtils.find(context, ReturnValueHandlerManager.class);
+      if (manager == null) {
+        manager = new ReturnValueHandlerManager();
+        manager.setApplicationContext(context);
+        manager.registerDefaultHandlers();
       }
-      Set<Method> attrMethods = MethodIntrospector.filterMethods(beanType, MODEL_ATTRIBUTE_METHODS);
-      if (!attrMethods.isEmpty()) {
-        this.modelAttributeAdviceCache.put(adviceBean, attrMethods);
-      }
-      Set<Method> binderMethods = MethodIntrospector.filterMethods(beanType, INIT_BINDER_METHODS);
-      if (!binderMethods.isEmpty()) {
-        this.initBinderAdviceCache.put(adviceBean, binderMethods);
-      }
+      this.returnValueHandlerManager = manager;
     }
 
-    if (log.isDebugEnabled()) {
-      int binderSize = this.initBinderAdviceCache.size();
-      int modelSize = this.modelAttributeAdviceCache.size();
-      if (modelSize == 0 && binderSize == 0) {
-        log.debug("ControllerAdvice beans: none");
-      }
-      else {
-        log.debug("ControllerAdvice beans: {} @ModelAttribute, {} @InitBinder", modelSize, binderSize);
-      }
+    this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,
+            new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer),
+            returnValueHandlerManager);
+
+    this.modelHandler = new ModelHandler(methodResolver);
+
+    if (sessionManager != null
+            && sessionAttributeStore instanceof DefaultSessionAttributeStore attributeStore) {
+      attributeStore.setSessionManager(sessionManager);
     }
   }
 
@@ -462,7 +295,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     HttpHeaders headers = request.getHeaders();
     if (!headers.containsKey(HEADER_CACHE_CONTROL)) {
-      if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
+      if (methodResolver.getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
         applyCacheSeconds(request, cacheSecondsForSessionAttributeHandlers);
       }
       else {
@@ -486,155 +319,37 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   }
 
   /**
-   * Return the {@link SessionAttributesHandler} instance for the given handler type
-   * (never {@code null}).
-   */
-  private SessionAttributesHandler getSessionAttributesHandler(HandlerMethod handlerMethod) {
-    return this.sessionAttributesHandlerCache.computeIfAbsent(
-            handlerMethod.getBeanType(),
-            type -> new SessionAttributesHandler(type, this.sessionAttributeStore));
-  }
-
-  /**
    * Invoke the {@link RequestMapping} handler method preparing a {@link ModelAndView}
    * if view resolution is required.
    *
-   * @see #createInvocableHandlerMethod(RequestContext, HandlerMethod)
+   * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
   @Nullable
   protected Object invokeHandlerMethod(
           RequestContext request, HandlerMethod handlerMethod) throws Throwable {
 
-    BindingContext bindingContext = createBindingContext(handlerMethod);
+    BindingContext binding = new InitBinderBindingContext(
+            getWebBindingInitializer(), methodResolver.getBinderMethods(handlerMethod));
 
-    ModelFactory modelFactory = getModelFactory(handlerMethod, bindingContext);
+    request.setBinding(binding);
 
-    ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(request, handlerMethod);
-
-    RedirectModel inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
-    bindingContext.addAllAttributes(inputRedirectModel);
-
-    modelFactory.initModel(request, bindingContext, invocableMethod);
-
-    AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request);
-    asyncWebRequest.setTimeout(asyncRequestTimeout);
-
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-    asyncManager.setTaskExecutor(taskExecutor);
-    asyncManager.setAsyncRequest(asyncWebRequest);
-    asyncManager.registerCallableInterceptors(callableInterceptors);
-    asyncManager.registerDeferredResultInterceptors(deferredResultInterceptors);
-
-    if (asyncManager.hasConcurrentResult()) {
-      Object result = asyncManager.getConcurrentResult();
-      bindingContext = asyncManager.getBindingContext();
-      asyncManager.clearConcurrentResult();
-      LogFormatUtils.traceDebug(log, traceOn -> {
-        String formatted = LogFormatUtils.formatValue(result, !traceOn);
-        return "Resume with async result [" + formatted + "]";
-      });
-      invocableMethod = invocableMethod.wrapConcurrentResult(result);
+    // add last RedirectModel to this request
+    var inputRedirectModel = RequestContextUtils.getInputRedirectModel(request, redirectModelManager);
+    if (inputRedirectModel != null) {
+      binding.addAllAttributes(inputRedirectModel);
     }
 
-    Object returnValue = invocableMethod.invokeAndHandle(request, bindingContext);
+    modelHandler.initModel(request, binding, handlerMethod);
 
-    if (asyncManager.isConcurrentHandlingStarted()) {
-      return null;
+    var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
+    Object returnValue = invocableMethod.invokeAndHandle(request, binding);
+
+    if (request.isConcurrentHandlingStarted()) {
+      return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
-//    modelFactory.updateModel(request, bindingContext);
+    modelHandler.updateModel(request, binding, handlerMethod.getBeanType());
     return returnValue;
-  }
-
-  private InitBinderBindingContext createBindingContext(HandlerMethod handlerMethod) {
-    List<InvocableHandlerMethod> binderMethods = getBinderMethods(handlerMethod);
-    return new InitBinderBindingContext(getWebBindingInitializer(), binderMethods);
-  }
-
-  /**
-   * Create a {@link ServletInvocableHandlerMethod} from the given {@link HandlerMethod} definition.
-   *
-   * @param request current HTTP request
-   * @param handlerMethod the {@link HandlerMethod} definition
-   * @return the corresponding {@link ServletInvocableHandlerMethod} (or custom subclass thereof)
-   */
-  protected ServletInvocableHandlerMethod createInvocableHandlerMethod(
-          RequestContext request, HandlerMethod handlerMethod) {
-    return invocableHandlerMethodMap.computeIfAbsent(handlerMethod, handler -> {
-      ServletInvocableHandlerMethod invocableMethod = new ServletInvocableHandlerMethod(handler);
-      invocableMethod.setReturnValueHandlerManager(returnValueHandlerManager);
-      invocableMethod.setResolvingRegistry(resolvingRegistry);
-      return invocableMethod;
-    });
-  }
-
-  private ModelFactory getModelFactory(HandlerMethod handlerMethod, BindingContext bindingContext) {
-    SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
-    Class<?> handlerType = handlerMethod.getBeanType();
-
-    ArrayList<InvocableHandlerMethod> attrMethods = new ArrayList<>();
-    // Global methods first
-    for (Map.Entry<ControllerAdviceBean, Set<Method>> entry : modelAttributeAdviceCache.entrySet()) {
-      Set<Method> methodSet = entry.getValue();
-      ControllerAdviceBean controllerAdviceBean = entry.getKey();
-      if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
-        Object bean = controllerAdviceBean.resolveBean();
-        for (Method method : methodSet) {
-          attrMethods.add(createModelAttributeMethod(bindingContext, bean, method));
-        }
-      }
-    }
-    // controller local methods
-    Set<Method> methods = modelAttributeCache.get(handlerType);
-    if (methods == null) {
-      methods = MethodIntrospector.filterMethods(handlerType, MODEL_ATTRIBUTE_METHODS);
-      modelAttributeCache.put(handlerType, methods);
-    }
-    for (Method method : methods) {
-      Object bean = handlerMethod.getBean();
-      attrMethods.add(createModelAttributeMethod(bindingContext, bean, method));
-    }
-    return new ModelFactory(attrMethods, bindingContext, sessionAttrHandler);
-  }
-
-  private InvocableHandlerMethod createModelAttributeMethod(BindingContext bindingContext, Object bean, Method method) {
-    InvocableHandlerMethod attrMethod = new InvocableHandlerMethod(bean, method);
-    attrMethod.setResolvingRegistry(resolvingRegistry);
-    return attrMethod;
-  }
-
-  private List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {
-    Class<?> handlerType = handlerMethod.getBeanType();
-    Set<Method> methods = initBinderCache.get(handlerType);
-    if (methods == null) {
-      methods = MethodIntrospector.filterMethods(handlerType, INIT_BINDER_METHODS);
-      initBinderCache.put(handlerType, methods);
-    }
-
-    var initBinderMethods = new ArrayList<InvocableHandlerMethod>();
-    // Global methods first
-    for (Map.Entry<ControllerAdviceBean, Set<Method>> entry : initBinderAdviceCache.entrySet()) {
-      Set<Method> methodSet = entry.getValue();
-      ControllerAdviceBean controllerAdviceBean = entry.getKey();
-      if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
-        Object bean = controllerAdviceBean.resolveBean();
-        for (Method method : methodSet) {
-          initBinderMethods.add(createInitBinderMethod(bean, method));
-        }
-      }
-    }
-
-    for (Method method : methods) {
-      Object bean = handlerMethod.getBean();
-      initBinderMethods.add(createInitBinderMethod(bean, method));
-    }
-    return initBinderMethods;
-  }
-
-  private InvocableHandlerMethod createInitBinderMethod(Object bean, Method method) {
-    InvocableHandlerMethod binderMethod = new InvocableHandlerMethod(bean, method);
-    binderMethod.setResolvingRegistry(resolvingRegistry);
-    return binderMethod;
   }
 
 }

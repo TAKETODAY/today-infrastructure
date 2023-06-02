@@ -94,18 +94,18 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
   }
 
   private BeanCreationException createFailure(Class<?> consumer) {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      context.register(DuplicateBeansProducer.class, consumer);
-      context.setParent(new AnnotationConfigApplicationContext(ParentProducer.class));
-      try {
-        context.refresh();
-      }
-      catch (BeanCreationException ex) {
-        analyzer = new NoUniqueBeanDefinitionFailureAnalyzer(context.getBeanFactory());
-        return ex;
-      }
-      return null;
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(DuplicateBeansProducer.class, consumer);
+    context.setParent(new AnnotationConfigApplicationContext(ParentProducer.class));
+    try {
+      context.refresh();
     }
+    catch (BeanCreationException ex) {
+      analyzer = new NoUniqueBeanDefinitionFailureAnalyzer(context.getBeanFactory());
+      return ex;
+    }
+    context.close();
+    return null;
   }
 
   private FailureAnalysis analyzeFailure(BeanCreationException failure) {

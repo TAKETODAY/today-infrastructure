@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -64,6 +64,7 @@ import cn.taketoday.lang.Nullable;
  * @author Arjen Poutsma
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
@@ -170,6 +171,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * <p>Default is {@code true}. When sending large amounts of data via POST or PUT, it is
    * recommended to change this property to {@code false}, so as not to run out of memory.
    */
+  @Deprecated(forRemoval = true)
   public void setBufferRequestBody(boolean bufferRequestBody) {
     this.bufferRequestBody = bufferRequestBody;
   }
@@ -314,11 +316,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    */
   @Override
   public void destroy() throws Exception {
-    close();
-  }
-
-  @Override
-  public void close() throws IOException {
     HttpClient httpClient = getHttpClient();
     if (httpClient instanceof Closeable) {
       ((Closeable) httpClient).close();

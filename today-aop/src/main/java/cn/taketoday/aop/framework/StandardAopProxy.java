@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,6 +44,8 @@ import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.core.EmitUtils;
 import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Experimental;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
@@ -57,6 +59,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author TODAY 2021/2/12 17:30
  * @since 3.0
  */
+@Experimental
 public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopProxy {
   private static final Logger log = LoggerFactory.getLogger(StandardAopProxy.class);
 
@@ -65,8 +68,8 @@ public class StandardAopProxy extends AbstractSubclassesAopProxy implements AopP
   }
 
   @Override
-  protected Object getProxyInternal(
-          Class<?> proxySuperClass, ClassLoader classLoader) {
+  protected Object getProxyInternal(Class<?> rootClass,
+          Class<?> proxySuperClass, @Nullable ClassLoader classLoader) {
     if (log.isDebugEnabled()) {
       log.debug("Creating standard proxy: {}", config.getTargetSource());
     }

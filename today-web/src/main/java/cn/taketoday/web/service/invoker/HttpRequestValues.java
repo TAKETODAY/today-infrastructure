@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,25 +23,23 @@ package cn.taketoday.web.service.invoker;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.codec.FormHttpMessageWriter;
+import cn.taketoday.http.client.MultipartBodyBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 
@@ -114,9 +112,11 @@ public final class HttpRequestValues {
   }
 
   /**
-   * Return the full URL to use, if set.
-   * <p>This is mutually exclusive with {@link #getUriTemplate() uriTemplate}.
-   * One of the two has a value but not both.
+   * Return the URL to use.
+   * <p>Typically, this comes from a {@link URI} method argument, which provides
+   * the caller with the option to override the {@link #getUriTemplate()
+   * uriTemplate} from class and method {@code HttpExchange} annotations.
+   * annotation.
    */
   @Nullable
   public URI getUri() {
@@ -124,9 +124,8 @@ public final class HttpRequestValues {
   }
 
   /**
-   * Return the URL template for the request, if set.
-   * <p>This is mutually exclusive with a {@linkplain #getUri() full URL}.
-   * One of the two has a value but not both.
+   * Return the URL template for the request. This comes from the values in
+   * class and method {@code HttpExchange} annotations.
    */
   @Nullable
   public String getUriTemplate() {
@@ -198,8 +197,6 @@ public final class HttpRequestValues {
    */
   public final static class Builder {
 
-    private static final Function<MultiValueMap<String, String>, byte[]> FORM_DATA_SERIALIZER = new FormDataSerializer();
-
     @Nullable
     private HttpMethod httpMethod;
 
@@ -222,6 +219,9 @@ public final class HttpRequestValues {
     private MultiValueMap<String, String> requestParams;
 
     @Nullable
+    private MultipartBodyBuilder multipartBuilder;
+
+    @Nullable
     private Map<String, Object> attributes;
 
     @Nullable
@@ -242,26 +242,20 @@ public final class HttpRequestValues {
     }
 
     /**
-     * Set the request URL as a full URL.
-     * <p>This is mutually exclusive with, and resets any previously set
-     * {@linkplain #setUriTemplate(String) URI template} or
-     * {@linkplain #setUriVariable(String, String) URI variables}.
+     * Set the URL to use. When set, this overrides the
+     * {@linkplain #setUriTemplate(String) URI template} from the
+     * {@code HttpExchange} annotation.
      */
     public Builder setUri(URI uri) {
       this.uri = uri;
-      this.uriTemplate = null;
-      this.uriVars = null;
       return this;
     }
 
     /**
      * Set the request URL as a String template.
-     * <p>This is mutually exclusive with, and resets any previously set
-     * {@linkplain #setUri(URI) full URI}.
      */
     public Builder setUriTemplate(String uriTemplate) {
       this.uriTemplate = uriTemplate;
-      this.uri = null;
       return this;
     }
 
@@ -273,7 +267,6 @@ public final class HttpRequestValues {
     public Builder setUriVariable(String name, String value) {
       this.uriVars = (this.uriVars != null ? this.uriVars : new LinkedHashMap<>());
       this.uriVars.put(name, value);
-      this.uri = null;
       return this;
     }
 
@@ -335,6 +328,26 @@ public final class HttpRequestValues {
     }
 
     /**
+     * Add a part to a multipart request. The part value may be as described
+     * in {@link MultipartBodyBuilder#part(String, Object)}.
+     */
+    public Builder addRequestPart(String name, Object part) {
+      this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
+      this.multipartBuilder.part(name, part);
+      return this;
+    }
+
+    /**
+     * Variant of {@link #addRequestPart(String, Object)} that allows the
+     * part value to be produced by a {@link Publisher}.
+     */
+    public <T, P extends Publisher<T>> Builder addRequestPart(String name, P publisher, ResolvableType type) {
+      this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
+      this.multipartBuilder.asyncPart(name, publisher, TypeReference.fromType(type.getType()));
+      return this;
+    }
+
+    /**
      * Configure an attribute to associate with the request.
      *
      * @param name the attribute name
@@ -374,27 +387,34 @@ public final class HttpRequestValues {
     public HttpRequestValues build() {
 
       URI uri = this.uri;
-      String uriTemplate = (this.uriTemplate != null || uri != null ? this.uriTemplate : "");
+      String uriTemplate = this.uriTemplate;
+      if (uriTemplate == null) {
+        uriTemplate = "";
+      }
+
       Map<String, String> uriVars = (this.uriVars != null ? new HashMap<>(this.uriVars) : Collections.emptyMap());
 
       Object bodyValue = this.bodyValue;
+      if (this.multipartBuilder != null) {
+        Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request parts, not both");
+        bodyValue = this.multipartBuilder.build();
+      }
 
-      if (!CollectionUtils.isEmpty(this.requestParams)) {
-
-        boolean isFormData = (this.headers != null &&
-                MediaType.APPLICATION_FORM_URLENCODED.equals(this.headers.getContentType()));
-
-        if (isFormData) {
-          Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request params, not both");
-          bodyValue = FORM_DATA_SERIALIZER.apply(this.requestParams);
+      if (CollectionUtils.isNotEmpty(this.requestParams)) {
+        if (hasContentType(MediaType.APPLICATION_FORM_URLENCODED)) {
+          Assert.isTrue(this.multipartBuilder == null, "Cannot add parts to form data request");
+          Assert.isTrue(bodyValue == null && this.body == null, "Cannot set body of form data request");
+          bodyValue = new LinkedMultiValueMap<>(this.requestParams);
         }
         else if (uri != null) {
+          // insert into prepared URI
           uri = UriComponentsBuilder.fromUri(uri)
                   .queryParams(UriUtils.encodeQueryParams(this.requestParams))
                   .build(true)
                   .toUri();
         }
         else {
+          // append to URI template
           uriVars = (uriVars.isEmpty() ? new HashMap<>() : uriVars);
           uriTemplate = appendQueryParams(uriTemplate, uriVars, this.requestParams);
         }
@@ -417,6 +437,10 @@ public final class HttpRequestValues {
               bodyValue, this.body, this.bodyElementType);
     }
 
+    private boolean hasContentType(MediaType mediaType) {
+      return headers != null && mediaType.equals(headers.getContentType());
+    }
+
     private String appendQueryParams(
             String uriTemplate, Map<String, String> uriVars, MultiValueMap<String, String> requestParams) {
 
@@ -433,17 +457,6 @@ public final class HttpRequestValues {
         i++;
       }
       return uriComponentsBuilder.build().toUriString();
-    }
-
-  }
-
-  private static class FormDataSerializer
-          extends FormHttpMessageWriter implements Function<MultiValueMap<String, String>, byte[]> {
-
-    @Override
-    public byte[] apply(MultiValueMap<String, String> requestParams) {
-      Charset charset = StandardCharsets.UTF_8;
-      return serializeForm(requestParams, charset).getBytes(charset);
     }
 
   }

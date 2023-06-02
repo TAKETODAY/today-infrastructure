@@ -44,6 +44,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * executing a large number of short-lived tasks.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setConcurrencyLimit
  * @see SyncTaskExecutor
  * @since 4.0
@@ -196,13 +197,16 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   @Override
   public void execute(Runnable task, long startTimeout) {
     Assert.notNull(task, "Runnable must not be null");
-    Runnable taskToUse = (this.taskDecorator != null ? this.taskDecorator.decorate(task) : task);
+    TaskDecorator taskDecorator = this.taskDecorator;
+    if (taskDecorator != null) {
+      task = taskDecorator.decorate(task);
+    }
     if (isThrottleActive() && startTimeout > TIMEOUT_IMMEDIATE) {
-      this.concurrencyThrottle.beforeAccess();
-      doExecute(new ConcurrencyThrottlingRunnable(taskToUse));
+      concurrencyThrottle.beforeAccess();
+      doExecute(new ConcurrencyThrottlingRunnable(task));
     }
     else {
-      doExecute(taskToUse);
+      doExecute(task);
     }
   }
 
@@ -215,21 +219,21 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 
   @Override
   public <T> Future<T> submit(Callable<T> task) {
-    FutureTask<T> future = new FutureTask<>(task);
+    var future = new FutureTask<>(task);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
   public ListenableFuture<?> submitListenable(Runnable task) {
-    ListenableFutureTask<Object> future = new ListenableFutureTask<>(task, null);
+    var future = new ListenableFutureTask<>(task, null);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
   public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
-    ListenableFutureTask<T> future = new ListenableFutureTask<>(task);
+    var future = new ListenableFutureTask<>(task);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
@@ -244,8 +248,13 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    * @see Thread#start()
    */
   protected void doExecute(Runnable task) {
-    Thread thread = (this.threadFactory != null ? this.threadFactory.newThread(task) : createThread(task));
-    thread.start();
+    ThreadFactory threadFactory = this.threadFactory;
+    if (threadFactory != null) {
+      threadFactory.newThread(task).start();
+    }
+    else {
+      createThread(task).start();
+    }
   }
 
   /**

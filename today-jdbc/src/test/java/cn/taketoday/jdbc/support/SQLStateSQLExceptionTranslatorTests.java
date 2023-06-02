@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,12 +24,15 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
-import cn.taketoday.dao.ConcurrencyFailureException;
+import cn.taketoday.dao.CannotAcquireLockException;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.DataIntegrityViolationException;
+import cn.taketoday.dao.DuplicateKeyException;
+import cn.taketoday.dao.PessimisticLockingFailureException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
 import cn.taketoday.jdbc.BadSqlGrammarException;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -41,56 +44,105 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class SQLStateSQLExceptionTranslatorTests {
 
-  private static final String REASON = "The game is afoot!";
-
-  private static final String TASK = "Counting sheep... yawn.";
-
-  private static final String SQL = "select count(0) from t_sheep where over_fence = ... yawn... 1";
-
   @Test
-  public void testTranslateNullException() {
+  public void translateNullException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
             new SQLStateSQLExceptionTranslator().translate("", "", null));
   }
 
   @Test
-  public void testTranslateBadSqlGrammar() {
+  public void translateBadSqlGrammar() {
     doTest("07", BadSqlGrammarException.class);
   }
 
   @Test
-  public void testTranslateDataIntegrityViolation() {
+  public void translateDataIntegrityViolation() {
     doTest("23", DataIntegrityViolationException.class);
   }
 
   @Test
-  public void testTranslateDataAccessResourceFailure() {
+  public void translateDuplicateKey() {
+    doTest("23505", DuplicateKeyException.class);
+  }
+
+  @Test
+  public void translateDuplicateKeyOracle() {
+    doTest("23000", 1, DuplicateKeyException.class);
+  }
+
+  @Test
+  public void translateDuplicateKeyMSSQL1() {
+    doTest("23000", 2601, DuplicateKeyException.class);
+  }
+
+  @Test
+  public void translateDuplicateKeyMSSQL2() {
+    doTest("23000", 2627, DuplicateKeyException.class);
+  }
+
+  @Test
+  public void translateDuplicateKeyMSSQL() {
+    doTest("23000", 2627, DuplicateKeyException.class);
+  }
+
+  @Test
+  public void translateDataAccessResourceFailure() {
     doTest("53", DataAccessResourceFailureException.class);
   }
 
   @Test
-  public void testTranslateTransientDataAccessResourceFailure() {
+  public void translateTransientDataAccessResourceFailure() {
     doTest("S1", TransientDataAccessResourceException.class);
   }
 
   @Test
-  public void testTranslateConcurrencyFailure() {
-    doTest("40", ConcurrencyFailureException.class);
+  public void translatePessimisticLockingFailure() {
+    doTest("40", PessimisticLockingFailureException.class);
   }
 
   @Test
-  public void testTranslateUncategorized() {
-    assertThat(new SQLStateSQLExceptionTranslator().translate("", "", new SQLException(REASON, "00000000"))).isNull();
+  public void translateCannotAcquireLock() {
+    doTest("40001", CannotAcquireLockException.class);
   }
 
-  private void doTest(String sqlState, Class<?> dataAccessExceptionType) {
-    SQLException ex = new SQLException(REASON, sqlState);
+  @Test
+  public void translateUncategorized() {
+    doTest("00000000", null);
+  }
+
+  @Test
+  public void invalidSqlStateCode() {
+    doTest("NO SUCH CODE", null);
+  }
+
+  /**
+   * PostgreSQL can return null.
+   * SAP DB can apparently return empty SQL code.
+   * Bug 729170
+   */
+  @Test
+  public void malformedSqlStateCodes() {
+    doTest(null, null);
+    doTest("", null);
+    doTest("I", null);
+  }
+
+  private void doTest(@Nullable String sqlState, @Nullable Class<?> dataAccessExceptionType) {
+    doTest(sqlState, 0, dataAccessExceptionType);
+  }
+
+  private void doTest(@Nullable String sqlState, int errorCode, @Nullable Class<?> dataAccessExceptionType) {
     SQLExceptionTranslator translator = new SQLStateSQLExceptionTranslator();
-    DataAccessException dax = translator.translate(TASK, SQL, ex);
-    assertThat(dax).as("Specific translation must not result in a null DataAccessException being returned.").isNotNull();
-    assertThat(dax.getClass()).as("Wrong DataAccessException type returned as the result of the translation").isEqualTo(dataAccessExceptionType);
-    assertThat(dax.getCause()).as("The original SQLException must be preserved in the translated DataAccessException").isNotNull();
-    assertThat(dax.getCause()).as("The exact same original SQLException must be preserved in the translated DataAccessException").isSameAs(ex);
-  }
+    SQLException ex = new SQLException("reason", sqlState, errorCode);
+    DataAccessException dax = translator.translate("task", "SQL", ex);
 
+    if (dataAccessExceptionType == null) {
+      assertThat(dax).as("Expected translation to null").isNull();
+      return;
+    }
+
+    assertThat(dax).as("Specific translation must not result in null").isNotNull();
+    assertThat(dax).as("Wrong DataAccessException type returned").isExactlyInstanceOf(dataAccessExceptionType);
+    assertThat(dax.getCause()).as("The exact same original SQLException must be preserved").isSameAs(ex);
+  }
 }

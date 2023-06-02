@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,10 +32,11 @@ import java.util.Map;
 
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceView;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -66,7 +67,7 @@ public class FreeMarkerViewTests {
   public void noFreeMarkerConfig() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(new HashMap<>());
     given(wac.getServletContext()).willReturn(new MockServletContext());
 
@@ -90,7 +91,7 @@ public class FreeMarkerViewTests {
   public void validTemplateName() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     MockServletContext sc = new MockServletContext();
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
@@ -121,7 +122,7 @@ public class FreeMarkerViewTests {
   public void keepExistingContentType() throws Exception {
     FreeMarkerView fv = new FreeMarkerView();
 
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     MockServletContext sc = new MockServletContext();
 
     Map<String, FreeMarkerConfig> configs = new HashMap<>();
@@ -151,13 +152,39 @@ public class FreeMarkerViewTests {
   }
 
   @Test
+  public void requestAttributeVisible() throws Exception {
+    FreeMarkerView fv = new FreeMarkerView();
+
+    WebApplicationContext wac = mock();
+    MockServletContext sc = new MockServletContext();
+
+    Map<String, FreeMarkerConfig> configs = new HashMap<>();
+    FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+    configurer.setConfiguration(new TestConfiguration());
+    configs.put("configurer", configurer);
+    given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
+    given(wac.getServletContext()).willReturn(sc);
+
+    fv.setUrl("templateName");
+    fv.setApplicationContext(wac);
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addPreferredLocale(Locale.US);
+    request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+    HttpServletResponse response = new MockHttpServletResponse();
+
+    request.setAttribute("myattr", "myvalue");
+    fv.render(null, new ServletRequestContext(wac, request, response));
+  }
+
+  @Test
   public void freeMarkerViewResolver() throws Exception {
     MockServletContext sc = new MockServletContext();
 
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
     configurer.setConfiguration(new TestConfiguration());
 
-    StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.setServletContext(sc);
     wac.getBeanFactory().registerSingleton("configurer", configurer);
     wac.refresh();

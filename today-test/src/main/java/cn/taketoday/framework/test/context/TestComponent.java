@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,10 +33,10 @@ import cn.taketoday.stereotype.Component;
 
 /**
  * {@link Component @Component} that can be used when a bean is intended only for tests,
- * and should be excluded from Spring Boot's component scanning.
+ * and should be excluded from Infra's component scanning.
  * <p>
  * Note that if you directly use {@link ComponentScan @ComponentScan} rather than relying
- * on {@code @SpringBootApplication} you should ensure that a {@link TypeExcludeFilter} is
+ * on {@code @InfraApplication} you should ensure that a {@link TypeExcludeFilter} is
  * declared as an {@link ComponentScan#excludeFilters() excludeFilter}.
  *
  * @author Phillip Webb
@@ -52,7 +52,7 @@ public @interface TestComponent {
 
   /**
    * The value may indicate a suggestion for a logical component name, to be turned into
-   * a Spring bean in case of an auto-detected component.
+   * a Infra bean in case of an auto-detected component.
    *
    * @return the specified bean name, if any
    */

@@ -23,6 +23,7 @@ package cn.taketoday.context.condition;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.core.Ordered;
 
 /**
@@ -64,12 +65,12 @@ public abstract class AnyNestedCondition extends AbstractNestedCondition impleme
 
   @Override
   protected ConditionOutcome getFinalMatchOutcome(MemberMatchOutcomes memberOutcomes) {
-    boolean match = !memberOutcomes.getMatches().isEmpty();
+    boolean match = !memberOutcomes.matches.isEmpty();
     List<ConditionMessage> messages = new ArrayList<>();
     messages.add(ConditionMessage.forCondition("AnyNestedCondition")
-            .because(memberOutcomes.getMatches().size() + " matched " + memberOutcomes.getNonMatches().size() + " did not"));
+            .because(memberOutcomes.matches.size() + " matched " + memberOutcomes.nonMatches.size() + " did not"));
 
-    for (ConditionOutcome outcome : memberOutcomes.getAll()) {
+    for (ConditionOutcome outcome : memberOutcomes.all) {
       messages.add(outcome.getConditionMessage());
     }
     return new ConditionOutcome(match, ConditionMessage.of(messages));

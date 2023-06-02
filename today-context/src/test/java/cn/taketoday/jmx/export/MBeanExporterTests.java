@@ -147,54 +147,50 @@ public class MBeanExporterTests extends AbstractMBeanServerTests {
 
   @Test
   void testAutodetectMBeans() throws Exception {
-    try (ConfigurableApplicationContext ctx = load("autodetectMBeans.xml")) {
-      ctx.getBean("exporter");
-      MBeanServer server = ctx.getBean("server", MBeanServer.class);
-      ObjectInstance instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean=true"));
-      assertThat(instance).isNotNull();
-      instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean2=true"));
-      assertThat(instance).isNotNull();
-      instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean3=true"));
-      assertThat(instance).isNotNull();
-    }
+    ConfigurableApplicationContext ctx = load("autodetectMBeans.xml");
+    ctx.getBean("exporter");
+    MBeanServer server = ctx.getBean("server", MBeanServer.class);
+    ObjectInstance instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean=true"));
+    assertThat(instance).isNotNull();
+    instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean2=true"));
+    assertThat(instance).isNotNull();
+    instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean3=true"));
+    assertThat(instance).isNotNull();
   }
 
   @Test
   void testAutodetectWithExclude() throws Exception {
-    try (ConfigurableApplicationContext ctx = load("autodetectMBeans.xml")) {
-      ctx.getBean("exporter");
-      MBeanServer server = ctx.getBean("server", MBeanServer.class);
-      ObjectInstance instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean=true"));
-      assertThat(instance).isNotNull();
+    ConfigurableApplicationContext ctx = load("autodetectMBeans.xml");
+    ctx.getBean("exporter");
+    MBeanServer server = ctx.getBean("server", MBeanServer.class);
+    ObjectInstance instance = server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean=true"));
+    assertThat(instance).isNotNull();
 
-      assertThatExceptionOfType(InstanceNotFoundException.class).isThrownBy(() ->
-              server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean=false")));
-    }
+    assertThatExceptionOfType(InstanceNotFoundException.class).isThrownBy(() ->
+            server.getObjectInstance(ObjectNameManager.getInstance("spring:mbean=false")));
   }
 
   @Test
   void testAutodetectLazyMBeans() throws Exception {
-    try (ConfigurableApplicationContext ctx = load("autodetectLazyMBeans.xml")) {
-      ctx.getBean("exporter");
-      MBeanServer server = ctx.getBean("server", MBeanServer.class);
+    ConfigurableApplicationContext ctx = load("autodetectLazyMBeans.xml");
+    ctx.getBean("exporter");
+    MBeanServer server = ctx.getBean("server", MBeanServer.class);
 
-      ObjectName oname = ObjectNameManager.getInstance("spring:mbean=true");
-      assertThat(server.getObjectInstance(oname)).isNotNull();
-      String name = (String) server.getAttribute(oname, "Name");
-      assertThat(name).as("Invalid name returned").isEqualTo("Rob Harrop");
+    ObjectName oname = ObjectNameManager.getInstance("spring:mbean=true");
+    assertThat(server.getObjectInstance(oname)).isNotNull();
+    String name = (String) server.getAttribute(oname, "Name");
+    assertThat(name).as("Invalid name returned").isEqualTo("Rob Harrop");
 
-      oname = ObjectNameManager.getInstance("spring:mbean=another");
-      assertThat(server.getObjectInstance(oname)).isNotNull();
-      name = (String) server.getAttribute(oname, "Name");
-      assertThat(name).as("Invalid name returned").isEqualTo("Juergen Hoeller");
-    }
+    oname = ObjectNameManager.getInstance("spring:mbean=another");
+    assertThat(server.getObjectInstance(oname)).isNotNull();
+    name = (String) server.getAttribute(oname, "Name");
+    assertThat(name).as("Invalid name returned").isEqualTo("Juergen Hoeller");
   }
 
   @Test
   void testAutodetectNoMBeans() throws Exception {
-    try (ConfigurableApplicationContext ctx = load("autodetectNoMBeans.xml")) {
-      ctx.getBean("exporter");
-    }
+    ConfigurableApplicationContext ctx = load("autodetectNoMBeans.xml");
+    ctx.getBean("exporter");
   }
 
   @Test

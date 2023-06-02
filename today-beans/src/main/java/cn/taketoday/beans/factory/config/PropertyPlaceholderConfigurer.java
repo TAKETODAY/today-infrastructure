@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.Properties;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.core.Constants;
 import cn.taketoday.core.StringValueResolver;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.PlaceholderResolver;
@@ -75,7 +76,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 
   private int systemPropertiesMode = SYSTEM_PROPERTIES_MODE_FALLBACK;
 
-  private boolean searchSystemEnvironment = !TodayStrategies.getFlag("context.getenv.ignore");
+  private boolean searchSystemEnvironment = !TodayStrategies.getFlag(Environment.KEY_IGNORE_GETENV);
 
   /**
    * Set the system property mode by the name of the corresponding constant,

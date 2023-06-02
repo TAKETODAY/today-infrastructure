@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.taketoday.lang.Nullable;
 import io.undertow.UndertowMessages;
 import io.undertow.server.handlers.resource.Resource;
 import io.undertow.server.handlers.resource.ResourceChangeListener;
@@ -33,6 +34,7 @@ import io.undertow.server.handlers.resource.ResourceManager;
  * A {@link ResourceManager} that delegates to multiple {@code ResourceManager} instances.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class CompositeResourceManager implements ResourceManager {
 
@@ -50,6 +52,7 @@ class CompositeResourceManager implements ResourceManager {
   }
 
   @Override
+  @Nullable
   public Resource getResource(String path) throws IOException {
     for (ResourceManager resourceManager : this.resourceManagers) {
       Resource resource = resourceManager.getResource(path);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,25 +30,23 @@ import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
-import cn.taketoday.test.context.ContextConfiguration;
-import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.annotation.Commit;
 import cn.taketoday.test.annotation.Rollback;
-import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.ContextConfiguration;
+import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
-import cn.taketoday.test.context.testng.AbstractTransactionalTestNGContextTests;
 import cn.taketoday.test.context.transaction.AfterTransaction;
+import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 import cn.taketoday.test.context.web.ServletTestExecutionListener;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
-import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Transactional;
 
@@ -69,30 +67,16 @@ import cn.taketoday.transaction.annotation.Transactional;
  * <p>Concrete subclasses must fulfill the same requirements outlined in
  * {@link AbstractJUnit4ContextTests}.
  *
- * <p>The following {@link TestExecutionListener
- * TestExecutionListeners} are configured by default:
- *
- * <ul>
- * <li>{@link ServletTestExecutionListener}
- * <li>{@link DirtiesContextBeforeModesTestExecutionListener}
- * <li>{@link ApplicationEventsTestExecutionListener}</li>
- * <li>{@link DependencyInjectionTestExecutionListener}
- * <li>{@link DirtiesContextTestExecutionListener}
- * <li>{@link TransactionalTestExecutionListener}
- * <li>{@link SqlScriptsTestExecutionListener}
- * <li>{@link EventPublishingTestExecutionListener}
- * </ul>
- *
  * <p>This class serves only as a convenience for extension.
  * <ul>
  * <li>If you do not wish for your test classes to be tied to a Spring-specific
  * class hierarchy, you may configure your own custom test classes by using
- * {@link Runner}, {@link ContextConfiguration @ContextConfiguration},
+ * {@link InfraRunner}, {@link ContextConfiguration @ContextConfiguration},
  * {@link TestExecutionListeners @TestExecutionListeners}, etc.</li>
  * <li>If you wish to extend this class and use a runner other than the
- * {@link Runner}, you can use
- * {@link ApplicationClassRule ApplicationClassRule} and
- * {@link ApplicationMethodRule ApplicationMethodRule}
+ * {@link InfraRunner}, you can use
+ * {@link InfraClassRule ApplicationClassRule} and
+ * {@link InfraMethodRule ApplicationMethodRule}
  * and specify your runner of choice via {@link org.junit.runner.RunWith @RunWith(...)}.</li>
  * </ul>
  *
@@ -111,7 +95,6 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see BeforeTransaction
  * @see AfterTransaction
  * @see JdbcTestUtils
- * @see AbstractTransactionalTestNGContextTests
  * @since 4.0
  */
 @TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
@@ -227,7 +210,7 @@ public abstract class AbstractTransactionalJUnit4ContextTests extends AbstractJU
    * <p>The script will normally be loaded by classpath.
    * <p><b>Do not use this method to execute DDL if you expect rollback.</b>
    *
-   * @param sqlResourcePath the Spring resource path for the SQL script
+   * @param sqlResourcePath the Infra resource path for the SQL script
    * @param continueOnError whether or not to continue without throwing an
    * exception in the event of an error
    * @throws DataAccessException if there is an error executing a statement

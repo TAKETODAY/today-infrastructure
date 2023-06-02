@@ -43,8 +43,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * This class demonstrates how to have a JUnit Jupiter extension managed as a
- * Spring bean in order to have dependencies injected into an extension from
- * a Spring {@code ApplicationContext}.
+ * Infra bean in order to have dependencies injected into an extension from
+ * a Infra {@code ApplicationContext}.
  *
  * @author Sam Brannen
  * @since 4.0

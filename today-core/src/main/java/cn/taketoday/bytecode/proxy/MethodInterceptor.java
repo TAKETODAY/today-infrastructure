@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -16,9 +16,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
- */package cn.taketoday.bytecode.proxy;
+ */
+package cn.taketoday.bytecode.proxy;
 
 import java.lang.reflect.Method;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * General-purpose {@link Enhancer} callback which provides for "around advice".
@@ -45,6 +48,7 @@ public interface MethodInterceptor extends Callback {
    * invoked
    * @see MethodProxy
    */
+  @Nullable
   Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable;
 
 }

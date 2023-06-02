@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,15 +20,14 @@
 
 package cn.taketoday.web.handler.mvc;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.ModelAndView;
@@ -65,14 +64,22 @@ class ParameterizableViewControllerTests {
   public void handleRequestWithViewName() throws Exception {
     String viewName = "testView";
     this.controller.setViewName(viewName);
-    ModelAndView mav = this.controller.handleRequest(context);
+    ModelAndView mav = handleRequest();
     assertThat(mav.getViewName()).isEqualTo(viewName);
     assertThat(mav.getModel().isEmpty()).isTrue();
   }
 
+  private ModelAndView handleRequest() throws Exception {
+    Object result = this.controller.handleRequest(context);
+    if (result instanceof ModelAndView modelAndView) {
+      return modelAndView;
+    }
+    return null;
+  }
+
   @Test
   public void handleRequestWithoutViewName() throws Exception {
-    ModelAndView mav = this.controller.handleRequest(this.context);
+    ModelAndView mav = handleRequest();
     assertThat(mav.getViewName()).isNull();
     assertThat(mav.getModel().isEmpty()).isTrue();
   }
@@ -80,7 +87,7 @@ class ParameterizableViewControllerTests {
   @Test
   public void handleRequestWithFlashAttributes() throws Exception {
     this.request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
-    ModelAndView mav = this.controller.handleRequest(this.context);
+    ModelAndView mav = handleRequest();
     assertThat(mav.getModel().size()).isEqualTo(1);
     assertThat(mav.getModel().get("name")).isEqualTo("value");
   }
@@ -88,23 +95,23 @@ class ParameterizableViewControllerTests {
   @Test
   public void handleRequestHttpOptions() throws Exception {
     this.request.setMethod(HttpMethod.OPTIONS.name());
-    ModelAndView mav = this.controller.handleRequest(this.context);
+    ModelAndView mav = handleRequest();
 
+    context.flush();
     assertThat(mav).isNull();
     assertThat(response.getHeader("Allow")).isEqualTo("GET,HEAD,OPTIONS");
   }
-//
 
   @Test
   public void defaultViewName() throws Exception {
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView.getViewName()).isNull();
   }
 
   @Test
   public void viewName() throws Exception {
     this.controller.setViewName("view");
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView.getViewName()).isEqualTo("view");
   }
 
@@ -112,7 +119,7 @@ class ParameterizableViewControllerTests {
   public void viewNameAndStatus() throws Exception {
     this.controller.setViewName("view");
     this.controller.setStatusCode(HttpStatus.NOT_FOUND);
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView.getViewName()).isEqualTo("view");
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
@@ -120,7 +127,7 @@ class ParameterizableViewControllerTests {
   @Test
   public void viewNameAndStatus204() throws Exception {
     this.controller.setStatusCode(HttpStatus.NO_CONTENT);
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView).isNull();
     assertThat(this.response.getStatus()).isEqualTo(204);
   }
@@ -129,7 +136,7 @@ class ParameterizableViewControllerTests {
   public void redirectStatus() throws Exception {
     this.controller.setStatusCode(HttpStatus.PERMANENT_REDIRECT);
     this.controller.setViewName("/foo");
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
 
     assertThat(modelAndView.getViewName()).isEqualTo("redirect:/foo");
     assertThat(this.response.getStatus()).as("3xx status should be left to RedirectView to set").isEqualTo(200);
@@ -140,7 +147,7 @@ class ParameterizableViewControllerTests {
   public void redirectStatusWithRedirectPrefix() throws Exception {
     this.controller.setStatusCode(HttpStatus.PERMANENT_REDIRECT);
     this.controller.setViewName("redirect:/foo");
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
 
     assertThat(modelAndView.getViewName()).isEqualTo("redirect:/foo");
     assertThat(this.response.getStatus()).as("3xx status should be left to RedirectView to set").isEqualTo(200);
@@ -151,7 +158,7 @@ class ParameterizableViewControllerTests {
   public void redirectView() throws Exception {
     RedirectView view = new RedirectView("/foo");
     this.controller.setView(view);
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView.getView()).isSameAs(view);
   }
 
@@ -159,8 +166,9 @@ class ParameterizableViewControllerTests {
   public void statusOnly() throws Exception {
     this.controller.setStatusCode(HttpStatus.NOT_FOUND);
     this.controller.setStatusOnly(true);
-    ModelAndView modelAndView = this.controller.handleRequest(this.context);
+    ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView).isNull();
     assertThat(this.response.getStatus()).isEqualTo(404);
   }
+
 }

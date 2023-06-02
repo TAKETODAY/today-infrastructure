@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,12 +26,16 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import cn.taketoday.aop.ProxyMethodInvocation;
+import cn.taketoday.aop.framework.AopProxyUtils;
+import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.SmartFactoryBean;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.OrderedSupport;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
@@ -109,6 +113,10 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     Set<ConstraintViolation<Object>> result;
 
     Object target = invocation.getThis();
+    if (target == null && invocation instanceof ProxyMethodInvocation methodInvocation) {
+      // Allow validation for AOP proxy without a target
+      target = methodInvocation.getProxy();
+    }
     Assert.state(target != null, "Target must not be null");
 
     try {
@@ -160,7 +168,8 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
   /**
    * Determine the validation groups to validate against for the given method invocation.
    * <p>Default are the validation groups as specified in the {@link Validated} annotation
-   * on the containing target class of the method.
+   * on the method, or on the containing target class of the method, or for an AOP proxy
+   * without a target (with all behavior in advisors), also check on proxied interfaces.
    *
    * @param invocation the current MethodInvocation
    * @return the applicable validation groups as a Class array
@@ -169,10 +178,22 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
     Validated validatedAnn = AnnotationUtils.findAnnotation(invocation.getMethod(), Validated.class);
     if (validatedAnn == null) {
       Object target = invocation.getThis();
-      Assert.state(target != null, "Target must not be null");
-      validatedAnn = AnnotationUtils.findAnnotation(target.getClass(), Validated.class);
+      if (target != null) {
+        validatedAnn = AnnotationUtils.findAnnotation(target.getClass(), Validated.class);
+      }
+      else if (invocation instanceof ProxyMethodInvocation methodInvocation) {
+        Object proxy = methodInvocation.getProxy();
+        if (AopUtils.isAopProxy(proxy)) {
+          for (Class<?> type : AopProxyUtils.proxiedUserInterfaces(proxy)) {
+            validatedAnn = AnnotationUtils.findAnnotation(type, Validated.class);
+            if (validatedAnn != null) {
+              break;
+            }
+          }
+        }
+      }
     }
-    return (validatedAnn != null ? validatedAnn.value() : new Class<?>[0]);
+    return validatedAnn != null ? validatedAnn.value() : Constant.EMPTY_CLASSES;
   }
 
 }

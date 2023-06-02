@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
@@ -52,7 +53,17 @@ public class HttpMediaTypeNotSupportedException extends HttpMediaTypeException {
    * @param message the exception message
    */
   public HttpMediaTypeNotSupportedException(String message) {
-    super(message);
+    this(message, Collections.emptyList());
+  }
+
+  /**
+   * Create a new HttpMediaTypeNotSupportedException.
+   *
+   * @param message the exception message
+   * @param mediaTypes list of supported media types
+   */
+  public HttpMediaTypeNotSupportedException(String message, List<MediaType> mediaTypes) {
+    super(message, mediaTypes);
     this.contentType = null;
     this.httpMethod = null;
     getBody().setDetail("Could not parse Content-Type.");

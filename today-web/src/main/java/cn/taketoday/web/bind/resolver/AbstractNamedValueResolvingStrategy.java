@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,7 +83,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   public AbstractNamedValueResolvingStrategy(@Nullable ConfigurableBeanFactory beanFactory) {
     this.configurableBeanFactory = beanFactory;
     this.expressionContext =
-            beanFactory != null ? new BeanExpressionContext(beanFactory, new RequestScope()) : null;
+            beanFactory != null ? new BeanExpressionContext(beanFactory, RequestScope.instance) : null;
   }
 
   @Nullable
@@ -121,7 +121,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
     }
 
-    BindingContext bindingContext = context.getBindingContext();
+    BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
       WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
       try {

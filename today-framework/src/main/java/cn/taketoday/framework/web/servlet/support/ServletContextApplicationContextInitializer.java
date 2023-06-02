@@ -24,8 +24,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 /**
@@ -77,10 +77,10 @@ public class ServletContextApplicationContextInitializer implements ApplicationC
 
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
-    if (applicationContext instanceof ConfigurableWebServletApplicationContext context) {
+    if (applicationContext instanceof ConfigurableWebApplicationContext context) {
       context.setServletContext(this.servletContext);
       if (this.addApplicationContextAttribute) {
-        this.servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+        this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
       }
     }
   }

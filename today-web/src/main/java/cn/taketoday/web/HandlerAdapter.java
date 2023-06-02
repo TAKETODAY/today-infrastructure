@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,11 +28,9 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.handler.FunctionRequestAdapter;
 import cn.taketoday.web.handler.HandlerAdapters;
-import cn.taketoday.web.handler.HandlerExecutionChainHandlerAdapter;
 import cn.taketoday.web.handler.NotFoundHandler;
-import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
+import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 
 /**
@@ -72,7 +70,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
  * 2019-12-08 20:23
  * @see HandlerAdapterProvider
  * @see NotFoundHandler
- * @see ViewControllerHandlerAdapter
  * @see cn.taketoday.web.servlet.ServletHandlerAdapter
  */
 public interface HandlerAdapter {
@@ -160,20 +157,12 @@ public interface HandlerAdapter {
 
     // Ensure we have at least some HandlerAdapters, by registering
     // default HandlerAdapters if no other adapters are found.
-    var handlerAdapter = context.getAutowireCapableBeanFactory().createBean(RequestMappingHandlerAdapter.class);
-    HandlerAdapters handlerAdapters = new HandlerAdapters(
-            new HandlerAdapter[] {
-                    handlerAdapter,
-                    new ViewControllerHandlerAdapter(),
-                    new FunctionRequestAdapter(),
-            }
-    );
+    var handlerAdapter = context.getAutowireCapableBeanFactory()
+            .createBean(RequestMappingHandlerAdapter.class);
     return new HandlerAdapters(
             new HandlerAdapter[] {
                     handlerAdapter,
-                    new ViewControllerHandlerAdapter(),
-                    new FunctionRequestAdapter(),
-                    new HandlerExecutionChainHandlerAdapter(handlerAdapters)
+                    new HandlerFunctionAdapter(),
             }
     );
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.stereotype.Component;
 
@@ -47,15 +46,15 @@ import cn.taketoday.stereotype.Component;
  *
  * <h2>Bootstrapping {@code @Configuration} classes</h2>
  *
- * <h3>Via {@code StandardApplicationContext}</h3>
+ * <h3>Via {@code AnnotationConfigApplicationContext}</h3>
  *
  * <p>{@code @Configuration} classes are typically bootstrapped using either
  * {@link AnnotationConfigApplicationContext} or its web-capable variant,
- * {@link cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
- * StandardWebServletApplicationContext}. A simple example with the former follows:
+ * {@link cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext
+ * AnnotationConfigWebApplicationContext}. A simple example with the former follows:
  *
  * <pre class="code">
- * StandardApplicationContext ctx = new StandardApplicationContext();
+ * var ctx = new AnnotationConfigApplicationContext();
  * ctx.register(AppConfig.class);
  * ctx.refresh();
  * MyBean myBean = ctx.getBean(MyBean.class);
@@ -63,14 +62,14 @@ import cn.taketoday.stereotype.Component;
  * </pre>
  *
  * <p>See the {@link AnnotationConfigApplicationContext} javadocs for further details, and see
- * {@link cn.taketoday.web.context.support.AnnotationConfigWebApplicationContext
+ * {@link cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext
  * AnnotationConfigWebApplicationContext} for web configuration instructions in a
  * {@code Servlet} container.
  *
  * <h3>Via {@code <beans>} XML</h3>
  *
  * <p>As an alternative to registering {@code @Configuration} classes directly against an
- * {@code StandardApplicationContext}, {@code @Configuration} classes may be
+ * {@code AnnotationConfigApplicationContext}, {@code @Configuration} classes may be
  * declared as normal {@code <bean>} definitions within XML files:
  *
  * <pre class="code">
@@ -241,7 +240,7 @@ import cn.taketoday.stereotype.Component;
  * by registering only {@code AppConfig} against the context:
  *
  * <pre class="code">
- * new StandardApplicationContext(AppConfig.class);</pre>
+ * new AnnotationConfigApplicationContext(AppConfig.class);</pre>
  *
  * <h3>With the {@code @Profile} annotation</h3>
  *
@@ -393,7 +392,7 @@ import cn.taketoday.stereotype.Component;
  * @see ComponentScan
  * @see Lazy
  * @see cn.taketoday.context.annotation.PropertySource
- * @see StandardApplicationContext
+ * @see AnnotationConfigApplicationContext
  * @see ConfigurationClassPostProcessor
  * @see cn.taketoday.core.env.Environment
  * @since 4.0
@@ -409,7 +408,7 @@ public @interface Configuration {
    * name will be automatically generated.
    * <p>The custom name applies only if the {@code @Configuration} class is picked
    * up via component scanning or supplied directly to an
-   * {@link StandardApplicationContext}. If the {@code @Configuration} class
+   * {@link AnnotationConfigApplicationContext}. If the {@code @Configuration} class
    * is registered as a traditional XML bean definition, the name/id of the bean
    * element will take precedence.
    *
@@ -439,5 +438,18 @@ public @interface Configuration {
    * @since 4.0
    */
   boolean proxyBeanMethods() default true;
+
+  /**
+   * Specify whether {@code @Bean} methods need to have unique method names,
+   * raising an exception otherwise in order to prevent accidental overloading.
+   * <p>The default is {@code true}, preventing accidental method overloads which
+   * get interpreted as overloaded factory methods for the same bean definition
+   * (as opposed to separate bean definitions with individual conditions etc).
+   * Switch this flag to {@code false} in order to allow for method overloading
+   * according to those semantics, accepting the risk for accidental overlaps.
+   *
+   * @since 4.0
+   */
+  boolean enforceUniqueMethods() default true;
 
 }

@@ -24,14 +24,14 @@ import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.config.InterceptorRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfigurer;
 
 /**
  * @author TODAY 2021/8/29 22:20
  */
 @Configuration
 @ComponentScan("cn.taketoday.web.demo")
-public class AppConfig implements WebMvcConfiguration {
+public class AppConfig implements WebMvcConfigurer {
 
   HandlerInterceptor interceptor;
 

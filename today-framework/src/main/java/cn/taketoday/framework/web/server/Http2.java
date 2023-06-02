@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,10 +20,13 @@
 
 package cn.taketoday.framework.web.server;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Simple server-independent abstraction for HTTP/2 configuration.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Http2 {
@@ -41,6 +44,16 @@ public class Http2 {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  /**
+   * Returns if Http2 is enabled for the given instance.
+   *
+   * @param http2 the {@link Http2} instance or {@code null}
+   * @return {@code true} is Http2 is enabled
+   */
+  public static boolean isEnabled(@Nullable Http2 http2) {
+    return http2 != null && http2.enabled;
   }
 
 }

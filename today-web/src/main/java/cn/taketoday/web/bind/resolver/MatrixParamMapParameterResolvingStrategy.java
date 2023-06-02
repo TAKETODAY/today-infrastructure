@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.MatrixParam;
@@ -56,7 +56,7 @@ public class MatrixParamMapParameterResolvingStrategy implements ParameterResolv
     MatrixParam matrixVariable = resolvable.getParameterAnnotation(MatrixParam.class);
     return matrixVariable != null
             && Map.class.isAssignableFrom(resolvable.getParameterType())
-            && !StringUtils.hasText(matrixVariable.name());
+            && StringUtils.isBlank(matrixVariable.name());
   }
 
   @Nullable

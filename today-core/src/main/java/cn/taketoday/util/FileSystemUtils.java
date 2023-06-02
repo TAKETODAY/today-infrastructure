@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -75,11 +75,11 @@ public abstract class FileSystemUtils {
   }
 
   /**
-   * Delete the supplied {@link File} &mdash; for directories,
+   * Delete the supplied {@link Path} &mdash; for directories,
    * recursively delete any nested directories or files as well.
    *
-   * @param root the root {@code File} to delete
-   * @return {@code true} if the {@code File} existed and was deleted,
+   * @param root the root {@code Path} to delete
+   * @return {@code true} if the {@code Path} existed and was deleted,
    * or {@code false} if it did not exist
    * @throws IOException in the case of I/O errors
    */

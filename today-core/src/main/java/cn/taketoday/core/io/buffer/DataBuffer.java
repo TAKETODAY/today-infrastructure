@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,7 @@
 
 package cn.taketoday.core.io.buffer;
 
-import cn.taketoday.lang.Assert;
-
+import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -30,7 +29,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.util.Iterator;
 import java.util.function.IntPredicate;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * Basic abstraction over byte buffers.
@@ -57,6 +59,7 @@ import java.util.function.IntPredicate;
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataBufferFactory
  * @since 4.0
  */
@@ -120,25 +123,9 @@ public interface DataBuffer {
    *
    * @param capacity the new capacity
    * @return this buffer
-   * @deprecated in favor of {@link #ensureWritable(int)}, which
-   * has different semantics
+   * @see #ensureWritable(int) in favor of ensureWritable
    */
-  @Deprecated
   DataBuffer capacity(int capacity);
-
-  /**
-   * Ensure that the current buffer has enough {@link #writableByteCount()}
-   * to write the amount of data given as an argument. If not, the missing
-   * capacity will be added to the buffer.
-   *
-   * @param capacity the writable capacity to check for
-   * @return this buffer
-   * @deprecated in favor of {@link #ensureWritable(int)}
-   */
-  @Deprecated
-  default DataBuffer ensureCapacity(int capacity) {
-    return ensureWritable(capacity);
-  }
 
   /**
    * Ensure that the current buffer has enough {@link #writableByteCount()}
@@ -278,32 +265,31 @@ public interface DataBuffer {
   default DataBuffer write(CharSequence charSequence, Charset charset) {
     Assert.notNull(charSequence, "CharSequence must not be null");
     Assert.notNull(charset, "Charset must not be null");
-    if (charSequence.length() != 0) {
-      CharsetEncoder charsetEncoder = charset.newEncoder()
+    if (charSequence.length() > 0) {
+      CharsetEncoder encoder = charset.newEncoder()
               .onMalformedInput(CodingErrorAction.REPLACE)
               .onUnmappableCharacter(CodingErrorAction.REPLACE);
-      CharBuffer inBuffer = CharBuffer.wrap(charSequence);
-      int estimatedSize = (int) (inBuffer.remaining() * charsetEncoder.averageBytesPerChar());
-      ByteBuffer outBuffer = ensureCapacity(estimatedSize)
-              .asByteBuffer(writePosition(), writableByteCount());
+      CharBuffer src = CharBuffer.wrap(charSequence);
+      int cap = (int) (src.remaining() * encoder.averageBytesPerChar());
       while (true) {
-        CoderResult cr = inBuffer.hasRemaining()
-                         ? charsetEncoder.encode(inBuffer, outBuffer, true)
-                         : CoderResult.UNDERFLOW;
-        if (cr.isUnderflow()) {
-          cr = charsetEncoder.flush(outBuffer);
+        ensureWritable(cap);
+        CoderResult cr;
+        try (ByteBufferIterator iterator = writableByteBuffers()) {
+          Assert.state(iterator.hasNext(), "No ByteBuffer available");
+          ByteBuffer dest = iterator.next();
+          cr = encoder.encode(src, dest, true);
+          if (cr.isUnderflow()) {
+            cr = encoder.flush(dest);
+          }
+          writePosition(dest.position());
         }
         if (cr.isUnderflow()) {
           break;
         }
         if (cr.isOverflow()) {
-          writePosition(writePosition() + outBuffer.position());
-          int maximumSize = (int) (inBuffer.remaining() * charsetEncoder.maxBytesPerChar());
-          ensureCapacity(maximumSize);
-          outBuffer = asByteBuffer(writePosition(), writableByteCount());
+          cap = 2 * cap + 1;
         }
       }
-      writePosition(writePosition() + outBuffer.position());
     }
     return this;
   }
@@ -320,10 +306,8 @@ public interface DataBuffer {
    * @param index the index at which to start the slice
    * @param length the length of the slice
    * @return the specified slice of this data buffer
-   * @deprecated in favor of {@link #split(int)}, which
-   * has different semantics
+   * @see #split(int) which has different semantics
    */
-  @Deprecated
   DataBuffer slice(int index, int length);
 
   /**
@@ -338,10 +322,8 @@ public interface DataBuffer {
    * @param index the index at which to start the slice
    * @param length the length of the slice
    * @return the specified, retained slice of this data buffer
-   * @deprecated in favor of {@link #split(int)}, which
-   * has different semantics
+   * @see #split(int) which has different semantics
    */
-  @Deprecated
   default DataBuffer retainedSlice(int index, int length) {
     return DataBufferUtils.retain(slice(index, length));
   }
@@ -372,11 +354,10 @@ public interface DataBuffer {
    * changes in the returned buffer's {@linkplain ByteBuffer#position() position}
    * will not be reflected in the reading nor writing position of this data buffer.
    *
+   * <p>{@link #toByteBuffer()}, which does <strong>not</strong> share data and returns a copy.
+   *
    * @return this data buffer as a byte buffer
-   * @deprecated as of 6.0, in favor of {@link #toByteBuffer()}, which does
-   * <strong>not</strong> share data and returns a copy.
    */
-  @Deprecated
   ByteBuffer asByteBuffer();
 
   /**
@@ -384,14 +365,14 @@ public interface DataBuffer {
    * this {@code DataBuffer} and the returned {@code ByteBuffer} is shared; though
    * changes in the returned buffer's {@linkplain ByteBuffer#position() position}
    * will not be reflected in the reading nor writing position of this data buffer.
+   * <p>
+   * in favor of {@link #toByteBuffer(int, int)}, which
+   * does <strong>not</strong> share data and returns a copy.
    *
    * @param index the index at which to start the byte buffer
    * @param length the length of the returned byte buffer
    * @return this data buffer as a byte buffer
-   * @deprecated in favor of {@link #toByteBuffer(int, int)}, which
-   * does <strong>not</strong> share data and returns a copy.
    */
-  @Deprecated
   ByteBuffer asByteBuffer(int index, int length);
 
   /**
@@ -413,6 +394,55 @@ public interface DataBuffer {
    * @return this data buffer as a byte buffer
    */
   ByteBuffer toByteBuffer(int index, int length);
+
+  /**
+   * Copies this entire data buffer into the given destination
+   * {@code ByteBuffer}, beginning at the current
+   * {@linkplain #readPosition() reading position}, and the current
+   * {@linkplain ByteBuffer#position() position} of destination byte buffer.
+   *
+   * @param dest the destination byte buffer
+   */
+  default void toByteBuffer(ByteBuffer dest) {
+    toByteBuffer(readPosition(), dest, dest.position(), readableByteCount());
+  }
+
+  /**
+   * Copies the given length from this data buffer into the given destination
+   * {@code ByteBuffer}, beginning at the given source position, and the
+   * given destination position in the destination byte buffer.
+   *
+   * @param srcPos the position of this data buffer from where copying should start
+   * @param dest the destination byte buffer
+   * @param destPos the position in {@code dest} to where copying should start
+   * @param length the amount of data to copy
+   */
+  void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length);
+
+  /**
+   * Returns a closeable iterator over each {@link ByteBuffer} in this data
+   * buffer that can be read. Calling this method is more efficient than
+   * {@link #toByteBuffer()}, as no data is copied. However, the byte buffers
+   * provided can only be used during the iteration.
+   * <p><b>Note</b> that the returned iterator must be used in a
+   * try-with-resources clause or explicitly
+   * {@linkplain ByteBufferIterator#close() closed}.
+   *
+   * @return a closeable iterator over the readable byte buffers contained in this data buffer
+   */
+  ByteBufferIterator readableByteBuffers();
+
+  /**
+   * Returns a closeable iterator over each {@link ByteBuffer} in this data
+   * buffer that can be written to. The byte buffers provided can only be used
+   * during the iteration.
+   * <p><b>Note</b> that the returned iterator must be used in a
+   * try-with-resources clause or explicitly
+   * {@linkplain ByteBufferIterator#close() closed}.
+   *
+   * @return a closeable iterator over the writable byte buffers contained in this data buffer
+   */
+  ByteBufferIterator writableByteBuffers();
 
   /**
    * Expose this buffer's data as an {@link InputStream}. Both data and read position are
@@ -471,5 +501,19 @@ public interface DataBuffer {
    * @return a string representation of a part of this buffers data
    */
   String toString(int index, int length, Charset charset);
+
+  /**
+   * A dedicated iterator type that ensures the lifecycle of iterated
+   * {@link ByteBuffer} elements. This iterator must be used in a
+   * try-with-resources clause or explicitly {@linkplain #close() closed}.
+   *
+   * @see DataBuffer#readableByteBuffers()
+   * @see DataBuffer#writableByteBuffers()
+   */
+  interface ByteBufferIterator extends Iterator<ByteBuffer>, Closeable {
+
+    @Override
+    void close();
+  }
 
 }

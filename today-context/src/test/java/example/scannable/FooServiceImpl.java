@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,8 +37,8 @@ import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Service;
 import cn.taketoday.scheduling.annotation.AsyncResult;
+import cn.taketoday.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 
 /**

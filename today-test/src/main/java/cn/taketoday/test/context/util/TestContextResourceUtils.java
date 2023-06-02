@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,7 @@ import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Utility methods for working with resources within the <em>Spring TestContext
+ * Utility methods for working with resources within the <em>Infra TestContext
  * Framework</em>. Mainly for internal use within the framework.
  *
  * @author Sam Brannen

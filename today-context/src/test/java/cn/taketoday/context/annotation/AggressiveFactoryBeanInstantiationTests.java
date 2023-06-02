@@ -42,29 +42,29 @@ public class AggressiveFactoryBeanInstantiationTests {
 
   @Test
   public void directlyRegisteredFactoryBean() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      context.register(SimpleFactoryBean.class);
-      context.addBeanFactoryPostProcessor(factory ->
-              BeanFactoryUtils.beanNamesForTypeIncludingAncestors(factory, String.class)
-      );
-      context.refresh();
-    }
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(SimpleFactoryBean.class);
+    context.addBeanFactoryPostProcessor(factory ->
+            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(factory, String.class)
+    );
+    context.refresh();
+    context.close();
   }
 
   @Test
   public void beanMethodFactoryBean() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      context.register(BeanMethodConfiguration.class);
-      context.addBeanFactoryPostProcessor(factory ->
-              BeanFactoryUtils.beanNamesForTypeIncludingAncestors(factory, String.class)
-      );
-      context.refresh();
-    }
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(BeanMethodConfiguration.class);
+    context.addBeanFactoryPostProcessor(factory ->
+            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(factory, String.class)
+    );
+    context.refresh();
   }
 
   @Test
   public void checkLinkageError() {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+    try {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.register(BeanMethodConfigurationWithExceptionInInitializer.class);
       context.refresh();
       fail("Should have thrown BeanCreationException");

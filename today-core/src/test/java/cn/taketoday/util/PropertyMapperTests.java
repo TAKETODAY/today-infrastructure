@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -209,6 +209,20 @@ class PropertyMapperTests {
     assertThat(result).isEqualTo("123");
   }
 
+  @Test
+  void toImmutableReturnsNewInstance() {
+    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    instance = this.map.from("123").as(Integer::valueOf).to(instance, Immutable::withAge);
+    assertThat(instance).hasToString("Spring 123");
+  }
+
+  @Test
+  void toImmutableWhenFilteredReturnsOriginalInstance() {
+    Immutable instance = this.map.from("Spring").toInstance(Immutable::of);
+    instance = this.map.from("123").when("345"::equals).as(Integer::valueOf).to(instance, Immutable::withAge);
+    assertThat(instance).hasToString("Spring null");
+  }
+
   static class Count<T> implements Supplier<T> {
 
     private final Supplier<T> source;
@@ -255,6 +269,32 @@ class PropertyMapperTests {
 
     String getName() {
       return this.name;
+    }
+
+  }
+
+  static class Immutable {
+
+    private final String name;
+
+    private final Integer age;
+
+    Immutable(String name, Integer age) {
+      this.name = name;
+      this.age = age;
+    }
+
+    Immutable withAge(Integer age) {
+      return new Immutable(this.name, age);
+    }
+
+    @Override
+    public String toString() {
+      return "%s %s".formatted(this.name, this.age);
+    }
+
+    static Immutable of(String name) {
+      return new Immutable(name, null);
     }
 
   }

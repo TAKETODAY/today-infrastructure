@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Meant to be used as a reusable, thread-safe component.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see CachedExpressionEvaluator
  * @since 4.0
  */
@@ -51,15 +52,17 @@ class EventExpressionEvaluator extends CachedExpressionEvaluator {
   public boolean condition(String conditionExpression, Object event, Method targetMethod,
           AnnotatedElementKey methodKey, Object[] args, @Nullable BeanFactory beanFactory) {
 
-    EventExpressionRootObject root = new EventExpressionRootObject(event, args);
-    MethodBasedEvaluationContext evaluationContext = new MethodBasedEvaluationContext(
-            root, targetMethod, args, getParameterNameDiscoverer());
+    var root = new EventExpressionRootObject(event, args);
+    var evaluationContext = new MethodBasedEvaluationContext(
+            root, targetMethod, args, parameterNameDiscoverer);
     if (beanFactory != null) {
       evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
     }
 
-    return (Boolean.TRUE.equals(getExpression(this.conditionCache, methodKey, conditionExpression).getValue(
-            evaluationContext, Boolean.class)));
+    return Boolean.TRUE.equals(
+            getExpression(conditionCache, methodKey, conditionExpression)
+                    .getValue(evaluationContext, Boolean.class)
+    );
   }
 
 }

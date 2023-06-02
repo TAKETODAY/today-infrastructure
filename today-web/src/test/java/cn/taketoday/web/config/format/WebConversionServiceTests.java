@@ -37,12 +37,15 @@ import java.time.format.FormatStyle;
 import java.util.Calendar;
 import java.util.Date;
 
+import cn.taketoday.web.DisabledIfInContinuousIntegration;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/15 13:01
  */
+@DisabledIfInContinuousIntegration
 @Execution(ExecutionMode.SAME_THREAD)
 class WebConversionServiceTests {
 

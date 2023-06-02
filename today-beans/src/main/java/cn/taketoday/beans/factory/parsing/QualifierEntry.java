@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ public class QualifierEntry implements ParseState.Entry {
    * @param typeName the name of the qualifier type
    */
   public QualifierEntry(String typeName) {
-    if (!StringUtils.hasText(typeName)) {
+    if (StringUtils.isBlank(typeName)) {
       throw new IllegalArgumentException("Invalid qualifier type '" + typeName + "'");
     }
     this.typeName = typeName;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -101,7 +101,8 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
       StandardBeanFactory beanFactory = getBeanFactory();
       boolean lazyInit = beanFactory.getBeanDefinition(webServerFactoryBeanName).isLazyInit();
 
-      this.serverManager = new WebServerManager(this, webServerFactory, this::getHttpHandler, lazyInit);
+      this.serverManager = new WebServerManager(
+              this, webServerFactory, this::getHttpHandler, lazyInit);
       beanFactory.registerSingleton("webServerGracefulShutdown",
               new WebServerGracefulShutdownLifecycle(this.serverManager.getWebServer()));
       beanFactory.registerSingleton("webServerStartStop",

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,7 +68,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
     if (definition != null && !parserContext.isNested()) {
       try {
         String id = resolveId(element, definition, parserContext);
-        if (!StringUtils.hasText(id)) {
+        if (StringUtils.isBlank(id)) {
           parserContext.getReaderContext().error(
                   "Id is required for element '" + parserContext.getDelegate().getLocalName(element)
                           + "' when used as a top-level tag", element);
@@ -119,7 +119,7 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
     }
     else {
       String id = element.getAttribute(ID_ATTRIBUTE);
-      if (!StringUtils.hasText(id) && shouldGenerateIdAsFallback()) {
+      if (StringUtils.isBlank(id) && shouldGenerateIdAsFallback()) {
         id = parserContext.getReaderContext().generateBeanName(definition);
       }
       return id;

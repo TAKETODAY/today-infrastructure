@@ -8,3 +8,7 @@ example.scannable.StubFooDao=cn.taketoday.stereotype.Component
 example.scannable.NamedStubDao=cn.taketoday.stereotype.Component
 example.scannable.ServiceInvocationCounter=cn.taketoday.stereotype.Component
 example.scannable.sub.BarComponent=cn.taketoday.stereotype.Component
+example.scannable.JakartaManagedBeanComponent=jakarta.annotation.ManagedBean
+example.scannable.JakartaNamedComponent=jakarta.inject.Named
+example.indexed.IndexedJakartaManagedBeanComponent=jakarta.annotation.ManagedBean
+example.indexed.IndexedJakartaNamedComponent=jakarta.inject.Named

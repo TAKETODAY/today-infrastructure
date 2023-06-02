@@ -138,7 +138,7 @@ class MyBatisTests extends AbstractMyBatisTest {
     assertSingleConnection();
   }
 
-  // Spring API should work with a MyBatis TransactionFactories
+  // Infra API should work with a MyBatis TransactionFactories
   @Test
   void testWithNonSpringTransactionFactory() {
     Environment original = sqlSessionFactory.getConfiguration().getEnvironment();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,18 +20,15 @@
 
 package cn.taketoday.http.server;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -39,9 +36,10 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class DefaultPathContainer implements PathContainer {
+final class DefaultPathContainer extends PathContainer {
 
   private static final PathContainer EMPTY_PATH = new DefaultPathContainer("", Collections.emptyList());
 
@@ -100,7 +98,7 @@ final class DefaultPathContainer implements PathContainer {
     if (separatorElement == null) {
       throw new IllegalArgumentException("Unexpected separator: '" + separator + "'");
     }
-    List<Element> elements = new ArrayList<>();
+    ArrayList<Element> elements = new ArrayList<>();
     int begin;
     if (path.charAt(0) == separator) {
       begin = 1;
@@ -127,27 +125,39 @@ final class DefaultPathContainer implements PathContainer {
   }
 
   private static PathSegment decodeAndParsePathSegment(String segment) {
-    Charset charset = StandardCharsets.UTF_8;
     int index = segment.indexOf(';');
     if (index == -1) {
-      String valueToMatch = StringUtils.uriDecode(segment, charset);
+      String valueToMatch = uriDecode(segment);
       return DefaultPathSegment.from(segment, valueToMatch);
     }
     else {
-      String valueToMatch = StringUtils.uriDecode(segment.substring(0, index), charset);
+      String valueToMatch = uriDecode(segment.substring(0, index));
       String pathParameterContent = segment.substring(index);
-      MultiValueMap<String, String> parameters = parsePathParams(pathParameterContent, charset);
+      MultiValueMap<String, String> parameters = parsePathParams(pathParameterContent);
       return DefaultPathSegment.from(segment, valueToMatch, parameters);
     }
   }
 
-  private static MultiValueMap<String, String> parsePathParams(String input, Charset charset) {
+  private static String uriDecode(String source) {
+    try {
+      return StringUtils.uriDecode(source, StandardCharsets.UTF_8);
+    }
+    catch (IllegalArgumentException e) {
+      String message = e.getMessage();
+      if (message != null && message.startsWith("Invalid encoded sequence")) {
+        return source;
+      }
+      throw e;
+    }
+  }
+
+  private static MultiValueMap<String, String> parsePathParams(String input) {
     DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
     int begin = 1;
     while (begin < input.length()) {
       int end = input.indexOf(';', begin);
       String param = (end != -1 ? input.substring(begin, end) : input.substring(begin));
-      parsePathParamValues(param, charset, result);
+      parsePathParamValues(param, result);
       if (end == -1) {
         break;
       }
@@ -156,21 +166,21 @@ final class DefaultPathContainer implements PathContainer {
     return result;
   }
 
-  private static void parsePathParamValues(String input, Charset charset, MultiValueMap<String, String> output) {
+  private static void parsePathParamValues(String input, MultiValueMap<String, String> output) {
     if (StringUtils.hasText(input)) {
       int index = input.indexOf('=');
       if (index != -1) {
         String name = input.substring(0, index);
-        name = StringUtils.uriDecode(name, charset);
+        name = uriDecode(name);
         if (StringUtils.hasText(name)) {
           String value = input.substring(index + 1);
           for (String v : StringUtils.commaDelimitedListToStringArray(value)) {
-            output.add(name, StringUtils.uriDecode(v, charset));
+            output.add(name, uriDecode(v));
           }
         }
       }
       else {
-        String name = StringUtils.uriDecode(input, charset);
+        String name = uriDecode(input);
         if (StringUtils.hasText(name)) {
           output.add(input, "");
         }
@@ -187,12 +197,26 @@ final class DefaultPathContainer implements PathContainer {
       return EMPTY_PATH;
     }
 
-    Assert.isTrue(fromIndex >= 0 && fromIndex < elements.size(), () -> "Invalid fromIndex: " + fromIndex);
-    Assert.isTrue(toIndex >= 0 && toIndex <= elements.size(), () -> "Invalid toIndex: " + toIndex);
-    Assert.isTrue(fromIndex < toIndex, () -> "fromIndex: " + fromIndex + " should be < toIndex " + toIndex);
+    if (fromIndex < 0 || fromIndex >= elements.size()) {
+      throw new IllegalArgumentException("Invalid fromIndex: " + fromIndex);
+    }
+
+    if (toIndex < 0 || toIndex > elements.size()) {
+      throw new IllegalArgumentException("Invalid toIndex: " + toIndex);
+    }
+
+    if (fromIndex >= toIndex) {
+      throw new IllegalArgumentException("fromIndex: " + fromIndex + " should be < toIndex " + toIndex);
+    }
 
     List<Element> subList = elements.subList(fromIndex, toIndex);
-    String path = subList.stream().map(Element::value).collect(Collectors.joining(""));
+
+    StringBuilder pathBuilder = new StringBuilder();
+    for (Element element : subList) {
+      pathBuilder.append(element.value());
+    }
+
+    String path = pathBuilder.toString();
     return new DefaultPathContainer(path, subList);
   }
 

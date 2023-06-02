@@ -23,9 +23,9 @@ package cn.taketoday.context.support;
 import cn.taketoday.beans.factory.BeanCreationNotAllowedException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.MessageSourceAware;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 

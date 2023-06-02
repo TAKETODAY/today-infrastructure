@@ -20,23 +20,20 @@
 
 package cn.taketoday.http.codec.multipart;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.json.AbstractLeakCheckingTests;
 import cn.taketoday.http.server.reactive.MockServerHttpResponse;
+import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 
 import static cn.taketoday.http.codec.multipart.MultipartHttpMessageWriterTests.parse;
@@ -58,22 +55,11 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   public void canWrite() {
-    assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
-            MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
-            MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
-            MediaType.MULTIPART_MIXED)).isTrue();
-    assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
-            MediaType.MULTIPART_RELATED)).isTrue();
-
-    assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(Map.class, String.class, Object.class),
-            MediaType.MULTIPART_FORM_DATA)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_MIXED)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_RELATED)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.fromClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.fromClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 
   @Test

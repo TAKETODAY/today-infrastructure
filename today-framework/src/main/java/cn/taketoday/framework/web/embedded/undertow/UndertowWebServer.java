@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -102,8 +102,8 @@ public class UndertowWebServer implements WebServer {
    * @param httpHandlerFactories the handler factories
    * @param autoStart if the server should be started
    */
-  public UndertowWebServer(Undertow.Builder builder, Iterable<HttpHandlerFactory> httpHandlerFactories,
-                           boolean autoStart) {
+  public UndertowWebServer(Undertow.Builder builder,
+          Iterable<HttpHandlerFactory> httpHandlerFactories, boolean autoStart) {
     this.builder = builder;
     this.httpHandlerFactories = httpHandlerFactories;
     this.autoStart = autoStart;
@@ -149,7 +149,12 @@ public class UndertowWebServer implements WebServer {
     try {
       if (this.undertow != null) {
         this.undertow.stop();
-        this.closeables.forEach(this::closeSilently);
+        List<Closeable> closeables = this.closeables;
+        if (closeables != null) {
+          for (Closeable closeable : closeables) {
+            closeSilently(closeable);
+          }
+        }
       }
     }
     catch (Exception ex) {
@@ -166,7 +171,6 @@ public class UndertowWebServer implements WebServer {
   }
 
   private Undertow createUndertowServer() {
-    this.closeables = new ArrayList<>();
     this.gracefulShutdown = null;
     HttpHandler handler = createHttpHandler();
     this.builder.setHandler(handler);
@@ -175,10 +179,13 @@ public class UndertowWebServer implements WebServer {
 
   protected HttpHandler createHttpHandler() {
     HttpHandler handler = null;
+    this.closeables = new ArrayList<>();
+    List<Closeable> closeables = this.closeables;
+    Assert.state(closeables != null, "");
     for (HttpHandlerFactory factory : this.httpHandlerFactories) {
       handler = factory.getHandler(handler);
       if (handler instanceof Closeable) {
-        this.closeables.add((Closeable) handler);
+        closeables.add((Closeable) handler);
       }
       if (handler instanceof GracefulShutdownHandler) {
         Assert.isNull(this.gracefulShutdown, "Only a single GracefulShutdownHandler can be defined");
@@ -267,18 +274,23 @@ public class UndertowWebServer implements WebServer {
 
   @Override
   public void stop() throws WebServerException {
-    synchronized(this.monitor) {
-      if (!this.started) {
+    synchronized(monitor) {
+      if (!started) {
         return;
       }
       this.started = false;
-      if (this.gracefulShutdown != null) {
+      if (gracefulShutdown != null) {
         notifyGracefulCallback(false);
       }
       try {
-        this.undertow.stop();
-        for (Closeable closeable : this.closeables) {
-          closeable.close();
+        if (undertow != null) {
+          undertow.stop();
+        }
+        List<Closeable> closeables = this.closeables;
+        if (closeables != null) {
+          for (Closeable closeable : closeables) {
+            closeable.close();
+          }
         }
       }
       catch (Exception ex) {

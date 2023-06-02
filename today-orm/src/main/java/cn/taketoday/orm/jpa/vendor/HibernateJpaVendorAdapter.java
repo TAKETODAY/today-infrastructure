@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -159,6 +159,9 @@ public class HibernateJpaVendorAdapter extends AbstractJpaVendorAdapter {
       jpaProperties.put(AvailableSettings.CONNECTION_HANDLING,
               PhysicalConnectionHandlingMode.DELAYED_ACQUISITION_AND_HOLD);
     }
+
+    // For HibernateBeanContainer to be called on Hibernate 6.2
+    jpaProperties.put("hibernate.cdi.extensions", "true");
 
     return jpaProperties;
   }

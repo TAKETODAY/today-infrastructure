@@ -23,10 +23,10 @@ package cn.taketoday.framework.annotation;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.ContextCondition;
+import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.cloud.CloudPlatform;
@@ -39,10 +39,10 @@ import cn.taketoday.framework.cloud.CloudPlatform;
  * @see ConditionalOnCloudPlatform
  * @since 4.0 2022/4/4 12:21
  */
-class OnCloudPlatformCondition extends ContextCondition {
+class OnCloudPlatformCondition extends InfraCondition {
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnCloudPlatform.class.getName());
     CloudPlatform cloudPlatform = (CloudPlatform) attributes.get("value");
     return getMatchOutcome(context.getEnvironment(), cloudPlatform);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -351,12 +351,12 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    *
    * @throws IllegalArgumentException if the profile is null, empty, whitespace-only or
    * begins with the profile NOT operator (!).
-   * @see #acceptsProfiles
+   * @see #matchesProfiles
    * @see #addActiveProfile
    * @see #setDefaultProfiles
    */
   protected void validateProfile(String profile) {
-    if (!StringUtils.hasText(profile)) {
+    if (StringUtils.isBlank(profile)) {
       throw new IllegalArgumentException(
               "Invalid profile [" + profile + "]: must contain text");
     }
@@ -392,7 +392,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * <p>If this method returns {@code true}, an empty dummy Map will be used instead
    * of the regular system environment Map, never even trying to call {@code getenv}
    * and therefore avoiding security manager warnings (if any).
-   * <p>The default implementation checks for the "context.getenv.ignore" system property,
+   * <p>The default implementation checks for the "infra.getenv.ignore" system property,
    * returning {@code true} if its value equals "true" in any case.
    *
    * @see #KEY_IGNORE_GETENV

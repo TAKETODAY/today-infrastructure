@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,7 +47,7 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
   private static final Logger logger = LoggerFactory.getLogger(DefaultCacheAwareContextLoaderDelegate.class);
 
   /**
-   * Default static cache of Spring application contexts.
+   * Default static cache of Infra application contexts.
    */
   static final ContextCache defaultContextCache = new DefaultContextCache();
 

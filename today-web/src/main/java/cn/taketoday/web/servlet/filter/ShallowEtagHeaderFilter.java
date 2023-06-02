@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -116,7 +116,7 @@ public class ShallowEtagHeaderFilter extends OncePerRequestFilter {
 
     if (isEligibleForEtag(request, wrapper, wrapper.getStatus(), wrapper.getContentInputStream())) {
       String eTag = wrapper.getHeader(HttpHeaders.ETAG);
-      if (!StringUtils.hasText(eTag)) {
+      if (StringUtils.isBlank(eTag)) {
         eTag = generateETagHeaderValue(wrapper.getContentInputStream(), this.writeWeakETag);
         rawResponse.setHeader(HttpHeaders.ETAG, eTag);
       }

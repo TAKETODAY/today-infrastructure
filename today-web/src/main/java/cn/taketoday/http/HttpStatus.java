@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,12 +60,22 @@ public enum HttpStatus implements HttpStatusCode {
    * @see <a href="https://tools.ietf.org/html/rfc2518#section-10.1">WebDAV</a>
    */
   PROCESSING(102, Series.INFORMATIONAL, "Processing"),
+
+  /**
+   * {code 103 Early Hints}.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc8297">An HTTP Status Code for Indicating Hints</a>
+   */
+  EARLY_HINTS(103, Series.INFORMATIONAL, "Early Hints"),
+
   /**
    * {@code 103 Checkpoint}.
    *
    * @see <a href="https://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for supporting
    * resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   * @deprecated in favor of {@link #EARLY_HINTS} which will be returned from {@code HttpStatus.valueOf(103)}
    */
+  @Deprecated(since = "4.0")
   CHECKPOINT(103, Series.INFORMATIONAL, "Checkpoint"),
 
   // 2xx Success

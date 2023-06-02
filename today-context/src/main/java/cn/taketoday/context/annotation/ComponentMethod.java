@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,8 +24,8 @@ import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.core.type.MethodMetadata;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 
 /**
  * Represents a {@link Configuration @Configuration} class method annotated with
@@ -41,34 +41,26 @@ import cn.taketoday.lang.Nullable;
  */
 final class ComponentMethod {
 
-  private final MethodMetadata metadata;
-  private final ConfigurationClass configurationClass;
+  public final MethodMetadata metadata;
+  public final ConfigurationClass configurationClass;
 
   public ComponentMethod(MethodMetadata metadata, ConfigurationClass configurationClass) {
     this.metadata = metadata;
     this.configurationClass = configurationClass;
   }
 
-  public MethodMetadata getMetadata() {
-    return this.metadata;
-  }
-
-  public ConfigurationClass getConfigurationClass() {
-    return this.configurationClass;
-  }
-
   public Location getResourceLocation() {
-    return new Location(this.configurationClass.getResource(), this.metadata);
+    return new Location(this.configurationClass.resource, this.metadata);
   }
 
   public void validate(ProblemReporter problemReporter) {
-    if (getMetadata().isStatic()) {
+    if (metadata.isStatic()) {
       // static @Component methods have no constraints to validate -> return immediately
       return;
     }
 
-    if (configurationClass.getMetadata().isAnnotated(Configuration.class.getName())) {
-      if (!getMetadata().isOverridable()) {
+    if (configurationClass.metadata.isAnnotated(Configuration.class.getName())) {
+      if (!metadata.isOverridable()) {
         // instance @Component methods within @Configuration classes must be overridable to accommodate CGLIB
         problemReporter.error(new NonOverridableMethodError());
       }
@@ -95,7 +87,7 @@ final class ComponentMethod {
 
     NonOverridableMethodError() {
       super(String.format("@Component method '%s' must not be private or final; change the method's modifiers to continue",
-              getMetadata().getMethodName()), getResourceLocation());
+              metadata.getMethodName()), getResourceLocation());
     }
   }
 

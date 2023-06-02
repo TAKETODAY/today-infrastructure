@@ -91,6 +91,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  *
  * @author TODAY 2019-07-13 01:11
  */
+@Deprecated
 public class DataBinderParameterResolver
         implements ParameterResolvingStrategy, ConversionServiceAware {
   public static final String ANNOTATED_RESOLVERS_KEY = AnnotatedPropertyResolver.class.getName() + "-annotated-property-resolvers";

@@ -24,7 +24,6 @@ import java.util.concurrent.Callable;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -47,10 +46,9 @@ public class CallableMethodReturnValueHandler implements HandlerMethodReturnValu
 
   @Override
   public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-
     if (returnValue instanceof Callable<?> callable) {
-      WebAsyncUtils.getAsyncManager(context)
-              .startCallableProcessing(callable);
+      context.getAsyncManager()
+              .startCallableProcessing(callable, handler);
     }
   }
 

@@ -31,15 +31,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -51,7 +52,8 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 23:56
  */
-class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelector implements DeterminableImports {
+public class ImportAutoConfigurationImportSelector
+        extends AutoConfigurationImportSelector implements DeterminableImports {
 
   @Override
   public Set<Object> determineImports(AnnotationMetadata metadata) {
@@ -62,12 +64,14 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   }
 
   @Override
+  @Nullable
   protected AnnotationAttributes getAttributes(AnnotationMetadata metadata) {
     return null;
   }
 
   @Override
-  protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
+  protected List<String> getCandidateConfigurations(
+          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     ArrayList<String> candidates = new ArrayList<>();
 
     Map<Class<?>, List<Annotation>> annotations = getAnnotations(metadata);
@@ -95,13 +99,14 @@ class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelec
   }
 
   protected Collection<String> getStrategiesNames(Class<?> source) {
-    List<String> strategies = TodayStrategies.get(source.getName(), getBeanClassLoader());
-    ImportCandidates.load(source, getBeanClassLoader()).forEach(strategies::add);
+    ClassLoader beanClassLoader = getBeanClassLoader();
+    ArrayList<String> strategies = ImportCandidates.load(source, beanClassLoader).getCandidates();
+    strategies.addAll(TodayStrategies.findNames(source.getName(), beanClassLoader));
     return strategies;
   }
 
   @Override
-  protected Set<String> getExclusions(AnnotationMetadata metadata, AnnotationAttributes attributes) {
+  protected Set<String> getExclusions(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     LinkedHashSet<String> exclusions = new LinkedHashSet<>();
     Class<?> source = ClassUtils.resolveClassName(metadata.getClassName(), null);
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.http.codec;
 
 import cn.taketoday.core.codec.Encoder;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Extension of {@link CodecConfigurer} for HTTP message reader and writer
@@ -32,9 +33,9 @@ import cn.taketoday.core.codec.Encoder;
  * <li>{@link cn.taketoday.core.io.buffer.DataBuffer DataBuffer}
  * <li>{@link cn.taketoday.core.io.Resource Resource}
  * <li>{@link String}
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,String&gt;} for form data
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,Object&gt;} for multipart data
  * <li>JSON and Smile, if Jackson is present
  * <li>XML, if JAXB2 is present
@@ -46,7 +47,7 @@ import cn.taketoday.core.codec.Encoder;
  * <li>{@link cn.taketoday.core.io.buffer.DataBuffer DataBuffer}
  * <li>{@link cn.taketoday.core.io.Resource Resource}
  * <li>{@link String}
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,String&gt;} for form data
  * <li>JSON and Smile, if Jackson is present
  * <li>XML, if JAXB2 is present
@@ -80,25 +81,15 @@ public interface ServerCodecConfigurer extends CodecConfigurer {
   }
 
   /**
-   * {@link DefaultCodecs} extension with extra client-side options.
+   * {@link CodecConfigurer.DefaultCodecs} extension with extra server-side options.
    */
   interface ServerDefaultCodecs extends DefaultCodecs {
 
     /**
-     * Configure the {@code HttpMessageReader} to use for multipart requests.
-     * <p>Note that {@link #maxInMemorySize(int)} and/or
-     * {@link #enableLoggingRequestDetails(boolean)}, if configured, will be
-     * applied to the given reader, if applicable.
-     *
-     * @param reader the message reader to use for multipart requests.
-     */
-    void multipartReader(HttpMessageReader<?> reader);
-
-    /**
      * Configure the {@code Encoder} to use for Server-Sent Events.
-     * <p>By default if this is not set, and Jackson is available, the
-     * {@link #jackson2JsonEncoder} override is used instead. Use this method
-     * to customize the SSE encoder.
+     * <p>By default if this is not set, and Jackson is available,
+     * the {@link #jackson2JsonEncoder} override is used instead.
+     * Use this method to customize the SSE encoder.
      */
     void serverSentEventEncoder(Encoder<?> encoder);
   }

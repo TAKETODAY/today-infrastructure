@@ -71,7 +71,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
    * @param timeout a timeout value in milliseconds
    * @param callable the callable for concurrent handling
    */
-  public WebAsyncTask(long timeout, Callable<V> callable) {
+  public WebAsyncTask(@Nullable Long timeout, Callable<V> callable) {
     this(callable);
     this.timeout = timeout;
   }
@@ -122,7 +122,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   /**
    * A {@link BeanFactory} to use for resolving an executor name.
    * <p>This factory reference will automatically be set when
-   * {@code WebAsyncTask} is used within a Spring MVC controller.
+   * {@code WebAsyncTask} is used within a Web MVC controller.
    */
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {

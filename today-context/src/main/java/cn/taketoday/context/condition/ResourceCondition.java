@@ -22,15 +22,14 @@ package cn.taketoday.context.condition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
- * {@link ContextCondition} used to check if a resource can be found using a
+ * {@link InfraCondition} used to check if a resource can be found using a
  * configurable property and optional default location(s).
  *
  * @author Stephane Nicoll
@@ -39,7 +38,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/4 13:33
  */
-public abstract class ResourceCondition extends ContextCondition {
+public abstract class ResourceCondition extends InfraCondition {
 
   private final String name;
 
@@ -62,7 +61,7 @@ public abstract class ResourceCondition extends ContextCondition {
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     if (context.getEnvironment().containsProperty(this.property)) {
       return ConditionOutcome.match(startConditionMessage().foundExactly("property " + this.property));
     }
@@ -77,8 +76,8 @@ public abstract class ResourceCondition extends ContextCondition {
    * @return the condition outcome
    */
   protected ConditionOutcome getResourceOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
-    List<String> found = new ArrayList<>();
+          ConditionContext context, AnnotatedTypeMetadata metadata) {
+    ArrayList<String> found = new ArrayList<>();
     for (String location : this.resourceLocations) {
       Resource resource = context.getResourceLoader().getResource(location);
       if (resource != null && resource.exists()) {
@@ -86,11 +85,14 @@ public abstract class ResourceCondition extends ContextCondition {
       }
     }
     if (found.isEmpty()) {
-      ConditionMessage message = startConditionMessage().didNotFind("resource", "resources").items(Style.QUOTE,
-              Arrays.asList(this.resourceLocations));
+      ConditionMessage message = startConditionMessage()
+              .didNotFind("resource", "resources")
+              .items(Style.QUOTE, Arrays.asList(this.resourceLocations));
       return ConditionOutcome.noMatch(message);
     }
-    ConditionMessage message = startConditionMessage().found("resource", "resources").items(Style.QUOTE, found);
+    ConditionMessage message = startConditionMessage()
+            .found("resource", "resources")
+            .items(Style.QUOTE, found);
     return ConditionOutcome.match(message);
   }
 

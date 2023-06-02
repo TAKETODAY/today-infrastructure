@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,11 @@
  */
 
 package cn.taketoday.validation;
+
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+
+import cn.taketoday.lang.Assert;
 
 /**
  * A validator for application-specific objects.
@@ -98,5 +103,94 @@ public interface Validator {
    * @see ValidationUtils
    */
   void validate(Object target, Errors errors);
+
+  /**
+   * Return a {@code Validator} that checks whether the target object
+   * {@linkplain Class#isAssignableFrom(Class) is an instance of}
+   * {@code targetClass}, resorting to {@code delegate} to populate
+   * {@link Errors} if it is.
+   *
+   * <p>For instance:
+   * <pre>{@code
+   * Validator passwordEqualsValidator = Validator.forInstanceOf(PasswordResetForm.class, (form, errors) -> {
+   *   if (!Objects.equals(form.getPassword(), form.getConfirmPassword())) {
+   * 	   errors.rejectValue("confirmPassword",
+   * 	         "PasswordEqualsValidator.passwordResetForm.password",
+   * 	         "password and confirm password must be same.");
+   *     }
+   *   });
+   * }</pre>
+   *
+   * @param targetClass the class supported by the returned validator
+   * @param delegate function invoked with the target object, if it is an
+   * instance of type T
+   * @param <T> the target object type
+   * @return the created {@code Validator}
+   */
+  static <T> Validator forInstanceOf(Class<T> targetClass, BiConsumer<T, Errors> delegate) {
+    return new TypedValidator<>(targetClass, targetClass::isAssignableFrom, delegate);
+  }
+
+  /**
+   * Return a {@code Validator} that checks whether the target object's class
+   * is identical to {@code targetClass}, resorting to {@code delegate} to
+   * populate {@link Errors} if it is.
+   *
+   * <p>For instance:
+   * <pre>{@code
+   * Validator passwordEqualsValidator = Validator.forType(PasswordResetForm.class, (form, errors) -> {
+   *   if (!Objects.equals(form.getPassword(), form.getConfirmPassword())) {
+   * 	   errors.rejectValue("confirmPassword",
+   * 	         "PasswordEqualsValidator.passwordResetForm.password",
+   * 	         "password and confirm password must be same.");
+   *     }
+   *   });
+   * }</pre>
+   *
+   * @param targetClass the exact class supported by the returned validator (no subclasses)
+   * @param delegate function invoked with the target object, if it is an
+   * instance of type T
+   * @param <T> the target object type
+   * @return the created {@code Validator}
+   */
+  static <T> Validator forType(Class<T> targetClass, BiConsumer<T, Errors> delegate) {
+    return new TypedValidator<>(targetClass, targetClass::equals, delegate);
+  }
+
+  /**
+   * Validator instance returned by {@link Validator#forInstanceOf(Class, BiConsumer)}
+   * and {@link Validator#forType(Class, BiConsumer)}.
+   *
+   * @param <T> the target object type
+   * @author Toshiaki Maki
+   * @author Arjen Poutsma
+   */
+  final class TypedValidator<T> implements Validator {
+
+    private final Class<T> targetClass;
+    private final Predicate<Class<?>> supports;
+    private final BiConsumer<T, Errors> validate;
+
+    public TypedValidator(Class<T> targetClass, Predicate<Class<?>> supports, BiConsumer<T, Errors> validate) {
+      Assert.notNull(targetClass, "TargetClass is required");
+      Assert.notNull(supports, "Supports function is required");
+      Assert.notNull(validate, "Validate function is required");
+
+      this.targetClass = targetClass;
+      this.supports = supports;
+      this.validate = validate;
+    }
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+      return this.supports.test(clazz);
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+      this.validate.accept(this.targetClass.cast(target), errors);
+    }
+
+  }
 
 }

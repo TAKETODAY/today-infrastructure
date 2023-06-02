@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,9 +29,7 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebContentGenerator;
@@ -68,9 +66,9 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
 
   private final PathPatternParser patternParser;
 
-  private final Map<PathPattern, Integer> cacheMappings = new HashMap<>();
+  private final HashMap<PathPattern, Integer> cacheMappings = new HashMap<>();
 
-  private final Map<PathPattern, CacheControl> cacheControlMappings = new HashMap<>();
+  private final HashMap<PathPattern, CacheControl> cacheControlMappings = new HashMap<>();
 
   /**
    * Default constructor with {@link PathPatternParser#defaultInstance}.
@@ -140,10 +138,9 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
   @Override
   public boolean beforeProcess(RequestContext request, Object handler) {
     checkRequest(request);
-    RequestPath path = request.getLookupPath();
 
-    if (CollectionUtils.isNotEmpty(cacheControlMappings)) {
-      CacheControl control = lookupCacheControl(path);
+    if (!cacheControlMappings.isEmpty()) {
+      CacheControl control = lookupCacheControl(request.getLookupPath());
       if (control != null) {
         if (log.isTraceEnabled()) {
           log.trace("Applying {}", control);
@@ -153,8 +150,8 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
       }
     }
 
-    if (CollectionUtils.isNotEmpty(cacheMappings)) {
-      Integer cacheSeconds = lookupCacheSeconds(path);
+    if (!cacheMappings.isEmpty()) {
+      Integer cacheSeconds = lookupCacheSeconds(request.getLookupPath());
       if (cacheSeconds != null) {
         if (log.isTraceEnabled()) {
           log.trace("Applying cacheSeconds {}", cacheSeconds);

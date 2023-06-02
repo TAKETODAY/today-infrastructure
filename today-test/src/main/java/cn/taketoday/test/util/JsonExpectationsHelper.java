@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,7 +42,6 @@ public class JsonExpectationsHelper {
    * @param expected the expected JSON content
    * @param actual the actual JSON content
    * @see #assertJsonEqual(String, String, boolean)
-   * @since 4.0
    */
   public void assertJsonEqual(String expected, String actual) throws Exception {
     assertJsonEqual(expected, actual, false);
@@ -61,7 +60,6 @@ public class JsonExpectationsHelper {
    * @param expected the expected JSON content
    * @param actual the actual JSON content
    * @param strict enables strict checking if {@code true}
-   * @since 4.0
    */
   public void assertJsonEqual(String expected, String actual, boolean strict) throws Exception {
     JSONAssert.assertEquals(expected, actual, strict);
@@ -76,7 +74,6 @@ public class JsonExpectationsHelper {
    * @param expected the expected JSON content
    * @param actual the actual JSON content
    * @see #assertJsonNotEqual(String, String, boolean)
-   * @since 4.0
    */
   public void assertJsonNotEqual(String expected, String actual) throws Exception {
     assertJsonNotEqual(expected, actual, false);
@@ -95,7 +92,6 @@ public class JsonExpectationsHelper {
    * @param expected the expected JSON content
    * @param actual the actual JSON content
    * @param strict enables strict checking
-   * @since 4.0
    */
   public void assertJsonNotEqual(String expected, String actual, boolean strict) throws Exception {
     JSONAssert.assertNotEquals(expected, actual, strict);

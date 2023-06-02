@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -104,14 +103,6 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
   @Override
   public void validate(Class<?> aspectClass) throws AopConfigException {
-    // If the parent has the annotation and isn't abstract it's an error
-    Class<?> superclass = aspectClass.getSuperclass();
-    if (superclass.getAnnotation(Aspect.class) != null
-            && !Modifier.isAbstract(superclass.getModifiers())) {
-      throw new AopConfigException("[" + aspectClass.getName() +
-              "] cannot extend concrete aspect [" + superclass.getName() + "]");
-    }
-
     AjType<?> ajType = AjTypeSystem.getAjType(aspectClass);
     if (!ajType.isAspect()) {
       throw new NotAnAtAspectException(aspectClass);

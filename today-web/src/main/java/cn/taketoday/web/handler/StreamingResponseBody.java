@@ -31,7 +31,7 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
  * without holding up the Servlet container thread.
  *
  * <p><strong>Note:</strong> when using this option it is highly recommended to
- * configure explicitly the TaskExecutor used in Spring MVC for executing
+ * configure explicitly the TaskExecutor used in Web MVC for executing
  * asynchronous requests. Both the MVC Java config and the MVC namespaces provide
  * options to configure asynchronous handling. If not using those, an application
  * can set the {@code taskExecutor} property of

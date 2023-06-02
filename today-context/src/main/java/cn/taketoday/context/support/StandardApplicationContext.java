@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.AnnotationConfigRegistry;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
@@ -36,8 +37,7 @@ import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
-import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ScopeMetadataResolver;
+import cn.taketoday.context.annotation.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;

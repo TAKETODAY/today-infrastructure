@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,20 +24,18 @@ import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestCompletedListener;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.RequestHandledListener;
-import cn.taketoday.web.config.WebMvcProperties;
 
 /**
  * publish {@link RequestHandledEvent}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestHandledEvent
- * @see WebMvcProperties#isPublishRequestHandledEvents()
  * @since 4.0 2022/5/11 10:44
  */
-public class RequestHandledEventPublisher implements RequestHandledListener {
+public class RequestHandledEventPublisher implements RequestCompletedListener {
 
   protected final ApplicationEventPublisher eventPublisher;
 
@@ -47,10 +45,9 @@ public class RequestHandledEventPublisher implements RequestHandledListener {
   }
 
   @Override
-  public void requestHandled(RequestContext request, long startTime, @Nullable Throwable failureCause) {
+  public void requestCompleted(RequestContext request, @Nullable Throwable notHandled) {
     // Whether we succeeded, publish an event.
-    var processingTime = System.currentTimeMillis() - startTime;
-    var event = getRequestHandledEvent(request, failureCause, processingTime);
+    var event = getRequestHandledEvent(request, notHandled);
     eventPublisher.publishEvent(event);
   }
 
@@ -58,17 +55,14 @@ public class RequestHandledEventPublisher implements RequestHandledListener {
    * create a {@link RequestHandledEvent} for the given request.
    *
    * @param request request context
-   * @param failureCause failure cause
-   * @param processingTime processing time
+   * @param notHandled failure cause
    * @return the event
    */
   protected ApplicationEvent getRequestHandledEvent(
-          RequestContext request, @Nullable Throwable failureCause, long processingTime) {
-    return new RequestHandledEvent(this,
-            request.getRequestPath(), request.getRemoteAddress(),
-            request.getMethodValue(),
-            RequestContextUtils.getSessionId(request), null,
-            processingTime, failureCause, request.getStatus());
+          RequestContext request, @Nullable Throwable notHandled) {
+    return new RequestHandledEvent(this, request.getRequestURI(), request.getRemoteAddress(),
+            request.getMethodValue(), RequestContextUtils.getSessionId(request), null,
+            request.getRequestProcessingTime(), notHandled, request.getStatus());
   }
 
 }

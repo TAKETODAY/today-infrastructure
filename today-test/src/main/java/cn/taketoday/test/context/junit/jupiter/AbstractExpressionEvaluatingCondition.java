@@ -148,7 +148,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
       DirtiesContext dirtiesContext = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
       if (dirtiesContext != null) {
         HierarchyMode hierarchyMode = dirtiesContext.hierarchyMode();
-        ApplicationExtension.getTestContextManager(context).getTestContext().markApplicationContextDirty(hierarchyMode);
+        InfraExtension.getTestContextManager(context).getTestContext().markApplicationContextDirty(hierarchyMode);
       }
     }
 
@@ -164,7 +164,7 @@ abstract class AbstractExpressionEvaluatingCondition implements ExecutionConditi
     ApplicationContext applicationContext;
 
     if (loadContext) {
-      applicationContext = ApplicationExtension.getApplicationContext(context);
+      applicationContext = InfraExtension.getApplicationContext(context);
     }
     else {
       gac = new GenericApplicationContext();

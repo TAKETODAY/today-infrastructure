@@ -29,7 +29,6 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
@@ -86,7 +85,8 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
         ShallowEtagHeaderFilter.disableContentCaching(context);
       }
       var callable = new StreamingResponseBodyTask(context.getOutputStream(), streamingBody);
-      WebAsyncUtils.getAsyncManager(context).startCallableProcessing(callable);
+      context.getAsyncManager()
+              .startCallableProcessing(callable, handler);
     }
     else {
       throw new IllegalArgumentException("StreamingResponseBody expected");

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,11 +41,11 @@ import cn.taketoday.origin.PropertySourceOrigin;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 /**
  * An {@link EnvironmentPostProcessor} that parses JSON from
- * {@code spring.application.json} or equivalently {@code APPLICATION_JSON} and
+ * {@code application.json} or equivalently {@code APPLICATION_JSON} and
  * adds it as a map property source to the {@link Environment}. The new properties are
  * added with higher priority than the system properties.
  *
@@ -60,14 +60,14 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
   /**
    * Name of the {@code application.json} property.
    */
-  public static final String APPLICATION_JSON_PROPERTY = "application.json";
+  public static final String APPLICATION_JSON_PROPERTY = "infra.application.json";
 
   /**
    * Name of the {@code APPLICATION_JSON} environment variable.
    */
-  public static final String APPLICATION_JSON_ENVIRONMENT_VARIABLE = "APPLICATION_JSON";
+  public static final String APPLICATION_JSON_ENVIRONMENT_VARIABLE = "INFRA_APPLICATION_JSON";
 
-  private static final String SERVLET_ENVIRONMENT_CLASS = "cn.taketoday.web.context.support.StandardServletEnvironment";
+  private static final String SERVLET_ENVIRONMENT_CLASS = "cn.taketoday.web.servlet.support.StandardServletEnvironment";
 
   private static final LinkedHashSet<String> SERVLET_ENVIRONMENT_PROPERTY_SOURCES = CollectionUtils.newLinkedHashSet(
           StandardServletEnvironment.JNDI_PROPERTY_SOURCE_NAME,
@@ -163,7 +163,7 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
   }
 
   private String findPropertySource(PropertySources sources) {
-    if (ClassUtils.isPresent(SERVLET_ENVIRONMENT_CLASS)) {
+    if (ClassUtils.isPresent(SERVLET_ENVIRONMENT_CLASS, getClass().getClassLoader())) {
       PropertySource<?> servletPropertySource = sources.stream()
               .filter(source -> SERVLET_ENVIRONMENT_PROPERTY_SOURCES.contains(source.getName()))
               .findFirst()

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.ResourceRegionHttpMessageConverter;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -57,12 +58,12 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
+import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.servlet.ServletUtils;
 
 /**
@@ -105,6 +106,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   private static final String URL_RESOURCE_CHARSET_PREFIX = "[charset=";
 
+  protected static final NotFoundHandler defaultNotFoundHandler = new NotFoundHandler();
+
   private final ArrayList<String> locationValues = new ArrayList<>(4);
 
   private final ArrayList<Resource> locationResources = new ArrayList<>(4);
@@ -143,6 +146,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   @Nullable
   private StringValueResolver embeddedValueResolver;
+
+  private HttpRequestHandler notFoundHandler = defaultNotFoundHandler;
 
   public ResourceHttpRequestHandler() {
     super(HttpMethod.GET.name(), HttpMethod.HEAD.name());
@@ -300,8 +305,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param mediaTypes media type mappings
    */
   public void setMediaTypes(Map<String, MediaType> mediaTypes) {
-    mediaTypes.forEach((ext, mediaType) ->
-            this.mediaTypes.put(ext.toLowerCase(Locale.ENGLISH), mediaType));
+    for (Map.Entry<String, MediaType> entry : mediaTypes.entrySet()) {
+      this.mediaTypes.put(entry.getKey().toLowerCase(Locale.ENGLISH), entry.getValue());
+    }
   }
 
   /**
@@ -374,6 +380,17 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     this.embeddedValueResolver = resolver;
   }
 
+  /**
+   * Set not found handler
+   * <p>
+   * handle resource not found
+   *
+   * @param notFoundHandler HttpRequestHandler
+   */
+  public void setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
+    this.notFoundHandler = notFoundHandler == null ? defaultNotFoundHandler : notFoundHandler;
+  }
+
   @Override
   public void afterPropertiesSet() throws Exception {
     resolveResourceLocations();
@@ -435,7 +452,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         result.add(resource);
         if (charset != null) {
           if (!(resource instanceof UrlResource)) {
-            throw new IllegalArgumentException("Unexpected charset for non-UrlBasedResource: " + resource);
+            throw new IllegalArgumentException("Unexpected charset for non-UrlResource: " + resource);
           }
           this.locationCharsets.put(resource, charset);
         }
@@ -488,16 +505,14 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public Object handleRequest(RequestContext request) throws Exception {
+  public Object handleRequest(RequestContext request) throws Throwable {
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(request);
     if (resource == null) {
-      log.debug("Resource not found");
-      request.sendError(HttpStatus.NOT_FOUND.value());
-      return NONE_RETURN_VALUE;
+      return notFoundHandler.handleRequest(request);
     }
 
-    if (HttpMethod.OPTIONS.matches(request.getMethodValue())) {
+    if (HttpMethod.OPTIONS == request.getMethod()) {
       request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
     }
@@ -519,30 +534,30 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     setHeaders(request, resource, mediaType);
 
     // Content phase
-    HttpHeaders requestHeaders = request.requestHeaders();
-    if (requestHeaders.get(HttpHeaders.RANGE) == null) {
-      Assert.state(this.resourceHttpMessageConverter != null, "Not initialized");
+    ServerHttpResponse outputMessage = request.asHttpOutputMessage();
+    if (request.requestHeaders().get(HttpHeaders.RANGE) == null) {
+      Assert.state(resourceHttpMessageConverter != null, "Not initialized");
 
       if (HttpMethod.HEAD == request.getMethod()) {
-        this.resourceHttpMessageConverter.addDefaultHeaders(requestHeaders, resource, mediaType);
+        resourceHttpMessageConverter.addDefaultHeaders(request.responseHeaders(), resource, mediaType);
+        outputMessage.flush();
       }
       else {
-        var outputMessage = new RequestContextHttpOutputMessage(request);
-        this.resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
+        resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
       }
     }
     else {
       ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
       Assert.state(converter != null, "Not initialized");
-      var outputMessage = new RequestContextHttpOutputMessage(request);
       try {
         List<HttpRange> httpRanges = request.getHeaders().getRange();
         request.setStatus(HttpStatus.PARTIAL_CONTENT);
-        converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
+        converter.write(HttpRange.toResourceRegions(httpRanges, resource),
+                mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
         request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
       }
     }
 
@@ -554,14 +569,14 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     String path;
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata == null) {
-      path = request.getLookupPath().pathWithinApplication().value();
+      path = request.getLookupPath().value();
     }
     else {
       path = matchingMetadata.getPathWithinMapping().value();
     }
 
     path = processPath(path);
-    if (!StringUtils.hasText(path) || isInvalidPath(path)) {
+    if (StringUtils.isBlank(path) || isInvalidPath(path)) {
       return null;
     }
     if (isInvalidEncodedPath(path)) {
@@ -735,7 +750,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       String filename = resource.getName();
       String ext = StringUtils.getFilenameExtension(filename);
       if (ext != null) {
-        mediaType = this.mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
+        mediaType = mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
       }
       if (mediaType == null) {
         List<MediaType> mediaTypes = MediaTypeFactory.getMediaTypes(filename);
@@ -769,8 +784,10 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     HttpHeaders responseHeaders = response.responseHeaders();
     if (resource instanceof HttpResource httpResource) {
       HttpHeaders resourceHeaders = httpResource.getResponseHeaders();
-      resourceHeaders.forEach((headerName, headerValues) -> {
+      for (Map.Entry<String, List<String>> entry : resourceHeaders.entrySet()) {
         boolean first = true;
+        String headerName = entry.getKey();
+        List<String> headerValues = entry.getValue();
         for (String headerValue : headerValues) {
           if (first) {
             responseHeaders.set(headerName, headerValue);
@@ -780,7 +797,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
           }
           first = false;
         }
-      });
+      }
     }
 
     responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");

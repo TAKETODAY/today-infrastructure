@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
-import cn.taketoday.context.loader.ScopeMetadataResolver;
+import cn.taketoday.context.annotation.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.stereotype.Component;
@@ -61,8 +61,8 @@ import cn.taketoday.util.ObjectUtils;
  * @see AnnotationConfigApplicationContext
  * @since 4.0
  */
-public class AnnotationConfigReactiveWebServerApplicationContext extends ReactiveWebServerApplicationContext
-        implements AnnotationConfigRegistry {
+public class AnnotationConfigReactiveWebServerApplicationContext
+        extends ReactiveWebServerApplicationContext implements AnnotationConfigRegistry {
 
   private final AnnotatedBeanDefinitionReader reader;
 

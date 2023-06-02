@@ -36,22 +36,21 @@ import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.InterceptorRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.DispatcherServlet;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Phillip Webb
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @DirtiesContext
 @ContextConfiguration(classes = ErrorPageFilterIntegrationTests.TomcatConfig.class,
                       loader = ErrorPageFilterIntegrationTests.EmbeddedWebContextLoader.class)
@@ -94,9 +93,9 @@ class ErrorPageFilterIntegrationTests {
   private void doTest(AnnotationConfigServletWebServerApplicationContext context, String resourcePath,
           HttpStatus status) throws Exception {
     int port = context.getWebServer().getPort();
+
     RestTemplate template = new RestTemplate();
-    ResponseEntity<String> entity = template.getForEntity(new URI("http://localhost:" + port + resourcePath),
-            String.class);
+    var entity = template.getForEntity(new URI("http://localhost:" + port + resourcePath), String.class);
     assertThat(entity.getBody()).isEqualTo("Hello World");
     assertThat(entity.getStatusCode()).isEqualTo(status);
   }
@@ -128,7 +127,7 @@ class ErrorPageFilterIntegrationTests {
   }
 
   @Controller
-  static class HelloWorldController implements WebMvcConfiguration {
+  static class HelloWorldController implements WebMvcConfigurer {
 
     private int status;
 
@@ -153,10 +152,11 @@ class ErrorPageFilterIntegrationTests {
       registry.addInterceptor(new HandlerInterceptor() {
 
         @Override
-        public void afterProcess(RequestContext request, Object handler, Object result) throws Throwable {
-          HelloWorldController.this.setStatus(request.getStatus());
-          HelloWorldController.this.latch.countDown();
+        public void afterProcess(RequestContext request, Object handler, Object result) {
+          setStatus(request.getStatus());
+          latch.countDown();
         }
+
       });
     }
 

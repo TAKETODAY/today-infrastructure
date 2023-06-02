@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,14 +23,12 @@ package cn.taketoday.framework.web.servlet;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
@@ -63,7 +61,7 @@ class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
   }
 
   private Set<String> getPackagesToScan(AnnotationMetadata metadata) {
-    MergedAnnotation<ServletComponentScan> annotation = metadata.getAnnotation(ServletComponentScan.class);
+    var annotation = metadata.getAnnotation(ServletComponentScan.class);
     String[] basePackages = annotation.getStringArray("basePackages");
     String[] basePackageClasses = annotation.getStringArray("basePackageClasses");
 
@@ -85,11 +83,7 @@ class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
       setBeanClass(ServletComponentRegisteringPostProcessor.class);
       setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       addPackageNames(packageNames);
-    }
-
-    @Override
-    public Supplier<?> getInstanceSupplier() {
-      return () -> new ServletComponentRegisteringPostProcessor(this.packageNames);
+      setInstanceSupplier(() -> new ServletComponentRegisteringPostProcessor(this.packageNames));
     }
 
     private void addPackageNames(Collection<String> additionalPackageNames) {

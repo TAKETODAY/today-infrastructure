@@ -32,12 +32,9 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
-import cn.taketoday.web.socket.EnableWebSocket;
 import cn.taketoday.web.socket.NativeWebSocketSession;
 import cn.taketoday.web.socket.TextMessage;
-import cn.taketoday.web.socket.WebSocketConfiguration;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerMapping;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.annotation.AfterHandshake;
 import cn.taketoday.web.socket.annotation.EndpointMapping;
@@ -47,6 +44,8 @@ import cn.taketoday.web.socket.annotation.OnClose;
 import cn.taketoday.web.socket.annotation.OnError;
 import cn.taketoday.web.socket.annotation.OnMessage;
 import cn.taketoday.web.socket.annotation.OnOpen;
+import cn.taketoday.web.socket.config.WebSocketConfigurer;
+import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
 import jakarta.websocket.Session;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -57,7 +56,6 @@ import lombok.NoArgsConstructor;
  */
 @Configuration
 @Import(WebSocketApplication.AppConfig.class)
-@EnableWebSocket
 //@EnableTomcatHandling
 @RequestMapping
 //@EnableJettyHandling
@@ -74,17 +72,17 @@ public class WebSocketApplication {
   @GET("/hello")
   @ResponseBody
   public String hello() {
-    final String requestPath = context.getRequestPath();
+    final String requestPath = context.getRequestURI();
     System.out.println(requestPath);
     return "Hello";
   }
 
   @Configuration
-  static class AppConfig implements WebSocketConfiguration {
+  static class AppConfig implements WebSocketConfigurer {
 
     @Override
-    public void configureWebSocketHandlers(WebSocketHandlerMapping registry) {
-      registry.registerHandler("/endpoint", new WebSocket0());
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+      registry.addHandler(new WebSocket0(), "/endpoint");
     }
 
 //    @Singleton

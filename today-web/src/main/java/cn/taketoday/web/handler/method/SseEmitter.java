@@ -26,12 +26,11 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 
 /**
  * A specialization of {@link ResponseBodyEmitter} for sending
@@ -67,12 +66,11 @@ public class SseEmitter extends ResponseBodyEmitter {
   }
 
   @Override
-  protected void extendResponse(ServerHttpResponse outputMessage) {
+  protected void extendResponse(RequestContext outputMessage) {
     super.extendResponse(outputMessage);
 
-    HttpHeaders headers = outputMessage.getHeaders();
-    if (headers.getContentType() == null) {
-      headers.setContentType(MediaType.TEXT_EVENT_STREAM);
+    if (outputMessage.getResponseContentType() == null) {
+      outputMessage.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
     }
   }
 

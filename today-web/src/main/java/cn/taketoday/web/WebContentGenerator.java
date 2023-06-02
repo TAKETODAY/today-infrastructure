@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,14 +28,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.session.WebSessionRequiredException;
 
 /**
  * Convenient superclass for any kind of web content generator
@@ -54,7 +54,7 @@ import cn.taketoday.session.WebSessionRequiredException;
  * @see #setRequireSession
  * @since 4.0 2022/1/29 10:25
  */
-public abstract class WebContentGenerator extends ApplicationContextSupport {
+public abstract class WebContentGenerator extends ApplicationObjectSupport {
 
   /** HTTP method "GET". */
   public static final String METHOD_GET = "GET";

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,10 +28,9 @@ import java.util.Set;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
-import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ScopeMetadataResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.filter.AbstractTypeHierarchyTraversingFilter;
 import cn.taketoday.core.type.filter.TypeFilter;

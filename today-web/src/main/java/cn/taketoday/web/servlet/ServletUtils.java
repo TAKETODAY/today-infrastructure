@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.servlet;
 
 import java.io.File;
@@ -29,16 +30,17 @@ import java.util.TreeMap;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.Conventions;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
@@ -159,12 +161,9 @@ public abstract class ServletUtils {
    * @throws IllegalStateException Not run in servlet
    * @see #getHttpSession(RequestContext)
    */
-  public static HttpSession getHttpSession(final RequestContext context, boolean create) {
-    if (context instanceof ServletRequestContext) {
-      final HttpServletRequest request = ((ServletRequestContext) context).getRequest();
-      return request.getSession(create);
-    }
-    throw new IllegalStateException("Not run in servlet");
+  public static HttpSession getHttpSession(RequestContext context, boolean create) {
+    HttpServletRequest request = getServletRequest(context);
+    return request.getSession(create);
   }
 
   /**
@@ -221,7 +220,10 @@ public abstract class ServletUtils {
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
   public static HttpServletRequest getServletRequest(RequestContext context) {
-    ServletRequestContext nativeContext = WebUtils.getNativeContext(context, ServletRequestContext.class);
+    if (context instanceof ServletIndicator servletIndicator) {
+      return servletIndicator.getRequest();
+    }
+    ServletIndicator nativeContext = WebUtils.getNativeContext(context, ServletIndicator.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     return nativeContext.getRequest();
   }
@@ -244,7 +246,10 @@ public abstract class ServletUtils {
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
   public static HttpServletResponse getServletResponse(RequestContext context) {
-    ServletRequestContext nativeContext = WebUtils.getNativeContext(context, ServletRequestContext.class);
+    if (context instanceof ServletIndicator servletIndicator) {
+      return servletIndicator.getResponse();
+    }
+    ServletIndicator nativeContext = WebUtils.getNativeContext(context, ServletIndicator.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     return nativeContext.getResponse();
   }
@@ -280,7 +285,7 @@ public abstract class ServletUtils {
    * @return the request-specific WebApplicationContext, or the global one
    * if no request-specific context has been found, or {@code null} if none
    * @see #WEB_APPLICATION_CONTEXT_ATTRIBUTE
-   * @see #getWebApplicationContext(ServletContext)
+   * @see WebApplicationContextUtils#getWebApplicationContext(ServletContext)
    * @since 4.0
    */
   @Nullable
@@ -290,57 +295,10 @@ public abstract class ServletUtils {
             WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     if (webApplicationContext == null) {
       if (servletContext != null) {
-        webApplicationContext = findWebApplicationContext(servletContext);
+        webApplicationContext = WebApplicationContextUtils.findWebApplicationContext(servletContext);
       }
     }
     return webApplicationContext;
-  }
-
-  /**
-   * Find a unique {@code WebApplicationContext} for this web app: either the
-   * root web app context (preferred) or a unique {@code WebApplicationContext}
-   * among the registered {@code ServletContext} attributes (typically coming
-   * from a single {@code DispatcherServlet} in the current web application).
-   * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
-   * controlled through its {@code publishContext} property, which is {@code true}
-   * by default but can be selectively switched to only publish a single context
-   * despite multiple {@code DispatcherServlet} registrations in the web app.
-   *
-   * @param sc the ServletContext to find the web application context for
-   * @return the desired WebApplicationContext for this web app, or {@code null} if none
-   * @see #getWebApplicationContext(ServletContext)
-   * @see ServletContext#getAttributeNames()
-   * @since 4.0
-   */
-  @Nullable
-  public static WebApplicationContext findWebApplicationContext(ServletContext sc) {
-    WebApplicationContext wac = getWebApplicationContext(sc);
-    if (wac == null) {
-      Enumeration<String> attrNames = sc.getAttributeNames();
-      while (attrNames.hasMoreElements()) {
-        String attrName = attrNames.nextElement();
-        Object attrValue = sc.getAttribute(attrName);
-        if (attrValue instanceof WebApplicationContext) {
-          if (wac != null) {
-            throw new IllegalStateException("No unique WebApplicationContext found: more than one " +
-                    "DispatcherServlet registered with publishContext=true?");
-          }
-          wac = (WebApplicationContext) attrValue;
-        }
-      }
-    }
-    return wac;
-  }
-
-  /**
-   * Find the root {@code WebApplicationContext} for this web app,
-   *
-   * @param sc the ServletContext to find the web application context for
-   * @since 4.0
-   */
-  @Nullable
-  public static WebApplicationContext getWebApplicationContext(ServletContext sc) {
-    return (WebApplicationContext) sc.getAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE);
   }
 
   //---------------------------------------------------------------------

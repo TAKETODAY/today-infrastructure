@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
-import cn.taketoday.jdbc.sql.Column;
+import cn.taketoday.jdbc.persistence.Column;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;
@@ -71,6 +71,7 @@ public class JdbcBeanMetadata implements Iterable<BeanProperty> {
     this.autoDeriveColumnNames = autoDeriveColumnNames;
   }
 
+  @Nullable
   public BeanProperty getBeanProperty(String colName, @Nullable Map<String, String> columnMappings) {
     if (columnMappings != null) {
       // find in columnMappings

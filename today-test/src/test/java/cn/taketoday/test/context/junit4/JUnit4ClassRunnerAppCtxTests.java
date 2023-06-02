@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.testfixture.beans.Employee;
 import cn.taketoday.beans.testfixture.beans.Pet;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * SpringJUnit4ClassRunnerAppCtxTests serves as a <em>proof of concept</em>
  * JUnit 4 based test class, which verifies the expected functionality of
- * {@link Runner} in conjunction with the following:
+ * {@link InfraRunner} in conjunction with the following:
  *
  * <ul>
  * <li>{@link ContextConfiguration @ContextConfiguration}</li>
@@ -75,7 +75,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see InheritedConfigJUnit4ClassRunnerAppCtxTests
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @ContextConfiguration
 @TestExecutionListeners(DependencyInjectionTestExecutionListener.class)
 public class JUnit4ClassRunnerAppCtxTests implements ApplicationContextAware, BeanNameAware, InitializingBean {
@@ -85,7 +85,7 @@ public class JUnit4ClassRunnerAppCtxTests implements ApplicationContextAware, Be
    * {@link JUnit4ClassRunnerAppCtxTests}: {@value #DEFAULT_CONTEXT_RESOURCE_PATH}
    */
   public static final String DEFAULT_CONTEXT_RESOURCE_PATH =
-          "/cn/taketoday/test/context/junit4/SpringJUnit4ClassRunnerAppCtxTests-context.xml";
+          "/cn/taketoday/test/context/junit4/JUnit4ClassRunnerAppCtxTests-context.xml";
 
   private Employee employee;
 

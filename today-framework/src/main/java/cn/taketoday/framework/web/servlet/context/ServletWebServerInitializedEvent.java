@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,29 +32,14 @@ import cn.taketoday.framework.web.server.WebServer;
  * stop and start it if they want to.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class ServletWebServerInitializedEvent extends WebServerInitializedEvent {
 
-  private final ServletWebServerApplicationContext applicationContext;
-
-  public ServletWebServerInitializedEvent(WebServer webServer,
-                                          ServletWebServerApplicationContext applicationContext) {
-    super(webServer);
-    this.applicationContext = applicationContext;
-  }
-
-  /**
-   * Access the application context that the server was created in. Sometimes it is
-   * prudent to check that this matches expectations (like being equal to the current
-   * context) before acting on the server itself.
-   *
-   * @return the applicationContext that the server was created from
-   */
-  @Override
-  public ServletWebServerApplicationContext getApplicationContext() {
-    return this.applicationContext;
+  public ServletWebServerInitializedEvent(
+          WebServer webServer, ServletWebServerApplicationContext applicationContext) {
+    super(webServer, applicationContext);
   }
 
 }

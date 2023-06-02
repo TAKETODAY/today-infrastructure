@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,10 @@
 
 package cn.taketoday.web.config;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -37,6 +41,9 @@ public class PathMatchConfigurer {
 
   @Nullable
   private Boolean caseSensitiveMatch;
+
+  @Nullable
+  private Map<String, Predicate<Class<?>>> pathPrefixes;
 
   /**
    * Whether to match to URLs irrespective of their case.
@@ -56,6 +63,30 @@ public class PathMatchConfigurer {
   public PathMatchConfigurer setUseTrailingSlashMatch(@Nullable Boolean trailingSlashMatch) {
     this.trailingSlashMatch = trailingSlashMatch;
     return this;
+  }
+
+  /**
+   * Configure a path prefix to apply to matching controller methods.
+   * <p>Prefixes are used to enrich the mappings of every {@code @RequestMapping}
+   * method whose controller type is matched by the corresponding
+   * {@code Predicate}. The prefix for the first matching predicate is used.
+   * <p>Consider using {@link cn.taketoday.web.handler.method.HandlerTypePredicate
+   * HandlerTypePredicate} to group controllers.
+   *
+   * @param prefix the prefix to apply
+   * @param predicate a predicate for matching controller types
+   */
+  public PathMatchConfigurer addPathPrefix(String prefix, Predicate<Class<?>> predicate) {
+    if (this.pathPrefixes == null) {
+      this.pathPrefixes = new LinkedHashMap<>();
+    }
+    this.pathPrefixes.put(prefix, predicate);
+    return this;
+  }
+
+  @Nullable
+  protected Map<String, Predicate<Class<?>>> getPathPrefixes() {
+    return this.pathPrefixes;
   }
 
   @Nullable

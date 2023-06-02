@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * test class constructors with the TestContext Framework and JUnit Jupiter.
  *
  * @author Sam Brannen
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see JUnitJupiterConstructorInjectionTests
  * @since 4.0
  */

@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 

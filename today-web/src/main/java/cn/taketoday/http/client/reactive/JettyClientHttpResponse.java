@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,11 +28,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.client.JettyHeadersAdapter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 
 /**
@@ -54,7 +55,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
     this.reactiveResponse = reactiveResponse;
     this.content = Flux.from(content);
 
-    MultiValueMap<String, String> headers = new JettyHeadersAdapter(reactiveResponse.getHeaders());
+    var headers = new JettyHeadersAdapter(reactiveResponse.getHeaders());
     this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
   }
 

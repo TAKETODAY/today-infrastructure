@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
@@ -177,7 +178,15 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
       if (paramValues != null) {
         arg = paramValues.length == 1 ? paramValues[0] : paramValues;
       }
+      else {
+        // fallback path-variable, can resolve a none-annotated param
+        HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+        if (matchingMetadata != null) {
+          return matchingMetadata.getUriVariable(name);
+        }
+      }
     }
+
     return arg;
   }
 
@@ -233,7 +242,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
       }
       builder.queryParam(name);
     }
-    else if (value instanceof Collection collection) {
+    else if (value instanceof Collection<?> collection) {
       for (Object element : collection) {
         element = formatUriValue(conversionService, TypeDescriptor.nested(parameter, 1), element);
         builder.queryParam(name, element);

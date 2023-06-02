@@ -30,6 +30,7 @@ import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.client.RestTemplate;
 
 /**
  * Base class for {@link cn.taketoday.web.client.RestTemplate}
@@ -76,6 +77,10 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
    * Set the request interceptors that this accessor should use.
    * <p>The interceptors will get immediately sorted according to their
    * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
+   * <p><strong>Note:</strong> This method does not support concurrent changes,
+   * and in most cases should not be called after initialization on startup.
+   * See also related note on {@link RestTemplate}
+   * regarding concurrent configuration changes.
    *
    * @see #getRequestFactory()
    * @see AnnotationAwareOrderComparator

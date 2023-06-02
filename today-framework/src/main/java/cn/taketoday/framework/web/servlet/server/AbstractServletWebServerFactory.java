@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,6 +44,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
+import cn.taketoday.session.config.SessionStoreDirectory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
@@ -76,7 +77,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   private boolean registerDefaultServlet = false;
 
-  private MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
+  private MimeMappings mimeMappings = MimeMappings.lazyCopy(MimeMappings.DEFAULT);
 
   private List<ServletContextInitializer> initializers = new ArrayList<>();
 
@@ -322,7 +323,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   }
 
   protected final File getValidSessionStoreDir(boolean mkdirs) {
-    return SessionStoreDirectory.getValidDirectory(session.getStoreDir(), mkdirs);
+    return SessionStoreDirectory.getValid(session.getStoreDir(), mkdirs);
   }
 
   @Override

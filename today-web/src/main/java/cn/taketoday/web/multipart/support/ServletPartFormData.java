@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,16 +26,15 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StreamUtils;
-import cn.taketoday.web.multipart.FormData;
 import jakarta.servlet.http.Part;
 
 /**
- * Servlet based {@link FormData}
+ * Servlet based {@link AbstractMultipart}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/13 11:05
  */
-public final class ServletPartFormData extends AbstractMultipart implements FormData {
+public final class ServletPartFormData extends AbstractMultipart {
   private final Part part;
 
   private String value;
@@ -60,18 +59,23 @@ public final class ServletPartFormData extends AbstractMultipart implements Form
   }
 
   @Override
+  public boolean isFormField() {
+    return true;
+  }
+
+  @Override
   public String getName() {
     return part.getName();
   }
 
   @Override
-  protected HttpHeaders createHttpHeaders() {
-    return createHeaders(part);
+  public void delete() throws IOException {
+    part.delete();
   }
 
   @Override
-  public String getContentType() {
-    return part.getContentType();
+  protected HttpHeaders createHttpHeaders() {
+    return createHeaders(part);
   }
 
   static DefaultHttpHeaders createHeaders(Part part) {

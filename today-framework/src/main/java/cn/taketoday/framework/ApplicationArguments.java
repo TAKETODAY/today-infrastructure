@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import java.util.Set;
 
 import cn.taketoday.core.env.SimpleCommandLinePropertySource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Provides access to the arguments that were used to run a {@link Application}.
@@ -93,6 +94,7 @@ public class ApplicationArguments {
    * @param name the name of the option
    * @return a list of option values for the given name
    */
+  @Nullable
   public List<String> getOptionValues(String name) {
     List<String> values = this.source.getOptionValues(name);
     return values != null ? Collections.unmodifiableList(values) : null;

@@ -20,14 +20,13 @@
 package cn.taketoday.orm.mybatis.submitted.webapp_placeholder;
 
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 
@@ -35,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Disabled
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @WebAppConfiguration
 @JUnitConfig(locations = "file:src/test/java/cn/taketoday/orm/mybatis/submitted/webapp_placeholder/spring.xml")
 class WebappPlaceholderTest {

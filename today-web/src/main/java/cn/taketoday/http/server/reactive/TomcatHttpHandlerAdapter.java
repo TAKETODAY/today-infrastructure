@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,19 +33,16 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.servlet.AsyncContext;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -131,25 +128,36 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     @Override
     protected DataBuffer readFromInputStream() throws IOException {
-      ServletInputStream inputStream = ((ServletRequest) getNativeRequest()).getInputStream();
-      if (!(inputStream instanceof CoyoteInputStream coyoteInputStream)) {
-        // It's possible InputStream can be wrapped, preventing use of CoyoteInputStream
-        return super.readFromInputStream();
-      }
-      ByteBuffer byteBuffer = this.factory.isDirect() ?
-                              ByteBuffer.allocateDirect(this.bufferSize) :
-                              ByteBuffer.allocate(this.bufferSize);
-
-      int read = coyoteInputStream.read(byteBuffer);
-      logBytesRead(read);
-      if (read > 0) {
-        return this.factory.wrap(byteBuffer);
-      }
-      else if (read == -1) {
-        return EOF_BUFFER;
+      if (getInputStream() instanceof CoyoteInputStream coyoteInputStream) {
+        DataBuffer dataBuffer = this.factory.allocateBuffer(this.bufferSize);
+        int read = -1;
+        try {
+          try (DataBuffer.ByteBufferIterator iterator = dataBuffer.writableByteBuffers()) {
+            Assert.state(iterator.hasNext(), "No ByteBuffer available");
+            ByteBuffer byteBuffer = iterator.next();
+            read = coyoteInputStream.read(byteBuffer);
+          }
+          logBytesRead(read);
+          if (read > 0) {
+            dataBuffer.writePosition(read);
+            return dataBuffer;
+          }
+          else if (read == -1) {
+            return EOF_BUFFER;
+          }
+          else {
+            return AbstractListenerReadPublisher.EMPTY_BUFFER;
+          }
+        }
+        finally {
+          if (read <= 0) {
+            DataBufferUtils.release(dataBuffer);
+          }
+        }
       }
       else {
-        return null;
+        // It's possible InputStream can be wrapped, preventing use of CoyoteInputStream
+        return super.readFromInputStream();
       }
     }
   }
@@ -174,7 +182,7 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     private static HttpHeaders createTomcatHttpHeaders(HttpServletResponse response) {
       ResponseFacade responseFacade = getResponseFacade(response);
-      org.apache.catalina.connector.Response connectorResponse = (org.apache.catalina.connector.Response)
+      var connectorResponse = (org.apache.catalina.connector.Response)
               ReflectionUtils.getField(COYOTE_RESPONSE_FIELD, responseFacade);
       Assert.state(connectorResponse != null, "No Tomcat connector response");
       Response tomcatResponse = connectorResponse.getCoyoteResponse();
@@ -224,11 +232,20 @@ public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
     @Override
     protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-      ByteBuffer input = dataBuffer.toByteBuffer();
-      int len = input.remaining();
-      ServletResponse response = getNativeResponse();
-      ((CoyoteOutputStream) response.getOutputStream()).write(input);
-      return len;
+      if (getOutputStream() instanceof CoyoteOutputStream coyoteOutputStream) {
+        int len = 0;
+        try (DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
+          while (iterator.hasNext() && coyoteOutputStream.isReady()) {
+            ByteBuffer byteBuffer = iterator.next();
+            len += byteBuffer.remaining();
+            coyoteOutputStream.write(byteBuffer);
+          }
+        }
+        return len;
+      }
+      else {
+        return super.writeToOutputStream(dataBuffer);
+      }
     }
   }
 

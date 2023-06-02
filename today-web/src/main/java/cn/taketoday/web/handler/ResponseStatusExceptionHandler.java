@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * to HTTP status codes.
  *
  * <p>This exception resolver is enabled by default in the
- * {@link cn.taketoday.web.servlet.DispatcherServlet DispatcherServlet}
+ * {@link cn.taketoday.web.handler.DispatcherHandler DispatcherHandler}
  * and the MVC Java config and the MVC namespace.
  *
  * <p>this resolver also looks recursively for {@code @ResponseStatus}

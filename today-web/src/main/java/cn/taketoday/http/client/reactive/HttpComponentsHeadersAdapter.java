@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * {@code MultiValueMap} implementation for wrapping Apache HttpComponents
@@ -104,7 +104,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   public List<String> get(Object key) {
     ArrayList<String> values = null;
     if (containsKey(key)) {
-      Header[] headers = this.message.getHeaders((String) key);
+      Header[] headers = message.getHeaders((String) key);
       values = new ArrayList<>(headers.length);
       for (Header header : headers) {
         values.add(header.getValue());
@@ -128,7 +128,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   public List<String> remove(Object key) {
     if (key instanceof String headerName) {
       List<String> oldValues = get(key);
-      this.message.removeHeaders(headerName);
+      message.removeHeaders(headerName);
       return oldValues;
     }
     return null;
@@ -147,7 +147,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public Set<String> keySet() {
     LinkedHashSet<String> keys = new LinkedHashSet<>(size());
-    for (Header header : this.message.getHeaders()) {
+    for (Header header : message.getHeaders()) {
       keys.add(header.getName());
     }
     return keys;
@@ -156,7 +156,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public Collection<List<String>> values() {
     ArrayList<List<String>> values = new ArrayList<>(size());
-    for (Header header : this.message.getHeaders()) {
+    for (Header header : message.getHeaders()) {
       values.add(get(header.getName()));
     }
     return values;
@@ -212,7 +212,7 @@ class HttpComponentsHeadersAdapter implements MultiValueMap<String, String> {
 
     @Override
     public List<String> getValue() {
-      List<String> values = HttpComponentsHeadersAdapter.this.get(this.key);
+      List<String> values = HttpComponentsHeadersAdapter.this.get(key);
       return values != null ? values : Collections.emptyList();
     }
 

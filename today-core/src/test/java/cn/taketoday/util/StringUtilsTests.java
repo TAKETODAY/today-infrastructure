@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,10 @@
 package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +42,83 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 2018-12-10 19:06
  */
 class StringUtilsTests {
+
+  @Test
+  void trivial() {
+    assertThat(StringUtils.simpleMatch((String) null, "")).isFalse();
+    assertThat(StringUtils.simpleMatch("1", null)).isFalse();
+    doTest("*", "123", true);
+    doTest("123", "123", true);
+  }
+
+  @Test
+  void startsWith() {
+    doTest("get*", "getMe", true);
+    doTest("get*", "setMe", false);
+  }
+
+  @Test
+  void endsWith() {
+    doTest("*Test", "getMeTest", true);
+    doTest("*Test", "setMe", false);
+  }
+
+  @Test
+  void between() {
+    doTest("*stuff*", "getMeTest", false);
+    doTest("*stuff*", "getstuffTest", true);
+    doTest("*stuff*", "stuffTest", true);
+    doTest("*stuff*", "getstuff", true);
+    doTest("*stuff*", "stuff", true);
+  }
+
+  @Test
+  void startsEnds() {
+    doTest("on*Event", "onMyEvent", true);
+    doTest("on*Event", "onEvent", true);
+    doTest("3*3", "3", false);
+    doTest("3*3", "33", true);
+  }
+
+  @Test
+  void startsEndsBetween() {
+    doTest("12*45*78", "12345678", true);
+    doTest("12*45*78", "123456789", false);
+    doTest("12*45*78", "012345678", false);
+    doTest("12*45*78", "124578", true);
+    doTest("12*45*78", "1245457878", true);
+    doTest("3*3*3", "33", false);
+    doTest("3*3*3", "333", true);
+  }
+
+  @Test
+  void ridiculous() {
+    doTest("*1*2*3*", "0011002001010030020201030", true);
+    doTest("1*2*3*4", "10300204", false);
+    doTest("1*2*3*3", "10300203", false);
+    doTest("*1*2*3*", "123", true);
+    doTest("*1*2*3*", "132", false);
+  }
+
+  @Test
+  void patternVariants() {
+    doTest("*a", "*", false);
+    doTest("*a", "a", true);
+    doTest("*a", "b", false);
+    doTest("*a", "aa", true);
+    doTest("*a", "ba", true);
+    doTest("*a", "ab", false);
+    doTest("**a", "*", false);
+    doTest("**a", "a", true);
+    doTest("**a", "b", false);
+    doTest("**a", "aa", true);
+    doTest("**a", "ba", true);
+    doTest("**a", "ab", false);
+  }
+
+  private void doTest(String pattern, String str, boolean shouldMatch) {
+    assertThat(StringUtils.simpleMatch(pattern, str)).isEqualTo(shouldMatch);
+  }
 
   @Test
   void test_IsEmpty() {
@@ -154,6 +234,18 @@ class StringUtilsTests {
   }
 
   @Test
+  void isBlank() {
+    assertThat(StringUtils.isBlank("")).isEqualTo(true);
+    assertThat(StringUtils.isBlank("   ")).isEqualTo(true);
+    assertThat(StringUtils.isBlank(null)).isEqualTo(true);
+
+    assertThat(StringUtils.isBlank("12345")).isEqualTo(false);
+    assertThat(StringUtils.isBlank(" dsdsdsds ")).isEqualTo(false);
+    assertThat(StringUtils.isBlank("dsdsdsds ")).isEqualTo(false);
+    assertThat(StringUtils.isBlank(" dsdsdsds")).isEqualTo(false);
+  }
+
+  @Test
   void hasTextNullEmpty() {
     assertThat(StringUtils.hasText(null)).isEqualTo(false);
     assertThat(StringUtils.hasText("")).isEqualTo(false);
@@ -229,7 +321,7 @@ class StringUtilsTests {
     assertThat(StringUtils.cleanPath("file:../")).isEqualTo("file:../");
     assertThat(StringUtils.cleanPath("file:./../")).isEqualTo("file:../");
     assertThat(StringUtils.cleanPath("file:.././")).isEqualTo("file:../");
-    assertThat(StringUtils.cleanPath("file:/mypath/spring.factories")).isEqualTo("file:/mypath/spring.factories");
+    assertThat(StringUtils.cleanPath("file:/mypath/today-strategies.properties")).isEqualTo("file:/mypath/today-strategies.properties");
     assertThat(StringUtils.cleanPath("file:///c:/some/../path/the%20file.txt")).isEqualTo("file:///c:/path/the%20file.txt");
     assertThat(StringUtils.cleanPath("jar:file:///c:\\some\\..\\path\\.\\the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");
     assertThat(StringUtils.cleanPath("jar:file:///c:/some/../path/./the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");
@@ -649,24 +741,6 @@ class StringUtilsTests {
   }
 
   @Test
-    // SPR-3671
-  void parseLocaleWithMultiValuedVariantUsingSpacesAsSeparatorsWithLotsOfLeadingWhitespace() {
-    String variant = "proper northern";
-    String localeString = "en GB            " + variant;  // lots of whitespace
-    Locale locale = StringUtils.parseLocaleString(localeString);
-    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-  }
-
-  @Test
-    // SPR-3671
-  void parseLocaleWithMultiValuedVariantUsingUnderscoresAsSeparatorsWithLotsOfLeadingWhitespace() {
-    String variant = "proper_northern";
-    String localeString = "en_GB_____" + variant;  // lots of underscores
-    Locale locale = StringUtils.parseLocaleString(localeString);
-    assertThat(locale.getVariant()).as("Multi-valued variant portion of the Locale not extracted correctly.").isEqualTo(variant);
-  }
-
-  @Test
     // SPR-7779
   void parseLocaleWithInvalidCharacters() {
     assertThatIllegalArgumentException()
@@ -775,6 +849,39 @@ class StringUtilsTests {
 
     assertThat(StringUtils.matchesLast(null, ',')).isFalse();
     assertThat(StringUtils.matchesLast("", ',')).isFalse();
+  }
+
+  @Test
+  void parseLocaleStringWithEmptyCountryAndVariant() {
+    assertThat(StringUtils.parseLocale("be__TARASK").toString()).isEqualTo("be__TARASK");
+  }
+
+  @Test
+  void collectionToDelimitedStringWithNullValuesShouldNotFail() {
+    assertThat(StringUtils.collectionToCommaDelimitedString(Collections.singletonList(null))).isEqualTo("null");
+  }
+
+  @Test
+  void truncatePreconditions() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> StringUtils.truncate("foo", 0))
+            .withMessage("Truncation threshold must be a positive number: 0");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> StringUtils.truncate("foo", -99))
+            .withMessage("Truncation threshold must be a positive number: -99");
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiterString = "-->", textBlock = """
+          ''                  --> ''
+          aardvark            --> aardvark
+          aardvark12          --> aardvark12
+          aardvark123         --> aardvark12 (truncated)...
+          aardvark, bird, cat --> aardvark,  (truncated)...
+          """
+  )
+  void truncate(String text, String truncated) {
+    assertThat(StringUtils.truncate(text, 10)).isEqualTo(truncated);
   }
 
 }

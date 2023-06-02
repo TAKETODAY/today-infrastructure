@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.lang.Nullable;
  * @author Phillip Webb
  * @author Sam Brannen
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
@@ -87,7 +88,7 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
           @Nullable Object result, @Nullable BeanFactory beanFactory) {
 
     var rootObject = new CacheExpressionRootObject(caches, method, args, target, targetClass);
-    var evaluationContext = new CacheEvaluationContext(rootObject, targetMethod, args, getParameterNameDiscoverer());
+    var evaluationContext = new CacheEvaluationContext(rootObject, targetMethod, args, parameterNameDiscoverer);
     if (result == RESULT_UNAVAILABLE) {
       evaluationContext.addUnavailableVariable(RESULT_VARIABLE);
     }

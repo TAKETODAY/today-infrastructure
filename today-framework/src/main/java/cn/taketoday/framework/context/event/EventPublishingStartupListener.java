@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,9 +22,10 @@ package cn.taketoday.framework.context.event;
 
 import java.time.Duration;
 
+import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.support.AbstractApplicationContext;
@@ -37,6 +38,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.LivenessState;
 import cn.taketoday.framework.availability.ReadinessState;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ErrorHandler;
@@ -66,30 +68,27 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
     this.args = args;
     this.application = application;
     this.initialMulticaster = new SimpleApplicationEventMulticaster();
-    for (ApplicationListener<?> listener : application.getListeners()) {
-      initialMulticaster.addApplicationListener(listener);
-    }
   }
 
   @Override
   public int getOrder() {
-    return 0;
+    return LOWEST_PRECEDENCE;
   }
 
   @Override
   public void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) {
-    initialMulticaster.multicastEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
+    multicastInitialEvent(new ApplicationStartingEvent(bootstrapContext, application, args));
   }
 
   @Override
   public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-    initialMulticaster.multicastEvent(
+    multicastInitialEvent(
             new ApplicationEnvironmentPreparedEvent(bootstrapContext, application, args, environment));
   }
 
   @Override
   public void contextPrepared(ConfigurableApplicationContext context) {
-    initialMulticaster.multicastEvent(new ApplicationContextInitializedEvent(application, args, context));
+    multicastInitialEvent(new ApplicationContextInitializedEvent(application, args, context));
   }
 
   @Override
@@ -100,23 +99,23 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
       }
       context.addApplicationListener(listener);
     }
-    initialMulticaster.multicastEvent(new ApplicationPreparedEvent(application, args, context));
+    multicastInitialEvent(new ApplicationPreparedEvent(application, args, context));
   }
 
   @Override
-  public void started(ConfigurableApplicationContext context, Duration timeTaken) {
+  public void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     context.publishEvent(new ApplicationStartedEvent(application, args, context, timeTaken));
     AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
   }
 
   @Override
-  public void ready(ConfigurableApplicationContext context, Duration timeTaken) {
+  public void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     context.publishEvent(new ApplicationReadyEvent(application, args, context, timeTaken));
     AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
   }
 
   @Override
-  public void failed(ConfigurableApplicationContext context, Throwable exception) {
+  public void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     ApplicationFailedEvent event = new ApplicationFailedEvent(application, args, context, exception);
     if (context != null && context.isActive()) {
       // Listeners have been registered to the application context, so we should
@@ -124,10 +123,10 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
       context.publishEvent(event);
     }
     else {
-      // An inactive context may not have a multicaster, so we use our multicaster to
+      // An inactive context may not have a multicaster so we use our multicaster to
       // call all the context's listeners instead
-      if (context instanceof AbstractApplicationContext abstractContext) {
-        for (ApplicationListener<?> listener : abstractContext.getApplicationListeners()) {
+      if (context instanceof AbstractApplicationContext aaCtx) {
+        for (ApplicationListener<?> listener : aaCtx.getApplicationListeners()) {
           initialMulticaster.addApplicationListener(listener);
         }
       }
@@ -136,12 +135,32 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
     }
   }
 
-  private static class LoggingErrorHandler implements ErrorHandler {
+  private void multicastInitialEvent(ApplicationEvent event) {
+    refreshApplicationListeners();
+    initialMulticaster.multicastEvent(event);
+  }
 
-    private static final Logger logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
+  private void refreshApplicationListeners() {
+    for (ApplicationListener<?> listener : application.getListeners()) {
+      initialMulticaster.addApplicationListener(listener);
+    }
+  }
+
+  private static class LoggingErrorHandler implements ErrorHandler {
+    private volatile Logger logger;
 
     @Override
     public void handleError(Throwable throwable) {
+      Logger logger = this.logger;
+      if (logger == null) {
+        synchronized(this) {
+          logger = this.logger;
+          if (logger == null) {
+            logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
+            this.logger = logger;
+          }
+        }
+      }
       logger.warn("Error calling ApplicationEventListener", throwable);
     }
 

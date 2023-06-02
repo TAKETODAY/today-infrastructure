@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -363,11 +363,12 @@ class Frame {
             typeValue = REFERENCE_KIND | symbolTable.addType(internalName);
             break;
           default:
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                    "Invalid descriptor fragment: " + buffer.substring(elementDescriptorOffset));
         }
         return ((elementDescriptorOffset - offset) << DIM_SHIFT) | typeValue;
       default:
-        throw new IllegalArgumentException();
+        throw new IllegalArgumentException("Invalid descriptor: " + buffer.substring(offset));
     }
   }
 

@@ -1,1 +1,1 @@
-cn.taketoday.framework.test.mock.mockito.ApplicationMockResolver
+cn.taketoday.framework.test.mock.mockito.InfraMockResolver

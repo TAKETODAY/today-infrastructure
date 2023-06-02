@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link BeanFactoryPostProcessor} to set lazy-init on bean definitions that are not
@@ -65,8 +66,8 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
 
   private Collection<LazyInitializationExcludeFilter> getFilters(ConfigurableBeanFactory beanFactory) {
     // Take care not to force the eager init of factory beans when getting filters
-    ArrayList<LazyInitializationExcludeFilter> filters = new ArrayList<>(
-            beanFactory.getBeansOfType(LazyInitializationExcludeFilter.class, false, false).values());
+    var filters = new ArrayList<>(beanFactory.getBeansOfType(
+            LazyInitializationExcludeFilter.class, false, false).values());
     filters.add(LazyInitializationExcludeFilter.forBeanTypes(SmartInitializingSingleton.class));
     return filters;
   }
@@ -83,6 +84,7 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
     }
   }
 
+  @Nullable
   private Class<?> getBeanType(ConfigurableBeanFactory beanFactory, String beanName) {
     try {
       return beanFactory.getType(beanName, false);
@@ -92,8 +94,8 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
     }
   }
 
-  private boolean isExcluded(Collection<LazyInitializationExcludeFilter> filters, String beanName,
-          AbstractBeanDefinition beanDefinition, Class<?> beanType) {
+  private boolean isExcluded(Collection<LazyInitializationExcludeFilter> filters,
+          String beanName, AbstractBeanDefinition beanDefinition, @Nullable Class<?> beanType) {
     if (beanType != null) {
       for (LazyInitializationExcludeFilter filter : filters) {
         if (filter.isExcluded(beanName, beanDefinition, beanType)) {

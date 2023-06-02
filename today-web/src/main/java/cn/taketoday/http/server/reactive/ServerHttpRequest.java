@@ -24,7 +24,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -32,6 +31,7 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Represents a reactive server-side HTTP request.

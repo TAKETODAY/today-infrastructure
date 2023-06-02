@@ -260,8 +260,9 @@ class ApplicationContextExpressionTests {
 
   @Test
   void resourceInjection() throws IOException {
-    System.setProperty("logfile", "do_not_delete_me.txt");
-    try (AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext(ResourceInjectionBean.class)) {
+    try {
+      System.setProperty("logfile", "do_not_delete_me.txt");
+      var ac = new AnnotationConfigApplicationContext(ResourceInjectionBean.class);
       ResourceInjectionBean resourceInjectionBean = ac.getBean(ResourceInjectionBean.class);
       Resource resource = new ClassPathResource("do_not_delete_me.txt");
       assertThat(resourceInjectionBean.resource).isEqualTo(resource);

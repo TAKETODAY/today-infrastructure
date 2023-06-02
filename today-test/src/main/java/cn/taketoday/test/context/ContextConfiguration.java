@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -73,9 +73,9 @@ import cn.taketoday.test.context.web.WebDelegatingSmartContextLoader;
  * {@link cn.taketoday.stereotype.Repository @Repository}, etc.)</li>
  * <li>A JSR-330 compliant class that is annotated with {@code jakarta.inject} annotations</li>
  * <li>Any class that contains {@link cn.taketoday.context.annotation.Bean @Bean}-methods</li>
- * <li>Any other class that is intended to be registered as a Spring component (i.e., a Spring bean
+ * <li>Any other class that is intended to be registered as a Infra component (i.e., a Infra bean
  * in the {@code ApplicationContext}), potentially taking advantage of automatic autowiring of a
- * single constructor without the use of Spring annotations</li>
+ * single constructor without the use of Infra annotations</li>
  * </ul>
  *
  * A bean will be registered in the {@code ApplicationContext} for each component

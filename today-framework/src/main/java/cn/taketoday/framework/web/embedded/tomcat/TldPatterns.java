@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,8 +39,14 @@ final class TldPatterns {
     Set<String> skipPatterns = new LinkedHashSet<>();
     skipPatterns.add("annotations-api.jar");
     skipPatterns.add("ant-junit*.jar");
-    skipPatterns.add("ant-launcher.jar");
-    skipPatterns.add("ant.jar");
+    skipPatterns.add("ant-launcher*.jar");
+    skipPatterns.add("ant*.jar");
+    skipPatterns.add("bcel*.jar");
+    skipPatterns.add("biz.aQute.bnd*.jar");
+    skipPatterns.add("commons-compress*.jar");
+    skipPatterns.add("org.hamcrest.core_*.jar");
+    skipPatterns.add("org.junit_*.jar");
+    skipPatterns.add("unboundid-ldapsdk-*.jar");
     skipPatterns.add("asm-*.jar");
     skipPatterns.add("aspectj*.jar");
     skipPatterns.add("bootstrap.jar");
@@ -116,6 +122,7 @@ final class TldPatterns {
     skipPatterns.add("tomcat-websocket.jar");
     skipPatterns.add("tools.jar");
     skipPatterns.add("websocket-api.jar");
+    skipPatterns.add("websocket-client-api.jar");
     skipPatterns.add("wsdl4j*.jar");
     skipPatterns.add("xercesImpl.jar");
     skipPatterns.add("xml-apis.jar");

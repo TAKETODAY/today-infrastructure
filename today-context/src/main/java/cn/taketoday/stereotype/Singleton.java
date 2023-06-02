@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,14 +27,14 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
-import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * @author TODAY <br>
- * 2018-07-02 22:46:11
+ * Indicates that an annotated class is a singleton Bean.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-07-02 22:46:11
  */
-@Scope
 @Component
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

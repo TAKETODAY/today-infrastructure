@@ -31,7 +31,7 @@ import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
  * Verifies proper handling of JUnit's {@link Test#expected() &#064;Test(expected = ...)}
- * support in conjunction with the {@link Runner}.
+ * support in conjunction with the {@link InfraRunner}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -41,7 +41,7 @@ public class ExpectedExceptionSpringRunnerTests {
 
   @Test
   public void expectedExceptions() throws Exception {
-    JUnitTestingUtils.runTestsAndAssertCounters(Runner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
+    JUnitTestingUtils.runTestsAndAssertCounters(InfraRunner.class, ExpectedExceptionSpringRunnerTestCase.class, 1, 0, 1, 0, 0);
   }
 
   @Ignore("TestCase classes are run manually by the enclosing test class")

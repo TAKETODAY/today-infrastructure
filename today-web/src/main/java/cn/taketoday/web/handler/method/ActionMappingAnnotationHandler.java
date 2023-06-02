@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler.method;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -28,7 +29,6 @@ import cn.taketoday.beans.factory.BeanSupplier;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.http.HttpStatusCodeProvider;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.reflect.MethodInvoker;
 import cn.taketoday.util.ClassUtils;
@@ -36,17 +36,17 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
+import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.util.WebUtils;
 
 /**
  * HTTP Request Annotation Handler
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.annotation.RequestMapping
- * @see cn.taketoday.web.annotation.ActionMapping
+ * @see RequestMapping
  * @see cn.taketoday.stereotype.Controller
  * @since 4.0 2021/11/29 22:48
  */
@@ -58,7 +58,6 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
   private /*volatile*/ MethodInvoker handlerInvoker;
 
   // return-value handlers(registry)
-  @Nullable
   private ReturnValueHandlerManager returnValueHandlerManager;
 
   // target return-value handler
@@ -193,32 +192,21 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  protected void applyResponseStatus(RequestContext context) {
+  protected void applyResponseStatus(RequestContext context) throws IOException {
     applyResponseStatus(context, handlerMethod.getResponseStatus());
   }
 
-  protected void applyResponseStatus(RequestContext context, @Nullable HttpStatusCode status) {
+  protected void applyResponseStatus(RequestContext context, @Nullable HttpStatusCode status) throws IOException {
     if (status != null) {
       String reason = handlerMethod.getResponseStatusReason();
       int httpStatus = status.value();
       if (StringUtils.hasText(reason)) {
         MessageSource messageSource = context.getApplicationContext();
         String message = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
-        context.setStatus(httpStatus, message);
+        context.sendError(httpStatus, message);
       }
       else {
         context.setStatus(httpStatus);
-      }
-    }
-    else {
-      Object attribute = context.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-      if (attribute instanceof HttpStatusCodeProvider provider) { // @since 3.0.1
-        HttpStatusCode httpStatus = provider.getStatusCode();
-        context.setStatus(httpStatus);
-      }
-      else if (attribute instanceof Throwable throwable) {
-        ResponseStatus runtimeErrorStatus = HandlerMethod.getResponseStatus(throwable);
-        applyResponseStatus(context, runtimeErrorStatus.code());
       }
     }
   }
@@ -229,15 +217,16 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
 
     ReturnValueHandler returnValueHandler = this.returnValueHandler;
     if (returnValueHandler == null) {
-      returnValueHandler = returnValueHandlerManager.obtainHandler(this);
+      returnValueHandler = returnValueHandlerManager.obtainHandler(handler, returnValue);
       this.returnValueHandler = returnValueHandler;
     }
-    returnValueHandler.handleReturnValue(context, handler, returnValue);
     // @since 3.0
     String contentType = handlerMethod.getContentType();
     if (contentType != null) {
       context.setContentType(contentType);
     }
+
+    returnValueHandler.handleReturnValue(context, handler, returnValue);
   }
 
   public Object invokeHandler(RequestContext request) throws Throwable {

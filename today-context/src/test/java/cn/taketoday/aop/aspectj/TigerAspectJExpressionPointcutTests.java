@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,6 +34,7 @@ import cn.taketoday.aop.testfixture.annotation.EmptySpringAnnotation;
 import cn.taketoday.aop.testfixture.annotation.transaction.Tx;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
+import static cn.taketoday.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -224,7 +225,7 @@ public class TigerAspectJExpressionPointcutTests {
 
     DefaultMethodInvocation invocation = new DefaultMethodInvocation(
             null, new ProcessesSpringAnnotatedParameters(), takesNoAnnotatedParameters, ProcessesSpringAnnotatedParameters.class,
-            new Object[] { new TestBean(), new BeanA() }, null
+            new Object[] { new TestBean(), new BeanA() }, EMPTY_INTERCEPTOR
     );
 
     assertThat(takesSpringAnnotatedArgument2.matches(invocation)).isFalse();

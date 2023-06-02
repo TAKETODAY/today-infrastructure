@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,13 +29,15 @@ import cn.taketoday.framework.web.server.WebServer;
  *
  * @author Brian Clozel
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
-public abstract class WebServerInitializedEvent extends ApplicationEvent {
+public class WebServerInitializedEvent extends ApplicationEvent {
+  private final WebServerApplicationContext applicationContext;
 
-  protected WebServerInitializedEvent(WebServer webServer) {
+  public WebServerInitializedEvent(WebServer webServer, WebServerApplicationContext applicationContext) {
     super(webServer);
+    this.applicationContext = applicationContext;
   }
 
   /**
@@ -54,7 +56,9 @@ public abstract class WebServerInitializedEvent extends ApplicationEvent {
    *
    * @return the applicationContext that the server was created from
    */
-  public abstract WebServerApplicationContext getApplicationContext();
+  public WebServerApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
 
   /**
    * Access the source of the event (an {@link WebServer}).

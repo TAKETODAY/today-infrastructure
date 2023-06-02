@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -120,6 +120,9 @@ public class MapTests extends AbstractExpressionTests {
     checkConstantMap("{#root.name:true}", false);
     checkConstantMap("{a:1,b:2,c:{d:true,e:false}}", true);
     checkConstantMap("{a:1,b:2,c:{d:{1,2,3},e:{4,5,6},f:{'a','b','c'}}}", true);
+    // for nested InlineMap
+    checkConstantMap("{aaa:{a:#a,b:2,c:3}}", false);
+
   }
 
   private void checkConstantMap(String expressionText, boolean expectedToBeConstant) {

@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * All Spring application events fired during the test execution.
+ * All Infra application events fired during the test execution.
  *
  * <p>Copied from the Moduliths project.
  *

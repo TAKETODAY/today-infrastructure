@@ -20,7 +20,6 @@
 
 package cn.taketoday.jdbc.support;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -54,7 +53,7 @@ public class SQLErrorCodesFactoryTests {
    */
   @Test
   public void testDefaultInstanceWithNoSuchDatabase() {
-    SQLErrorCodes sec = SQLErrorCodesFactory.getInstance().getErrorCodes("xx");
+    SQLErrorCodes sec = SQLErrorCodesFactory.of().getErrorCodes("xx");
     assertThat(sec.getBadSqlGrammarCodes().length == 0).isTrue();
     assertThat(sec.getDataIntegrityViolationCodes().length == 0).isTrue();
   }
@@ -64,7 +63,7 @@ public class SQLErrorCodesFactoryTests {
    */
   @Test
   public void testDefaultInstanceWithOracle() {
-    SQLErrorCodes sec = SQLErrorCodesFactory.getInstance().getErrorCodes("Oracle");
+    SQLErrorCodes sec = SQLErrorCodesFactory.of().getErrorCodes("Oracle");
     assertIsOracle(sec);
   }
 
@@ -245,12 +244,12 @@ public class SQLErrorCodesFactoryTests {
     DataSource dataSource = mock(DataSource.class);
     given(dataSource.getConnection()).willReturn(connection);
 
-    SQLErrorCodes sec = SQLErrorCodesFactory.getInstance().getErrorCodes(dataSource);
+    SQLErrorCodes sec = SQLErrorCodesFactory.of().getErrorCodes(dataSource);
     assertIsEmpty(sec);
     verify(connection).close();
 
     reset(connection);
-    sec = SQLErrorCodesFactory.getInstance().resolveErrorCodes(dataSource);
+    sec = SQLErrorCodesFactory.of().resolveErrorCodes(dataSource);
     assertThat(sec).isNull();
     verify(connection).close();
   }
@@ -262,10 +261,10 @@ public class SQLErrorCodesFactoryTests {
     DataSource dataSource = mock(DataSource.class);
     given(dataSource.getConnection()).willThrow(expectedSQLException);
 
-    SQLErrorCodes sec = SQLErrorCodesFactory.getInstance().getErrorCodes(dataSource);
+    SQLErrorCodes sec = SQLErrorCodesFactory.of().getErrorCodes(dataSource);
     assertIsEmpty(sec);
 
-    sec = SQLErrorCodesFactory.getInstance().resolveErrorCodes(dataSource);
+    sec = SQLErrorCodesFactory.of().resolveErrorCodes(dataSource);
     assertThat(sec).isNull();
   }
 
@@ -279,7 +278,7 @@ public class SQLErrorCodesFactoryTests {
     DataSource dataSource = mock(DataSource.class);
     given(dataSource.getConnection()).willReturn(connection);
 
-    SQLErrorCodesFactory secf = (factory != null ? factory : SQLErrorCodesFactory.getInstance());
+    SQLErrorCodesFactory secf = (factory != null ? factory : SQLErrorCodesFactory.of());
     SQLErrorCodes sec = secf.getErrorCodes(dataSource);
 
     SQLErrorCodes sec2 = secf.getErrorCodes(dataSource);

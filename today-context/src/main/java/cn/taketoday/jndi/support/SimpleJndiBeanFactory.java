@@ -36,7 +36,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanNotOfRequiredTypeException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.core.ResolvableType;
@@ -163,7 +162,7 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
     return new ObjectProvider<>() {
       @Override
       public T get() throws BeansException {
@@ -190,7 +189,7 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
-  public <T> ObjectProvider<T> getObjectSupplier(ResolvableType requiredType) {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
     throw new UnsupportedOperationException(
             "SimpleJndiBeanFactory does not support resolution by ResolvableType");
   }
@@ -349,13 +348,13 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
-    throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getObjectSupplier");
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
+    throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getObjectProvider");
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
-    throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getObjectSupplier");
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit) {
+    throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support getObjectProvider");
   }
 
   @Override

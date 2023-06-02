@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler;
 
 import java.io.IOException;
@@ -53,13 +54,13 @@ public class NotFoundHandler implements HttpRequestHandler {
   protected Object handleNotFound(RequestContext request) throws IOException {
     logNotFound(request);
 
-    request.sendError(HttpStatus.NOT_FOUND.value());
+    request.sendError(HttpStatus.NOT_FOUND);
     return NONE_RETURN_VALUE;
   }
 
   protected void logNotFound(RequestContext context) {
-    if (log.isWarnEnabled()) {
-      log.debug("No mapping for {} {}", context.getMethodValue(), context.getRequestPath());
+    if (log.isDebugEnabled()) {
+      log.debug("No mapping for {} {}", context.getMethodValue(), context.getRequestURI());
     }
   }
 

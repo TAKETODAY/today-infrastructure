@@ -22,7 +22,7 @@ package cn.taketoday.web.handler;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.FrameworkConfigurationException;
+import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 
@@ -33,7 +33,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @since 3.0
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class ReturnValueHandlerNotFoundException extends FrameworkConfigurationException {
+public class ReturnValueHandlerNotFoundException extends InfraConfigurationException {
 
   @Nullable
   private final Object handler;

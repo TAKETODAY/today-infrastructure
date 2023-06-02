@@ -23,7 +23,7 @@ package cn.taketoday.web.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.DefaultServletHttpRequestHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;

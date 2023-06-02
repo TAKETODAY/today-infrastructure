@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.framework.diagnostics;
 
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -55,14 +56,16 @@ public abstract class AbstractFailureAnalyzer<T extends Throwable> implements Fa
   protected abstract FailureAnalysis analyze(Throwable rootFailure, T cause);
 
   /**
-   * Return the cause type being handled by the analyzer. By default the class generic
+   * Return the cause type being handled by the analyzer. By default, the class generic
    * is used.
    *
    * @return the cause type
    */
   @SuppressWarnings("unchecked")
   protected Class<? extends T> getCauseType() {
-    return (Class<? extends T>) ResolvableType.fromClass(AbstractFailureAnalyzer.class, getClass()).resolveGeneric();
+    Class<?> generic = ResolvableType.fromClass(AbstractFailureAnalyzer.class, getClass()).resolveGeneric();
+    Assert.state(generic != null, "Generic type is required");
+    return (Class<? extends T>) generic;
   }
 
   @Nullable

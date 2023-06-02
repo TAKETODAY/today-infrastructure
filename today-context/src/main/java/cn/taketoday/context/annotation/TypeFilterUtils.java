@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,8 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
@@ -68,8 +70,8 @@ public abstract class TypeFilterUtils {
    * @see RegexPatternTypeFilter
    * @see cn.taketoday.beans.factory.BeanClassLoaderAware
    * @see cn.taketoday.beans.factory.BeanFactoryAware
-   * @see cn.taketoday.context.aware.EnvironmentAware
-   * @see cn.taketoday.context.aware.ResourceLoaderAware
+   * @see EnvironmentAware
+   * @see ResourceLoaderAware
    */
   @SuppressWarnings("unchecked")
   public static List<TypeFilter> createTypeFiltersFor(

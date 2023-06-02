@@ -20,7 +20,7 @@
 package cn.taketoday.context.condition;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -30,7 +30,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 public class WindowsCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     String system = context.getEnvironment().getProperty("os.name");
     return system != null && system.contains("Windows");
   }

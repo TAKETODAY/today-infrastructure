@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,7 +47,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * <li>{@link HttpMethod}
  * <li>{@link Locale}
  * <li>{@link TimeZone}
- * <li>{@link java.time.ZoneId} (as of Spring 4.0 and Java 8)
+ * <li>{@link java.time.ZoneId}
  * </ul>
  *
  * @author Arjen Poutsma

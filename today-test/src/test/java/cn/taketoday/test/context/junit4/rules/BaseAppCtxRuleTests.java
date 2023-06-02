@@ -32,12 +32,12 @@ import cn.taketoday.test.context.ContextConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Base class for integration tests involving Spring {@code ApplicationContexts}
- * in conjunction with {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
+ * Base class for integration tests involving Infra {@code ApplicationContexts}
+ * in conjunction with {@link InfraClassRule} and {@link InfraMethodRule}.
  *
  * <p>The goal of this class and its subclasses is to ensure that Rule-based
- * configuration can be inherited without requiring {@link ApplicationClassRule}
- * or {@link ApplicationMethodRule} to be redeclared on subclasses.
+ * configuration can be inherited without requiring {@link InfraClassRule}
+ * or {@link InfraMethodRule} to be redeclared on subclasses.
  *
  * @author Sam Brannen
  * @see Subclass1AppCtxRuleTests
@@ -48,10 +48,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BaseAppCtxRuleTests {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Autowired
   private String foo;

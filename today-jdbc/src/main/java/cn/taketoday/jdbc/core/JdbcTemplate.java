@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,9 +20,6 @@
 
 package cn.taketoday.jdbc.core;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.BatchUpdateException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -660,7 +657,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
     Assert.notNull(action, "Callback object must not be null");
     if (stmtLogger.isDebugEnabled()) {
       String sql = getSql(psc);
-      stmtLogger.logStatement("Executing prepared SQL statement", (sql != null ? " [" + sql + "]" : ""));
+      stmtLogger.logStatement("Executing prepared SQL statement", (sql != null ? sql : ""));
     }
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
@@ -1206,7 +1203,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
     Assert.notNull(action, "Callback object must not be null");
     if (stmtLogger.isDebugEnabled()) {
       String sql = getSql(csc);
-      stmtLogger.logStatement("Calling stored procedure", sql != null ? " [" + sql + "]" : "");
+      stmtLogger.logStatement("Calling stored procedure", sql != null ? sql : "");
     }
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());

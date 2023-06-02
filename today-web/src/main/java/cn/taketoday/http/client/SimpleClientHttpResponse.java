@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,14 +31,14 @@ import cn.taketoday.util.StringUtils;
 
 /**
  * {@link ClientHttpResponse} implementation that uses standard JDK facilities.
- * Obtained via {@link SimpleBufferingClientHttpRequest#execute()} and
- * {@link SimpleStreamingClientHttpRequest#execute()}.
+ * Obtained via {@link SimpleClientHttpRequest#execute()}.
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class SimpleClientHttpResponse extends AbstractClientHttpResponse {
+final class SimpleClientHttpResponse implements ClientHttpResponse {
 
   private final HttpURLConnection connection;
 

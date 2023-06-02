@@ -21,7 +21,6 @@
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.bind.MissingRequestValueException;
 
@@ -40,7 +39,6 @@ import cn.taketoday.web.bind.MissingRequestValueException;
  */
 @SuppressWarnings("serial")
 public class MissingRequestPartException extends MissingRequestValueException implements ErrorResponse {
-  private final ProblemDetail body = ProblemDetail.forStatus(getStatusCode());
 
   private final String requestPartName;
 
@@ -52,7 +50,7 @@ public class MissingRequestPartException extends MissingRequestValueException im
   public MissingRequestPartException(String requestPartName) {
     super("Required part '" + requestPartName + "' is not present.");
     this.requestPartName = requestPartName;
-    getBody().setDetail(getMessage());
+    setDetail(getMessage());
   }
 
   /**
@@ -67,8 +65,4 @@ public class MissingRequestPartException extends MissingRequestValueException im
     return HttpStatus.BAD_REQUEST;
   }
 
-  @Override
-  public ProblemDetail getBody() {
-    return this.body;
-  }
 }

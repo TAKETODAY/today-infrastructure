@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,8 @@
 package cn.taketoday.context.annotation.configuration;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -32,15 +34,22 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.beans.testfixture.beans.Colour;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.stereotype.Component;
 import jakarta.inject.Provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,16 +62,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
+@Execution(ExecutionMode.SAME_THREAD)
 public class AutowiredConfigurationTests {
 
-//  @Test
-//  public void testAutowiredConfigurationDependencies() {
-//    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-//            AutowiredConfigurationTests.class.getSimpleName() + ".xml", AutowiredConfigurationTests.class);
-//
-//    assertThat(context.getBean("colour", Colour.class)).isEqualTo(Colour.RED);
-//    assertThat(context.getBean("testBean", TestBean.class).getName()).isEqualTo(Colour.RED.toString());
-//  }
+  @Test
+  public void testAutowiredConfigurationDependencies() {
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+            AutowiredConfigurationTests.class.getSimpleName() + ".xml", AutowiredConfigurationTests.class);
+
+    assertThat(context.getBean("colour", Colour.class)).isEqualTo(Colour.RED);
+    assertThat(context.getBean("testBean", TestBean.class).getName()).isEqualTo(Colour.RED.toString());
+  }
 
   @Test
   public void testAutowiredConfigurationMethodDependencies() {
@@ -91,48 +101,48 @@ public class AutowiredConfigurationTests {
     assertThat(context.getBean(TestBean.class).getName()).isEqualTo("");
   }
 
-//  @Test
-//  public void testAutowiredSingleConstructorSupported() {
-//    StandardBeanFactory factory = new StandardBeanFactory();
-//    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
-//            new ClassPathResource("annotation-config.xml", AutowiredConstructorConfig.class));
-//    DefaultApplicationContext ctx = new DefaultApplicationContext(factory);
-//    ctx.registerBeanDefinition("config1", new BeanDefinition(AutowiredConstructorConfig.class));
-//    ctx.registerBeanDefinition("config2", new BeanDefinition(ColorConfig.class));
-//    ctx.refresh();
-//    assertThat(ctx.getBean(Colour.class)).isSameAs(ctx.getBean(AutowiredConstructorConfig.class).colour);
-//  }
+  @Test
+  public void testAutowiredSingleConstructorSupported() {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
+            new ClassPathResource("annotation-config.xml", AutowiredConstructorConfig.class));
+    GenericApplicationContext ctx = new GenericApplicationContext(factory);
+    ctx.registerBeanDefinition("config1", new RootBeanDefinition(AutowiredConstructorConfig.class));
+    ctx.registerBeanDefinition("config2", new RootBeanDefinition(ColorConfig.class));
+    ctx.refresh();
+    assertThat(ctx.getBean(Colour.class)).isSameAs(ctx.getBean(AutowiredConstructorConfig.class).colour);
+  }
 
-//  @Test
-//  public void testObjectFactoryConstructorWithTypeVariable() {
-//    StandardBeanFactory factory = new StandardBeanFactory();
-//    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
-//            new ClassPathResource("annotation-config.xml", ObjectFactoryConstructorConfig.class));
-//    DefaultApplicationContext ctx = new DefaultApplicationContext(factory);
-//    ctx.registerBeanDefinition("config1", new BeanDefinition(ObjectFactoryConstructorConfig.class));
-//    ctx.registerBeanDefinition("config2", new BeanDefinition(ColorConfig.class));
-//    ctx.refresh();
-//    assertThat(ctx.getBean(Colour.class)).isSameAs(ctx.getBean(ObjectFactoryConstructorConfig.class).colour);
-//  }
+  @Test
+  public void testObjectFactoryConstructorWithTypeVariable() {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
+            new ClassPathResource("annotation-config.xml", ObjectFactoryConstructorConfig.class));
+    GenericApplicationContext ctx = new GenericApplicationContext(factory);
+    ctx.registerBeanDefinition("config1", new RootBeanDefinition(ObjectFactoryConstructorConfig.class));
+    ctx.registerBeanDefinition("config2", new RootBeanDefinition(ColorConfig.class));
+    ctx.refresh();
+    assertThat(ctx.getBean(Colour.class)).isSameAs(ctx.getBean(ObjectFactoryConstructorConfig.class).colour);
+  }
 
-//  @Test
-//  public void testAutowiredAnnotatedConstructorSupported() {
-//    StandardBeanFactory factory = new StandardBeanFactory();
-//    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
-//            new ClassPathResource("annotation-config.xml", MultipleConstructorConfig.class));
-//    DefaultApplicationContext ctx = new DefaultApplicationContext(factory);
-//    ctx.registerBeanDefinition("config1", new BeanDefinition(MultipleConstructorConfig.class));
-//    ctx.registerBeanDefinition("config2", new BeanDefinition(ColorConfig.class));
-//    ctx.refresh();
-//    assertThat(ctx.getBean(Colour.class)).isSameAs(ctx.getBean(MultipleConstructorConfig.class).colour);
-//  }
+  @Test
+  public void testAutowiredAnnotatedConstructorSupported() {
+    StandardBeanFactory factory = new StandardBeanFactory();
+    new XmlBeanDefinitionReader(factory).loadBeanDefinitions(
+            new ClassPathResource("annotation-config.xml", MultipleConstructorConfig.class));
+    GenericApplicationContext ctx = new GenericApplicationContext(factory);
+    ctx.registerBeanDefinition("config1", new RootBeanDefinition(MultipleConstructorConfig.class));
+    ctx.registerBeanDefinition("config2", new RootBeanDefinition(ColorConfig.class));
+    ctx.refresh();
+    assertThat(ctx.getBean(Colour.class)).isSameAs(ctx.getBean(MultipleConstructorConfig.class).colour);
+  }
 
-//  @Test
-//  public void testValueInjection() {
-//    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-//            "ValueInjectionTests.xml", AutowiredConfigurationTests.class);
-//    doTestValueInjection(context);
-//  }
+  @Test
+  public void testValueInjection() {
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+            "ValueInjectionTests.xml", AutowiredConfigurationTests.class);
+    doTestValueInjection(context);
+  }
 
   @Test
   public void testValueInjectionWithMetaAnnotation() {
@@ -195,35 +205,39 @@ public class AutowiredConfigurationTests {
     assertThat((Object) testBean.getName()).isNull();
   }
 
-//  @Test
-//  public void testCustomPropertiesWithClassPathContext() throws IOException {
+  @Test
+  public void testCustomPropertiesWithClassPathContext() throws IOException {
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+            "AutowiredConfigurationTests-custom.xml", AutowiredConfigurationTests.class);
 
-//	<util:properties id="myProps" location="classpath:/context/annotation/configuration/AutowiredConfigurationTests-custom.properties"/>
-//	<bean class="cn.taketoday.context.annotation.configuration.AutowiredConfigurationTests$PropertiesConfig"/>
+    TestBean testBean = context.getBean("testBean", TestBean.class);
+    assertThat(testBean.getName()).isEqualTo("localhost");
+    assertThat(testBean.getAge()).isEqualTo(contentLength());
+  }
 
-  // hostname=localhost
-  //foo=a
-  //bar=b
+  @Test
+  public void testCustomPropertiesWithGenericContext() throws IOException {
+    GenericApplicationContext context = new GenericApplicationContext();
+    new XmlBeanDefinitionReader(context).loadBeanDefinitions(
+            new ClassPathResource("AutowiredConfigurationTests-custom.xml", AutowiredConfigurationTests.class));
+    context.refresh();
 
-//    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-//            "AutowiredConfigurationTests-custom.xml", AutowiredConfigurationTests.class);
-//
-//    TestBean testBean = context.getBean("testBean", TestBean.class);
-//    assertThat(testBean.getName()).isEqualTo("localhost");
-//    assertThat(testBean.getAge()).isEqualTo(contentLength());
-//  }
+    TestBean testBean = context.getBean("testBean", TestBean.class);
+    assertThat(testBean.getName()).isEqualTo("localhost");
+    assertThat(testBean.getAge()).isEqualTo(contentLength());
+  }
 
-//  @Test
-//  public void testCustomPropertiesWithGenericContext() throws IOException {
-//    DefaultApplicationContext context = new DefaultApplicationContext();
-//    new XmlBeanDefinitionReader(context).loadBeanDefinitions(
-//            new ClassPathResource("AutowiredConfigurationTests-custom.xml", AutowiredConfigurationTests.class));
-//    context.refresh();
-//
-//    TestBean testBean = context.getBean("testBean", TestBean.class);
-//    assertThat(testBean.getName()).isEqualTo("localhost");
-//    assertThat(testBean.getAge()).isEqualTo(contentLength());
-//  }
+  @Test
+  void testValueInjectionWithRecord() {
+    System.setProperty("recordBeanName", "enigma");
+    GenericApplicationContext context = new AnnotationConfigApplicationContext(RecordBean.class);
+    try {
+      assertThat(context.getBean(RecordBean.class).name()).isEqualTo("enigma");
+    }
+    finally {
+      System.clearProperty("recordBeanName");
+    }
+  }
 
   private int contentLength() throws IOException {
     return (int) new ClassPathResource("do_not_delete_me.txt").contentLength();
@@ -493,6 +507,11 @@ public class AutowiredConfigurationTests {
     public TestBean testBean() throws IOException {
       return new TestBean(hostname, (int) resource.contentLength());
     }
+  }
+
+  @Component
+  record RecordBean(@Value("${recordBeanName}") String name) {
+
   }
 
 }

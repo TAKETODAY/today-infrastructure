@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
 import cn.taketoday.test.context.NestedTestConfiguration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.INHERIT;
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -41,12 +41,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
  * {@link ContextHierarchy @ContextHierarchy} in conjunction with the
- * {@link ApplicationExtension} in a JUnit Jupiter environment.
+ * {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
  * @since 4.0
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @ContextHierarchy(@ContextConfiguration(classes = ContextHierarchyNestedTests.ParentConfig.class))
 @NestedTestConfiguration(OVERRIDE) // since INHERIT is now the global default
 class ContextHierarchyNestedTests {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,7 +48,7 @@ import cn.taketoday.web.view.script.ScriptTemplateViewResolver;
 /**
  * Assist with the configuration of a chain of
  * {@link cn.taketoday.web.view.ViewResolver ViewResolver} instances.
- * This class is expected to be used via {@link WebMvcConfiguration#configureViewResolvers}.
+ * This class is expected to be used via {@link WebMvcConfigurer#configureViewResolvers}.
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
@@ -74,8 +74,8 @@ public class ViewResolverRegistry {
   /**
    * Class constructor with {@link ContentNegotiationManager} and {@link ApplicationContext}.
    */
-  public ViewResolverRegistry(
-          @Nullable ContentNegotiationManager contentNegotiationManager, @Nullable ApplicationContext context) {
+  public ViewResolverRegistry(@Nullable ContentNegotiationManager contentNegotiationManager,
+          @Nullable ApplicationContext context) {
     this.applicationContext = context;
     this.contentNegotiationManager = contentNegotiationManager;
   }

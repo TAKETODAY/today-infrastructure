@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -161,7 +161,7 @@ public class MockAsyncContext implements AsyncContext {
    * specifies a default async request timeout of 30 seconds. Keep in mind the
    * timeout could further be impacted by global configuration through the MVC
    * Java config or the XML namespace, as well as be overridden per request on
-   * {@link cn.taketoday.web.context.request.async.DeferredResult DeferredResult}
+   * {@link cn.taketoday.web.context.async.DeferredResult DeferredResult}
    * or on
    * {@link cn.taketoday.web.servlet.mvc.method.annotation.SseEmitter SseEmitter}.
    *

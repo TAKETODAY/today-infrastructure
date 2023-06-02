@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,7 +59,7 @@ class ConfigDataEnvironmentPostProcessorImportCombinedWithProfileSpecificIntegra
   @BeforeEach
   void setup() {
     this.application = new Application(Config.class);
-    this.application.setApplicationType(ApplicationType.NONE_WEB);
+    this.application.setApplicationType(ApplicationType.NORMAL);
   }
 
   @Test
@@ -73,7 +73,7 @@ class ConfigDataEnvironmentPostProcessorImportCombinedWithProfileSpecificIntegra
   @Test
   void testWithProfile() {
     ConfigurableApplicationContext context = this.application
-            .run("--app.config.name=configimportwithprofilespecific", "--context.profiles.active=prod");
+            .run("--app.config.name=configimportwithprofilespecific", "--infra.profiles.active=prod");
     String value = context.getEnvironment().getProperty("prop");
     assertThat(value).isEqualTo("fromicwps2");
   }

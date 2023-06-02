@@ -32,13 +32,13 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 
 /**
  * Annotation that can be used to apply Mockito spies to a Spring
  * {@link ApplicationContext}. Can be used as a class level annotation or on fields in
  * either {@code @Configuration} classes, or test classes that are
- * {@link RunWith @RunWith} the {@link Runner}.
+ * {@link RunWith @RunWith} the {@link InfraRunner}.
  * <p>
  * Spies can be applied by type or by {@link #name() bean name}. All beans in the context
  * of a matching type (including subclasses) will be wrapped with the spy. If no existing

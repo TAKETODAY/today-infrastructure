@@ -22,13 +22,11 @@ package cn.taketoday.web;
 
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -39,16 +37,18 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  */
 public class HandlerMatchingMetadata {
   private final Object handler;
-  private final String directPath;
-  private final RequestPath requestPath;
+
+  // direct handler lookup path
+  private final String directLookupPath;
+
+  // handler lookup path
+  private final PathContainer lookupPath;
 
   private PathPattern bestMatchingPattern;
 
   private PathContainer pathWithinMapping;
 
   private PathMatchInfo pathMatchInfo;
-
-  private PathContainer pathWithinApplication;
 
   @Nullable
   private MediaType[] producibleMediaTypes;
@@ -62,37 +62,44 @@ public class HandlerMatchingMetadata {
   public HandlerMatchingMetadata(Object handler, RequestContext request) {
     this.handler = handler;
     this.bestMatchingPattern = null;
-    this.directPath = request.getRequestPath();
-    this.requestPath = request.getLookupPath();
+    this.lookupPath = request.getLookupPath();
+    this.directLookupPath = lookupPath.value();
     this.patternParser = PathPatternParser.defaultInstance;
   }
 
+  public HandlerMatchingMetadata(Object handler, RequestContext request, PathPatternParser patternParser) {
+    this.handler = handler;
+    this.bestMatchingPattern = null;
+    this.lookupPath = request.getLookupPath();
+    this.directLookupPath = lookupPath.value();
+    this.patternParser = patternParser;
+  }
+
   public HandlerMatchingMetadata(
-          Object handler, String directPath, RequestPath requestPath,
+          Object handler, String directLookupPath, PathContainer lookupPath,
           PathPattern bestMatchingPattern, PathPatternParser patternParser) {
     this.handler = handler;
-    this.directPath = directPath;
-    this.requestPath = requestPath;
+    this.lookupPath = lookupPath;
     this.patternParser = patternParser;
+    this.directLookupPath = directLookupPath;
     this.bestMatchingPattern = bestMatchingPattern;
   }
 
   public HandlerMatchingMetadata(HandlerMatchingMetadata other) {
     this.handler = other.handler;
-    this.directPath = other.directPath;
-    this.requestPath = other.requestPath;
+    this.lookupPath = other.lookupPath;
+    this.directLookupPath = other.directLookupPath;
     this.pathMatchInfo = other.pathMatchInfo;
     this.patternParser = other.patternParser;
     this.pathWithinMapping = other.pathWithinMapping;
     this.bestMatchingPattern = other.bestMatchingPattern;
     this.producibleMediaTypes = other.producibleMediaTypes;
-    this.pathWithinApplication = other.pathWithinApplication;
   }
 
   public PathMatchInfo getPathMatchInfo() {
     PathMatchInfo pathMatchInfo = this.pathMatchInfo;
     if (pathMatchInfo == null) {
-      pathMatchInfo = getBestMatchingPattern().matchAndExtract(requestPath);
+      pathMatchInfo = getBestMatchingPattern().matchAndExtract(lookupPath);
       if (pathMatchInfo == null) {
         pathMatchInfo = PathMatchInfo.EMPTY;
       }
@@ -106,24 +113,14 @@ public class HandlerMatchingMetadata {
     if (pathWithinMapping == null) {
       PathPattern bestMatchingPattern = getBestMatchingPattern();
       if (bestMatchingPattern.hasPatternSyntax()) {
-        pathWithinMapping = bestMatchingPattern.extractPathWithinPattern(requestPath);
+        pathWithinMapping = bestMatchingPattern.extractPathWithinPattern(lookupPath);
       }
       else {
-        pathWithinMapping = requestPath;
+        pathWithinMapping = lookupPath;
       }
       this.pathWithinMapping = pathWithinMapping;
     }
     return pathWithinMapping;
-  }
-
-  @Experimental
-  public final PathContainer pathWithinApplication() {
-    PathContainer pathWithinApplication = this.pathWithinApplication;
-    if (pathWithinApplication == null) {
-      pathWithinApplication = requestPath.pathWithinApplication();
-      this.pathWithinApplication = pathWithinApplication;
-    }
-    return pathWithinApplication;
   }
 
   public Map<String, String> getUriVariables() {
@@ -138,21 +135,25 @@ public class HandlerMatchingMetadata {
     return getPathMatchInfo().getMatrixVariables();
   }
 
+  public MultiValueMap<String, String> getMatrixVariable(String name) {
+    return getPathMatchInfo().getMatrixVariables().get(name);
+  }
+
   public PathPattern getBestMatchingPattern() {
     PathPattern bestMatchingPattern = this.bestMatchingPattern;
     if (bestMatchingPattern == null) {
-      bestMatchingPattern = patternParser.parse(directPath);
+      bestMatchingPattern = patternParser.parse(directLookupPath);
       this.bestMatchingPattern = bestMatchingPattern;
     }
     return bestMatchingPattern;
   }
 
-  public RequestPath getRequestPath() {
-    return requestPath;
+  public PathContainer getLookupPath() {
+    return lookupPath;
   }
 
-  public String getDirectPath() {
-    return directPath;
+  public String getDirectLookupPath() {
+    return directLookupPath;
   }
 
   public void setProducibleMediaTypes(@Nullable MediaType[] producibleMediaTypes) {

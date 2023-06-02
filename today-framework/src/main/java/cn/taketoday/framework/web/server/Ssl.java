@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,17 +20,22 @@
 
 package cn.taketoday.framework.web.server;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Simple server-independent abstraction for SSL configuration.
  *
  * @author Andy Wilkinson
  * @author Vladimir Tsanev
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Ssl {
 
   private boolean enabled = true;
+
+  private String bundle;
 
   private ClientAuth clientAuth;
 
@@ -42,10 +47,12 @@ public class Ssl {
 
   private String keyPassword;
 
+  @Nullable
   private String keyStore;
 
   private String keyStorePassword;
 
+  @Nullable
   private String keyStoreType;
 
   private String keyStoreProvider;
@@ -58,8 +65,7 @@ public class Ssl {
 
   private String trustStoreProvider;
 
-  private String protocol = "TLS";
-
+  @Nullable
   private String certificate;
 
   private String certificatePrivateKey;
@@ -67,6 +73,8 @@ public class Ssl {
   private String trustCertificate;
 
   private String trustCertificatePrivateKey;
+
+  private String protocol = "TLS";
 
   /**
    * Return whether to enable SSL support.
@@ -79,6 +87,24 @@ public class Ssl {
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  /**
+   * Return the name of the SSL bundle to use.
+   *
+   * @return the SSL bundle name
+   */
+  public String getBundle() {
+    return this.bundle;
+  }
+
+  /**
+   * Set the name of the SSL bundle to use.
+   *
+   * @param bundle the SSL bundle name
+   */
+  public void setBundle(String bundle) {
+    this.bundle = bundle;
   }
 
   /**
@@ -153,11 +179,12 @@ public class Ssl {
    *
    * @return the path to the key store
    */
+  @Nullable
   public String getKeyStore() {
     return this.keyStore;
   }
 
-  public void setKeyStore(String keyStore) {
+  public void setKeyStore(@Nullable String keyStore) {
     this.keyStore = keyStore;
   }
 
@@ -179,11 +206,12 @@ public class Ssl {
    *
    * @return the key store type
    */
+  @Nullable
   public String getKeyStoreType() {
     return this.keyStoreType;
   }
 
-  public void setKeyStoreType(String keyStoreType) {
+  public void setKeyStoreType(@Nullable String keyStoreType) {
     this.keyStoreType = keyStoreType;
   }
 
@@ -253,28 +281,16 @@ public class Ssl {
   }
 
   /**
-   * Return the SSL protocol to use.
-   *
-   * @return the SSL protocol
-   */
-  public String getProtocol() {
-    return this.protocol;
-  }
-
-  public void setProtocol(String protocol) {
-    this.protocol = protocol;
-  }
-
-  /**
    * Return the location of the certificate in PEM format.
    *
    * @return the certificate location
    */
+  @Nullable
   public String getCertificate() {
     return this.certificate;
   }
 
-  public void setCertificate(String certificate) {
+  public void setCertificate(@Nullable String certificate) {
     this.certificate = certificate;
   }
 
@@ -283,6 +299,7 @@ public class Ssl {
    *
    * @return the location of the certificate private key
    */
+  @Nullable
   public String getCertificatePrivateKey() {
     return this.certificatePrivateKey;
   }
@@ -318,6 +335,41 @@ public class Ssl {
   }
 
   /**
+   * Return the SSL protocol to use.
+   *
+   * @return the SSL protocol
+   */
+  public String getProtocol() {
+    return this.protocol;
+  }
+
+  public void setProtocol(String protocol) {
+    this.protocol = protocol;
+  }
+
+  /**
+   * Returns if SSL is enabled for the given instance.
+   *
+   * @param ssl the {@link Ssl SSL} instance or {@code null}
+   * @return {@code true} is SSL is enabled
+   */
+  public static boolean isEnabled(@Nullable Ssl ssl) {
+    return ssl != null && ssl.enabled;
+  }
+
+  /**
+   * Factory method to create an {@link Ssl} instance for a specific bundle name.
+   *
+   * @param bundle the name of the bundle
+   * @return a new {@link Ssl} instance with the bundle set
+   */
+  public static Ssl forBundle(String bundle) {
+    Ssl ssl = new Ssl();
+    ssl.setBundle(bundle);
+    return ssl;
+  }
+
+  /**
    * Client authentication types.
    */
   public enum ClientAuth {
@@ -335,7 +387,25 @@ public class Ssl {
     /**
      * Client authentication is needed and mandatory.
      */
-    NEED
+    NEED;
+
+    /**
+     * Map an optional {@link ClientAuth} value to a different type.
+     *
+     * @param <R> the result type
+     * @param clientAuth the client auth to map (may be {@code null})
+     * @param none the value for {@link ClientAuth#NONE} or {@code null}
+     * @param want the value for {@link ClientAuth#WANT}
+     * @param need the value for {@link ClientAuth#NEED}
+     * @return the mapped value
+     */
+    public static <R> R map(@Nullable ClientAuth clientAuth, R none, R want, R need) {
+      return switch (clientAuth != null ? clientAuth : NONE) {
+        case NONE -> none;
+        case WANT -> want;
+        case NEED -> need;
+      };
+    }
 
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,12 +34,14 @@ import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLTransientConnectionException;
 import java.sql.SQLTransientException;
 
-import cn.taketoday.dao.ConcurrencyFailureException;
+import cn.taketoday.dao.CannotAcquireLockException;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.DataIntegrityViolationException;
+import cn.taketoday.dao.DuplicateKeyException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.dao.PermissionDeniedDataAccessException;
+import cn.taketoday.dao.PessimisticLockingFailureException;
 import cn.taketoday.dao.QueryTimeoutException;
 import cn.taketoday.dao.RecoverableDataAccessException;
 import cn.taketoday.dao.TransientDataAccessResourceException;
@@ -73,10 +75,13 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
       if (ex instanceof SQLTransientConnectionException) {
         return new TransientDataAccessResourceException(buildMessage(task, sql, ex), ex);
       }
-      else if (ex instanceof SQLTransactionRollbackException) {
-        return new ConcurrencyFailureException(buildMessage(task, sql, ex), ex);
+      if (ex instanceof SQLTransactionRollbackException) {
+        if ("40001".equals(ex.getSQLState())) {
+          return new CannotAcquireLockException(buildMessage(task, sql, ex), ex);
+        }
+        return new PessimisticLockingFailureException(buildMessage(task, sql, ex), ex);
       }
-      else if (ex instanceof SQLTimeoutException) {
+      if (ex instanceof SQLTimeoutException) {
         return new QueryTimeoutException(buildMessage(task, sql, ex), ex);
       }
     }
@@ -84,19 +89,22 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
       if (ex instanceof SQLNonTransientConnectionException) {
         return new DataAccessResourceFailureException(buildMessage(task, sql, ex), ex);
       }
-      else if (ex instanceof SQLDataException) {
+      if (ex instanceof SQLDataException) {
         return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
       }
-      else if (ex instanceof SQLIntegrityConstraintViolationException) {
+      if (ex instanceof SQLIntegrityConstraintViolationException) {
+        if (SQLStateSQLExceptionTranslator.indicatesDuplicateKey(ex.getSQLState(), ex.getErrorCode())) {
+          return new DuplicateKeyException(buildMessage(task, sql, ex), ex);
+        }
         return new DataIntegrityViolationException(buildMessage(task, sql, ex), ex);
       }
-      else if (ex instanceof SQLInvalidAuthorizationSpecException) {
+      if (ex instanceof SQLInvalidAuthorizationSpecException) {
         return new PermissionDeniedDataAccessException(buildMessage(task, sql, ex), ex);
       }
-      else if (ex instanceof SQLSyntaxErrorException) {
+      if (ex instanceof SQLSyntaxErrorException) {
         return new BadSqlGrammarException(task, (sql != null ? sql : ""), ex);
       }
-      else if (ex instanceof SQLFeatureNotSupportedException) {
+      if (ex instanceof SQLFeatureNotSupportedException) {
         return new InvalidDataAccessApiUsageException(buildMessage(task, sql, ex), ex);
       }
     }
@@ -104,7 +112,7 @@ public class SQLExceptionSubclassTranslator extends AbstractFallbackSQLException
       return new RecoverableDataAccessException(buildMessage(task, sql, ex), ex);
     }
 
-    // Fallback to Framework's own SQL state translation...
+    // Fallback to Infra own SQL state translation...
     return null;
   }
 

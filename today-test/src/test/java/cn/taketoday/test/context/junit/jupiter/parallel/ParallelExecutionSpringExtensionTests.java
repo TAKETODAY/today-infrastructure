@@ -48,7 +48,7 @@ import static org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder.r
  * @author Sam Brannen
  * @since 4.0
  */
-class ParallelExecutionSpringExtensionTests {
+class ParallelExecutionInfraExtensionTests {
 
   private static final int NUM_TESTS = 1000;
 

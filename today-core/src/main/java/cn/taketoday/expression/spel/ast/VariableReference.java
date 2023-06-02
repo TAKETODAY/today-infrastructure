@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,11 +21,13 @@
 package cn.taketoday.expression.spel.ast;
 
 import java.lang.reflect.Modifier;
+import java.util.function.Supplier;
 
 import cn.taketoday.bytecode.MethodVisitor;
-import cn.taketoday.expression.EvaluationContext;
-import cn.taketoday.expression.TypedValue;
 import cn.taketoday.bytecode.core.CodeFlow;
+import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.EvaluationException;
+import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.lang.Nullable;
@@ -35,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  * variable like $someVar
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class VariableReference extends SpelNodeImpl {
@@ -91,8 +94,8 @@ public class VariableReference extends SpelNodeImpl {
   }
 
   @Override
-  public void setValue(ExpressionState state, @Nullable Object value) throws SpelEvaluationException {
-    state.setVariable(this.name, value);
+  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier) throws EvaluationException {
+    return state.assignVariable(this.name, valueSupplier);
   }
 
   @Override

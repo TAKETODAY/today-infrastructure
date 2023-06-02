@@ -20,7 +20,7 @@
 
 /**
  * External configuration support allowing 'application.properties' to be loaded and used
- * within a Spring Boot application.
+ * within a Infra application.
  *
  * @see cn.taketoday.framework.context.config.ConfigDataEnvironmentPostProcessor
  */

@@ -21,13 +21,13 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -37,13 +37,24 @@ import cn.taketoday.util.ObjectUtils;
  * @since 3.0
  */
 public class ResolvableParameterFactory {
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private static final ResolvableMethodParameter[] EMPTY = new ResolvableMethodParameter[0];
 
-  @Nullable
+  private final ParameterNameDiscoverer parameterNameDiscoverer;
+  private final HashMap<Method, ResolvableMethodParameter[]> cache = new HashMap<>();
+
+  public ResolvableParameterFactory() {
+    this(new DefaultParameterNameDiscoverer());
+  }
+
+  public ResolvableParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
+    Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer is required");
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
   public ResolvableMethodParameter[] createArray(Method method) {
     final int length = method.getParameterCount();
     if (length == 0) {
-      return null;
+      return EMPTY;
     }
     final ResolvableMethodParameter[] ret = new ResolvableMethodParameter[length];
     for (int i = 0; i < length; i++) {
@@ -55,42 +66,35 @@ public class ResolvableParameterFactory {
     return ret;
   }
 
-  @Nullable
   public ResolvableMethodParameter[] createArray(HandlerMethod handlerMethod) {
     MethodParameter[] parameters = handlerMethod.getMethodParameters();
     if (ObjectUtils.isEmpty(parameters)) {
-      return null;
+      return EMPTY;
     }
     int i = 0;
     ResolvableMethodParameter[] ret = new ResolvableMethodParameter[parameters.length];
     for (MethodParameter parameter : parameters) {
       parameter.initParameterNameDiscovery(parameterNameDiscoverer);
-      ret[i] = createParameter(parameter);
-      i++;
+      ret[i++] = createParameter(parameter);
     }
     return ret;
   }
 
-  public void fillArray(InvocableHandlerMethod handlerMethod) {
-    MethodParameter[] methodParameters = handlerMethod.getMethodParameters();
-    ResolvableMethodParameter[] resolvableParameters = handlerMethod.resolvableParameters;
-    for (int i = 0; i < resolvableParameters.length; i++) {
-      MethodParameter methodParameter = methodParameters[i];
-      methodParameter.initParameterNameDiscovery(parameterNameDiscoverer);
-      resolvableParameters[i] = createParameter(methodParameter);
+  public ResolvableMethodParameter[] getParameters(HandlerMethod handlerMethod) {
+    Method method = handlerMethod.getMethod();
+    if (method.getParameterCount() == 0) {
+      return EMPTY;
     }
+    ResolvableMethodParameter[] parameters = cache.get(method);
+    if (parameters == null) {
+      parameters = createArray(handlerMethod);
+      cache.put(method, parameters);
+    }
+    return parameters;
   }
 
   public ResolvableMethodParameter createParameter(MethodParameter parameter) {
     return new ResolvableMethodParameter(parameter);
   }
 
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer must not be null");
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  public ParameterNameDiscoverer getParameterNameDiscoverer() {
-    return parameterNameDiscoverer;
-  }
 }

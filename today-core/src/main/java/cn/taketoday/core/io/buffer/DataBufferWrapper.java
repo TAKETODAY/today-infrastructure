@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -89,15 +89,8 @@ public class DataBufferWrapper implements DataBuffer {
   }
 
   @Override
-  @Deprecated
   public DataBuffer capacity(int capacity) {
     return this.delegate.capacity(capacity);
-  }
-
-  @Override
-  @Deprecated
-  public DataBuffer ensureCapacity(int capacity) {
-    return this.delegate.ensureCapacity(capacity);
   }
 
   @Override
@@ -177,13 +170,11 @@ public class DataBufferWrapper implements DataBuffer {
   }
 
   @Override
-  @Deprecated
   public DataBuffer slice(int index, int length) {
     return this.delegate.slice(index, length);
   }
 
   @Override
-  @Deprecated
   public DataBuffer retainedSlice(int index, int length) {
     return this.delegate.retainedSlice(index, length);
   }
@@ -194,13 +185,11 @@ public class DataBufferWrapper implements DataBuffer {
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer() {
     return this.delegate.asByteBuffer();
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer(int index, int length) {
     return this.delegate.asByteBuffer(index, length);
   }
@@ -213,6 +202,26 @@ public class DataBufferWrapper implements DataBuffer {
   @Override
   public ByteBuffer toByteBuffer(int index, int length) {
     return this.delegate.toByteBuffer(index, length);
+  }
+
+  @Override
+  public void toByteBuffer(ByteBuffer dest) {
+    this.delegate.toByteBuffer(dest);
+  }
+
+  @Override
+  public void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
+    this.delegate.toByteBuffer(srcPos, dest, destPos, length);
+  }
+
+  @Override
+  public ByteBufferIterator readableByteBuffers() {
+    return this.delegate.readableByteBuffers();
+  }
+
+  @Override
+  public ByteBufferIterator writableByteBuffers() {
+    return this.delegate.writableByteBuffers();
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ public enum ApplicationType {
    * The application should not run as a web application and should not start an
    * embedded web server.
    */
-  NONE_WEB,
+  NORMAL,
 
   /**
    * The application should run as a servlet-based web application and should start an
@@ -47,20 +47,34 @@ public enum ApplicationType {
    * The application should run as a reactive web application and should start an
    * embedded reactive web server.
    */
-  REACTIVE_WEB;
+  REACTIVE_WEB,
 
+  /**
+   * The application should run as a netty web application and should start an
+   * embedded netty web server.
+   */
+  NETTY_WEB;
+
+  public static final String WEB_INDICATOR_CLASS = "cn.taketoday.web.RequestContext";
   public static final String SERVLET_INDICATOR_CLASS = ServletDetector.SERVLET_CLASS;
+  public static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
-  static ApplicationType deduceFromClasspath() {
-    if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, null)
-            && !ServletDetector.isPresent) {
-      return ApplicationType.REACTIVE_WEB;
+  public static ApplicationType forClasspath() {
+    ClassLoader classLoader = ApplicationType.class.getClassLoader();
+    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)) {
+      if (ServletDetector.isPresent) {
+        return ApplicationType.SERVLET_WEB;
+      }
+
+      if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
+        if (ClassUtils.isPresent(REACTOR_INDICATOR_CLASS, classLoader)) {
+          return ApplicationType.REACTIVE_WEB;
+        }
+        return ApplicationType.NETTY_WEB;
+      }
     }
-    if (!ServletDetector.isPresent) {
-      return ApplicationType.NONE_WEB;
-    }
-    return ApplicationType.SERVLET_WEB;
+    return ApplicationType.NORMAL;
   }
 
 }

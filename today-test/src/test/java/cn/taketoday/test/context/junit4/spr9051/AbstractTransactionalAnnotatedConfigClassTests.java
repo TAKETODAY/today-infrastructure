@@ -34,7 +34,6 @@ import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.ClassMode;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunner;
-import cn.taketoday.test.context.testng.AnnotationConfigTransactionalTestNGContextTests;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.transaction.TransactionAssert;
@@ -49,7 +48,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * with regard to transactional tests.
  *
  * @author Sam Brannen
- * @see AnnotationConfigTransactionalTestNGContextTests
  * @since 4.0
  */
 @RunWith(JUnit4ClassRunner.class)

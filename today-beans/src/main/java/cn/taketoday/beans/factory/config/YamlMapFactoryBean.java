@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,7 +68,7 @@ import cn.taketoday.lang.Nullable;
  * Note that the value of "foo" in the first document is not simply replaced
  * with the value in the second, but its nested values are merged.
  *
- * <p>Requires SnakeYAML 1.18 or higher
+ * <p>Requires SnakeYAML 2.0 or higher
  *
  * @author Dave Syer
  * @author Juergen Hoeller

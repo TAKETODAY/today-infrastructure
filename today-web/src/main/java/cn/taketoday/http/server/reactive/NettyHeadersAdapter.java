@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import io.netty.handler.codec.http.HttpHeaders;
 
 /**
@@ -63,8 +63,10 @@ class NettyHeadersAdapter implements MultiValueMap<String, String> {
   }
 
   @Override
-  public void addAll(String key, List<? extends String> values) {
-    this.headers.add(key, values);
+  public void addAll(String key, @Nullable Collection<? extends String> values) {
+    if (values != null) {
+      this.headers.add(key, values);
+    }
   }
 
   @Override

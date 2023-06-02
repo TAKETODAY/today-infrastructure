@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,7 +56,7 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Exception {
     if (returnValue instanceof ModelAndView modelAndView) {
-      handleModelAndView(context, handler, modelAndView);
+      handle(context, modelAndView);
     }
   }
 
@@ -65,14 +65,20 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
    *
    * @since 2.3.3
    */
-  public final void handleModelAndView(
-          RequestContext context, @Nullable Object handler, @Nullable ModelAndView modelAndView) throws Exception {
-    if (modelAndView != null) {
-      View view = modelAndView.getView();
-      String viewName = modelAndView.getViewName();
+  public final void handle(RequestContext context, @Nullable ModelAndView mv) throws Exception {
+    if (mv != null) {
+      View view = mv.getView();
+      String viewName = mv.getViewName();
 
-      BindingContext bindingContext = context.getBindingContext();
-      bindingContext.addAllAttributes(modelAndView.getModel());
+      BindingContext bindingContext = context.getBinding();
+      if (bindingContext != null) {
+        bindingContext.addAllAttributes(mv.getModel());
+      }
+
+      if (mv.getStatus() != null) {
+        context.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
+        context.setStatus(mv.getStatus().value());
+      }
 
       if (viewName != null) {
         delegate.renderView(context, viewName);

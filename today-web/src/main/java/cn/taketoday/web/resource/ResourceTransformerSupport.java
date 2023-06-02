@@ -104,7 +104,7 @@ public abstract class ResourceTransformerSupport implements ResourceTransformer 
     if (!path.startsWith("/")) {
       ResourceUrlProvider urlProvider = getResourceUrlProvider();
       Assert.state(urlProvider != null, "No ResourceUrlProvider");
-      String requestPath = request.getRequestPath();
+      String requestPath = request.getRequestURI();
       absolutePath = ResourceUtils.getRelativePath(requestPath, path);
     }
     return StringUtils.cleanPath(absolutePath);

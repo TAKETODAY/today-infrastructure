@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,8 +29,7 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.loader.BootstrapContext;
-import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -225,7 +224,7 @@ public class ConfigurationClassWithConditionTests {
   static class NoBeanOneCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return !context.getBeanFactory().containsBeanDefinition("bean1");
     }
   }
@@ -238,7 +237,7 @@ public class ConfigurationClassWithConditionTests {
     }
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return context.getBeanFactory().containsBeanDefinition("bean1");
     }
   }
@@ -246,7 +245,7 @@ public class ConfigurationClassWithConditionTests {
   static class MetaConditionalFilter implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       AnnotationAttributes attributes = AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(MetaConditional.class.getName()));
       assertThat(attributes.getString("value")).isEqualTo("test");
       return true;
@@ -256,7 +255,7 @@ public class ConfigurationClassWithConditionTests {
   static class NeverCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
   }
@@ -264,7 +263,7 @@ public class ConfigurationClassWithConditionTests {
   static class AlwaysCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return true;
     }
   }

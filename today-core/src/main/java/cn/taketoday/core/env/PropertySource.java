@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -196,7 +196,7 @@ public abstract class PropertySource<T> {
    * intended default position/order of the property source, then be replaced
    * during context refresh.
    *
-   * @see cn.taketoday.context.support.AbstractApplicationContext#initPropertySources(ConfigurableEnvironment)
+   * @see cn.taketoday.context.support.AbstractApplicationContext#initPropertySources()
    */
   public static class StubPropertySource extends PropertySource<Object> {
 

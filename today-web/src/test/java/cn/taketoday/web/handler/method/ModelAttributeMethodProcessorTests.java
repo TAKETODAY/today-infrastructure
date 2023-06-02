@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,12 +20,9 @@
 
 package cn.taketoday.web.handler.method;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -34,11 +31,11 @@ import java.util.List;
 
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
-import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
@@ -53,9 +50,6 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -87,7 +81,7 @@ class ModelAttributeMethodProcessorTests {
   public void setup() throws Throwable {
     this.request = new ServletRequestContext(null, new MockHttpServletRequest(), null);
     this.container = new BindingContext();
-    request.setBindingContext(container);
+    request.setBinding(container);
     this.processor = new ModelAttributeMethodProcessor(false);
 
     Method method = ModelAttributeHandler.class.getDeclaredMethod("modelAttribute",
@@ -163,7 +157,7 @@ class ModelAttributeMethodProcessorTests {
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
     RequestContextDataBinder dataBinder = new RequestContextDataBinder(null);
     BindingContext factory = mock(BindingContext.class);
-    request.setBindingContext(factory);
+    request.setBinding(factory);
     given(factory.createBinder(ArgumentMatchers.any(), ArgumentMatchers.notNull(), ArgumentMatchers.eq("attrName"))).willReturn(dataBinder);
 
     this.processor.resolveArgument(request, paramNamedValidModelAttr);
@@ -178,7 +172,7 @@ class ModelAttributeMethodProcessorTests {
 
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
     BindingContext factory = mock(BindingContext.class);
-    request.setBindingContext(factory);
+    request.setBinding(factory);
 
     given(factory.createBinder(this.request, target, name)).willReturn(dataBinder);
 
@@ -195,14 +189,14 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
 
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelFactoryTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
 
     factory.addAttribute(name, target);
 
     // Declare binding disabled (e.g. via @ModelAttribute method)
     factory.setBindingDisabled(name);
 
-    request.setBindingContext(factory);
+    request.setBinding(factory);
 
     this.processor.resolveArgument(request, paramNamedValidModelAttr);
 
@@ -215,10 +209,10 @@ class ModelAttributeMethodProcessorTests {
     String name = "noBindAttr";
     Object target = new TestBean();
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelFactoryTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
     factory.addAttribute(name, target);
 
-    request.setBindingContext(factory);
+    request.setBinding(factory);
     this.processor.resolveArgument(request, this.paramBindingDisabledAttr);
 
     assertThat(dataBinder.isBindInvoked()).isFalse();
@@ -234,11 +228,11 @@ class ModelAttributeMethodProcessorTests {
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
     dataBinder.getBindingResult().reject("error");
     BindingContext binderFactory = mock(BindingContext.class);
-    request.setBindingContext(binderFactory);
+    request.setBinding(binderFactory);
 
     given(binderFactory.createBinder(this.request, target, name)).willReturn(dataBinder);
 
-    assertThatExceptionOfType(BindException.class)
+    assertThatExceptionOfType(MethodArgumentNotValidException.class)
             .isThrownBy(() -> processor.resolveArgument(request, this.paramNonSimpleType));
     verify(binderFactory).createBinder(this.request, target, name);
   }
@@ -249,7 +243,7 @@ class ModelAttributeMethodProcessorTests {
     Object testBean = new TestBean(name);
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(testBean, name);
 
-    BindingContext factory = new ModelFactoryTests.BindingContext0(dataBinder);
+    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
 
     factory.addAttribute(name, testBean);
     factory.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, testBean);
@@ -257,7 +251,7 @@ class ModelAttributeMethodProcessorTests {
     Object anotherTestBean = new TestBean();
     factory.addAttribute("anotherTestBean", anotherTestBean);
 
-    request.setBindingContext(factory);
+    request.setBinding(factory);
 
     this.processor.resolveArgument(request, this.paramModelAttr);
 
@@ -294,7 +288,7 @@ class ModelAttributeMethodProcessorTests {
               return binder;
             });
 
-    requestWithParam.setBindingContext(factory);
+    requestWithParam.setBinding(factory);
     Object resolved = this.processor.resolveArgument(requestWithParam, this.beanWithConstructorArgs);
     assertThat(resolved).isInstanceOf(TestBeanWithConstructorArgs.class);
     assertThat(((TestBeanWithConstructorArgs) resolved).listOfStrings).containsExactly("1", "2");
@@ -307,7 +301,7 @@ class ModelAttributeMethodProcessorTests {
     RequestContextDataBinder dataBinder = new RequestContextDataBinder(target);
     BindingContext factory = mock(BindingContext.class);
     given(factory.createBinder(this.request, target, expectedAttrName)).willReturn(dataBinder);
-    request.setBindingContext(factory);
+    request.setBinding(factory);
     this.processor.resolveArgument(request, param);
     verify(factory).createBinder(this.request, target, expectedAttrName);
   }

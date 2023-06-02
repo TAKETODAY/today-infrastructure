@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,13 +22,12 @@ package cn.taketoday.http;
 
 import java.net.URI;
 
-import cn.taketoday.lang.Nullable;
-
 /**
  * Represents an HTTP request message, consisting of
  * {@linkplain #getMethod() method} and {@linkplain #getURI() uri}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface HttpRequest extends HttpMessage {
@@ -36,12 +35,9 @@ public interface HttpRequest extends HttpMessage {
   /**
    * Return the HTTP method of the request.
    *
-   * @return the HTTP method as an HttpMethod enum value, or {@code null}
-   * if not resolvable (e.g. in case of a non-standard HTTP method)
-   * @see #getMethodValue()
+   * @return the HTTP method as an HttpMethod value
    * @see HttpMethod#from(String)
    */
-  @Nullable
   default HttpMethod getMethod() {
     return HttpMethod.from(getMethodValue());
   }

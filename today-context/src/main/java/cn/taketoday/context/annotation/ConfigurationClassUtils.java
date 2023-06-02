@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,10 +37,10 @@ import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.stereotype.Component;
 
 /**
  * Utilities for identifying {@link Configuration} classes.
@@ -48,12 +48,24 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class ConfigurationClassUtils {
 
   public static final String CONFIGURATION_CLASS_FULL = "full";
   public static final String CONFIGURATION_CLASS_LITE = "lite";
+
+  /**
+   * When set to {@link Boolean#TRUE}, this attribute signals that the bean class
+   * for the given {@link BeanDefinition} should be considered as a candidate
+   * configuration class in 'lite' mode by default.
+   * <p>For example, a class registered directly with an {@code ApplicationContext}
+   * should always be considered a configuration class candidate.
+   */
+  static final String CANDIDATE_ATTRIBUTE =
+          Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "candidate");
+
   public static final String CONFIGURATION_CLASS_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "configurationClass");
 
@@ -63,7 +75,8 @@ abstract class ConfigurationClassUtils {
   private static final Logger log = LoggerFactory.getLogger(ConfigurationClassUtils.class);
 
   private static final Set<String> candidateIndicators = Set.of(
-          Import.class.getName(), Component.class.getName(), ComponentScan.class.getName(), ImportResource.class.getName()
+          Import.class.getName(), Component.class.getName(),
+          ComponentScan.class.getName(), ImportResource.class.getName()
   );
 
   /**
@@ -118,9 +131,10 @@ abstract class ConfigurationClassUtils {
     MergedAnnotation<Configuration> config = metadata.getAnnotation(Configuration.class);
     if (config.isPresent() && !Boolean.FALSE.equals(config.getBoolean("proxyBeanMethods"))) {
       beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
-
     }
-    else if (isConfigurationCandidate(metadata)) {
+    else if (config.isPresent()
+            || Boolean.TRUE.equals(beanDef.getAttribute(CANDIDATE_ATTRIBUTE))
+            || isConfigurationCandidate(metadata)) {
       beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
     }
     else {

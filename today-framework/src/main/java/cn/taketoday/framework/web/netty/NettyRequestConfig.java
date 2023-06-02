@@ -21,14 +21,13 @@
 package cn.taketoday.framework.web.netty;
 
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.function.SingletonSupplier;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.EmptyHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -55,7 +54,8 @@ public class NettyRequestConfig {
 
   private HttpVersion httpVersion = HttpVersion.HTTP_1_1;
 
-  private Supplier<HttpHeaders> trailingHeaders;
+  @Nullable
+  private Consumer<? super HttpHeaders> trailerHeadersConsumer;
 
   private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
   private ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
@@ -68,7 +68,7 @@ public class NettyRequestConfig {
   private int bodyInitialSize = 64;
 
   @Nullable
-  private Supplier<ByteBuf> responseBody;
+  private Supplier<ByteBuf> responseBodyFactory;
 
   /**
    * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
@@ -81,15 +81,10 @@ public class NettyRequestConfig {
   private HttpDataFactory httpDataFactory;
 
   public NettyRequestConfig() {
-    this(SingletonSupplier.valueOf(EmptyHttpHeaders.INSTANCE));
+    this(new DefaultHttpDataFactory(true));
   }
 
-  public NettyRequestConfig(Supplier<HttpHeaders> trailingHeaders) {
-    this(new DefaultHttpDataFactory(true), trailingHeaders);
-  }
-
-  public NettyRequestConfig(HttpDataFactory httpDataFactory, Supplier<HttpHeaders> trailingHeaders) {
-    setTrailingHeaders(trailingHeaders);
+  public NettyRequestConfig(HttpDataFactory httpDataFactory) {
     setHttpDataFactory(httpDataFactory);
   }
 
@@ -112,16 +107,17 @@ public class NettyRequestConfig {
     return validateHeaders;
   }
 
-  public void setTrailingHeaders(Supplier<HttpHeaders> trailingHeaders) {
-    Assert.notNull(trailingHeaders, "trailingHeaders Supplier cannot be null");
-    this.trailingHeaders = trailingHeaders;
+  public void setTrailerHeadersConsumer(@Nullable Consumer<? super HttpHeaders> consumer) {
+    this.trailerHeadersConsumer = consumer;
   }
 
-  public Supplier<HttpHeaders> getTrailingHeaders() {
-    return trailingHeaders;
+  @Nullable
+  public Consumer<? super HttpHeaders> getTrailerHeadersConsumer() {
+    return trailerHeadersConsumer;
   }
 
   public void setHttpVersion(HttpVersion httpVersion) {
+    Assert.notNull(httpVersion, "HttpVersion is required");
     this.httpVersion = httpVersion;
   }
 
@@ -145,13 +141,13 @@ public class NettyRequestConfig {
     return cookieEncoder;
   }
 
-  public void setResponseBody(@Nullable Supplier<ByteBuf> responseBody) {
-    this.responseBody = responseBody;
+  public void setResponseBodyFactory(@Nullable Supplier<ByteBuf> factory) {
+    this.responseBodyFactory = factory;
   }
 
   @Nullable
-  public Supplier<ByteBuf> getResponseBody() {
-    return responseBody;
+  public Supplier<ByteBuf> getResponseBodyFactory() {
+    return responseBodyFactory;
   }
 
   /**

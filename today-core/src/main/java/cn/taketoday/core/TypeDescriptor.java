@@ -246,7 +246,7 @@ public class TypeDescriptor implements Serializable {
    * @return this TypeDescriptor narrowed (returns a copy with its type updated to the
    * class of the provided value)
    */
-  public TypeDescriptor narrow(Object value) {
+  public TypeDescriptor narrow(@Nullable Object value) {
     if (value == null) {
       return this;
     }
@@ -263,7 +263,7 @@ public class TypeDescriptor implements Serializable {
    * @throws IllegalArgumentException if this type is not assignable to the super-type
    */
   @Nullable
-  public TypeDescriptor upcast(Class<?> superType) {
+  public TypeDescriptor upcast(@Nullable Class<?> superType) {
     if (superType == null) {
       return null;
     }
@@ -343,8 +343,9 @@ public class TypeDescriptor implements Serializable {
     }
   }
 
-  private boolean isNestedAssignable(TypeDescriptor nestedTypeDescriptor,
-          TypeDescriptor otherNestedTypeDescriptor) {
+  private boolean isNestedAssignable(
+          @Nullable TypeDescriptor nestedTypeDescriptor,
+          @Nullable TypeDescriptor otherNestedTypeDescriptor) {
 
     return (nestedTypeDescriptor == null || otherNestedTypeDescriptor == null ||
             nestedTypeDescriptor.isAssignableTo(otherNestedTypeDescriptor));
@@ -479,7 +480,7 @@ public class TypeDescriptor implements Serializable {
   }
 
   @Nullable
-  private TypeDescriptor narrow(Object value, TypeDescriptor typeDescriptor) {
+  private TypeDescriptor narrow(@Nullable Object value, @Nullable TypeDescriptor typeDescriptor) {
     if (typeDescriptor != null) {
       return typeDescriptor.narrow(value);
     }
@@ -582,7 +583,7 @@ public class TypeDescriptor implements Serializable {
    * @param type the class (may be {@code null} to indicate {@code Object.class})
    * @return the corresponding type descriptor
    */
-  public static TypeDescriptor valueOf(Class<?> type) {
+  public static TypeDescriptor valueOf(@Nullable Class<?> type) {
     if (type == null) {
       type = Object.class;
     }
@@ -607,7 +608,8 @@ public class TypeDescriptor implements Serializable {
    * used to convert collection elements
    * @return the collection type descriptor
    */
-  public static TypeDescriptor collection(Class<?> collectionType, TypeDescriptor elementDescriptor) {
+  public static TypeDescriptor collection(
+          Class<?> collectionType, @Nullable TypeDescriptor elementDescriptor) {
     Assert.notNull(collectionType, "Collection type must not be null");
     if (!Collection.class.isAssignableFrom(collectionType)) {
       throw new IllegalArgumentException("Collection type must be a [java.util.Collection]");
@@ -635,8 +637,8 @@ public class TypeDescriptor implements Serializable {
    * @param valueDescriptor the map's value type, used to convert map values
    * @return the map type descriptor
    */
-  public static TypeDescriptor map(
-          Class<?> mapType, TypeDescriptor keyDescriptor, TypeDescriptor valueDescriptor) {
+  public static TypeDescriptor map(Class<?> mapType,
+          @Nullable TypeDescriptor keyDescriptor, @Nullable TypeDescriptor valueDescriptor) {
     Assert.notNull(mapType, "Map type must not be null");
     if (!Map.class.isAssignableFrom(mapType)) {
       throw new IllegalArgumentException("Map type must be a [java.util.Map]");
@@ -656,7 +658,8 @@ public class TypeDescriptor implements Serializable {
    * @param elementDescriptor the {@link TypeDescriptor} of the array element or {@code null}
    * @return an array {@link TypeDescriptor} or {@code null} if {@code elementDescriptor} is {@code null}
    */
-  public static TypeDescriptor array(TypeDescriptor elementDescriptor) {
+  @Nullable
+  public static TypeDescriptor array(@Nullable TypeDescriptor elementDescriptor) {
     if (elementDescriptor == null) {
       return null;
     }
@@ -687,6 +690,7 @@ public class TypeDescriptor implements Serializable {
    * @throws IllegalArgumentException if the types up to the specified nesting
    * level are not of collection, array, or map types
    */
+  @Nullable
   public static TypeDescriptor nested(Field field, int nestingLevel) {
     return nested(new TypeDescriptor(field), nestingLevel);
   }
@@ -776,7 +780,7 @@ public class TypeDescriptor implements Serializable {
    */
   class TypeDescriptorAnnotatedElementAdapter extends AnnotationsAnnotatedElementAdapter {
 
-    public TypeDescriptorAnnotatedElementAdapter(Annotation[] annotations) {
+    public TypeDescriptorAnnotatedElementAdapter(@Nullable Annotation[] annotations) {
       super(annotations);
     }
 

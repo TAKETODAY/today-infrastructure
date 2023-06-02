@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,8 +38,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -52,6 +50,8 @@ import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyInserter;
 import cn.taketoday.web.reactive.function.BodyInserters;
@@ -371,12 +371,6 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    @Deprecated
-    public RequestHeadersSpec<?> syncBody(Object body) {
-      return bodyValue(body);
-    }
-
-    @Override
     public ResponseSpec retrieve() {
       return new DefaultResponseSpec(
               exchange(), this::createRequest, DefaultWebClient.this.defaultStatusHandlers);
@@ -385,7 +379,6 @@ class DefaultWebClient implements WebClient {
     private HttpRequest createRequest() {
       return new HttpRequest() {
         private final URI uri = initUri();
-        private final HttpHeaders headers = initHeaders();
 
         @Override
         public HttpMethod getMethod() {
@@ -393,7 +386,6 @@ class DefaultWebClient implements WebClient {
         }
 
         @Override
-        @Deprecated
         public String getMethodValue() {
           return httpMethod.name();
         }
@@ -405,7 +397,9 @@ class DefaultWebClient implements WebClient {
 
         @Override
         public HttpHeaders getHeaders() {
-          return this.headers;
+          HttpHeaders headers = HttpHeaders.create();
+          initHeaders(headers);
+          return headers;
         }
       };
     }
@@ -442,13 +436,9 @@ class DefaultWebClient implements WebClient {
     @Override
     public Mono<ClientResponse> exchange() {
       ClientRequest.Builder requestBuilder = initRequestBuilder();
-      if (inserter != null) {
-        requestBuilder = requestBuilder.body(inserter);
-      }
-
-      ClientRequest request = requestBuilder.build();
 
       return Mono.defer(() -> {
+        ClientRequest request = requestBuilder.build();
         Mono<ClientResponse> responseMono = exchangeFunction.exchange(request)
                 .checkpoint("Request to " + httpMethod.name() + " " + this.uri + " [DefaultWebClient]")
                 .switchIfEmpty(NO_HTTP_CLIENT_RESPONSE_ERROR);
@@ -464,11 +454,14 @@ class DefaultWebClient implements WebClient {
         defaultRequest.accept(this);
       }
       ClientRequest.Builder builder = ClientRequest.create(this.httpMethod, initUri())
-              .headers(headers -> headers.addAll(initHeaders()))
-              .cookies(cookies -> cookies.addAll(initCookies()))
+              .headers(this::initHeaders)
+              .cookies(this::initCookies)
               .attributes(attributes -> attributes.putAll(this.attributes));
-      if (this.httpRequestConsumer != null) {
-        builder.httpRequest(this.httpRequestConsumer);
+      if (httpRequestConsumer != null) {
+        builder.httpRequest(httpRequestConsumer);
+      }
+      if (inserter != null) {
+        builder.body(inserter);
       }
       return builder;
     }
@@ -477,35 +470,24 @@ class DefaultWebClient implements WebClient {
       return (this.uri != null ? this.uri : uriBuilderFactory.expand(""));
     }
 
-    private HttpHeaders initHeaders() {
-      if (CollectionUtils.isEmpty(this.headers)) {
-        return (defaultHeaders != null ? defaultHeaders : HttpHeaders.create());
+    private void initHeaders(HttpHeaders out) {
+      if (!CollectionUtils.isEmpty(defaultHeaders)) {
+        out.putAll(defaultHeaders);
       }
-      else if (CollectionUtils.isEmpty(defaultHeaders)) {
-        return this.headers;
-      }
-      else {
-        HttpHeaders result = HttpHeaders.create();
-        result.putAll(defaultHeaders);
-        result.putAll(this.headers);
-        return result;
+      if (!CollectionUtils.isEmpty(this.headers)) {
+        out.putAll(this.headers);
       }
     }
 
-    private MultiValueMap<String, String> initCookies() {
-      if (CollectionUtils.isEmpty(this.cookies)) {
-        return (defaultCookies != null ? defaultCookies : new LinkedMultiValueMap<>());
+    private void initCookies(MultiValueMap<String, String> out) {
+      if (!CollectionUtils.isEmpty(defaultCookies)) {
+        out.putAll(defaultCookies);
       }
-      else if (CollectionUtils.isEmpty(defaultCookies)) {
-        return this.cookies;
-      }
-      else {
-        MultiValueMap<String, String> result = new LinkedMultiValueMap<>();
-        result.putAll(defaultCookies);
-        result.putAll(this.cookies);
-        return result;
+      if (!CollectionUtils.isEmpty(this.cookies)) {
+        out.putAll(this.cookies);
       }
     }
+
   }
 
   private static class DefaultResponseSpec implements ResponseSpec {

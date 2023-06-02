@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
@@ -43,7 +43,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Service;
 import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
-import cn.taketoday.transaction.TransactionManagementConfigUtils;
+import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 
@@ -338,7 +338,7 @@ public class EnableTransactionManagementTests {
   private static class NeverCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
 

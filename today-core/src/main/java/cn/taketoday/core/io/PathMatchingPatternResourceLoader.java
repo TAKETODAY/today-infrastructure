@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,36 +20,44 @@
 package cn.taketoday.core.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReader;
 import java.lang.module.ResolvedModule;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.net.URLConnection;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipException;
 
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -499,17 +507,23 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     scan(rootDirPath, rootDirResource -> rootDirResource(subPattern, rootDirResource, consumer));
   }
 
-  protected void rootDirResource(
-          String subPattern, Resource rootResource, ResourceConsumer consumer) throws IOException {
-    if (rootResource instanceof JarResource) {
-      doFindPathMatchingJarResources((JarResource) rootResource, subPattern, consumer);
+  protected void rootDirResource(String subPattern,
+          Resource rootDirResource, ResourceConsumer consumer) throws IOException {
+    if (rootDirResource instanceof JarResource) {
+      doFindPathMatchingJarResources((JarResource) rootDirResource, subPattern, consumer);
     }
-    else if (rootResource instanceof ClassPathResource) {
-      Resource originalResource = ((ClassPathResource) rootResource).getOriginalResource();
+    else if (rootDirResource instanceof ClassPathResource) {
+      Resource originalResource = ((ClassPathResource) rootDirResource).getOriginalResource();
       rootDirResource(subPattern, originalResource, consumer);
     }
     else {
-      doFindPathMatchingFileResources(rootResource, subPattern, consumer);
+      URL rootDirURL = rootDirResource.getURL();
+      if (ResourceUtils.isJarURL(rootDirURL) || isJarResource(rootDirResource)) {
+        doFindPathMatchingJarResources(rootDirResource, rootDirURL, subPattern, consumer);
+      }
+      else {
+        doFindPathMatchingFileResources(rootDirResource, subPattern, consumer);
+      }
     }
   }
 
@@ -524,11 +538,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    *
    * @param location the location to check
    * @return the part of the location that denotes the root directory
-   * @see #retrieveMatchingFiles
    */
   protected String determineRootDir(String location) {
     int prefixEnd = location.indexOf(':') + 1;
     int rootDirEnd = location.length();
+    PathMatcher pathMatcher = getPathMatcher();
     while (rootDirEnd > prefixEnd && pathMatcher.isPattern(location.substring(prefixEnd, rootDirEnd))) {
       rootDirEnd = location.lastIndexOf('/', rootDirEnd - 2) + 1;
     }
@@ -536,6 +550,23 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       rootDirEnd = prefixEnd;
     }
     return location.substring(0, rootDirEnd);
+  }
+
+  /**
+   * Return whether the given resource handle indicates a jar resource
+   * that the {@link #doFindPathMatchingJarResources} method can handle.
+   * <p>By default, the URL protocols "jar", "zip", "vfszip, and "wsjar"
+   * will be treated as jar resources. This template method allows for
+   * detecting further kinds of jar-like resources, e.g. through
+   * {@code instanceof} checks on the resource handle type.
+   *
+   * @param resource the resource handle to check
+   * (usually the root directory to start path matching from)
+   * @see #doFindPathMatchingJarResources
+   * @see ResourceUtils#isJarURL
+   */
+  protected boolean isJarResource(Resource resource) throws IOException {
+    return false;
   }
 
   /**
@@ -573,6 +604,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         rootEntryPath = rootEntryPath.concat("/");
       }
 
+      PathMatcher pathMatcher = getPathMatcher();
       Enumeration<JarEntry> entries = jarFile.entries();
       while (entries.hasMoreElements()) {
         String entryPath = entries.nextElement().getName();
@@ -593,141 +625,197 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   }
 
   /**
-   * Find all resources in the file system that match the given location pattern
+   * Find all resources in jar files that match the given location pattern
    * via the Ant-style PathMatcher.
    *
    * @param rootDirResource the root directory as Resource
+   * @param rootDirURL the pre-resolved root directory URL
+   * @param subPattern the sub pattern to match (below the root directory)
+   * @throws IOException in case of I/O errors
+   * @see java.net.JarURLConnection
+   * @since 4.0
+   */
+  protected void doFindPathMatchingJarResources(Resource rootDirResource,
+          URL rootDirURL, String subPattern, ResourceConsumer consumer) throws IOException {
+
+    URLConnection con = rootDirURL.openConnection();
+    JarFile jarFile;
+    String jarFileUrl;
+    String rootEntryPath;
+    boolean closeJarFile;
+
+    if (con instanceof JarURLConnection jarCon) {
+      // Should usually be the case for traditional JAR files.
+      ResourceUtils.useCachesIfNecessary(jarCon);
+      jarFile = jarCon.getJarFile();
+      jarFileUrl = jarCon.getJarFileURL().toExternalForm();
+      JarEntry jarEntry = jarCon.getJarEntry();
+      rootEntryPath = (jarEntry != null ? jarEntry.getName() : "");
+      closeJarFile = !jarCon.getUseCaches();
+    }
+    else {
+      // No JarURLConnection -> need to resort to URL file parsing.
+      // We'll assume URLs of the format "jar:path!/entry", with the protocol
+      // being arbitrary as long as following the entry format.
+      // We'll also handle paths with and without leading "file:" prefix.
+      String urlFile = rootDirURL.getFile();
+      try {
+        int separatorIndex = urlFile.indexOf(ResourceUtils.WAR_URL_SEPARATOR);
+        if (separatorIndex == -1) {
+          separatorIndex = urlFile.indexOf(ResourceUtils.JAR_URL_SEPARATOR);
+        }
+        if (separatorIndex != -1) {
+          jarFileUrl = urlFile.substring(0, separatorIndex);
+          rootEntryPath = urlFile.substring(separatorIndex + 2);  // both separators are 2 chars
+          jarFile = getJarFile(jarFileUrl);
+        }
+        else {
+          jarFile = new JarFile(urlFile);
+          jarFileUrl = urlFile;
+          rootEntryPath = "";
+        }
+        closeJarFile = true;
+      }
+      catch (ZipException ex) {
+        if (log.isDebugEnabled()) {
+          log.debug("Skipping invalid jar classpath entry [{}]", urlFile);
+        }
+        return;
+      }
+    }
+
+    try {
+      if (log.isTraceEnabled()) {
+        log.trace("Looking for matching resources in jar file [{}]", jarFileUrl);
+      }
+      if (StringUtils.isNotEmpty(rootEntryPath) && !rootEntryPath.endsWith("/")) {
+        // Root entry path must end with slash to allow for proper matching.
+        // The Sun JRE does not return a slash here, but BEA JRockit does.
+        rootEntryPath = rootEntryPath + "/";
+      }
+
+      PathMatcher pathMatcher = getPathMatcher();
+      Enumeration<JarEntry> entries = jarFile.entries();
+      while (entries.hasMoreElements()) {
+        JarEntry entry = entries.nextElement();
+        String entryPath = entry.getName();
+        if (entryPath.startsWith(rootEntryPath)) {
+          String relativePath = entryPath.substring(rootEntryPath.length());
+          if (pathMatcher.match(subPattern, relativePath)) {
+            consumer.accept(rootDirResource.createRelative(relativePath)); ;
+          }
+        }
+      }
+
+    }
+    finally {
+      if (closeJarFile) {
+        jarFile.close();
+      }
+    }
+  }
+
+  /**
+   * Resolve the given jar file URL into a JarFile object.
+   */
+  protected JarFile getJarFile(String jarFileUrl) throws IOException {
+    if (jarFileUrl.startsWith(ResourceUtils.FILE_URL_PREFIX)) {
+      try {
+        return new JarFile(ResourceUtils.toURI(jarFileUrl).getSchemeSpecificPart());
+      }
+      catch (URISyntaxException ex) {
+        // Fallback for URLs that are not valid URIs (should hardly ever happen).
+        return new JarFile(jarFileUrl.substring(ResourceUtils.FILE_URL_PREFIX.length()));
+      }
+    }
+    else {
+      return new JarFile(jarFileUrl);
+    }
+  }
+
+  /**
+   * Find all resources in the file system of the supplied root directory that
+   * match the given location sub pattern via the Ant-style PathMatcher.
+   *
+   * @param rootDirResource the root directory as a Resource
    * @param subPattern the sub pattern to match (below the root directory)
    * @param consumer Resource how to use
-   * @see #retrieveMatchingFiles
+   * @throws IOException in case of I/O errors
    * @see PathMatcher
    */
   protected void doFindPathMatchingFileResources(
           Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
-    File rootDir;
+
+    URI rootDirUri;
     try {
-      rootDir = rootDirResource.getFile().getAbsoluteFile();
-    }
-    catch (FileNotFoundException ex) {
-      log.error("Cannot search for matching files underneath {} in the file system: {}",
-              rootDirResource, ex.toString(), ex);
-      return;
+      rootDirUri = rootDirResource.getURI();
     }
     catch (Exception ex) {
-      log.error("Failed to resolve {} in the file system: {}", rootDirResource, ex.toString(), ex);
+      log.info("Failed to resolve %s as URI: {}", rootDirResource, ex);
       return;
     }
-    doFindMatchingFileSystemResources(rootDir, subPattern, consumer);
-  }
 
-  /**
-   * Find all resources in the file system that match the given location pattern
-   * via the Ant-style PathMatcher.
-   *
-   * @param rootDir the root directory in the file system
-   * @param subPattern the sub pattern to match (below the root directory)
-   * @param consumer Resource how to use
-   * @see #retrieveMatchingFiles
-   * @see PathMatcher
-   */
-  protected void doFindMatchingFileSystemResources(
-          File rootDir, String subPattern, ResourceConsumer consumer) throws IOException {
-    if (log.isDebugEnabled()) {
-      log.trace("Looking for matching resources in directory tree [{}]", rootDir.getPath());
-    }
-    retrieveMatchingFiles(rootDir, subPattern, consumer);
-  }
+    FileSystem fileSystem = null;
+    try {
+      Path rootPath = null;
+      if (rootDirUri.isAbsolute() && !rootDirUri.isOpaque()) {
+        // Prefer Path resolution from URI if possible
+        try {
+          try {
+            rootPath = Path.of(rootDirUri);
+          }
+          catch (FileSystemNotFoundException ex) {
+            // If the file system was not found, assume it's a custom file system that needs to be installed.
+            fileSystem = FileSystems.newFileSystem(rootDirUri, Collections.emptyMap(), ClassUtils.getDefaultClassLoader());
+            rootPath = Path.of(rootDirUri);
+          }
+        }
+        catch (Exception ex) {
+          log.debug("Failed to resolve {} in file system: {}", rootDirUri, ex);
+          // Fallback via Resource.getFile() below
+        }
+      }
+      if (rootPath == null) {
+        // Resource.getFile() resolution as a fallback -
+        // for custom URI formats and custom Resource implementations
+        rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
+      }
 
-  /**
-   * Retrieve files that match the given path pattern, checking the given
-   * directory and its subdirectories.
-   *
-   * @param rootDir the directory to start from
-   * @param pattern the pattern to match against, relative to the root directory
-   * @param consumer Resource consumer
-   */
-  protected void retrieveMatchingFiles(
-          File rootDir, String pattern, ResourceConsumer consumer) throws IOException {
-    if (!rootDir.exists()) {
-      // Silently skip non-existing directories.
+      String rootDir = StringUtils.cleanPath(rootPath.toString());
+      if (!rootDir.endsWith("/")) {
+        rootDir += "/";
+      }
+
+      Path rootPathForPattern = rootPath;
+      String resourcePattern = rootDir + StringUtils.cleanPath(subPattern);
+      Predicate<Path> isMatchingFile = path -> (!path.equals(rootPathForPattern) &&
+              pathMatcher.match(resourcePattern, StringUtils.cleanPath(path.toString())));
+
       if (log.isDebugEnabled()) {
-        log.debug("Skipping [{}] because it does not exist", rootDir.getAbsolutePath());
+        log.trace("Searching directory [{}] for files matching pattern [{}]",
+                rootPath.toAbsolutePath(), subPattern);
       }
-      return;
-    }
-    if (!rootDir.isDirectory()) {
-      // Complain louder if it exists but is no directory.
-      if (log.isInfoEnabled()) {
-        log.info("Skipping [{}] because it does not denote a directory", rootDir.getAbsolutePath());
+
+      try (Stream<Path> files = Files.walk(rootPath)) {
+        files.filter(isMatchingFile).sorted().forEach(file -> {
+          try {
+            consumer.accept(new FileSystemResource(file));
+          }
+          catch (Exception e) {
+            throw ExceptionUtils.sneakyThrow(e);
+          }
+        });
       }
-      return;
-    }
-    if (!rootDir.canRead()) {
-      if (log.isInfoEnabled()) {
-        log.info("Skipping search for matching files underneath directory [{}] because the application is not allowed to read the directory",
-                rootDir.getAbsolutePath());
-      }
-      return;
-    }
-
-    String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
-
-    if (!StringUtils.matchesFirst(pattern, '/')) {
-      fullPattern += '/';
-    }
-    fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
-
-    doRetrieveMatchingFiles(fullPattern, rootDir, consumer);
-  }
-
-  /**
-   * Recursively retrieve files that match the given pattern, adding them to the
-   * given result list.
-   *
-   * @param fullPattern the pattern to match against, with prepended root directory path
-   * @param dir the current directory
-   * @param consumer matching File instances consumer
-   */
-  protected void doRetrieveMatchingFiles(
-          String fullPattern, File dir, ResourceConsumer consumer) throws IOException {
-    if (log.isDebugEnabled()) {
-      log.trace("Searching directory [{}] for files matching pattern [{}]", dir.getAbsolutePath(), fullPattern);
-    }
-
-    for (File content : listDirectory(dir)) {
-      String currPath = StringUtils.replace(content.getAbsolutePath(), File.separator, "/");
-      if (content.isDirectory() && pathMatcher.matchStart(fullPattern, currPath.concat("/"))) {
-        if (content.canRead()) {
-          doRetrieveMatchingFiles(fullPattern, content, consumer);
-        }
-        else if (log.isDebugEnabled()) {
-          log.debug("Skipping subdirectory [{}] because the application is not allowed to read the directory",
-                  dir.getAbsolutePath());
-        }
-      }
-      if (pathMatcher.match(fullPattern, currPath)) {
-        consumer.accept(new FileSystemResource(content));
+      catch (Exception ex) {
+        log.debug("Failed to complete search in directory [{}] for files matching pattern [{}]: {}", rootPath.toAbsolutePath(), subPattern, ex);
+        throw ex;
       }
     }
-  }
-
-  /**
-   * Determine a sorted list of files in the given directory.
-   *
-   * @param dir the directory to introspect
-   * @return the sorted list of files (by default in alphabetical order)
-   * @see File#listFiles()
-   */
-  protected File[] listDirectory(File dir) {
-    File[] files = dir.listFiles();
-    if (files == null) {
-      if (log.isInfoEnabled()) {
-        log.info("Could not retrieve contents of directory [{}]", dir.getAbsolutePath());
+    finally {
+      if (fileSystem != null) {
+        fileSystem.close();
       }
-      return Constant.EMPTY_FILES;
     }
-    Arrays.sort(files, Comparator.comparing(File::getName));
-    return files;
   }
 
   /**
@@ -750,41 +838,39 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @since 4.0
    */
   protected void findAllModulePathResources(String locationPattern, ResourceConsumer consumer) throws IOException {
-    LinkedHashSet<Resource> result = new LinkedHashSet<>(16);
-    String resourcePattern = stripLeadingSlash(locationPattern);
-    Predicate<String> resourcePatternMatches = getPathMatcher().isPattern(resourcePattern)
-                                               ? path -> getPathMatcher().match(resourcePattern, path)
-                                               : resourcePattern::equals;
-
-    try {
-      ModuleLayer.boot().configuration().modules().stream()
-              .filter(isNotSystemModule)
-              .forEach(resolvedModule -> {
-                // NOTE: a ModuleReader and a Stream returned from ModuleReader.list() must be closed.
-                try (ModuleReader moduleReader = resolvedModule.reference().open();
-                        Stream<String> names = moduleReader.list()) {
-                  names.filter(resourcePatternMatches)
-                          .map(name -> findResource(moduleReader, name))
-                          .filter(Objects::nonNull)
-                          .forEach(resource -> {
-                            try {
-                              result.add(resource);
-                              consumer.accept(resource);
-                            }
-                            catch (IOException e) {
-                              throw new UncheckedIOException(e);
-                            }
-                          });
-                }
-                catch (IOException ex) {
-                  log.debug("Failed to read contents of module [{}]", resolvedModule, ex);
-                  throw new UncheckedIOException(ex);
-                }
-              });
+    LinkedHashSet<Resource> result = null;
+    if (log.isDebugEnabled()) {
+      result = new LinkedHashSet<>(16);
+      consumer = consumer.andThen(result::add);
     }
-    catch (UncheckedIOException ex) {
-      // Unwrap IOException to conform to this method's contract.
-      throw ex.getCause();
+
+    String resourcePattern = stripLeadingSlash(locationPattern);
+    PathMatcher pathMatcher = getPathMatcher();
+    boolean pattern = pathMatcher.isPattern(resourcePattern);
+    var moduleIterator = ModuleLayer.boot().configuration()
+            .modules().stream().filter(isNotSystemModule).iterator();
+    while (moduleIterator.hasNext()) {
+      ResolvedModule resolvedModule = moduleIterator.next();
+      // NOTE: a ModuleReader and a Stream returned from ModuleReader.list() must be closed.
+      try (ModuleReader moduleReader = resolvedModule.reference().open();
+              Stream<String> names = moduleReader.list()) {
+        Iterator<String> iterator = names.iterator();
+        while (iterator.hasNext()) {
+          String name = iterator.next();
+          if (pattern) {
+            if (pathMatcher.match(resourcePattern, name)) {
+              acceptResource(moduleReader, name, consumer);
+            }
+          }
+          else if (resourcePattern.equals(name)) {
+            acceptResource(moduleReader, name, consumer);
+          }
+        }
+      }
+      catch (IOException ex) {
+        log.debug("Failed to read contents of module [{}]", resolvedModule, ex);
+        throw ex;
+      }
     }
 
     if (log.isDebugEnabled()) {
@@ -792,25 +878,32 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     }
   }
 
-  @Nullable
-  private static Resource findResource(ModuleReader moduleReader, String name) {
+  private static void acceptResource(
+          ModuleReader moduleReader, String name, ResourceConsumer consumer) throws IOException {
+    Resource resource;
     try {
-      return moduleReader.find(name)
-              // If it's a "file:" URI, use FileSystemResource to avoid duplicates
-              // for the same path discovered via class-path scanning.
-              .map(uri -> ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
-                          ? new FileSystemResource(uri.getPath())
-                          : UrlResource.from(uri))
-              .orElse(null);
+      Optional<URI> uriOptional = moduleReader.find(name);
+      if (uriOptional.isPresent()) {
+        // If it's a "file:" URI, use FileSystemResource to avoid duplicates
+        // for the same path discovered via class-path scanning.
+        URI uri = uriOptional.get();
+        resource = ResourceUtils.URL_PROTOCOL_FILE.equals(uri.getScheme())
+                   ? new FileSystemResource(uri.getPath())
+                   : UrlResource.from(uri);
+      }
+      else {
+        return;
+      }
     }
     catch (Exception ex) {
       log.debug("Failed to find resource [{}] in module path", name, ex);
-      return null;
+      return;
     }
+    consumer.accept(resource);
   }
 
   private static String stripLeadingSlash(String path) {
-    return (path.startsWith("/") ? path.substring(1) : path);
+    return path.startsWith("/") ? path.substring(1) : path;
   }
 
 }

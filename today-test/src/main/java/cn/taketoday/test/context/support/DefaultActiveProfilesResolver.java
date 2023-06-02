@@ -36,6 +36,7 @@ import static cn.taketoday.test.context.TestContextAnnotationUtils.findAnnotatio
  * {@link ActiveProfiles#value}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ActiveProfiles
  * @see ActiveProfilesResolver
  * @since 4.0
@@ -44,7 +45,7 @@ public class DefaultActiveProfilesResolver implements ActiveProfilesResolver {
 
   private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
-  private static final Logger logger = LoggerFactory.getLogger(DefaultActiveProfilesResolver.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultActiveProfilesResolver.class);
 
   /**
    * Resolve the <em>bean definition profiles</em> for the given {@linkplain
@@ -53,7 +54,7 @@ public class DefaultActiveProfilesResolver implements ActiveProfilesResolver {
    *
    * @param testClass the test class for which the profiles should be resolved;
    * never {@code null}
-   * @return the list of bean definition profiles to use when loading the
+   * @return the array of bean definition profiles to use when loading the
    * {@code ApplicationContext}; never {@code null}
    */
   @Override
@@ -62,18 +63,17 @@ public class DefaultActiveProfilesResolver implements ActiveProfilesResolver {
     AnnotationDescriptor<ActiveProfiles> descriptor = findAnnotationDescriptor(testClass, ActiveProfiles.class);
 
     if (descriptor == null) {
-      if (logger.isDebugEnabled()) {
-        logger.debug(String.format(
-                "Could not find an 'annotation declaring class' for annotation type [%s] and class [%s]",
-                ActiveProfiles.class.getName(), testClass.getName()));
+      if (log.isDebugEnabled()) {
+        log.debug("Could not find an 'annotation declaring class' for annotation type [{}] and class [{}]",
+                ActiveProfiles.class.getName(), testClass.getName());
       }
       return EMPTY_STRING_ARRAY;
     }
     else {
       ActiveProfiles annotation = descriptor.getAnnotation();
-      if (logger.isTraceEnabled()) {
-        logger.trace(String.format("Retrieved @ActiveProfiles [%s] for declaring class [%s].", annotation,
-                descriptor.getDeclaringClass().getName()));
+      if (log.isTraceEnabled()) {
+        log.trace("Retrieved @ActiveProfiles [{}] for declaring class [{}].", annotation,
+                descriptor.getDeclaringClass().getName());
       }
       return annotation.profiles();
     }

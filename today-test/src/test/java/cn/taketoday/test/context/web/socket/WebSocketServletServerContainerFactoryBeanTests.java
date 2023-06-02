@@ -27,7 +27,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.web.socket.EnableWebSocket;
+import cn.taketoday.web.socket.server.standard.ServletServerContainerFactoryBean;
 import jakarta.websocket.server.ServerContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,6 @@ class WebSocketServletServerContainerFactoryBeanTests {
   }
 
   @Configuration
-  @EnableWebSocket
   static class WebSocketConfig {
 
 //    @Bean

@@ -23,7 +23,7 @@ import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.lang.Assert;
 
 /**
- * See Spring Integration TestUtils.
+ * See Infra Integration TestUtils.
  *
  * @author Mark Fisher
  * @author Iwein Fuld

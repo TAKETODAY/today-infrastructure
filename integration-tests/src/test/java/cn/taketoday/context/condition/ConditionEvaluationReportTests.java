@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,12 +29,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Iterator;
 import java.util.Map;
 
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
@@ -44,7 +45,6 @@ import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutc
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.config.WebMvcAutoConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -281,7 +281,7 @@ class ConditionEvaluationReportTests {
 
   }
 
-  static class TestMatchCondition extends ContextCondition implements ConfigurationCondition {
+  static class TestMatchCondition extends InfraCondition implements ConfigurationCondition {
 
     private final ConfigurationPhase phase;
 
@@ -298,7 +298,7 @@ class ConditionEvaluationReportTests {
     }
 
     @Override
-    public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return new ConditionOutcome(this.match, ClassUtils.getShortName(getClass()));
     }
 

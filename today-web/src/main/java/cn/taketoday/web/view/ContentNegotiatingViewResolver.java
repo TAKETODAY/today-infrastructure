@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpStatus;
@@ -85,7 +85,7 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
  * @since 4.0
  */
 public class ContentNegotiatingViewResolver
-        extends ApplicationContextSupport implements ViewResolver, Ordered, InitializingBean {
+        extends ApplicationObjectSupport implements ViewResolver, Ordered, InitializingBean {
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
@@ -299,7 +299,6 @@ public class ContentNegotiatingViewResolver
           String viewName, Locale locale, List<MediaType> requestedMediaTypes) throws Exception {
 
     ArrayList<View> candidateViews = new ArrayList<>();
-    List<ViewResolver> viewResolvers = this.viewResolvers;
     if (viewResolvers != null) {
       ContentNegotiationManager negotiationManager = getContentNegotiationManager();
       Assert.state(negotiationManager != null, "No ContentNegotiationManager set");

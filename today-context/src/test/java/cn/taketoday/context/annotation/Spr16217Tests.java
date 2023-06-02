@@ -35,18 +35,14 @@ public class Spr16217Tests {
   @Test
   @Disabled("TODO")
   public void baseConfigurationIsIncludedWhenFirstSuperclassReferenceIsSkippedInRegisterBeanPhase() {
-    try (StandardApplicationContext context =
-            new StandardApplicationContext(RegisterBeanPhaseImportingConfiguration.class)) {
-      context.getBean("someBean");
-    }
+    var context = new StandardApplicationContext(RegisterBeanPhaseImportingConfiguration.class);
+    context.getBean("someBean");
   }
 
   @Test
   public void baseConfigurationIsIncludedWhenFirstSuperclassReferenceIsSkippedInParseConfigurationPhase() {
-    try (StandardApplicationContext context =
-            new StandardApplicationContext(ParseConfigurationPhaseImportingConfiguration.class)) {
-      context.getBean("someBean");
-    }
+    var context = new StandardApplicationContext(ParseConfigurationPhaseImportingConfiguration.class);
+    context.getBean("someBean");
   }
 
   @Test
@@ -66,7 +62,7 @@ public class Spr16217Tests {
   public static class RegisterBeanPhaseCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
 
@@ -79,7 +75,7 @@ public class Spr16217Tests {
   public static class ParseConfigurationPhaseCondition implements ConfigurationCondition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       return false;
     }
 

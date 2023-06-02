@@ -37,7 +37,7 @@ import jakarta.validation.ValidatorFactory;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class CustomValidatorBean extends ValidatorAdapter implements Validator, InitializingBean {
+public class CustomValidatorBean extends InfraValidatorAdapter implements Validator, InitializingBean {
 
   @Nullable
   private ValidatorFactory validatorFactory;

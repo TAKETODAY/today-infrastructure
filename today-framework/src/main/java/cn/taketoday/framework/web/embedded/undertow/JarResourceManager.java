@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import io.undertow.UndertowMessages;
 import io.undertow.server.handlers.resource.Resource;
@@ -36,6 +37,7 @@ import io.undertow.server.handlers.resource.URLResource;
  * {@link ResourceManager} for JAR resources.
  *
  * @author Ivan Sopov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Andy Wilkinson
  */
 class JarResourceManager implements ResourceManager {
@@ -52,6 +54,7 @@ class JarResourceManager implements ResourceManager {
   }
 
   @Override
+  @Nullable
   public Resource getResource(String path) throws IOException {
     URL url = new URL("jar:" + this.jarPath + "!" + (path.startsWith("/") ? path : "/" + path));
     URLResource resource = new URLResource(url, path);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -78,7 +78,7 @@ public class MockFilterChain implements FilterChain {
    * Create a FilterChain with a Servlet.
    *
    * @param servlet the Servlet to invoke
-   * @since 3.2
+   * @since 4.0
    */
   public MockFilterChain(Servlet servlet) {
     this.filters = initFilterList(servlet);
@@ -89,7 +89,7 @@ public class MockFilterChain implements FilterChain {
    *
    * @param servlet the {@link Servlet} to invoke in this {@link FilterChain}
    * @param filters the {@link Filter}'s to invoke in this {@link FilterChain}
-   * @since 3.2
+   * @since 4.0
    */
   public MockFilterChain(Servlet servlet, Filter... filters) {
     Assert.notNull(filters, "filters cannot be null");

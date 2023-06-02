@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.SelectableReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 
 /**
  * HandlerMethod return Object
@@ -54,25 +53,25 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
  */
 public class ObjectHandlerMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
-  private final SelectableReturnValueHandler returnValueHandlers;
+  private final SelectableReturnValueHandler delegate;
 
   public ObjectHandlerMethodReturnValueHandler(List<ReturnValueHandler> returnValueHandlers) {
-    this.returnValueHandlers = new SelectableReturnValueHandler(returnValueHandlers);
+    this.delegate = new SelectableReturnValueHandler(returnValueHandlers);
   }
 
-  public ObjectHandlerMethodReturnValueHandler(SelectableReturnValueHandler returnValueHandlers) {
-    this.returnValueHandlers = returnValueHandlers;
+  public ObjectHandlerMethodReturnValueHandler(SelectableReturnValueHandler delegate) {
+    this.delegate = delegate;
   }
 
   @Override
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Exception {
-    returnValueHandlers.handleReturnValue(context, handler, returnValue);
+    delegate.handleReturnValue(context, handler, returnValue);
   }
 
   @Override
   public boolean supportsReturnValue(Object returnValue) {
-    return returnValueHandlers.supportsReturnValue(returnValue);
+    return delegate.supportsReturnValue(returnValue);
   }
 
   @Override

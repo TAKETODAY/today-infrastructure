@@ -25,7 +25,7 @@ import java.util.Set;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**

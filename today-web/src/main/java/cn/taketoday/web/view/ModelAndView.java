@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.view;
 
 import java.util.Map;
@@ -237,15 +238,6 @@ public class ModelAndView {
    */
   public boolean isReference() {
     return view instanceof String;
-  }
-
-  /**
-   * Return the model map. May return {@code null}.
-   * Called by DispatcherServlet for evaluation of the model.
-   */
-  @Nullable
-  protected Map<String, Object> getModelInternal() {
-    return this.model;
   }
 
   /**

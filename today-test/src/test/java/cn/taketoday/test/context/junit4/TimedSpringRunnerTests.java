@@ -33,10 +33,10 @@ import cn.taketoday.test.context.TestExecutionListeners;
 
 /**
  * Verifies proper handling of the following in conjunction with the
- * {@link Runner}:
+ * {@link InfraRunner}:
  * <ul>
  * <li>JUnit's {@link Test#timeout() @Test(timeout=...)}</li>
- * <li>Spring's {@link Timed @Timed}</li>
+ * <li>Infra {@link Timed @Timed}</li>
  * </ul>
  *
  * @author Sam Brannen
@@ -50,7 +50,7 @@ public class TimedSpringRunnerTests {
   }
 
   protected Class<? extends org.junit.runner.Runner> getRunnerClass() {
-    return Runner.class;
+    return InfraRunner.class;
   }
 
   @Test

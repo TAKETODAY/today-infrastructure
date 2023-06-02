@@ -30,13 +30,13 @@ import org.junit.runner.RunWith;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -113,7 +113,7 @@ class ContextHierarchyDirtiesContextTests {
 
   // -------------------------------------------------------------------------
 
-  @RunWith(Runner.class)
+  @RunWith(InfraRunner.class)
   @ContextHierarchy(@ContextConfiguration(name = "foo"))
   static abstract class FooTestCase implements ApplicationContextAware {
 

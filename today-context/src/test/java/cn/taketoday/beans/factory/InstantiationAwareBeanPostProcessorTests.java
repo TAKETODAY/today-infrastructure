@@ -84,28 +84,27 @@ class InstantiationAwareBeanPostProcessorTests {
 
   @Test
   void postProcessBeforeInstantiation() {
-    try (StandardApplicationContext context = new StandardApplicationContext()) {
-      ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
+    StandardApplicationContext context = new StandardApplicationContext();
+    ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
 
-      context.register(InstantiationAwareBeanPostProcessorBean.class);
-      context.register(InstantiationAwareBeanPostProcessorConfig.class);
-      context.refresh();
+    context.register(InstantiationAwareBeanPostProcessorBean.class);
+    context.register(InstantiationAwareBeanPostProcessorConfig.class);
+    context.refresh();
 
-      InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
-      beanFactory.addBeanPostProcessor(postProcessor);
+    InstantiationAwareBeanPostProcessor0 postProcessor = new InstantiationAwareBeanPostProcessor0(context);
+    beanFactory.addBeanPostProcessor(postProcessor);
 
-      InstantiationAwareBeanPostProcessorBean bean = context.getBean(
-              "instantiationAwareBeanPostProcessorTests.InstantiationAwareBeanPostProcessorBean", InstantiationAwareBeanPostProcessorBean.class);
+    InstantiationAwareBeanPostProcessorBean bean = context.getBean(
+            "instantiationAwareBeanPostProcessorTests.InstantiationAwareBeanPostProcessorBean", InstantiationAwareBeanPostProcessorBean.class);
 
-      Object instantiationBean = context.getBean("instantiationBean");
+    Object instantiationBean = context.getBean("instantiationBean");
 
-      assertThat(instantiationBean).isInstanceOf(InstantiationAwareBeanPostProcessorBean.class);
-      assertThat(instantiationBean).isNotEqualTo(bean);
-      assertThat(bean.factory).isNull();
+    assertThat(instantiationBean).isInstanceOf(InstantiationAwareBeanPostProcessorBean.class);
+    assertThat(instantiationBean).isNotEqualTo(bean);
+    assertThat(bean.factory).isNull();
 
-      InstantiationAwareBeanPostProcessorBean byFactory = (InstantiationAwareBeanPostProcessorBean) instantiationBean;
-      assertThat(byFactory.factory).isNotNull();
-    }
+    InstantiationAwareBeanPostProcessorBean byFactory = (InstantiationAwareBeanPostProcessorBean) instantiationBean;
+    assertThat(byFactory.factory).isNotNull();
 
   }
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -98,14 +98,14 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * Expose URI template variables, matrix variables, and producible media types in the request.
    */
   @Override
-  protected void handleMatch(Match bestMatch, String lookupPath, RequestContext request) {
-    super.handleMatch(bestMatch, lookupPath, request);
+  protected void handleMatch(Match<RequestMappingInfo> bestMatch, String directLookupPath, RequestContext request) {
+    super.handleMatch(bestMatch, directLookupPath, request);
 
     RequestMappingInfo info = bestMatch.mapping;
     PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             bestMatch.getHandlerMethod(),
-            lookupPath, request.getLookupPath(),
+            directLookupPath, request.getLookupPath(),
             CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser()
     );
     request.setMatchingMetadata(matchingMetadata);
@@ -128,6 +128,10 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
   @Override
   protected HandlerMethod handleNoMatch(
           Set<RequestMappingInfo> infos, String lookupPath, RequestContext request) {
+
+    if (CollectionUtils.isEmpty(infos)) {
+      return null;
+    }
 
     PartialMatchHelper helper = new PartialMatchHelper(infos, request);
     if (helper.isEmpty()) {
@@ -152,7 +156,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
           contentType = MediaType.parseMediaType(request.getContentType());
         }
         catch (InvalidMediaTypeException ex) {
-          throw new HttpMediaTypeNotSupportedException(ex.getMessage());
+          throw new HttpMediaTypeNotSupportedException(ex.getMessage(), new ArrayList<>(mediaTypes));
         }
       }
       throw new HttpMediaTypeNotSupportedException(

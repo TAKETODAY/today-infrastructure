@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Examples to demonstrate writing client-side REST tests with Spring MVC Test.
+ * Examples to demonstrate writing client-side REST tests with Web MVC Test.
  * While the tests in this class invoke the RestTemplate directly, in actual
  * tests the RestTemplate may likely be invoked indirectly, i.e. through client
  * code.

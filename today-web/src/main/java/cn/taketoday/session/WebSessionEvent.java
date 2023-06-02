@@ -46,6 +46,9 @@ public class WebSessionEvent extends ApplicationEvent {
     return session;
   }
 
+  /**
+   * returns session's id
+   */
   public String getSessionId() {
     return session.getId();
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,13 +49,13 @@ public class WebSocketHandlerDelegate {
 
   protected final boolean containsPathVariable;
 
-  public WebSocketHandlerDelegate(PathPattern pathPattern, // @formatter:off
-                                   boolean containsPathVariable,
-                                   @Nullable WebSocketHandlerMethod onOpen,
-                                   @Nullable WebSocketHandlerMethod onClose,
-                                   @Nullable WebSocketHandlerMethod onError,
-                                   @Nullable WebSocketHandlerMethod onMessage,
-                                   @Nullable ActionMappingAnnotationHandler afterHandshake) { // @formatter:on
+  public WebSocketHandlerDelegate(PathPattern pathPattern,
+          boolean containsPathVariable,
+          @Nullable WebSocketHandlerMethod onOpen,
+          @Nullable WebSocketHandlerMethod onClose,
+          @Nullable WebSocketHandlerMethod onError,
+          @Nullable WebSocketHandlerMethod onMessage,
+          @Nullable ActionMappingAnnotationHandler afterHandshake) {
     this.onOpen = onOpen;
     this.onClose = onClose;
     this.onError = onError;

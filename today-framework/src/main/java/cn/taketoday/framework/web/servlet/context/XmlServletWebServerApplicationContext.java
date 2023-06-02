@@ -24,7 +24,7 @@ import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.context.support.XmlWebApplicationContext;
+import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 
 /**
  * {@link ServletWebServerApplicationContext} which takes its configuration from XML

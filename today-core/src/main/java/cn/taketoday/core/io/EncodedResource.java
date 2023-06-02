@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -160,6 +160,28 @@ public class EncodedResource implements InputStreamSource {
   @Override
   public InputStream getInputStream() throws IOException {
     return this.resource.getInputStream();
+  }
+
+  /**
+   * Returns the contents of the specified resource as a string, using the specified
+   * {@link #getCharset() Charset} or {@linkplain #getEncoding() encoding} (if any).
+   *
+   * @throws IOException if opening the resource failed
+   * @see Resource#getContentAsString(Charset)
+   * @since 4.0
+   */
+  public String getContentAsString() throws IOException {
+    Charset charset;
+    if (this.charset != null) {
+      charset = this.charset;
+    }
+    else if (this.encoding != null) {
+      charset = Charset.forName(this.encoding);
+    }
+    else {
+      charset = Charset.defaultCharset();
+    }
+    return this.resource.getContentAsString(charset);
   }
 
   @Override

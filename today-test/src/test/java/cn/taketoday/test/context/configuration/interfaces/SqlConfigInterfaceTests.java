@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.test.context.jdbc.Sql;
 import cn.taketoday.test.context.jdbc.SqlConfig;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 class SqlConfigInterfaceTests implements SqlConfigTestInterface {
 
   JdbcTemplate jdbcTemplate;

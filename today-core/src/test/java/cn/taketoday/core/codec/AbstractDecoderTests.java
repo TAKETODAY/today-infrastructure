@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
+import io.netty5.buffer.Buffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -214,9 +215,15 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
           Publisher<DataBuffer> input, ResolvableType outputType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    Flux<DataBuffer> buffer = Mono.from(input).concatWith(Flux.error(new InputException()));
-    assertThatExceptionOfType(InputException.class)
-            .isThrownBy(() -> this.decoder.decode(buffer, outputType, mimeType, hints).blockLast(Duration.ofSeconds(5)));
+    Flux<DataBuffer> flux = Mono.from(input).concatWith(Flux.error(new InputException()));
+    assertThatExceptionOfType(InputException.class).isThrownBy(() ->
+            this.decoder.decode(flux, outputType, mimeType, hints)
+                    .doOnNext(object -> {
+                      if (object instanceof Buffer buffer) {
+                        buffer.close();
+                      }
+                    })
+                    .blockLast(Duration.ofSeconds(5)));
   }
 
   /**
@@ -234,7 +241,12 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
           Publisher<DataBuffer> input, ResolvableType outputType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    Flux<?> result = this.decoder.decode(input, outputType, mimeType, hints);
+    Flux<?> result = this.decoder.decode(input, outputType, mimeType, hints)
+            .doOnNext(object -> {
+              if (object instanceof Buffer buffer) {
+                buffer.close();
+              }
+            });
     StepVerifier.create(result).expectNextCount(1).thenCancel().verify();
   }
 

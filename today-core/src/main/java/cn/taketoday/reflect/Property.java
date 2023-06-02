@@ -374,7 +374,6 @@ public class Property implements Member, AnnotatedElement, Serializable {
   /**
    * If method based bean-property
    */
-  @Nullable
   public MethodParameter getMethodParameter() {
     MethodParameter methodParameter = this.methodParameter;
     if (methodParameter == null) {

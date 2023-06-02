@@ -29,7 +29,7 @@ import cn.taketoday.retry.listener.MethodInvocationRetryListenerSupport;
 import cn.taketoday.util.StringUtils;
 
 /**
- * Callback class for a Spring AOP reflective `MethodInvocation` that can be retried using
+ * Callback class for a Infra AOP reflective `MethodInvocation` that can be retried using
  * a {@link RetryOperations}.
  *
  * In a concrete {@link RetryListener} implementation, the

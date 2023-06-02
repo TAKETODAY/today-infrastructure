@@ -33,7 +33,7 @@ import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.event.ApplicationEvents;
 import cn.taketoday.test.context.event.RecordApplicationEvents;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @RecordApplicationEvents
 public class JUnit4ApplicationEventsIntegrationTests {
 

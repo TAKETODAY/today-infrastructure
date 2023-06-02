@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -136,8 +136,11 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * {@link BeanPostProcessor BeanPostProcessors}.
    * <p>
    * Note: This is intended for creating a fresh instance, populating annotated
-   * fields and methods as well as applying all standard bean initialization
-   * callbacks.
+   * fields and methods as well as applying all standard bean initialization callbacks.
+   * Constructor resolution is done via {@link #AUTOWIRE_CONSTRUCTOR}, also influenced
+   * by {@link SmartInstantiationAwareBeanPostProcessor#determineCandidateConstructors}.
+   * It does <i>not</i> imply traditional by-name or by-type autowiring of properties;
+   * use {@link #createBean(Class, int, boolean)} for those purposes.
    *
    * @param beanClass the class of the bean to create
    * @return the new bean instance

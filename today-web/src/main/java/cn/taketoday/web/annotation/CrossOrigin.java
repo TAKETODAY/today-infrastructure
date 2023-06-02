@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,9 +46,10 @@ import cn.taketoday.web.cors.CorsConfiguration;
  * @author Russell Allen
  * @author Sebastien Deleuze
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-12-08 18:14
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-12-08 18:14
  */
+@Documented
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CrossOrigin {

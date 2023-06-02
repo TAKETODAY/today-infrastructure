@@ -20,6 +20,11 @@
 
 package cn.taketoday.web.testfixture.servlet;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import cn.taketoday.lang.Nullable;
 import jakarta.servlet.SessionCookieConfig;
 
 /**
@@ -31,12 +36,16 @@ import jakarta.servlet.SessionCookieConfig;
  */
 public class MockSessionCookieConfig implements SessionCookieConfig {
 
+  @Nullable
   private String name;
 
+  @Nullable
   private String domain;
 
+  @Nullable
   private String path;
 
+  @Nullable
   private String comment;
 
   private boolean httpOnly;
@@ -45,46 +54,50 @@ public class MockSessionCookieConfig implements SessionCookieConfig {
 
   private int maxAge = -1;
 
+  private Map<String, String> attributes = new LinkedHashMap<>();
+
   @Override
-  public void setName(String name) {
+  public void setName(@Nullable String name) {
     this.name = name;
   }
 
   @Override
-
+  @Nullable
   public String getName() {
     return this.name;
   }
 
   @Override
-  public void setDomain(String domain) {
+  public void setDomain(@Nullable String domain) {
     this.domain = domain;
   }
 
   @Override
-
+  @Nullable
   public String getDomain() {
     return this.domain;
   }
 
   @Override
-  public void setPath(String path) {
+  public void setPath(@Nullable String path) {
     this.path = path;
   }
 
   @Override
-
+  @Nullable
   public String getPath() {
     return this.path;
   }
 
+  @SuppressWarnings("removal")
   @Override
-  public void setComment(String comment) {
+  public void setComment(@Nullable String comment) {
     this.comment = comment;
   }
 
+  @SuppressWarnings("removal")
   @Override
-
+  @Nullable
   public String getComment() {
     return this.comment;
   }
@@ -117,6 +130,21 @@ public class MockSessionCookieConfig implements SessionCookieConfig {
   @Override
   public int getMaxAge() {
     return this.maxAge;
+  }
+
+  @Override
+  public void setAttribute(String name, String value) {
+    this.attributes.put(name, value);
+  }
+
+  @Override
+  public String getAttribute(String name) {
+    return this.attributes.get(name);
+  }
+
+  @Override
+  public Map<String, String> getAttributes() {
+    return Collections.unmodifiableMap(this.attributes);
   }
 
 }

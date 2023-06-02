@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,18 +23,20 @@ package cn.taketoday.framework;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.time.Duration;
-import java.util.concurrent.Callable;
 
+import cn.taketoday.core.ApplicationHome;
+import cn.taketoday.core.ApplicationPid;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Logs application information on startup.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 11:09
  */
@@ -42,16 +44,22 @@ final class StartupLogging {
 
   private static final long HOST_NAME_RESOLVE_THRESHOLD = 200;
 
+  @Nullable
   private final Class<?> sourceClass;
 
-  StartupLogging(Class<?> sourceClass) {
+  StartupLogging(@Nullable Class<?> sourceClass) {
     this.sourceClass = sourceClass;
   }
 
   void logStarting(Logger applicationLog) {
     Assert.notNull(applicationLog, "Logger is required");
-    applicationLog.info(LogMessage.from(this::getStartingMessage));
-    applicationLog.debug(LogMessage.from(this::getRunningMessage));
+
+    if (applicationLog.isInfoEnabled()) {
+      applicationLog.info(getStartingMessage());
+    }
+    if (applicationLog.isDebugEnabled()) {
+      applicationLog.debug("Running with today-framework {}", Version.instance);
+    }
   }
 
   void logStarted(Logger applicationLog, Duration timeTakenToStartup) {
@@ -69,13 +77,6 @@ final class StartupLogging {
     appendOn(message);
     appendPid(message);
     appendContext(message);
-    return message;
-  }
-
-  private CharSequence getRunningMessage() {
-    StringBuilder message = new StringBuilder();
-    message.append("Running with today-framework");
-    append(message, null, Version::get);
     return message;
   }
 
@@ -97,17 +98,27 @@ final class StartupLogging {
   }
 
   private void appendApplicationName(StringBuilder message) {
-    String name = (this.sourceClass != null) ? ClassUtils.getShortName(this.sourceClass) : "application";
+    String name = sourceClass != null ? ClassUtils.getShortName(this.sourceClass) : "application";
     message.append(name);
   }
 
-  private void appendVersion(StringBuilder message, Class<?> source) {
-    append(message, "v", () -> source.getPackage().getImplementationVersion());
+  private void appendVersion(StringBuilder message, @Nullable Class<?> source) {
+    if (source != null) {
+      Package sourcePkg = source.getPackage();
+      if (sourcePkg != null) {
+        append(message, "v", sourcePkg.getImplementationVersion());
+      }
+    }
   }
 
   private void appendOn(StringBuilder message) {
     long startTime = System.currentTimeMillis();
-    append(message, "on ", () -> InetAddress.getLocalHost().getHostName());
+    try {
+      String hostName = InetAddress.getLocalHost().getHostName();
+      append(message, "on ", hostName);
+    }
+    catch (Throwable ignored) { }
+
     long resolveTime = System.currentTimeMillis() - startTime;
     if (resolveTime > HOST_NAME_RESOLVE_THRESHOLD) {
       StringBuilder warning = new StringBuilder();
@@ -124,7 +135,7 @@ final class StartupLogging {
   }
 
   private void appendPid(StringBuilder message) {
-    append(message, "with PID ", ApplicationPid::new);
+    append(message, "with PID ", new ApplicationPid().toString());
   }
 
   private void appendContext(StringBuilder message) {
@@ -133,8 +144,9 @@ final class StartupLogging {
     if (home.getSource() != null) {
       context.append(home.getSource().getAbsolutePath());
     }
-    append(context, "started by ", () -> System.getProperty("user.name"));
-    append(context, "in ", () -> System.getProperty("user.dir"));
+
+    append(context, "started by ", System.getProperty("user.name"));
+    append(context, "in ", System.getProperty("user.dir"));
     if (context.length() > 0) {
       message.append(" (");
       message.append(context);
@@ -143,35 +155,16 @@ final class StartupLogging {
   }
 
   private void appendJavaVersion(StringBuilder message) {
-    append(message, "using Java ", () -> System.getProperty("java.version"));
+    append(message, "using Java ", System.getProperty("java.version"));
   }
 
-  private void append(StringBuilder message, String prefix, Callable<Object> call) {
-    append(message, prefix, call, "");
-  }
-
-  private void append(
-          StringBuilder message, @Nullable String prefix, Callable<Object> call, String defaultValue) {
-    Object result = callIfPossible(call);
-    String value = (result != null) ? result.toString() : null;
-    if (StringUtils.isEmpty(value)) {
-      value = defaultValue;
-    }
-    if (StringUtils.isNotEmpty(value)) {
+  private void append(StringBuilder message, @Nullable String prefix, @Nullable String value) {
+    if (StringUtils.hasText(value)) {
       message.append((message.length() > 0) ? " " : "");
       if (prefix != null) {
         message.append(prefix);
       }
       message.append(value);
-    }
-  }
-
-  private Object callIfPossible(Callable<Object> call) {
-    try {
-      return call.call();
-    }
-    catch (Exception ex) {
-      return null;
     }
   }
 

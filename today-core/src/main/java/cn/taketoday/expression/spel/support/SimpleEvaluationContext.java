@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
@@ -83,6 +84,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #forPropertyAccessors
  * @see #forReadOnlyDataBinding()
  * @see #forReadWriteDataBinding()
@@ -105,9 +107,9 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
   private final TypeConverter typeConverter;
 
-  private final TypeComparator typeComparator = new StandardTypeComparator();
+  private final TypeComparator typeComparator = TypeComparator.STANDARD;
 
-  private final OperatorOverloader operatorOverloader = new StandardOperatorOverloader();
+  private final OperatorOverloader operatorOverloader = OperatorOverloader.STANDARD;
 
   private final Map<String, Object> variables = new HashMap<>();
 
@@ -205,6 +207,17 @@ public final class SimpleEvaluationContext implements EvaluationContext {
   @Override
   public OperatorOverloader getOperatorOverloader() {
     return this.operatorOverloader;
+  }
+
+  /**
+   * {@code SimpleEvaluationContext} does not support variable assignment within
+   * expressions.
+   *
+   * @throws SpelEvaluationException with {@link SpelMessage#VARIABLE_ASSIGNMENT_NOT_SUPPORTED}
+   */
+  @Override
+  public TypedValue assignVariable(String name, Supplier<TypedValue> valueSupplier) {
+    throw new SpelEvaluationException(SpelMessage.VARIABLE_ASSIGNMENT_NOT_SUPPORTED, "#" + name);
   }
 
   @Override

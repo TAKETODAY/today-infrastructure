@@ -19,6 +19,6 @@
  */
 
 /**
- * Mock web classes specific to Spring Boot.
+ * Mock web classes specific to Infra.
  */
 package cn.taketoday.framework.test.mock.web;

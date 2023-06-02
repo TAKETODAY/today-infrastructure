@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,13 +39,13 @@ import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.entry;
 
 /**
  * @author TODAY 2021/4/15 13:04
@@ -692,6 +692,31 @@ public class HttpHeadersTests {
     assertThat(headers.get(headerName).get(0)).isEqualTo(headerValue);
   }
 
+  @Test
+  void readOnlyHttpHeadersCopyOrderTest() {
+    headers.add("aardvark", "enigma");
+    headers.add("beaver", "enigma");
+    headers.add("cat", "enigma");
+    headers.add("dog", "enigma");
+    headers.add("elephant", "enigma");
+
+    String[] expectedKeys = new String[] { "aardvark", "beaver", "cat", "dog", "elephant" };
+
+    HttpHeaders readOnlyHttpHeaders = HttpHeaders.readOnlyHttpHeaders(headers);
+
+    HttpHeaders forEachHeaders = HttpHeaders.create();
+    readOnlyHttpHeaders.forEach(forEachHeaders::putIfAbsent);
+    assertThat(forEachHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+
+    HttpHeaders putAllHeaders = HttpHeaders.create();
+    putAllHeaders.putAll(readOnlyHttpHeaders);
+    assertThat(putAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+
+    HttpHeaders addAllHeaders = HttpHeaders.create();
+    addAllHeaders.addAll(readOnlyHttpHeaders);
+    assertThat(addAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
+  }
+
   @Test // gh-25034
   public void equalsUnwrapsHttpHeaders() {
     HttpHeaders headers1 = new DefaultHttpHeaders();
@@ -699,6 +724,21 @@ public class HttpHeadersTests {
 
     assertThat(headers1).isEqualTo(headers2);
     assertThat(headers2).isEqualTo(headers1);
+  }
+
+  @Test
+  void getValuesAsList() {
+    HttpHeaders headers = HttpHeaders.create();
+    headers.add("Foo", "Bar");
+    headers.add("Foo", "Baz, Qux");
+    headers.add("Quux", "\t\"Corge\", \"Grault\"");
+    headers.add("Garply", " Waldo \"Fred\\!\", \"\tPlugh, Xyzzy! \"");
+    headers.add("Example-Dates", "\"Sat, 04 May 1996\", \"Wed, 14 Sep 2005\"");
+
+    assertThat(headers.getValuesAsList("Foo")).containsExactly("Bar", "Baz", "Qux");
+    assertThat(headers.getValuesAsList("Quux")).containsExactly("Corge", "Grault");
+    assertThat(headers.getValuesAsList("Garply")).containsExactly("Waldo \"Fred\\!\"", "\tPlugh, Xyzzy! ");
+    assertThat(headers.getValuesAsList("Example-Dates")).containsExactly("Sat, 04 May 1996", "Wed, 14 Sep 2005");
   }
 
 }

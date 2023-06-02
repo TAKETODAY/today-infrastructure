@@ -28,8 +28,7 @@ import cn.taketoday.util.ResourceUtils;
  * we can specify multiple resource locations for our application context, each
  * configured differently.
  * <p>
- * As of Spring 3.0,
- * {@code MultipleResourcesSpringJUnit4ClassRunnerAppCtxTests} is also used
+ * {@code MultipleResourcesInfraJUnit4ClassRunnerAppCtxTests} is also used
  * to verify support for the new {@code value} attribute alias for
  * {@code @ContextConfiguration}'s {@code locations} attribute.
  * </p>

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,7 @@ package cn.taketoday.web.socket.annotation;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -48,7 +48,8 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   private final boolean supportPartialMessage;
 
   public AnnotationWebSocketDispatcher(
-          WebSocketHandlerDelegate socketHandler, List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
+          WebSocketHandlerDelegate socketHandler,
+          List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
     this.resolvers = resolvers;
     this.socketHandler = socketHandler;
     this.supportPartialMessage = supportPartialMessage;
@@ -62,8 +63,8 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     if (socketHandler.containsPathVariable) {
       // for path variables handling
       PathPattern pathPattern = socketHandler.pathPattern;
-      RequestPath parsedRequestPath = context.getLookupPath();
-      PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(parsedRequestPath);
+      PathContainer lookupPath = context.getLookupPath();
+      PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(lookupPath);
       Assert.state(pathMatchInfo != null, "Path match error");
       Map<String, String> uriVariables = pathMatchInfo.getUriVariables();
       session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, uriVariables);
@@ -77,7 +78,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
 
   protected Object[] resolveParameters(
           WebSocketSession session, WebSocketHandlerMethod handler, Message<?> message, Object... providedArgs) {
-    ResolvableMethodParameter[] parameters = handler.getParameters();
+    ResolvableMethodParameter[] parameters = handler.parameters;
     if (parameters == null) {
       return null;
     }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
-import cn.taketoday.beans.factory.ObjectSupplier;
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -47,11 +47,16 @@ import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
+import cn.taketoday.context.ApplicationEventPublisherAware;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.HierarchicalMessageSource;
 import cn.taketoday.context.LifecycleProcessor;
 import cn.taketoday.context.MessageSource;
@@ -59,11 +64,7 @@ import cn.taketoday.context.MessageSourceAware;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.NoSuchMessageException;
 import cn.taketoday.context.PayloadApplicationEvent;
-import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.ApplicationEventPublisherAware;
-import cn.taketoday.context.aware.BootstrapContextAware;
-import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
@@ -72,8 +73,6 @@ import cn.taketoday.context.event.ContextStoppedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.BootstrapContext;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAwareProcessor;
 import cn.taketoday.core.ResolvableType;
@@ -645,7 +644,8 @@ public abstract class AbstractApplicationContext
   public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
     log.debug("Preparing bean-factory: {}", beanFactory);
     // Tell the internal bean factory to use the context's class loader etc.
-    beanFactory.setBeanClassLoader(getClassLoader());
+    ClassLoader classLoader = getClassLoader();
+    beanFactory.setBeanClassLoader(classLoader);
     beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
@@ -678,8 +678,8 @@ public abstract class AbstractApplicationContext
     beanFactory.registerDependency(ApplicationContext.class, this);
 
     // loading some outside beans
-    List<BeanDefinitionLoader> strategies = TodayStrategies.get(
-            BeanDefinitionLoader.class, BeanFactoryAwareInstantiator.forFunction(beanFactory));
+    var strategies = TodayStrategies.find(
+            BeanDefinitionLoader.class, classLoader, BeanFactoryAwareInstantiator.from(beanFactory));
 
     if (!strategies.isEmpty()) {
       BootstrapContext bootstrapContext = obtainBootstrapContext();
@@ -693,9 +693,11 @@ public abstract class AbstractApplicationContext
 
   /**
    * Modify the application context's internal bean factory after its standard
-   * initialization. All bean definitions will have been loaded, but no beans
-   * will have been instantiated yet. This allows for registering special
-   * BeanPostProcessors etc in certain ApplicationContext implementations.
+   * initialization. The initial definition resources will have been loaded but no
+   * post-processors will have run and no derived bean definitions will have been
+   * registered, and most importantly, no beans will have been instantiated yet.
+   * <p>This template method allows for registering special BeanPostProcessors
+   * etc in certain AbstractApplicationContext subclasses.
    *
    * @param beanFactory the bean factory used by the application context
    */
@@ -1139,27 +1141,27 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType);
+    return getBeanFactory().getBeanProvider(requiredType);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType);
+    return getBeanFactory().getBeanProvider(requiredType);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType, allowEagerInit);
+    return getBeanFactory().getBeanProvider(requiredType, allowEagerInit);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit) {
     assertBeanFactoryActive();
-    return getBeanFactory().getObjectSupplier(requiredType, allowEagerInit);
+    return getBeanFactory().getBeanProvider(requiredType, allowEagerInit);
   }
 
   @Override
@@ -1392,28 +1394,54 @@ public abstract class AbstractApplicationContext
 
   /**
    * Publish the given event to all listeners.
+   * <p>This is the internal delegate that all other {@code publishEvent}
+   * methods refer to. It is not meant to be called directly but rather serves
+   * as a propagation mechanism between application contexts in a hierarchy,
+   * potentially overridden in subclasses for a custom propagation arrangement.
    *
    * @param event the event to publish (may be an {@link ApplicationEvent}
-   * @param eventType the resolved event type, if known
+   * or a payload object to be turned into a {@link PayloadApplicationEvent})
+   * @param typeHint the resolved event type, if known.
+   * The implementation of this method also tolerates a payload type hint for
+   * a payload object to be turned into a {@link PayloadApplicationEvent}.
+   * However, the recommended way is to construct an actual event object via
+   * {@link PayloadApplicationEvent#PayloadApplicationEvent(Object, Object, ResolvableType)}
+   * instead for such scenarios.
+   * @see ApplicationEventMulticaster#multicastEvent(ApplicationEvent, ResolvableType)
    * @since 4.0
    */
-  protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
+  protected void publishEvent(Object event, @Nullable ResolvableType typeHint) {
     Assert.notNull(event, "Event is required");
-    // Decorate event as an ApplicationEvent if necessary
+    ResolvableType eventType = null;
 
+    // Decorate event as an ApplicationEvent if necessary
     ApplicationEvent applicationEvent;
-    if (event instanceof ApplicationEvent) {
-      applicationEvent = (ApplicationEvent) event;
+    if (event instanceof ApplicationEvent applEvent) {
+      applicationEvent = applEvent;
+      eventType = typeHint;
     }
     else {
-      applicationEvent = new PayloadApplicationEvent<>(this, event, eventType);
-      if (eventType == null) {
-        eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
+      ResolvableType payloadType = null;
+      if (typeHint != null && ApplicationEvent.class.isAssignableFrom(typeHint.toClass())) {
+        eventType = typeHint;
+      }
+      else {
+        payloadType = typeHint;
+      }
+      applicationEvent = new PayloadApplicationEvent<>(this, event, payloadType);
+    }
+
+    // Determine event type only once (for multicast and parent publish)
+    if (eventType == null) {
+      eventType = ResolvableType.fromInstance(applicationEvent);
+      if (typeHint == null) {
+        typeHint = eventType;
       }
     }
+
     // Multicast right now if possible - or lazily once the multicaster is initialized
-    if (earlyApplicationEvents != null) {
-      earlyApplicationEvents.add(applicationEvent);
+    if (this.earlyApplicationEvents != null) {
+      this.earlyApplicationEvents.add(applicationEvent);
     }
     else {
       getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
@@ -1422,13 +1450,12 @@ public abstract class AbstractApplicationContext
     // Publish event via parent context as well...
     if (parent != null) {
       if (parent instanceof AbstractApplicationContext parentCtx) {
-        parentCtx.publishEvent(event, eventType);
+        parentCtx.publishEvent(event, typeHint);
       }
       else {
-        parent.publishEvent(event);
+        this.parent.publishEvent(event);
       }
     }
-
   }
 
   protected void registerApplicationListeners() {

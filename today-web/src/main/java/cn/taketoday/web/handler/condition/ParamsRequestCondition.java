@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import cn.taketoday.web.servlet.ServletUtils;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ParamsRequestCondition extends AbstractRequestCondition<ParamsRequestCondition> {
@@ -148,11 +149,11 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     if (result != 0) {
       return result;
     }
-    return (int) (getValueMatchCount(other.expressions) - getValueMatchCount(this.expressions));
+    return getValueMatchCount(other.expressions) - getValueMatchCount(this.expressions);
   }
 
-  private long getValueMatchCount(Set<ParamExpression> expressions) {
-    long count = 0;
+  private static int getValueMatchCount(Set<ParamExpression> expressions) {
+    int count = 0;
     for (ParamExpression e : expressions) {
       if (e.getValue() != null && !e.isNegated()) {
         count++;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,6 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.joda.time.DateTime;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.ResultQuery;
@@ -63,18 +62,19 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.jdbc.JdbcConnection;
+import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.Query;
 import cn.taketoday.stereotype.Singleton;
 import lombok.SneakyThrows;
 
@@ -109,9 +109,9 @@ public class PojoPerformanceTest {
 
   private void createPostTable() {
     // language=MySQL
-    operations.createQuery("DROP TABLE IF EXISTS post").executeUpdate();
+    operations.createNamedQuery("DROP TABLE IF EXISTS post").executeUpdate();
     // language=MySQL
-    operations.createQuery("\n CREATE TABLE post" +
+    operations.createNamedQuery("\n CREATE TABLE post" +
             "\n (" +
             "\n     id INT NOT NULL IDENTITY PRIMARY KEY" +
             "\n   , text VARCHAR(255)" +
@@ -131,12 +131,12 @@ public class PojoPerformanceTest {
 
     Random r = new Random();
 
-    Query insQuery = operations.createQuery( // language=MySQL
+    NamedQuery insQuery = operations.createNamedQuery( // language=MySQL
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
-              .addParameter("creation_date", new DateTime(System.currentTimeMillis() + r.nextInt()).toDate())
-              .addParameter("last_change_date", new DateTime(System.currentTimeMillis() + r.nextInt()).toDate())
+              .addParameter("creation_date", new Date(System.currentTimeMillis() + r.nextInt()))
+              .addParameter("last_change_date", new Date(System.currentTimeMillis() + r.nextInt()))
               .addParameter("counter1", r.nextDouble() > 0.5 ? r.nextInt() : null)
               .addParameter("counter2", r.nextDouble() > 0.5 ? r.nextInt() : null)
               .addParameter("counter3", r.nextDouble() > 0.5 ? r.nextInt() : null)
@@ -201,13 +201,13 @@ public class PojoPerformanceTest {
    */
   class TODAYOptimizedSelect extends PerformanceTestBase {
     private JdbcConnection conn;
-    private Query query;
+    private NamedQuery query;
 
     @Override
     public void init() {
       conn = operations.open();
       // language=MySQL
-      query = conn.createQuery(SELECT_OPTIMAL + " WHERE id = :id");
+      query = conn.createNamedQuery(SELECT_OPTIMAL + " WHERE id = :id");
       query.setAutoDerivingColumns(true);
     }
 
@@ -225,13 +225,13 @@ public class PojoPerformanceTest {
 
   class TODAYTypicalSelect extends PerformanceTestBase {
     private JdbcConnection conn;
-    private Query query;
+    private NamedQuery query;
 
     @Override
     public void init() {
       conn = operations.open();
       // language=MySQL
-      query = conn.createQuery(SELECT_TYPICAL + " WHERE id = :id")
+      query = conn.createNamedQuery(SELECT_TYPICAL + " WHERE id = :id")
               .setAutoDerivingColumns(true);
     }
 

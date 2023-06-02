@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,22 +20,28 @@
 
 package cn.taketoday.validation.beanvalidation;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.BridgeMethodResolver;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.AsyncAnnotationAdvisor;
 import cn.taketoday.scheduling.annotation.AsyncAnnotationBeanPostProcessor;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
@@ -75,30 +81,39 @@ public class MethodValidationTests {
     ac.close();
   }
 
+  @Test // gh-29782
+  @SuppressWarnings("unchecked")
+  public void testMethodValidationPostProcessorForInterfaceOnlyProxy() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(MethodValidationPostProcessor.class);
+    context.registerBean(MyValidInterface.class, () ->
+            ProxyFactory.getProxy(MyValidInterface.class, new MyValidClientInterfaceMethodInterceptor()));
+    context.refresh();
+    doTestProxyValidation(context.getBean(MyValidInterface.class));
+    context.close();
+  }
+
   private void doTestProxyValidation(MyValidInterface<String> proxy) {
     assertThat(proxy.myValidMethod("value", 5)).isNotNull();
-    assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> proxy.myValidMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> proxy.myValidMethod(null, 5));
-    assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> proxy.myValidMethod("value", 0));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
+            proxy.myValidMethod("value", 15));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
+            proxy.myValidMethod(null, 5));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
+            proxy.myValidMethod("value", 0));
     proxy.myValidAsyncMethod("value", 5);
-
-    assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> proxy.myValidAsyncMethod("value", 15));
-
-    assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> proxy.myValidAsyncMethod(null, 5));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
+            proxy.myValidAsyncMethod("value", 15));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
+            proxy.myValidAsyncMethod(null, 5));
     assertThat(proxy.myGenericMethod("myValue")).isEqualTo("myValue");
-    assertThatExceptionOfType(ValidationException.class)
-            .isThrownBy(() -> proxy.myGenericMethod(null));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
+            proxy.myGenericMethod(null));
   }
 
   @Test
   public void testLazyValidatorForMethodValidation() {
-    @SuppressWarnings("resource")
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             LazyMethodValidationConfig.class, CustomValidatorBean.class,
             MyValidBean.class, MyValidFactoryBean.class);
     ctx.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
@@ -106,8 +121,7 @@ public class MethodValidationTests {
 
   @Test
   public void testLazyValidatorForMethodValidationWithProxyTargetClass() {
-    @SuppressWarnings("resource")
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             LazyMethodValidationConfigWithProxyTargetClass.class, CustomValidatorBean.class,
             MyValidBean.class, MyValidFactoryBean.class);
     ctx.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
@@ -159,6 +173,7 @@ public class MethodValidationTests {
     }
   }
 
+  @MyStereotype
   public interface MyValidInterface<T> {
 
     @NotNull Object myValidMethod(@NotNull(groups = MyGroup.class) String arg1, @Max(10) int arg2);
@@ -168,6 +183,25 @@ public class MethodValidationTests {
     void myValidAsyncMethod(@NotNull(groups = OtherGroup.class) String arg1, @Max(10) int arg2);
 
     T myGenericMethod(@NotNull T value);
+  }
+
+  static class MyValidClientInterfaceMethodInterceptor implements MethodInterceptor {
+
+    private final MyValidBean myValidBean = new MyValidBean();
+
+    @Nullable
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+      Method method;
+      try {
+        method = ReflectionUtils.getMethod(MyValidBean.class, invocation.getMethod().getName(), (Class<?>[]) null);
+      }
+      catch (IllegalStateException ex) {
+        method = BridgeMethodResolver.findBridgedMethod(
+                ReflectionUtils.getMostSpecificMethod(invocation.getMethod(), MyValidBean.class));
+      }
+      return ReflectionUtils.invokeMethod(method, this.myValidBean, invocation.getArguments());
+    }
   }
 
   public interface MyGroup {

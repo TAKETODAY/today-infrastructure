@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.util.ExceptionUtils;
  *
  * <p>Suitable for use inside or outside the Spring IoC container.
  * Set the "transactionManager" property appropriately, allowing
- * use of any transaction implementation supported by Spring.
+ * use of any transaction implementation supported by Infra.
  *
  * <p><b>NB:</b> If a method implements an interface that is itself
  * transactionally annotated, the relevant Spring transaction attribute

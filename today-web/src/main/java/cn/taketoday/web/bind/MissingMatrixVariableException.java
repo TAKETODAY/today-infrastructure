@@ -62,7 +62,7 @@ public class MissingMatrixVariableException extends MissingRequestValueException
     super("", missingAfterConversion);
     this.variableName = variableName;
     this.parameter = parameter;
-    getBody().setDetail("Required path parameter '" + this.variableName + "' is not present.");
+    setDetail("Required path parameter '" + this.variableName + "' is not present.");
   }
 
   @Override

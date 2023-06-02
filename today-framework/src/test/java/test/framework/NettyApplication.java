@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.web.WebApplication;
-import cn.taketoday.framework.web.netty.EnableNettyHandling;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ResourceUtils;
@@ -44,12 +43,11 @@ import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
-import cn.taketoday.web.socket.EnableWebSocket;
 import cn.taketoday.web.socket.TextMessage;
-import cn.taketoday.web.socket.WebSocketConfiguration;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerMapping;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.socket.config.WebSocketConfigurer;
+import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.ToString;
@@ -134,13 +132,11 @@ public class NettyApplication {
   }
 
   @Configuration
-  @EnableWebSocket
-  @EnableNettyHandling
-  static class AppConfig implements WebSocketConfiguration {
+  static class AppConfig implements WebSocketConfigurer {
 
     @Override
-    public void configureWebSocketHandlers(WebSocketHandlerMapping registry) {
-      registry.registerHandler("/endpoint", new WebSocket0());
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+      registry.addHandler(new WebSocket0(), "/endpoint");
     }
 
     @EventListener(MyEvent.class)

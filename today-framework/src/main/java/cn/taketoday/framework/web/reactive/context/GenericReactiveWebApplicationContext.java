@@ -20,10 +20,12 @@
 
 package cn.taketoday.framework.web.reactive.context;
 
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.web.RequestContextUtils;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for reactive web environments.
@@ -66,4 +68,9 @@ public class GenericReactiveWebApplicationContext extends GenericApplicationCont
     return new FilteredReactiveWebContextResource(path);
   }
 
+  @Override
+  protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    super.postProcessBeanFactory(beanFactory);
+    RequestContextUtils.registerScopes(beanFactory);
+  }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -93,12 +93,6 @@
              codec
         ======================================================
     -->
-
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -193,7 +187,6 @@
     <dependency>
       <groupId>com.rometools</groupId>
       <artifactId>rome</artifactId>
-      <version>1.18.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -209,18 +202,9 @@
       <scope>provided</scope>
     </dependency>
 
-
     <dependency>
       <groupId>com.googlecode.protobuf-java-format</groupId>
       <artifactId>protobuf-java-format</artifactId>
-      <version>1.4</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.xnio</groupId>
-      <artifactId>xnio-api</artifactId>
-      <version>3.8.7.Final</version>
       <scope>provided</scope>
     </dependency>
 
@@ -291,6 +275,18 @@
     </dependency>
 
     <dependency>
+      <groupId>io.projectreactor.netty</groupId>
+      <artifactId>reactor-netty5-http</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty5-codec-http</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-reactive-httpclient</artifactId>
       <scope>provided</scope>
@@ -299,6 +295,12 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-oxm</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -437,6 +439,19 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>Spring Milestone</id>
+      <url>https://repo.spring.io/milestone</url>
+    </repository>
+  </repositories>
 
 </project>

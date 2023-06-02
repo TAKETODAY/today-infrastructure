@@ -35,7 +35,7 @@ import static cn.taketoday.test.context.support.AnnotationConfigContextLoaderUti
 /**
  * Hybrid {@link SmartContextLoader} that supports path-based and class-based
  * resources simultaneously.
- * <p>This test loader is inspired by Spring Boot.
+ * <p>This test loader is inspired by Infra.
  * <p>Detects defaults for XML configuration and annotated classes.
  * <p>Beans from XML configuration always override those from annotated classes.
  *

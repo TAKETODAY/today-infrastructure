@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,9 +55,11 @@ public class ByteBufferDecoder extends AbstractDataBufferDecoder<ByteBuffer> {
           DataBuffer dataBuffer, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    ByteBuffer result = dataBuffer.toByteBuffer();
+    int len = dataBuffer.readableByteCount();
+    ByteBuffer result = ByteBuffer.allocate(len);
+    dataBuffer.toByteBuffer(result);
     if (logger.isDebugEnabled()) {
-      logger.debug(Hints.getLogPrefix(hints) + "Read " + dataBuffer.readableByteCount() + " bytes");
+      logger.debug(Hints.getLogPrefix(hints) + "Read " + len + " bytes");
     }
     DataBufferUtils.release(dataBuffer);
     return result;

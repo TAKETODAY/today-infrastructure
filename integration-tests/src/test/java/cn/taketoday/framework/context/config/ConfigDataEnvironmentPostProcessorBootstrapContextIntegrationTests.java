@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,20 +45,20 @@ class ConfigDataEnvironmentPostProcessorBootstrapContextIntegrationTests {
   @BeforeEach
   void setup() {
     this.application = new Application(Config.class);
-    this.application.setApplicationType(ApplicationType.NONE_WEB);
+    this.application.setApplicationType(ApplicationType.NORMAL);
   }
 
   @Test
   void bootstrapsApplicationContext() {
     String args = "--app.config.import=classpath:application-bootstrap-registry-integration-tests.properties";
-    try (ConfigurableApplicationContext context = application.run(args)) {
-      LoaderHelper bean = context.getBean(TestConfigDataBootstrap.LoaderHelper.class);
-      assertThat(bean).isNotNull();
-      assertThat(bean.getBound()).isEqualTo("igotbound");
-      assertThat(bean.getProfileBound()).isEqualTo("igotprofilebound");
-      assertThat(bean.getLocation().getResolverHelper().getLocation())
-              .isEqualTo(ConfigDataLocation.valueOf("testbootstrap:test"));
-    }
+    ConfigurableApplicationContext context = application.run(args);
+    LoaderHelper bean = context.getBean(TestConfigDataBootstrap.LoaderHelper.class);
+    assertThat(bean).isNotNull();
+    assertThat(bean.getBound()).isEqualTo("igotbound");
+    assertThat(bean.getProfileBound()).isEqualTo("igotprofilebound");
+    assertThat(bean.getLocation().getResolverHelper().getLocation())
+            .isEqualTo(ConfigDataLocation.valueOf("testbootstrap:test"));
+    context.close();
   }
 
   @Configuration

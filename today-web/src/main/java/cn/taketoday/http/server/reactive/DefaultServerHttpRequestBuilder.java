@@ -26,13 +26,13 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import reactor.core.publisher.Flux;
 
@@ -93,7 +93,9 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Override
   public ServerHttpRequest.Builder path(String path) {
-    Assert.isTrue(path.startsWith("/"), "The path does not have a leading slash.");
+    if (!path.startsWith("/")) {
+      throw new IllegalArgumentException("The path does not have a leading slash: " + path);
+    }
     this.uriPath = path;
     return this;
   }

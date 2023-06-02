@@ -59,7 +59,7 @@ public class MissingRequestHeaderException extends MissingRequestValueException 
     super("", missingAfterConversion);
     this.headerName = headerName;
     this.parameter = parameter;
-    getBody().setDetail("Required header '" + this.headerName + "' is not present.");
+    setDetail("Required header '" + this.headerName + "' is not present.");
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,13 +56,13 @@ import cn.taketoday.util.function.SingletonSupplier;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Async
  * @see AsyncAnnotationAdvisor
  * @see #setBeforeExistingAdvisors
  * @see ScheduledAnnotationBeanPostProcessor
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor {
 
   /**
@@ -92,8 +92,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
    * Configure this post-processor with the given executor and exception handler suppliers,
    * applying the corresponding default if a supplier is not resolvable.
    */
-  public void configure(
-          @Nullable Supplier<Executor> executor,
+  public void configure(@Nullable Supplier<Executor> executor,
           @Nullable Supplier<AsyncUncaughtExceptionHandler> exceptionHandler) {
     this.executor = executor;
     this.exceptionHandler = exceptionHandler;
@@ -139,10 +138,9 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     super.setBeanFactory(beanFactory);
-
-    AsyncAnnotationAdvisor advisor = new AsyncAnnotationAdvisor(this.executor, this.exceptionHandler);
-    if (this.asyncAnnotationType != null) {
-      advisor.setAsyncAnnotationType(this.asyncAnnotationType);
+    var advisor = new AsyncAnnotationAdvisor(executor, exceptionHandler);
+    if (asyncAnnotationType != null) {
+      advisor.setAsyncAnnotationType(asyncAnnotationType);
     }
     advisor.setBeanFactory(beanFactory);
     this.advisor = advisor;

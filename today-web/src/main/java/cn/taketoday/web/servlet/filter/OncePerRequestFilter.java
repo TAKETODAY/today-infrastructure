@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,8 +24,6 @@ import java.io.IOException;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.RequestDispatcher;
@@ -94,32 +92,31 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
       throw new ServletException("OncePerRequestFilter just supports HTTP requests");
     }
 
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-    String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
-    boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
-
     if (skipDispatch(httpRequest) || shouldNotFilter(httpRequest)) {
       // Proceed without invoking this filter...
       filterChain.doFilter(request, response);
     }
-    else if (hasAlreadyFilteredAttribute) {
-      if (DispatcherType.ERROR.equals(request.getDispatcherType())) {
-        doFilterNestedErrorDispatch(httpRequest, httpResponse, filterChain);
-        return;
-      }
-
-      // Proceed without invoking this filter...
-      filterChain.doFilter(request, response);
-    }
     else {
-      // Do invoke this filter...
-      request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
-      try {
-        doFilterInternal(httpRequest, httpResponse, filterChain);
+      String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
+      if (request.getAttribute(alreadyFilteredAttributeName) != null) {
+        if (DispatcherType.ERROR == request.getDispatcherType()) {
+          doFilterNestedErrorDispatch(httpRequest, (HttpServletResponse) response, filterChain);
+        }
+        else {
+          // Proceed without invoking this filter...
+          filterChain.doFilter(request, response);
+        }
       }
-      finally {
-        // Remove the "already filtered" request attribute for this request.
-        request.removeAttribute(alreadyFilteredAttributeName);
+      else {
+        // Do invoke this filter...
+        request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+        try {
+          doFilterInternal(httpRequest, (HttpServletResponse) response, filterChain);
+        }
+        finally {
+          // Remove the "already filtered" request attribute for this request.
+          request.removeAttribute(alreadyFilteredAttributeName);
+        }
       }
     }
   }
@@ -149,15 +146,14 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * response will not be committed after the current thread is exited.
    *
    * @param request the current request
-   * @see WebAsyncManager#isConcurrentHandlingStarted()
+   * @see RequestContext#isConcurrentHandlingStarted()
    */
   protected boolean isAsyncStarted(HttpServletRequest request) {
     RequestContext context = RequestContextHolder.get();
     if (context == null) {
       return request.isAsyncStarted();
     }
-    WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(context);
-    return asyncManager.isConcurrentHandlingStarted();
+    return context.isConcurrentHandlingStarted();
   }
 
   /**
@@ -228,9 +224,8 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
    * default ServletRequest and ServletResponse ones.
    */
-  protected abstract void doFilterInternal(
-          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-          throws ServletException, IOException;
+  protected abstract void doFilterInternal(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException;
 
   /**
    * Typically an ERROR dispatch happens after the REQUEST dispatch completes,
@@ -244,10 +239,8 @@ public abstract class OncePerRequestFilter extends GenericFilterBean {
    * context, if any, should still be active as we are still nested within
    * the filter chain.
    */
-  protected void doFilterNestedErrorDispatch(
-          HttpServletRequest request,
-          HttpServletResponse response,
-          FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterNestedErrorDispatch(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
     filterChain.doFilter(request, response);
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,9 @@
 
 package cn.taketoday.test.util;
 
+import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.lang.Assert;
 
@@ -48,7 +50,8 @@ public abstract class AopTestUtils {
    * be returned; otherwise, the {@code candidate} will be returned
    * <em>as is</em>.
    *
-   * @param candidate the instance to check (potentially a Spring AOP proxy;
+   * @param <T> the type of the target object
+   * @param candidate the instance to check (potentially a Infra AOP proxy;
    * never {@code null})
    * @return the target object or the {@code candidate} (never {@code null})
    * @throws IllegalStateException if an error occurs while unwrapping a proxy
@@ -80,13 +83,20 @@ public abstract class AopTestUtils {
    * {@linkplain AopUtils#isAopProxy proxy}, the ultimate target of all
    * nested proxies will be returned; otherwise, the {@code candidate}
    * will be returned <em>as is</em>.
+   * <p>NOTE: If the top-level proxy or a nested proxy is not backed by a
+   * {@linkplain TargetSource#isStatic() static}
+   * {@link TargetSource TargetSource}, invocation of
+   * this utility method may result in undesired behavior such as infinite
+   * recursion leading to a {@link StackOverflowError}.
    *
-   * @param candidate the instance to check (potentially a Spring AOP proxy;
+   * @param <T> the type of the target object
+   * @param candidate the instance to check (potentially a Infra AOP proxy;
    * never {@code null})
    * @return the target object or the {@code candidate} (never {@code null})
    * @throws IllegalStateException if an error occurs while unwrapping a proxy
    * @see Advised#getTargetSource()
-   * @see cn.taketoday.aop.framework.AopProxyUtils#ultimateTargetClass
+   * @see TargetSource#isStatic()
+   * @see AopProxyUtils#ultimateTargetClass
    */
   @SuppressWarnings("unchecked")
   public static <T> T getUltimateTargetObject(Object candidate) {

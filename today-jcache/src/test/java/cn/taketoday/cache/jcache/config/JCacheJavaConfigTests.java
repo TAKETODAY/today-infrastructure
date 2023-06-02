@@ -39,9 +39,9 @@ import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
 import cn.taketoday.cache.jcache.interceptor.AnnotatedJCacheableService;
 import cn.taketoday.cache.jcache.interceptor.DefaultJCacheOperationSource;
 import cn.taketoday.cache.jcache.interceptor.JCacheInterceptor;
+import cn.taketoday.cache.jcache.testfixture.cache.SomeKeyGenerator;
 import cn.taketoday.cache.jcache.testfixture.jcache.AbstractJCacheAnnotationTests;
 import cn.taketoday.cache.jcache.testfixture.jcache.JCacheableService;
-import cn.taketoday.cache.jcache.testfixture.cache.SomeKeyGenerator;
 import cn.taketoday.cache.support.NoOpCacheManager;
 import cn.taketoday.cache.support.SimpleCacheManager;
 import cn.taketoday.context.ApplicationContext;
@@ -104,17 +104,16 @@ public class JCacheJavaConfigTests extends AbstractJCacheAnnotationTests {
 
   @Test
   public void exceptionCacheResolverLazilyRequired() {
-    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(NoExceptionCacheResolverConfig.class)) {
-      DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
-      assertThat(cos.getCacheResolver()).isSameAs(context.getBean("cacheResolver"));
+    var context = new AnnotationConfigApplicationContext(NoExceptionCacheResolverConfig.class);
+    DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
+    assertThat(cos.getCacheResolver()).isSameAs(context.getBean("cacheResolver"));
 
-      JCacheableService<?> service = context.getBean(JCacheableService.class);
-      service.cache("id");
+    JCacheableService<?> service = context.getBean(JCacheableService.class);
+    service.cache("id");
 
-      // This call requires the cache manager to be set
-      assertThatIllegalStateException().isThrownBy(() ->
-              service.cacheWithException("test", false));
-    }
+    // This call requires the cache manager to be set
+    assertThatIllegalStateException().isThrownBy(() ->
+            service.cacheWithException("test", false));
   }
 
   @Configuration

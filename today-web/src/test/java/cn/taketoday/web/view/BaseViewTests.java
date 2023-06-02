@@ -31,9 +31,8 @@ import java.util.Properties;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
@@ -58,7 +57,7 @@ public class BaseViewTests {
 
   @Test
   public void renderWithoutStaticAttributes() throws Exception {
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     given(wac.getServletContext()).willReturn(new MockServletContext());
 
     HttpServletRequest request = new MockHttpServletRequest();
@@ -87,7 +86,7 @@ public class BaseViewTests {
    */
   @Test
   public void renderWithStaticAttributesNoCollision() throws Exception {
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     given(wac.getServletContext()).willReturn(new MockServletContext());
 
     HttpServletRequest request = new MockHttpServletRequest();
@@ -116,7 +115,7 @@ public class BaseViewTests {
 
   @Test
   public void pathVarsOverrideStaticAttributes() throws Exception {
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     given(wac.getServletContext()).willReturn(new MockServletContext());
 
     HttpServletRequest request = new MockHttpServletRequest();
@@ -153,7 +152,7 @@ public class BaseViewTests {
 
   @Test
   public void dynamicModelOverridesStaticAttributesIfCollision() throws Exception {
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     given(wac.getServletContext()).willReturn(new MockServletContext());
 
     HttpServletRequest request = new MockHttpServletRequest();
@@ -183,7 +182,7 @@ public class BaseViewTests {
 
   @Test
   public void dynamicModelOverridesPathVariables() throws Exception {
-    WebServletApplicationContext wac = mock(WebServletApplicationContext.class);
+    WebApplicationContext wac = mock(WebApplicationContext.class);
     given(wac.getServletContext()).willReturn(new MockServletContext());
 
     TestView tv = new TestView(wac);

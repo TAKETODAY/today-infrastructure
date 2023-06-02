@@ -1,5 +1,5 @@
 [[overview]]
-= TODAY Framework Overview
+= TODAY Infrastructure Overview
 :toc: left
 :toclevels: 1
 :docinfo1:
@@ -12,8 +12,8 @@ A Java library for dependency injection and aspect oriented programing and build
 ----
 <dependency>
   <groupId>cn.taketoday</groupId>
-  <artifactId>today-context</artifactId>
-  <version>4.0-Beta.1</version>
+  <artifactId>today-framework</artifactId>
+  <version>4.0.0-Draft.3</version>
 </dependency>
 ----
 

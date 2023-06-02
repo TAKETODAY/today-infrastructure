@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -147,9 +147,7 @@ class NoSuchBeanDefinitionFailureAnalyzerTests {
   @Test
   void failureAnalysisForNullBeanByType() {
     FailureAnalysis analysis = analyzeFailure(createFailure(StringNullBeanConfiguration.class));
-    assertDescriptionConstructorMissingType(analysis, StringHandler.class, 0, String.class);
-    assertUserDefinedBean(analysis, "as the bean value is null", TestNullBeanConfiguration.class, "string");
-    assertActionMissingType(analysis, String.class);
+    assertThat(analysis).isNull();
   }
 
   @Test
@@ -212,11 +210,13 @@ class NoSuchBeanDefinitionFailureAnalyzerTests {
   }
 
   private FatalBeanException createFailure(Class<?> config, String... environment) {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+    try {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       this.analyzer = new NoSuchBeanDefinitionFailureAnalyzer(context.getBeanFactory());
       TestPropertyValues.of(environment).applyTo(context);
       context.register(config);
       context.refresh();
+      context.close();
       return null;
     }
     catch (FatalBeanException ex) {

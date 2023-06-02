@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link ServletWebServerApplicationContext} and {@link WebServer}s
- * running Spring MVC.
+ * running Web MVC.
  *
  * @author Phillip Webb
  * @author Ivan Sopov

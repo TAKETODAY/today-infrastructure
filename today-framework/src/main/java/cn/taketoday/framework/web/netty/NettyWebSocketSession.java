@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.NativeWebSocketSession;
@@ -47,7 +49,8 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   private final Channel channel;
   private final boolean secure;
 
-  public NettyWebSocketSession(boolean secure, ChannelHandlerContext ctx) {
+  public NettyWebSocketSession(HttpHeaders handshakeHeaders, boolean secure, ChannelHandlerContext ctx) {
+    super(handshakeHeaders);
     this.secure = secure;
     this.channel = ctx.channel();
   }
@@ -127,6 +130,12 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   public void close(CloseStatus status) throws IOException {
     channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
             .addListener(ChannelFutureListener.CLOSE);
+  }
+
+  @Nullable
+  @Override
+  public String getAcceptedProtocol() {
+    return null;
   }
 
   @Override

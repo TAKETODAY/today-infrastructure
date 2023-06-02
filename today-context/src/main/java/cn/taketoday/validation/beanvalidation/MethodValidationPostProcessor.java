@@ -92,7 +92,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
     if (validator instanceof LocalValidatorFactoryBean) {
       this.validator = ((LocalValidatorFactoryBean) validator).getValidator();
     }
-    else if (validator instanceof ValidatorAdapter) {
+    else if (validator instanceof InfraValidatorAdapter) {
       this.validator = validator.unwrap(Validator.class);
     }
     else {

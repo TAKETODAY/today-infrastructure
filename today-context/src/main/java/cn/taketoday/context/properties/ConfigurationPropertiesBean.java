@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,13 +15,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -37,6 +38,7 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.properties.bind.BindConstructorProvider;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.ResolvableType;
@@ -76,19 +78,14 @@ public final class ConfigurationPropertiesBean {
 
   private final BindMethod bindMethod;
 
-  private ConfigurationPropertiesBean(
-          String name, @Nullable Object instance,
-          ConfigurationProperties annotation, Bindable<?> bindTarget) {
-    this(name, instance, annotation, bindTarget, BindMethod.forType(bindTarget.getType().resolve()));
-  }
-
-  private ConfigurationPropertiesBean(
-          String name, @Nullable Object instance, ConfigurationProperties annotation, Bindable<?> bindTarget, BindMethod bindMethod) {
+  private ConfigurationPropertiesBean(String name,
+          @Nullable Object instance, ConfigurationProperties annotation,
+          Bindable<?> bindTarget, @Nullable BindMethod bindMethod) {
     this.name = name;
     this.instance = instance;
     this.annotation = annotation;
     this.bindTarget = bindTarget;
-    this.bindMethod = bindMethod;
+    this.bindMethod = (bindMethod != null) ? bindMethod : BindMethod.get(bindTarget);
   }
 
   /**
@@ -187,7 +184,8 @@ public final class ConfigurationPropertiesBean {
       if (isConfigurationPropertiesBean(beanFactory, beanName)) {
         try {
           Object bean = beanFactory.getBean(beanName);
-          ConfigurationPropertiesBean propertiesBean = get(applicationContext, bean, beanName);
+          BindMethod bindMethod = getBindMethod(beanFactory, beanName);
+          ConfigurationPropertiesBean propertiesBean = get(applicationContext, bean, beanName, bindMethod);
           if (propertiesBean != null) {
             propertiesBeans.put(beanName, propertiesBean);
           }
@@ -196,6 +194,17 @@ public final class ConfigurationPropertiesBean {
       }
     }
     return propertiesBeans;
+  }
+
+  @Nullable
+  private static BindMethod getBindMethod(ConfigurableBeanFactory beanFactory, String beanName) {
+    try {
+      BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+      return (BindMethod) beanDefinition.getAttribute(BindMethod.class.getName());
+    }
+    catch (NoSuchBeanDefinitionException ex) {
+      return null;
+    }
   }
 
   private static boolean isConfigurationPropertiesBean(ConfigurableBeanFactory beanFactory, String beanName) {
@@ -231,8 +240,14 @@ public final class ConfigurationPropertiesBean {
   @Nullable
   public static ConfigurationPropertiesBean get(
           ApplicationContext applicationContext, Object bean, String beanName) {
+    return get(applicationContext, bean, beanName, null);
+  }
+
+  @Nullable
+  private static ConfigurationPropertiesBean get(ApplicationContext applicationContext,
+          Object bean, String beanName, @Nullable BindMethod bindMethod) {
     Method factoryMethod = findFactoryMethod(applicationContext, beanName);
-    return create(beanName, bean, bean.getClass(), factoryMethod);
+    return create(beanName, bean, bean.getClass(), factoryMethod, bindMethod);
   }
 
   @Nullable
@@ -285,7 +300,7 @@ public final class ConfigurationPropertiesBean {
   }
 
   static ConfigurationPropertiesBean forValueObject(Class<?> beanClass, String beanName) {
-    ConfigurationPropertiesBean propertiesBean = create(beanName, null, beanClass, null);
+    ConfigurationPropertiesBean propertiesBean = create(beanName, null, beanClass, null, null);
     if (!(propertiesBean != null && propertiesBean.getBindMethod() == BindMethod.VALUE_OBJECT)) {
       throw new IllegalStateException("Bean '" + beanName + "' is not a @ConfigurationProperties value object");
     }
@@ -293,8 +308,9 @@ public final class ConfigurationPropertiesBean {
   }
 
   @Nullable
-  private static ConfigurationPropertiesBean create(
-          String name, @Nullable Object instance, Class<?> type, @Nullable Method factory) {
+  private static ConfigurationPropertiesBean create(String name,
+          @Nullable Object instance, Class<?> type,
+          @Nullable Method factory, @Nullable BindMethod bindMethod) {
     ConfigurationProperties annotation = findAnnotation(instance, type, factory, ConfigurationProperties.class);
     if (annotation == null) {
       return null;
@@ -304,14 +320,12 @@ public final class ConfigurationPropertiesBean {
                                                    : new Annotation[] { annotation };
     ResolvableType bindType = (factory != null) ? ResolvableType.forReturnType(factory)
                                                 : ResolvableType.fromClass(type);
-    Bindable<Object> bindTarget = Bindable.of(bindType).withAnnotations(annotations);
-    if (instance != null) {
-      bindTarget = bindTarget.withExistingValue(instance);
+    Bindable<Object> bindable = Bindable.of(bindType).withAnnotations(annotations);
+    bindMethod = (factory != null) ? BindMethod.JAVA_BEAN : bindMethod;
+    if (instance != null && bindMethod != BindMethod.VALUE_OBJECT) {
+      bindable = bindable.withExistingValue(instance);
     }
-    if (factory != null) {
-      return new ConfigurationPropertiesBean(name, instance, annotation, bindTarget, BindMethod.JAVA_BEAN);
-    }
-    return new ConfigurationPropertiesBean(name, instance, annotation, bindTarget);
+    return new ConfigurationPropertiesBean(name, instance, annotation, bindable, bindMethod);
   }
 
   @Nullable
@@ -333,8 +347,9 @@ public final class ConfigurationPropertiesBean {
 
   private static <A extends Annotation> MergedAnnotation<A> findMergedAnnotation(
           @Nullable AnnotatedElement element, Class<A> annotationType) {
-    return (element != null) ? MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY).get(annotationType)
-                             : MergedAnnotation.missing();
+    return element != null
+           ? MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY).get(annotationType)
+           : MergedAnnotation.missing();
   }
 
   /**
@@ -352,9 +367,16 @@ public final class ConfigurationPropertiesBean {
      */
     VALUE_OBJECT;
 
-    public static BindMethod forType(@Nullable Class<?> type) {
-      return ConfigurationPropertiesBindConstructorProvider.INSTANCE.getBindConstructor(type, false) != null
-             ? VALUE_OBJECT : JAVA_BEAN;
+    static BindMethod get(Bindable<?> bindable) {
+      return get(BindConstructorProvider.DEFAULT.getBindConstructor(bindable, false));
+    }
+
+    private static BindMethod get(@Nullable Constructor<?> bindConstructor) {
+      return bindConstructor != null ? VALUE_OBJECT : JAVA_BEAN;
+    }
+
+    public static BindMethod forType(Class<?> type) {
+      return get(BindConstructorProvider.DEFAULT.getBindConstructor(type, false));
     }
 
   }

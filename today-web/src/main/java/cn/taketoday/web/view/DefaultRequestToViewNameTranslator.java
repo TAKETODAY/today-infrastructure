@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.view;
 
-import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -144,12 +143,10 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
    */
   @Override
   public String getViewName(RequestContext request) {
-    RequestPath lookupPath = request.getLookupPath();
-    String path = lookupPath.pathWithinApplication().value();
-    path = removeSemicolonContent
-           ? WebUtils.removeSemicolonContent(path)
-           : path;
-    return prefix + transformPath(path) + suffix;
+    String lookupPath = removeSemicolonContent
+                        ? WebUtils.removeSemicolonContent(request.getLookupPath().value())
+                        : request.getLookupPath().value();
+    return prefix + transformPath(lookupPath) + suffix;
   }
 
   /**

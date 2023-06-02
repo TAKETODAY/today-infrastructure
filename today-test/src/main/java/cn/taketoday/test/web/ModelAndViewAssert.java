@@ -32,7 +32,7 @@ import cn.taketoday.web.view.ModelAndView;
 
 /**
  * A collection of assertions intended to simplify testing scenarios dealing
- * with Spring Web MVC {@link cn.taketoday.web.view.ModelAndView
+ * with Infra Web MVC {@link cn.taketoday.web.view.ModelAndView
  * ModelAndView} objects.
  *
  * <p>Intended for use with JUnit 4 and TestNG. All {@code assert*()} methods

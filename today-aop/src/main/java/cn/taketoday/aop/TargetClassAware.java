@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.aop;
 
 import cn.taketoday.aop.framework.Advised;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Minimal interface for exposing the target class behind a proxy.
@@ -42,6 +43,7 @@ public interface TargetClassAware {
    *
    * @return the target Class, or {@code null} if not known
    */
+  @Nullable
   Class<?> getTargetClass();
 
 }

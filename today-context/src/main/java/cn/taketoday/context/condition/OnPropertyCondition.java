@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,10 +22,9 @@ package cn.taketoday.context.condition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.condition.ConditionMessage.Style;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAttributes;
@@ -47,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnProperty
  * @since 4.0 2022/1/16 17:52
  */
-class OnPropertyCondition extends ContextCondition implements Ordered {
+class OnPropertyCondition extends InfraCondition implements Ordered {
 
   @Override
   public int getOrder() {
@@ -55,14 +54,15 @@ class OnPropertyCondition extends ContextCondition implements Ordered {
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     List<AnnotationAttributes> allAnnotationAttributes = metadata.getAnnotations()
             .stream(ConditionalOnProperty.class)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
-            .map(MergedAnnotation::asAnnotationAttributes).toList();
-    List<ConditionMessage> noMatch = new ArrayList<>();
-    List<ConditionMessage> match = new ArrayList<>();
+            .map(MergedAnnotation::asAnnotationAttributes)
+            .toList();
+
+    var match = new ArrayList<ConditionMessage>();
+    var noMatch = new ArrayList<ConditionMessage>();
     for (AnnotationAttributes annotationAttributes : allAnnotationAttributes) {
       ConditionOutcome outcome = determineOutcome(annotationAttributes, context.getEnvironment());
       (outcome.isMatch() ? match : noMatch).add(outcome.getConditionMessage());
@@ -73,10 +73,10 @@ class OnPropertyCondition extends ContextCondition implements Ordered {
     return ConditionOutcome.match(ConditionMessage.of(match));
   }
 
-  private ConditionOutcome determineOutcome(AnnotationAttributes annotationAttributes, PropertyResolver resolver) {
-    Spec spec = new Spec(annotationAttributes);
-    ArrayList<String> missingProperties = new ArrayList<>();
-    ArrayList<String> nonMatchingProperties = new ArrayList<>();
+  private ConditionOutcome determineOutcome(AnnotationAttributes attributes, PropertyResolver resolver) {
+    Spec spec = new Spec(attributes);
+    var missingProperties = new ArrayList<String>();
+    var nonMatchingProperties = new ArrayList<String>();
     spec.collectProperties(resolver, missingProperties, nonMatchingProperties);
     if (!missingProperties.isEmpty()) {
       return ConditionOutcome.noMatch(
@@ -100,24 +100,22 @@ class OnPropertyCondition extends ContextCondition implements Ordered {
     private final String havingValue;
     private final boolean matchIfMissing;
 
-    Spec(AnnotationAttributes annotationAttributes) {
-      String prefix = annotationAttributes.getString("prefix").trim();
+    Spec(AnnotationAttributes attributes) {
+      String prefix = attributes.getString("prefix").trim();
       if (StringUtils.hasText(prefix) && !prefix.endsWith(".")) {
         prefix = prefix + ".";
       }
       this.prefix = prefix;
-      this.havingValue = annotationAttributes.getString("havingValue");
-      this.names = getNames(annotationAttributes);
-      this.matchIfMissing = annotationAttributes.getBoolean("matchIfMissing");
+      this.names = getNames(attributes);
+      this.havingValue = attributes.getString("havingValue");
+      this.matchIfMissing = attributes.getBoolean("matchIfMissing");
     }
 
-    private String[] getNames(Map<String, Object> annotationAttributes) {
-      String[] value = (String[]) annotationAttributes.get("value");
-      String[] name = (String[]) annotationAttributes.get("name");
-      Assert.state(value.length > 0 || name.length > 0,
-              "The name or value attribute of @ConditionalOnProperty must be specified");
-      Assert.state(value.length == 0 || name.length == 0,
-              "The name and value attributes of @ConditionalOnProperty are exclusive");
+    private String[] getNames(AnnotationAttributes attributes) {
+      String[] name = (String[]) attributes.get("name");
+      String[] value = (String[]) attributes.get("value");
+      Assert.state(value.length > 0 || name.length > 0, "The name or value attribute of @ConditionalOnProperty must be specified");
+      Assert.state(value.length == 0 || name.length == 0, "The name and value attributes of @ConditionalOnProperty are exclusive");
       return (value.length > 0) ? value : name;
     }
 

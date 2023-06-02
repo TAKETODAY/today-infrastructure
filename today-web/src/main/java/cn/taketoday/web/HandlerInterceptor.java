@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,8 @@
  */
 
 package cn.taketoday.web;
+
+import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * Handler process around Handler.
@@ -41,9 +43,11 @@ public interface HandlerInterceptor {
    * Before Handler process.
    *
    * @param request Current request Context
-   * @param handler Request handler
+   * @param handler Request handler ,
+   * {@link cn.taketoday.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
    * @return If is it possible to execute the target handler
    * @throws Throwable If any exception occurred
+   * @see HandlerMethod#unwrap(Object)
    */
   default boolean beforeProcess(RequestContext request, Object handler) throws Throwable {
     return true;
@@ -53,9 +57,11 @@ public interface HandlerInterceptor {
    * After Handler processed.
    *
    * @param request Current request Context
-   * @param handler Request handler
+   * @param handler Request handler,
+   * {@link cn.taketoday.web.handler.method.HandlerMethod#unwrap(Object) HandlerMethod}
    * @param result Handler returned value
    * @throws Throwable If any exception occurred
+   * @see HandlerMethod#unwrap(Object)
    */
   default void afterProcess(RequestContext request, Object handler, Object result) throws Throwable { }
 
@@ -63,6 +69,7 @@ public interface HandlerInterceptor {
    * handler's interceptor intercept entrance
    *
    * @return return value is target handler's result
+   * @see HandlerMethod#unwrap(Object)
    * @since 4.0
    */
   default Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {

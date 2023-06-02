@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,7 +42,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * EventPublishingTestExecutionListener}.
  *
  * <p>This annotation may be used on {@code @EventListener}-compliant methods within
- * a Spring test {@link cn.taketoday.context.ApplicationContext ApplicationContext}
+ * a Infra test {@link cn.taketoday.context.ApplicationContext ApplicationContext}
  * &mdash; for example, on methods in a
  * {@link cn.taketoday.context.annotation.Configuration @Configuration}
  * class. A method annotated with this annotation will be invoked as part of the

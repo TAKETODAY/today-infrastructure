@@ -23,8 +23,6 @@ package cn.taketoday.http.client;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.io.ClassPathResource;
@@ -32,6 +30,8 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.client.MultipartBodyBuilder.PublisherEntity;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 
 import static org.assertj.core.api.Assertions.assertThat;

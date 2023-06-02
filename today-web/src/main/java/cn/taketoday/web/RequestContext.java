@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,12 +15,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
 import java.io.BufferedReader;
-import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +47,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
 import cn.taketoday.core.Conventions;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.OutputStreamSource;
 import cn.taketoday.http.DefaultHttpHeaders;
@@ -66,8 +65,12 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -81,7 +84,19 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
  * @since 2.3.7
  */
 public abstract class RequestContext extends AttributeAccessorSupport
-        implements InputStreamSource, OutputStreamSource, Flushable, HttpInputMessage, HttpRequest, AttributeAccessor {
+        implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
+
+  /**
+   * Scope identifier for request scope: "request".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  public static final String SCOPE_REQUEST = "request";
+
+  /**
+   * Scope identifier for session scope: "session".
+   * Supported in addition to the standard scopes "singleton" and "prototype".
+   */
+  public static final String SCOPE_SESSION = "session";
 
   private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
 
@@ -115,7 +130,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** @since 3.0 */
   protected String method;
   /** @since 3.0 */
-  protected String requestPath;
+  protected String requestURI;
+  /** @since 4.0 */
+  protected RequestPath requestPath;
   /** @since 3.0 */
   protected Map<String, String[]> parameters;
   /** @since 3.0 */
@@ -131,7 +148,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected HttpMethod httpMethod;
 
   /** @since 4.0 */
-  protected RequestPath lookupPath;
+  protected PathContainer lookupPath;
 
   /** @since 4.0 */
   protected PathContainer pathWithinApplication;
@@ -148,6 +165,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** @since 4.0 */
   protected MultipartRequest multipartRequest;
 
+  /** @since 4.0 */
+  protected AsyncWebRequest asyncWebRequest;
+
+  protected WebAsyncManager webAsyncManager;
+
   protected boolean notModified = false;
 
   @Nullable
@@ -163,6 +185,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
   protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
 
+  private long requestCompletedTimeMillis;
+
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
   }
@@ -174,6 +198,28 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public ApplicationContext getApplicationContext() {
     return this.applicationContext;
+  }
+
+  /**
+   * Get start handling this request time millis
+   *
+   * @return start handling this request time millis
+   * @since 4.0
+   */
+  public abstract long getRequestTimeMillis();
+
+  /**
+   * Get this request processing time millis
+   *
+   * @return this request processing time millis
+   * @since 4.0
+   */
+  public final long getRequestProcessingTime() {
+    long requestCompletedTimeMillis = this.requestCompletedTimeMillis;
+    if (requestCompletedTimeMillis > 0) {
+      return requestCompletedTimeMillis - getRequestTimeMillis();
+    }
+    return System.currentTimeMillis() - getRequestTimeMillis();
   }
 
   // --- request
@@ -221,8 +267,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * indicates the context of the request
    */
   public String getContextPath() {
+    String contextPath = this.contextPath;
     if (contextPath == null) {
-      this.contextPath = doGetContextPath();
+      contextPath = doGetContextPath();
+      this.contextPath = contextPath;
     }
     return contextPath;
   }
@@ -292,8 +340,20 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> containing the part of the URL from the
    * protocol name up to the query string
    */
-  public String getRequestPath() {
-    String requestPath = this.requestPath;
+  public String getRequestURI() {
+    String requestURI = this.requestURI;
+    if (requestURI == null) {
+      requestURI = doGetRequestURI();
+      this.requestURI = requestURI;
+    }
+    return requestURI;
+  }
+
+  /**
+   * @see #getRequestURI()
+   */
+  public RequestPath getRequestPath() {
+    RequestPath requestPath = this.requestPath;
     if (requestPath == null) {
       requestPath = doGetRequestPath();
       this.requestPath = requestPath;
@@ -301,13 +361,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return requestPath;
   }
 
+  protected RequestPath doGetRequestPath() {
+    return RequestPath.parse(getRequestURI(), getContextPath());
+  }
+
   /**
    * @since 4.0
    */
-  public final RequestPath getLookupPath() {
-    RequestPath lookupPath = this.lookupPath;
+  public PathContainer getLookupPath() {
+    PathContainer lookupPath = this.lookupPath;
     if (lookupPath == null) {
-      lookupPath = RequestPath.parse(getRequestPath(), getContextPath());
+      lookupPath = getRequestPath().pathWithinApplication();
       this.lookupPath = lookupPath;
     }
     return lookupPath;
@@ -322,7 +386,21 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return this.matchingMetadata;
   }
 
-  protected abstract String doGetRequestPath();
+  /**
+   * @throws IllegalStateException if HandlerMatchingMetadata is not set
+   * @since 4.0
+   */
+  public HandlerMatchingMetadata matchingMetadata() {
+    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
+    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
+    return matchingMetadata;
+  }
+
+  public boolean hasMatchingMetadata() {
+    return matchingMetadata != null;
+  }
+
+  protected abstract String doGetRequestURI();
 
   /**
    * The returned URL contains a protocol, server name, port number, and server
@@ -330,7 +408,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @return A URL
    */
-  public abstract String getRequestURL();
+  public String getRequestURL() {
+    String host = requestHeaders().getFirst(HttpHeaders.HOST);
+    return getScheme() + "://" + host + StringUtils.formatURL(getRequestURI());
+  }
 
   /**
    * Returns the query string that is contained in the request URL after the path.
@@ -342,8 +423,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * not decoded by the container.
    */
   public String getQueryString() {
+    String queryString = this.queryString;
     if (queryString == null) {
-      this.queryString = doGetQueryString();
+      queryString = doGetQueryString();
+      this.queryString = queryString;
     }
     return queryString;
   }
@@ -359,8 +442,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
   public HttpCookie[] getCookies() {
+    var cookies = this.cookies;
     if (cookies == null) {
-      this.cookies = doGetCookies();
+      cookies = doGetCookies();
+      this.cookies = cookies;
     }
     return cookies;
   }
@@ -400,9 +485,42 @@ public abstract class RequestContext extends AttributeAccessorSupport
     responseCookies().add(cookie);
   }
 
+  /**
+   * Adds the specified cookie to the response. This method can be called multiple
+   * times to set more than one cookie.
+   *
+   * @param name the Cookie name to return to the client
+   * @param value the Cookie value to return to the client
+   */
+  public void addCookie(String name, @Nullable String value) {
+    addCookie(new HttpCookie(name, value));
+  }
+
+  /**
+   * remove the specified cookie from response
+   *
+   * @param name cookie name
+   * @return removed cookie
+   */
+  public List<HttpCookie> removeCookie(String name) {
+    if (responseCookies != null) {
+      ArrayList<HttpCookie> toRemove = new ArrayList<>(2);
+      for (HttpCookie responseCookie : responseCookies) {
+        if (Objects.equals(name, responseCookie.getName())) {
+          toRemove.add(responseCookie);
+        }
+      }
+      responseCookies.removeAll(toRemove);
+      return toRemove;
+    }
+    return null;
+  }
+
   public ArrayList<HttpCookie> responseCookies() {
+    var responseCookies = this.responseCookies;
     if (responseCookies == null) {
-      this.responseCookies = new ArrayList<>();
+      responseCookies = new ArrayList<>();
+      this.responseCookies = responseCookies;
     }
     return responseCookies;
   }
@@ -419,8 +537,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * values in the parameter map are of type String array.
    */
   public Map<String, String[]> getParameters() {
+    var parameters = this.parameters;
     if (parameters == null) {
-      this.parameters = doGetParameters();
+      parameters = doGetParameters();
+      this.parameters = parameters;
     }
     return parameters;
   }
@@ -521,8 +641,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * this request was made
    */
   public String getMethodValue() {
+    String method = this.method;
     if (method == null) {
-      this.method = doGetMethod();
+      method = doGetMethod();
+      this.method = method;
     }
     return method;
   }
@@ -530,8 +652,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @NonNull
   @Override
   public HttpMethod getMethod() {
+    HttpMethod httpMethod = this.httpMethod;
     if (httpMethod == null) {
       httpMethod = HttpMethod.valueOf(getMethodValue());
+      this.httpMethod = httpMethod;
     }
     return httpMethod;
   }
@@ -578,8 +702,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public InputStream getInputStream() throws IOException {
+    InputStream inputStream = this.inputStream;
     if (inputStream == null) {
-      this.inputStream = doGetInputStream();
+      inputStream = doGetInputStream();
+      this.inputStream = inputStream;
     }
     return inputStream;
   }
@@ -600,8 +726,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public BufferedReader getReader() throws IOException {
+    BufferedReader reader = this.reader;
     if (reader == null) {
-      this.reader = doGetReader();
+      reader = doGetReader();
+      this.reader = reader;
     }
     return reader;
   }
@@ -651,6 +779,55 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected abstract MultipartRequest createMultipartRequest();
 
   // ---------------------------------------------------------------------
+  // Async
+  // ---------------------------------------------------------------------
+
+  /**
+   * Whether the selected handler for the current request chose to handle the
+   * request asynchronously. A return value of "true" indicates concurrent
+   * handling is under way and the response will remain open. A return value
+   * of "false" means concurrent handling was either not started or possibly
+   * that it has completed and the request was dispatched for further
+   * processing of the concurrent result.
+   *
+   * @since 4.0
+   */
+  public boolean isConcurrentHandlingStarted() {
+    return asyncWebRequest != null && asyncWebRequest.isAsyncStarted();
+  }
+
+  public AsyncWebRequest getAsyncWebRequest() {
+    var asyncWebRequest = this.asyncWebRequest;
+    if (asyncWebRequest == null) {
+      asyncWebRequest = createAsyncWebRequest();
+      this.asyncWebRequest = asyncWebRequest;
+    }
+    return asyncWebRequest;
+  }
+
+  protected abstract AsyncWebRequest createAsyncWebRequest();
+
+  public WebAsyncManager getAsyncManager() {
+    WebAsyncManager webAsyncManager = this.webAsyncManager;
+    if (webAsyncManager == null) {
+      webAsyncManager = createWebAsyncManager();
+      this.webAsyncManager = webAsyncManager;
+    }
+    return webAsyncManager;
+  }
+
+  private WebAsyncManagerFactory webAsyncManagerFactory;
+
+  public void setWebAsyncManagerFactory(WebAsyncManagerFactory webAsyncManagerFactory) {
+    this.webAsyncManagerFactory = webAsyncManagerFactory;
+  }
+
+  private WebAsyncManager createWebAsyncManager() {
+    return Objects.requireNonNullElseGet(webAsyncManagerFactory, WebAsyncManagerFactory::new)
+            .getWebAsyncManager(this);
+  }
+
+  // ---------------------------------------------------------------------
   // requestCompleted
   // ---------------------------------------------------------------------
 
@@ -659,6 +836,18 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>Executes all request destruction callbacks and other resources cleanup
    */
   public void requestCompleted() {
+    requestCompleted(null);
+  }
+
+  /**
+   * Signal that the request has been completed.
+   * <p>Executes all request destruction callbacks and other resources cleanup
+   *
+   * @param notHandled exception not handled
+   */
+  public void requestCompleted(@Nullable Throwable notHandled) {
+    requestCompletedTimeMillis = System.currentTimeMillis();
+
     if (multipartRequest != null) {
       // @since 3.0 cleanup MultipartFiles
       multipartRequest.cleanup();
@@ -670,8 +859,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
         runnable.run();
       }
       callbacks.clear();
-      this.requestDestructionCallbacks = null;
+      requestDestructionCallbacks = null;
     }
+
+    postRequestCompleted(notHandled);
+  }
+
+  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+
   }
 
   /**
@@ -794,8 +989,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 3.0
    */
   public HttpHeaders requestHeaders() {
+    HttpHeaders requestHeaders = this.requestHeaders;
     if (requestHeaders == null) {
-      this.requestHeaders = createRequestHeaders();
+      requestHeaders = createRequestHeaders();
+      this.requestHeaders = requestHeaders;
     }
     return requestHeaders;
   }
@@ -952,12 +1149,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
     // Evaluate conditions in order of precedence.
     // See https://datatracker.ietf.org/doc/html/rfc9110#section-13.2.2
     if (validateIfMatch(eTag)) {
-      updateResponseStateChanging();
+      updateResponseStateChanging(eTag, lastModifiedTimestamp);
       return this.notModified;
     }
     // 2) If-Unmodified-Since
     else if (validateIfUnmodifiedSince(lastModifiedTimestamp)) {
-      updateResponseStateChanging();
+      updateResponseStateChanging(eTag, lastModifiedTimestamp);
       return this.notModified;
     }
     // 3) If-None-Match
@@ -1049,9 +1246,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return first.equals(second);
   }
 
-  private void updateResponseStateChanging() {
+  private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
     if (this.notModified) {
       setStatus(HttpStatus.PRECONDITION_FAILED.value());
+    }
+    else {
+      addCachingResponseHeaders(eTag, lastModifiedTimestamp);
     }
   }
 
@@ -1067,17 +1267,15 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return true;
   }
 
-  private boolean validateIfModifiedSince(long lastModifiedTimestamp) {
+  private void validateIfModifiedSince(long lastModifiedTimestamp) {
     if (lastModifiedTimestamp < 0) {
-      return false;
+      return;
     }
     long ifModifiedSince = parseDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
-    if (ifModifiedSince == -1) {
-      return false;
+    if (ifModifiedSince != -1) {
+      // We will perform this validation...
+      this.notModified = ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000);
     }
-    // We will perform this validation...
-    this.notModified = ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000);
-    return true;
   }
 
   private void updateResponseIdempotent(String eTag, long lastModifiedTimestamp) {
@@ -1090,6 +1288,18 @@ public abstract class RequestContext extends AttributeAccessorSupport
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
         httpHeaders.setDate(HttpHeaders.LAST_MODIFIED, lastModifiedTimestamp);
+      }
+      if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
+        httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
+      }
+    }
+  }
+
+  private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
+    if (SAFE_METHODS.contains(getMethodValue())) {
+      HttpHeaders httpHeaders = responseHeaders();
+      if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
+        httpHeaders.setLastModified(lastModifiedTimestamp);
       }
       if (StringUtils.isNotEmpty(eTag) && httpHeaders.get(HttpHeaders.ETAG) == null) {
         httpHeaders.set(HttpHeaders.ETAG, padEtagIfNecessary(eTag));
@@ -1149,11 +1359,31 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return -1;
   }
 
-  public void setBindingContext(BindingContext bindingContext) {
+  /** @since 4.0 */
+  public void setBinding(@Nullable BindingContext bindingContext) {
     this.bindingContext = bindingContext;
   }
 
-  public BindingContext getBindingContext() {
+  /** @since 4.0 */
+  public boolean hasBinding() {
+    return bindingContext != null;
+  }
+
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  public BindingContext getBinding() {
+    return bindingContext;
+  }
+
+  /**
+   * @throws IllegalStateException if BindingContext is not set
+   * @since 4.0
+   */
+  public BindingContext binding() {
+    BindingContext bindingContext = this.bindingContext;
+    Assert.state(bindingContext != null, "BindingContext is required");
     return bindingContext;
   }
 
@@ -1190,7 +1420,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @throws IllegalStateException if the response has already been committed
    */
   public void reset() {
-    resetResponseHeader();
+    if (responseHeaders != null) {
+      responseHeaders.clear();
+    }
   }
 
   /**
@@ -1238,24 +1470,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * Sets the status code and message for this response.
    *
-   * @param status the status code
-   * @param message the status message
-   */
-  @Deprecated
-  public abstract void setStatus(int status, String message);
-
-  /**
-   * Sets the status code and message for this response.
-   *
    * @param status the status
    */
   public void setStatus(HttpStatusCode status) {
-    if (status instanceof HttpStatus httpStatus) {
-      setStatus(httpStatus.value(), httpStatus.getReasonPhrase());
-    }
-    else {
-      setStatus(status.value());
-    }
+    setStatus(status.value());
   }
 
   /**
@@ -1397,8 +1615,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public OutputStream getOutputStream() throws IOException {
+    OutputStream outputStream = this.outputStream;
     if (outputStream == null) {
-      this.outputStream = doGetOutputStream();
+      outputStream = doGetOutputStream();
+      this.outputStream = outputStream;
     }
     return outputStream;
   }
@@ -1425,8 +1645,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Override
   public PrintWriter getWriter() throws IOException {
+    PrintWriter writer = this.writer;
     if (writer == null) {
-      this.writer = doGetWriter();
+      writer = doGetWriter();
+      this.writer = writer;
     }
     return writer;
   }
@@ -1478,6 +1700,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Nullable
   public String getResponseContentType() {
+    if (responseContentType == null) {
+      if (responseHeaders != null) {
+        return responseHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+      }
+    }
     return responseContentType;
   }
 
@@ -1487,8 +1714,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 3.0
    */
   public HttpHeaders responseHeaders() {
+    HttpHeaders responseHeaders = this.responseHeaders;
     if (responseHeaders == null) {
-      this.responseHeaders = createResponseHeaders();
+      responseHeaders = createResponseHeaders();
+      this.responseHeaders = responseHeaders;
     }
     return responseHeaders;
   }
@@ -1513,7 +1742,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   // ----------------------
 
-  public abstract ServerHttpResponse getServerHttpResponse();
+  public ServerHttpResponse asHttpOutputMessage() {
+    return new RequestContextHttpOutputMessage();
+  }
 
   /**
    * Native request eg: HttpServletRequest
@@ -1527,46 +1758,28 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   public abstract <T> T unwrapRequest(Class<T> requestClass);
 
-  /**
-   * @return this request-context underlying implementation
-   */
-  public abstract <T> T nativeResponse();
-
-  /**
-   * @param responseClass wrapped response class
-   * @return returns {@code null} indicated that not a responseClass
-   */
-  @Nullable
-  public abstract <T> T unwrapResponse(Class<T> responseClass);
-
   // ------------------
-
-  protected void resetResponseHeader() {
-    if (responseHeaders != null) {
-      responseHeaders.clear();
-    }
-  }
 
   /**
    * Forces any content in the buffer to be written to the client.  A call
    * to this method automatically commits the response, meaning the status
-   * code and headers will be written.
+   * code and headers will be written. Ensure that the headers and the content
+   * of the response are written out.
+   * <p>After the first flush, headers can no longer be changed.
+   * Only further content writing and content flushing is possible.
    *
    * @throws IOException if the act of flushing the buffer cannot be completed.
    * @see #isCommitted
    * @see #reset
    */
-  @Override
   public void flush() throws IOException {
     writeHeaders();
 
     if (writer != null) {
       writer.flush();
     }
-    else {
-      if (outputStream != null) {
-        outputStream.flush();
-      }
+    else if (outputStream != null) {
+      outputStream.flush();
     }
   }
 
@@ -1581,6 +1794,35 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public String toString() {
     String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
     return getMethodValue() + " " + url;
+  }
+
+  final class RequestContextHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setStatusCode(HttpStatusCode status) {
+      setStatus(status);
+    }
+
+    @Override
+    public void flush() throws IOException {
+      RequestContext.this.flush();
+    }
+
+    @Override
+    public void close() {
+      writeHeaders();
+    }
+
+    @Override
+    public OutputStream getBody() throws IOException {
+      return getOutputStream();
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+      return responseHeaders();
+    }
+
   }
 
 }

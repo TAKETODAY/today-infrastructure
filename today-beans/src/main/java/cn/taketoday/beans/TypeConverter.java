@@ -80,9 +80,9 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  <T> T convertIfNecessary(
-          @Nullable Object value, @Nullable Class<T> requiredType,
-          @Nullable MethodParameter methodParam) throws TypeMismatchException;
+  <T> T convertIfNecessary(@Nullable Object value,
+          @Nullable Class<T> requiredType, @Nullable MethodParameter methodParam)
+          throws TypeMismatchException;
 
   /**
    * Convert the value to the required type (if necessary from a String).
@@ -102,8 +102,8 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType, @Nullable Field field)
-          throws TypeMismatchException;
+  <T> T convertIfNecessary(@Nullable Object value,
+          @Nullable Class<T> requiredType, @Nullable Field field) throws TypeMismatchException;
 
   /**
    * Convert the value to the required type (if necessary from a String).
@@ -122,10 +122,8 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  default <T> T convertIfNecessary(
-          @Nullable Object value, @Nullable Class<T> requiredType,
-          @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
-
+  default <T> T convertIfNecessary(@Nullable Object value,
+          @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
     throw new UnsupportedOperationException("TypeDescriptor resolution not supported");
   }
 

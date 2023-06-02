@@ -54,7 +54,7 @@ public class HandlerInterceptorHolder implements HandlerInterceptorsProvider {
    * @param interceptors interceptors to add
    * @throws NullPointerException interceptors is null
    */
-  public void addInterceptors(HandlerInterceptor... interceptors) {
+  public void addInterceptors(@Nullable HandlerInterceptor... interceptors) {
     this.interceptors.add(interceptors);
   }
 
@@ -81,6 +81,10 @@ public class HandlerInterceptorHolder implements HandlerInterceptorsProvider {
   @Override
   public boolean hasInterceptor() {
     return interceptors.isPresent();
+  }
+
+  public int interceptorSize() {
+    return interceptors.size();
   }
 
   public ArrayHolder<HandlerInterceptor> getHolder() {

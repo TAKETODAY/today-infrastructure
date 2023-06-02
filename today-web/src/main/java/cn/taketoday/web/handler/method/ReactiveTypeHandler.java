@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,6 @@ import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.ServerSentEvent;
-import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -55,7 +54,6 @@ import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 
 /**
  * Private helper class to assist with handling "reactive" return values types
@@ -77,10 +75,7 @@ final class ReactiveTypeHandler {
   private static final Logger log = LoggerFactory.getLogger(ReactiveTypeHandler.class);
 
   private static final long STREAMING_TIMEOUT_VALUE = -1;
-
-  private static final MediaType[] JSON_STREAMING_MEDIA_TYPES = {
-          MediaType.APPLICATION_NDJSON, MediaType.APPLICATION_STREAM_JSON
-  };
+  private static final MediaType WILDCARD_SUBTYPE_SUFFIXED_BY_NDJSON = MediaType.valueOf("application/*+x-ndjson");
 
   private boolean taskExecutorWarning;
   private final TaskExecutor taskExecutor;
@@ -95,10 +90,10 @@ final class ReactiveTypeHandler {
     this(ReactiveAdapterRegistry.getSharedInstance(), new SyncTaskExecutor(), manager);
   }
 
-  public ReactiveTypeHandler(
-          ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
-    Assert.notNull(registry, "ReactiveAdapterRegistry is required");
+  public ReactiveTypeHandler(ReactiveAdapterRegistry registry,
+          TaskExecutor executor, ContentNegotiationManager manager) {
     Assert.notNull(executor, "TaskExecutor is required");
+    Assert.notNull(registry, "ReactiveAdapterRegistry is required");
     Assert.notNull(manager, "ContentNegotiationManager is required");
     this.adapterRegistry = registry;
     this.taskExecutor = executor;
@@ -152,15 +147,12 @@ final class ReactiveTypeHandler {
         new TextEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
-      for (MediaType type : mediaTypes) {
-        for (MediaType streamingType : JSON_STREAMING_MEDIA_TYPES) {
-          if (streamingType.includes(type)) {
-            logExecutorWarning(returnType);
-            var emitter = getEmitter(streamingType);
-            new JsonEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
-            return emitter;
-          }
-        }
+      MediaType streamingResponseType = findConcreteStreamingMediaType(mediaTypes);
+      if (streamingResponseType != null) {
+        logExecutorWarning(returnType);
+        ResponseBodyEmitter emitter = getEmitter(streamingResponseType);
+        new JsonEmitterSubscriber(emitter, this.taskExecutor).connect(adapter, returnValue);
+        return emitter;
       }
     }
 
@@ -169,10 +161,49 @@ final class ReactiveTypeHandler {
     new DeferredResultSubscriber(result, adapter, elementType)
             .connect(adapter, returnValue);
 
-    WebAsyncUtils.getAsyncManager(request)
+    request.getAsyncManager()
             .startDeferredResultProcessing(result);
 
     return null;
+  }
+
+  /**
+   * Attempts to find a concrete {@code MediaType} that can be streamed (as json separated
+   * by newlines in the response body). This method considers two concrete types
+   * {@code APPLICATION_NDJSON} and {@code APPLICATION_STREAM_JSON}) as well as any
+   * subtype of application that has the {@code +x-ndjson} suffix. In the later case,
+   * the media type MUST be concrete for it to be considered.
+   *
+   * <p>For example {@code application/vnd.myapp+x-ndjson} is considered a streaming type
+   * while {@code application/*+x-ndjson} isn't.
+   *
+   * @param acceptedMediaTypes the collection of acceptable media types in the request
+   * @return the concrete streaming {@code MediaType} if one could be found or {@code null}
+   * if none could be found
+   */
+  @Nullable
+  static MediaType findConcreteStreamingMediaType(Collection<MediaType> acceptedMediaTypes) {
+    for (MediaType acceptedType : acceptedMediaTypes) {
+      if (WILDCARD_SUBTYPE_SUFFIXED_BY_NDJSON.includes(acceptedType)) {
+        if (acceptedType.isConcrete()) {
+          return acceptedType;
+        }
+        else {
+          // if not concrete, it must be application/*+x-ndjson: we assume
+          // that the requester is only interested in the ndjson nature of
+          // the underlying representation and can parse any example of that
+          // underlying representation, so we use the ndjson media type.
+          return MediaType.APPLICATION_NDJSON;
+        }
+      }
+      else if (MediaType.APPLICATION_NDJSON.includes(acceptedType)) {
+        return MediaType.APPLICATION_NDJSON;
+      }
+      else if (MediaType.APPLICATION_STREAM_JSON.includes(acceptedType)) {
+        return MediaType.APPLICATION_STREAM_JSON;
+      }
+    }
+    return null; // not a concrete streaming type
   }
 
   private Collection<MediaType> getMediaTypes(RequestContext request)
@@ -190,8 +221,9 @@ final class ReactiveTypeHandler {
   private ResponseBodyEmitter getEmitter(MediaType mediaType) {
     return new ResponseBodyEmitter(STREAMING_TIMEOUT_VALUE) {
       @Override
-      protected void extendResponse(ServerHttpResponse outputMessage) {
-        outputMessage.getHeaders().setContentType(mediaType);
+      protected void extendResponse(RequestContext outputMessage) {
+        // FIXME 不使用继承方式
+        outputMessage.setContentType(mediaType.toString());
       }
     };
   }

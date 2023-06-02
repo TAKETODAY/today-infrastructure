@@ -22,7 +22,6 @@ package cn.taketoday.scheduling.annotation;
 
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -53,10 +52,10 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.concurrent.CustomizableThreadFactory;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -142,7 +141,8 @@ public class EnableAsyncTests {
     System.setProperty("my.app.myExecutor", "myExecutor2");
 
     Class<?> configClass = AsyncWithExecutorQualifiedByExpressionConfig.class;
-    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
+    try {
+      ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass);
       AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder asyncBean =
               context.getBean(AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder.class);
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,7 +54,7 @@ public class ConnectionTest {
 
     operations.setGeneratedKeys(false);
     JdbcConnection cn = new JdbcConnection(operations, operations.getDataSource(), false);
-    cn.createQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildPreparedStatement();
+    cn.createNamedQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildStatement();
 
     verify(dataSource, times(1)).getConnection();
     verify(jdbcConnection).isClosed();
@@ -80,7 +80,7 @@ public class ConnectionTest {
 
     RepositoryManager sql2o = new RepositoryManager(dataSource, false);
     try (JdbcConnection cn = sql2o.open()) {
-      cn.createQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildPreparedStatement();
+      cn.createNamedQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildStatement();
       fail("exception not thrown");
     }
     catch (MyException ex) {

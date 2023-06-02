@@ -31,7 +31,7 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.io.Resource;
@@ -43,9 +43,10 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.support.ServletContextResourceLoader;
-import cn.taketoday.web.context.support.StandardServletEnvironment;
 import cn.taketoday.web.servlet.ServletContextAware;
+import cn.taketoday.web.servlet.support.ServletContextResourceLoader;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletContext;
@@ -70,7 +71,7 @@ import jakarta.servlet.ServletException;
  * Filters usually don't load their own context but rather access service
  * beans from the Framework root application context, accessible via the
  * filter's {@link #getServletContext() ServletContext} (see
- * {@link cn.taketoday.web.context.support.WebApplicationContextUtils}).
+ * {@link WebApplicationContextUtils}).
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Juergen Hoeller

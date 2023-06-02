@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,20 +20,26 @@
 
 package cn.taketoday.framework.web.server;
 
+import java.util.Objects;
+
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
  * Simple server-independent abstraction for error pages. Roughly equivalent to the
- * {@literal &lt;error-page&gt;} element traditionally found in web.xml.
+ * {@literal <error-page/>} element traditionally found in web.xml.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ErrorPage {
 
+  @Nullable
   private final HttpStatusCode status;
 
+  @Nullable
   private final Class<? extends Throwable> exception;
 
   private final String path;
@@ -72,6 +78,7 @@ public class ErrorPage {
    *
    * @return the exception type or {@code null}
    */
+  @Nullable
   public Class<? extends Throwable> getException() {
     return this.exception;
   }
@@ -82,6 +89,7 @@ public class ErrorPage {
    *
    * @return the status or {@code null}
    */
+  @Nullable
   public HttpStatusCode getStatus() {
     return this.status;
   }
@@ -100,6 +108,7 @@ public class ErrorPage {
    *
    * @return the exception type name (or {@code null} if there is none)
    */
+  @Nullable
   public String getExceptionName() {
     return (this.exception != null) ? this.exception.getName() : null;
   }
@@ -123,8 +132,9 @@ public class ErrorPage {
       return false;
     }
     if (obj instanceof ErrorPage other) {
-      return ObjectUtils.nullSafeEquals(getExceptionName(), other.getExceptionName())
-              && ObjectUtils.nullSafeEquals(this.path, other.path) && this.status == other.status;
+      return this.status == other.status
+              && Objects.equals(this.path, other.path)
+              && Objects.equals(getExceptionName(), other.getExceptionName());
     }
     return false;
   }

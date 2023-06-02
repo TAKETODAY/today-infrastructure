@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,6 +56,7 @@ import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -68,7 +69,17 @@ import cn.taketoday.web.util.UriTemplateHandler;
 /**
  * Synchronous client to perform HTTP requests, exposing a simple, template
  * method API over underlying HTTP client libraries such as the JDK
- * {@code HttpURLConnection}, Apache HttpComponents, and others.
+ * {@code HttpURLConnection}, Apache HttpComponents, and others. RestTemplate
+ * offers templates for common scenarios by HTTP method, in addition to the
+ * generalized {@code exchange} and {@code execute} methods that support of
+ * less frequent cases.
+ *
+ * <p>RestTemplate is typically used as a shared component. However, its
+ * configuration does not support concurrent modification, and as such its
+ * configuration is typically prepared on startup. If necessary, you can create
+ * multiple, differently configured RestTemplate instances on startup. Such
+ * instances may use the same the underlying {@link ClientHttpRequestFactory}
+ * if they need to share HTTP client resources.
  *
  * <p>The RestTemplate offers templates for common scenarios by HTTP method, in
  * addition to the generalized {@code exchange} and {@code execute} methods that
@@ -80,6 +91,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HttpMessageConverter
  * @see RequestCallback
  * @see ResponseExtractor
@@ -94,6 +106,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
           && isPresent("com.fasterxml.jackson.core.JsonGenerator");
   private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
+  private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
 
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
@@ -111,11 +124,16 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
     this.messageConverters.add(new StringHttpMessageConverter());
     this.messageConverters.add(new ResourceHttpMessageConverter(false));
+
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
 
     if (romePresent) {
       this.messageConverters.add(new AtomFeedHttpMessageConverter());
       this.messageConverters.add(new RssChannelHttpMessageConverter());
+    }
+
+    if (jackson2XmlPresent) {
+      this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
     }
 
     if (jackson2Present) {
@@ -236,8 +254,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     if (this.uriTemplateHandler instanceof DefaultUriBuilderFactory) {
       ((DefaultUriBuilderFactory) this.uriTemplateHandler).setDefaultUriVariables(uriVars);
     }
-    else if (this.uriTemplateHandler instanceof AbstractUriTemplateHandler uriTemplateHandler) {
-      uriTemplateHandler.setDefaultUriVariables(uriVars);
+    else if (this.uriTemplateHandler instanceof AbstractUriTemplateHandler handler) {
+      handler.setDefaultUriVariables(uriVars);
     }
     else {
       throw new IllegalArgumentException(
@@ -753,7 +771,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
         logger.debug("{} Response {}", url, status);
       }
       catch (IOException ex) {
-        // ignore
+        logger.debug("Failed to get response status code", ex);
       }
     }
     if (hasError) {
@@ -910,8 +928,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       }
       else {
         Class<?> requestBodyClass = requestBody.getClass();
-        Type requestBodyType = this.requestEntity instanceof RequestEntity requestEntity
-                               ? requestEntity.getType() : requestBodyClass;
+        Type requestBodyType = this.requestEntity instanceof RequestEntity entity
+                               ? entity.getType() : requestBodyClass;
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
         MediaType requestContentType = requestHeaders.getContentType();

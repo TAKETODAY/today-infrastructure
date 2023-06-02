@@ -35,7 +35,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @ContextHierarchy({
         @ContextConfiguration(classes = DirtiesContextWithContextHierarchyTests.ParentConfig.class),
         @ContextConfiguration(classes = DirtiesContextWithContextHierarchyTests.ChildConfig.class)

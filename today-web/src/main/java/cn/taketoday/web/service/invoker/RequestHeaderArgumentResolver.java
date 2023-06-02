@@ -22,6 +22,7 @@ package cn.taketoday.web.service.invoker;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestHeader;
 
 /**
@@ -31,7 +32,7 @@ import cn.taketoday.web.annotation.RequestHeader;
  * <p>The argument may be:
  * <ul>
  * <li>{@code Map<String, ?>} or
- * {@link cn.taketoday.core.MultiValueMap MultiValueMap&lt;String, ?&gt;}
+ * {@link MultiValueMap MultiValueMap&lt;String, ?&gt;}
  * with multiple headers and value(s).
  * <li>{@code Collection} or an array of header values.
  * <li>An individual header value.
@@ -66,7 +67,7 @@ public class RequestHeaderArgumentResolver extends AbstractNamedValueArgumentRes
   }
 
   @Override
-  protected void addRequestValue(String name, Object value, HttpRequestValues.Builder requestValues) {
+  protected void addRequestValue(String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
     requestValues.addHeader(name, (String) value);
   }
 

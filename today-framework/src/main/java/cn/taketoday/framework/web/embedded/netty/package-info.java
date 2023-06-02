@@ -21,7 +21,7 @@
 /**
  * Embedded reactive web server implementation backed by Netty.
  *
- * @see cn.taketoday.framework.web.embedded.netty.NettyReactiveWebServerFactory
+ * @see cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory
  */
 @NonNullApi
 @NonNullFields

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -82,7 +82,7 @@ class ConfigDataImporter {
           ConfigDataLocationResolverContext locationResolverContext,
           ConfigDataLoaderContext loaderContext, List<ConfigDataLocation> locations) {
     try {
-      Profiles profiles = (activationContext != null) ? activationContext.getProfiles() : null;
+      Profiles profiles = activationContext != null ? activationContext.profiles : null;
       List<ConfigDataResolutionResult> resolved = resolve(locationResolverContext, profiles, locations);
       return load(loaderContext, resolved);
     }

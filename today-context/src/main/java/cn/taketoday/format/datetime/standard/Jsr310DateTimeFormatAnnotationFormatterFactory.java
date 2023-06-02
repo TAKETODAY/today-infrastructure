@@ -54,22 +54,19 @@ import cn.taketoday.util.StringUtils;
 public class Jsr310DateTimeFormatAnnotationFormatterFactory extends EmbeddedValueResolutionSupport
         implements AnnotationFormatterFactory<DateTimeFormat> {
 
-  // Create the set of field types that may be annotated with @DateTimeFormat.
-  private static final Set<Class<?>> FIELD_TYPES = Set.of(
-          Instant.class,
-          LocalDate.class,
-          LocalTime.class,
-          LocalDateTime.class,
-          ZonedDateTime.class,
-          OffsetDateTime.class,
-          OffsetTime.class,
-          YearMonth.class,
-          MonthDay.class
-  );
-
   @Override
   public final Set<Class<?>> getFieldTypes() {
-    return FIELD_TYPES;
+    return Set.of(
+            Instant.class,
+            LocalDate.class,
+            LocalTime.class,
+            LocalDateTime.class,
+            ZonedDateTime.class,
+            OffsetDateTime.class,
+            OffsetTime.class,
+            YearMonth.class,
+            MonthDay.class
+    );
   }
 
   @Override

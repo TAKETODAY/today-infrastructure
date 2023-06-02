@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,12 +20,12 @@
 
 package cn.taketoday.web.socket.client;
 
+import java.net.URI;
+
 import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 /**
  * A base class for WebSocket connection managers. Provides a declarative style of
@@ -51,6 +51,15 @@ public abstract class ConnectionManagerSupport implements SmartLifecycle {
             .buildAndExpand(uriVariables)
             .encode()
             .toUri();
+  }
+
+  /**
+   * Constructor with a prepared {@link URI}.
+   *
+   * @param uri the url to connect to
+   */
+  public ConnectionManagerSupport(URI uri) {
+    this.uri = uri;
   }
 
   protected URI getUri() {

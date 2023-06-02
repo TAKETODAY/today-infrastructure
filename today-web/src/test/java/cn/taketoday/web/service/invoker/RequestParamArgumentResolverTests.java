@@ -23,10 +23,12 @@ package cn.taketoday.web.service.invoker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.service.annotation.PostExchange;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -57,12 +59,15 @@ public class RequestParamArgumentResolverTests {
   // Form data vs query params tested in HttpRequestValuesTests.
 
   @Test
+  @SuppressWarnings("unchecked")
   void requestParam() {
     this.service.postForm("value 1", "value 2");
 
     Object body = this.client.getRequestValues().getBodyValue();
-    assertThat(body).isNotNull().isInstanceOf(byte[].class);
-    assertThat(new String((byte[]) body, UTF_8)).isEqualTo("param1=value+1&param2=value+2");
+    assertThat(body).isNotNull().isInstanceOf(MultiValueMap.class);
+    assertThat((MultiValueMap<String, String>) body).hasSize(2)
+            .containsEntry("param1", List.of("value 1"))
+            .containsEntry("param2", List.of("value 2"));
   }
 
   private interface Service {

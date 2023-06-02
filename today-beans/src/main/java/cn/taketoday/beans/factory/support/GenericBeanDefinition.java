@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,15 +26,17 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.lang.Nullable;
 
 /**
- * GenericBeanDefinition is a one-stop shop for standard bean definition purposes.
- * Like any bean definition, it allows for specifying a class plus optionally
+ * GenericBeanDefinition is a one-stop shop for declarative bean definition purposes.
+ * Like all common bean definitions, it allows for specifying a class plus optionally
  * constructor argument values and property values. Additionally, deriving from a
  * parent bean definition can be flexibly configured through the "parentName" property.
  *
  * <p>In general, use this {@code GenericBeanDefinition} class for the purpose of
- * registering user-visible bean definitions (which a post-processor might operate on,
- * potentially even reconfiguring the parent name). Use {@code RootBeanDefinition} /
- * {@code ChildBeanDefinition} where parent/child relationships happen to be pre-determined.
+ * registering declarative bean definitions (e.g. XML definitions which a bean
+ * post-processor might operate on, potentially even reconfiguring the parent name).
+ * Use {@code RootBeanDefinition}/{@code ChildBeanDefinition} where parent/child
+ * relationships happen to be pre-determined, and prefer {@link RootBeanDefinition}
+ * specifically for programmatic definitions derived from factory methods/suppliers.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

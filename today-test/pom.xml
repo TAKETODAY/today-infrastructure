@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -38,49 +38,42 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-aop</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-web</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-context</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-jdbc</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-tx</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-framework</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>
-      <version>2.7.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sourceforge.htmlunit</groupId>
-      <artifactId>htmlunit</artifactId>
-      <version>2.59.0</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -93,7 +86,6 @@
     <dependency>
       <groupId>org.xmlunit</groupId>
       <artifactId>xmlunit-core</artifactId>
-      <version>2.9.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -131,6 +123,7 @@
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -141,7 +134,25 @@
     <dependency>
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>selenium-api</artifactId>
-      <version>4.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>htmlunit-driver</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.htmlunit</groupId>
+      <artifactId>htmlunit</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -163,6 +174,7 @@
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -210,6 +222,12 @@
     <dependency>
       <groupId>jakarta.websocket</groupId>
       <artifactId>jakarta.websocket-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-client-api</artifactId>
       <scope>provided</scope>
     </dependency>
 
@@ -293,6 +311,13 @@
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>jakarta.el</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -319,6 +344,36 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-oxm</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -328,7 +383,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <skipTests>true</skipTests>
+          <excludedGroups>failing-test-case</excludedGroups>
         </configuration>
       </plugin>
     </plugins>

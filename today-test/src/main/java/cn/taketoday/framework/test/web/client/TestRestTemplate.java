@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.framework.test.context.ApplicationTest;
+import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -74,7 +74,7 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * {@link #getRestTemplate()}.
  * <p>
  * If you are using the
- * {@link ApplicationTest @SpringBootTest} annotation
+ * {@link InfraTest @InfraTest} annotation
  * with an embedded server, a {@link TestRestTemplate} is automatically available and can
  * be {@code @Autowired} into your test. If you need customizations (for example to adding
  * additional message converters) use a {@link RestTemplateBuilder} {@code @Bean}.
@@ -153,7 +153,7 @@ public class TestRestTemplate {
 
   /**
    * Configure the {@link UriTemplateHandler} to use to expand URI templates. By default
-   * the {@link DefaultUriBuilderFactory} is used which relies on Spring's URI template
+   * the {@link DefaultUriBuilderFactory} is used which relies on Infra URI template
    * support and exposes several useful properties that customize its behavior for
    * encoding and for prepending a common base URL. An alternative implementation may be
    * used to plug an external URI template library.
@@ -989,8 +989,8 @@ public class TestRestTemplate {
 
   private URI applyRootUriIfNecessary(URI uri) {
     UriTemplateHandler uriTemplateHandler = this.restTemplate.getUriTemplateHandler();
-    if ((uriTemplateHandler instanceof RootUriTemplateHandler) && uri.toString().startsWith("/")) {
-      return URI.create(((RootUriTemplateHandler) uriTemplateHandler).getRootUri() + uri.toString());
+    if ((uriTemplateHandler instanceof RootUriTemplateHandler handler) && uri.toString().startsWith("/")) {
+      return URI.create(handler.getRootUri() + uri);
     }
     return uri;
   }
@@ -1082,6 +1082,7 @@ public class TestRestTemplate {
 
     @Override
     public void handleError(ClientHttpResponse response) throws IOException {
+
     }
 
   }

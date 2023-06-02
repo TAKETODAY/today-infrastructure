@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -174,7 +174,7 @@ public class ClassReader {
     this.classFileBuffer = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V19) {
+    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V21) {
       throw new IllegalArgumentException(
               "Unsupported class file major version " + readShort(classFileOffset + 6));
     }

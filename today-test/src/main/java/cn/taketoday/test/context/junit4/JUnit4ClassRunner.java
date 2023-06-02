@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,16 +49,16 @@ import cn.taketoday.test.annotation.Timed;
 import cn.taketoday.test.context.TestContextBootstrapper;
 import cn.taketoday.test.context.TestContextManager;
 import cn.taketoday.test.context.TestExecutionListener;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
+import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
+import cn.taketoday.test.context.junit4.statements.RepeatTest;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestExecutionCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunAfterTestMethodCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestClassCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestExecutionCallbacks;
 import cn.taketoday.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
-import cn.taketoday.test.context.junit4.statements.FailOnTimeout;
-import cn.taketoday.test.context.junit4.statements.RepeatTest;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -89,18 +89,18 @@ import cn.taketoday.util.ReflectionUtils;
  * </ul>
  *
  * <p>If you would like to use the TestContext Framework with a runner
- * other than this one, use {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
+ * other than this one, use {@link InfraClassRule} and {@link InfraMethodRule}.
  *
  * <p><strong>NOTE:</strong> this class requires JUnit 4.12 or higher.
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @see Runner
+ * @see InfraRunner
  * @see TestContextManager
  * @see AbstractJUnit4ContextTests
  * @see AbstractTransactionalJUnit4ContextTests
- * @see ApplicationClassRule
- * @see ApplicationMethodRule
+ * @see InfraClassRule
+ * @see InfraMethodRule
  * @since 4.0
  */
 public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
@@ -122,12 +122,12 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
   private final TestContextManager testContextManager;
 
-  private static void ensureSpringRulesAreNotPresent(Class<?> testClass) {
+  private static void ensureInfraRulesAreNotPresent(Class<?> testClass) {
     for (Field field : testClass.getFields()) {
-      Assert.state(!ApplicationClassRule.class.isAssignableFrom(field.getType()), () -> String.format(
+      Assert.state(!InfraClassRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationClassRule field in test class [%s], " +
                       "but ApplicationClassRule cannot be used with the JUnit4ClassRunner.", testClass.getName()));
-      Assert.state(!ApplicationMethodRule.class.isAssignableFrom(field.getType()), () -> String.format(
+      Assert.state(!InfraMethodRule.class.isAssignableFrom(field.getType()), () -> String.format(
               "Detected ApplicationMethodRule field in test class [%s], " +
                       "but ApplicationMethodRule cannot be used with the JUnit4ClassRunner.", testClass.getName()));
     }
@@ -135,7 +135,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
   /**
    * Construct a new {@code JUnit4ClassRunner} and initialize a
-   * {@link TestContextManager} to provide Spring testing functionality to
+   * {@link TestContextManager} to provide Infra testing functionality to
    * standard JUnit tests.
    *
    * @param clazz the test class to be run
@@ -146,7 +146,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
     if (logger.isDebugEnabled()) {
       logger.debug("JUnit4ClassRunner constructor called with [" + clazz + "]");
     }
-    ensureSpringRulesAreNotPresent(clazz);
+    ensureInfraRulesAreNotPresent(clazz);
     this.testContextManager = createTestContextManager(clazz);
   }
 
@@ -204,7 +204,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunBeforeTestClassCallbacks} statement, thus preserving the
-   * default JUnit functionality while adding support for the Spring TestContext
+   * default JUnit functionality while adding support for the Infra TestContext
    * Framework.
    *
    * @see RunBeforeTestClassCallbacks
@@ -379,7 +379,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
    *
    * @return either a {@link FailOnTimeout}, a {@link org.junit.internal.runners.statements.FailOnTimeout},
    * or the supplied {@link Statement} as appropriate
-   * @see #getSpringTimeout(FrameworkMethod)
+   * @see #getInfraTimeout(FrameworkMethod)
    * @see #getJUnitTimeout(FrameworkMethod)
    */
   @Override
@@ -389,7 +389,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   @SuppressWarnings("deprecation")
   protected Statement withPotentialTimeout(FrameworkMethod frameworkMethod, Object testInstance, Statement next) {
     Statement statement = null;
-    long springTimeout = getSpringTimeout(frameworkMethod);
+    long springTimeout = getInfraTimeout(frameworkMethod);
     long junitTimeout = getJUnitTimeout(frameworkMethod);
     if (springTimeout > 0 && junitTimeout > 0) {
       String msg = String.format("Test method [%s] has been configured with Framework's @Timed(millis=%s) and " +
@@ -430,7 +430,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
    * @return the timeout, or {@code 0} if none was specified
    * @see TestAnnotationUtils#getTimeout(Method)
    */
-  protected long getSpringTimeout(FrameworkMethod frameworkMethod) {
+  protected long getInfraTimeout(FrameworkMethod frameworkMethod) {
     return TestAnnotationUtils.getTimeout(frameworkMethod.getMethod());
   }
 
@@ -459,7 +459,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunBeforeTestMethodCallbacks} statement, thus preserving the
-   * default functionality while adding support for the Spring TestContext
+   * default functionality while adding support for the Infra TestContext
    * Framework.
    *
    * @see RunBeforeTestMethodCallbacks
@@ -473,7 +473,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   /**
    * Wrap the {@link Statement} returned by the parent implementation with a
    * {@code RunAfterTestMethodCallbacks} statement, thus preserving the
-   * default functionality while adding support for the Spring TestContext
+   * default functionality while adding support for the Infra TestContext
    * Framework.
    *
    * @see RunAfterTestMethodCallbacks

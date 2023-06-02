@@ -42,10 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AutowiredRuleTests {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Autowired
   @Rule
@@ -58,9 +58,9 @@ public class AutowiredRuleTests {
     // Rationale for the following assertion:
     //
     // The field value for the custom rule is null when JUnit sees it. JUnit then
-    // ignores the null value, and at a later point in time Spring injects the rule
+    // ignores the null value, and at a later point in time Infra injects the rule
     // from the ApplicationContext and overrides the null field value. But that's too
-    // late: JUnit never sees the rule supplied by Spring via dependency injection.
+    // late: JUnit never sees the rule supplied by Infra via dependency injection.
     assertThat(autowiredTestRule.applied).as("@Autowired TestRule should NOT have been applied").isFalse();
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,12 +23,12 @@ package cn.taketoday.framework.env;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.Application;
-import cn.taketoday.logging.Logger;
 
 /**
  * {@link EnvironmentPostProcessor} to add the {@link RandomValuePropertySource}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class RandomValuePropertySourceEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
@@ -38,17 +38,6 @@ public class RandomValuePropertySourceEnvironmentPostProcessor implements Enviro
    */
   public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 1;
 
-  private final Logger logger;
-
-  /**
-   * Create a new {@link RandomValuePropertySourceEnvironmentPostProcessor} instance.
-   *
-   * @param logger the logger to use
-   */
-  public RandomValuePropertySourceEnvironmentPostProcessor(Logger logger) {
-    this.logger = logger;
-  }
-
   @Override
   public int getOrder() {
     return ORDER;
@@ -56,7 +45,7 @@ public class RandomValuePropertySourceEnvironmentPostProcessor implements Enviro
 
   @Override
   public void postProcessEnvironment(ConfigurableEnvironment environment, Application application) {
-    RandomValuePropertySource.addToEnvironment(environment, this.logger);
+    RandomValuePropertySource.addToEnvironment(environment);
   }
 
 }

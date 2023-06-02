@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,11 +50,11 @@ public class ConversionFailedException extends ConversionException {
    * @param value the value we tried to convert
    * @param cause the cause of the conversion failure
    */
-  public ConversionFailedException(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType,
-                                   @Nullable Object value, Throwable cause) {
+  public ConversionFailedException(@Nullable TypeDescriptor sourceType,
+          TypeDescriptor targetType, @Nullable Object value, Throwable cause) {
 
     super("Failed to convert from type [" + sourceType + "] to type [" + targetType +
-            "] for value '" + ObjectUtils.nullSafeToString(value) + "'", cause);
+            "] for value [" + ObjectUtils.nullSafeConciseToString(value) + "]", cause);
     this.sourceType = sourceType;
     this.targetType = targetType;
     this.value = value;

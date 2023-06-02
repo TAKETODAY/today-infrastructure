@@ -20,8 +20,6 @@
 
 package cn.taketoday.framework.test.context.assertj;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -139,9 +137,9 @@ class AssertProviderApplicationContextInvocationHandler implements InvocationHan
     return ("close".equals(method.getName()) && method.getParameterCount() == 0);
   }
 
-  private Object invokeClose() throws IOException {
-    if (this.applicationContext instanceof Closeable) {
-      ((Closeable) this.applicationContext).close();
+  private Object invokeClose() {
+    if (applicationContext != null) {
+      applicationContext.close();
     }
     return null;
   }

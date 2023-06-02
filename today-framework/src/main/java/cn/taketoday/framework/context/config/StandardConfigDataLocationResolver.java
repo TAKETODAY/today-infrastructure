@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -87,7 +87,7 @@ public class StandardConfigDataLocationResolver
    * @param resourceLoader a {@link ResourceLoader} used to load resources
    */
   public StandardConfigDataLocationResolver(Binder binder, ResourceLoader resourceLoader) {
-    this.propertySourceLoaders = TodayStrategies.get(PropertySourceLoader.class, getClass().getClassLoader());
+    this.propertySourceLoaders = TodayStrategies.find(PropertySourceLoader.class, getClass().getClassLoader());
     this.configNames = getConfigNames(binder);
     this.resourceLoader = new LocationResourceLoader(resourceLoader);
   }
@@ -146,8 +146,8 @@ public class StandardConfigDataLocationResolver
   }
 
   @Override
-  public List<StandardConfigDataResource> resolveProfileSpecific(ConfigDataLocationResolverContext context,
-          ConfigDataLocation location, Profiles profiles) {
+  public List<StandardConfigDataResource> resolveProfileSpecific(
+          ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) {
     return resolve(getProfileSpecificReferences(context, location.split(), profiles));
   }
 
@@ -172,7 +172,7 @@ public class StandardConfigDataLocationResolver
     }
     ConfigDataResource parent = context.getParent();
     if (parent instanceof StandardConfigDataResource std) {
-      String parentResourceLocation = std.getReference().getResourceLocation();
+      String parentResourceLocation = std.getReference().resourceLocation;
       String parentDirectory = parentResourceLocation.substring(0, parentResourceLocation.lastIndexOf("/") + 1);
       return parentDirectory + resourceLocation;
     }
@@ -261,7 +261,7 @@ public class StandardConfigDataLocationResolver
           Set<StandardConfigDataReference> references) {
     var empty = new LinkedHashSet<StandardConfigDataResource>();
     for (StandardConfigDataReference reference : references) {
-      if (reference.getDirectory() != null) {
+      if (reference.directory != null) {
         empty.addAll(resolveEmptyDirectories(reference));
       }
     }
@@ -269,22 +269,22 @@ public class StandardConfigDataLocationResolver
   }
 
   private Set<StandardConfigDataResource> resolveEmptyDirectories(StandardConfigDataReference reference) {
-    if (!resourceLoader.isPattern(reference.getResourceLocation())) {
+    if (!resourceLoader.isPattern(reference.resourceLocation)) {
       return resolveNonPatternEmptyDirectories(reference);
     }
     return resolvePatternEmptyDirectories(reference);
   }
 
   private Set<StandardConfigDataResource> resolveNonPatternEmptyDirectories(StandardConfigDataReference reference) {
-    Resource resource = resourceLoader.getResource(reference.getDirectory());
+    Resource resource = resourceLoader.getResource(reference.directory);
     return (resource instanceof ClassPathResource || !resource.exists())
            ? Collections.emptySet()
            : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
   }
 
   private Set<StandardConfigDataResource> resolvePatternEmptyDirectories(StandardConfigDataReference reference) {
-    List<Resource> subdirectories = resourceLoader.getResources(reference.getDirectory(), ResourceType.DIRECTORY);
-    ConfigDataLocation location = reference.getConfigDataLocation();
+    List<Resource> subdirectories = resourceLoader.getResources(reference.directory, ResourceType.DIRECTORY);
+    ConfigDataLocation location = reference.configDataLocation;
     if (!location.isOptional() && CollectionUtils.isEmpty(subdirectories)) {
       String message = String.format("Config data location '%s' contains no subdirectories", location);
       throw new ConfigDataLocationNotFoundException(location, message, null);
@@ -296,14 +296,14 @@ public class StandardConfigDataLocationResolver
   }
 
   private List<StandardConfigDataResource> resolve(StandardConfigDataReference reference) {
-    if (!resourceLoader.isPattern(reference.getResourceLocation())) {
+    if (!resourceLoader.isPattern(reference.resourceLocation)) {
       return resolveNonPattern(reference);
     }
     return resolvePattern(reference);
   }
 
   private List<StandardConfigDataResource> resolveNonPattern(StandardConfigDataReference reference) {
-    Resource resource = resourceLoader.getResource(reference.getResourceLocation());
+    Resource resource = resourceLoader.getResource(reference.resourceLocation);
     if (!resource.exists() && reference.isSkippable()) {
       logSkippingResource(reference);
       return Collections.emptyList();
@@ -313,7 +313,7 @@ public class StandardConfigDataLocationResolver
 
   private List<StandardConfigDataResource> resolvePattern(StandardConfigDataReference reference) {
     var resolved = new ArrayList<StandardConfigDataResource>();
-    for (Resource resource : resourceLoader.getResources(reference.getResourceLocation(), ResourceType.FILE)) {
+    for (Resource resource : resourceLoader.getResources(reference.resourceLocation, ResourceType.FILE)) {
       if (!resource.exists() && reference.isSkippable()) {
         logSkippingResource(reference);
       }

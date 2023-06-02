@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ public class SimpleAsyncUncaughtExceptionHandler implements AsyncUncaughtExcepti
   @Override
   public void handleUncaughtException(Throwable ex, Method method, Object... params) {
     if (log.isErrorEnabled()) {
-      log.error("Unexpected exception occurred invoking async method: " + method, ex);
+      log.error("Unexpected exception occurred invoking async method: {}", method, ex);
     }
   }
 

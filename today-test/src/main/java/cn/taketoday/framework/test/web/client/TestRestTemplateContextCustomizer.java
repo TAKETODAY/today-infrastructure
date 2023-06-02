@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,11 +32,11 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.framework.test.context.ApplicationTest;
+import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.web.client.TestRestTemplate.HttpClientOption;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.test.context.ContextCustomizer;
@@ -49,15 +49,16 @@ import cn.taketoday.web.client.config.RestTemplateBuilder;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class TestRestTemplateContextCustomizer implements ContextCustomizer {
 
   @Override
   public void customizeContext(ConfigurableApplicationContext context,
           MergedContextConfiguration mergedContextConfiguration) {
-    ApplicationTest applicationTest = TestContextAnnotationUtils
-            .findMergedAnnotation(mergedContextConfiguration.getTestClass(), ApplicationTest.class);
-    if (applicationTest.webEnvironment().isEmbedded()) {
+    InfraTest infraTest = TestContextAnnotationUtils
+            .findMergedAnnotation(mergedContextConfiguration.getTestClass(), InfraTest.class);
+    if (infraTest != null && infraTest.webEnvironment().isEmbedded()) {
       registerTestRestTemplate(context);
     }
   }

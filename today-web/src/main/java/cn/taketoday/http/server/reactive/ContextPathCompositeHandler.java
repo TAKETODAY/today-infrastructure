@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -65,18 +65,16 @@ public class ContextPathCompositeHandler implements HttpHandler {
   public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
     // Remove underlying context path first (e.g. Servlet container)
     String path = request.getPath().pathWithinApplication().value();
-    return this.handlerMap.entrySet().stream()
-            .filter(entry -> path.startsWith(entry.getKey()))
-            .findFirst()
-            .map(entry -> {
-              String contextPath = request.getPath().contextPath().value() + entry.getKey();
-              ServerHttpRequest newRequest = request.mutate().contextPath(contextPath).build();
-              return entry.getValue().handle(newRequest, response);
-            })
-            .orElseGet(() -> {
-              response.setStatusCode(HttpStatus.NOT_FOUND);
-              return response.setComplete();
-            });
+    for (Map.Entry<String, HttpHandler> entry : handlerMap.entrySet()) {
+      if (path.startsWith(entry.getKey())) {
+        String contextPath = request.getPath().contextPath().value() + entry.getKey();
+        ServerHttpRequest newRequest = request.mutate().contextPath(contextPath).build();
+        return entry.getValue().handle(newRequest, response);
+      }
+    }
+
+    response.setStatusCode(HttpStatus.NOT_FOUND);
+    return response.setComplete();
   }
 
 }

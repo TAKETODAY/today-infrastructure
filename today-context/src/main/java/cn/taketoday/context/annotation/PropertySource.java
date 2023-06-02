@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -178,13 +178,13 @@ public @interface PropertySource {
   String name() default "";
 
   /**
-   * Indicate the resource location(s) of the properties file to be loaded.
-   * <p>Both traditional and XML-based properties file formats are supported
-   * &mdash; for example, {@code "classpath:/com/myco/app.properties"}
-   * or {@code "file:/path/to/file.xml"}.
+   * Indicate the resource locations of the properties files to be loaded.
+   * <p>The default {@link #factory() factory} supports both traditional and
+   * XML-based properties file formats &mdash; for example,
+   * {@code "classpath:/com/myco/app.properties"} or {@code "file:/path/to/file.xml"}.
    * <p>Resource location wildcards (e.g. *&#42;/*.properties) are not permitted;
-   * each location must evaluate to exactly one {@code .properties} resource.
-   * <p>${...} placeholders will be resolved against any/all property sources already
+   * each location must evaluate to exactly one resource.
+   * <p>${...} placeholders will be resolved against property sources already
    * registered with the {@code Environment}. See {@linkplain PropertySource above}
    * for examples.
    * <p>Each location will be added to the enclosing {@code Environment} as its own
@@ -207,7 +207,9 @@ public @interface PropertySource {
 
   /**
    * Specify a custom {@link PropertySourceFactory}, if any.
-   * <p>By default, a default factory for standard resource files will be used.
+   * <p>By default, a default factory for standard resource files will be used
+   * which supports {@code *.properties} and {@code *.xml} file formats for
+   * {@link java.util.Properties}.
    *
    * @see cn.taketoday.core.io.DefaultPropertySourceFactory
    * @see cn.taketoday.core.io.ResourcePropertySource

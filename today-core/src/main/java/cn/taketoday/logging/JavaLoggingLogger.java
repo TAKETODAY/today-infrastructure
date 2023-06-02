@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.logging;
 
@@ -23,17 +23,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serial;
 import java.net.URL;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * @author TODAY <br>
  * 2019-11-03 14:45
  */
 final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
-  private static final String thisFQCN = JavaLoggingLogger.class.getName();
-
   private final Logger logger;
 
   public JavaLoggingLogger(Logger logger, boolean debugEnabled) {
@@ -77,39 +78,19 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object message, Throwable t) {
-    final java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
-    if (this.logger.isLoggable(levelToJavaLevel)) {
-      LogRecord rec;
-      if (message instanceof LogRecord) {
-        rec = (LogRecord) message;
-      }
-      else {
-        rec = new LocationResolvingLogRecord(levelToJavaLevel, String.valueOf(message));
-        rec.setLoggerName(getName());
-        rec.setResourceBundleName(this.logger.getResourceBundleName());
-        rec.setResourceBundle(this.logger.getResourceBundle());
-        rec.setThrown(t);
-      }
-      logger.log(rec);
-    }
-  }
-
-  @Override
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
     java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
-    if (this.logger.isLoggable(levelToJavaLevel)) {
+    if (logger.isLoggable(levelToJavaLevel)) {
       String message = MessageFormatter.format(format, args);
       LocationResolvingLogRecord rec = new LocationResolvingLogRecord(levelToJavaLevel, message);
       rec.setLoggerName(getName());
-      rec.setResourceBundleName(this.logger.getResourceBundleName());
-      rec.setResourceBundle(this.logger.getResourceBundle());
+      rec.setResourceBundleName(logger.getResourceBundleName());
+      rec.setResourceBundle(logger.getResourceBundle());
       rec.setThrown(t);
       logger.log(rec);
     }
   }
 
-  @SuppressWarnings("serial")
   private static class LocationResolvingLogRecord extends LogRecord {
 
     private volatile boolean resolved;
@@ -120,7 +101,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
     @Override
     public String getSourceClassName() {
-      if (!this.resolved) {
+      if (!resolved) {
         resolve();
       }
       return super.getSourceClassName();
@@ -134,7 +115,7 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
 
     @Override
     public String getSourceMethodName() {
-      if (!this.resolved) {
+      if (!resolved) {
         resolve();
       }
       return super.getSourceMethodName();
@@ -146,24 +127,31 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
       this.resolved = true;
     }
 
+    private Optional<StackWalker.StackFrame> eatStackFrame(Stream<StackWalker.StackFrame> stream) {
+      Predicate<StackWalker.StackFrame> loggerPredicate = new Predicate<>() {
+        boolean found = false;
+
+        @Override
+        public boolean test(StackWalker.StackFrame stackFrame) {
+          String className = stackFrame.getClassName();
+          if (FQCN.equals(className)) {
+            found = true;
+            return false;
+          }
+          return found;
+        }
+      };
+      return stream.filter(loggerPredicate)
+              .findFirst();
+    }
+
     private void resolve() {
-      StackTraceElement[] stack = new Throwable().getStackTrace();
-      String sourceClassName = null;
-      String sourceMethodName = null;
-      boolean found = false;
-      for (StackTraceElement element : stack) {
-        String className = element.getClassName();
-        if (thisFQCN.equals(className)) {
-          found = true;
-        }
-        else if (found) {
-          sourceClassName = className;
-          sourceMethodName = element.getMethodName();
-          break;
-        }
-      }
-      setSourceClassName(sourceClassName);
-      setSourceMethodName(sourceMethodName);
+      StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+              .walk(this::eatStackFrame)
+              .ifPresent(stackFrame -> {
+                setSourceClassName(stackFrame.getClassName());
+                setSourceMethodName(stackFrame.getMethodName());
+              });
     }
 
     @Serial

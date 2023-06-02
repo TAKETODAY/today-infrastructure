@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -69,7 +69,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see ProxyFactory
  * @since 3.0
  */
-public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
+final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -123,10 +124,17 @@ public class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializ
   }
 
   @Override
-  public Object getProxy(ClassLoader classLoader) {
+  public Object getProxy(@Nullable ClassLoader classLoader) {
     if (logger.isTraceEnabled()) {
       logger.trace("Creating JDK dynamic proxy: {}", this.advised.getTargetSource());
     }
+
+    if (classLoader == null || classLoader.getParent() == null) {
+      // JDK bootstrap loader or platform loader suggested ->
+      // use higher-level loader which can see infrastructure classes
+      classLoader = getClass().getClassLoader();
+    }
+
     return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -53,19 +53,24 @@ class DispatcherHandlerTests {
   @Test
   void init() {
 
-    try (var context = new AnnotationConfigApplicationContext(Config.class)) {
+    var context = new AnnotationConfigApplicationContext(Config.class);
 
-      DispatcherHandler handler = new DispatcherHandler(context);
-      assertThat(handler.getHandlerMapping()).isNull();
-      assertThat(handler.getReturnValueHandler()).isNull();
-      assertThat(handler.getExceptionHandler()).isNull();
-      handler.init();
+    DispatcherHandler handler = new DispatcherHandler(context);
+    assertThat(handler).extracting("handlerMapping").isNull();
+    assertThat(handler).extracting("handlerAdapter").isNull();
+    assertThat(handler).extracting("returnValueHandler").isNull();
+    assertThat(handler).extracting("exceptionHandler").isNull();
+    assertThat(handler).extracting("notFoundHandler").isNull();
+    assertThat(handler).extracting("webAsyncManagerFactory").isNull();
 
-      assertThat(handler.getHandlerMapping()).isNotNull();
-      assertThat(handler.getExceptionHandler()).isNotNull();
-      assertThat(handler.getReturnValueHandler()).isNotNull();
-    }
+    handler.init();
 
+    assertThat(handler).extracting("handlerMapping").isNotNull();
+    assertThat(handler).extracting("handlerAdapter").isNotNull();
+    assertThat(handler).extracting("exceptionHandler").isNotNull();
+    assertThat(handler).extracting("returnValueHandler").isNotNull();
+    assertThat(handler).extracting("notFoundHandler").isNotNull();
+    assertThat(handler).extracting("webAsyncManagerFactory").isNotNull();
   }
 
 }

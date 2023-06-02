@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -64,7 +64,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -86,12 +85,10 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.StreamSupport;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -109,7 +106,7 @@ class Jackson2ObjectMapperBuilderTests {
 
   @Test
   void unknownFeature() {
-    assertThatExceptionOfType(BeansException.class)
+    assertThatIllegalArgumentException()
             .isThrownBy(() -> Jackson2ObjectMapperBuilder.json().featuresToEnable(Boolean.TRUE).build());
   }
 

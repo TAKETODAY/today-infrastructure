@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,17 +26,21 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * @author TODAY <br>
- * 2018-07-2 20:44:15
+ * Indicates that an annotated class is a prototype Bean.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-07-2 20:44:15
  */
 @Component
-@Scope("prototype")
 @Retention(RetentionPolicy.RUNTIME)
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Prototype {
 
@@ -87,5 +91,13 @@ public @interface Prototype {
    */
   @AliasFor(annotation = Component.class)
   boolean autowireCandidate() default true;
+
+  /**
+   * Alias for {@link Scope#proxyMode()}
+   *
+   * @since 4.0
+   */
+  @AliasFor(annotation = Scope.class)
+  ScopedProxyMode proxyMode() default ScopedProxyMode.DEFAULT;
 
 }

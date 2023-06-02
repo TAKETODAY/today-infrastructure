@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import java.util.StringJoiner;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -57,7 +58,15 @@ public abstract class StringUtils {
   public static final String WINDOWS_FOLDER_SEPARATOR = "\\";
   public static final char EXTENSION_SEPARATOR = Constant.PACKAGE_SEPARATOR;
 
+  private static final int DEFAULT_TRUNCATION_THRESHOLD = 100;
+
+  private static final String TRUNCATION_SUFFIX = " (truncated)...";
+
   private static final Random random = new Random();
+
+  //---------------------------------------------------------------------
+  // General convenience methods for working with Strings
+  //---------------------------------------------------------------------
 
   public static boolean isEmpty(CharSequence str) {
     return str == null || str.length() == 0;
@@ -91,7 +100,6 @@ public abstract class StringUtils {
    * @see Collections#emptyList()
    * @since 4.0
    */
-
   public static List<String> splitAsList(String source) {
     if (source == null) {
       return Collections.emptyList();
@@ -1020,6 +1028,57 @@ else */
   }
 
   /**
+   * Check whether the given {@code String} contains actual <em>text</em>.
+   * <p>More specifically, this method returns {@code true} if the
+   * {@code String} is {@code null}, its length is greater than 0,
+   * and it contains whitespace character only.
+   *
+   * <pre>{@code
+   * StringUtils.isBlank(null) = true
+   * StringUtils.isBlank("") = true
+   * StringUtils.isBlank(" ") = true
+   * StringUtils.isBlank("12345") = false
+   * StringUtils.isBlank(" 12345 ") = false
+   * }</pre>
+   *
+   * @param str the {@code String} to check (may be {@code null})
+   * @return {@code true} if the {@code String} is {@code null}, its
+   * length is greater than 0, and it contains whitespace only
+   * @see #hasText(CharSequence)
+   * @see #isNotEmpty(CharSequence)
+   * @see Character#isWhitespace
+   * @since 4.0
+   */
+  public static boolean isBlank(@Nullable String str) {
+    return !hasText(str);
+  }
+
+  /**
+   * Check whether the given {@code CharSequence} contains actual <em>text</em>.
+   * <p>
+   * More specifically, this method returns {@code true} if the
+   * {@code CharSequence} is {@code null} or its length is greater than 0, and
+   * it contains whitespace character only.
+   * <p>
+   * <pre>{@code
+   * StringUtils.isBlank(null) = true
+   * StringUtils.isBlank("") = true
+   * StringUtils.isBlank(" ") = true
+   * StringUtils.isBlank("12345") = false
+   * StringUtils.isBlank(" 12345 ") = false
+   * }</pre>
+   *
+   * @param str the {@code CharSequence} to check (may be {@code null})
+   * @return {@code true} if the {@code CharSequence} is not {@code null}, its
+   * length is greater than 0, and it contains whitespace only
+   * @see Character#isWhitespace
+   * @since 4.0
+   */
+  public static boolean isBlank(@Nullable CharSequence str) {
+    return !hasText(str);
+  }
+
+  /**
    * Extract the filename from the given Java resource path, e.g.
    * {@code "mypath/myfile.txt" -> "myfile.txt"}.
    *
@@ -1464,15 +1523,14 @@ else */
    * @since 3.0
    */
   public static Locale parseLocale(String localeValue) {
-    String[] tokens = tokenizeLocaleSource(localeValue);
-    if (tokens.length == 1) {
+    if (!localeValue.contains("_") && !localeValue.contains(" ")) {
       validateLocalePart(localeValue);
       Locale resolved = Locale.forLanguageTag(localeValue);
       if (resolved.getLanguage().length() > 0) {
         return resolved;
       }
     }
-    return parseLocaleTokens(localeValue, tokens);
+    return parseLocaleString(localeValue);
   }
 
   /**
@@ -1492,37 +1550,35 @@ else */
    * @since 3.0
    */
   public static Locale parseLocaleString(String localeString) {
-    return parseLocaleTokens(localeString, tokenizeLocaleSource(localeString));
-  }
-
-  private static String[] tokenizeLocaleSource(String localeSource) {
-    return tokenizeToStringArray(localeSource, "_ ", false, false);
-  }
-
-  private static Locale parseLocaleTokens(String localeString, String[] tokens) {
-    String language = (tokens.length > 0 ? tokens[0] : Constant.BLANK);
-    String country = (tokens.length > 1 ? tokens[1] : Constant.BLANK);
-    validateLocalePart(language);
-    validateLocalePart(country);
-
-    String variant = Constant.BLANK;
-    if (tokens.length > 2) {
-      // There is definitely a variant, and it is everything after the country
-      // code sans the separator between the country code and the variant.
-      int endIndexOfCountryCode = localeString.indexOf(country, language.length()) + country.length();
-      // Strip off any leading '_' and whitespace, what's left is the variant.
-      variant = trimLeadingWhitespace(localeString.substring(endIndexOfCountryCode));
-      if (matchesFirst(variant, '_')) {
-        variant = trimLeadingCharacter(variant, '_');
-      }
+    if (localeString.equals("")) {
+      return null;
     }
-
-    if (variant.isEmpty() && matchesFirst(country, '#')) {
-      variant = country;
-      country = Constant.BLANK;
+    String delimiter = "_";
+    if (!localeString.contains("_") && localeString.contains(" ")) {
+      delimiter = " ";
     }
-
-    return (language.length() > 0 ? new Locale(language, country, variant) : null);
+    final String[] tokens = localeString.split(delimiter, -1);
+    if (tokens.length == 1) {
+      final String language = tokens[0];
+      validateLocalePart(language);
+      return new Locale(language);
+    }
+    else if (tokens.length == 2) {
+      final String language = tokens[0];
+      validateLocalePart(language);
+      final String country = tokens[1];
+      validateLocalePart(country);
+      return new Locale(language, country);
+    }
+    else if (tokens.length > 2) {
+      final String language = tokens[0];
+      validateLocalePart(language);
+      final String country = tokens[1];
+      validateLocalePart(country);
+      final String variant = Arrays.stream(tokens).skip(2).collect(Collectors.joining(delimiter));
+      return new Locale(language, country, variant);
+    }
+    throw new IllegalArgumentException("Invalid locale format: '" + localeString + "'");
   }
 
   private static void validateLocalePart(String localePart) {
@@ -1612,6 +1668,44 @@ else */
       }
     }
     return new String(chars, 0, ++write);
+  }
+
+  /**
+   * Truncate the supplied {@link CharSequence}.
+   * <p>Delegates to {@link #truncate(CharSequence, int)}, supplying {@code 100}
+   * as the threshold.
+   *
+   * @param charSequence the {@code CharSequence} to truncate
+   * @return a truncated string, or a string representation of the original
+   * {@code CharSequence} if its length does not exceed the threshold
+   * @since 4.0
+   */
+  public static String truncate(CharSequence charSequence) {
+    return truncate(charSequence, DEFAULT_TRUNCATION_THRESHOLD);
+  }
+
+  /**
+   * Truncate the supplied {@link CharSequence}.
+   * <p>If the length of the {@code CharSequence} is greater than the threshold,
+   * this method returns a {@linkplain CharSequence#subSequence(int, int)
+   * subsequence} of the {@code CharSequence} (up to the threshold) appended
+   * with the suffix {@code " (truncated)..."}. Otherwise, this method returns
+   * {@code charSequence.toString()}.
+   *
+   * @param charSequence the {@code CharSequence} to truncate
+   * @param threshold the maximum length after which to truncate; must be a
+   * positive number
+   * @return a truncated string, or a string representation of the original
+   * {@code CharSequence} if its length does not exceed the threshold
+   * @since 4.0
+   */
+  public static String truncate(CharSequence charSequence, int threshold) {
+    Assert.isTrue(threshold > 0,
+            () -> "Truncation threshold must be a positive number: " + threshold);
+    if (charSequence.length() > threshold) {
+      return charSequence.subSequence(0, threshold) + TRUNCATION_SUFFIX;
+    }
+    return charSequence.toString();
   }
 
 }

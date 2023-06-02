@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
@@ -39,9 +38,9 @@ import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
+import cn.taketoday.jdbc.persistence.DefaultEntityManager;
+import cn.taketoday.jdbc.persistence.EntityManager;
 import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
-import cn.taketoday.jdbc.sql.DefaultEntityManager;
-import cn.taketoday.jdbc.sql.EntityManager;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
@@ -54,6 +53,7 @@ import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
+import cn.taketoday.transaction.annotation.Isolation;
 import cn.taketoday.transaction.support.CallbackPreferringPlatformTransactionManager;
 import cn.taketoday.transaction.support.TransactionCallback;
 
@@ -76,7 +76,7 @@ import cn.taketoday.transaction.support.TransactionCallback;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor implements InitializingBean {
+public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
 
@@ -92,6 +92,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
+  @Nullable
   private EntityManager entityManager;
 
   private DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
@@ -277,13 +278,6 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
     return this.transactionManager;
   }
 
-  @Override
-  public void afterPropertiesSet() {
-    if (this.transactionManager == null) {
-      throw new IllegalArgumentException("Property 'transactionManager' is required");
-    }
-  }
-
   //
 
   protected String parse(String sql, Map<String, QueryParameter> paramNameToIdxMap) {
@@ -309,8 +303,9 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @param query the sql query string
    * @param returnGeneratedKeys boolean value indicating if the database should return any
    * generated keys.
-   * @return the {@link Query} instance
+   * @return the {@link NamedQuery} instance
    */
+  @Override
   public Query createQuery(String query, boolean returnGeneratedKeys) {
     return open(true).createQuery(query, returnGeneratedKeys);
   }
@@ -329,10 +324,56 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    *  </pre>
    *
    * @param query the sql query string
-   * @return the {@link Query} instance
+   * @return the {@link NamedQuery} instance
    */
+  @Override
   public Query createQuery(String query) {
     return open(true).createQuery(query);
+  }
+
+  /**
+   * Creates a {@link NamedQuery}
+   * <p>
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   * try (Connection con = repositoryManager.open()) {
+   *    return repositoryManager.createNamedQuery(query, name, returnGeneratedKeys)
+   *                .fetch(Pojo.class);
+   * }
+   * </pre>
+   * </p>
+   *
+   * @param query the sql query string
+   * @param returnGeneratedKeys boolean value indicating if the database should return any
+   * generated keys.
+   * @return the {@link NamedQuery} instance
+   */
+  @Override
+  public NamedQuery createNamedQuery(String query, boolean returnGeneratedKeys) {
+    return open(true).createNamedQuery(query, returnGeneratedKeys);
+  }
+
+  /**
+   * Creates a {@link NamedQuery}
+   *
+   * better to use :
+   * create queries with {@link JdbcConnection} class instead,
+   * using try-with-resource blocks
+   * <pre>
+   *     try (Connection con = repositoryManager.open()) {
+   *         return repositoryManager.createNamedQuery(query, name)
+   *                      .fetch(Pojo.class);
+   *     }
+   *  </pre>
+   *
+   * @param query the sql query string
+   * @return the {@link NamedQuery} instance
+   */
+  @Override
+  public NamedQuery createNamedQuery(String query) {
+    return open(true).createNamedQuery(query);
   }
 
   // JdbcConnection
@@ -386,7 +427,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V withConnection(ResultStatementRunnable<V> runnable, @Nullable Object argument) {
+  public <V, P> V withConnection(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
     try (JdbcConnection connection = open()) {
       return runnable.run(connection, argument);
     }
@@ -408,7 +449,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V withConnection(ResultStatementRunnable<V> runnable) {
+  public <V, P> V withConnection(ResultStatementRunnable<V, P> runnable) {
     return withConnection(runnable, null);
   }
 
@@ -459,6 +500,23 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
+    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+  }
+
+  /**
+   * Begins a transaction with the given isolation level. Every statement executed
+   * on the return {@link JdbcConnection} instance, will be executed in the
+   * transaction. It is very important to always call either the
+   * {@link JdbcConnection#commit()} method or the
+   * {@link JdbcConnection#rollback()} method to close the transaction. Use
+   * proper try-catch logic.
+   *
+   * @param isolationLevel the isolation level of the transaction
+   * @return the {@link JdbcConnection} instance to use to run statements in the
+   * transaction.
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public JdbcConnection beginTransaction(Isolation isolationLevel) {
     return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
@@ -568,7 +626,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @param runnable The {@link StatementRunnable} instance.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void runInTransaction(StatementRunnable runnable) {
+  public <T> void runInTransaction(StatementRunnable<T> runnable) {
     runInTransaction(runnable, null);
   }
 
@@ -591,7 +649,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * {@link StatementRunnable#run(JdbcConnection, Object) run} method
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void runInTransaction(StatementRunnable runnable, Object argument) {
+  public <T> void runInTransaction(StatementRunnable<T> runnable, @Nullable T argument) {
     runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
@@ -612,7 +670,7 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    * @param isolationLevel The isolation level of the transaction
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void runInTransaction(StatementRunnable runnable, Object argument, int isolationLevel) {
+  public <T> void runInTransaction(StatementRunnable<T> runnable, @Nullable T argument, int isolationLevel) {
     JdbcConnection connection = beginTransaction(isolationLevel);
     connection.setRollbackOnException(false);
 
@@ -635,22 +693,37 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V runInTransaction(ResultStatementRunnable<V> runnable) {
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable) {
     return runInTransaction(runnable, null);
   }
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument) {
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument) {
     return runInTransaction(runnable, argument, Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public <V> V runInTransaction(ResultStatementRunnable<V> runnable, Object argument, int isolationLevel) {
-    JdbcConnection connection = beginTransaction(isolationLevel);
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument, int isolationLevel) {
+    return runInTransaction(runnable, argument, TransactionDefinition.forIsolationLevel(isolationLevel));
+  }
+
+  /**
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable, @Nullable P argument, Isolation isolation) {
+    return runInTransaction(runnable, argument, TransactionDefinition.forIsolationLevel(isolation));
+  }
+
+  /**
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public <V, P> V runInTransaction(ResultStatementRunnable<V, P> runnable,
+          @Nullable P argument, @Nullable TransactionDefinition definition) {
+    JdbcConnection connection = beginTransaction(definition);
     V result;
     try {
       result = runnable.run(connection, argument);
@@ -668,6 +741,17 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
     }
     connection.commit();
     return result;
+  }
+
+  public <T> T runInTransaction(TransactionCallback<T> action) throws TransactionException {
+    return runInTransaction(action, (TransactionDefinition) null);
+  }
+
+  public <T> T runInTransaction(TransactionCallback<T> action, @Nullable Isolation isolation) throws TransactionException {
+    if (isolation != null) {
+      return runInTransaction(action, TransactionDefinition.forIsolationLevel(isolation));
+    }
+    return runInTransaction(action, (TransactionDefinition) null);
   }
 
   public <T> T runInTransaction(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
@@ -733,17 +817,6 @@ public class RepositoryManager extends JdbcAccessor implements InitializingBean 
    */
   public void persist(Object entity) {
     entityManager.persist(entity);
-  }
-
-  /**
-   * Merge the state of the given entity into underlying repository
-   *
-   * @param entity entity instance
-   * @throws IllegalArgumentException if instance is not an
-   * entity or is a removed entity
-   */
-  public void update(Object entity) {
-    entityManager.update(entity);
   }
 
   //

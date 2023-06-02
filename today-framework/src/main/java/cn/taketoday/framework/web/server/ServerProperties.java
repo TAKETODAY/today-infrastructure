@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,10 +37,14 @@ import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.framework.web.servlet.server.JspProperties;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
 import io.undertow.UndertowOptions;
 
 /**
@@ -67,6 +71,9 @@ import io.undertow.UndertowOptions;
  * @author Victor Mandujano
  * @author Chris Bono
  * @author Parviz Rozikov
+ * @author Florian Storz
+ * @author Michael Weidmann
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @ConfigurationProperties(prefix = "server", ignoreUnknownFields = true)
@@ -75,11 +82,13 @@ public class ServerProperties {
   /**
    * Server HTTP port.
    */
+  @Nullable
   private Integer port;
 
   /**
    * Network address to which the server should bind.
    */
+  @Nullable
   private InetAddress address;
 
   @NestedConfigurationProperty
@@ -104,7 +113,7 @@ public class ServerProperties {
   /**
    * Maximum size of the HTTP message header.
    */
-  private DataSize maxHttpHeaderSize = DataSize.ofKilobytes(8);
+  private DataSize maxHttpRequestHeaderSize = DataSize.ofKilobytes(8);
 
   /**
    * Type of shutdown that the server will support.
@@ -130,21 +139,25 @@ public class ServerProperties {
 
   private final Netty netty = new Netty();
 
+  private final ReactorNetty reactorNetty = new ReactorNetty();
+
   private final Undertow undertow = new Undertow();
 
+  @Nullable
   public Integer getPort() {
     return this.port;
   }
 
-  public void setPort(Integer port) {
+  public void setPort(@Nullable Integer port) {
     this.port = port;
   }
 
+  @Nullable
   public InetAddress getAddress() {
     return this.address;
   }
 
-  public void setAddress(InetAddress address) {
+  public void setAddress(@Nullable InetAddress address) {
     this.address = address;
   }
 
@@ -156,12 +169,12 @@ public class ServerProperties {
     this.serverHeader = serverHeader;
   }
 
-  public DataSize getMaxHttpHeaderSize() {
-    return this.maxHttpHeaderSize;
+  public DataSize getMaxHttpRequestHeaderSize() {
+    return this.maxHttpRequestHeaderSize;
   }
 
-  public void setMaxHttpHeaderSize(DataSize maxHttpHeaderSize) {
-    this.maxHttpHeaderSize = maxHttpHeaderSize;
+  public void setMaxHttpRequestHeaderSize(DataSize maxHttpRequestHeaderSize) {
+    this.maxHttpRequestHeaderSize = maxHttpRequestHeaderSize;
   }
 
   public Shutdown getShutdown() {
@@ -209,7 +222,11 @@ public class ServerProperties {
   }
 
   public Netty getNetty() {
-    return this.netty;
+    return netty;
+  }
+
+  public ReactorNetty getReactorNetty() {
+    return this.reactorNetty;
   }
 
   public Undertow getUndertow() {
@@ -476,6 +493,11 @@ public class ServerProperties {
      */
     private final Remoteip remoteip = new Remoteip();
 
+    /**
+     * Maximum size of the HTTP response header.
+     */
+    private DataSize maxHttpResponseHeaderSize = DataSize.ofKilobytes(8);
+
     public DataSize getMaxHttpFormPostSize() {
       return this.maxHttpFormPostSize;
     }
@@ -630,6 +652,14 @@ public class ServerProperties {
 
     public Remoteip getRemoteip() {
       return this.remoteip;
+    }
+
+    public DataSize getMaxHttpResponseHeaderSize() {
+      return maxHttpResponseHeaderSize;
+    }
+
+    public void setMaxHttpResponseHeaderSize(DataSize maxHttpResponseHeaderSize) {
+      this.maxHttpResponseHeaderSize = maxHttpResponseHeaderSize;
     }
 
     /**
@@ -960,8 +990,13 @@ public class ServerProperties {
               + "192\\.168\\.\\d{1,3}\\.\\d{1,3}|" // 192.168/16
               + "169\\.254\\.\\d{1,3}\\.\\d{1,3}|" // 169.254/16
               + "127\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|" // 127/8
+              + "100\\.6[4-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" // 100.64.0.0/10
+              + "100\\.[7-9]{1}\\d{1}\\.\\d{1,3}\\.\\d{1,3}|" // 100.64.0.0/10
+              + "100\\.1[0-1]{1}\\d{1}\\.\\d{1,3}\\.\\d{1,3}|" // 100.64.0.0/10
+              + "100\\.12[0-7]{1}\\.\\d{1,3}\\.\\d{1,3}|" // 100.64.0.0/10
               + "172\\.1[6-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" // 172.16/12
-              + "172\\.2[0-9]{1}\\.\\d{1,3}\\.\\d{1,3}|172\\.3[0-1]{1}\\.\\d{1,3}\\.\\d{1,3}|" //
+              + "172\\.2[0-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" // 172.16/12
+              + "172\\.3[0-1]{1}\\.\\d{1,3}\\.\\d{1,3}|" // 172.16/12
               + "0:0:0:0:0:0:0:1|::1";
 
       /**
@@ -990,6 +1025,12 @@ public class ServerProperties {
        * instance, 'X-FORWARDED-FOR'.
        */
       private String remoteIpHeader;
+
+      /**
+       * Regular expression defining proxies that are trusted when they appear in
+       * the "remote-ip-header" header.
+       */
+      private String trustedProxies;
 
       public String getInternalProxies() {
         return this.internalProxies;
@@ -1039,6 +1080,14 @@ public class ServerProperties {
         this.remoteIpHeader = remoteIpHeader;
       }
 
+      public String getTrustedProxies() {
+        return this.trustedProxies;
+      }
+
+      public void setTrustedProxies(String trustedProxies) {
+        this.trustedProxies = trustedProxies;
+      }
+
     }
 
   }
@@ -1068,6 +1117,11 @@ public class ServerProperties {
      */
     private Duration connectionIdleTimeout;
 
+    /**
+     * Maximum size of the HTTP response header.
+     */
+    private DataSize maxHttpResponseHeaderSize = DataSize.ofKilobytes(8);
+
     public Accesslog getAccesslog() {
       return this.accesslog;
     }
@@ -1090,6 +1144,14 @@ public class ServerProperties {
 
     public void setConnectionIdleTimeout(Duration connectionIdleTimeout) {
       this.connectionIdleTimeout = connectionIdleTimeout;
+    }
+
+    public void setMaxHttpResponseHeaderSize(DataSize maxHttpResponseHeaderSize) {
+      this.maxHttpResponseHeaderSize = maxHttpResponseHeaderSize;
+    }
+
+    public DataSize getMaxHttpResponseHeaderSize() {
+      return maxHttpResponseHeaderSize;
     }
 
     /**
@@ -1318,6 +1380,87 @@ public class ServerProperties {
   public static class Netty {
 
     /**
+     * the number of threads that will be used by
+     * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+     *
+     * For child {@link EventLoopGroup}
+     *
+     * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+     */
+    @Nullable
+    private Integer workThreadCount;
+
+    /**
+     * the number of threads that will be used by
+     * {@link io.netty.util.concurrent.MultithreadEventExecutorGroup}
+     *
+     * For parent {@link EventLoopGroup}
+     *
+     * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
+     */
+    @Nullable
+    private Integer bossThreadCount;
+
+    @Nullable
+    private Class<? extends ServerSocketChannel> socketChannel;
+
+    @Nullable
+    private LogLevel loggingLevel;
+
+    private boolean fastThreadLocal = true;
+
+    public void setBossThreadCount(@Nullable Integer bossThreadCount) {
+      this.bossThreadCount = bossThreadCount;
+    }
+
+    public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
+      this.loggingLevel = loggingLevel;
+    }
+
+    public void setSocketChannel(@Nullable Class<? extends ServerSocketChannel> socketChannel) {
+      this.socketChannel = socketChannel;
+    }
+
+    public void setWorkThreadCount(@Nullable Integer workThreadCount) {
+      this.workThreadCount = workThreadCount;
+    }
+
+    public void setFastThreadLocal(boolean fastThreadLocal) {
+      this.fastThreadLocal = fastThreadLocal;
+    }
+
+    @Nullable
+    public Class<? extends ServerSocketChannel> getSocketChannel() {
+      return socketChannel;
+    }
+
+    @Nullable
+    public Integer getBossThreadCount() {
+      return bossThreadCount;
+    }
+
+    @Nullable
+    public Integer getWorkThreadCount() {
+      return workThreadCount;
+    }
+
+    @Nullable
+    public LogLevel getLoggingLevel() {
+      return loggingLevel;
+    }
+
+    public boolean isFastThreadLocal() {
+      return fastThreadLocal;
+    }
+
+  }
+
+  /**
+   * ReactorNetty properties.
+   */
+  public static class ReactorNetty {
+
+    /**
      * Connection timeout of the Netty channel.
      */
     private Duration connectionTimeout;
@@ -1472,12 +1615,12 @@ public class ServerProperties {
     private int maxCookies = 200;
 
     /**
-     * Whether the server should decode percent encoded slash characters. Enabling
-     * encoded slashes can have security implications due to different servers
-     * interpreting the slash differently. Only enable this if you have a legacy
-     * application that requires it.
+     * Whether encoded slash characters (%2F) should be decoded. Decoding can cause
+     * security problems if a front-end proxy does not perform the same decoding. Only
+     * enable this if you have a legacy application that requires it. When set,
+     * server.undertow.allow-encoded-slash has no effect.
      */
-    private boolean allowEncodedSlash = false;
+    private Boolean decodeSlash;
 
     /**
      * Whether the URL should be decoded. When disabled, percent-encoded characters in
@@ -1572,12 +1715,12 @@ public class ServerProperties {
       this.maxCookies = maxCookies;
     }
 
-    public boolean isAllowEncodedSlash() {
-      return this.allowEncodedSlash;
+    public Boolean getDecodeSlash() {
+      return this.decodeSlash;
     }
 
-    public void setAllowEncodedSlash(boolean allowEncodedSlash) {
-      this.allowEncodedSlash = allowEncodedSlash;
+    public void setDecodeSlash(Boolean decodeSlash) {
+      this.decodeSlash = decodeSlash;
     }
 
     public boolean isDecodeUrl() {
@@ -1753,9 +1896,9 @@ public class ServerProperties {
 
     public static class Options {
 
-      private Map<String, String> socket = new LinkedHashMap<>();
+      private final Map<String, String> socket = new LinkedHashMap<>();
 
-      private Map<String, String> server = new LinkedHashMap<>();
+      private final Map<String, String> server = new LinkedHashMap<>();
 
       public Map<String, String> getServer() {
         return this.server;
@@ -1780,7 +1923,7 @@ public class ServerProperties {
     NATIVE,
 
     /**
-     * Use Spring's support for handling forwarded headers.
+     * Use Infra support for handling forwarded headers.
      */
     FRAMEWORK,
 

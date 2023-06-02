@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import java.util.TreeMap;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -82,11 +82,15 @@ public final class ConditionEvaluationReport {
     Assert.notNull(source, "Source must not be null");
     Assert.notNull(condition, "Condition must not be null");
     Assert.notNull(outcome, "Outcome must not be null");
-    this.unconditionalClasses.remove(source);
-    if (!this.outcomes.containsKey(source)) {
-      this.outcomes.put(source, new ConditionAndOutcomes());
+    unconditionalClasses.remove(source);
+
+    ConditionAndOutcomes outcomes = this.outcomes.get(source);
+    if (outcomes == null) {
+      outcomes = new ConditionAndOutcomes();
+      this.outcomes.put(source, outcomes);
     }
-    this.outcomes.get(source).add(condition, outcome);
+
+    outcomes.add(condition, outcome);
     this.addedAncestorOutcomes = false;
   }
 
@@ -117,7 +121,7 @@ public final class ConditionEvaluationReport {
    * @return the condition outcomes
    */
   public Map<String, ConditionAndOutcomes> getConditionAndOutcomesBySource() {
-    if (!this.addedAncestorOutcomes) {
+    if (!addedAncestorOutcomes) {
       for (Map.Entry<String, ConditionAndOutcomes> entry : outcomes.entrySet()) {
         String source = entry.getKey();
         ConditionAndOutcomes sourceOutcomes = entry.getValue();
@@ -126,9 +130,9 @@ public final class ConditionEvaluationReport {
         }
       }
 
-      this.addedAncestorOutcomes = true;
+      addedAncestorOutcomes = true;
     }
-    return Collections.unmodifiableMap(this.outcomes);
+    return Collections.unmodifiableMap(outcomes);
   }
 
   private void addNoMatchOutcomeToAncestors(String source) {
@@ -170,6 +174,7 @@ public final class ConditionEvaluationReport {
    *
    * @return the parent report (or null if there isn't one)
    */
+  @Nullable
   public ConditionEvaluationReport getParent() {
     return this.parent;
   }
@@ -235,7 +240,7 @@ public final class ConditionEvaluationReport {
     newExclusions.removeAll(previousReport.getExclusions());
     delta.recordExclusions(newExclusions);
 
-    var newUnconditionalClasses = new ArrayList<>(this.unconditionalClasses);
+    var newUnconditionalClasses = new ArrayList<>(unconditionalClasses);
     newUnconditionalClasses.removeAll(previousReport.unconditionalClasses);
     delta.unconditionalClasses.addAll(newUnconditionalClasses);
     return delta;
@@ -322,7 +327,7 @@ public final class ConditionEvaluationReport {
   private static class AncestorsMatchedCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       throw new UnsupportedOperationException();
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -264,7 +264,23 @@ public enum SpelMessage {
           "An exception occurred while compiling an expression"),
 
   MAX_ARRAY_ELEMENTS_THRESHOLD_EXCEEDED(Kind.ERROR, 1075,
-          "Array declares too many elements, exceeding the threshold of ''{0}''");
+          "Array declares too many elements, exceeding the threshold of ''{0}''"),
+
+  MAX_REPEATED_TEXT_SIZE_EXCEEDED(Kind.ERROR, 1076,
+          "Repeated text is too long, exceeding the threshold of ''{0}'' characters"),
+
+  MAX_REGEX_LENGTH_EXCEEDED(Kind.ERROR, 1077,
+          "Regular expression is too long, exceeding the threshold of ''{0}'' characters"),
+
+  /** @since 5.2.24 */
+  MAX_CONCATENATED_STRING_LENGTH_EXCEEDED(Kind.ERROR, 1078,
+          "Concatenated string is too long, exceeding the threshold of ''{0}'' characters"),
+
+  MAX_EXPRESSION_LENGTH_EXCEEDED(Kind.ERROR, 1079,
+          "SpEL expression is too long, exceeding the threshold of ''{0}'' characters"),
+
+  VARIABLE_ASSIGNMENT_NOT_SUPPORTED(Kind.ERROR, 1080,
+          "Assignment to variable ''{0}'' is not supported");
 
   private final Kind kind;
 

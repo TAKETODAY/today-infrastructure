@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,13 +48,38 @@ public class BeanFactorySupplierTests {
   }
 
   @Test
-  void getBeanWhenUsingInstanceSupplier() {
+  void getBeanWithInnerBeanUsingRegularSupplier() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     RootBeanDefinition beanDefinition = new RootBeanDefinition();
-    beanDefinition.setInstanceSupplier(InstanceSupplier
-            .of(registeredBean -> "I am bean " + registeredBean.getBeanName()));
+    beanDefinition.setInstanceSupplier(() -> "I am supplied");
+    RootBeanDefinition outerBean = new RootBeanDefinition(String.class);
+    outerBean.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition);
+    beanFactory.registerBeanDefinition("test", outerBean);
+    assertThat(beanFactory.getBean("test")).asString().startsWith("I am supplied");
+  }
+
+  @Test
+  void getBeanWhenUsingInstanceSupplier() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+    beanDefinition.setInstanceSupplier(InstanceSupplier.of(registeredBean ->
+            "I am bean " + registeredBean.getBeanName() + " of " + registeredBean.getBeanClass()));
     beanFactory.registerBeanDefinition("test", beanDefinition);
-    assertThat(beanFactory.getBean("test")).isEqualTo("I am bean test");
+    assertThat(beanFactory.getBean("test")).isEqualTo("I am bean test of class java.lang.String");
+  }
+
+  @Test
+  void getBeanWithInnerBeanUsingInstanceSupplier() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+    beanDefinition.setInstanceSupplier(InstanceSupplier.of(registeredBean ->
+            "I am bean " + registeredBean.getBeanName() + " of " + registeredBean.getBeanClass()));
+    RootBeanDefinition outerBean = new RootBeanDefinition(String.class);
+    outerBean.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition);
+    beanFactory.registerBeanDefinition("test", outerBean);
+    assertThat(beanFactory.getBean("test")).asString()
+            .startsWith("I am bean (inner bean)")
+            .endsWith(" of class java.lang.String");
   }
 
   @Test
@@ -64,6 +89,17 @@ public class BeanFactorySupplierTests {
     beanDefinition.setInstanceSupplier(ThrowingSupplier.of(() -> "I am supplied"));
     beanFactory.registerBeanDefinition("test", beanDefinition);
     assertThat(beanFactory.getBean("test")).isEqualTo("I am supplied");
+  }
+
+  @Test
+  void getBeanWithInnerBeanUsingThrowableSupplier() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition();
+    beanDefinition.setInstanceSupplier(ThrowingSupplier.of(() -> "I am supplied"));
+    RootBeanDefinition outerBean = new RootBeanDefinition(String.class);
+    outerBean.getConstructorArgumentValues().addGenericArgumentValue(beanDefinition);
+    beanFactory.registerBeanDefinition("test", outerBean);
+    assertThat(beanFactory.getBean("test")).asString().startsWith("I am supplied");
   }
 
   @Test

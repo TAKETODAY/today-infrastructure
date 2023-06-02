@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * Non-public mock of {@code cn.taketoday.web.bind.annotation.RequestMapping}.
+ * Non-public mock of {@code cn.taketoday.web.annotation.RequestMapping}.
  *
  * @author Sam Brannen
  * @since 4.0

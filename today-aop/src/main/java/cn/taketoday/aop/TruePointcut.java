@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -30,6 +31,7 @@ import java.io.Serializable;
  * @since 3.0
  */
 final class TruePointcut implements Pointcut, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public static final TruePointcut INSTANCE = new TruePointcut();
@@ -54,6 +56,7 @@ final class TruePointcut implements Pointcut, Serializable {
    * instance on deserialization, protecting Singleton pattern.
    * Alternative to overriding {@code equals()}.
    */
+  @Serial
   private Object readResolve() {
     return INSTANCE;
   }

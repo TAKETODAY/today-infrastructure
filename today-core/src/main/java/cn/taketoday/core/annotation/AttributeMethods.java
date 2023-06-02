@@ -97,16 +97,6 @@ final class AttributeMethods {
   }
 
   /**
-   * Determine if this instance only contains a single attribute named
-   * {@code value}.
-   *
-   * @return {@code true} if there is only a value attribute
-   */
-  boolean hasOnlyValueAttribute() {
-    return attributes.length == 1 && MergedAnnotation.VALUE.equals(attributes[0].getName());
-  }
-
-  /**
    * Determine if values from the given annotation can be safely accessed without
    * causing any {@link TypeNotPresentException TypeNotPresentExceptions}.
    *
@@ -174,7 +164,7 @@ final class AttributeMethods {
   @Nullable
   Method get(String name) {
     int index = indexOf(name);
-    return index != -1 ? this.attributes[index] : null;
+    return index != -1 ? attributes[index] : null;
   }
 
   /**
@@ -186,7 +176,7 @@ final class AttributeMethods {
    * (<tt>index &lt; 0 || index &gt;= size()</tt>)
    */
   Method get(int index) {
-    return this.attributes[index];
+    return attributes[index];
   }
 
   /**
@@ -198,7 +188,7 @@ final class AttributeMethods {
    * {@link TypeNotPresentException}
    */
   boolean canThrowTypeNotPresentException(int index) {
-    return this.canThrowTypeNotPresentException[index];
+    return canThrowTypeNotPresentException[index];
   }
 
   /**
@@ -209,8 +199,9 @@ final class AttributeMethods {
    * @return the index of the attribute, or {@code -1}
    */
   int indexOf(String name) {
-    for (int i = 0; i < this.attributes.length; i++) {
-      if (this.attributes[i].getName().equals(name)) {
+    Method[] attributes = this.attributes;
+    for (int i = 0; i < attributes.length; i++) {
+      if (attributes[i].getName().equals(name)) {
         return i;
       }
     }
@@ -225,8 +216,9 @@ final class AttributeMethods {
    * @return the index of the attribute, or {@code -1}
    */
   int indexOf(Method attribute) {
-    for (int i = 0; i < this.attributes.length; i++) {
-      if (this.attributes[i].equals(attribute)) {
+    Method[] attributes = this.attributes;
+    for (int i = 0; i < attributes.length; i++) {
+      if (attributes[i].equals(attribute)) {
         return i;
       }
     }
@@ -239,7 +231,7 @@ final class AttributeMethods {
    * @return the number of attributes
    */
   int size() {
-    return this.attributes.length;
+    return attributes.length;
   }
 
   /**

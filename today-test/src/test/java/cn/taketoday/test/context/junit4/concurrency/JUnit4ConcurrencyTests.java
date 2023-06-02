@@ -28,17 +28,17 @@ import org.junit.experimental.ParallelComputer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
+import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.junit4.InheritedConfigJUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
 import cn.taketoday.test.context.junit4.MethodLevelTransactionalSpringRunnerTests;
-import cn.taketoday.test.context.junit4.Runner;
 import cn.taketoday.test.context.junit4.SpringJUnit47ClassRunnerRuleTests;
-import cn.taketoday.test.context.junit4.TimedTransactionalSpringRunnerTests;
-import cn.taketoday.test.context.junit4.rules.ApplicationClassRule;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.TimedTransactionalRunnerTests;
 import cn.taketoday.test.context.junit4.rules.BaseAppCtxRuleTests;
 import cn.taketoday.test.context.junit4.rules.BasicAnnotationConfigWacSpringRuleTests;
+import cn.taketoday.test.context.junit4.rules.InfraClassRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.testfixture.TestGroup;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -46,8 +46,8 @@ import static cn.taketoday.core.annotation.AnnotatedElementUtils.hasAnnotation;
 import static org.junit.Assume.assumeTrue;
 
 /**
- * Concurrency tests for the {@link Runner}, {@link ApplicationClassRule}, and
- * {@link ApplicationMethodRule} that use JUnit 4's experimental {@link ParallelComputer}
+ * Concurrency tests for the {@link InfraRunner}, {@link InfraClassRule}, and
+ * {@link InfraMethodRule} that use JUnit 4's experimental {@link ParallelComputer}
  * to execute tests in parallel.
  *
  * <p>The tests executed by this test class come from a hand-picked collection of test
@@ -58,7 +58,7 @@ import static org.junit.Assume.assumeTrue;
  * fall under the following categories.
  *
  * <ul>
- * <li>tests that make use of Spring's {@code @DirtiesContext} support
+ * <li>tests that make use of Infra {@code @DirtiesContext} support
  * <li>tests that make use of JUnit 4's {@code @FixMethodOrder} support
  * <li>tests that commit changes to the state of a shared in-memory database
  * </ul>
@@ -80,10 +80,10 @@ public class JUnit4ConcurrencyTests {
           BaseAppCtxRuleTests.class,
           // Transactional
           MethodLevelTransactionalSpringRunnerTests.class,
-          TimedTransactionalSpringRunnerTests.class,
+          TimedTransactionalRunnerTests.class,
           // Web and Scopes
           BasicAnnotationConfigWacSpringRuleTests.class,
-          // Spring MVC Test
+          // Web MVC Test
   };
 
   @BeforeClass

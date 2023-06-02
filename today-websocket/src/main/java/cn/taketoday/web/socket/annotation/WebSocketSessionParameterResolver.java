@@ -22,8 +22,8 @@ package cn.taketoday.web.socket.annotation;
 
 import cn.taketoday.web.BadRequestException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
+import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**

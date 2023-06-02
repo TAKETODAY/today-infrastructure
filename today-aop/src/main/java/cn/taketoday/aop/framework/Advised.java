@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,8 +43,6 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
  * @since 3.0
  */
 public interface Advised extends TargetClassAware {
-
-  Advisor[] EMPTY_ADVISORS = new Advisor[0];
 
   /**
    * Return whether the Advised configuration is frozen,
@@ -124,7 +122,7 @@ public interface Advised extends TargetClassAware {
   /**
    * Return the advisors applying to this proxy.
    *
-   * @return a list of Advisors applying to this proxy (never {@code null})
+   * @return an array of Advisors applying to this proxy (never {@code null})
    */
   Advisor[] getAdvisors();
 

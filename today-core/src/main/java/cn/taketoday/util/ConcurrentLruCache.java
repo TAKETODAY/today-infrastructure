@@ -25,8 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
@@ -86,7 +87,7 @@ public final class ConcurrentLruCache<K, V> {
   }
 
   private ConcurrentLruCache(int capacity, Function<K, V> generator, int concurrencyLevel) {
-    Assert.isTrue(capacity > 0, "Capacity should be > 0");
+    Assert.isTrue(capacity > 0, "Capacity must be > 0");
     this.capacity = capacity;
     this.cache = new ConcurrentHashMap<>(16, 0.75f, concurrencyLevel);
     this.generator = generator;
@@ -112,8 +113,8 @@ public final class ConcurrentLruCache<K, V> {
   }
 
   private void put(K key, V value) {
-    Assert.notNull(key, "key should not be null");
-    Assert.notNull(value, "value should not be null");
+    Assert.notNull(key, "key must not be null");
+    Assert.notNull(value, "value must not be null");
     final CacheEntry<V> cacheEntry = new CacheEntry<>(value, CacheEntryState.ACTIVE);
     final Node<K, V> node = new Node<>(key, cacheEntry);
     final Node<K, V> prior = this.cache.putIfAbsent(node.key, node);
@@ -352,13 +353,15 @@ public final class ConcurrentLruCache<K, V> {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static final class ReadOperations<K, V> {
 
     private static final int BUFFER_COUNT = detectNumberOfBuffers();
 
     private static int detectNumberOfBuffers() {
       int availableProcessors = Runtime.getRuntime().availableProcessors();
-      return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(availableProcessors - 1));
+      int nextPowerOfTwo = 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(availableProcessors - 1));
+      return Math.min(4, nextPowerOfTwo);
     }
 
     private static final int BUFFERS_MASK = BUFFER_COUNT - 1;
@@ -374,7 +377,7 @@ public final class ConcurrentLruCache<K, V> {
     /**
      * Number of operations recorded, for each buffer
      */
-    private final AtomicLong[] recordedCount = new AtomicLong[BUFFER_COUNT];
+    private final AtomicLongArray recordedCount = new AtomicLongArray(BUFFER_COUNT);
 
     /**
      * Number of operations read, for each buffer
@@ -384,21 +387,17 @@ public final class ConcurrentLruCache<K, V> {
     /**
      * Number of operations processed, for each buffer
      */
-    private final AtomicLong[] processedCount = new AtomicLong[BUFFER_COUNT];
+    private final AtomicLongArray processedCount = new AtomicLongArray(BUFFER_COUNT);
 
-    private final AtomicReference<Node<K, V>>[][] buffers = new AtomicReference[BUFFER_COUNT][BUFFER_SIZE];
+    @SuppressWarnings("rawtypes")
+    private final AtomicReferenceArray[] buffers = new AtomicReferenceArray[BUFFER_COUNT];
 
     private final EvictionQueue<K, V> evictionQueue;
 
     ReadOperations(EvictionQueue<K, V> evictionQueue) {
       this.evictionQueue = evictionQueue;
       for (int i = 0; i < BUFFER_COUNT; i++) {
-        this.recordedCount[i] = new AtomicLong();
-        this.processedCount[i] = new AtomicLong();
-        this.buffers[i] = new AtomicReference[BUFFER_SIZE];
-        for (int j = 0; j < BUFFER_SIZE; j++) {
-          this.buffers[i][j] = new AtomicReference<>();
-        }
+        this.buffers[i] = new AtomicReferenceArray<>(BUFFER_SIZE);
       }
     }
 
@@ -408,12 +407,11 @@ public final class ConcurrentLruCache<K, V> {
 
     boolean recordRead(Node<K, V> node) {
       int bufferIndex = getBufferIndex();
-      final AtomicLong counter = this.recordedCount[bufferIndex];
-      final long writeCount = counter.get();
-      counter.lazySet(writeCount + 1);
+      final long writeCount = this.recordedCount.get(bufferIndex);
+      this.recordedCount.lazySet(bufferIndex, writeCount + 1);
       final int index = (int) (writeCount & BUFFER_INDEX_MASK);
-      this.buffers[bufferIndex][index].lazySet(node);
-      final long pending = (writeCount - this.processedCount[bufferIndex].get());
+      this.buffers[bufferIndex].lazySet(index, node);
+      final long pending = (writeCount - this.processedCount.get(bufferIndex));
       return (pending < MAX_PENDING_OPERATIONS);
     }
 
@@ -426,27 +424,28 @@ public final class ConcurrentLruCache<K, V> {
     }
 
     void clear() {
-      for (AtomicReference<Node<K, V>>[] buffer : this.buffers) {
-        for (AtomicReference<Node<K, V>> slot : buffer) {
-          slot.lazySet(null);
+      for (int i = 0; i < BUFFER_COUNT; i++) {
+        AtomicReferenceArray<Node<K, V>> buffer = this.buffers[i];
+        for (int j = 0; j < BUFFER_SIZE; j++) {
+          buffer.lazySet(j, null);
         }
       }
     }
 
     private void drainReadBuffer(int bufferIndex) {
-      final long writeCount = this.recordedCount[bufferIndex].get();
+      final long writeCount = this.recordedCount.get(bufferIndex);
       for (int i = 0; i < MAX_DRAIN_COUNT; i++) {
         final int index = (int) (this.readCount[bufferIndex] & BUFFER_INDEX_MASK);
-        final AtomicReference<Node<K, V>> slot = this.buffers[bufferIndex][index];
-        final Node<K, V> node = slot.get();
+        final AtomicReferenceArray<Node<K, V>> buffer = this.buffers[bufferIndex];
+        final Node<K, V> node = buffer.get(index);
         if (node == null) {
           break;
         }
-        slot.lazySet(null);
+        buffer.lazySet(index, null);
         this.evictionQueue.moveToBack(node);
         this.readCount[bufferIndex]++;
       }
-      this.processedCount[bufferIndex].lazySet(writeCount);
+      this.processedCount.lazySet(bufferIndex, writeCount);
     }
   }
 

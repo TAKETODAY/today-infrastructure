@@ -27,10 +27,10 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 /**

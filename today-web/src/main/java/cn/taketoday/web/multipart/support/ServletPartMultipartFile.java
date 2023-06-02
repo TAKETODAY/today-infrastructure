@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,8 +42,6 @@ final class ServletPartMultipartFile extends AbstractMultipartFile implements Mu
 
   private final Part part;
   private final String filename;
-
-  public static final int BUFFER_SIZE = 4096;
 
   public ServletPartMultipartFile(Part part) {
     this.part = part;
@@ -119,7 +117,7 @@ final class ServletPartMultipartFile extends AbstractMultipartFile implements Mu
 
   @Override
   protected byte[] doGetBytes() throws IOException {
-    return FileCopyUtils.copyToByteArray(part.getInputStream(), BUFFER_SIZE);
+    return FileCopyUtils.copyToByteArray(part.getInputStream());
   }
 
   @Override

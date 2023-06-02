@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportAware;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionEventDispatcher;
 import cn.taketoday.session.SessionIdGenerator;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -76,10 +76,10 @@ public class RedissonWebSessionConfiguration implements ImportAware {
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {
-    var enableRedissonWebSession = importMetadata.getAnnotation(EnableRedissonWebSession.class);
-    this.keyPrefix = enableRedissonWebSession.getString("keyPrefix");
-    this.maxIdleTime = enableRedissonWebSession.getInt("maxIdleTime");
-    this.timeUnit = enableRedissonWebSession.getEnum("timeUnit", TimeUnit.class);
+    var annotation = importMetadata.getAnnotation(EnableRedissonWebSession.class);
+    this.keyPrefix = annotation.getString("keyPrefix");
+    this.maxIdleTime = annotation.getInt("maxIdleTime");
+    this.timeUnit = annotation.getEnum("timeUnit", TimeUnit.class);
   }
 
 }

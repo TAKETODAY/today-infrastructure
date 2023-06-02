@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.style.ToStringBuilder;
@@ -40,6 +40,7 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.HttpEntityMethodProcessor;
@@ -70,9 +71,13 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  *
  * @author TODAY 2019-12-28 13:47
  */
-public class ReturnValueHandlerManager extends ApplicationContextSupport implements ArraySizeTrimmer {
+public class ReturnValueHandlerManager
+        extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
+
+  // @since 4.0
+  private final SelectableReturnValueHandler delegate = new SelectableReturnValueHandler(handlers);
 
   /**
    * @since 3.0.1
@@ -103,6 +108,8 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
 
   private String imageFormatName = RenderedImageReturnValueHandler.IMAGE_PNG;
 
+  private ReactiveAdapterRegistry reactiveAdapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
+
   public ReturnValueHandlerManager() {
     this.messageConverters = new ArrayList<>(4);
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
@@ -112,6 +119,23 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
 
   public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
+  }
+
+  /**
+   * Configure the registry for reactive library types to be supported as
+   * return values from controller methods.
+   */
+  public void setReactiveAdapterRegistry(@Nullable ReactiveAdapterRegistry reactiveAdapterRegistry) {
+    this.reactiveAdapterRegistry =
+            reactiveAdapterRegistry == null
+            ? ReactiveAdapterRegistry.getSharedInstance() : reactiveAdapterRegistry;
+  }
+
+  /**
+   * Return the configured reactive type registry of adapters.
+   */
+  public ReactiveAdapterRegistry getReactiveAdapterRegistry() {
+    return this.reactiveAdapterRegistry;
   }
 
   public void addHandlers(ReturnValueHandler... handlers) {
@@ -201,13 +225,63 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
     return null;
   }
 
+  /**
+   * Get correspond view resolver, If there isn't a suitable resolver will be
+   * throws {@link ReturnValueHandlerNotFoundException}
+   *
+   * @return A suitable {@link ReturnValueHandler}
+   */
+  public ReturnValueHandler obtainHandler(Object handler, @Nullable Object returnValue) {
+    ReturnValueHandler returnValueHandler = findHandler(handler, returnValue);
+    if (returnValueHandler == null) {
+      throw new ReturnValueHandlerNotFoundException(handler);
+    }
+    return returnValueHandler;
+  }
+
+  /**
+   * @param returnValue if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
+   * @return null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
+   */
+  @Nullable
+  public ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
+    return ReturnValueHandler.select(handlers, handler, returnValue);
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of ReturnValueHandler interface
+  //---------------------------------------------------------------------
+
+  /**
+   * @param context Current HTTP request context
+   * @param handler Target HTTP handler
+   * @param returnValue Handler execution result
+   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
+   * @throws Exception throws when write data to response
+   */
+  @Override
+  public void handleReturnValue(RequestContext context,
+          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    delegate.handleReturnValue(context, handler, returnValue);
+  }
+
+  @Override
+  public boolean supportsHandler(Object handler) {
+    return delegate.supportsHandler(handler);
+  }
+
+  @Override
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return delegate.supportsReturnValue(returnValue);
+  }
+
   //
 
   /**
    * register default return-value handlers
    */
   public void registerDefaultHandlers() {
-    log.info("Registering default return-value handlers");
+    log.debug("Registering default return-value handlers to {}", this);
     ViewReturnValueHandler viewHandler = obtainViewHandler();
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();
@@ -246,9 +320,8 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
     List<HttpMessageConverter<?>> messageConverters = getMessageConverters();
 
     if (taskExecutor != null) {
-      ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
       handlers.add(new ResponseBodyEmitterReturnValueHandler(
-              messageConverters, registry, taskExecutor, contentNegotiationManager));
+              messageConverters, reactiveAdapterRegistry, taskExecutor, contentNegotiationManager));
     }
     else {
       handlers.add(new ResponseBodyEmitterReturnValueHandler(messageConverters, contentNegotiationManager));
@@ -276,9 +349,7 @@ public class ReturnValueHandlerManager extends ApplicationContextSupport impleme
         viewResolver = resolver;
       }
       viewReturnValueHandler = new ViewReturnValueHandler(viewResolver);
-      viewReturnValueHandler.setModelManager(redirectModelManager);
     }
-    Assert.state(viewReturnValueHandler != null, "No ViewReturnValueHandler");
     return viewReturnValueHandler;
   }
 

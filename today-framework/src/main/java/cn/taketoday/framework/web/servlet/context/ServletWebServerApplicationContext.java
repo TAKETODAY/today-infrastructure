@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,15 +50,15 @@ import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ContextLoaderListener;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
-import cn.taketoday.web.context.support.ServletContextAwareProcessor;
-import cn.taketoday.web.context.support.ServletContextResource;
-import cn.taketoday.web.context.support.ServletContextScope;
-import cn.taketoday.web.context.support.WebApplicationContextUtils;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.ContextLoaderListener;
 import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.servlet.support.ServletContextAwareProcessor;
+import cn.taketoday.web.servlet.support.ServletContextResource;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
@@ -96,8 +96,8 @@ import jakarta.servlet.ServletException;
  * @see ServletWebServerFactory
  * @since 4.0
  */
-public class ServletWebServerApplicationContext extends GenericWebServletApplicationContext
-        implements ConfigurableWebServerApplicationContext {
+public class ServletWebServerApplicationContext extends GenericWebApplicationContext
+        implements ConfigurableWebServerApplicationContext, ConfigurableWebApplicationContext {
 
   /**
    * Constant value for the DispatcherServlet bean name. A Servlet bean with this name
@@ -235,18 +235,10 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
 
   private void selfInitialize(ServletContext servletContext) throws ServletException {
     prepareWebApplicationContext(servletContext);
-    registerApplicationScope(servletContext);
     WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
     for (ServletContextInitializer beans : getServletContextInitializerBeans()) {
       beans.onStartup(servletContext);
     }
-  }
-
-  private void registerApplicationScope(ServletContext servletContext) {
-    ServletContextScope appScope = new ServletContextScope(servletContext);
-    getBeanFactory().registerScope(WebApplicationContext.SCOPE_APPLICATION, appScope);
-    // Register as ServletContext attribute, for ContextCleanupListener to detect it.
-    servletContext.setAttribute(ServletContextScope.class.getName(), appScope);
   }
 
   private void registerWebApplicationScopes() {
@@ -276,7 +268,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
    * @param servletContext the operational servlet context
    */
   protected void prepareWebApplicationContext(ServletContext servletContext) {
-    Object rootContext = servletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    Object rootContext = servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
     if (rootContext != null) {
       if (rootContext == this) {
         throw new IllegalStateException(
@@ -285,22 +277,22 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
       }
       return;
     }
-    servletContext.log("Initializing embedded WebServletApplicationContext");
+    servletContext.log("Initializing embedded WebApplicationContext");
     try {
-      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
+      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
       if (log.isDebugEnabled()) {
-        log.debug("Published root WebServletApplicationContext as ServletContext attribute with name [{}]",
-                WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        log.debug("Published root WebApplicationContext as ServletContext attribute with name [{}]",
+                WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
       }
       setServletContext(servletContext);
       if (log.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - getStartupDate();
-        log.info("Root WebServletApplicationContext: initialization completed in {} ms", elapsedTime);
+        log.info("Root WebApplicationContext: initialization completed in {} ms", elapsedTime);
       }
     }
     catch (RuntimeException | Error ex) {
       log.error("Context initialization failed", ex);
-      servletContext.setAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
+      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
       throw ex;
     }
   }
@@ -313,21 +305,23 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
     return new ServletContextResource(getServletContext(), path);
   }
 
+  @Nullable
   @Override
   public String getServerNamespace() {
     return this.serverNamespace;
   }
 
   @Override
-  public void setServerNamespace(String serverNamespace) {
+  public void setServerNamespace(@Nullable String serverNamespace) {
     this.serverNamespace = serverNamespace;
   }
 
   @Override
-  public void setServletConfig(ServletConfig servletConfig) {
+  public void setServletConfig(@Nullable ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
   }
 
+  @Nullable
   @Override
   public ServletConfig getServletConfig() {
     return this.servletConfig;
@@ -339,6 +333,7 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
    *
    * @return the embedded web server
    */
+  @Nullable
   @Override
   public WebServer getWebServer() {
     return this.webServer;
@@ -355,8 +350,8 @@ public class ServletWebServerApplicationContext extends GenericWebServletApplica
 
     static {
       Set<String> scopes = new LinkedHashSet<>();
-      scopes.add(WebApplicationContext.SCOPE_REQUEST);
-      scopes.add(WebApplicationContext.SCOPE_SESSION);
+      scopes.add(RequestContext.SCOPE_REQUEST);
+      scopes.add(RequestContext.SCOPE_SESSION);
       SCOPES = Collections.unmodifiableSet(scopes);
     }
 

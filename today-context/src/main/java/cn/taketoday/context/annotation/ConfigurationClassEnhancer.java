@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,10 +51,10 @@ import cn.taketoday.bytecode.proxy.NoOp;
 import cn.taketoday.bytecode.transform.ClassEmitterTransformer;
 import cn.taketoday.bytecode.transform.TransformingClassGenerator;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -70,6 +70,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #enhance
  * @see ConfigurationClassPostProcessor
  * @since 4.0
@@ -276,8 +277,7 @@ class ConfigurationClassEnhancer {
      */
     @Override
     @Nullable
-    public Object intercept(
-            Object enhancedConfigInstance, Method beanMethod,
+    public Object intercept(Object enhancedConfigInstance, Method beanMethod,
             Object[] beanMethodArgs, MethodProxy cglibMethodProxy) throws Throwable {
 
       ConfigurableBeanFactory beanFactory = getBeanFactory(enhancedConfigInstance);

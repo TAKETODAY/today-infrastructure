@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,9 +32,11 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface InterceptorChainFactory {
+  MethodInterceptor[] EMPTY_INTERCEPTOR = new MethodInterceptor[0];
 
   /**
    * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
@@ -46,7 +48,7 @@ public interface InterceptorChainFactory {
    * target object, in which case the method's declaring class is the next best option)
    * @return a array of MethodInterceptors (may also include RuntimeMethodInterceptor)
    */
-  MethodInterceptor[] getInterceptorsAndDynamicInterceptionAdvice(
+  MethodInterceptor[] getInterceptors(
           Advised config, Method method, @Nullable Class<?> targetClass);
 
 }

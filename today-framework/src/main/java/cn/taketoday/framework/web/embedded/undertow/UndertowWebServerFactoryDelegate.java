@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,9 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
+import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.Http2;
@@ -154,8 +156,7 @@ class UndertowWebServerFactoryDelegate {
     return this.useForwardHeaders;
   }
 
-  Builder createBuilder(AbstractConfigurableWebServerFactory factory) {
-    Ssl ssl = factory.getSsl();
+  Builder createBuilder(AbstractConfigurableWebServerFactory factory, Supplier<SslBundle> sslBundleSupplier) {
     InetAddress address = factory.getAddress();
     int port = factory.getPort();
     Builder builder = Undertow.builder();
@@ -175,8 +176,9 @@ class UndertowWebServerFactoryDelegate {
     if (http2 != null) {
       builder.setServerOption(UndertowOptions.ENABLE_HTTP2, http2.isEnabled());
     }
-    if (ssl != null && ssl.isEnabled()) {
-      new SslBuilderCustomizer(factory.getPort(), address, ssl, factory.getOrCreateSslStoreProvider())
+    Ssl ssl = factory.getSsl();
+    if (Ssl.isEnabled(ssl)) {
+      new SslBuilderCustomizer(factory.getPort(), address, ssl.getClientAuth(), sslBundleSupplier.get())
               .customize(builder);
     }
     else {
@@ -191,24 +193,19 @@ class UndertowWebServerFactoryDelegate {
 
   List<HttpHandlerFactory> createHttpHandlerFactories(AbstractConfigurableWebServerFactory webServerFactory,
           HttpHandlerFactory... initialHttpHandlerFactories) {
-    List<HttpHandlerFactory> factories = createHttpHandlerFactories(
-            webServerFactory.getCompression(),
-            useForwardHeaders,
-            webServerFactory.getServerHeader(),
-            webServerFactory.getShutdown(),
-            initialHttpHandlerFactories
-    );
-
+    List<HttpHandlerFactory> factories = createHttpHandlerFactories(webServerFactory.getCompression(),
+            this.useForwardHeaders, webServerFactory.getServerHeader(), webServerFactory.getShutdown(),
+            initialHttpHandlerFactories);
     if (isAccessLogEnabled()) {
-      factories.add(new AccessLogHttpHandlerFactory(accessLogDirectory, accessLogPattern,
-              accessLogPrefix, accessLogSuffix, accessLogRotate));
+      factories.add(new AccessLogHttpHandlerFactory(this.accessLogDirectory, this.accessLogPattern,
+              this.accessLogPrefix, this.accessLogSuffix, this.accessLogRotate));
     }
     return factories;
   }
 
   static List<HttpHandlerFactory> createHttpHandlerFactories(
           @Nullable Compression compression, boolean useForwardHeaders,
-          String serverHeader, Shutdown shutdown, HttpHandlerFactory... initialHttpHandlerFactories) {
+          @Nullable String serverHeader, Shutdown shutdown, HttpHandlerFactory... initialHttpHandlerFactories) {
     List<HttpHandlerFactory> factories = new ArrayList<>(Arrays.asList(initialHttpHandlerFactories));
     if (compression != null && compression.isEnabled()) {
       factories.add(new CompressionHttpHandlerFactory(compression));

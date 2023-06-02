@@ -22,19 +22,21 @@ package cn.taketoday.test.web.client.response;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
 import cn.taketoday.test.web.client.ResponseCreator;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * A {@code ResponseCreator} with builder-style methods for adding response details.
@@ -44,9 +46,9 @@ import cn.taketoday.test.web.client.ResponseCreator;
  */
 public class DefaultResponseCreator implements ResponseCreator {
 
-  private final int statusCode;
+  private final HttpStatusCode statusCode;
 
-  private byte[] content = Constant.EMPTY_BYTES;
+  private byte[] content = new byte[0];
 
   @Nullable
   private Resource contentResource;
@@ -57,18 +59,16 @@ public class DefaultResponseCreator implements ResponseCreator {
    * Protected constructor.
    * Use static factory methods in {@link MockRestResponseCreators}.
    */
-  protected DefaultResponseCreator(HttpStatus statusCode) {
-    Assert.notNull(statusCode, "HttpStatus must not be null");
-    this.statusCode = statusCode.value();
+  protected DefaultResponseCreator(int statusCode) {
+    this(HttpStatusCode.valueOf(statusCode));
   }
 
   /**
    * Protected constructor.
    * Use static factory methods in {@link MockRestResponseCreators}.
-   *
-   * @since 4.0
    */
-  protected DefaultResponseCreator(int statusCode) {
+  protected DefaultResponseCreator(HttpStatusCode statusCode) {
+    Assert.notNull(statusCode, "HttpStatusCode must not be null");
     this.statusCode = statusCode;
   }
 
@@ -81,6 +81,14 @@ public class DefaultResponseCreator implements ResponseCreator {
   }
 
   /**
+   * Set the body from a string using the given character set.
+   */
+  public DefaultResponseCreator body(String content, Charset charset) {
+    this.content = content.getBytes(charset);
+    return this;
+  }
+
+  /**
    * Set the body as a byte array.
    */
   public DefaultResponseCreator body(byte[] content) {
@@ -89,7 +97,7 @@ public class DefaultResponseCreator implements ResponseCreator {
   }
 
   /**
-   * Set the body as a {@link Resource}.
+   * Set the body from a {@link Resource}.
    */
   public DefaultResponseCreator body(Resource resource) {
     this.contentResource = resource;
@@ -113,10 +121,38 @@ public class DefaultResponseCreator implements ResponseCreator {
   }
 
   /**
+   * Add a response header with one or more values.
+   */
+  public DefaultResponseCreator header(String name, String... headerValues) {
+    for (String headerValue : headerValues) {
+      this.headers.add(name, headerValue);
+    }
+    return this;
+  }
+
+  /**
    * Copy all given headers.
    */
   public DefaultResponseCreator headers(HttpHeaders headers) {
     this.headers.putAll(headers);
+    return this;
+  }
+
+  /**
+   * Add one or more cookies.
+   */
+  public DefaultResponseCreator cookies(ResponseCookie... cookies) {
+    for (ResponseCookie cookie : cookies) {
+      this.headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+    return this;
+  }
+
+  /**
+   * Copy all cookies from the given {@link MultiValueMap}.
+   */
+  public DefaultResponseCreator cookies(MultiValueMap<String, ResponseCookie> multiValueMap) {
+    multiValueMap.values().forEach(cookies -> cookies.forEach(this::cookies));
     return this;
   }
 

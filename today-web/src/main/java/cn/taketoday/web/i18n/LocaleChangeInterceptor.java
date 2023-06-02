@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.i18n;
 
 import java.util.Locale;
@@ -29,6 +30,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 
 /**
  * Interceptor that allows for changing the current locale on every request,
@@ -36,6 +38,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.web.LocaleResolver
  * @since 4.0
  */
@@ -127,7 +130,10 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
       if (checkHttpMethod(request.getMethodValue())) {
         LocaleResolver localeResolver = getLocaleResolver();
         if (localeResolver == null) {
-          throw new IllegalStateException("No LocaleResolver found");
+          localeResolver = RequestContextUtils.getLocaleResolver(request);
+          if (localeResolver == null) {
+            throw new IllegalStateException("No LocaleResolver found");
+          }
         }
         try {
           localeResolver.setLocale(request, parseLocaleValue(newLocale));

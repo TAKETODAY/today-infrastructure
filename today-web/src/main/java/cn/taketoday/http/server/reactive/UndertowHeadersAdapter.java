@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
@@ -64,9 +64,9 @@ class UndertowHeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public void addAll(String key, @Nullable List<? extends String> values) {
+  public void addAll(String key, @Nullable Collection<? extends String> values) {
     if (values != null) {
-      headers.addAll(HttpString.tryFromString(key), (List<String>) values);
+      headers.addAll(HttpString.tryFromString(key), (Collection<String>) values);
     }
   }
 

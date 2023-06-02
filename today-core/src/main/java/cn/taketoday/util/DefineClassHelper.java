@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,8 +28,8 @@ import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
 import cn.taketoday.bytecode.core.CodeGenerationException;
-import cn.taketoday.reflect.ReflectionException;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.reflect.ReflectionException;
 
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
@@ -116,7 +116,6 @@ public class DefineClassHelper {
    * @param domain if it is null, a default domain is used.
    * @param classFile the bytecode for the loaded class.
    */
-  @SuppressWarnings("deprecation")
   public static Class<?> defineClass(
           String className, @Nullable Class<?> neighbor,
           ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws CodeGenerationException {
@@ -150,9 +149,7 @@ public class DefineClassHelper {
       // Classic option: protected ClassLoader.defineClass method
       if (defineClass != null) {
         try {
-          if (!defineClass.isAccessible()) {
-            defineClass.setAccessible(true);
-          }
+          ReflectionUtils.makeAccessible(defineClass);
           c = (Class<?>) defineClass.invoke(loader, new Object[] { className, classFile, 0, classFile.length, domain });
         }
         catch (InvocationTargetException ex) {

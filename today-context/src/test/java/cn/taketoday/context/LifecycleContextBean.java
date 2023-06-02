@@ -22,7 +22,6 @@ package cn.taketoday.context;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.testfixture.beans.LifecycleBean;
-import cn.taketoday.context.aware.ApplicationContextAware;
 
 /**
  * Simple bean to test ApplicationContext lifecycle methods for beans

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,13 +25,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Indicates that a component is eligible for registration when one or more
@@ -40,7 +40,7 @@ import cn.taketoday.stereotype.Component;
  * <p>A <em>profile</em> is a named logical grouping that may be activated
  * programmatically via {@link ConfigurableEnvironment#setActiveProfiles} or declaratively
  * by setting the {@link AbstractEnvironment#KEY_ACTIVE_PROFILES
- * context.profiles.active} property as a JVM system property, as an
+ * infra.profiles.active} property as a JVM system property, as an
  * environment variable, or as a Servlet context parameter in {@code web.xml}
  * for web applications. Profiles may also be activated declaratively in
  * integration tests via the {@code @ActiveProfiles} annotation.
@@ -120,12 +120,12 @@ public @interface Profile {
 final class ProfileCondition implements Condition {
 
   @Override
-  public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     MultiValueMap<String, Object> attrs = metadata.getAllAnnotationAttributes(Profile.class.getName());
     if (attrs != null) {
       Environment environment = context.getEnvironment();
       for (Object value : attrs.get("value")) {
-        if (environment.acceptsProfiles((String[]) value)) {
+        if (environment.matchesProfiles((String[]) value)) {
           return true;
         }
       }

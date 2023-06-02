@@ -25,10 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringJoiner;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Registry of imported class {@link AnnotationMetadata}.

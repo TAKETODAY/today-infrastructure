@@ -66,7 +66,7 @@ import cn.taketoday.core.annotation.AliasFor;
  *
  * @author Sam Brannen
  * @author Tadaya Tsuyukubo
- * @see ApplicationExtension
+ * @see InfraExtension
  * @see EnabledIf
  * @see org.junit.jupiter.api.Disabled
  * @see org.junit.jupiter.api.condition.DisabledIf

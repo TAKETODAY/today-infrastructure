@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind.resolver;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.ArraySizeTrimmer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.ConversionService;
@@ -47,12 +48,13 @@ import cn.taketoday.web.bind.resolver.date.DateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalDateTimeParameterResolver;
 import cn.taketoday.web.bind.resolver.date.LocalTimeParameterResolver;
+import cn.taketoday.web.handler.method.ModelAndViewMethodArgumentResolver;
 import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.RedirectModelManager;
 import jakarta.servlet.ServletContext;
 
@@ -64,7 +66,7 @@ import jakarta.servlet.ServletContext;
  * @since 3.0
  */
 public class ParameterResolvingRegistry
-        extends ApplicationContextSupport implements ArraySizeTrimmer, InitializingBean {
+        extends ApplicationObjectSupport implements ArraySizeTrimmer, InitializingBean {
 
   private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
   private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();
@@ -213,18 +215,14 @@ public class ParameterResolvingRegistry
   }
 
   public void registerDefaultStrategies() {
-    registerDefaultsStrategies(defaultStrategies);
+    registerDefaultStrategies(defaultStrategies);
   }
 
   /**
    * register default {@link ParameterResolvingStrategy}s
    */
-  public void registerDefaultsStrategies(ParameterResolvingStrategies strategies) {
-    log.info("Registering default parameter-resolvers to {}", strategies);
-
-    // For some useful context annotations
-    // --------------------------------------------
-    strategies.add(new OptionalTypeParameterResolvingStrategy(this));
+  public void registerDefaultStrategies(ParameterResolvingStrategies strategies) {
+    log.debug("Registering default parameter-resolvers to {}", strategies);
 
     ApplicationContext context = obtainApplicationContext();
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
@@ -253,17 +251,18 @@ public class ParameterResolvingRegistry
     CookieParameterResolver.register(strategies, beanFactory);
 
     // type-based argument resolution
-    if (ServletDetector.isPresent && context instanceof WebServletApplicationContext servletApp) {
-      // TODO getServletContext not available in WebApplicationContext ?
+    if (ServletDetector.isPresent && context instanceof WebApplicationContext servletApp) {
       ServletContext servletContext = servletApp.getServletContext();
       Assert.state(servletContext != null, "ServletContext is not available");
       ServletParameterResolvers.register(strategies, servletContext);
     }
 
     strategies.add(new RequestContextMethodArgumentResolver());
+    strategies.add(new ModelAndViewMethodArgumentResolver());
     strategies.add(new ModelMethodProcessor());
     strategies.add(new MapMethodProcessor());
     strategies.add(new ErrorsMethodArgumentResolver());
+    strategies.add(new SessionStatusMethodArgumentResolver());
     strategies.add(new UriComponentsBuilderParameterStrategy());
     strategies.add(new HttpEntityMethodProcessor(
             getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice, modelManager));

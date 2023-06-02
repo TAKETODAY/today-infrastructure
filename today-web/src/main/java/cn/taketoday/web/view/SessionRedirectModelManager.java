@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,11 +24,11 @@ import java.util.List;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.SessionManager;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.session.SessionManager;
-import cn.taketoday.session.WebSession;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -61,8 +61,8 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
   }
 
   @Override
-  protected void updateRedirectModel(List<RedirectModel> redirectModel, RequestContext request) {
-    if (CollectionUtils.isEmpty(redirectModel)) {
+  protected void updateRedirectModel(List<RedirectModel> redirectModels, RequestContext request) {
+    if (CollectionUtils.isEmpty(redirectModels)) {
       WebSession session = getSession(request, false);
       if (session != null) {
         session.removeAttribute(SESSION_ATTRIBUTE);
@@ -71,7 +71,7 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
     else {
       WebSession session = getSession(request, true);
       Assert.state(session != null, "WebSession not found in current request");
-      session.setAttribute(SESSION_ATTRIBUTE, redirectModel);
+      session.setAttribute(SESSION_ATTRIBUTE, redirectModels);
     }
   }
 

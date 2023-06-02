@@ -38,7 +38,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 /**
  * Integration tests which verify support for {@link EnabledIf @EnabledIf} in
  * conjunction with {@link DirtiesContext @DirtiesContext} and the
- * {@link ApplicationExtension} in a JUnit Jupiter environment.
+ * {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
  * @see DisabledIfAndDirtiesContextTests

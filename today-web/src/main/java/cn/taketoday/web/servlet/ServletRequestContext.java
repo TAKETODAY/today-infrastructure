@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serial;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -41,19 +41,27 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.http.server.ServerHttpResponse;
-import cn.taketoday.http.server.ServletServerHttpResponse;
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletIndicator;
+import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.support.ServletMultipartRequest;
+import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.MappingMatch;
 
 /**
  * Servlet environment implementation
@@ -61,10 +69,14 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
  */
-public final class ServletRequestContext extends RequestContext {
+public final class ServletRequestContext extends RequestContext implements ServletIndicator {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
+  private final long requestTimeMillis = System.currentTimeMillis();
+
+  private boolean bodyUsed = false;
+  private boolean headersWritten = false;
 
   public ServletRequestContext(
           ApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
@@ -73,12 +85,19 @@ public final class ServletRequestContext extends RequestContext {
     this.response = response;
   }
 
+  @Override
   public HttpServletRequest getRequest() {
     return request;
   }
 
+  @Override
   public HttpServletResponse getResponse() {
     return response;
+  }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
   }
 
   @Override
@@ -101,6 +120,11 @@ public final class ServletRequestContext extends RequestContext {
     return request.getContextPath();
   }
 
+  @Override
+  protected RequestPath doGetRequestPath() {
+    return ServletRequestPath.parse(this);
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T nativeRequest() {
     return (T) request;
@@ -111,11 +135,6 @@ public final class ServletRequestContext extends RequestContext {
     return ServletUtils.getNativeRequest(request, requestClass);
   }
 
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return ServletUtils.getNativeResponse(response, responseClass);
-  }
-
   @SuppressWarnings("unchecked")
   public <T> T nativeResponse() {
     return (T) response;
@@ -123,6 +142,8 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   protected OutputStream doGetOutputStream() throws IOException {
+    this.bodyUsed = true;
+    writeHeaders();
     return response.getOutputStream();
   }
 
@@ -142,7 +163,7 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetRequestPath() {
+  public String doGetRequestURI() {
     return request.getRequestURI();
   }
 
@@ -216,12 +237,17 @@ public final class ServletRequestContext extends RequestContext {
 
   @Override
   public void setContentType(String contentType) {
+    super.setContentType(contentType);
     response.setContentType(contentType);
   }
 
   @Override
   public String getResponseContentType() {
-    return response.getContentType();
+    String contentType = super.getResponseContentType();
+    if (contentType == null) {
+      return response.getContentType();
+    }
+    return contentType;
   }
 
   @Override
@@ -243,24 +269,7 @@ public final class ServletRequestContext extends RequestContext {
   public void reset() {
     super.reset();
     response.reset();
-  }
-
-  @Override
-  public void addCookie(HttpCookie cookie) {
-    super.addCookie(cookie);
-
-    Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
-    if (cookie instanceof ResponseCookie responseCookie) {
-      servletCookie.setPath(responseCookie.getPath());
-      if (responseCookie.getDomain() != null) {
-        servletCookie.setDomain(responseCookie.getDomain());
-      }
-      servletCookie.setSecure(responseCookie.isSecure());
-      servletCookie.setHttpOnly(responseCookie.isHttpOnly());
-      servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
-    }
-
-    response.addCookie(servletCookie);
+    this.headersWritten = false;
   }
 
   @Override
@@ -271,12 +280,6 @@ public final class ServletRequestContext extends RequestContext {
   @Override
   public void setStatus(int sc) {
     response.setStatus(sc);
-  }
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public void setStatus(int status, String message) {
-    response.setStatus(status, message);
   }
 
   @Override
@@ -340,58 +343,6 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
-    return new ServletServerHttpResponse(response);
-  }
-
-  @Override
-  protected HttpHeaders createResponseHeaders() {
-    return new ServletResponseHttpHeaders(response);
-  }
-
-  static final class ServletResponseHttpHeaders extends DefaultHttpHeaders {
-    @Serial
-    private static final long serialVersionUID = 1L;
-    private final HttpServletResponse response;
-
-    ServletResponseHttpHeaders(HttpServletResponse response) {
-      this.response = response;
-    }
-
-    @Override
-    public void set(String headerName, String headerValue) {
-      super.set(headerName, headerValue);
-      response.setHeader(headerName, headerValue);
-    }
-
-    @Override
-    public void add(String headerName, String headerValue) {
-      super.add(headerName, headerValue);
-      response.addHeader(headerName, headerValue);
-    }
-
-    @Override
-    public List<String> put(String key, List<String> values) {
-      doPut(key, values, response);
-      return super.put(key, values);
-    }
-
-    private static void doPut(String key, List<String> values, HttpServletResponse response) {
-      for (final String value : values) {
-        response.addHeader(key, value);
-      }
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends List<String>> map) {
-      super.putAll(map);
-      for (final Entry<? extends String, ? extends List<String>> entry : map.entrySet()) {
-        doPut(entry.getKey(), entry.getValue(), response);
-      }
-    }
-  }
-
-  @Override
   public void sendError(int sc) throws IOException {
     response.sendError(sc);
   }
@@ -410,9 +361,75 @@ public final class ServletRequestContext extends RequestContext {
   }
 
   @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new StandardServletAsyncWebRequest(this);
+  }
+
+  @Override
+  public void writeHeaders() {
+    if (!headersWritten) {
+      HttpHeaders headers = responseHeaders();
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        String headerName = entry.getKey();
+        for (String headerValue : entry.getValue()) {
+          response.addHeader(headerName, headerValue);
+        }
+      }
+
+      // HttpServletResponse exposes some headers as properties: we should include those if not already present
+      MediaType contentType = headers.getContentType();
+      if (response.getContentType() == null && contentType != null) {
+        response.setContentType(contentType.toString());
+      }
+
+      long contentLength = headers.getContentLength();
+      if (contentLength != -1) {
+        response.setContentLengthLong(contentLength);
+      }
+
+      // apply cookies
+      ArrayList<HttpCookie> responseCookies = this.responseCookies;
+      if (responseCookies != null) {
+        for (HttpCookie cookie : responseCookies) {
+          Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
+          if (cookie instanceof ResponseCookie responseCookie) {
+            servletCookie.setPath(responseCookie.getPath());
+            if (responseCookie.getDomain() != null) {
+              servletCookie.setDomain(responseCookie.getDomain());
+            }
+            servletCookie.setSecure(responseCookie.isSecure());
+            servletCookie.setHttpOnly(responseCookie.isHttpOnly());
+            servletCookie.setMaxAge((int) responseCookie.getMaxAge().toSeconds());
+            servletCookie.setAttribute("SameSite", responseCookie.getSameSite());
+          }
+
+          response.addCookie(servletCookie);
+        }
+      }
+
+      this.headersWritten = true;
+    }
+  }
+
+  @Override
   public void flush() throws IOException {
-    super.flush();
-    response.flushBuffer();
+    writeHeaders();
+
+    if (bodyUsed) {
+      response.flushBuffer();
+    }
+  }
+
+  @Override
+  protected void postRequestCompleted(@Nullable Throwable notHandled) {
+    if (notHandled == null) {
+      try {
+        flush();
+      }
+      catch (IOException e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
+    }
   }
 
   // attributes
@@ -480,6 +497,91 @@ public final class ServletRequestContext extends RequestContext {
     }
     else {
       return request.getAttributeNames().asIterator();
+    }
+  }
+
+  /**
+   * Simple wrapper around the default {@link RequestPath} implementation that
+   * supports a servletPath as an additional prefix to be omitted from
+   * {@link #pathWithinApplication()}.
+   */
+  private static final class ServletRequestPath extends RequestPath {
+
+    private final RequestPath requestPath;
+    private final PathContainer contextPath;
+
+    private ServletRequestPath(String rawPath, @Nullable String contextPath, String servletPath) {
+      this.requestPath = RequestPath.parse(rawPath, contextPath + servletPath);
+      this.contextPath = PathContainer.parsePath(StringUtils.hasText(contextPath) ? contextPath : "");
+    }
+
+    @Override
+    public String value() {
+      return this.requestPath.value();
+    }
+
+    @Override
+    public List<Element> elements() {
+      return this.requestPath.elements();
+    }
+
+    @Override
+    public PathContainer contextPath() {
+      return this.contextPath;
+    }
+
+    @Override
+    public PathContainer pathWithinApplication() {
+      return this.requestPath.pathWithinApplication();
+    }
+
+    @Override
+    public RequestPath modifyContextPath(String contextPath) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      if (this == other) {
+        return true;
+      }
+      if (other == null || getClass() != other.getClass()) {
+        return false;
+      }
+      return (this.requestPath.equals(((ServletRequestPath) other).requestPath));
+    }
+
+    @Override
+    public int hashCode() {
+      return this.requestPath.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return this.requestPath.toString();
+    }
+
+    public static RequestPath parse(ServletRequestContext request) {
+      String requestUri = request.getRequestURI();
+      String servletPath = getServletPath(request.getRequest());
+      if (StringUtils.hasText(servletPath)) {
+        if (servletPath.endsWith("/")) {
+          servletPath = servletPath.substring(0, servletPath.length() - 1);
+        }
+        return new ServletRequestPath(requestUri, request.getContextPath(), servletPath);
+      }
+
+      return RequestPath.parse(requestUri, request.getContextPath());
+    }
+
+    @Nullable
+    public static String getServletPath(HttpServletRequest request) {
+      HttpServletMapping mapping = request.getHttpServletMapping();
+      if (ObjectUtils.nullSafeEquals(mapping.getMappingMatch(), MappingMatch.PATH)) {
+        String servletPath = request.getServletPath();
+        return UriUtils.encodePath(servletPath, StandardCharsets.UTF_8);
+      }
+      return null;
     }
   }
 

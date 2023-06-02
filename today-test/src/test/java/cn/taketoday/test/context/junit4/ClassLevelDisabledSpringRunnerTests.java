@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @TestExecutionListeners(ClassLevelDisabledSpringRunnerTests.CustomTestExecutionListener.class)
 @IfProfileValue(name = "ClassLevelDisabledSpringRunnerTests.profile_value.name", value = "enigmaX")
 public class ClassLevelDisabledSpringRunnerTests {

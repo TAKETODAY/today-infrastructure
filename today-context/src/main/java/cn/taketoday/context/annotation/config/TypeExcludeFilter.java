@@ -32,7 +32,7 @@ import cn.taketoday.core.type.filter.TypeFilter;
 
 /**
  * Provides exclusion {@link TypeFilter TypeFilters} that are loaded from the
- * {@link BeanFactory} and automatically applied to {@code SpringBootApplication}
+ * {@link BeanFactory} and automatically applied to {@code InfraApplication}
  * scanning. Can also be used directly with {@code @ComponentScan} as follows:
  * <pre class="code">
  * &#064;ComponentScan(excludeFilters = @Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class))

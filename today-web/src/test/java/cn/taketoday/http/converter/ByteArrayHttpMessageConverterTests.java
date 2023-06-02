@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,13 +62,23 @@ public class ByteArrayHttpMessageConverterTests {
   }
 
   @Test
+  public void readWithContentLengthHeaderSet() throws IOException {
+    byte[] body = new byte[] { 0x1, 0x2, 0x3, 0x4, 0x5 };
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body);
+    inputMessage.getHeaders().setContentType(new MediaType("application", "octet-stream"));
+    inputMessage.getHeaders().setContentLength(body.length);
+    byte[] result = converter.read(byte[].class, inputMessage);
+    assertThat(result).as("Invalid result").isEqualTo(body);
+  }
+
+  @Test
   public void write() throws IOException {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     byte[] body = new byte[] { 0x1, 0x2 };
     converter.write(body, null, outputMessage);
     assertThat(outputMessage.getBodyAsBytes()).as("Invalid result").isEqualTo(body);
-    assertThat(outputMessage.getHeaders().getContentType()).as("Invalid content-type").isEqualTo(new MediaType("application", "octet-stream"));
-    assertThat(outputMessage.getHeaders().getContentLength()).as("Invalid content-length").isEqualTo(2);
+    assertThat(outputMessage.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM);
+    assertThat(outputMessage.getHeaders().getContentLength()).isEqualTo(2);
   }
 
 }

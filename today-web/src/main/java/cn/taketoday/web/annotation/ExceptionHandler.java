@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,10 +29,10 @@ import java.lang.annotation.Target;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.ui.Model;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.RequestToViewNameTranslator;
 import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
-import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.View;
 
 /**
@@ -111,10 +112,11 @@ import cn.taketoday.web.view.View;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ControllerAdvice
- * @since 2.3.7  2019-06-18 14:30
+ * @since 2.3.7 2019-06-18 14:30
  */
+@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExceptionHandler {

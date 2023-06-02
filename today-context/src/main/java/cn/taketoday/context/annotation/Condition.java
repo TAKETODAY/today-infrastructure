@@ -45,6 +45,6 @@ public interface Condition {
    * * registered
    * @since 4.0
    */
-  boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata);
+  boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata);
 
 }

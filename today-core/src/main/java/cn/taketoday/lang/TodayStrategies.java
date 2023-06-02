@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,36 +22,39 @@ package cn.taketoday.lang;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
  * today-framework Strategies
- * <p>General purpose factory loading mechanism for internal use within the framework.
+ * <p>General purpose strategy loading mechanism for internal use within the framework.
  * <p>Reads a {@code META-INF/today-strategies.properties} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
  * When checking a property, local entries are being checked first, then falling back
  * to JVM-level system properties through a {@link System#getProperty} check.
  * <p>
  * Get keyed strategies
- * <p>
- * Like Framework's SpringFactoriesLoader
  *
  * @author TODAY 2021/9/5 13:57
  * @since 4.0
@@ -61,7 +64,7 @@ public final class TodayStrategies {
 
   public static final String STRATEGIES_LOCATION = "META-INF/today-strategies.properties";
 
-  static final ConcurrentReferenceHashMap<ClassLoader, MultiValueMap<String, String>>
+  static final ConcurrentReferenceHashMap<ClassLoader, Map<String, TodayStrategies>>
           strategiesCache = new ConcurrentReferenceHashMap<>();
 
   private static final String PROPERTIES_RESOURCE_LOCATION = "today.properties";
@@ -376,7 +379,7 @@ public final class TodayStrategies {
    * to avoid the unnecessary allocation of a {@code Long} object when
    * the default value is not needed.
    *
-   * @param nm property name.
+   * @param key property name.
    * @param val default value.
    * @return the {@code Long} value of the property.
    * @throws SecurityException for the same reasons as
@@ -384,8 +387,8 @@ public final class TodayStrategies {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
-  public static Long getLong(String nm, long val) {
-    Long result = Long.getLong(nm, null);
+  public static Long getLong(String key, long val) {
+    Long result = Long.getLong(key, null);
     return (result == null) ? Long.valueOf(val) : result;
   }
 
@@ -452,195 +455,18 @@ public final class TodayStrategies {
   // Strategies
   //---------------------------------------------------------------------
 
-  /**
-   * get first strategy
-   *
-   * @see #get(Class)
-   */
-  @Nullable
-  public static String getFirst(String strategyKey) {
-    return CollectionUtils.firstElement(get(strategyKey, null));
-  }
+  private final ClassLoader classLoader;
+  private final Map<String, List<String>> strategies;
 
   /**
-   * get first strategy
+   * Create a new {@link TodayStrategies} instance.
    *
-   * @see #get(Class)
+   * @param classLoader the classloader used to instantiate the factories
+   * @param strategies a map of strategy class name to implementation class names
    */
-  public static <T> T getFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
-    T first = CollectionUtils.firstElement(get(strategyClass, (ClassLoader) null));
-    if (first == null && defaultValue != null) {
-      return defaultValue.get();
-    }
-    return first;
-  }
-
-  /**
-   * get none repeatable strategies by given class
-   *
-   * @param strategyClass strategy class
-   * @param <T> target type
-   * @return returns none repeatable strategies by given class
-   */
-  public static <T> List<T> get(Class<T> strategyClass) {
-    return get(strategyClass, (ClassLoader) null);
-  }
-
-  /**
-   * get none repeatable strategies by given class
-   * <p>
-   * strategies must be an instance of given strategy class
-   * </p>
-   *
-   * @param strategyClass strategy class
-   * @param <T> target type
-   * @return returns none repeatable strategies by given class
-   */
-  public static <T> List<T> get(
-          Class<T> strategyClass, @Nullable ClassLoader classLoader) {
-    Assert.notNull(strategyClass, "strategy-class must not be null");
-    return get(strategyClass, classLoader, strategy -> {
-      try {
-        return ReflectionUtils.accessibleConstructor(strategy).newInstance();
-      }
-      catch (Throwable ex) {
-        throw new IllegalArgumentException(
-                "Unable to instantiate factory class [" + strategyClass.getName()
-                        + "] for factory type [" + strategy.getName() + "]", ex);
-      }
-    });
-  }
-
-  /**
-   * get collection of strategies
-   *
-   * @param strategyClass strategy super class
-   * @param converter converter to convert strategyImpl to T
-   * @param <T> return type
-   * @return collection of strategies
-   */
-  public static <T> List<T> get(Class<T> strategyClass, Function<Class<T>, T> converter) {
-    return get(strategyClass, null, converter);
-  }
-
-  /**
-   * get collection of strategies
-   *
-   * @param strategyClass strategy super class
-   * @param converter converter to convert strategyImpl to T
-   * @param <T> return type
-   * @return collection of strategies
-   */
-  public static <T> List<T> get(
-          Class<T> strategyClass, @Nullable ClassLoader classLoader, Function<Class<T>, T> converter) {
-    Assert.notNull(converter, "converter is required");
-    Assert.notNull(strategyClass, "strategy-class is required");
-    if (classLoader == null) {
-      classLoader = TodayStrategies.class.getClassLoader();
-    }
-    // get class list by class full name
-    List<String> strategies = get(strategyClass.getName(), classLoader);
-    if (log.isTraceEnabled()) {
-      log.trace("Loaded [{}] strategies: {}", strategyClass.getName(), strategies);
-    }
-
-    if (strategies.isEmpty()) {
-      return new ArrayList<>();
-    }
-
-    ArrayList<T> ret = new ArrayList<>(strategies.size());
-    for (String strategy : strategies) {
-      Class<T> strategyImpl = ClassUtils.resolveClassName(strategy, classLoader);
-      if (strategyImpl.isAssignableFrom(strategyImpl)) {
-        T converted = converter.apply(strategyImpl);
-        if (converted != null) {
-          ret.add(converted);
-        }
-      }
-      else {
-        throw new IllegalArgumentException("Class [" + strategy +
-                "] is not assignable to strategy type [" + strategyClass.getName() + "]");
-      }
-    }
-
-    AnnotationAwareOrderComparator.sort(ret);
-    return ret;
-  }
-
-  /**
-   * get all strategies by a strategyKey, use {@code TodayStrategies.class.getClassLoader()}
-   *
-   * @param strategyKey key
-   * @return list of strategies
-   */
-  public static List<String> get(String strategyKey) {
-    return get(strategyKey, null);
-  }
-
-  /**
-   * get all strategies by a strategyKey
-   *
-   * @param strategyKey key
-   * @param classLoader classLoader to load
-   * @return list of strategies
-   */
-  public static List<String> get(
-          String strategyKey, @Nullable ClassLoader classLoader) {
-    Assert.notNull(strategyKey, "strategy-key must not be null");
-    if (classLoader == null) {
-      classLoader = TodayStrategies.class.getClassLoader();
-    }
-    List<String> strategies = loadStrategies(classLoader).get(strategyKey);
-    if (strategies == null) {
-      return new ArrayList<>();
-    }
-    return strategies;
-  }
-
-  /**
-   * get all strategies by a strategyClass
-   *
-   * @param strategyClass strategy-class
-   * @param classLoader classLoader to load
-   * @return list of strategies
-   */
-  public static List<String> getStrategiesNames(
-          Class<?> strategyClass, @Nullable ClassLoader classLoader) {
-    Assert.notNull(strategyClass, "strategy-class must not be null");
-    return get(strategyClass.getName(), classLoader);
-  }
-
-  private static MultiValueMap<String, String> loadStrategies(ClassLoader classLoader) {
-    MultiValueMap<String, String> strategies = strategiesCache.get(classLoader);
-    if (strategies != null) {
-      return strategies;
-    }
-    synchronized(strategiesCache) {
-      strategies = strategiesCache.get(classLoader);
-      if (strategies == null) {
-        log.debug("Detecting strategies location '{}'", STRATEGIES_LOCATION);
-        strategies = MultiValueMap.fromLinkedHashMap();
-        try {
-          Enumeration<URL> urls = classLoader.getResources(STRATEGIES_LOCATION);
-          while (urls.hasMoreElements()) {
-            URL url = urls.nextElement();
-            Properties properties = new Properties();
-
-            try (InputStream inputStream = url.openStream()) {
-              properties.load(inputStream);
-            }
-            log.debug("Reading strategies file '{}'", url);
-            readStrategies(strategies, properties);
-          }
-          strategiesCache.put(classLoader, strategies);
-        }
-        catch (IOException ex) {
-          throw new IllegalArgumentException(
-                  "Unable to load strategies from location [" + STRATEGIES_LOCATION + "]", ex);
-        }
-      }
-    }
-    return strategies;
+  protected TodayStrategies(@Nullable ClassLoader classLoader, Map<String, List<String>> strategies) {
+    this.classLoader = classLoader;
+    this.strategies = strategies;
   }
 
   public static void readStrategies(
@@ -667,6 +493,724 @@ public final class TodayStrategies {
         readStrategies(strategies, key.toString(), value.toString());
       }
     }
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the configured class loader
+   * and a default argument resolver that expects a no-arg constructor.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p>If a custom instantiation strategy is required, use {@code load(...)}
+   * with a custom {@link ArgumentResolver ArgumentResolver} and/or
+   * {@link FailureHandler FailureHandler}.
+   * <p> if duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @return Returns strategy object list that can be modified
+   * @throws IllegalArgumentException if any strategy implementation class cannot
+   * be loaded or if an error occurs while instantiating any strategy
+   */
+  public <T> List<T> load(Class<T> strategyType) {
+    return load(strategyType, (ArgumentResolver) null, null);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the configured class loader
+   * and the given argument resolver.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p>If duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param argumentResolver strategy used to resolve constructor arguments by their type
+   * @return Returns strategy object list that can be modified
+   * @throws IllegalArgumentException if any strategy implementation class cannot
+   * be loaded or if an error occurs while instantiating any strategy
+   */
+  public <T> List<T> load(Class<T> strategyType, @Nullable ArgumentResolver argumentResolver) {
+    return load(strategyType, argumentResolver, null);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the configured class loader
+   * and the given argument resolver.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p>If duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param instantiator strategy used it to instantiate instance
+   * @return Returns strategy object list that can be modified
+   * @throws IllegalArgumentException if any strategy implementation class cannot
+   * be loaded or if an error occurs while instantiating any strategy
+   */
+  public <T> List<T> load(Class<T> strategyType, Instantiator instantiator) {
+    return load(strategyType, instantiator, null);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the configured class loader
+   * with custom failure handling provided by the given failure handler.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p>If duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   * <p>For any strategy implementation class that cannot be loaded or error that
+   * occurs while instantiating it, the given failure handler is called.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param failureHandler strategy used to handle strategy instantiation failures
+   * @return Returns strategy object list that can be modified
+   */
+  public <T> List<T> load(Class<T> strategyType, @Nullable FailureHandler failureHandler) {
+    return load(strategyType, (ArgumentResolver) null, failureHandler);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the configured class loader,
+   * the given argument resolver, and custom failure handling provided by the given
+   * failure handler.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p>If duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   * <p>For any strategy implementation class that cannot be loaded or error that
+   * occurs while instantiating it, the given failure handler is called.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param argumentResolver strategy used to resolve constructor arguments by their type
+   * @param failureHandler strategy used to handle strategy instantiation failures
+   * @return Returns strategy object list that can be modified
+   */
+  public <T> List<T> load(Class<T> strategyType,
+          @Nullable ArgumentResolver argumentResolver, @Nullable FailureHandler failureHandler) {
+    var instantiator = new DefaultInstantiator(argumentResolver);
+    return load(strategyType, instantiator, failureHandler);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the configured class loader,
+   * the given argument resolver, and custom failure handling provided by the given
+   * failure handler.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p>If duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   * <p>For any strategy implementation class that cannot be loaded or error that
+   * occurs while instantiating it, the given failure handler is called.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param instantiator strategy used it to instantiate instance
+   * @param failureHandler strategy used to handle strategy instantiation failures
+   * @return Returns strategy object list that can be modified
+   */
+  public <T> List<T> load(Class<T> strategyType,
+          Instantiator instantiator, @Nullable FailureHandler failureHandler) {
+    Assert.notNull(strategyType, "'strategyType' is required");
+    Assert.notNull(instantiator, "'instantiator' is required");
+
+    List<String> implementationNames = getStrategyNames(strategyType);
+    if (log.isTraceEnabled()) {
+      log.trace("Loaded [{}] names: {}", strategyType.getName(), implementationNames);
+    }
+
+    var result = new ArrayList<T>(implementationNames.size());
+    if (failureHandler == null) {
+      failureHandler = FailureHandler.throwing();
+    }
+    for (String implementationName : implementationNames) {
+      T strategy = instantiateStrategy(implementationName, strategyType, instantiator, failureHandler);
+      if (strategy != null) {
+        result.add(strategy);
+      }
+    }
+    AnnotationAwareOrderComparator.sort(result);
+    return result;
+  }
+
+  // private stuff
+
+  private List<String> getStrategyNames(String strategyKey) {
+    return strategies.getOrDefault(strategyKey, Collections.emptyList());
+  }
+
+  private List<String> getStrategyNames(Class<?> strategyType) {
+    return getStrategyNames(strategyType.getName());
+  }
+
+  @Nullable
+  protected <T> T instantiateStrategy(String implementationName, Class<T> type,
+          Instantiator instantiator, FailureHandler failureHandler) {
+    try {
+      Class<T> implementation = ClassUtils.forName(implementationName, classLoader);
+      if (!type.isAssignableFrom(implementation)) {
+        throw new IllegalArgumentException(
+                "Class [%s] is not assignable to strategy type [%s]".formatted(implementationName, type.getName()));
+      }
+
+      return instantiator.instantiate(implementation);
+    }
+    catch (Throwable ex) {
+      failureHandler.handleFailure(type, implementationName, ex);
+      return null;
+    }
+  }
+
+  // Static
+
+  /**
+   * get first strategy
+   *
+   * @see #find(Class)
+   */
+  @Nullable
+  public static String getFirst(String strategyKey) {
+    return CollectionUtils.firstElement(findNames(strategyKey, null));
+  }
+
+  /**
+   * get first strategy
+   *
+   * @see #find(Class)
+   */
+  public static <T> T getFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
+    T first = CollectionUtils.firstElement(find(strategyClass, (ClassLoader) null));
+    if (first == null && defaultValue != null) {
+      return defaultValue.get();
+    }
+    return first;
+  }
+
+  /**
+   * get none repeatable strategies by given class
+   *
+   * @param strategyClass strategy class
+   * @param <T> target type
+   * @return returns none repeatable strategies by given class
+   */
+  public static <T> List<T> find(Class<T> strategyClass) {
+    return find(strategyClass, (ClassLoader) null);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the given class loader.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p> if duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   * <p>For more advanced strategy loading with {@link ArgumentResolver} or
+   * {@link FailureHandler} support use {@link #forDefaultResourceLocation(ClassLoader)}
+   * to obtain a {@link TodayStrategies} instance.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param classLoader the ClassLoader to use for loading (can be {@code null}
+   * to use the default)
+   * @throws IllegalArgumentException if any strategy implementation class cannot
+   * be loaded or if an error occurs while instantiating any strategy
+   */
+  public static <T> List<T> find(Class<T> strategyType, @Nullable ClassLoader classLoader) {
+    return forDefaultResourceLocation(classLoader).load(strategyType);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the given class loader.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p> if duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   * <p>For more advanced strategy loading with {@link ArgumentResolver} or
+   * {@link FailureHandler} support use {@link #forDefaultResourceLocation(ClassLoader)}
+   * to obtain a {@link TodayStrategies} instance.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param classLoader the ClassLoader to use for loading (can be {@code null}
+   * to use the default)
+   * @throws IllegalArgumentException if any strategy implementation class cannot
+   * be loaded or if an error occurs while instantiating any strategy
+   */
+  public static <T> List<T> find(Class<T> strategyType,
+          @Nullable ClassLoader classLoader, Instantiator instantiator) {
+    return forDefaultResourceLocation(classLoader).load(strategyType, instantiator);
+  }
+
+  /**
+   * Load and instantiate the strategy implementations of the given type from
+   * {@value #STRATEGIES_LOCATION}, using the given class loader.
+   * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+   * <p> if duplicate implementation class names are
+   * discovered for a given strategy type, only one instance of the duplicated
+   * implementation type will be instantiated.
+   * <p>For more advanced strategy loading with {@link ArgumentResolver} or
+   * {@link FailureHandler} support use {@link #forDefaultResourceLocation(ClassLoader)}
+   * to obtain a {@link TodayStrategies} instance.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @throws IllegalArgumentException if any strategy implementation class cannot
+   * be loaded or if an error occurs while instantiating any strategy
+   */
+  public static <T> List<T> find(Class<T> strategyType, Instantiator instantiator) {
+    return forDefaultResourceLocation().load(strategyType, instantiator);
+  }
+
+  // names
+
+  /**
+   * Load the fully qualified class names of strategy implementations of the
+   * given type from {@value #STRATEGIES_LOCATION}, using the given
+   * class loader.
+   * <p> if a particular implementation class name
+   * is discovered more than once for the given strategy type, duplicates will
+   * be ignored.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @throws IllegalArgumentException if an error occurs while loading strategy names
+   * @see #findNames
+   */
+  public static List<String> findNames(Class<?> strategyType) {
+    return findNames(strategyType, null);
+  }
+
+  /**
+   * Load the fully qualified class names of strategy implementations of the
+   * given type from {@value #STRATEGIES_LOCATION}, using the given
+   * class loader.
+   * <p> if a particular implementation class name
+   * is discovered more than once for the given strategy type, duplicates will
+   * be ignored.
+   *
+   * @param strategyType the interface or abstract class representing the strategy
+   * @param classLoader the ClassLoader to use for loading resources; can be
+   * {@code null} to use the default
+   * @throws IllegalArgumentException if an error occurs while loading strategy names
+   * @see #findNames
+   */
+  public static List<String> findNames(Class<?> strategyType, @Nullable ClassLoader classLoader) {
+    return forDefaultResourceLocation(classLoader).getStrategyNames(strategyType);
+  }
+
+  /**
+   * Load the fully qualified class names of strategy implementations of the
+   * given type from {@value #STRATEGIES_LOCATION}, using the given
+   * class loader.
+   * <p> if a particular implementation class name
+   * is discovered more than once for the given strategy type, duplicates will
+   * be ignored.
+   *
+   * @param strategyKey the key representing the strategy
+   * @throws IllegalArgumentException if an error occurs while loading strategy names
+   * @see #findNames
+   */
+  public static List<String> findNames(String strategyKey) {
+    return findNames(strategyKey, null);
+  }
+
+  /**
+   * Load the fully qualified class names of strategy implementations of the
+   * given type from {@value #STRATEGIES_LOCATION}, using the given
+   * class loader.
+   * <p> if a particular implementation class name
+   * is discovered more than once for the given strategy type, duplicates will
+   * be ignored.
+   *
+   * @param strategyKey the key representing the strategy
+   * @param classLoader the ClassLoader to use for loading resources; can be
+   * {@code null} to use the default
+   * @throws IllegalArgumentException if an error occurs while loading strategy names
+   * @see #findNames
+   */
+  public static List<String> findNames(String strategyKey, @Nullable ClassLoader classLoader) {
+    return forDefaultResourceLocation(classLoader).getStrategyNames(strategyKey);
+  }
+
+  /**
+   * Create a {@link TodayStrategies} instance that will load and
+   * instantiate the strategy implementations from
+   * {@value #STRATEGIES_LOCATION}, using the default class loader.
+   *
+   * @return a {@link TodayStrategies} instance
+   * @see #forDefaultResourceLocation(ClassLoader)
+   */
+  public static TodayStrategies forDefaultResourceLocation() {
+    return forDefaultResourceLocation(null);
+  }
+
+  /**
+   * Create a {@link TodayStrategies} instance that will load and
+   * instantiate the strategy implementations from
+   * {@value #STRATEGIES_LOCATION}, using the given class loader.
+   *
+   * @param classLoader the ClassLoader to use for loading resources; can be
+   * {@code null} to use the default
+   * @return a {@link TodayStrategies} instance
+   * @see #forDefaultResourceLocation()
+   */
+  public static TodayStrategies forDefaultResourceLocation(@Nullable ClassLoader classLoader) {
+    return forLocation(STRATEGIES_LOCATION, classLoader);
+  }
+
+  /**
+   * Create a {@link TodayStrategies} instance that will load and
+   * instantiate the strategy implementations from the given location, using
+   * the default class loader.
+   *
+   * @param resourceLocation the resource location to look for factories
+   * @return a {@link TodayStrategies} instance
+   * @see #forLocation(String, ClassLoader)
+   */
+  public static TodayStrategies forLocation(String resourceLocation) {
+    return forLocation(resourceLocation, null);
+  }
+
+  /**
+   * Create a {@link TodayStrategies} instance that will load and
+   * instantiate the strategy implementations from the given location, using
+   * the given class loader.
+   *
+   * @param resourceLocation the resource location to look for factories
+   * @param classLoader the ClassLoader to use for loading resources; can be
+   * {@code null} to use the default
+   * @return a {@link TodayStrategies} instance
+   * @see #forLocation(String)
+   */
+  public static TodayStrategies forLocation(
+          String resourceLocation, @Nullable ClassLoader classLoader) {
+    Assert.hasText(resourceLocation, "'resourceLocation' must not be empty");
+
+    if (classLoader == null) {
+      classLoader = TodayStrategies.class.getClassLoader();
+    }
+
+    Map<String, TodayStrategies> loaders = strategiesCache.get(classLoader);
+    if (loaders == null) {
+      synchronized(strategiesCache) {
+        loaders = strategiesCache.get(classLoader);
+        if (loaders == null) {
+          loaders = new ConcurrentReferenceHashMap<>();
+          strategiesCache.put(classLoader, loaders);
+        }
+      }
+    }
+
+    TodayStrategies todayStrategies = loaders.get(resourceLocation);
+    if (todayStrategies == null) {
+      synchronized(loaders) {
+        todayStrategies = loaders.get(resourceLocation);
+        if (todayStrategies == null) {
+          todayStrategies = new TodayStrategies(classLoader, loadResource(classLoader, resourceLocation));
+          loaders.put(resourceLocation, todayStrategies);
+        }
+      }
+    }
+
+    return todayStrategies;
+  }
+
+  protected static Map<String, List<String>> loadResource(ClassLoader classLoader, String resourceLocation) {
+    MultiValueMap<String, String> strategies = MultiValueMap.fromLinkedHashMap();
+    try {
+      log.debug("Detecting strategies location '{}'", resourceLocation);
+      Enumeration<URL> urls = classLoader.getResources(resourceLocation);
+      while (urls.hasMoreElements()) {
+        URL url = urls.nextElement();
+        Properties properties = new Properties();
+
+        try (InputStream inputStream = url.openStream()) {
+          properties.load(inputStream);
+        }
+
+        log.debug("Reading strategies file '{}'", url);
+        readStrategies(strategies, properties);
+      }
+
+      strategies.replaceAll(TodayStrategies::toDistinctUnmodifiableList);
+    }
+    catch (IOException ex) {
+      throw new IllegalArgumentException(
+              "Unable to load strategies from location [" + resourceLocation + "]", ex);
+    }
+    return Collections.unmodifiableMap(strategies);
+  }
+
+  private static List<String> toDistinctUnmodifiableList(String strategyType, List<String> implementations) {
+    return implementations.stream().distinct().toList();
+  }
+
+  /**
+   * Strategy for instantiate strategy.
+   */
+  public interface Instantiator {
+
+    <T> T instantiate(Class<T> implementation) throws Exception;
+  }
+
+  /**
+   * Internal instantiator used to create the strategy instance.
+   */
+  static final class DefaultInstantiator implements Instantiator {
+
+    @Nullable
+    private final ArgumentResolver argumentResolver;
+
+    DefaultInstantiator(@Nullable ArgumentResolver argumentResolver) {
+      this.argumentResolver = argumentResolver;
+    }
+
+    /**
+     * @param <T> the instance implementation type
+     * @param implementation strategy implementation
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T instantiate(Class<T> implementation) throws Exception {
+      Constructor<?> constructor = findConstructor(implementation);
+      if (constructor == null) {
+        throw new IllegalStateException(
+                "Class [%s] has no suitable constructor".formatted(implementation.getName()));
+      }
+      Class<?>[] types = constructor.getParameterTypes();
+      Object[] args = new Object[types.length];
+      if (argumentResolver != null) {
+        int i = 0;
+        for (Class<?> type : types) {
+          args[i++] = argumentResolver.resolve(type);
+        }
+      }
+      ReflectionUtils.makeAccessible(constructor);
+      return (T) constructor.newInstance(args);
+    }
+
+    @Nullable
+    private static Constructor<?> findConstructor(Class<?> implementationClass) {
+      Constructor<?> constructor = findSingleConstructor(implementationClass.getConstructors());
+      if (constructor == null) {
+        constructor = findSingleConstructor(implementationClass.getDeclaredConstructors());
+        if (constructor == null) {
+          constructor = findDeclaredConstructor(implementationClass);
+        }
+      }
+      return constructor;
+    }
+
+    @Nullable
+    private static Constructor<?> findSingleConstructor(Constructor<?>[] constructors) {
+      return (constructors.length == 1 ? constructors[0] : null);
+    }
+
+    @Nullable
+    private static Constructor<?> findDeclaredConstructor(Class<?> implementationClass) {
+      try {
+        return implementationClass.getDeclaredConstructor();
+      }
+      catch (NoSuchMethodException ex) {
+        return null;
+      }
+    }
+
+  }
+
+  /**
+   * Strategy for resolving constructor arguments based on their type.
+   *
+   * @see ArgumentResolver#of(Class, Object)
+   * @see ArgumentResolver#ofSupplied(Class, Supplier)
+   * @see ArgumentResolver#from(Function)
+   */
+  @FunctionalInterface
+  public interface ArgumentResolver {
+
+    /**
+     * Resolve the given argument if possible.
+     *
+     * @param <T> the argument type
+     * @param type the argument type
+     * @return the resolved argument value or {@code null}
+     */
+    @Nullable
+    <T> T resolve(Class<T> type);
+
+    /**
+     * Create a new composed {@link ArgumentResolver} by combining this resolver
+     * with the given type and value.
+     *
+     * @param <T> the argument type
+     * @param type the argument type
+     * @param value the argument value
+     * @return a new composite {@link ArgumentResolver} instance
+     */
+    default <T> ArgumentResolver and(Class<T> type, T value) {
+      return and(ArgumentResolver.of(type, value));
+    }
+
+    /**
+     * Create a new composed {@link ArgumentResolver} by combining this resolver
+     * with the given type and value.
+     *
+     * @param <T> the argument type
+     * @param type the argument type
+     * @param valueSupplier the argument value supplier
+     * @return a new composite {@link ArgumentResolver} instance
+     */
+    default <T> ArgumentResolver andSupplied(Class<T> type, Supplier<T> valueSupplier) {
+      return and(ArgumentResolver.ofSupplied(type, valueSupplier));
+    }
+
+    /**
+     * Create a new composed {@link ArgumentResolver} by combining this resolver
+     * with the given resolver.
+     *
+     * @param argumentResolver the argument resolver to add
+     * @return a new composite {@link ArgumentResolver} instance
+     */
+    default ArgumentResolver and(ArgumentResolver argumentResolver) {
+      return from(type -> {
+        Object resolved = resolve(type);
+        return (resolved != null ? resolved : argumentResolver.resolve(type));
+      });
+    }
+
+    /**
+     * Factory method that returns an {@link ArgumentResolver} that always
+     * returns {@code null}.
+     *
+     * @return a new {@link ArgumentResolver} instance
+     */
+    static ArgumentResolver none() {
+      return from(type -> null);
+    }
+
+    /**
+     * Factory method that can be used to create an {@link ArgumentResolver}
+     * that resolves only the given type.
+     *
+     * @param <T> the argument type
+     * @param type the argument type
+     * @param value the argument value
+     * @return a new {@link ArgumentResolver} instance
+     */
+    static <T> ArgumentResolver of(Class<T> type, T value) {
+      return ofSupplied(type, () -> value);
+    }
+
+    /**
+     * Factory method that can be used to create an {@link ArgumentResolver}
+     * that resolves only the given type.
+     *
+     * @param <T> the argument type
+     * @param type the argument type
+     * @param valueSupplier the argument value supplier
+     * @return a new {@link ArgumentResolver} instance
+     */
+    static <T> ArgumentResolver ofSupplied(Class<T> type, Supplier<T> valueSupplier) {
+      return from(candidateType -> (candidateType.equals(type) ? valueSupplier.get() : null));
+    }
+
+    /**
+     * Factory method that creates a new {@link ArgumentResolver} from a
+     * lambda friendly function. The given function is provided with the
+     * argument type and must provide an instance of that type or {@code null}.
+     *
+     * @param function the resolver function
+     * @return a new {@link ArgumentResolver} instance backed by the function
+     */
+    static ArgumentResolver from(Function<Class<?>, Object> function) {
+      return new ArgumentResolver() {
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> T resolve(Class<T> type) {
+          return (T) function.apply(type);
+        }
+
+      };
+    }
+
+  }
+
+  /**
+   * Strategy for handling a failure that occurs when instantiating a strategy.
+   *
+   * @see FailureHandler#throwing()
+   * @see FailureHandler#logging(Logger)
+   */
+  @FunctionalInterface
+  public interface FailureHandler {
+
+    /**
+     * Handle the {@code failure} that occurred when instantiating the
+     * {@code strategyImplementationName} that was expected to be of the
+     * given {@code strategyType}.
+     *
+     * @param strategyType the type of the strategy
+     * @param strategyImplementationName the name of the strategy implementation
+     * @param failure the failure that occurred
+     * @see #throwing()
+     * @see #logging
+     */
+    void handleFailure(Class<?> strategyType, String strategyImplementationName, Throwable failure);
+
+    /**
+     * Create a new {@link FailureHandler} that handles errors by throwing an
+     * {@link IllegalArgumentException}.
+     *
+     * @return a new {@link FailureHandler} instance
+     * @see #throwing(BiFunction)
+     */
+    static FailureHandler throwing() {
+      return throwing(IllegalArgumentException::new);
+    }
+
+    /**
+     * Create a new {@link FailureHandler} that handles errors by throwing an
+     * exception.
+     *
+     * @param exceptionFactory strategy used to create the exception
+     * @return a new {@link FailureHandler} instance
+     */
+    static FailureHandler throwing(
+            BiFunction<String, Throwable, ? extends RuntimeException> exceptionFactory) {
+      return handleMessage((messageSupplier, failure) -> {
+        throw exceptionFactory.apply(messageSupplier.get(), failure);
+      });
+    }
+
+    /**
+     * Create a new {@link FailureHandler} that handles errors by logging trace
+     * messages.
+     *
+     * @param logger the logger used to log messages
+     * @return a new {@link FailureHandler} instance
+     */
+    static FailureHandler logging(Logger logger) {
+      return handleMessage((messageSupplier, failure) ->
+              logger.trace(LogMessage.from(messageSupplier), failure));
+    }
+
+    /**
+     * Create a new {@link FailureHandler} that handles errors using a standard
+     * formatted message.
+     *
+     * @param messageHandler the message handler used to handle the problem
+     * @return a new {@link FailureHandler} instance
+     */
+    static FailureHandler handleMessage(BiConsumer<Supplier<String>, Throwable> messageHandler) {
+      return (strategyType, implementationName, failure) -> {
+        Supplier<String> messageSupplier = () -> "Unable to instantiate strategy class [%s] for strategy type [%s]"
+                .formatted(implementationName, strategyType.getName());
+        messageHandler.accept(messageSupplier, failure);
+      };
+    }
+
   }
 
 }

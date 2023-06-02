@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.Separator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -309,7 +309,7 @@ public class PathPattern implements Comparable<PathPattern> {
     // Find first path element that is not a separator or a literal (i.e. the first pattern based element)
     PathElement elem = this.head;
     while (elem != null) {
-      if (elem.getWildcardCount() != 0 || elem.getCaptureCount() != 0) {
+      if (!elem.isLiteral()) {
         break;
       }
       elem = elem.next;
@@ -590,7 +590,7 @@ public class PathPattern implements Comparable<PathPattern> {
     }
 
     PathRemainingMatchInfo(PathContainer pathMatched, PathContainer pathRemaining,
-                           PathMatchInfo pathMatchInfo) {
+            PathMatchInfo pathMatchInfo) {
       this.pathRemaining = pathRemaining;
       this.pathMatched = pathMatched;
       this.pathMatchInfo = pathMatchInfo;

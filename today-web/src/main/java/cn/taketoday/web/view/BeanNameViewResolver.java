@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import java.util.Locale;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
 
@@ -41,10 +41,11 @@ import cn.taketoday.lang.Nullable;
  * a {@link UrlBasedViewResolver}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see UrlBasedViewResolver
  * @since 4.0
  */
-public class BeanNameViewResolver extends ApplicationContextSupport implements ViewResolver, Ordered {
+public class BeanNameViewResolver extends ApplicationObjectSupport implements ViewResolver, Ordered {
 
   private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 
@@ -71,15 +72,17 @@ public class BeanNameViewResolver extends ApplicationContextSupport implements V
       // Allow for ViewResolver chaining...
       return null;
     }
-    if (!context.isTypeMatch(viewName, View.class)) {
-      if (log.isDebugEnabled()) {
-        log.debug("Found bean named '{}' but it does not implement View", viewName);
-      }
-      // Since we're looking into the general ApplicationContext here,
-      // let's accept this as a non-match and allow for chaining as well...
-      return null;
+
+    if (context.isTypeMatch(viewName, View.class)) {
+      return context.getBean(viewName, View.class);
     }
-    return context.getBean(viewName, View.class);
+
+    if (log.isDebugEnabled()) {
+      log.debug("Found bean named '{}' but it does not implement View", viewName);
+    }
+    // Since we're looking into the general ApplicationContext here,
+    // let's accept this as a non-match and allow for chaining as well...
+    return null;
   }
 
 }

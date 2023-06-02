@@ -51,7 +51,7 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
    * @param originalRequest the original RequestContext
    * @param context the WebApplicationContext that this request runs in
    */
-  public ContextExposingRequestContext(RequestContext originalRequest, WebApplicationContext context) {
+  public ContextExposingRequestContext(RequestContext originalRequest, ApplicationContext context) {
     this(originalRequest, context, null);
   }
 

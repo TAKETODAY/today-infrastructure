@@ -1,11 +1,11 @@
 ---
-context:
+infra:
   profiles:
     active: dev
 my:
   property: fromyamlfile
 ---
-context:
+infra:
   profiles: dev
 my:
   property: fromdevprofile

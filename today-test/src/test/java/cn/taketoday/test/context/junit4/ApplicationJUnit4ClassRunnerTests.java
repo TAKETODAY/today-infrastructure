@@ -64,7 +64,7 @@ public class ApplicationJUnit4ClassRunnerTests {
   @Test
   public void getSpringTimeoutViaMetaAnnotation() throws Exception {
     JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass());
-    long timeout = runner.getSpringTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
+    long timeout = runner.getInfraTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
             "springTimeoutWithMetaAnnotation")));
     assertThat(timeout).isEqualTo(10);
   }
@@ -72,7 +72,7 @@ public class ApplicationJUnit4ClassRunnerTests {
   @Test
   public void getSpringTimeoutViaMetaAnnotationWithOverride() throws Exception {
     JUnit4ClassRunner runner = new JUnit4ClassRunner(getClass());
-    long timeout = runner.getSpringTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
+    long timeout = runner.getInfraTimeout(new FrameworkMethod(getClass().getDeclaredMethod(
             "springTimeoutWithMetaAnnotationAndOverride")));
     assertThat(timeout).isEqualTo(42);
   }

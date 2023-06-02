@@ -23,7 +23,7 @@ package cn.taketoday.test.context;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
-import cn.taketoday.test.context.junit4.rules.ApplicationMethodRule;
+import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
@@ -39,7 +39,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * <p>Note that not all testing frameworks support all lifecycle callbacks defined
  * in this API. For example, {@link #beforeTestExecution} and
  * {@link #afterTestExecution} are not supported in conjunction with JUnit 4 when
- * using the {@link ApplicationMethodRule
+ * using the {@link InfraMethodRule
  * ApplicationMethodRule}.
  *
  * <p>This interface provides empty {@code default} implementations for all methods.
@@ -56,8 +56,25 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * {@link cn.taketoday.core.annotation.Order @Order} annotation. See
  * {@link TestContextBootstrapper#getTestExecutionListeners()} for details.
  *
- * <p>Spring provides the following out-of-the-box implementations (all of
- * which implement {@code Ordered}):
+ *
+ * <h3>Registering TestExecutionListener Implementations</h3>
+ *
+ * <p>A {@code TestExecutionListener} can be registered explicitly for a test class,
+ * its subclasses, and its nested classes by using the
+ * {@link TestExecutionListeners @TestExecutionListeners} annotation. Explicit
+ * registration is suitable for custom listeners that are used in limited testing
+ * scenarios. However, it can become cumbersome if a custom listener needs to be
+ * used across an entire test suite. This issue is addressed through support for
+ * automatic discovery of <em>default</em> {@code TestExecutionListener}
+ * implementations through the
+ * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
+ * mechanism. Specifically, default {@code TestExecutionListener} implementations
+ * can be registered under the {@code cn.taketoday.test.context.TestExecutionListener}
+ * key in a {@link cn.taketoday.lang.TodayStrategies#STRATEGIES_LOCATION} properties file.
+ *
+ * <p>Infra provides the following implementations. Each of these implements
+ * {@code Ordered} and is registered automatically by default.
+ *
  * <ul>
  * <li>{@link ServletTestExecutionListener
  * ServletTestExecutionListener}</li>
@@ -107,7 +124,7 @@ public interface TestExecutionListener {
    * dependencies.
    * <p>This method should be called immediately after instantiation of the test
    * class or as soon after instantiation as possible (as is the case with the
-   * {@link ApplicationMethodRule
+   * {@link InfraMethodRule
    * ApplicationMethodRule}). In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The default implementation is <em>empty</em>. Can be overridden by

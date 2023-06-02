@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -52,17 +51,26 @@ public final class ImportCandidates implements Iterable<String> {
 
   private static final String COMMENT_START = "#";
 
-  private final List<String> candidates;
+  private final ArrayList<String> candidates;
 
-  private ImportCandidates(List<String> candidates) {
+  private ImportCandidates(ArrayList<String> candidates) {
     Assert.notNull(candidates, "'candidates' is required");
-    this.candidates = Collections.unmodifiableList(candidates);
+    this.candidates = candidates;
   }
 
   @NonNull
   @Override
   public Iterator<String> iterator() {
     return this.candidates.iterator();
+  }
+
+  /**
+   * Returns the list of loaded import candidates.
+   *
+   * @return the list of import candidates
+   */
+  public ArrayList<String> getCandidates() {
+    return this.candidates;
   }
 
   /**
@@ -82,12 +90,12 @@ public final class ImportCandidates implements Iterable<String> {
     ClassLoader classLoaderToUse = decideClassloader(classLoader);
     String location = String.format(LOCATION, annotation.getName());
     Enumeration<URL> urls = findUrlsInClasspath(classLoaderToUse, location);
-    List<String> autoConfigurations = new ArrayList<>();
+    ArrayList<String> importCandidates = new ArrayList<>();
     while (urls.hasMoreElements()) {
       URL url = urls.nextElement();
-      autoConfigurations.addAll(readAutoConfigurations(url));
+      importCandidates.addAll(readCandidateConfigurations(url));
     }
-    return new ImportCandidates(autoConfigurations);
+    return new ImportCandidates(importCandidates);
   }
 
   private static ClassLoader decideClassloader(ClassLoader classLoader) {
@@ -103,14 +111,14 @@ public final class ImportCandidates implements Iterable<String> {
     }
     catch (IOException ex) {
       throw new IllegalArgumentException(
-              "Failed to load auto-configurations from location [" + location + "]", ex);
+              "Failed to load configurations from location [" + location + "]", ex);
     }
   }
 
-  private static List<String> readAutoConfigurations(URL url) {
+  private static List<String> readCandidateConfigurations(URL url) {
     try (BufferedReader reader = new BufferedReader(
             new InputStreamReader(new UrlResource(url).getInputStream(), StandardCharsets.UTF_8))) {
-      List<String> autoConfigurations = new ArrayList<>();
+      List<String> candidates = new ArrayList<>();
       String line;
       while ((line = reader.readLine()) != null) {
         line = stripComment(line);
@@ -118,12 +126,12 @@ public final class ImportCandidates implements Iterable<String> {
         if (line.isEmpty()) {
           continue;
         }
-        autoConfigurations.add(line);
+        candidates.add(line);
       }
-      return autoConfigurations;
+      return candidates;
     }
     catch (IOException ex) {
-      throw new IllegalArgumentException("Unable to load auto-configurations from location [" + url + "]", ex);
+      throw new IllegalArgumentException("Unable to load configurations from location [" + url + "]", ex);
     }
   }
 

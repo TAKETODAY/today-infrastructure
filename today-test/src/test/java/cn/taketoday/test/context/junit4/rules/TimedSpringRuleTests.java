@@ -33,8 +33,8 @@ import static org.assertj.core.api.Assertions.fail;
 
 /**
  * This class is an extension of {@link TimedSpringRunnerTests}
- * that has been modified to use {@link ApplicationClassRule} and
- * {@link ApplicationMethodRule}.
+ * that has been modified to use {@link InfraClassRule} and
+ * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -58,13 +58,13 @@ public class TimedSpringRuleTests extends TimedSpringRunnerTests {
   public static final class TimedSpringRuleTestCase extends TimedSpringRunnerTestCase {
 
     @ClassRule
-    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+    public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
     @Rule
-    public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+    public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
     /**
-     * Overridden to always throw an exception, since Spring's Rule-based
+     * Overridden to always throw an exception, since Infra Rule-based
      * JUnit integration does not fail a test for duplicate configuration
      * of timeouts.
      */

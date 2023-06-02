@@ -28,14 +28,15 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Annotation which indicates that a method parameter should be bound to a web request header.
  *
- * <p>Supported for annotated handler methods in Spring MVC and Spring WebFlux.
+ * <p>Supported for annotated handler methods in Web MVC and Infra WebFlux.
  *
  * <p>If the method parameter is {@link java.util.Map Map&lt;String, String&gt;},
- * {@link cn.taketoday.core.MultiValueMap MultiValueMap&lt;String, String&gt;},
+ * {@link MultiValueMap MultiValueMap&lt;String, String&gt;},
  * or {@link cn.taketoday.http.HttpHeaders HttpHeaders} then the map is
  * populated with all header names and values.
  *

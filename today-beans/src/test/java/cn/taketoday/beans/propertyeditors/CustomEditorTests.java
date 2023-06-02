@@ -726,7 +726,7 @@ class CustomEditorTests {
 
   @Test
   void testCustomDateEditor() {
-    CustomDateEditor editor = new CustomDateEditor(null, false);
+    CustomDateEditor editor = new CustomDateEditor(new SimpleDateFormat("MM/dd/yyyy"), false);
     editor.setValue(null);
     assertThat(editor.getValue()).isNull();
     assertThat(editor.getAsText()).isEmpty();
@@ -734,7 +734,7 @@ class CustomEditorTests {
 
   @Test
   void testCustomDateEditorWithEmptyAsNull() {
-    CustomDateEditor editor = new CustomDateEditor(null, true);
+    CustomDateEditor editor = new CustomDateEditor(new SimpleDateFormat("MM/dd/yyyy"), true);
     editor.setValue(null);
     assertThat(editor.getValue()).isNull();
     assertThat(editor.getAsText()).isEmpty();

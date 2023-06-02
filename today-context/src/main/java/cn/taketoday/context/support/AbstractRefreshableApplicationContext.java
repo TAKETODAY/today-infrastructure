@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextException;
-import cn.taketoday.context.loader.BootstrapContext;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -48,7 +48,7 @@ import cn.taketoday.lang.Nullable;
  * typically delegating to one or more specific bean definition readers.
  *
  * <p><b>Note that there is a similar base class for WebApplicationContexts.</b>
- * {@link cn.taketoday.web.context.support.AbstractRefreshableWebApplicationContext}
+ * {@link cn.taketoday.web.servlet.support.AbstractRefreshableWebApplicationContext}
  * provides the same subclassing strategy, but additionally pre-implements
  * all context functionality for web environments. There is also a
  * pre-defined way to receive config locations for a web context.
@@ -58,7 +58,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #loadBeanDefinitions
  * @see cn.taketoday.beans.factory.support.StandardBeanFactory
- * @see cn.taketoday.web.context.support.AbstractRefreshableWebApplicationContext
+ * @see cn.taketoday.web.servlet.support.AbstractRefreshableWebApplicationContext
  * @since 4.0 2022/2/20 17:36
  */
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext

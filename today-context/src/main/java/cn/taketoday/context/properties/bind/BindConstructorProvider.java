@@ -41,6 +41,20 @@ public interface BindConstructorProvider {
   BindConstructorProvider DEFAULT = new DefaultBindConstructorProvider();
 
   /**
+   * Return the bind constructor to use for the given type, or {@code null} if
+   * constructor binding is not supported.
+   *
+   * @param type the type to check
+   * @param isNestedConstructorBinding if this binding is nested within a constructor
+   * binding
+   * @return the bind constructor or {@code null}
+   */
+  @Nullable
+  default Constructor<?> getBindConstructor(Class<?> type, boolean isNestedConstructorBinding) {
+    return getBindConstructor(Bindable.of(type), isNestedConstructorBinding);
+  }
+
+  /**
    * Return the bind constructor to use for the given bindable, or {@code null} if
    * constructor binding is not supported.
    *

@@ -48,7 +48,7 @@ import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.Validated;
-import cn.taketoday.validation.beanvalidation.ValidatorAdapter;
+import cn.taketoday.validation.beanvalidation.InfraValidatorAdapter;
 import jakarta.validation.Validation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -255,7 +255,7 @@ class BinderTests {
       }
 
     }).forEach(this.sources::add);
-    Validator validator = new ValidatorAdapter(
+    Validator validator = new InfraValidatorAdapter(
             Validation.byDefaultProvider().configure().buildValidatorFactory().getValidator());
     this.binder.bind("foo", Bindable.of(ResourceBean.class), new ValidationBindHandler(validator));
   }

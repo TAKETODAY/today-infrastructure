@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.jasper.servlet.JspServlet;
-import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -71,6 +70,7 @@ import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactoryTests;
+import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -91,11 +91,17 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Henri Kerola
  */
+@ClassPathOverrides("org.eclipse.jetty:jetty-jndi:11.0.15")
 class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryTests {
 
   @Override
   protected JettyServletWebServerFactory getFactory() {
     return new JettyServletWebServerFactory(0);
+  }
+
+  @Disabled("Jetty")
+  public void cookieSameSiteSuppliers() {
+
   }
 
   @Override

@@ -28,8 +28,8 @@ import java.util.Map;
 
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -106,8 +106,10 @@ class ViewControllerRegistryTests {
     RedirectView redirectView = getRedirectView("/path");
     this.request.setQueryString("a=b");
     this.request.setContextPath("/context");
-    redirectView.render(Collections.emptyMap(), new ServletRequestContext(null, this.request, this.response));
+    ServletRequestContext context = new ServletRequestContext(null, this.request, this.response);
+    redirectView.render(Collections.emptyMap(), context);
 
+    context.flush();
     assertThat(this.response.getStatus()).isEqualTo(308);
     assertThat(response.getRedirectedUrl()).isEqualTo("/redirectTo?a=b");
     assertThat(redirectView.getApplicationContext()).isNotNull();

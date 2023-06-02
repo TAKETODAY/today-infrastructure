@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
@@ -39,7 +40,9 @@ import cn.taketoday.web.util.UriTemplateHandler;
  */
 public class RootUriTemplateHandler implements UriTemplateHandler {
 
+  @Nullable
   private final String rootUri;
+
   private final UriTemplateHandler handler;
 
   protected RootUriTemplateHandler(UriTemplateHandler handler) {
@@ -87,6 +90,7 @@ public class RootUriTemplateHandler implements UriTemplateHandler {
     return uriTemplate;
   }
 
+  @Nullable
   public String getRootUri() {
     return this.rootUri;
   }

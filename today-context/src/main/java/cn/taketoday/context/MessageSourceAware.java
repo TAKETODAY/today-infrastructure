@@ -21,7 +21,6 @@
 package cn.taketoday.context;
 
 import cn.taketoday.beans.factory.Aware;
-import cn.taketoday.context.aware.ApplicationContextAware;
 
 /**
  * Interface to be implemented by any object that wishes to be notified

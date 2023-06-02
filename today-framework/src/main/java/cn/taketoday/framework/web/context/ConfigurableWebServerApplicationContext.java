@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.framework.web.context;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.lang.Nullable;
 
 /**
  * SPI interface to be implemented by most if not all {@link WebServerApplicationContext
@@ -40,6 +41,6 @@ public interface ConfigurableWebServerApplicationContext
    * @param serverNamespace the server namespace
    * @see #getServerNamespace()
    */
-  void setServerNamespace(String serverNamespace);
+  void setServerNamespace(@Nullable String serverNamespace);
 
 }

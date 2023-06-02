@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import cn.taketoday.util.StringUtils;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-class DefaultRequestPath implements RequestPath {
+class DefaultRequestPath extends RequestPath {
 
   private final PathContainer fullPath;
   private final PathContainer contextPath;
@@ -50,7 +50,7 @@ class DefaultRequestPath implements RequestPath {
   }
 
   private static PathContainer initContextPath(PathContainer path, @Nullable String contextPath) {
-    if (!StringUtils.hasText(contextPath) || StringUtils.matchesCharacter(contextPath, '/')) {
+    if (StringUtils.isBlank(contextPath) || StringUtils.matchesCharacter(contextPath, '/')) {
       return PathContainer.parsePath("");
     }
 

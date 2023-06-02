@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -46,9 +47,13 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
 public final class PathPatternsRequestCondition extends AbstractRequestCondition<PathPatternsRequestCondition> {
 
   private static final SortedSet<PathPattern> EMPTY_PATH_PATTERN =
-          new TreeSet<>(Collections.singleton(new PathPatternParser().parse("")));
+          new TreeSet<>(Collections.singleton(PathPatternParser.defaultInstance.parse("")));
 
   private static final Set<String> EMPTY_PATH = Collections.singleton("");
+
+  private static final SortedSet<PathPattern> ROOT_PATH_PATTERNS =
+          new TreeSet<>(List.of(PathPatternParser.defaultInstance.parse(""),
+                  PathPatternParser.defaultInstance.parse("/")));
 
   // TODO use patterns array
   private final SortedSet<PathPattern> patterns;
@@ -68,7 +73,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   }
 
   private static SortedSet<PathPattern> parse(PathPatternParser parser, String... patterns) {
-    if (patterns.length == 0 || (patterns.length == 1 && !StringUtils.hasText(patterns[0]))) {
+    if (patterns.length == 0 || (patterns.length == 1 && StringUtils.isBlank(patterns[0]))) {
       return EMPTY_PATH_PATTERN;
     }
     SortedSet<PathPattern> result = new TreeSet<>();
@@ -146,20 +151,18 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   }
 
   /**
-   * Returns a new instance with URL patterns from the current instance
-   * ("this") and the "other" instance as follows:
+   * Combine the patterns of the current and of the other instances as follows:
    * <ul>
-   * <li>If there are patterns in both instances, combine the patterns in
-   * "this" with the patterns in "other" using
-   * {@link PathPattern#combine(PathPattern)}.
-   * <li>If only one instance has patterns, use them.
-   * <li>If neither instance has patterns, use an empty String (i.e. "").
+   * <li>If only one instance has patterns, use those.
+   * <li>If both have patterns, combine patterns from "this" instance with
+   * patterns from the other instance via {@link PathPattern#combine(PathPattern)}.
+   * <li>If neither has patterns, use {@code ""} and {@code "/"} as root path patterns.
    * </ul>
    */
   @Override
   public PathPatternsRequestCondition combine(PathPatternsRequestCondition other) {
     if (isEmptyPathMapping() && other.isEmptyPathMapping()) {
-      return this;
+      return new PathPatternsRequestCondition(ROOT_PATH_PATTERNS);
     }
     else if (other.isEmptyPathMapping()) {
       return this;
@@ -190,16 +193,16 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   @Override
   @Nullable
   public PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
-    PathContainer path = request.getLookupPath().pathWithinApplication();
-    SortedSet<PathPattern> matches = getMatchingPatterns(path);
+    PathContainer lookupPath = request.getLookupPath();
+    SortedSet<PathPattern> matches = getMatchingPatterns(lookupPath);
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
 
   @Nullable
-  private SortedSet<PathPattern> getMatchingPatterns(PathContainer path) {
+  private SortedSet<PathPattern> getMatchingPatterns(PathContainer lookupPath) {
     TreeSet<PathPattern> result = null;
     for (PathPattern pattern : this.patterns) {
-      if (pattern.matches(path)) {
+      if (pattern.matches(lookupPath)) {
         if (result == null) {
           result = new TreeSet<>();
         }

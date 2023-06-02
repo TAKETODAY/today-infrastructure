@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  * started on a call to {@link #open(RetryContext)}.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -39,7 +40,23 @@ public class TimeoutRetryPolicy implements RetryPolicy {
    */
   public static final long DEFAULT_TIMEOUT = 1000;
 
-  private long timeout = DEFAULT_TIMEOUT;
+  private long timeout;
+
+  /**
+   * Create a new instance with the timeout set to {@link #DEFAULT_TIMEOUT}.
+   */
+  public TimeoutRetryPolicy() {
+    this(DEFAULT_TIMEOUT);
+  }
+
+  /**
+   * Create a new instance with a configurable timeout.
+   *
+   * @param timeout timeout in milliseconds
+   */
+  public TimeoutRetryPolicy(long timeout) {
+    this.timeout = timeout;
+  }
 
   /**
    * Setter for timeout in milliseconds. Default is {@link #DEFAULT_TIMEOUT}.

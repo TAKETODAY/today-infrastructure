@@ -22,10 +22,10 @@ package cn.taketoday.web.bind.resolver;
 
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;

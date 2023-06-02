@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.web.RequestContext;
  * <p>As a general rule exceptions raised by interceptor methods will cause
  * async processing to resume by dispatching back to the container and using
  * the Exception instance as the concurrent result. Such exceptions will then
- * be processed through the {@code HandlerExceptionResolver} mechanism.
+ * be processed through the {@code HandlerExceptionHandler} mechanism.
  *
  * <p>The {@link #handleTimeout(RequestContext, DeferredResult) handleTimeout}
  * method can set the {@code DeferredResult} in order to resume processing.
@@ -55,8 +55,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> void beforeConcurrentHandling(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+
   }
 
   /**
@@ -70,8 +71,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> void preProcess(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+
   }
 
   /**
@@ -88,8 +90,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param concurrentResult the result to which the {@code DeferredResult}
    * @throws Exception in case of errors
    */
-  default <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult,
-          Object concurrentResult) throws Exception {
+  default <T> void postProcess(RequestContext request,
+          DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+
   }
 
   /**
@@ -106,8 +109,8 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> boolean handleTimeout(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
 
     return true;
   }
@@ -127,9 +130,8 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should by bypassed and not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult,
-          Throwable t) throws Exception {
-
+  default <T> boolean handleError(
+          RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
     return true;
   }
 
@@ -142,8 +144,9 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult)
-          throws Exception {
+  default <T> void afterCompletion(
+          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+
   }
 
 }

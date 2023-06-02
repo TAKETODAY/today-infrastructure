@@ -40,6 +40,7 @@ import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.ServletRequest;
@@ -66,21 +67,6 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
 
   private static final Logger log = LoggerFactory.getLogger(ErrorPageFilter.class);
-
-  // From RequestDispatcher but not referenced to remain compatible with Servlet 2.5
-
-  private static final String ERROR_EXCEPTION = "jakarta.servlet.error.exception";
-
-  private static final String ERROR_EXCEPTION_TYPE = "jakarta.servlet.error.exception_type";
-
-  private static final String ERROR_MESSAGE = "jakarta.servlet.error.message";
-
-  /**
-   * The name of the servlet attribute containing request URI.
-   */
-  public static final String ERROR_REQUEST_URI = "jakarta.servlet.error.request_uri";
-
-  private static final String ERROR_STATUS_CODE = "jakarta.servlet.error.status_code";
 
   private static final Set<Class<?>> CLIENT_ABORT_EXCEPTIONS;
 
@@ -188,13 +174,13 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
     }
 
     setErrorAttributes(request, 500, ex.getMessage());
-    request.setAttribute(ERROR_EXCEPTION, ex);
-    request.setAttribute(ERROR_EXCEPTION_TYPE, ex.getClass());
+    request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, ex);
+    request.setAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE, ex.getClass());
     response.reset();
     response.setStatus(500);
     request.getRequestDispatcher(path).forward(request, response);
-    request.removeAttribute(ERROR_EXCEPTION);
-    request.removeAttribute(ERROR_EXCEPTION_TYPE);
+    request.removeAttribute(RequestDispatcher.ERROR_EXCEPTION);
+    request.removeAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE);
   }
 
   /**
@@ -203,7 +189,6 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
    *
    * @param request the source request
    * @return the description
-   * @since 4.0
    */
   protected String getDescription(HttpServletRequest request) {
     String pathInfo = (request.getPathInfo() != null) ? request.getPathInfo() : "";
@@ -214,12 +199,12 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
     if (isClientAbortException(ex)) {
       return;
     }
-    String message = "Cannot forward to error page for request " + getDescription(request)
+    String message = ("Cannot forward to error page for request %s"
             + " as the response has already been"
             + " committed. As a result, the response may have the wrong status"
             + " code. If your application is running on WebSphere Application"
             + " Server you may be able to resolve this problem by setting"
-            + " com.ibm.ws.webcontainer.invokeFlushAfterService to false";
+            + " com.ibm.ws.webcontainer.invokeFlushAfterService to false").formatted(getDescription(request));
     if (ex == null) {
       log.error(message);
     }
@@ -261,9 +246,9 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
   }
 
   private void setErrorAttributes(HttpServletRequest request, int status, String message) {
-    request.setAttribute(ERROR_STATUS_CODE, status);
-    request.setAttribute(ERROR_MESSAGE, message);
-    request.setAttribute(ERROR_REQUEST_URI, request.getRequestURI());
+    request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, status);
+    request.setAttribute(RequestDispatcher.ERROR_MESSAGE, message);
+    request.setAttribute(RequestDispatcher.ERROR_REQUEST_URI, request.getRequestURI());
   }
 
   private void rethrow(Throwable ex) throws IOException, ServletException {
@@ -298,8 +283,7 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
   }
 
   @Override
-  public void destroy() {
-  }
+  public void destroy() { }
 
   @Override
   public int getOrder() {

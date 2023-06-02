@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,13 +32,12 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.web.context.support.ServletContextResource;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.ServletContextResource;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Unit tests for {@link PathResourceResolver}.
@@ -90,16 +89,17 @@ public class PathResourceResolverTests {
   private void testCheckResource(Resource location, String requestPath) throws IOException {
     List<Resource> locations = Collections.singletonList(location);
     Resource actual = this.resolver.resolveResource(null, requestPath, locations, null);
-    if (!location.createRelative(requestPath).exists() && !requestPath.contains(":")) {
-      fail(requestPath + " doesn't actually exist as a relative path");
-    }
     assertThat(actual).isNull();
   }
 
   @Test // gh-23463
   public void ignoreInvalidEscapeSequence() throws IOException {
-    UrlResource location = new UrlResource(getClass().getResource("test/"));
-    Resource resource = location.createRelative("test%file.txt");
+    UrlResource location = new UrlResource(getClass().getResource("./test/"));
+
+    Resource resource = new UrlResource(location.getURL() + "test%file.txt");
+    assertThat(this.resolver.checkResource(resource, location)).isTrue();
+
+    resource = location.createRelative("test%file.txt");
     assertThat(this.resolver.checkResource(resource, location)).isTrue();
   }
 

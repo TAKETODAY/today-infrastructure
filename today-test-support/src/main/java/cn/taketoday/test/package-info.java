@@ -19,6 +19,6 @@
  */
 
 /**
- * Internal support classes used in Spring Boot tests.
+ * Internal support classes used in Infra tests.
  */
 package cn.taketoday.test;

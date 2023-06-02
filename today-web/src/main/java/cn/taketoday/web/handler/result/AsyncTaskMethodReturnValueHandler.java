@@ -24,7 +24,6 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.WebAsyncTask;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -58,8 +57,8 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
       if (this.beanFactory != null) {
         task.setBeanFactory(this.beanFactory);
       }
-      WebAsyncUtils.getAsyncManager(context)
-              .startCallableProcessing(task, context.getBindingContext());
+      context.getAsyncManager()
+              .startCallableProcessing(task, handler);
     }
   }
 

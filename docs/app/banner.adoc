@@ -1,0 +1,30 @@
+[[app-tech]]
+=== 变量
+
+`app.version` main 方法所在 jar 包的版本
+
+`infra.version` 所使用的框架版本
+
+`app.formatted-version` main 方法所在 jar 包的格式化后的版本
+
+`infra.formatted-version` 所使用的框架格式化后的版本
+
+`Environment` 中的 key 都可为变量
+
+=== 使用方法
+
+以上变量使用在 Banner 的内容中。例如：`${app.version}`。在 `Environment` 中声明 `banner.charset` 可指定字符集 ，`banner.location` 可配置 Banner
+文件位置, 默认的 `banner.location` 在 `banner.txt`
+
+[text]
+----
+_______________ ________ _______ __  __       _____________   ____________________ _______
+___  __/__  __ \___  __ \___    |_ \/ /       ____  _/___  | / /___  ____/___  __ \___    |
+__  /   _  / / /__  / / /__  /| |__  /         __  /  __   |/ / __  /_    __  /_/ /__  /| |
+_  /    / /_/ / _  /_/ / _  ___ |_  /         __/ /   _  /|  /  _  __/    _  _, _/ _  ___ |
+/_/     \____/  /_____/  /_/  |_|/_/          /___/   /_/ |_/   /_/       /_/ |_|  /_/  |_|
+
+${app.title} ${app.version}
+Powered by Today Infrastructure ${infra.version}
+----
+

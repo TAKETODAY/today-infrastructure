@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.OpenOption;
@@ -47,7 +48,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>{@link java.nio.file.Path} support is also available
  * in {@link FileSystemResource#FileSystemResource(Path) FileSystemResource},
- * applying Spring's standard String-based path transformations but
+ * applying Infra standard String-based path transformations but
  * performing all operations via the {@link java.nio.file.Files} API.
  * This {@code PathResource} is effectively a pure {@code java.nio.path.Path}
  * based alternative with different {@code createRelative} behavior.
@@ -148,6 +149,26 @@ public class PathResource extends AbstractResource implements WritableResource {
       throw new FileNotFoundException(getPath() + " (is a directory)");
     }
     return Files.newInputStream(this.path);
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    try {
+      return Files.readAllBytes(this.path);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
+  }
+
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
+    try {
+      return Files.readString(this.path, charset);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
   }
 
   /**

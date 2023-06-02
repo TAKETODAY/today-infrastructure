@@ -89,7 +89,6 @@
   </dependencies>
 
   <build>
-    <defaultGoal>compile</defaultGoal>
 
     <plugins>
 
@@ -99,30 +98,30 @@
         <version>1.13.1</version>
 
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
           <complianceLevel>${java.version}</complianceLevel>
           <showWeaveInfo>true</showWeaveInfo>
           <verbose>true</verbose>
-          <Xlint>ignore</Xlint>
           <encoding>UTF-8</encoding>
         </configuration>
 
         <executions>
           <execution>
+            <id>compile-aspects</id>
             <phase>process-resources</phase>
             <goals>
               <goal>compile</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>compile-tests-aspects</id>
+            <phase>test-compile</phase>
+            <goals>
               <goal>test-compile</goal>
             </goals>
           </execution>
         </executions>
 
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
     </plugins>

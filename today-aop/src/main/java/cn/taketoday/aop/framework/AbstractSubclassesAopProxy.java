@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import java.util.WeakHashMap;
 
 import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -46,7 +47,10 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   /** The configuration used to configure this proxy. */
   final AdvisedSupport config;
 
+  @Nullable
   protected Object[] constructorArgs;
+
+  @Nullable
   protected Class<?>[] constructorArgTypes;
 
   /**
@@ -71,7 +75,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    * @param constructorArgs the constructor argument values
    * @param constructorArgTypes the constructor argument types
    */
-  public void setConstructorArguments(Object[] constructorArgs, Class<?>[] constructorArgTypes) {
+  public void setConstructorArguments(@Nullable Object[] constructorArgs, @Nullable Class<?>[] constructorArgTypes) {
     if (constructorArgs == null || constructorArgTypes == null) {
       throw new IllegalArgumentException("Both 'constructorArgs' and 'constructorArgTypes' need to be specified");
     }
@@ -90,7 +94,13 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   }
 
   @Override
-  public Object getProxy(ClassLoader classLoader) {
+  public Object getProxy(@Nullable ClassLoader classLoader) {
+    if (classLoader == null || classLoader.getParent() == null) {
+      // JDK bootstrap loader or platform loader suggested ->
+      // use higher-level loader which can see infrastructure classes
+      classLoader = getClass().getClassLoader();
+    }
+
     try {
       Class<?> rootClass = config.getTargetClass();
       Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
@@ -100,7 +110,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
       // Validate the class, writing log messages as necessary.
       validateClassIfNecessary(proxySuperClass, classLoader);
 
-      return getProxyInternal(proxySuperClass, classLoader);
+      return getProxyInternal(rootClass, proxySuperClass, classLoader);
     }
     catch (CodeGenerationException | IllegalArgumentException ex) {
       throw new AopConfigException(
@@ -127,13 +137,13 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
   }
 
   protected abstract Object getProxyInternal(
-          Class<?> proxySuperClass, ClassLoader loader) throws Exception;
+          Class<?> rootClass, Class<?> proxySuperClass, @Nullable ClassLoader loader) throws Exception;
 
   /**
    * Checks to see whether the supplied {@code Class} has already been validated
    * and validates it if not.
    */
-  void validateClassIfNecessary(Class<?> proxySuperClass, ClassLoader proxyClassLoader) {
+  void validateClassIfNecessary(Class<?> proxySuperClass, @Nullable ClassLoader proxyClassLoader) {
     if (!this.config.isOptimize() && log.isInfoEnabled()) {
       synchronized(validatedClasses) {
         if (!validatedClasses.containsKey(proxySuperClass)) {
@@ -150,7 +160,7 @@ public abstract class AbstractSubclassesAopProxy implements AopProxy {
    * package-visible methods across ClassLoaders, and writes warnings to the log
    * for each one found.
    */
-  void doValidateClass(Class<?> proxySuperClass, ClassLoader proxyClassLoader, Set<Class<?>> ifcs) {
+  void doValidateClass(Class<?> proxySuperClass, @Nullable ClassLoader proxyClassLoader, Set<Class<?>> ifcs) {
     if (proxySuperClass != Object.class) {
       Method[] methods = proxySuperClass.getDeclaredMethods();
       for (Method method : methods) {

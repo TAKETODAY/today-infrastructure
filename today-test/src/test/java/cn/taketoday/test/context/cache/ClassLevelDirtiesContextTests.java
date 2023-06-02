@@ -34,9 +34,9 @@ import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.annotation.DirtiesContext.ClassMode;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit4.JUnitTestingUtils;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * JUnit based integration test which verifies correct {@linkplain ContextCache
- * application context caching} in conjunction with the {@link ApplicationExtension} and
+ * application context caching} in conjunction with the {@link InfraExtension} and
  * {@link DirtiesContext @DirtiesContext} at the class level.
  *
  * @author Sam Brannen
@@ -150,7 +150,7 @@ class ClassLevelDirtiesContextTests {
 
   // -------------------------------------------------------------------
 
-  @RunWith(Runner.class)
+  @RunWith(InfraRunner.class)
   @ContextConfiguration
   // Ensure that we do not include the EventPublishingTestExecutionListener
   // since it will access the ApplicationContext for each method in the

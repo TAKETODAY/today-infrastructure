@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,11 +24,13 @@ import org.reactivestreams.Publisher;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
@@ -121,14 +123,19 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
 
   @Override
   protected void applyHeaders() {
-    getHeaders().forEach((key, value) -> this.request.requestHeaders().set(key, value));
+    for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+      request.requestHeaders().set(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override
   protected void applyCookies() {
-    getCookies().values().stream().flatMap(Collection::stream)
-            .map(cookie -> new DefaultCookie(cookie.getName(), cookie.getValue()))
-            .forEach(this.request::addCookie);
+    for (List<HttpCookie> values : getCookies().values()) {
+      for (HttpCookie value : values) {
+        DefaultCookie cookie = new DefaultCookie(value.getName(), value.getValue());
+        this.request.addCookie(cookie);
+      }
+    }
   }
 
   @Override

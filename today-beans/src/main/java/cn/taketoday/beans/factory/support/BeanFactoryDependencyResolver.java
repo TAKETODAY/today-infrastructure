@@ -27,7 +27,6 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 
@@ -37,12 +36,11 @@ import cn.taketoday.util.ClassUtils;
  */
 public class BeanFactoryDependencyResolver
         extends AnnotationDependencyResolvingStrategy {
-  protected static final Logger log = LoggerFactory.getLogger(BeanFactoryDependencyResolver.class);
 
   @SuppressWarnings("rawtypes")
-  private static final Class[] supportedAnnotations;
+  private static final Class[] supportedAnnotations = classpathSupportedAnnotations();
 
-  static {
+  private static Class<?>[] classpathSupportedAnnotations() {
     LinkedHashSet<Class<? extends Annotation>> injectableAnnotations = new LinkedHashSet<>();
     injectableAnnotations.add(Value.class);
     injectableAnnotations.add(Autowired.class);
@@ -50,7 +48,8 @@ public class BeanFactoryDependencyResolver
     try {
       injectableAnnotations.add(
               ClassUtils.forName("jakarta.inject.Inject", classLoader));
-      log.debug("'jakarta.inject.Inject' annotation found and supported for autowiring");
+      LoggerFactory.getLogger(BeanFactoryDependencyResolver.class)
+              .debug("'jakarta.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
       // jakarta.inject API not available - simply skip.
@@ -58,12 +57,17 @@ public class BeanFactoryDependencyResolver
     try {
       injectableAnnotations.add(
               ClassUtils.forName("javax.inject.Inject", classLoader));
-      log.debug("'javax.inject.Inject' annotation found and supported for autowiring");
+      LoggerFactory.getLogger(BeanFactoryDependencyResolver.class)
+              .debug("'javax.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
       // javax.inject API not available - simply skip.
     }
-    supportedAnnotations = injectableAnnotations.toArray(new Class[0]);
+    return injectableAnnotations.toArray(new Class[0]);
+  }
+
+  public BeanFactoryDependencyResolver() {
+    setOrder(LOWEST_PRECEDENCE);
   }
 
   @Override
@@ -84,11 +88,6 @@ public class BeanFactoryDependencyResolver
       }
       context.setDependencyResolved(dependency);
     }
-  }
-
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE;
   }
 
 }

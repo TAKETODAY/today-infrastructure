@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,9 +26,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.ModelAndView;
@@ -53,7 +53,7 @@ class UrlFilenameViewControllerTests {
   void withPlainFilename(Function<String, RequestContext> requestFactory) throws Exception {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/index");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = (ModelAndView) controller.handleRequest(request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -62,16 +62,20 @@ class UrlFilenameViewControllerTests {
   void withFilenamePlusExtension(Function<String, RequestContext> requestFactory) throws Exception {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/index.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
+  }
+
+  private static ModelAndView getModelAndView(UrlFilenameViewController controller, RequestContext request) throws Exception {
+    return (ModelAndView) controller.handleRequest(request);
   }
 
   @PathPatternsParameterizedTest
   void withFilenameAndMatrixVariables(Function<String, RequestContext> requestFactory) throws Exception {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/index;a=A;b=B");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -82,7 +86,7 @@ class UrlFilenameViewControllerTests {
     controller.setPrefix("mypre_");
     controller.setSuffix("_mysuf");
     RequestContext request = requestFactory.apply("/index.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("mypre_index_mysuf");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -92,7 +96,7 @@ class UrlFilenameViewControllerTests {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setPrefix("mypre_");
     RequestContext request = requestFactory.apply("/index.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("mypre_index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -102,7 +106,7 @@ class UrlFilenameViewControllerTests {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setSuffix("_mysuf");
     RequestContext request = requestFactory.apply("/index.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index_mysuf");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -111,7 +115,7 @@ class UrlFilenameViewControllerTests {
   void multiLevel(Function<String, RequestContext> requestFactory) throws Exception {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/docs/cvs/commit.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -120,7 +124,7 @@ class UrlFilenameViewControllerTests {
   void multiLevelWithMapping(Function<String, RequestContext> requestFactory) throws Exception {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/cvs/commit.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -130,7 +134,7 @@ class UrlFilenameViewControllerTests {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/docs/cvs/commit.html");
     exposePathInMapping(request, "/docs/cvs/commit.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -143,7 +147,7 @@ class UrlFilenameViewControllerTests {
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.refresh();
     ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());
-    ModelAndView mv = controller.handleRequest(context);
+    ModelAndView mv = getModelAndView(controller, context);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -182,7 +186,7 @@ class UrlFilenameViewControllerTests {
 
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/products/view.html");
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("products/view");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
@@ -192,7 +196,7 @@ class UrlFilenameViewControllerTests {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     RequestContext request = requestFactory.apply("/index");
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
-    ModelAndView mv = controller.handleRequest(request);
+    ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().size()).isEqualTo(1);
     assertThat(mv.getModel().get("name")).isEqualTo("value");

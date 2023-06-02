@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,11 +28,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * {@code HttpHeaders} object that can only be read, not written to.
@@ -105,11 +106,6 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public void addAll(String key, List<? extends String> values) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void addAll(String key, @Nullable Collection<? extends String> values) {
     throw new UnsupportedOperationException();
   }
@@ -170,6 +166,11 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
             .collect(Collectors.collectingAndThen(
                     Collectors.toCollection(LinkedHashSet::new), // Retain original ordering of entries
                     Collections::unmodifiableSet));
+  }
+
+  @Override
+  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
+    this.headers.forEach((k, vs) -> action.accept(k, Collections.unmodifiableList(vs)));
   }
 
 }

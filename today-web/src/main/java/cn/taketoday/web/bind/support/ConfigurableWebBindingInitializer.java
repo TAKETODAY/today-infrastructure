@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import cn.taketoday.web.bind.WebDataBinder;
 
 /**
  * Convenient {@link WebBindingInitializer} for declarative configuration
- * in a Spring application context. Allows for reusing pre-configured
+ * in a Infra application context. Allows for reusing pre-configured
  * initializers with multiple controller/handlers.
  *
  * @author Juergen Hoeller

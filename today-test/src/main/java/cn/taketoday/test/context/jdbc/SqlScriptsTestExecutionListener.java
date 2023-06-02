@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -75,10 +75,10 @@ import cn.taketoday.util.StringUtils;
  * <p>For details on default script detection and how script resource locations
  * are interpreted, see {@link Sql#scripts}.
  *
- * <h3>Required Spring Beans</h3>
+ * <h3>Required Infra Beans</h3>
  * <p>A {@link PlatformTransactionManager} <em>and</em> a {@link DataSource},
  * just a {@link PlatformTransactionManager}, or just a {@link DataSource}
- * must be defined as beans in the Spring {@link ApplicationContext} for the
+ * must be defined as beans in the Infra {@link ApplicationContext} for the
  * corresponding test. Consult the javadocs for {@link SqlConfig#transactionMode},
  * {@link SqlConfig#transactionManager}, {@link SqlConfig#dataSource},
  * {@link TestContextTransactionUtils#retrieveDataSource}, and

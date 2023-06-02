@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ public class BeanNamePointcutMatchingTests {
   public void testMatchingPointcuts() {
     assertMatch("someName", "bean(someName)");
 
-    // Spring bean names are less restrictive compared to AspectJ names (methods, types etc.)
+    // Infra bean names are less restrictive compared to AspectJ names (methods, types etc.)
     // MVC Controller-kind
     assertMatch("someName/someOtherName", "bean(someName/someOtherName)");
     assertMatch("someName/foo/someOtherName", "bean(someName/*/someOtherName)");

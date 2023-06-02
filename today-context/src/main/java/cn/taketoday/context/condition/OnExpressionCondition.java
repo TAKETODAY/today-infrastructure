@@ -23,7 +23,7 @@ package cn.taketoday.context.condition;
 import cn.taketoday.beans.factory.config.BeanExpressionContext;
 import cn.taketoday.beans.factory.config.BeanExpressionResolver;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -32,10 +32,10 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/4 16:11
  */
-final class OnExpressionCondition extends ContextCondition implements Ordered {
+final class OnExpressionCondition extends InfraCondition implements Ordered {
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     String expression = metadata.getAnnotation(ConditionalOnExpression.class).getStringValue();
     expression = wrapIfNecessary(expression);
     ConditionMessage.Builder messageBuilder = ConditionMessage.forCondition(ConditionalOnExpression.class,

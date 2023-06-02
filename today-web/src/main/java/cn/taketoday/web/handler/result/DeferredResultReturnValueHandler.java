@@ -22,14 +22,11 @@ package cn.taketoday.web.handler.result;
 
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.function.BiFunction;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.ListenableFutureCallback;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
@@ -43,9 +40,9 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
 
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
-    return handler.isReturn(DeferredResult.class)
-            || handler.isReturn(ListenableFuture.class)
-            || handler.isReturn(CompletionStage.class);
+    return handler.isReturnTypeAssignableTo(DeferredResult.class)
+            || handler.isReturnTypeAssignableTo(ListenableFuture.class)
+            || handler.isReturnTypeAssignableTo(CompletionStage.class);
   }
 
   @Override
@@ -64,7 +61,6 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     }
 
     DeferredResult<?> result;
-
     if (returnValue instanceof DeferredResult) {
       result = (DeferredResult<?>) returnValue;
     }
@@ -79,29 +75,19 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
       throw new IllegalStateException("Unexpected return value type: " + returnValue);
     }
 
-    WebAsyncUtils.getAsyncManager(context)
-            .startDeferredResultProcessing(result);
+    context.getAsyncManager()
+            .startDeferredResultProcessing(result, handler);
   }
 
   private DeferredResult<Object> adaptListenableFuture(ListenableFuture<?> future) {
     DeferredResult<Object> result = new DeferredResult<>();
-    future.addCallback(new ListenableFutureCallback<Object>() {
-      @Override
-      public void onSuccess(@Nullable Object value) {
-        result.setResult(value);
-      }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        result.setErrorResult(ex);
-      }
-    });
+    future.addCallback(result::setResult, result::setErrorResult);
     return result;
   }
 
   private DeferredResult<Object> adaptCompletionStage(CompletionStage<?> future) {
     DeferredResult<Object> result = new DeferredResult<>();
-    future.handle((BiFunction<Object, Throwable, Object>) (value, ex) -> {
+    future.handle((value, ex) -> {
       if (ex != null) {
         if (ex instanceof CompletionException && ex.getCause() != null) {
           ex = ex.getCause();

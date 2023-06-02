@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,13 +34,12 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
@@ -52,6 +51,7 @@ import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
@@ -120,11 +120,10 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    BindingContext bindingContext = context.getBindingContext();
-    Assert.state(bindingContext != null, "No binding context");
+    BindingContext bindingContext = context.binding();
 
     MethodParameter parameter = resolvable.getParameter();
-    String name = ModelFactory.getNameForParameter(parameter);
+    String name = ModelHandler.getNameForParameter(parameter);
 
     ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
     if (ann != null) {
@@ -168,7 +167,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
         }
         validateIfApplicable(binder, parameter);
         if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
-          throw new BindException(binder.getBindingResult());
+          throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
         }
       }
       // Value type adaptation, also covering java.util.Optional
@@ -425,7 +424,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   /**
    * Validate the model attribute if applicable.
    * <p>The default implementation checks for {@code @jakarta.validation.Valid},
-   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * Infra {@link cn.taketoday.validation.annotation.Validated},
    * and custom annotations whose name starts with "Valid".
    *
    * @param binder the DataBinder to be used
@@ -446,7 +445,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   /**
    * Validate the specified candidate value if applicable.
    * <p>The default implementation checks for {@code @jakarta.validation.Valid},
-   * Spring's {@link cn.taketoday.validation.annotation.Validated},
+   * Infra {@link cn.taketoday.validation.annotation.Validated},
    * and custom annotations whose name starts with "Valid".
    *
    * @param binder the DataBinder to be used
@@ -510,7 +509,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * or, in default resolution mode, for any return value type that is not
    * a simple type.
    */
-
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
     MethodParameter returnType = handler.getReturnType();
@@ -525,9 +523,8 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   public void handleHandlerMethodReturnValue(
           RequestContext context, HandlerMethod handler, @Nullable Object returnValue) {
     if (returnValue != null) {
-      BindingContext bindingContext = context.getBindingContext();
-      String name = ModelFactory.getNameForReturnValue(returnValue, handler);
-      bindingContext.addAttribute(name, returnValue);
+      String name = ModelHandler.getNameForReturnValue(returnValue, handler);
+      context.binding().addAttribute(name, returnValue);
     }
   }
 

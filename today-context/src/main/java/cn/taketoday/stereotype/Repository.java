@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,8 +30,35 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * @author TODAY<br>
- * 2018-07-02 20:45:00
+ * Indicates that an annotated class is a "Repository", originally defined by
+ * Domain-Driven Design (Evans, 2003) as "a mechanism for encapsulating storage,
+ * retrieval, and search behavior which emulates a collection of objects".
+ *
+ * <p>Teams implementing traditional Jakarta EE patterns such as "Data Access Object"
+ * may also apply this stereotype to DAO classes, though care should be taken to
+ * understand the distinction between Data Access Object and DDD-style repositories
+ * before doing so. This annotation is a general-purpose stereotype and individual teams
+ * may narrow their semantics and use as appropriate.
+ *
+ * <p>A class thus annotated is eligible for Infra
+ * {@link cn.taketoday.dao.DataAccessException DataAccessException} translation
+ * when used in conjunction with a {@link
+ * cn.taketoday.dao.annotation.PersistenceExceptionTranslationPostProcessor
+ * PersistenceExceptionTranslationPostProcessor}. The annotated class is also clarified as
+ * to its role in the overall application architecture for the purpose of tooling,
+ * aspects, etc.
+ *
+ * <p>This annotation also serves as a specialization of {@link Component @Component},
+ * allowing for implementation classes to be autodetected through classpath scanning.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Component
+ * @see Service
+ * @see cn.taketoday.dao.DataAccessException
+ * @see cn.taketoday.dao.annotation.PersistenceExceptionTranslationPostProcessor
+ * @since 2018-07-02 20:45:00
  */
 @Component
 @Retention(RetentionPolicy.RUNTIME)

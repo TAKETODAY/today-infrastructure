@@ -23,15 +23,14 @@ package cn.taketoday.web.multipart.support;
 import java.io.IOException;
 import java.util.Collection;
 
-import cn.taketoday.core.LinkedMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.HttpMethod;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
-import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.Multipart;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
@@ -47,7 +46,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   private final HttpServletRequest request;
 
   /**
-   * Create a new StandardMultipartHttpServletRequest wrapper for the given request,
+   * Create a new ServletMultipartRequest wrapper for the given request,
    * immediately parsing the multipart content.
    *
    * @param request the servlet request to wrap
@@ -58,7 +57,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   }
 
   /**
-   * Create a new StandardMultipartHttpServletRequest wrapper for the given request.
+   * Create a new ServletMultipartRequest wrapper for the given request.
    *
    * @param request the servlet request to wrap
    * @param lazyParsing whether multipart parsing should be triggered lazily on
@@ -72,10 +71,10 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
     }
   }
 
-  private MultiValueMap<String, MultipartFile> parseRequest(HttpServletRequest request) {
+  private MultiValueMap<String, Multipart> parseRequest(HttpServletRequest request) {
     try {
       Collection<Part> parts = request.getParts();
-      LinkedMultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>(parts.size());
+      LinkedMultiValueMap<String, Multipart> files = new LinkedMultiValueMap<>(parts.size());
 
       for (Part part : parts) {
         String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
@@ -101,17 +100,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
   }
 
   @Override
-  public HttpMethod getRequestMethod() {
-    return null;
-  }
-
-  @Override
-  public HttpHeaders getRequestHeaders() {
-    return null;
-  }
-
-  @Override
-  protected MultiValueMap<String, MultipartFile> parseRequest() {
+  protected MultiValueMap<String, Multipart> parseRequest() {
     return parseRequest(request);
   }
 

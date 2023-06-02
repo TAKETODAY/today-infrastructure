@@ -57,11 +57,10 @@ public final class ResponseCookie extends HttpCookie {
   /**
    * Private constructor. See {@link #from(String, String)}.
    */
-  private ResponseCookie(
-          String name, String value, Duration maxAge, @Nullable String domain,
+  private ResponseCookie(String name, @Nullable String value, Duration maxAge, @Nullable String domain,
           @Nullable String path, boolean secure, boolean httpOnly, @Nullable String sameSite) {
     super(name, value);
-    Assert.notNull(maxAge, "Max age must not be null");
+    Assert.notNull(maxAge, "Max age is required");
 
     this.maxAge = maxAge;
     this.domain = domain;
@@ -131,6 +130,19 @@ public final class ResponseCookie extends HttpCookie {
     return this.sameSite;
   }
 
+  /**
+   * Return a builder pre-populated with values from {@code "this"} instance.
+   */
+  public ResponseCookieBuilder mutate() {
+    return new DefaultResponseCookieBuilder(getName(), getValue(), false)
+            .maxAge(maxAge)
+            .domain(domain)
+            .path(path)
+            .secure(secure)
+            .httpOnly(httpOnly)
+            .sameSite(sameSite);
+  }
+
   @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
@@ -159,27 +171,39 @@ public final class ResponseCookie extends HttpCookie {
     if (StringUtils.hasText(getPath())) {
       sb.append("; Path=").append(getPath());
     }
-    if (StringUtils.hasText(this.domain)) {
-      sb.append("; Domain=").append(this.domain);
+    if (StringUtils.hasText(domain)) {
+      sb.append("; Domain=").append(domain);
     }
-    if (!this.maxAge.isNegative()) {
-      sb.append("; Max-Age=").append(this.maxAge.getSeconds());
+    if (!maxAge.isNegative()) {
+      sb.append("; Max-Age=").append(maxAge.getSeconds());
       sb.append("; Expires=");
-      long millis = this.maxAge.getSeconds() > 0
-                    ? System.currentTimeMillis() + this.maxAge.toMillis()
+      long millis = maxAge.getSeconds() > 0
+                    ? System.currentTimeMillis() + maxAge.toMillis()
                     : 0;
       sb.append(HttpHeaders.formatDate(millis));
     }
-    if (this.secure) {
+    if (secure) {
       sb.append("; Secure");
     }
-    if (this.httpOnly) {
+    if (httpOnly) {
       sb.append("; HttpOnly");
     }
-    if (StringUtils.hasText(this.sameSite)) {
-      sb.append("; SameSite=").append(this.sameSite);
+    if (StringUtils.hasText(sameSite)) {
+      sb.append("; SameSite=").append(sameSite);
     }
     return sb.toString();
+  }
+
+  /**
+   * Factory method to obtain a builder for a server-defined cookie, given its
+   * name only, and where the value as well as other attributes can be set
+   * later via builder methods.
+   *
+   * @param name the cookie name
+   * @return a builder to create the cookie with
+   */
+  public static ResponseCookieBuilder from(final String name) {
+    return new DefaultResponseCookieBuilder(name, null, false);
   }
 
   /**
@@ -191,13 +215,13 @@ public final class ResponseCookie extends HttpCookie {
    * @return a builder to create the cookie with
    */
   public static ResponseCookieBuilder from(final String name, final String value) {
-    return from(name, value, false);
+    return new DefaultResponseCookieBuilder(name, value, false);
   }
 
   /**
    * Factory method to obtain a builder for a server-defined cookie. Unlike
    * {@link #from(String, String)} this option assumes input from a remote
-   * server, which can be handled more leniently, e.g. ignoring a empty domain
+   * server, which can be handled more leniently, e.g. ignoring an empty domain
    * name with double quotes.
    *
    * @param name the cookie name
@@ -205,95 +229,18 @@ public final class ResponseCookie extends HttpCookie {
    * @return a builder to create the cookie with
    */
   public static ResponseCookieBuilder fromClientResponse(final String name, final String value) {
-    return from(name, value, true);
-  }
-
-  private static ResponseCookieBuilder from(final String name, final String value, boolean lenient) {
-
-    return new ResponseCookieBuilder() {
-
-      private Duration maxAge = Duration.ofSeconds(-1);
-
-      @Nullable
-      private String domain;
-
-      @Nullable
-      private String path;
-
-      private boolean secure;
-
-      private boolean httpOnly;
-
-      @Nullable
-      private String sameSite;
-
-      @Override
-      public ResponseCookieBuilder maxAge(Duration maxAge) {
-        this.maxAge = maxAge;
-        return this;
-      }
-
-      @Override
-      public ResponseCookieBuilder maxAge(long maxAgeSeconds) {
-        this.maxAge = maxAgeSeconds >= 0 ? Duration.ofSeconds(maxAgeSeconds) : Duration.ofSeconds(-1);
-        return this;
-      }
-
-      @Override
-      public ResponseCookieBuilder domain(@Nullable String domain) {
-        this.domain = initDomain(domain);
-        return this;
-      }
-
-      @Nullable
-      private String initDomain(@Nullable String domain) {
-        if (lenient && StringUtils.isNotEmpty(domain)) {
-          String str = domain.trim();
-          if (str.startsWith("\"") && str.endsWith("\"")
-                  && str.substring(1, str.length() - 1).trim().isEmpty()) {
-            return null;
-          }
-        }
-        return domain;
-      }
-
-      @Override
-      public ResponseCookieBuilder path(@Nullable String path) {
-        this.path = path;
-        return this;
-      }
-
-      @Override
-      public ResponseCookieBuilder secure(boolean secure) {
-        this.secure = secure;
-        return this;
-      }
-
-      @Override
-      public ResponseCookieBuilder httpOnly(boolean httpOnly) {
-        this.httpOnly = httpOnly;
-        return this;
-      }
-
-      @Override
-      public ResponseCookieBuilder sameSite(@Nullable String sameSite) {
-        this.sameSite = sameSite;
-        return this;
-      }
-
-      @Override
-      public ResponseCookie build() {
-        return new ResponseCookie(
-                name, value, this.maxAge, this.domain, this.path,
-                this.secure, this.httpOnly, this.sameSite);
-      }
-    };
+    return new DefaultResponseCookieBuilder(name, value, true);
   }
 
   /**
    * A builder for a server-defined HttpCookie with attributes.
    */
   public interface ResponseCookieBuilder {
+
+    /**
+     * Set the cookie value.
+     */
+    ResponseCookieBuilder value(@Nullable String value);
 
     /**
      * Set the cookie "Max-Age" attribute.
@@ -428,6 +375,107 @@ public final class ResponseCookie extends HttpCookie {
           throw new IllegalArgumentException(path + ": Invalid cookie path char '" + c + "'");
         }
       }
+    }
+  }
+
+  /**
+   * Default implementation of {@link ResponseCookieBuilder}.
+   */
+  private static class DefaultResponseCookieBuilder implements ResponseCookieBuilder {
+
+    private final String name;
+
+    @Nullable
+    private String value;
+
+    private final boolean lenient;
+
+    private Duration maxAge = Duration.ofSeconds(-1);
+
+    @Nullable
+    private String domain;
+
+    @Nullable
+    private String path;
+
+    private boolean secure;
+
+    private boolean httpOnly;
+
+    @Nullable
+    private String sameSite;
+
+    public DefaultResponseCookieBuilder(String name, @Nullable String value, boolean lenient) {
+      this.name = name;
+      this.value = value;
+      this.lenient = lenient;
+    }
+
+    @Override
+    public ResponseCookieBuilder value(@Nullable String value) {
+      this.value = value;
+      return this;
+    }
+
+    @Override
+    public ResponseCookieBuilder maxAge(Duration maxAge) {
+      this.maxAge = maxAge;
+      return this;
+    }
+
+    @Override
+    public ResponseCookieBuilder maxAge(long maxAgeSeconds) {
+      this.maxAge = (maxAgeSeconds >= 0 ? Duration.ofSeconds(maxAgeSeconds) : Duration.ofSeconds(-1));
+      return this;
+    }
+
+    @Override
+    public ResponseCookieBuilder domain(@Nullable String domain) {
+      this.domain = initDomain(domain);
+      return this;
+    }
+
+    @Nullable
+    private String initDomain(@Nullable String domain) {
+      if (lenient && StringUtils.isNotEmpty(domain)) {
+        String str = domain.trim();
+        if (str.startsWith("\"") && str.endsWith("\"")) {
+          if (str.substring(1, str.length() - 1).trim().isEmpty()) {
+            return null;
+          }
+        }
+      }
+      return domain;
+    }
+
+    @Override
+    public ResponseCookieBuilder path(@Nullable String path) {
+      this.path = path;
+      return this;
+    }
+
+    @Override
+    public ResponseCookieBuilder secure(boolean secure) {
+      this.secure = secure;
+      return this;
+    }
+
+    @Override
+    public ResponseCookieBuilder httpOnly(boolean httpOnly) {
+      this.httpOnly = httpOnly;
+      return this;
+    }
+
+    @Override
+    public ResponseCookieBuilder sameSite(@Nullable String sameSite) {
+      this.sameSite = sameSite;
+      return this;
+    }
+
+    @Override
+    public ResponseCookie build() {
+      return new ResponseCookie(this.name, this.value, this.maxAge,
+              this.domain, this.path, this.secure, this.httpOnly, this.sameSite);
     }
   }
 

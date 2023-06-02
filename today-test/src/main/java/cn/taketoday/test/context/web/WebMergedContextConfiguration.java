@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,6 +37,7 @@ import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@code WebMergedContextConfiguration} encapsulates the <em>merged</em>
@@ -50,7 +51,7 @@ import cn.taketoday.util.StringUtils;
  * #getResourceBasePath() resource base path} configured via {@code @WebAppConfiguration}.
  * This allows the {@link TestContext TestContext}
  * to properly cache the corresponding {@link
- * cn.taketoday.web.WebApplicationContext WebApplicationContext}
+ * WebApplicationContext WebApplicationContext}
  * that was loaded using properties of this {@code WebMergedContextConfiguration}.
  *
  * @author Sam Brannen
@@ -80,7 +81,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    */
   public WebMergedContextConfiguration(MergedContextConfiguration mergedConfig, String resourceBasePath) {
     super(mergedConfig);
-    this.resourceBasePath = !StringUtils.hasText(resourceBasePath) ? "" : resourceBasePath;
+    this.resourceBasePath = StringUtils.isBlank(resourceBasePath) ? "" : resourceBasePath;
   }
 
   /**

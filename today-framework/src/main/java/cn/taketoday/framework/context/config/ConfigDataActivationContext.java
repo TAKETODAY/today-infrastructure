@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,14 +31,22 @@ import cn.taketoday.lang.Nullable;
  * {@link ConfigDataEnvironmentContributor contributed} {@link ConfigData}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ConfigDataActivationContext {
 
-  private final CloudPlatform cloudPlatform;
-
+  /**
+   * the active {@link CloudPlatform} or {@code null}.
+   */
   @Nullable
-  private final Profiles profiles;
+  public final CloudPlatform cloudPlatform;
+
+  /**
+   * profile information if it is available.
+   */
+  @Nullable
+  public final Profiles profiles;
 
   /**
    * Create a new {@link ConfigDataActivationContext} instance before any profiles have
@@ -59,7 +67,7 @@ class ConfigDataActivationContext {
    * @param cloudPlatform the cloud platform
    * @param profiles the profiles
    */
-  ConfigDataActivationContext(CloudPlatform cloudPlatform, Profiles profiles) {
+  ConfigDataActivationContext(@Nullable CloudPlatform cloudPlatform, Profiles profiles) {
     this.cloudPlatform = cloudPlatform;
     this.profiles = profiles;
   }
@@ -82,25 +90,6 @@ class ConfigDataActivationContext {
    */
   ConfigDataActivationContext withProfiles(Profiles profiles) {
     return new ConfigDataActivationContext(this.cloudPlatform, profiles);
-  }
-
-  /**
-   * Return the active {@link CloudPlatform} or {@code null}.
-   *
-   * @return the active cloud platform
-   */
-  CloudPlatform getCloudPlatform() {
-    return this.cloudPlatform;
-  }
-
-  /**
-   * Return profile information if it is available.
-   *
-   * @return profile information or {@code null}
-   */
-  @Nullable
-  Profiles getProfiles() {
-    return this.profiles;
   }
 
   @Override

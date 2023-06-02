@@ -27,8 +27,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DispatcherWacRootWacEarTests extends RootWacEarTests {
 
   @Autowired
-  private WebServletApplicationContext wac;
+  private WebApplicationContext wac;
 
   @Autowired
   private String ear;
@@ -75,17 +74,17 @@ public class DispatcherWacRootWacEarTests extends RootWacEarTests {
 
     ApplicationContext grandParent = parent.getParent();
     assertThat(grandParent).isNotNull();
-    boolean condition1 = grandParent instanceof WebServletApplicationContext;
+    boolean condition1 = grandParent instanceof WebApplicationContext;
     assertThat(condition1).isFalse();
 
     ServletContext dispatcherServletContext = wac.getServletContext();
     assertThat(dispatcherServletContext).isNotNull();
-    ServletContext rootServletContext = ((WebServletApplicationContext) parent).getServletContext();
+    ServletContext rootServletContext = ((WebApplicationContext) parent).getServletContext();
     assertThat(rootServletContext).isNotNull();
     assertThat(rootServletContext).isSameAs(dispatcherServletContext);
 
-    assertThat(rootServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(parent);
-    assertThat(dispatcherServletContext.getAttribute(WebServletApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(parent);
+    assertThat(rootServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(parent);
+    assertThat(dispatcherServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).isSameAs(parent);
 
     assertThat(ear).isEqualTo("ear");
     assertThat(root).isEqualTo("root");

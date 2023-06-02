@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,7 +86,8 @@ class OriginTrackedPropertiesLoader {
     StringBuilder buffer = new StringBuilder();
     try (CharacterReader reader = new CharacterReader(this.resource)) {
       while (reader.read()) {
-        if (reader.isPoundCharacter()) {
+        if (reader.isCommentPrefixCharacter()) {
+          char commentPrefixCharacter = reader.getCharacter();
           if (isNewDocument(reader)) {
             if (!document.isEmpty()) {
               documents.add(document);
@@ -97,12 +98,12 @@ class OriginTrackedPropertiesLoader {
             if (document.isEmpty() && !documents.isEmpty()) {
               document = documents.remove(documents.size() - 1);
             }
-            reader.setLastLineComment(true);
+            reader.setLastLineCommentPrefixCharacter(commentPrefixCharacter);
             reader.skipComment();
           }
         }
         else {
-          reader.setLastLineComment(false);
+          reader.setLastLineCommentPrefixCharacter(-1);
           loadKeyAndValue(expandLists, document, reader, buffer);
         }
       }
@@ -114,8 +115,8 @@ class OriginTrackedPropertiesLoader {
     return documents;
   }
 
-  private void loadKeyAndValue(boolean expandLists, Document document, CharacterReader reader, StringBuilder buffer)
-          throws IOException {
+  private void loadKeyAndValue(boolean expandLists, Document document,
+          CharacterReader reader, StringBuilder buffer) throws IOException {
     String key = loadKey(buffer, reader).trim();
     if (expandLists && key.endsWith("[]")) {
       key = key.substring(0, key.length() - 2);
@@ -153,8 +154,8 @@ class OriginTrackedPropertiesLoader {
     return buffer.toString();
   }
 
-  private OriginTrackedValue loadValue(
-          StringBuilder buffer, CharacterReader reader, boolean splitLists) throws IOException {
+  private OriginTrackedValue loadValue(StringBuilder buffer,
+          CharacterReader reader, boolean splitLists) throws IOException {
     buffer.setLength(0);
     while (reader.isWhiteSpace() && !reader.isEndOfLine()) {
       reader.read();
@@ -169,10 +170,10 @@ class OriginTrackedPropertiesLoader {
   }
 
   private boolean isNewDocument(CharacterReader reader) throws IOException {
-    if (reader.isLastLineComment()) {
+    if (reader.isSameLastLineCommentPrefix()) {
       return false;
     }
-    boolean result = reader.getLocation().getColumn() == 0 && reader.isPoundCharacter();
+    boolean result = reader.getLocation().getColumn() == 0;
     result = result && readAndExpect(reader, reader::isHyphenCharacter);
     result = result && readAndExpect(reader, reader::isHyphenCharacter);
     result = result && readAndExpect(reader, reader::isHyphenCharacter);
@@ -204,7 +205,7 @@ class OriginTrackedPropertiesLoader {
 
     private int character;
 
-    private boolean lastLineComment;
+    private int lastLineCommentPrefixCharacter;
 
     CharacterReader(Resource resource) throws IOException {
       this.reader = new LineNumberReader(
@@ -217,20 +218,11 @@ class OriginTrackedPropertiesLoader {
     }
 
     boolean read() throws IOException {
-      return read(false);
-    }
-
-    boolean read(boolean wrappedLine) throws IOException {
       this.escaped = false;
       this.character = this.reader.read();
       this.columnNumber++;
       if (this.columnNumber == 0) {
         skipWhitespace();
-        if (!wrappedLine) {
-          if (this.character == '!') {
-            skipComment();
-          }
-        }
       }
       if (this.character == '\\') {
         this.escaped = true;
@@ -249,12 +241,8 @@ class OriginTrackedPropertiesLoader {
       }
     }
 
-    private void setLastLineComment(boolean lastLineComment) {
-      this.lastLineComment = lastLineComment;
-    }
-
-    private boolean isLastLineComment() {
-      return this.lastLineComment;
+    private void setLastLineCommentPrefixCharacter(int lastLineCommentPrefixCharacter) {
+      this.lastLineCommentPrefixCharacter = lastLineCommentPrefixCharacter;
     }
 
     private void skipComment() throws IOException {
@@ -272,7 +260,7 @@ class OriginTrackedPropertiesLoader {
       }
       else if (this.character == '\n') {
         this.columnNumber = -1;
-        read(true);
+        read();
       }
       else if (this.character == 'u') {
         readUnicode();
@@ -326,8 +314,12 @@ class OriginTrackedPropertiesLoader {
       return new Location(this.reader.getLineNumber(), this.columnNumber);
     }
 
-    boolean isPoundCharacter() {
-      return this.character == '#';
+    boolean isSameLastLineCommentPrefix() {
+      return this.lastLineCommentPrefixCharacter == this.character;
+    }
+
+    boolean isCommentPrefixCharacter() {
+      return this.character == '#' || this.character == '!';
     }
 
     boolean isHyphenCharacter() {

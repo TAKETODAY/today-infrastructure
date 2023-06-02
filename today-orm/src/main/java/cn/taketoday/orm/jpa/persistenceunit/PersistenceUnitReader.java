@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -228,7 +228,7 @@ final class PersistenceUnitReader {
     Element excludeUnlistedClasses = DomUtils.getChildElementByTagName(persistenceUnit, EXCLUDE_UNLISTED_CLASSES);
     if (excludeUnlistedClasses != null) {
       String excludeText = DomUtils.getTextValue(excludeUnlistedClasses);
-      unitInfo.setExcludeUnlistedClasses(!StringUtils.hasText(excludeText) || Boolean.parseBoolean(excludeText));
+      unitInfo.setExcludeUnlistedClasses(StringUtils.isBlank(excludeText) || Boolean.parseBoolean(excludeText));
     }
 
     // set JPA 2.0 shared cache mode
@@ -312,7 +312,7 @@ final class PersistenceUnitReader {
           // relative to the persistence unit root, according to the JPA spec
           URL rootUrl = unitInfo.getPersistenceUnitRootUrl();
           if (rootUrl != null) {
-            unitInfo.addJarFileUrl(new URL(rootUrl, value));
+            unitInfo.addJarFileUrl(ResourceUtils.toRelativeURL(rootUrl, value));
           }
           else {
             logger.warn("Cannot resolve jar-file entry [{}] in persistence unit '{}' without root URL",
@@ -361,7 +361,7 @@ final class PersistenceUnitReader {
     if (persistenceUnitRoot.endsWith("/")) {
       persistenceUnitRoot = persistenceUnitRoot.substring(0, persistenceUnitRoot.length() - 1);
     }
-    return new URL(persistenceUnitRoot);
+    return ResourceUtils.toURL(persistenceUnitRoot);
   }
 
 }

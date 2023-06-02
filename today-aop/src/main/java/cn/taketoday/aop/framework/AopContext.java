@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.aop.framework;
 
 import cn.taketoday.core.NamedThreadLocal;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Class containing static methods used to obtain information about the current AOP invocation.
@@ -82,7 +83,7 @@ public final class AopContext {
    * @return the old proxy, which may be {@code null} if none was bound
    * @see #currentProxy()
    */
-  static Object setCurrentProxy(Object proxy) {
+  static Object setCurrentProxy(@Nullable Object proxy) {
     Object old = currentProxy.get();
     if (proxy != null) {
       currentProxy.set(proxy);

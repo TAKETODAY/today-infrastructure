@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,6 @@ import java.util.List;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
@@ -61,6 +60,7 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -396,7 +396,14 @@ class RequestResponseBodyMethodProcessorTests {
   @Test
   void problemDetailWhenJsonRequested() throws Throwable {
     this.servletRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE);
-    testProblemDetailMediaType(MediaType.APPLICATION_JSON_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+  }
+
+  @Test
+    // gh-29588
+  void problemDetailWhenJsonAndProblemJsonRequested() throws Throwable {
+    this.servletRequest.addHeader("Accept", MediaType.APPLICATION_JSON_VALUE + "," + MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+    testProblemDetailMediaType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
   }
 
   @Test

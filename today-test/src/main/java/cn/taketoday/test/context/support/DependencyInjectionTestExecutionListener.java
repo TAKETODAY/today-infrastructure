@@ -21,6 +21,10 @@
 package cn.taketoday.test.context.support;
 
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.condition.ConditionEvaluationReport;
+import cn.taketoday.context.condition.ConditionEvaluationReportMessage;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -81,7 +85,26 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
   @Override
   public void prepareTestInstance(TestContext testContext) throws Exception {
     logger.debug("Performing dependency injection for test context [{}].", testContext);
-    injectDependencies(testContext);
+    try {
+      injectDependencies(testContext);
+    }
+    catch (Exception ex) {
+      outputConditionEvaluationReport(testContext);
+      throw ex;
+    }
+  }
+
+  private void outputConditionEvaluationReport(TestContext testContext) {
+    try {
+      ApplicationContext context = testContext.getApplicationContext();
+      if (context instanceof ConfigurableApplicationContext configurableContext) {
+        var report = ConditionEvaluationReport.get(configurableContext.getBeanFactory());
+        System.err.println(new ConditionEvaluationReportMessage(report));
+      }
+    }
+    catch (Exception ex) {
+      // Allow original failure to be reported
+    }
   }
 
   /**

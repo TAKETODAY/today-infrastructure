@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,6 @@ package cn.taketoday.web.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -33,8 +32,7 @@ import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
-import cn.taketoday.web.registry.SimpleUrlHandlerMapping;
+import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.CachingResourceResolver;
 import cn.taketoday.web.resource.CachingResourceTransformer;
 import cn.taketoday.web.resource.CssLinkResourceTransformer;
@@ -45,6 +43,7 @@ import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.WebJarsResourceResolver;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
@@ -87,7 +86,7 @@ class ResourceHandlerRegistryTests {
   }
 
   @Test
-  public void mapPathToLocation() throws Exception {
+  public void mapPathToLocation() throws Throwable {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setMethod("GET");
     request.setRequestURI("/testStylesheet.css");

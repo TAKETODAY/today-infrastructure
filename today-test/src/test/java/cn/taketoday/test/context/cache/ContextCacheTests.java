@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @author Michail Nikolaev
  * @see LruContextCacheTests
- * @see ApplicationExtensionContextCacheTests
+ * @see InfraExtensionContextCacheTests
  * @since 4.0
  */
 class ContextCacheTests {

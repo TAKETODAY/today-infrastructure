@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,7 @@ import java.lang.annotation.Target;
  * @author Artem Bilan
  * @author Gary Russell
  * @author Maksim Kita
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Documented
@@ -57,29 +58,38 @@ public @interface Retryable {
   String interceptor() default "";
 
   /**
-   * Exception types that are retryable. Synonym for includes(). Defaults to empty (and
-   * if excludes is also empty all exceptions are retried).
+   * Exception types that are retryable. Defaults to empty (and if excludes is also
+   * empty all exceptions are retried).
    *
    * @return exception types to retry
    */
   Class<? extends Throwable>[] value() default {};
 
   /**
-   * Exception types that are retryable. Defaults to empty (and if excludes is also
-   * empty all exceptions are retried).
+   * Exception types that are retryable. Defaults to empty (and, if noRetryFor is also
+   * empty, all exceptions are retried).
    *
    * @return exception types to retry
    */
-  Class<? extends Throwable>[] include() default {};
+  Class<? extends Throwable>[] retryFor() default {};
 
   /**
-   * Exception types that are not retryable. Defaults to empty (and if includes is also
-   * empty all exceptions are retried). If includes is empty but excludes is not, all
-   * not excluded exceptions are retried
+   * Exception types that are not retryable. Defaults to empty (and, if retryFor is also
+   * empty, all exceptions are retried). If retryFor is empty but excludes is not, all
+   * other exceptions are retried
    *
    * @return exception types not to retry
    */
-  Class<? extends Throwable>[] exclude() default {};
+  Class<? extends Throwable>[] noRetryFor() default {};
+
+  /**
+   * Exception types that are not recoverable; these exceptions are thrown to the caller
+   * without calling any recoverer (immediately if also in {@link #noRetryFor()}).
+   * Defaults to empty.
+   *
+   * @return exception types not to retry
+   */
+  Class<? extends Throwable>[] notRecoverable() default {};
 
   /**
    * A unique label for statistics reporting. If not provided the caller may choose to

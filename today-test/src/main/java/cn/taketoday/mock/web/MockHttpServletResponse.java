@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +46,6 @@ import java.util.TimeZone;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
@@ -82,7 +82,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   private boolean writerAccessAllowed = true;
 
-  private String defaultCharacterEncoding = Constant.DEFAULT_ENCODING;
+  private String defaultCharacterEncoding = "UTF-8";
 
   private String characterEncoding = this.defaultCharacterEncoding;
 
@@ -179,7 +179,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @param characterEncoding the default character encoding
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 4.0
    */
   public void setDefaultCharacterEncoding(String characterEncoding) {
     Assert.notNull(characterEncoding, "'characterEncoding' must not be null");
@@ -201,15 +200,42 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   @Override
-  public void setCharacterEncoding(String characterEncoding) {
+  public void setCharacterEncoding(@Nullable String characterEncoding) {
     setExplicitCharacterEncoding(characterEncoding);
     updateContentTypePropertyAndHeader();
   }
 
-  private void setExplicitCharacterEncoding(String characterEncoding) {
-    Assert.notNull(characterEncoding, "'characterEncoding' must not be null");
-    this.characterEncoding = characterEncoding;
-    this.characterEncodingSet = true;
+  private void setExplicitCharacterEncoding(@Nullable String characterEncoding) {
+    if (characterEncoding == null) {
+      this.characterEncoding = this.defaultCharacterEncoding;
+      this.characterEncodingSet = false;
+      if (this.contentType != null) {
+        try {
+          MediaType mediaType = MediaType.parseMediaType(this.contentType);
+          if (mediaType.getCharset() != null) {
+            Map<String, String> parameters = new LinkedHashMap<>(mediaType.getParameters());
+            parameters.remove("charset");
+            mediaType = new MediaType(mediaType.getType(), mediaType.getSubtype(), parameters);
+            this.contentType = mediaType.toString();
+          }
+        }
+        catch (Exception ignored) {
+          String value = this.contentType;
+          int charsetIndex = value.toLowerCase().indexOf(CHARSET_PREFIX);
+          if (charsetIndex != -1) {
+            value = value.substring(0, charsetIndex).trim();
+            if (value.endsWith(";")) {
+              value = value.substring(0, value.length() - 1);
+            }
+            this.contentType = value;
+          }
+        }
+      }
+    }
+    else {
+      this.characterEncoding = characterEncoding;
+      this.characterEncodingSet = true;
+    }
   }
 
   private void updateContentTypePropertyAndHeader() {
@@ -278,7 +304,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @see #getContentAsString()
    * @see #setCharacterEncoding(String)
    * @see #setContentType(String)
-   * @since 4.0
    */
   public String getContentAsString(Charset fallbackCharset) throws UnsupportedEncodingException {
     if (this.characterEncodingSet) {
@@ -414,6 +439,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     doAddHeaderValue(HttpHeaders.SET_COOKIE, getCookieHeader(cookie), false);
   }
 
+  @SuppressWarnings("removal")
   private String getCookieHeader(Cookie cookie) {
     StringBuilder buf = new StringBuilder();
     buf.append(cookie.getName()).append('=').append(cookie.getValue() == null ? "" : cookie.getValue());
@@ -424,7 +450,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
       buf.append("; Domain=").append(cookie.getDomain());
     }
     int maxAge = cookie.getMaxAge();
-    ZonedDateTime expires = (cookie instanceof MockCookie ? ((MockCookie) cookie).getExpires() : null);
+    ZonedDateTime expires = (cookie instanceof MockCookie mockCookie ? mockCookie.getExpires() : null);
     if (maxAge >= 0) {
       buf.append("; Max-Age=").append(maxAge);
       buf.append("; Expires=");
@@ -579,18 +605,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   @Override
-  @Deprecated
-  public String encodeUrl(String url) {
-    return encodeURL(url);
-  }
-
-  @Override
-  @Deprecated
-  public String encodeRedirectUrl(String url) {
-    return encodeRedirectURL(url);
-  }
-
-  @Override
   public void sendError(int status, String errorMessage) throws IOException {
     Assert.state(!isCommitted(), "Cannot set error status - response is already committed");
     this.status = status;
@@ -701,7 +715,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
       return true;
     }
     else if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
-      setContentLength(value instanceof Number ? ((Number) value).intValue() :
+      setContentLength(value instanceof Number number ? number.intValue() :
                        Integer.parseInt(value.toString()));
       return true;
     }
@@ -761,15 +775,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
   public void setStatus(int status) {
     if (!this.isCommitted()) {
       this.status = status;
-    }
-  }
-
-  @Override
-  @Deprecated
-  public void setStatus(int status, String errorMessage) {
-    if (!this.isCommitted()) {
-      this.status = status;
-      this.errorMessage = errorMessage;
     }
   }
 

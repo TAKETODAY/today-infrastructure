@@ -29,8 +29,8 @@ import cn.taketoday.test.context.junit4.EnabledAndIgnoredSpringRunnerTests;
 
 /**
  * This class is an extension of {@link EnabledAndIgnoredSpringRunnerTests}
- * that has been modified to use {@link ApplicationClassRule} and
- * {@link ApplicationMethodRule}.
+ * that has been modified to use {@link InfraClassRule} and
+ * {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -39,10 +39,10 @@ import cn.taketoday.test.context.junit4.EnabledAndIgnoredSpringRunnerTests;
 public class EnabledAndIgnoredSpringRuleTests extends EnabledAndIgnoredSpringRunnerTests {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   // All tests are in superclass.
 

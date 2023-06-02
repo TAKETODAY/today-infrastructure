@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -144,10 +144,9 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
       this.commitActions.add(writeAction);
     }
 
-    ArrayList<Publisher<Void>> actions = new ArrayList<>();
-    for (Supplier<? extends Publisher<Void>> commitAction : commitActions) {
-      Publisher<Void> publisher = commitAction.get();
-      actions.add(publisher);
+    ArrayList<Publisher<Void>> actions = new ArrayList<>(commitActions.size());
+    for (var commitAction : commitActions) {
+      actions.add(commitAction.get());
     }
     return Flux.concat(actions).then();
   }

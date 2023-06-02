@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.xml;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 
@@ -85,6 +86,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/6 22:35
  */
+@Order(Integer.MAX_VALUE - 10)
 class XmlBeanFactoryTests {
 
   private static final Class<?> CLASS = XmlBeanFactoryTests.class;
@@ -292,7 +294,6 @@ class XmlBeanFactoryTests {
     }
     catch (BeanCreationException ex) {
       // Check whether message contains outer bean name.
-      ex.printStackTrace();
       assertThat(ex.getMessage().contains("failsOnInnerBean")).isTrue();
       assertThat(ex.getMessage().contains("someMap")).isTrue();
     }
@@ -302,7 +303,6 @@ class XmlBeanFactoryTests {
     }
     catch (BeanCreationException ex) {
       // Check whether message contains outer bean name.
-      ex.printStackTrace();
       assertThat(ex.getMessage().contains("failsOnInnerBeanForConstructor")).isTrue();
       assertThat(ex.getMessage().contains("constructor argument")).isTrue();
     }
@@ -668,10 +668,10 @@ class XmlBeanFactoryTests {
     new XmlBeanDefinitionReader(xbf).loadBeanDefinitions(COMPLEX_FACTORY_CIRCLE_CONTEXT);
     xbf.getBean("proxy1");
     // check that unused instances from autowiring got removed
-    assertThat(xbf.getSingletonCount()).isEqualTo(4);
+    assertThat(xbf.getSingletonCount()).isEqualTo(5); // BeanFactoryAwareInstantiator
     // properly create the remaining two instances
     xbf.getBean("proxy2");
-    assertThat(xbf.getSingletonCount()).isEqualTo(5);
+    assertThat(xbf.getSingletonCount()).isEqualTo(6);
   }
 
   @Test

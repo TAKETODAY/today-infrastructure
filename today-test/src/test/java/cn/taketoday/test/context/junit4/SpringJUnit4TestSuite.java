@@ -46,12 +46,12 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileResolverXmlConfigT
 import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
 
 /**
- * JUnit test suite for tests involving {@link Runner} and the
+ * JUnit test suite for tests involving {@link InfraRunner} and the
  * <em>TestContext Framework</em>; only intended to be run manually as a
  * convenience.
  *
  * <p>This test suite serves a dual purpose of verifying that tests run with
- * {@link Runner} can be used in conjunction with JUnit's
+ * {@link InfraRunner} can be used in conjunction with JUnit's
  * {@link Suite} runner.
  *
  * <p>Note that tests included in this suite will be executed at least twice if
@@ -108,7 +108,7 @@ import cn.taketoday.test.context.junit4.profile.xml.DevProfileXmlConfigTests;
         RollbackOverrideDefaultRollbackTrueTransactionalTests.class,//
         RollbackOverrideDefaultRollbackFalseTransactionalTests.class,//
         BeforeAndAfterTransactionAnnotationTests.class,//
-        TimedTransactionalSpringRunnerTests.class,//
+        TimedTransactionalRunnerTests.class,//
         HibernateSessionFlushingTests.class //
 })
 public class SpringJUnit4TestSuite {

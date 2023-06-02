@@ -26,7 +26,7 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.AbstractFactoryBean;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;

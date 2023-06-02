@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.socket;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 
 /**
@@ -28,6 +29,14 @@ import cn.taketoday.lang.Assert;
  */
 public abstract class NativeWebSocketSession<T> extends WebSocketSession {
   protected T nativeSession;
+
+  public NativeWebSocketSession(HttpHeaders handshakeHeaders) {
+    super(handshakeHeaders);
+  }
+
+  protected final void checkNativeSessionInitialized() {
+    Assert.state(this.nativeSession != null, "WebSocket session is not yet initialized");
+  }
 
   public void initializeNativeSession(T nativeSession) {
     this.nativeSession = nativeSession;

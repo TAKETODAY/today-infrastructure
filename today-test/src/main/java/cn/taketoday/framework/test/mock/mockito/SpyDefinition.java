@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -119,7 +119,7 @@ class SpyDefinition extends Definition {
   }
 
   /**
-   * A {@link VerificationStartedListener} that bypasses any proxy created by Spring AOP
+   * A {@link VerificationStartedListener} that bypasses any proxy created by Infra AOP
    * when the verification of a spy starts.
    */
   private static final class AopBypassingVerificationStartedListener implements VerificationStartedListener {

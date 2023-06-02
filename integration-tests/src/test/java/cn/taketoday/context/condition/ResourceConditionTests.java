@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -99,7 +99,7 @@ class ResourceConditionTests {
   static class DefaultLocationResourceCondition extends ResourceCondition {
 
     DefaultLocationResourceCondition() {
-      super("test", "spring.foo.test.config", "classpath:/logging.properties");
+      super("test", "spring.foo.test.config", "classpath:/logging-nondefault.properties");
     }
 
   }

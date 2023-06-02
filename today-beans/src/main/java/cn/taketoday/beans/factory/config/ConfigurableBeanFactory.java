@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -460,7 +460,7 @@ public interface ConfigurableBeanFactory
    *
    * @param ifc the dependency interface to ignore
    * @see BeanFactoryAware
-   * @see cn.taketoday.context.aware.ApplicationContextAware
+   * @see cn.taketoday.context.ApplicationContextAware
    * @since 4.0
    */
   void ignoreDependencyInterface(Class<?> ifc);

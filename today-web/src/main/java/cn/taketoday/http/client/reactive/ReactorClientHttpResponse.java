@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
@@ -34,12 +33,13 @@ import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
+import reactor.netty.ChannelOperationsId;
 import reactor.netty.Connection;
 import reactor.netty.NettyInbound;
 import reactor.netty.http.client.HttpClientResponse;
@@ -54,9 +54,6 @@ import reactor.netty.http.client.HttpClientResponse;
  * @since 4.0
  */
 class ReactorClientHttpResponse implements ClientHttpResponse {
-  /** Reactor Netty 1.0.5+. */
-  static final boolean reactorNettyRequestChannelOperationsIdPresent = ClassUtils.isPresent(
-          "reactor.netty.ChannelOperationsId", ReactorClientHttpResponse.class.getClassLoader());
 
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpResponse.class);
 
@@ -94,10 +91,10 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   @Override
   public String getId() {
     String id = null;
-    if (reactorNettyRequestChannelOperationsIdPresent) {
-      id = ChannelOperationsIdHelper.getId(this.response);
+    if (response instanceof ChannelOperationsId operationsId) {
+      id = logger.isDebugEnabled() ? operationsId.asLongText() : operationsId.asShortText();
     }
-    if (id == null && this.response instanceof Connection connection) {
+    if (id == null && response instanceof Connection connection) {
       id = connection.channel().id().asShortText();
     }
     return (id != null ? id : ObjectUtils.getIdentityHexString(this));
@@ -194,17 +191,6 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     return "ReactorClientHttpResponse{" +
             "request=[" + this.response.method().name() + " " + this.response.uri() + "]," +
             "status=" + getRawStatusCode() + '}';
-  }
-
-  private static class ChannelOperationsIdHelper {
-
-    @Nullable
-    public static String getId(HttpClientResponse response) {
-      if (response instanceof reactor.netty.ChannelOperationsId id) {
-        return logger.isDebugEnabled() ? id.asLongText() : id.asShortText();
-      }
-      return null;
-    }
   }
 
 }

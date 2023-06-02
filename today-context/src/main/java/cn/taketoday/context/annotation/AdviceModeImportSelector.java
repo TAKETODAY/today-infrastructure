@@ -22,7 +22,6 @@ package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;

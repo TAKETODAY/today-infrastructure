@@ -39,10 +39,9 @@ import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
-import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.util.UriUtils;
-import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,16 +94,13 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
   }
 
-  private DispatcherServlet initDispatcherServlet(Class<?>... configClasses)
-          throws ServletException {
-
-    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
+  private DispatcherServlet initDispatcherServlet(Class<?>... configClasses) {
+    var context = new AnnotationConfigServletWebApplicationContext();
     context.setServletContext(this.servletContext);
     context.register(configClasses);
     context.refresh();
 
     DispatcherServlet servlet = new DispatcherServlet(context);
-//    servlet.setApplicationContext(context);
     servlet.init(this.servletConfig);
     return servlet;
   }
@@ -117,7 +113,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   }
 
   @EnableWebMvc
-  static class WebConfig implements WebMvcConfiguration {
+  static class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

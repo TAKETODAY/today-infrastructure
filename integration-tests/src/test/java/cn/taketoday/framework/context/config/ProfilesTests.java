@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,7 +56,7 @@ class ProfilesTests {
   void getActiveWhenNoEnvironmentProfilesAndBinderProperty() {
     Environment environment = new MockEnvironment();
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.active", "a,b,c")));
+            new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "a,b,c")));
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
   }
@@ -64,7 +64,7 @@ class ProfilesTests {
   @Test
   void getActiveWhenNoEnvironmentProfilesAndEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.active", "a,b,c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
@@ -75,7 +75,7 @@ class ProfilesTests {
     MockEnvironment environment = new MockEnvironment();
     environment.setActiveProfiles("a", "b", "c");
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.active", "d,e,f")));
+            new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "d,e,f")));
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c", "d", "e", "f");
   }
@@ -83,10 +83,10 @@ class ProfilesTests {
   @Test
   void getActiveWhenEnvironmentProfilesAndBinderPropertyShouldReturnEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.active", "a,b,c");
     List<ConfigurationPropertySource> sources = new ArrayList<>();
     ConfigurationPropertySources.get(environment).forEach(sources::add);
-    sources.add(new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.active", "d,e,f")));
+    sources.add(new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "d,e,f")));
     Binder binder = new Binder(sources);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
@@ -96,7 +96,7 @@ class ProfilesTests {
   void getActiveWhenEnvironmentProfilesAndEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
     environment.setActiveProfiles("a", "b", "c");
-    environment.setProperty("context.profiles.active", "d,e,f");
+    environment.setProperty("infra.profiles.active", "d,e,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c", "d", "e", "f");
@@ -105,9 +105,9 @@ class ProfilesTests {
   @Test
   void getActiveWhenNoEnvironmentProfilesAndEnvironmentPropertyInBindNotation() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active[0]", "a");
-    environment.setProperty("context.profiles.active[1]", "b");
-    environment.setProperty("context.profiles.active[2]", "c");
+    environment.setProperty("infra.profiles.active[0]", "a");
+    environment.setProperty("infra.profiles.active[1]", "b");
+    environment.setProperty("infra.profiles.active[2]", "c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
@@ -117,9 +117,9 @@ class ProfilesTests {
   void getActiveWhenEnvironmentProfilesInBindNotationAndEnvironmentPropertyReturnsEnvironmentProfiles() {
     MockEnvironment environment = new MockEnvironment();
     environment.setActiveProfiles("a", "b", "c");
-    environment.setProperty("context.profiles.active[0]", "d");
-    environment.setProperty("context.profiles.active[1]", "e");
-    environment.setProperty("context.profiles.active[2]", "f");
+    environment.setProperty("infra.profiles.active[0]", "d");
+    environment.setProperty("infra.profiles.active[1]", "e");
+    environment.setProperty("infra.profiles.active[2]", "f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c", "d", "e", "f");
@@ -128,7 +128,7 @@ class ProfilesTests {
   @Test
   void getActiveWhenHasDuplicatesReturnsUniqueElements() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,a,b,c");
+    environment.setProperty("infra.profiles.active", "a,b,a,b,c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "b", "c");
@@ -137,8 +137,8 @@ class ProfilesTests {
   @Test
   void getActiveWithProfileGroups() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "d,e");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "d,e");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).containsExactly("a", "d", "e", "b", "c");
@@ -147,7 +147,7 @@ class ProfilesTests {
   @Test
   void getActiveWhenHasAdditionalIncludesAdditional() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "d,e,f");
+    environment.setProperty("infra.profiles.active", "d,e,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, Arrays.asList("a", "b", "c"));
     assertThat(profiles.getActive()).containsExactly("a", "b", "c", "d", "e", "f");
@@ -165,7 +165,7 @@ class ProfilesTests {
   void getDefaultWhenNoEnvironmentProfilesAndBinderProperty() {
     Environment environment = new MockEnvironment();
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.default", "a,b,c")));
+            new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.default", "a,b,c")));
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
   }
@@ -173,10 +173,10 @@ class ProfilesTests {
   @Test
   void getDefaultWhenDefaultEnvironmentProfileAndBinderProperty() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.default", "default");
+    environment.setProperty("infra.profiles.default", "default");
     List<ConfigurationPropertySource> sources = new ArrayList<>();
     ConfigurationPropertySources.get(environment).forEach(sources::add);
-    sources.add(new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.default", "a,b,c")));
+    sources.add(new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.default", "a,b,c")));
     Binder binder = new Binder(sources);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("default");
@@ -185,7 +185,7 @@ class ProfilesTests {
   @Test
   void getDefaultWhenNoEnvironmentProfilesAndEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.default", "a,b,c");
+    environment.setProperty("infra.profiles.default", "a,b,c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
@@ -196,7 +196,7 @@ class ProfilesTests {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("a", "b", "c");
     Binder binder = new Binder(
-            new MapConfigurationPropertySource(Collections.singletonMap("context.profiles.default", "d,e,f")));
+            new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.default", "d,e,f")));
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
   }
@@ -205,7 +205,7 @@ class ProfilesTests {
   void getDefaultWhenEnvironmentProfilesAndEnvironmentProperty() {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("a", "b", "c");
-    environment.setProperty("context.profiles.default", "d,e,f");
+    environment.setProperty("infra.profiles.default", "d,e,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
@@ -214,9 +214,9 @@ class ProfilesTests {
   @Test
   void getDefaultWhenNoEnvironmentProfilesAndEnvironmentPropertyInBindNotation() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.default[0]", "a");
-    environment.setProperty("context.profiles.default[1]", "b");
-    environment.setProperty("context.profiles.default[2]", "c");
+    environment.setProperty("infra.profiles.default[0]", "a");
+    environment.setProperty("infra.profiles.default[1]", "b");
+    environment.setProperty("infra.profiles.default[2]", "c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
@@ -225,7 +225,7 @@ class ProfilesTests {
   @Test
   void getDefaultWhenHasDuplicatesReturnsUniqueElements() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.default", "a,b,a,b,c");
+    environment.setProperty("infra.profiles.default", "a,b,a,b,c");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
@@ -234,8 +234,8 @@ class ProfilesTests {
   @Test
   void getDefaultWithProfileGroups() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.default", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "d,e");
+    environment.setProperty("infra.profiles.default", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "d,e");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "d", "e", "b", "c");
@@ -245,9 +245,9 @@ class ProfilesTests {
   void getDefaultWhenEnvironmentProfilesInBindNotationAndEnvironmentPropertyReturnsBoth() {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("a", "b", "c");
-    environment.setProperty("context.profiles.default[0]", "d");
-    environment.setProperty("context.profiles.default[1]", "e");
-    environment.setProperty("context.profiles.default[2]", "f");
+    environment.setProperty("infra.profiles.default[0]", "d");
+    environment.setProperty("infra.profiles.default[1]", "e");
+    environment.setProperty("infra.profiles.default[2]", "f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("a", "b", "c");
@@ -317,9 +317,9 @@ class ProfilesTests {
   @Test
   void iteratorWithProfileGroups() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "e,f");
-    environment.setProperty("context.profiles.group.e", "x,y");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "e,f");
+    environment.setProperty("infra.profiles.group.e", "x,y");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles).containsExactly("a", "e", "x", "y", "f", "b", "c");
@@ -328,8 +328,8 @@ class ProfilesTests {
   @Test
   void iteratorWithProfileGroupsAndNoActive() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.group.a", "e,f");
-    environment.setProperty("context.profiles.group.e", "x,y");
+    environment.setProperty("infra.profiles.group.a", "e,f");
+    environment.setProperty("infra.profiles.group.e", "x,y");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles).containsExactly("default");
@@ -338,7 +338,7 @@ class ProfilesTests {
   @Test
   void iteratorWithProfileGroupsForDefault() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.group.default", "e,f");
+    environment.setProperty("infra.profiles.group.default", "e,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles).containsExactly("default", "e", "f");
@@ -347,9 +347,9 @@ class ProfilesTests {
   @Test
   void getAcceptedWithProfileGroups() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "e,f");
-    environment.setProperty("context.profiles.group.e", "x,y");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "e,f");
+    environment.setProperty("infra.profiles.group.e", "x,y");
     environment.setDefaultProfiles("g", "h", "i");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
@@ -360,7 +360,7 @@ class ProfilesTests {
   void getAcceptedWhenNoActiveAndDefaultWithGroups() {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("d", "e", "f");
-    environment.setProperty("context.profiles.group.e", "x,y");
+    environment.setProperty("infra.profiles.group.e", "x,y");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getAccepted()).containsExactly("d", "e", "x", "y", "f");
@@ -369,9 +369,9 @@ class ProfilesTests {
   @Test
   void isAcceptedWithGroupsReturnsTrue() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "e,f");
-    environment.setProperty("context.profiles.group.e", "x,y");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "e,f");
+    environment.setProperty("infra.profiles.group.e", "x,y");
     environment.setDefaultProfiles("g", "h", "i");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
@@ -384,7 +384,7 @@ class ProfilesTests {
   void isAcceptedWhenNoActiveAndDefaultWithGroupsContainsProfileReturnsTrue() {
     MockEnvironment environment = new MockEnvironment();
     environment.setDefaultProfiles("d", "e", "f");
-    environment.setProperty("context.profiles.group.e", "x,y");
+    environment.setProperty("infra.profiles.group.e", "x,y");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.isAccepted("d")).isTrue();
@@ -394,8 +394,8 @@ class ProfilesTests {
   @Test
   void simpleRecursiveReferenceInProfileGroupIgnoresDuplicates() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "a,e,f");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "a,e,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getAccepted()).containsExactly("a", "e", "f", "b", "c");
@@ -404,8 +404,8 @@ class ProfilesTests {
   @Test
   void multipleRecursiveReferenceInProfileGroupIgnoresDuplicates() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "a,b,f");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "a,b,f");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getAccepted()).containsExactly("a", "b", "f", "c");
@@ -414,9 +414,9 @@ class ProfilesTests {
   @Test
   void complexRecursiveReferenceInProfileGroupIgnoresDuplicates() {
     MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("context.profiles.active", "a,b,c");
-    environment.setProperty("context.profiles.group.a", "e,f,g");
-    environment.setProperty("context.profiles.group.e", "a,x,y,g");
+    environment.setProperty("infra.profiles.active", "a,b,c");
+    environment.setProperty("infra.profiles.group.a", "e,f,g");
+    environment.setProperty("infra.profiles.group.e", "a,x,y,g");
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getAccepted()).containsExactly("a", "e", "x", "y", "g", "f", "b", "c");

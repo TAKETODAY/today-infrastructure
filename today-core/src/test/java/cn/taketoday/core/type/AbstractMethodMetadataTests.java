@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.testfixture.type.AnnotatedComponent;
 import cn.taketoday.core.testfixture.type.EnclosingAnnotation;
+import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

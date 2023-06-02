@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * {@link Thread.UncaughtExceptionHandler} to suppress handling already logged exceptions and
  * dealing with system exit.
@@ -38,13 +40,14 @@ class StartupExceptionHandler implements Thread.UncaughtExceptionHandler {
 
   private static final LoggedExceptionHandlerThreadLocal handler = new LoggedExceptionHandlerThreadLocal();
 
+  @Nullable
   private final Thread.UncaughtExceptionHandler parent;
 
   private final ArrayList<Throwable> loggedExceptions = new ArrayList<>();
 
   private int exitCode = 0;
 
-  StartupExceptionHandler(Thread.UncaughtExceptionHandler parent) {
+  StartupExceptionHandler(@Nullable Thread.UncaughtExceptionHandler parent) {
     this.parent = parent;
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,11 +29,10 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.ConfigurationPropertiesScan;
-import cn.taketoday.context.properties.ConstructorBinding;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.context.properties.bind.ConstructorBinding;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.framework.diagnostics.LoggingFailureAnalysisReporter;
-import cn.taketoday.framework.diagnostics.analyzer.NotConstructorBoundInjectionFailureAnalyzer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,7 +65,8 @@ class NotConstructorBoundInjectionFailureAnalyzerTests {
   }
 
   private FatalBeanException createFailure(Class<?> config) {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+    try {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.register(config);
       context.refresh();
       return null;

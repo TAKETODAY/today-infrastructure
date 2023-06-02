@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,8 @@
 
 package cn.taketoday.test.context.event;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 import cn.taketoday.context.ApplicationEvent;
@@ -36,7 +36,7 @@ import cn.taketoday.context.PayloadApplicationEvent;
  */
 class DefaultApplicationEvents implements ApplicationEvents {
 
-  private final List<ApplicationEvent> events = new ArrayList<>();
+  private final List<ApplicationEvent> events = new CopyOnWriteArrayList<>();
 
   void addEvent(ApplicationEvent event) {
     this.events.add(event);

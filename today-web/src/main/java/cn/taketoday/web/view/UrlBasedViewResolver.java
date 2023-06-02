@@ -28,6 +28,7 @@ import java.util.Properties;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -526,7 +527,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * @return the View instance
    * @throws Exception if the view couldn't be resolved
    * @see #buildView(String)
-   * @see cn.taketoday.context.aware.ApplicationContextAware#setApplicationContext
+   * @see ApplicationContextAware#setApplicationContext
    * @see cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet
    */
   @Override

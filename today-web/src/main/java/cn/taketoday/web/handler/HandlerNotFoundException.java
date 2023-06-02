@@ -20,11 +20,13 @@
 
 package cn.taketoday.web.handler;
 
+import java.io.Serial;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.web.ErrorResponse;
-import cn.taketoday.web.FrameworkConfigurationException;
+import cn.taketoday.web.InfraConfigurationException;
 
 /**
  * By default when the DispatcherHandler can't find a handler for a request it
@@ -38,29 +40,30 @@ import cn.taketoday.web.FrameworkConfigurationException;
  * @see DispatcherHandler#handlerNotFound(cn.taketoday.web.RequestContext)
  * @since 4.0 2022/1/28 23:19
  */
-@SuppressWarnings("serial")
-public class HandlerNotFoundException extends FrameworkConfigurationException implements ErrorResponse {
+public class HandlerNotFoundException extends InfraConfigurationException implements ErrorResponse {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String httpMethod;
 
-  private final String requestURL;
+  private final String requestURI;
 
-  private final HttpHeaders headers;
+  private final HttpHeaders requestHeaders;
 
   private final ProblemDetail body;
 
   /**
-   * Constructor for NoHandlerFoundException.
+   * Constructor for HandlerNotFoundException.
    *
    * @param httpMethod the HTTP method
-   * @param requestURL the HTTP request URL
+   * @param requestURI the HTTP request URI
    * @param headers the HTTP request headers
    */
-  public HandlerNotFoundException(String httpMethod, String requestURL, HttpHeaders headers) {
-    super("No endpoint " + httpMethod + " " + requestURL + ".");
+  public HandlerNotFoundException(String httpMethod, String requestURI, HttpHeaders headers) {
+    super("No endpoint " + httpMethod + " " + requestURI + ".");
     this.httpMethod = httpMethod;
-    this.requestURL = requestURL;
-    this.headers = headers;
+    this.requestURI = requestURI;
+    this.requestHeaders = headers;
     this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), getMessage());
   }
 
@@ -73,12 +76,15 @@ public class HandlerNotFoundException extends FrameworkConfigurationException im
     return this.httpMethod;
   }
 
-  public String getRequestURL() {
-    return this.requestURL;
+  public String getRequestURI() {
+    return this.requestURI;
   }
 
-  public HttpHeaders getHeaders() {
-    return this.headers;
+  /**
+   * Return the headers of the request.
+   */
+  public HttpHeaders getRequestHeaders() {
+    return this.requestHeaders;
   }
 
   @Override

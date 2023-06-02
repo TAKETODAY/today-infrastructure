@@ -1,19 +1,19 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- * <p>
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * <p>
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * <p>
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * <p>
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -25,10 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -165,6 +167,9 @@ public class FileSystemResource extends AbstractResource implements WritableReso
 
   /**
    * This implementation returns whether the underlying file exists.
+   *
+   * @see java.io.File#exists()
+   * @see java.nio.file.Files#exists(Path, java.nio.file.LinkOption...)
    */
   @Override
   public boolean exists() {
@@ -172,12 +177,34 @@ public class FileSystemResource extends AbstractResource implements WritableReso
   }
 
   /**
-   * This implementation opens a NIO file stream for the underlying file.
+   * This implementation opens an NIO file stream for the underlying file.
+   *
+   * @see java.nio.file.Files#newInputStream(Path, java.nio.file.OpenOption...)
    */
   @Override
   public InputStream getInputStream() throws IOException {
     try {
       return Files.newInputStream(filePath);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() throws IOException {
+    try {
+      return Files.readAllBytes(this.filePath);
+    }
+    catch (NoSuchFileException ex) {
+      throw new FileNotFoundException(ex.getMessage());
+    }
+  }
+
+  @Override
+  public String getContentAsString(Charset charset) throws IOException {
+    try {
+      return Files.readString(this.filePath, charset);
     }
     catch (NoSuchFileException ex) {
       throw new FileNotFoundException(ex.getMessage());
@@ -206,8 +233,24 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    * Return a URI handle for this resource.
    */
   @Override
-  public URI getURI() {
-    return file != null ? file.toURI() : filePath.toUri();
+  public URI getURI() throws IOException {
+    if (this.file != null) {
+      return this.file.toURI();
+    }
+    else {
+      URI uri = this.filePath.toUri();
+      // Normalize URI? See https://github.com/spring-projects/spring-framework/issues/29275
+      String scheme = uri.getScheme();
+      if (ResourceUtils.URL_PROTOCOL_FILE.equals(scheme)) {
+        try {
+          uri = new URI(scheme, uri.getPath(), null);
+        }
+        catch (URISyntaxException ex) {
+          throw new IOException("Failed to normalize URI: " + uri, ex);
+        }
+      }
+      return uri;
+    }
   }
 
   /**
@@ -357,6 +400,8 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    *
    * @see java.io.File#canRead()
    * @see java.io.File#isDirectory()
+   * @see java.nio.file.Files#isReadable(Path)
+   * @see java.nio.file.Files#isDirectory(Path, java.nio.file.LinkOption...)
    */
   @Override
   public boolean isReadable() {

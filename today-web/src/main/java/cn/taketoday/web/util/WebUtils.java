@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,17 +28,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextDecorator;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.session.WebSession;
+import cn.taketoday.web.multipart.Multipart;
 
 /**
  * Miscellaneous utilities for web applications.
@@ -48,6 +48,7 @@ import cn.taketoday.session.WebSession;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public abstract class WebUtils {
   public static final String ERROR_EXCEPTION_ATTRIBUTE = WebUtils.class.getName() + "-context-throwable";
@@ -97,7 +98,7 @@ public abstract class WebUtils {
    */
   public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
     MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
-    if (!StringUtils.hasText(matrixVariables)) {
+    if (StringUtils.isBlank(matrixVariables)) {
       return result;
     }
     StringTokenizer pairs = new StringTokenizer(matrixVariables, ";");
@@ -205,15 +206,15 @@ public abstract class WebUtils {
   /**
    * Remove ";" (semicolon) content from the given request URI
    *
-   * @param requestUri the request URI string to remove ";" content from
+   * @param lookupPath the request URI string to remove ";" content from
    * @return the updated URI string
    */
-  public static String removeSemicolonContent(String requestUri) {
-    int semicolonIndex = requestUri.indexOf(';');
+  public static String removeSemicolonContent(String lookupPath) {
+    int semicolonIndex = lookupPath.indexOf(';');
     if (semicolonIndex == -1) {
-      return requestUri;
+      return lookupPath;
     }
-    StringBuilder sb = new StringBuilder(requestUri);
+    StringBuilder sb = new StringBuilder(lookupPath);
     while (semicolonIndex != -1) {
       int slashIndex = sb.indexOf("/", semicolonIndex + 1);
       if (slashIndex == -1) {
@@ -296,11 +297,11 @@ public abstract class WebUtils {
     return port;
   }
 
-  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, MultipartFile> multipartFiles) {
+  public static void cleanupMultipartRequest(@Nullable MultiValueMap<String, Multipart> multipartFiles) {
     if (CollectionUtils.isNotEmpty(multipartFiles)) {
-      for (Map.Entry<String, List<MultipartFile>> entry : multipartFiles.entrySet()) {
-        List<MultipartFile> value = entry.getValue();
-        for (MultipartFile multipartFile : value) {
+      for (Map.Entry<String, List<Multipart>> entry : multipartFiles.entrySet()) {
+        List<Multipart> value = entry.getValue();
+        for (Multipart multipartFile : value) {
           try {
             multipartFile.delete();
           }

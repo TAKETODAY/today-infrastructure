@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import cn.taketoday.test.context.ContextConfigurationAttributes;
  * {@link ApplicationContextInitializer ApplicationContextInitializers}.
  *
  * <p>Although {@code ApplicationContextInitializerUtils} was first introduced
- * in Spring Framework 4.1, the initial implementations of methods in this class
+ * , the initial implementations of methods in this class
  * were based on the existing code base in {@code ContextLoaderUtils}.
  *
  * @author Sam Brannen

@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public interface RequestPath extends PathContainer {
+public abstract class RequestPath extends PathContainer {
 
   /**
    * Returns the portion of the URL path that represents the application.
@@ -46,13 +46,13 @@ public interface RequestPath extends PathContainer {
    * {@link cn.taketoday.http.server.reactive.ContextPathCompositeHandler
    * ContextPathCompositeHandler}.
    */
-  PathContainer contextPath();
+  public abstract PathContainer contextPath();
 
   /**
    * The portion of the request path after the context path which is typically
    * used for request mapping within the application .
    */
-  PathContainer pathWithinApplication();
+  public abstract PathContainer pathWithinApplication();
 
   /**
    * Return a new {@code RequestPath} instance with a modified context path.
@@ -61,7 +61,7 @@ public interface RequestPath extends PathContainer {
    * @param contextPath the new context path
    * @return a new {@code RequestPath} instance
    */
-  RequestPath modifyContextPath(String contextPath);
+  public abstract RequestPath modifyContextPath(String contextPath);
 
   /**
    * Parse the URI for a request into a {@code RequestPath}.
@@ -69,7 +69,7 @@ public interface RequestPath extends PathContainer {
    * @param uri the URI of the request
    * @param contextPath the contextPath portion of the URI path
    */
-  static RequestPath parse(URI uri, @Nullable String contextPath) {
+  public static RequestPath parse(URI uri, @Nullable String contextPath) {
     return parse(uri.getRawPath(), contextPath);
   }
 
@@ -80,7 +80,7 @@ public interface RequestPath extends PathContainer {
    * @param rawPath the path
    * @param contextPath the contextPath portion of the URI path
    */
-  static RequestPath parse(String rawPath, @Nullable String contextPath) {
+  public static RequestPath parse(String rawPath, @Nullable String contextPath) {
     return new DefaultRequestPath(rawPath, contextPath);
   }
 

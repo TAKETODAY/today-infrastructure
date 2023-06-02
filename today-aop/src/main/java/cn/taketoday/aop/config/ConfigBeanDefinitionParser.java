@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -178,7 +178,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
     advisorDefinition.setSource(parserContext.extractSource(advisorElement));
 
     String adviceRef = advisorElement.getAttribute(ADVICE_REF);
-    if (!StringUtils.hasText(adviceRef)) {
+    if (StringUtils.isBlank(adviceRef)) {
       parserContext.getReaderContext().error(
               "'advice-ref' attribute contains empty value.", advisorElement, parseState.snapshot());
     }
@@ -218,7 +218,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
         if (isAdviceNode(node, parserContext)) {
           if (!adviceFoundAlready) {
             adviceFoundAlready = true;
-            if (!StringUtils.hasText(aspectName)) {
+            if (StringUtils.isBlank(aspectName)) {
               parserContext.getReaderContext().error(
                       "<aspect> tag needs aspect bean reference via 'ref' attribute when declaring advices.",
                       aspectElement, parseState.snapshot());
@@ -287,10 +287,10 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
     String defaultImpl = declareParentsElement.getAttribute(DEFAULT_IMPL);
     String delegateRef = declareParentsElement.getAttribute(DELEGATE_REF);
 
-    if (StringUtils.hasText(defaultImpl) && !StringUtils.hasText(delegateRef)) {
+    if (StringUtils.hasText(defaultImpl) && StringUtils.isBlank(delegateRef)) {
       builder.addConstructorArgValue(defaultImpl);
     }
-    else if (StringUtils.hasText(delegateRef) && !StringUtils.hasText(defaultImpl)) {
+    else if (StringUtils.hasText(delegateRef) && StringUtils.isBlank(defaultImpl)) {
       builder.addConstructorArgReference(delegateRef);
     }
     else {
@@ -476,7 +476,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
     }
     else if (element.hasAttribute(POINTCUT_REF)) {
       String pointcutRef = element.getAttribute(POINTCUT_REF);
-      if (!StringUtils.hasText(pointcutRef)) {
+      if (StringUtils.isBlank(pointcutRef)) {
         parserContext.getReaderContext().error(
                 "'pointcut-ref' attribute contains empty value.", element, parseState.snapshot());
         return null;

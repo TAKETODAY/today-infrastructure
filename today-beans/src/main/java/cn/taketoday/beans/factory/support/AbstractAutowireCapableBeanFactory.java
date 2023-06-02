@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -486,7 +486,10 @@ public abstract class AbstractAutowireCapableBeanFactory
         ((BeanNameAware) bean).setBeanName(beanName);
       }
       if (bean instanceof BeanClassLoaderAware) {
-        ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+        ClassLoader bcl = getBeanClassLoader();
+        if (bcl != null) {
+          ((BeanClassLoaderAware) bean).setBeanClassLoader(bcl);
+        }
       }
       if (bean instanceof BeanFactoryAware) {
         ((BeanFactoryAware) bean).setBeanFactory(this);
@@ -760,7 +763,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @since 4.0
    */
   protected BeanWrapper obtainFromSupplier(RootBeanDefinition merged, Supplier<?> instanceSupplier, String beanName) {
-    Object instance = obtainInstanceFromSupplier(instanceSupplier, beanName);
+    Object instance = obtainInstanceFromSupplier(instanceSupplier, beanName, merged);
     if (instance == null) {
       instance = NullValue.INSTANCE;
     }
@@ -768,12 +771,12 @@ public abstract class AbstractAutowireCapableBeanFactory
     return createBeanWrapper(merged, instance);
   }
 
-  private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName) {
+  private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName, RootBeanDefinition merged) {
     String outerBean = currentlyCreatedBean.get();
     currentlyCreatedBean.set(beanName);
     try {
       if (supplier instanceof InstanceSupplier<?> instanceSupplier) {
-        return instanceSupplier.get(RegisteredBean.of(this, beanName));
+        return instanceSupplier.get(RegisteredBean.of(this, beanName, merged));
       }
       if (supplier instanceof ThrowingSupplier<?> throwableSupplier) {
         return throwableSupplier.getWithException();
@@ -983,6 +986,17 @@ public abstract class AbstractAutowireCapableBeanFactory
       }
       else {
         // Skip property population phase for null instance.
+        return;
+      }
+    }
+
+    if (beanWrapper.getWrappedClass().isRecord()) {
+      if (merged.hasPropertyValues()) {
+        throw new BeanCreationException(
+                merged.getResourceDescription(), beanName, "Cannot apply property values to a record");
+      }
+      else {
+        // Skip property population phase for records since they are immutable.
         return;
       }
     }
@@ -1518,16 +1532,19 @@ public abstract class AbstractAutowireCapableBeanFactory
           if (candidate.getTypeParameters().length > 0) {
             try {
               // Fully resolve parameter names and argument values.
+              ConstructorArgumentValues cav = merged.getConstructorArgumentValues();
+
               Class<?>[] paramTypes = candidate.getParameterTypes();
               String[] paramNames = null;
 
-              ParameterNameDiscoverer pnd = getParameterNameDiscoverer();
-              if (pnd != null) {
-                paramNames = pnd.getParameterNames(candidate);
+              if (cav.containsNamedArgument()) {
+                ParameterNameDiscoverer pnd = getParameterNameDiscoverer();
+                if (pnd != null) {
+                  paramNames = pnd.getParameterNames(candidate);
+                }
               }
 
-              ConstructorArgumentValues cav = merged.getConstructorArgumentValues();
-              HashSet<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
+              var usedValueHolders = new HashSet<ConstructorArgumentValues.ValueHolder>(paramTypes.length);
               Object[] args = new Object[paramTypes.length];
               for (int i = 0; i < args.length; i++) {
                 String requiredName = paramNames != null ? paramNames[i] : null;
@@ -1853,7 +1870,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     for (String beanName : beanNames) {
       Object singletonInstance = getSingleton(beanName);
       if (singletonInstance instanceof SmartInitializingSingleton smartSingleton) {
-        smartSingleton.afterSingletonsInstantiated();
+        smartSingleton.afterSingletonsInstantiated(this);
       }
     }
 
@@ -1979,7 +1996,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * For further types to ignore, invoke this method for each type.
    *
    * @see BeanFactoryAware
-   * @see cn.taketoday.context.aware.ApplicationContextAware
+   * @see cn.taketoday.context.ApplicationContextAware
    * @since 4.0
    */
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,7 +46,7 @@ final class SimpleMetadataReader implements MetadataReader {
   private final AnnotationMetadata annotationMetadata;
 
   SimpleMetadataReader(Resource resource, @Nullable ClassLoader classLoader) throws IOException {
-    SimpleAnnotationMetadataReadingVisitor visitor = new SimpleAnnotationMetadataReadingVisitor(classLoader);
+    var visitor = new SimpleAnnotationMetadataReadingVisitor(classLoader);
     getClassReader(resource).accept(visitor, PARSING_OPTIONS);
     this.resource = resource;
     this.annotationMetadata = visitor.getMetadata();

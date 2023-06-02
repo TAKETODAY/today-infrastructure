@@ -21,7 +21,7 @@
 package cn.taketoday.context.testfixture.beans;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 
 /**
  * @author Juergen Hoeller

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,7 +51,6 @@ public interface TriggerContext {
    * or {@code null} if not scheduled before.
    */
   @Nullable
-  @Deprecated
   default Date lastScheduledExecutionTime() {
     Instant instant = lastScheduledExecution();
     return instant != null ? Date.from(instant) : null;
@@ -68,7 +67,6 @@ public interface TriggerContext {
    * Return the last <i>actual</i> execution time of the task,
    * or {@code null} if not scheduled before.
    */
-  @Deprecated
   @Nullable
   default Date lastActualExecutionTime() {
     Instant instant = lastActualExecution();
@@ -86,7 +84,6 @@ public interface TriggerContext {
    * Return the last completion time of the task,
    * or {@code null} if not scheduled before.
    */
-  @Deprecated
   @Nullable
   default Date lastCompletionTime() {
     Instant instant = lastCompletion();

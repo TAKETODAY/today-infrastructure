@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,6 +47,9 @@ import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletIndicator;
+import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import jakarta.servlet.http.Cookie;
@@ -57,10 +60,11 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 16:36
  */
-public class MockServletRequestContext extends RequestContext {
+public class MockServletRequestContext extends RequestContext implements ServletIndicator {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
+  private final long requestTimeMillis = System.currentTimeMillis();
 
   public MockServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
     this(null, request, response);
@@ -73,12 +77,19 @@ public class MockServletRequestContext extends RequestContext {
     this.response = response;
   }
 
+  @Override
   public HttpServletRequest getRequest() {
     return request;
   }
 
+  @Override
   public HttpServletResponse getResponse() {
     return response;
+  }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
   }
 
   @Override
@@ -111,11 +122,6 @@ public class MockServletRequestContext extends RequestContext {
     return ServletUtils.getNativeRequest(request, requestClass);
   }
 
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return ServletUtils.getNativeResponse(response, responseClass);
-  }
-
   @SuppressWarnings("unchecked")
   public <T> T nativeResponse() {
     return (T) response;
@@ -142,7 +148,7 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetRequestPath() {
+  public String doGetRequestURI() {
     return request.getRequestURI();
   }
 
@@ -264,12 +270,6 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public void setStatus(int status, String message) {
-    response.setStatus(status, message);
-  }
-
-  @Override
   public int getStatus() {
     return response.getStatus();
   }
@@ -292,13 +292,8 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
+  public ServerHttpResponse asHttpOutputMessage() {
     return new ServletServerHttpResponse(response);
-  }
-
-  @Override
-  protected HttpHeaders createResponseHeaders() {
-    return new ServletRequestContext.ServletResponseHttpHeaders(response);
   }
 
   @Override
@@ -320,6 +315,11 @@ public class MockServletRequestContext extends RequestContext {
   @Override
   protected MultipartRequest createMultipartRequest() {
     return new ServletMultipartRequest(request);
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new StandardServletAsyncWebRequest(request, response);
   }
 
   @Override
@@ -435,7 +435,7 @@ public class MockServletRequestContext extends RequestContext {
   }
 
   public void setRequestPath(String requestPath) {
-    this.requestPath = requestPath;
+    this.requestURI = requestPath;
   }
 
   public void setParameters(Map<String, String[]> parameters) {

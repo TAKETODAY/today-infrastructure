@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -279,24 +278,15 @@ abstract class AutowireUtils {
           implements InvocationHandler, Serializable {
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      switch (method.getName()) {
-        case "equals":
-          // Only consider equal when proxies are identical.
-          return (proxy == args[0]);
-        case "hashCode":
-          // Use hashCode of proxy.
-          return System.identityHashCode(proxy);
-        case "toString":
-          return this.objectFactory.toString();
-      }
-      try {
-        return method.invoke(this.objectFactory.get(), args);
-      }
-      catch (InvocationTargetException ex) {
-        throw ex.getTargetException();
-      }
+    public Object invoke(Object proxy, Method method, Object[] args) {
+      return switch (method.getName()) {
+        case "equals" -> (proxy == args[0]); // Only consider equal when proxies are identical.
+        case "hashCode" -> System.identityHashCode(proxy);// Use hashCode of proxy.
+        case "toString" -> objectFactory.toString();
+        default -> ReflectionUtils.invokeMethod(method, objectFactory.get(), args);
+      };
     }
+
   }
 
 }

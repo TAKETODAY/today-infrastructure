@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,13 +20,13 @@
 
 package cn.taketoday.test.context.junit.jupiter.generics;
 
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 
 /**
  * Parameterized test class for integration tests that demonstrate support for
- * Java generics in JUnit Jupiter test classes when used with the Spring TestContext
- * Framework and the {@link ApplicationExtension}.
+ * Java generics in JUnit Jupiter test classes when used with the Infra TestContext
+ * Framework and the {@link InfraExtension}.
  *
  * @author Sam Brannen
  * @since 4.0

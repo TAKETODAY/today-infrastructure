@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -69,7 +69,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
   /**
    * matches a single media type expression to a request's 'Content-Type' header.
    */
-  boolean matchContentType(MediaType contentType) {
+  public boolean matchContentType(MediaType contentType) {
     boolean match = mediaType.includes(contentType) && matchParameters(contentType);
     return !isNegated == match;
   }
@@ -77,7 +77,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
   /**
    * matches a single media type expression to a request's 'Accept' header.
    */
-  boolean matchAccept(List<MediaType> acceptedMediaTypes) {
+  public boolean matchAccept(List<MediaType> acceptedMediaTypes) {
     boolean match = matchMediaType(acceptedMediaTypes);
     return !isNegated == match;
   }
@@ -95,7 +95,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
     for (Map.Entry<String, String> entry : mediaType.getParameters().entrySet()) {
       if (StringUtils.hasText(entry.getValue())) {
         String value = contentType.getParameter(entry.getKey());
-        if (StringUtils.hasText(value) && !entry.getValue().equals(value)) {
+        if (StringUtils.hasText(value) && !entry.getValue().equalsIgnoreCase(value)) {
           return false;
         }
       }

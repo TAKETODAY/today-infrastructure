@@ -41,7 +41,6 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.math.BigInteger;
 import java.sql.CallableStatement;
@@ -55,6 +54,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.annotation.config.jdbc.EmbeddedDataSourceConfiguration;
 import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -70,8 +71,6 @@ import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.core.annotation.Order;
-import cn.taketoday.framework.annotation.config.PropertyPlaceholderAutoConfiguration;
-import cn.taketoday.jdbc.config.EmbeddedDataSourceConfiguration;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.annotation.ConfigurationCustomizer;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,6 +32,7 @@ import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.lang.Assert;
@@ -69,8 +70,8 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   }
 
   @Override
-  public HttpStatus getStatusCode() {
-    HttpStatus status = super.getStatusCode();
+  public HttpStatusCode getStatusCode() {
+    HttpStatusCode status = super.getStatusCode();
     return (status != null ? status : HttpStatus.resolve(this.response.status().code()));
   }
 
@@ -126,26 +127,15 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   @Override
   protected void touchDataBuffer(DataBuffer buffer) {
     if (logger.isDebugEnabled()) {
-      if (ReactorServerHttpRequest.reactorNettyRequestChannelOperationsIdPresent
-              && ChannelOperationsIdHelper.touch(buffer, this.response)) {
-        return;
+      if (response instanceof ChannelOperationsId operationsId) {
+        DataBufferUtils.touch(buffer, "Channel id: " + operationsId.asLongText());
       }
-      this.response.withConnection(connection -> {
-        ChannelId id = connection.channel().id();
-        DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
-      });
-    }
-  }
-
-  private static class ChannelOperationsIdHelper {
-
-    public static boolean touch(DataBuffer dataBuffer, HttpServerResponse response) {
-      if (response instanceof ChannelOperationsId) {
-        String id = ((ChannelOperationsId) response).asLongText();
-        DataBufferUtils.touch(dataBuffer, "Channel id: " + id);
-        return true;
+      else {
+        response.withConnection(connection -> {
+          ChannelId id = connection.channel().id();
+          DataBufferUtils.touch(buffer, "Channel id: " + id.asShortText());
+        });
       }
-      return false;
     }
   }
 

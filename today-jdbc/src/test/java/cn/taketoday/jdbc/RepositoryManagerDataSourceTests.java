@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,10 +58,10 @@ public class RepositoryManagerDataSourceTests {
             "text varchar(255), " +
             "aNumber int, " +
             "aLongNumber bigint)";
-    manager.createQuery(sql).setName("testExecuteAndFetchWithNulls").executeUpdate();
+    manager.createNamedQuery(sql).setName("testExecuteAndFetchWithNulls").executeUpdate();
 
     manager.runInTransaction((connection, argument) -> {
-      Query insQuery = connection.createQuery(
+      NamedQuery insQuery = connection.createNamedQuery(
               "insert into testExecWithNullsTbl (text, aNumber, aLongNumber) values(:text, :number, :lnum)");
       insQuery.addParameter("text", "some text").addParameter("number", 2).addParameter("lnum", 10L).executeUpdate();
       insQuery.addParameter("text", "some text").addParameter("number", (Integer) null).addParameter("lnum", 10L).executeUpdate();
@@ -70,7 +70,7 @@ public class RepositoryManagerDataSourceTests {
       insQuery.addParameter("text", "some text").addParameter("number", 2311).addParameter("lnum", 12).executeUpdate();
     });
 
-    List<Entity> fetched = manager.createQuery("select * from testExecWithNullsTbl").fetch(Entity.class);
+    List<Entity> fetched = manager.createNamedQuery("select * from testExecWithNullsTbl").fetch(Entity.class);
 
     assertEquals(5, fetched.size());
     assertNull(fetched.get(2).text);

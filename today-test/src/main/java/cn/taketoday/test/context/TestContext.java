@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,7 +59,7 @@ public interface TestContext extends AttributeAccessor, Serializable {
    * <p>The default implementation of this method always returns {@code false}.
    * Custom {@code TestContext} implementations are therefore highly encouraged
    * to override this method with a more meaningful implementation. Note that
-   * the standard {@code TestContext} implementation in Spring overrides this
+   * the standard {@code TestContext} implementation in Infra overrides this
    * method appropriately.
    *
    * @return {@code true} if the application context has already been loaded

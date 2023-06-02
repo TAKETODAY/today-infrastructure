@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.logging;
@@ -64,18 +64,6 @@ class Slf4jLogger extends Logger {
   }
 
   @Override
-  protected void logInternal(Level level, Object msg, Throwable t) {
-    String message = String.valueOf(msg);
-    switch (level) {
-      case DEBUG -> target.debug(message, t);
-      case ERROR -> target.error(message, t);
-      case TRACE -> target.trace(message, t);
-      case WARN -> target.warn(message, t);
-      default -> target.info(message, t);
-    }
-  }
-
-  @Override
   protected void logInternal(Level level, String format, Throwable t, Object[] args) {
     final String msg = MessageFormatter.format(format, args);
     switch (level) {
@@ -99,12 +87,6 @@ final class LocationAwareSlf4jLogger extends Slf4jLogger {
   public LocationAwareSlf4jLogger(LocationAwareLogger log) {
     super(log);
     this.log = log;
-  }
-
-  @Override
-  protected void logInternal(Level level, Object msg, Throwable t) {
-    String message = String.valueOf(msg);
-    log.log(null, FQCN, getLevel(level), message, null, t);
   }
 
   private static int getLevel(Level level) {

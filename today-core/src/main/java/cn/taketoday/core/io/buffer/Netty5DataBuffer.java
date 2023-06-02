@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,14 +22,15 @@ package cn.taketoday.core.io.buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import io.netty5.buffer.api.Buffer;
-import io.netty5.util.AsciiString;
+import io.netty5.buffer.Buffer;
+import io.netty5.buffer.BufferComponent;
+import io.netty5.buffer.ComponentIterator;
 
 /**
  * Implementation of the {@code DataBuffer} interface that wraps a Netty 5
@@ -39,8 +40,8 @@ import io.netty5.util.AsciiString;
  * @author Arjen Poutsma
  * @since 4.0
  */
-public final class Netty5DataBuffer implements CloseableDataBuffer,
-        TouchableDataBuffer {
+public final class Netty5DataBuffer
+        implements CloseableDataBuffer, TouchableDataBuffer {
 
   private final Buffer buffer;
 
@@ -53,7 +54,7 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
    */
   Netty5DataBuffer(Buffer buffer, Netty5DataBufferFactory dataBufferFactory) {
     Assert.notNull(buffer, "Buffer must not be null");
-    Assert.notNull(dataBufferFactory, "NettyDataBufferFactory must not be null");
+    Assert.notNull(dataBufferFactory, "Netty5DataBufferFactory must not be null");
     this.buffer = buffer;
     this.dataBufferFactory = dataBufferFactory;
   }
@@ -139,7 +140,6 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
   }
 
   @Override
-  @Deprecated
   public Netty5DataBuffer capacity(int capacity) {
     if (capacity <= 0) {
       throw new IllegalArgumentException(String.format("'newCapacity' %d must be higher than 0", capacity));
@@ -153,7 +153,7 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
 
   @Override
   public DataBuffer ensureWritable(int capacity) {
-    Assert.isTrue(capacity >= 0, "Capacity must be larger than 0");
+    Assert.isTrue(capacity >= 0, "Capacity must be >= 0");
     this.buffer.ensureWritable(capacity);
     return this;
   }
@@ -193,20 +193,20 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
   }
 
   @Override
-  public Netty5DataBuffer write(DataBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
-      if (hasNetty5DataBuffers(buffers)) {
-        Buffer[] nativeBuffers = new Buffer[buffers.length];
-        for (int i = 0; i < buffers.length; i++) {
-          nativeBuffers[i] = ((Netty5DataBuffer) buffers[i]).getNativeBuffer();
+  public Netty5DataBuffer write(DataBuffer... dataBuffers) {
+    if (!ObjectUtils.isEmpty(dataBuffers)) {
+      if (hasNetty5DataBuffers(dataBuffers)) {
+        Buffer[] nativeBuffers = new Buffer[dataBuffers.length];
+        for (int i = 0; i < dataBuffers.length; i++) {
+          nativeBuffers[i] = ((Netty5DataBuffer) dataBuffers[i]).getNativeBuffer();
         }
         return write(nativeBuffers);
       }
       else {
-        ByteBuffer[] byteBuffers = new ByteBuffer[buffers.length];
-        for (int i = 0; i < buffers.length; i++) {
-          byteBuffers[i] = buffers[i].toByteBuffer();
-
+        ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
+        for (int i = 0; i < dataBuffers.length; i++) {
+          byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableByteCount());
+          dataBuffers[i].toByteBuffer(byteBuffers[i]);
         }
         return write(byteBuffers);
       }
@@ -254,13 +254,7 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
     Assert.notNull(charSequence, "CharSequence must not be null");
     Assert.notNull(charset, "Charset must not be null");
 
-    if (StandardCharsets.US_ASCII.equals(charset) && charSequence instanceof AsciiString asciiString) {
-      this.buffer.writeBytes(asciiString.array(), asciiString.arrayOffset(), asciiString.length());
-    }
-    else {
-      byte[] bytes = charSequence.toString().getBytes(charset);
-      this.buffer.writeBytes(bytes);
-    }
+    this.buffer.writeCharSequence(charSequence, charset);
     return this;
   }
 
@@ -271,7 +265,6 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
    * does <strong>not</strong> share its contents with this buffer.
    */
   @Override
-  @Deprecated
   public DataBuffer slice(int index, int length) {
     Buffer copy = this.buffer.copy(index, length);
     return new Netty5DataBuffer(copy, this.dataBufferFactory);
@@ -284,19 +277,16 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer() {
     return toByteBuffer();
   }
 
   @Override
-  @Deprecated
   public ByteBuffer asByteBuffer(int index, int length) {
     return toByteBuffer(index, length);
   }
 
   @Override
-  @Deprecated
   public ByteBuffer toByteBuffer(int index, int length) {
     ByteBuffer copy = this.buffer.isDirect() ?
                       ByteBuffer.allocateDirect(length) :
@@ -304,6 +294,21 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
 
     this.buffer.copyInto(index, copy, 0, length);
     return copy;
+  }
+
+  @Override
+  public void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
+    buffer.copyInto(srcPos, dest, destPos, length);
+  }
+
+  @Override
+  public ByteBufferIterator readableByteBuffers() {
+    return new BufferComponentIterator<>(buffer.forEachComponent(), true);
+  }
+
+  @Override
+  public ByteBufferIterator writableByteBuffers() {
+    return new BufferComponentIterator<>(buffer.forEachComponent(), false);
   }
 
   @Override
@@ -331,6 +336,7 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
     this.buffer.close();
   }
 
+  @Override
   public boolean equals(@Nullable Object other) {
     return (this == other || (other instanceof Netty5DataBuffer dataBuffer &&
             this.buffer.equals(dataBuffer.buffer)));
@@ -344,6 +350,53 @@ public final class Netty5DataBuffer implements CloseableDataBuffer,
   @Override
   public String toString() {
     return this.buffer.toString();
+  }
+
+  private static final class BufferComponentIterator<T extends BufferComponent & ComponentIterator.Next>
+          implements ByteBufferIterator {
+
+    private final ComponentIterator<T> delegate;
+
+    private final boolean readable;
+
+    @Nullable
+    private T next;
+
+    public BufferComponentIterator(ComponentIterator<T> delegate, boolean readable) {
+      Assert.notNull(delegate, "Delegate must not be null");
+      this.delegate = delegate;
+      this.readable = readable;
+      this.next = readable ? this.delegate.firstReadable() : this.delegate.firstWritable();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return this.next != null;
+    }
+
+    @Override
+    public ByteBuffer next() {
+      if (next != null) {
+        ByteBuffer result;
+        if (readable) {
+          result = next.readableBuffer();
+          this.next = next.nextReadable();
+        }
+        else {
+          result = next.writableBuffer();
+          this.next = next.nextWritable();
+        }
+        return result;
+      }
+      else {
+        throw new NoSuchElementException();
+      }
+    }
+
+    @Override
+    public void close() {
+      this.delegate.close();
+    }
   }
 
 }

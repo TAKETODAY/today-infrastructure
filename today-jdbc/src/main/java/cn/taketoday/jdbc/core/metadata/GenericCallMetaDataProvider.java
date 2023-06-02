@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -363,7 +363,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       }
       else if (found.isEmpty()) {
         if (metaDataProcedureName != null && metaDataProcedureName.contains(".") &&
-                !StringUtils.hasText(metaDataCatalogName)) {
+                StringUtils.isBlank(metaDataCatalogName)) {
           String packageName = metaDataProcedureName.substring(0, metaDataProcedureName.indexOf('.'));
           throw new InvalidDataAccessApiUsageException(
                   "Unable to determine the correct call signature for '" + metaDataProcedureName +

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,8 +52,9 @@ import cn.taketoday.util.ClassUtils;
  * the container. Such a DataSource can be exposed as a DataSource bean in a Framework
  * ApplicationContext via {@link cn.taketoday.jndi.JndiObjectFactoryBean},
  * for seamless switching to and from a local DataSource bean like this class.
- * For tests, you can switch the bean definition to a local DataSource
- * (which is simpler and thus recommended).
+ * For tests, you can then either set up a mock JNDI environment through complete
+ * solutions from third parties such as <a href="https://github.com/h-thurow/Simple-JNDI">Simple-JNDI</a>,
+ * or switch the bean definition to a local DataSource (which is simpler and thus recommended).
  *
  * <p>This {@code DriverManagerDataSource} class was originally designed alongside
  * <a href="https://commons.apache.org/proper/commons-dbcp">Apache Commons DBCP</a>

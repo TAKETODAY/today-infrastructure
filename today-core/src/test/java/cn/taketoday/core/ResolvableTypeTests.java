@@ -52,6 +52,7 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.core.ResolvableType.VariableResolver;
+import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -122,7 +123,6 @@ public class ResolvableTypeTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void resolveTypeVariableFromMethodParameterTypeWithImplementsClass() throws Exception {
     Method method = Methods.class.getMethod("typedParameter", Object.class);
     final Parameter[] parameters = method.getParameters();
@@ -314,10 +314,11 @@ public class ResolvableTypeTests {
     assertThat(typeVariable.isAssignableFrom(raw)).isTrue();
   }
 
-	@Test  // gh-28776
-	void forInstanceNull() throws Exception {
-		Assertions.assertThat(ResolvableType.fromInstance(null)).isEqualTo(ResolvableType.NONE);
-	}
+  @Test
+    // gh-28776
+  void forInstanceNull() throws Exception {
+    Assertions.assertThat(ResolvableType.fromInstance(null)).isEqualTo(ResolvableType.NONE);
+  }
 
   @Test
   void forInstanceNoProvider() throws Exception {
@@ -859,7 +860,7 @@ public class ResolvableTypeTests {
     assertThat(forField("stringListList")).hasToString("java.util.List<java.util.List<java.lang.String>>");
     assertThat(forField("stringArrayList")).hasToString("java.util.List<java.lang.String[]>");
     assertThat(forField("stringIntegerMultiValueMap"))
-            .hasToString("cn.taketoday.core.MultiValueMap<java.lang.String, java.lang.Integer>");
+            .hasToString("cn.taketoday.util.MultiValueMap<java.lang.String, java.lang.Integer>");
     assertThat(forField("stringIntegerMultiValueMapSwitched"))
             .hasToString(VariableNameSwitch.class.getName() + "<java.lang.Integer, java.lang.String>");
     assertThat(forField("listOfListOfUnknown")).hasToString("java.util.List<java.util.List<?>>");

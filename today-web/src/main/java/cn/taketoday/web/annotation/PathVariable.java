@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,10 +15,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -29,7 +30,7 @@ import cn.taketoday.lang.Constant;
 
 /**
  * This annotation may be used to annotate method parameters on request mappings
- * where a URI-template has been used in the path-mapping of the {@link ActionMapping}
+ * where a URI-template has been used in the path-mapping of the {@link RequestMapping}
  * annotation. The method parameter may be of type String, any Java primitive
  * type or any boxed version thereof.
  *
@@ -59,6 +60,7 @@ import cn.taketoday.lang.Constant;
  *
  * @author TODAY 2018-06-29 16:27:12
  */
+@Documented
 @RequestParam
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)

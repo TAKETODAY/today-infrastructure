@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,9 +48,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
@@ -1096,7 +1096,7 @@ public abstract class HttpHeaders
    * Return the {@linkplain MediaType media type} of the body, as specified by the
    * {@code Content-Type} header.
    * <p>
-   * Returns {@code null} when the content-type is unknown.
+   * Returns {@code null} when the {@code Content-Type} header is not set.
    *
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
@@ -1676,12 +1676,59 @@ public abstract class HttpHeaders
       ArrayList<String> result = new ArrayList<>();
       for (String value : values) {
         if (value != null) {
-          Collections.addAll(result, StringUtils.tokenizeToStringArray(value, ","));
+          result.addAll(tokenizeQuoted(value));
         }
       }
       return result;
     }
     return Collections.emptyList();
+  }
+
+  private static List<String> tokenizeQuoted(String str) {
+    List<String> tokens = new ArrayList<>();
+    boolean quoted = false;
+    boolean trim = true;
+    StringBuilder builder = new StringBuilder(str.length());
+    for (int i = 0; i < str.length(); ++i) {
+      char ch = str.charAt(i);
+      if (ch == '"') {
+        if (builder.isEmpty()) {
+          quoted = true;
+        }
+        else if (quoted) {
+          quoted = false;
+          trim = false;
+        }
+        else {
+          builder.append(ch);
+        }
+      }
+      else if (ch == '\\' && quoted && i < str.length() - 1) {
+        builder.append(str.charAt(++i));
+      }
+      else if (ch == ',' && !quoted) {
+        addToken(builder, tokens, trim);
+        builder.setLength(0);
+        trim = false;
+      }
+      else if (quoted || (!builder.isEmpty() && trim) || !Character.isWhitespace(ch)) {
+        builder.append(ch);
+      }
+    }
+    if (!builder.isEmpty()) {
+      addToken(builder, tokens, trim);
+    }
+    return tokens;
+  }
+
+  private static void addToken(StringBuilder builder, List<String> tokens, boolean trim) {
+    String token = builder.toString();
+    if (trim) {
+      token = token.trim();
+    }
+    if (!token.isEmpty()) {
+      tokens.add(token);
+    }
   }
 
   /**

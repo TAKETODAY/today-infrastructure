@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.http.server.reactive;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
@@ -29,21 +28,21 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLSession;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpLogging;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.ssl.SslHandler;
 import reactor.core.publisher.Flux;
+import reactor.netty.ChannelOperationsId;
 import reactor.netty.Connection;
 import reactor.netty.http.server.HttpServerRequest;
 
@@ -52,89 +51,25 @@ import reactor.netty.http.server.HttpServerRequest;
  *
  * @author Stephane Maldini
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
-  /** Reactor Netty 1.0.5+. */
-  static final boolean reactorNettyRequestChannelOperationsIdPresent = ClassUtils.isPresent(
-          "reactor.netty.ChannelOperationsId", ReactorServerHttpRequest.class.getClassLoader());
-
   private static final Logger logger = HttpLogging.forLogName(ReactorServerHttpRequest.class);
+
   private static final AtomicLong logPrefixIndex = new AtomicLong();
 
   private final HttpServerRequest request;
   private final NettyDataBufferFactory bufferFactory;
 
-  public ReactorServerHttpRequest(
-          HttpServerRequest request, NettyDataBufferFactory bufferFactory) throws URISyntaxException {
-    super(initUri(request), "", new NettyHeadersAdapter(request.requestHeaders()));
+  public ReactorServerHttpRequest(HttpServerRequest request,
+          NettyDataBufferFactory bufferFactory) throws URISyntaxException {
+    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), "",
+            new NettyHeadersAdapter(request.requestHeaders()));
     Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
     this.request = request;
     this.bufferFactory = bufferFactory;
-  }
-
-  private static URI initUri(HttpServerRequest request) throws URISyntaxException {
-    Assert.notNull(request, "HttpServerRequest must not be null");
-    return new URI(resolveBaseUrl(request) + resolveRequestUri(request));
-  }
-
-  private static URI resolveBaseUrl(HttpServerRequest request) throws URISyntaxException {
-    String scheme = getScheme(request);
-    String header = request.requestHeaders().get(HttpHeaderNames.HOST);
-    if (header != null) {
-      final int portIndex;
-      if (header.startsWith("[")) {
-        portIndex = header.indexOf(':', header.indexOf(']'));
-      }
-      else {
-        portIndex = header.indexOf(':');
-      }
-      if (portIndex != -1) {
-        try {
-          return new URI(scheme, null, header.substring(0, portIndex),
-                  Integer.parseInt(header.substring(portIndex + 1)), null, null, null);
-        }
-        catch (NumberFormatException ex) {
-          throw new URISyntaxException(header, "Unable to parse port", portIndex);
-        }
-      }
-      else {
-        return new URI(scheme, header, null, null);
-      }
-    }
-    else {
-      InetSocketAddress localAddress = request.hostAddress();
-      Assert.state(localAddress != null, "No host address available");
-      return new URI(scheme, null, localAddress.getHostString(),
-              localAddress.getPort(), null, null, null);
-    }
-  }
-
-  private static String getScheme(HttpServerRequest request) {
-    return request.scheme();
-  }
-
-  private static String resolveRequestUri(HttpServerRequest request) {
-    String uri = request.uri();
-    for (int i = 0; i < uri.length(); i++) {
-      char c = uri.charAt(i);
-      if (c == '/' || c == '?' || c == '#') {
-        break;
-      }
-      if (c == ':' && (i + 2 < uri.length())) {
-        if (uri.charAt(i + 1) == '/' && uri.charAt(i + 2) == '/') {
-          for (int j = i + 3; j < uri.length(); j++) {
-            c = uri.charAt(j);
-            if (c == '/' || c == '?' || c == '#') {
-              return uri.substring(j);
-            }
-          }
-          return "";
-        }
-      }
-    }
-    return uri;
   }
 
   @Override
@@ -204,30 +139,18 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected String initLogPrefix() {
-    if (reactorNettyRequestChannelOperationsIdPresent) {
-      String id = (ChannelOperationsIdHelper.getId(this.request));
-      if (id != null) {
-        return id;
-      }
+    String id = null;
+    if (request instanceof ChannelOperationsId operationsId) {
+      id = logger.isDebugEnabled() ? operationsId.asLongText() : operationsId.asShortText();
     }
-    if (this.request instanceof Connection) {
-      return ((Connection) this.request).channel().id().asShortText() +
+    if (id != null) {
+      return id;
+    }
+    if (request instanceof Connection) {
+      return ((Connection) request).channel().id().asShortText() +
               "-" + logPrefixIndex.incrementAndGet();
     }
     return getId();
-  }
-
-  private static class ChannelOperationsIdHelper {
-
-    @Nullable
-    public static String getId(HttpServerRequest request) {
-      if (request instanceof reactor.netty.ChannelOperationsId) {
-        return logger.isDebugEnabled()
-               ? ((reactor.netty.ChannelOperationsId) request).asLongText()
-               : ((reactor.netty.ChannelOperationsId) request).asShortText();
-      }
-      return null;
-    }
   }
 
 }

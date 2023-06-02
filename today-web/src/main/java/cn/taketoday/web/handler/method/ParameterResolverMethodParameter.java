@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler.method;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
@@ -30,7 +31,9 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
  */
 public class ParameterResolverMethodParameter extends ResolvableMethodParameter {
   private final ParameterResolvingRegistry resolvers;
-  private ParameterResolvingStrategy resolver;
+
+  @Nullable
+  private ParameterResolvingStrategy strategy;
 
   public ParameterResolverMethodParameter(
           ResolvableMethodParameter other, ParameterResolvingRegistry resolvers) {
@@ -50,13 +53,14 @@ public class ParameterResolverMethodParameter extends ResolvableMethodParameter 
   }
 
   @Override
+  @Nullable
   public Object resolveParameter(final RequestContext request) throws Throwable {
-    ParameterResolvingStrategy resolver = this.resolver;
-    if (resolver == null) {
-      resolver = resolvers.obtainStrategy(this);
-      this.resolver = resolver;
+    ParameterResolvingStrategy strategy = this.strategy;
+    if (strategy == null) {
+      strategy = resolvers.obtainStrategy(this);
+      this.strategy = strategy;
     }
-    return resolver.resolveArgument(request, this);
+    return strategy.resolveArgument(request, this);
   }
 
   @Override

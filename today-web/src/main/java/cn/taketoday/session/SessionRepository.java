@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.session;
 
 import cn.taketoday.lang.Nullable;
@@ -40,6 +41,18 @@ public interface SessionRepository {
    * @since 4.0
    */
   WebSession createSession();
+
+  /**
+   * Create a new WebSession with given session id.
+   * <p>Note that this does nothing more than create a new instance.
+   * The session can later be started explicitly via {@link WebSession#start()}
+   * or implicitly by adding attributes -- and then persisted via
+   * {@link WebSession#save()}.
+   *
+   * @return the created session instance
+   * @since 4.0
+   */
+  WebSession createSession(String id);
 
   /**
    * Return the WebSession for the given id.

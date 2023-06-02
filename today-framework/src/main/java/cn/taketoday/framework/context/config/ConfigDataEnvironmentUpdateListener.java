@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * {@link ConfigDataEnvironmentPostProcessor}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ConfigDataEnvironmentUpdateListener extends EventListener {
@@ -47,8 +48,8 @@ public interface ConfigDataEnvironmentUpdateListener extends EventListener {
    * @param location the original {@link ConfigDataLocation} of the source.
    * @param resource the {@link ConfigDataResource} of the source.
    */
-  default void onPropertySourceAdded(PropertySource<?> propertySource, ConfigDataLocation location,
-          @Nullable ConfigDataResource resource) {
+  default void onPropertySourceAdded(PropertySource<?> propertySource,
+          ConfigDataLocation location, @Nullable ConfigDataResource resource) {
   }
 
   /**

@@ -21,6 +21,7 @@
 package cn.taketoday.framework;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 
 /**
  * Filter that can be used to exclude beans definitions from having their
@@ -39,7 +40,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
  * }
  * </pre>
  * <p>
- * NOTE: Beans of this type will be instantiated very early in the spring application
+ * NOTE: Beans of this type will be instantiated very early in the Infra application
  * lifecycle so they should generally be declared static and not have any dependencies.
  *
  * @author Tyler Van Gorder

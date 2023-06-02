@@ -91,7 +91,7 @@ class ConfigDataEnvironmentPostProcessorTests {
   }
 
   @Test
-  void postProcessEnvironmentWhenHasAdditionalProfilesOnSpringApplicationUsesAdditionalProfiles() {
+  void postProcessEnvironmentWhenHasAdditionalProfilesOnApplicationUsesAdditionalProfiles() {
     this.application.setAdditionalProfiles("dev");
     willReturn(this.configDataEnvironment).given(this.postProcessor).getConfigDataEnvironment(any(), any(), any());
     this.postProcessor.postProcessEnvironment(this.environment, this.application);

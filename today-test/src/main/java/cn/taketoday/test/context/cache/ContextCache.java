@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import cn.taketoday.test.context.MergedContextConfiguration;
  *
  * <h3>Rationale</h3>
  * <p>Context caching can have significant performance benefits if context
- * initialization is complex. Although the initialization of a Spring context
+ * initialization is complex. Although the initialization of a Infra context
  * itself is typically very quick, some beans in a context &mdash; for example,
  * an embedded database or a {@code LocalContainerEntityManagerFactoryBean} for
  * working with JPA &mdash; may take several seconds to initialize. Hence it
@@ -76,7 +76,7 @@ public interface ContextCache {
    * @see #DEFAULT_MAX_CONTEXT_CACHE_SIZE
    * @since 4.0
    */
-  String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "context.test.context.cache.maxSize";
+  String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "infra.test.context.cache.maxSize";
 
   /**
    * Determine whether there is a cached context for the given key.

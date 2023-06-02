@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,17 +20,19 @@
 
 package cn.taketoday.expression.spel.ast;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.StringJoiner;
 
+import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypeConverter;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -72,14 +74,24 @@ public class FunctionReference extends SpelNodeImpl {
     if (value == TypedValue.NULL) {
       throw new SpelEvaluationException(getStartPosition(), SpelMessage.FUNCTION_NOT_DEFINED, this.name);
     }
-    if (!(value.getValue() instanceof Method)) {
+    Object resolvedValue = value.getValue();
+    if (resolvedValue instanceof MethodHandle methodHandle) {
+      try {
+        return executeFunctionBoundMethodHandle(state, methodHandle);
+      }
+      catch (SpelEvaluationException ex) {
+        ex.setPosition(getStartPosition());
+        throw ex;
+      }
+    }
+    if (!(resolvedValue instanceof Method function)) {
       // Possibly a static Java method registered as a function
       throw new SpelEvaluationException(
               SpelMessage.FUNCTION_REFERENCE_CANNOT_BE_INVOKED, this.name, value.getClass());
     }
 
     try {
-      return executeFunctionJLRMethod(state, (Method) value.getValue());
+      return executeFunctionJLRMethod(state, function);
     }
     catch (SpelEvaluationException ex) {
       ex.setPosition(getStartPosition());
@@ -138,6 +150,76 @@ public class FunctionReference extends SpelNodeImpl {
         this.exitTypeDescriptor = null;
         this.method = null;
       }
+    }
+  }
+
+  /**
+   * Execute a function represented as {@code java.lang.invoke.MethodHandle}.
+   * Method types that take no arguments (fully bound handles or static methods
+   * with no parameters) can use {@code #invoke()} which is the most efficient.
+   * Otherwise, {@code #invokeWithArguments)} is used.
+   *
+   * @param state the expression evaluation state
+   * @param methodHandle the method to invoke
+   * @return the return value of the invoked Java method
+   * @throws EvaluationException if there is any problem invoking the method
+   */
+  private TypedValue executeFunctionBoundMethodHandle(ExpressionState state, MethodHandle methodHandle) throws EvaluationException {
+    Object[] functionArgs = getArguments(state);
+    MethodType declaredParams = methodHandle.type();
+    int spelParamCount = functionArgs.length;
+    int declaredParamCount = declaredParams.parameterCount();
+
+    boolean isSuspectedVarargs = declaredParams.lastParameterType().isArray();
+
+    if (spelParamCount < declaredParamCount || (spelParamCount > declaredParamCount
+            && !isSuspectedVarargs)) {
+      //incorrect number, including more arguments and not a vararg
+      throw new SpelEvaluationException(SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION,
+              functionArgs.length, declaredParamCount);
+      //perhaps a subset of arguments was provided but the MethodHandle wasn't bound?
+    }
+
+    // simplest case: the MethodHandle is fully bound or represents a static method with no params:
+    if (declaredParamCount == 0) {
+      //note we consider MethodHandles not compilable
+      try {
+        return new TypedValue(methodHandle.invoke());
+      }
+      catch (Throwable ex) {
+        throw new SpelEvaluationException(getStartPosition(), ex, SpelMessage.EXCEPTION_DURING_FUNCTION_CALL,
+                this.name, ex.getMessage());
+      }
+      finally {
+        this.exitTypeDescriptor = null;
+        this.method = null;
+      }
+    }
+
+    // more complex case, we need to look at conversion and vararg repacking
+    Integer varArgPosition = null;
+    if (isSuspectedVarargs) {
+      varArgPosition = declaredParamCount - 1;
+    }
+    TypeConverter converter = state.getEvaluationContext().getTypeConverter();
+    ReflectionHelper.convertAllMethodHandleArguments(converter, functionArgs, methodHandle, varArgPosition);
+    if (isSuspectedVarargs && declaredParamCount == 1) {
+      //we only repack the varargs if it is the ONLY argument
+      functionArgs = ReflectionHelper.setupArgumentsForVarargsInvocation(
+              methodHandle.type().parameterArray(), functionArgs);
+    }
+
+    //note we consider MethodHandles not compilable
+    try {
+      return new TypedValue(methodHandle.invokeWithArguments(functionArgs));
+    }
+    catch (Throwable ex) {
+      throw new SpelEvaluationException(getStartPosition(), ex, SpelMessage.EXCEPTION_DURING_FUNCTION_CALL,
+              this.name, ex.getMessage());
+    }
+    finally {
+      this.exitTypeDescriptor = null;
+      this.method = null;
     }
   }
 

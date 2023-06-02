@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,10 +20,23 @@
 
 package cn.taketoday.web.multipart;
 
+import java.io.IOException;
+
 import cn.taketoday.http.HttpHeaders;
 
 /**
+ * Representation for a part in a "multipart/form-data" request.
+ *
+ * <p>The origin of a multipart request may be a browser form in which case each
+ * part is either a FormField or a {@link MultipartFile}.
+ *
+ * <p>Multipart requests may also be used outside of a browser for data of any
+ * content type (e.g. JSON, PDF, etc).
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7578">RFC 7578 (multipart/form-data)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2183">RFC 2183 (Content-Disposition)</a>
+ * @see <a href="https://www.w3.org/TR/html5/forms.html#multipart-form-data">HTML5 (multipart forms)</a>
  * @since 4.0 2022/4/28 22:04
  */
 public interface Multipart {
@@ -36,6 +49,20 @@ public interface Multipart {
   String getName();
 
   /**
+   * Return the form field value.
+   */
+  String getValue();
+
+  /**
+   * Determines whether or not a {@code Multipart} instance represents
+   * a simple form field.
+   *
+   * @return {@code true} if the instance represents a simple form
+   * field; {@code false} if it represents an uploaded file.
+   */
+  boolean isFormField();
+
+  /**
    * Return the headers for the specified part of the multipart request.
    * <p>If the underlying implementation supports access to part headers,
    * then all headers are returned. Otherwise, e.g. for a file upload, the
@@ -44,10 +71,11 @@ public interface Multipart {
   HttpHeaders getHeaders();
 
   /**
-   * Get upload file content type.
+   * Deletes the underlying storage for a file item, including deleting any
+   * associated temporary disk file.
    *
-   * @return upload file content type
+   * @throws IOException if an error occurs.
    */
-  String getContentType();
+  void delete() throws IOException;
 
 }

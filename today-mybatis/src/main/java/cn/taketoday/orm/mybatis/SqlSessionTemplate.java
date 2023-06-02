@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -421,11 +421,12 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    * {@code PersistenceExceptionTranslator}.
    */
   private <R> R execute(Function<SqlSession, R> function) {
-    SqlSession sqlSession = SqlSessionUtils.getSqlSession(
-            sqlSessionFactory, executorType, exceptionTranslator);
+    SqlSessionFactory sessionFactory = sqlSessionFactory;
+    PersistenceExceptionTranslator translator = exceptionTranslator;
+    SqlSession sqlSession = SqlSessionUtils.getSqlSession(sessionFactory, executorType, translator);
     try {
       R result = function.apply(sqlSession);
-      if (!SqlSessionUtils.isSqlSessionTransactional(sqlSession, sqlSessionFactory)) {
+      if (!SqlSessionUtils.isSqlSessionTransactional(sqlSession, sessionFactory)) {
         // force commit even on non-dirty sessions because some databases require
         // a commit/rollback before calling close()
         sqlSession.commit(true);
@@ -434,11 +435,11 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     }
     catch (Throwable t) {
       Throwable unwrapped = unwrapThrowable(t);
-      if (exceptionTranslator != null && unwrapped instanceof PersistenceException) {
+      if (translator != null && unwrapped instanceof PersistenceException) {
         // release the connection to avoid a deadlock if the translator is no loaded. See issue #22
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        SqlSessionUtils.closeSqlSession(sqlSession, sessionFactory);
         sqlSession = null;
-        Throwable translated = exceptionTranslator.translateExceptionIfPossible((PersistenceException) unwrapped);
+        Throwable translated = translator.translateExceptionIfPossible((PersistenceException) unwrapped);
         if (translated != null) {
           unwrapped = translated;
         }
@@ -447,7 +448,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     }
     finally {
       if (sqlSession != null) {
-        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        SqlSessionUtils.closeSqlSession(sqlSession, sessionFactory);
       }
     }
   }

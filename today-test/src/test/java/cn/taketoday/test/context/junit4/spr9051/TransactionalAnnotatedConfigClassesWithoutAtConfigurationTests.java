@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -91,7 +91,7 @@ public class TransactionalAnnotatedConfigClassesWithoutAtConfigurationTests exte
      * </ol>
      *
      * Consequently, the {@link JdbcTemplate} used by this test instance and
-     * the {@link PlatformTransactionManager} used by the Spring TestContext
+     * the {@link PlatformTransactionManager} used by the Infra TestContext
      * Framework will operate on two different {@code DataSource} instances,
      * which is almost certainly not the desired or intended behavior.
      */

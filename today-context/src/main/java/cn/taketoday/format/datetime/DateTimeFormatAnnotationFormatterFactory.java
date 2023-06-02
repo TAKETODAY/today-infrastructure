@@ -43,11 +43,9 @@ import cn.taketoday.util.StringUtils;
 public class DateTimeFormatAnnotationFormatterFactory extends EmbeddedValueResolutionSupport
         implements AnnotationFormatterFactory<DateTimeFormat> {
 
-  private static final Set<Class<?>> FIELD_TYPES = Set.of(Date.class, Calendar.class, Long.class);
-
   @Override
   public Set<Class<?>> getFieldTypes() {
-    return FIELD_TYPES;
+    return Set.of(Date.class, Calendar.class, Long.class);
   }
 
   @Override

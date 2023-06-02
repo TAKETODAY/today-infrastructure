@@ -32,7 +32,7 @@ import jakarta.persistence.Id;
  * @author Sam Brannen
  * @since 4.08
  */
-@Entity
+@Entity(name = "person")
 @EntityListeners(PersonListener.class)
 public class Person {
 

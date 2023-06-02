@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,8 +63,8 @@ public class PathPatternsRequestConditionTests {
     PathPatternsRequestCondition c2 = createCondition();
     PathPatternsRequestCondition c3 = c1.combine(c2);
 
-    assertThat(c3).isSameAs(c1);
     assertThat(c1.getPatternValues()).isSameAs(c2.getPatternValues()).containsExactly("");
+    assertThat(c3.getPatternValues()).containsExactly("", "/");
   }
 
   @Test

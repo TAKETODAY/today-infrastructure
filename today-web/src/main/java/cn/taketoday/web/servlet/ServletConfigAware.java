@@ -22,12 +22,12 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import jakarta.servlet.ServletConfig;
 
 /**
  * Interface to be implemented by any object that wishes to be notified of the
- * {@link ServletConfig} (typically determined by the {@link WebServletApplicationContext})
+ * {@link ServletConfig} (typically determined by the {@link WebApplicationContext})
  * that it runs in.
  *
  * <p>Note: Only satisfied if actually running within a Servlet-specific

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,6 +47,8 @@ import java.util.Set;
 
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Http2;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.TomcatHttpHandlerAdapter;
@@ -115,8 +117,8 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   }
 
   private static List<LifecycleListener> getDefaultServerLifecycleListeners() {
-    return AprLifecycleListener.isAprAvailable() ? CollectionUtils.newArrayList(new AprLifecycleListener())
-                                                 : new ArrayList<>();
+    return AprLifecycleListener.isAprAvailable()
+           ? CollectionUtils.newArrayList(new AprLifecycleListener()) : new ArrayList<>();
   }
 
   @Override
@@ -127,7 +129,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     Tomcat tomcat = new Tomcat();
     File baseDir = baseDirectory != null ? baseDirectory : createTempDir("tomcat");
     tomcat.setBaseDir(baseDir.getAbsolutePath());
-    for (LifecycleListener listener : this.serverLifecycleListeners) {
+    for (LifecycleListener listener : serverLifecycleListeners) {
       tomcat.getServer().addLifecycleListener(listener);
     }
     Connector connector = new Connector(protocol);
@@ -196,18 +198,18 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     if (StringUtils.hasText(getServerHeader())) {
       connector.setProperty("server", getServerHeader());
     }
-    if (connector.getProtocolHandler() instanceof AbstractProtocol abstractProtocol) {
+    if (connector.getProtocolHandler() instanceof AbstractProtocol<?> abstractProtocol) {
       customizeProtocol(abstractProtocol);
     }
     invokeProtocolHandlerCustomizers(connector.getProtocolHandler());
     connector.setURIEncoding(getUriEncoding().name());
     // Don't bind to the socket prematurely if ApplicationContext is slow to start
     connector.setProperty("bindOnInit", "false");
-    if (getHttp2() != null && getHttp2().isEnabled()) {
+    if (Http2.isEnabled(getHttp2())) {
       connector.addUpgradeProtocol(new Http2Protocol());
     }
-    if (getSsl() != null && getSsl().isEnabled()) {
-      customizeSsl(connector);
+    if (Ssl.isEnabled(getSsl())) {
+      customizeSsl(getSsl(), connector);
     }
 
     CompressionConnectorCustomizer.customize(connector, getCompression());
@@ -228,8 +230,8 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
     }
   }
 
-  private void customizeSsl(Connector connector) {
-    new SslConnectorCustomizer(getSsl(), getOrCreateSslStoreProvider()).customize(connector);
+  private void customizeSsl(Ssl ssl, Connector connector) {
+    new SslConnectorCustomizer(ssl.getClientAuth(), getSslBundle()).customize(connector);
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,9 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -39,6 +37,7 @@ import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
+import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -197,18 +196,17 @@ public abstract class BodyExtractors {
     MediaType contentType = Optional.ofNullable(message.getHeaders().getContentType())
             .orElse(MediaType.APPLICATION_OCTET_STREAM);
 
-    return context.messageReaders().stream()
-            .filter(reader -> reader.canRead(elementType, contentType))
-            .findFirst()
-            .map(BodyExtractors::<T>cast)
-            .map(readerFunction)
-            .orElseGet(() -> {
-              List<MediaType> mediaTypes = context.messageReaders().stream()
-                      .flatMap(reader -> reader.getReadableMediaTypes(elementType).stream())
-                      .collect(Collectors.toList());
-              return errorFunction.apply(
-                      new UnsupportedMediaTypeException(contentType, mediaTypes, elementType));
-            });
+    for (HttpMessageReader<?> messageReader : context.messageReaders()) {
+      if (messageReader.canRead(elementType, contentType)) {
+        return readerFunction.apply(cast(messageReader));
+      }
+    }
+
+    List<MediaType> mediaTypes = context.messageReaders().stream()
+            .flatMap(reader -> reader.getReadableMediaTypes(elementType).stream())
+            .toList();
+    return errorFunction.apply(
+            new UnsupportedMediaTypeException(contentType, mediaTypes, elementType));
   }
 
   private static <T> Mono<T> readToMono(ReactiveHttpInputMessage message, BodyExtractor.Context context,

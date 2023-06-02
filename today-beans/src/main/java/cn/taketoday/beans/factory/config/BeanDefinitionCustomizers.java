@@ -94,8 +94,10 @@ public class BeanDefinitionCustomizers {
   }
 
   public void loadDefaultCustomizers(@Nullable BeanFactory beanFactory) {
-    addCustomizers(TodayStrategies.get(
-            BeanDefinitionCustomizer.class, BeanFactoryAwareInstantiator.forFunction(beanFactory)));
+    addCustomizers(
+            TodayStrategies.find(
+                    BeanDefinitionCustomizer.class, BeanFactoryAwareInstantiator.from(beanFactory))
+    );
   }
 
 }

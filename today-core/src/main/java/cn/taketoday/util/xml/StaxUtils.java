@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,11 +42,10 @@ import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stax.StAXSource;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StreamUtils;
 
 /**
  * Convenience methods for working with the StAX API. Partly historic due to JAXP 1.3
- * compatibility; as of Framework 4.0, relying on JAXP 1.4 as included in JDK 1.6 and higher.
+ * compatibility; as of Infra 4.0, relying on JAXP 1.4 as included in JDK 1.6 and higher.
  *
  * <p>In particular, methods for using StAX ({@code javax.xml.stream}) in combination with
  * the TrAX API ({@code javax.xml.transform}), and converting StAX readers/writers into SAX
@@ -54,6 +53,7 @@ import cn.taketoday.util.StreamUtils;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class StaxUtils {
@@ -133,7 +133,7 @@ public abstract class StaxUtils {
    * custom StAX Source; {@code false} otherwise
    */
   public static boolean isStaxSource(Source source) {
-    return (source instanceof StAXSource || source instanceof StaxSource);
+    return source instanceof StAXSource || source instanceof StaxSource;
   }
 
   /**

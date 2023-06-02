@@ -37,8 +37,8 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.io.Resource;
@@ -84,7 +84,7 @@ import jakarta.validation.bootstrap.ProviderSpecificBootstrap;
  * @see ValidatorFactory#getValidator()
  * @since 4.0
  */
-public class LocalValidatorFactoryBean extends ValidatorAdapter
+public class LocalValidatorFactoryBean extends InfraValidatorAdapter
         implements ValidatorFactory, ApplicationContextAware, InitializingBean, DisposableBean {
 
   @SuppressWarnings("rawtypes")

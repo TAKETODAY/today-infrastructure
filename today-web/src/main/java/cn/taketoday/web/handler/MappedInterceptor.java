@@ -23,7 +23,6 @@ package cn.taketoday.web.handler;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -152,7 +151,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * @return {@code true} if the interceptor should be applied to the request
    */
   public boolean matches(RequestContext request) {
-    RequestPath lookupPath = request.getLookupPath();
+    PathContainer lookupPath = request.getLookupPath();
     return matches(lookupPath);
   }
 
@@ -164,7 +163,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * @param lookupPath the request path to match to
    * @return {@code true} if the interceptor should be applied to the request
    */
-  public boolean matches(RequestPath lookupPath) {
+  public boolean matches(PathContainer lookupPath) {
     if (ObjectUtils.isNotEmpty(excludePatterns)) {
       for (CompiledPattern adapter : excludePatterns) {
         if (doMatch(adapter, lookupPath)) {
@@ -205,9 +204,13 @@ public final class MappedInterceptor implements HandlerInterceptor {
     interceptor.afterProcess(request, handler, result);
   }
 
+  @Nullable
   @Override
   public Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
-    return interceptor.intercept(request, chain);
+    if (matches(request)) {
+      return interceptor.intercept(request, chain);
+    }
+    return chain.proceed(request);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -88,7 +88,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @BeforeEach
   void setup() {
     this.application = new Application(Config.class);
-    this.application.setApplicationType(ApplicationType.NONE_WEB);
+    this.application.setApplicationType(ApplicationType.NORMAL);
   }
 
   @AfterEach
@@ -165,8 +165,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenActiveProfilesDoesNotLoadDefault() {
     ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofilesdocument",
-            "--app.config.location=classpath:configdata/profiles/", "--context.profiles.default=thedefault",
-            "--context.profiles.active=other");
+            "--app.config.location=classpath:configdata/profiles/", "--infra.profiles.default=thedefault",
+            "--infra.profiles.active=other");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromotherprofile");
   }
@@ -174,7 +174,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenHasCustomDefaultProfileLoadsDefaultProfileFile() {
     ConfigurableApplicationContext context = this.application.run("--app.config.name=testprofiles",
-            "--context.profiles.default=thedefault");
+            "--infra.profiles.default=thedefault");
     String property = context.getEnvironment().getProperty("the.property");
     assertThat(property).isEqualTo("fromdefaultpropertiesfile");
   }
@@ -290,7 +290,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void runWhenHasActiveProfilesFromDefaultPropertiesAndFileLoadsWithFileTakingPrecedence() {
-    this.application.setDefaultProperties(Collections.singletonMap("context.profiles.active", "dev"));
+    this.application.setDefaultProperties(Collections.singletonMap("infra.profiles.active", "dev"));
     ConfigurableApplicationContext context = this.application.run("--app.config.name=enableprofile");
     assertThat(context.getEnvironment().getActiveProfiles()).containsExactly("myprofile");
   }
@@ -332,15 +332,15 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenDuplicateProfileSetProgrammaticallyAndViaPropertyLoadsWithProfiles() {
     this.application.setAdditionalProfiles("dev");
-    ConfigurableApplicationContext context = this.application.run("--context.profiles.active=dev,other");
+    ConfigurableApplicationContext context = this.application.run("--infra.profiles.active=dev,other");
     assertThat(context.getEnvironment().getActiveProfiles()).contains("dev", "other");
     assertThat(context.getEnvironment().getProperty("my.property")).isEqualTo("fromotherpropertiesfile");
   }
 
   @Test
   void runWhenProfilesActivatedViaBracketNotationSetsProfiles() {
-    ConfigurableApplicationContext context = this.application.run("--context.profiles.active[0]=dev",
-            "--context.profiles.active[1]=other");
+    ConfigurableApplicationContext context = this.application.run("--infra.profiles.active[0]=dev",
+            "--infra.profiles.active[1]=other");
     assertThat(context.getEnvironment().getActiveProfiles()).contains("dev", "other");
     assertThat(context.getEnvironment().getProperty("my.property")).isEqualTo("fromotherpropertiesfile");
   }
@@ -458,8 +458,8 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
 
   @Test
   void loadWhenCustomDefaultProfileAndActiveFromPreviousSourceDoesNotActivateDefault() {
-    ConfigurableApplicationContext context = this.application.run("--context.profiles.default=customdefault",
-            "--context.profiles.active=dev");
+    ConfigurableApplicationContext context = this.application.run("--infra.profiles.default=customdefault",
+            "--infra.profiles.active=dev");
     String property = context.getEnvironment().getProperty("my.property");
     assertThat(property).isEqualTo("fromdevpropertiesfile");
     assertThat(context.getEnvironment().containsProperty("customdefault")).isFalse();
@@ -468,7 +468,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenCustomDefaultProfileSameAsActiveFromFileActivatesProfile() {
     ConfigurableApplicationContext context = this.application.run(
-            "--app.config.location=classpath:configdata/profiles/", "--context.profiles.default=customdefault",
+            "--app.config.location=classpath:configdata/profiles/", "--infra.profiles.default=customdefault",
             "--app.config.name=customprofile");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.containsProperty("customprofile")).isTrue();
@@ -597,7 +597,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   }
 
   @Test
-  @Disabled("Disabled until context.profiles suppport is dropped")
+  @Disabled("Disabled until infra.profiles suppport is dropped")
   void runWhenUsingInvalidPropertyThrowsException() {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class).isThrownBy(
             () -> this.application.run("--app.config.location=classpath:invalidproperty.properties"));
@@ -698,7 +698,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   void runWhenHasIncludedProfilesWithListSyntaxWithProfileSpecificDocumentThrowsException() {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class).isThrownBy(() -> this.application.run(
             "--app.config.name=application-include-profiles-list-in-profile-specific-file",
-            "--context.profiles.active=test"));
+            "--infra.profiles.active=test"));
   }
 
   @Test
@@ -815,7 +815,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     // gh-26593
   void runWhenHasFilesInRootAndConfigWithProfiles() {
     ConfigurableApplicationContext context = this.application
-            .run("--app.config.name=file-in-root-and-config-with-profile", "--context.profiles.active=p1,p2");
+            .run("--app.config.name=file-in-root-and-config-with-profile", "--infra.profiles.active=p1,p2");
     ConfigurableEnvironment environment = context.getEnvironment();
     assertThat(environment.containsProperty("file-in-root-and-config-with-profile")).isTrue();
     assertThat(environment.containsProperty("file-in-root-and-config-with-profile-p1")).isTrue();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,8 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
 
   private final boolean canCreateTransaction;
 
+  private final boolean forceFailOnCommit;
+
   protected boolean begin = false;
 
   protected boolean commit = false;
@@ -50,8 +52,13 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
   protected boolean cleanup = false;
 
   ReactiveTestTransactionManager(boolean existingTransaction, boolean canCreateTransaction) {
+    this(existingTransaction, canCreateTransaction, false);
+  }
+
+  ReactiveTestTransactionManager(boolean existingTransaction, boolean canCreateTransaction, boolean forceFailOnCommit) {
     this.existingTransaction = existingTransaction;
     this.canCreateTransaction = canCreateTransaction;
+    this.forceFailOnCommit = forceFailOnCommit;
   }
 
   @Override
@@ -80,7 +87,12 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
     if (!TRANSACTION.equals(status.getTransaction())) {
       return Mono.error(new IllegalArgumentException("Not the same transaction object"));
     }
-    return Mono.fromRunnable(() -> this.commit = true);
+    return Mono.fromRunnable(() -> {
+      this.commit = true;
+      if (this.forceFailOnCommit) {
+        throw new IllegalArgumentException("Forced failure on commit");
+      }
+    });
   }
 
   @Override

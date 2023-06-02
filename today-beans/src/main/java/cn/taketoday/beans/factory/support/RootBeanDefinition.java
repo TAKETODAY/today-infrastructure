@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,17 +38,23 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * A root bean definition represents the merged bean definition that backs
- * a specific bean in a Framework BeanFactory at runtime. It might have been created
- * from multiple original bean definitions that inherit from each other,
- * typically registered as {@link BeanDefinition BeanDefinitions}.
+ * A root bean definition represents the <b>merged bean definition at runtime</b>
+ * that backs a specific bean in a BeanFactory. It might have been created
+ * from multiple original bean definitions that inherit from each other, e.g.
+ * {@link GenericBeanDefinition GenericBeanDefinitions} from XML declarations.
  * A root bean definition is essentially the 'unified' bean definition view at runtime.
  *
- * <p>Root bean definitions may also be used for registering individual bean definitions
- * in the configuration phase. However, the preferred way to register
- * bean definitions programmatically is the {@link BeanDefinition} class.
- * GenericBeanDefinition has the advantage that it allows to dynamically define
- * parent dependencies, not 'hard-coding' the role as a root bean definition.
+ * <p>Root bean definitions may also be used for <b>registering individual bean
+ * definitions in the configuration phase.</b> This is particularly applicable for
+ * programmatic definitions derived from factory methods (e.g. {@code @Bean} methods)
+ * and instance suppliers (e.g. lambda expressions) which come with extra type metadata
+ * (see {@link #setTargetType(ResolvableType)}/{@link #setResolvedFactoryMethod(Method)}).
+ *
+ * <p>Note: The preferred choice for bean definitions derived from declarative sources
+ * (e.g. XML definitions) is the flexible {@link GenericBeanDefinition} variant.
+ * GenericBeanDefinition comes with the advantage that it allows for dynamically
+ * defining parent dependencies, not 'hard-coding' the role as a root bean definition,
+ * even supporting parent relationship changes in the bean post-processor phase.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,6 +42,7 @@ import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator;
 
 /**
  * Adapts {@link WebSocketHandler} to the Jetty 9 WebSocket API.
@@ -52,7 +53,7 @@ import cn.taketoday.web.socket.WebSocketSession;
  */
 @WebSocket
 public class JettyWebSocketHandler {
-  private static final Logger logger = LoggerFactory.getLogger(JettyWebSocketHandlerAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(JettyWebSocketHandler.class);
   private static final ByteBuffer EMPTY_PAYLOAD = ByteBuffer.wrap(Constant.EMPTY_BYTES);
 
   private final JettyWebSocketSession wsSession;
@@ -135,18 +136,8 @@ public class JettyWebSocketHandler {
     }
   }
 
-  public static void tryCloseWithError(WebSocketSession session, Throwable exception) {
-    if (logger.isErrorEnabled()) {
-      logger.error("Closing session due to exception for {}", session, exception);
-    }
-    if (session.isOpen()) {
-      try {
-        session.close(CloseStatus.SERVER_ERROR);
-      }
-      catch (Throwable ex) {
-        // ignore
-      }
-    }
+  static void tryCloseWithError(WebSocketSession session, Throwable exception) {
+    ExceptionWebSocketHandlerDecorator.tryCloseWithError(session, exception, logger);
   }
 
 }

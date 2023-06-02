@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -34,11 +33,12 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.PropertyResourceConfigurer;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -111,6 +111,7 @@ public class MapperScannerConfigurer
   @Nullable
   private Class<?> markerInterface;
 
+  @SuppressWarnings("rawtypes")
   private Class<? extends MapperFactoryBean> mapperFactoryBeanClass;
 
   private ApplicationContext applicationContext;
@@ -191,9 +192,7 @@ public class MapperScannerConfigurer
    * <p>
    *
    * @param sqlSessionTemplate a template of SqlSession
-   * @deprecated Use {@link #setSqlSessionTemplateBeanName(String)} instead
    */
-  @Deprecated
   public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
     this.sqlSessionTemplate = sqlSessionTemplate;
   }
@@ -217,9 +216,7 @@ public class MapperScannerConfigurer
    * <p>
    *
    * @param sqlSessionFactory a factory of SqlSession
-   * @deprecated Use {@link #setSqlSessionFactoryBeanName(String)} instead.
    */
-  @Deprecated
   public void setSqlSessionFactory(SqlSessionFactory sqlSessionFactory) {
     this.sqlSessionFactory = sqlSessionFactory;
   }
@@ -253,6 +250,7 @@ public class MapperScannerConfigurer
    *
    * @param mapperFactoryBeanClass The class of the MapperFactoryBean
    */
+  @SuppressWarnings("rawtypes")
   public void setMapperFactoryBeanClass(Class<? extends MapperFactoryBean> mapperFactoryBeanClass) {
     this.mapperFactoryBeanClass = mapperFactoryBeanClass;
   }
@@ -278,7 +276,7 @@ public class MapperScannerConfigurer
    *
    * @return the BeanNameGenerator that has been configured
    */
-  public BeanNameGenerator getNamePopulator() {
+  public BeanNameGenerator getNameGenerator() {
     return nameGenerator;
   }
 
@@ -287,7 +285,7 @@ public class MapperScannerConfigurer
    *
    * @param nameGenerator the BeanNameGenerator to set
    */
-  public void setNamePopulator(BeanNameGenerator nameGenerator) {
+  public void setNameGenerator(BeanNameGenerator nameGenerator) {
     this.nameGenerator = nameGenerator;
   }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -38,11 +38,17 @@
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-framework</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-jdbc</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
@@ -143,10 +149,6 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>cn.taketoday</groupId>
-      <artifactId>today-jdbc</artifactId>
     </dependency>
 
   </dependencies>

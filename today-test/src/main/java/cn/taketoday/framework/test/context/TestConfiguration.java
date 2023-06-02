@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,16 +29,16 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.framework.ApplicationConfiguration;
+import cn.taketoday.framework.InfraConfiguration;
 
 /**
  * {@link Configuration @Configuration} that can be used to define additional beans or
  * customizations for a test. Unlike regular {@code @Configuration} classes the use of
  * {@code @TestConfiguration} does not prevent auto-detection of
- * {@link ApplicationConfiguration @SpringBootConfiguration}.
+ * {@link InfraConfiguration @InfraConfiguration}.
  *
  * @author Phillip Webb
- * @see ApplicationTestContextBootstrapper
+ * @see InfraTestContextBootstrapper
  * @since 4.0
  */
 @Target(ElementType.TYPE)
@@ -49,7 +49,7 @@ import cn.taketoday.framework.ApplicationConfiguration;
 public @interface TestConfiguration {
 
   /**
-   * Explicitly specify the name of the Spring bean definition associated with this
+   * Explicitly specify the name of the Infra bean definition associated with this
    * Configuration class. See {@link Configuration#value()} for details.
    *
    * @return the specified bean name, if any

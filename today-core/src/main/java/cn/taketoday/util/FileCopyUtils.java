@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -150,26 +149,13 @@ public abstract class FileCopyUtils {
    * @throws IOException in case of I/O errors
    */
   public static byte[] copyToByteArray(@Nullable InputStream in) throws IOException {
-    return copyToByteArray(in, BUFFER_SIZE);
-  }
-
-  /**
-   * Copy the contents of the given InputStream into a new byte array.
-   * Closes the stream when done.
-   *
-   * @param in the stream to copy from (may be {@code null} or empty)
-   * @param bufferSize user specified buffer size
-   * @return the new byte array that has been copied to (possibly empty)
-   * @throws IOException in case of I/O errors
-   */
-  public static byte[] copyToByteArray(@Nullable InputStream in, int bufferSize) throws IOException {
     if (in == null) {
       return Constant.EMPTY_BYTES;
     }
 
-    ByteArrayOutputStream out = new ByteArrayOutputStream(bufferSize);
-    copy(in, out);
-    return out.toByteArray();
+    try (in) {
+      return in.readAllBytes();
+    }
   }
 
   //---------------------------------------------------------------------

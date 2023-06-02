@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.test.context.DynamicPropertyRegistry;
 import cn.taketoday.test.context.DynamicPropertySource;
 import cn.taketoday.test.context.NestedTestConfiguration;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static cn.taketoday.test.context.NestedTestConfiguration.EnclosingConfiguration.OVERRIDE;
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests that verify support for {@code @Nested} test classes using
  * {@link DynamicPropertySource @DynamicPropertySource} in conjunction with the
- * {@link ApplicationExtension} in a JUnit Jupiter environment.
+ * {@link InfraExtension} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen
  * @since 4.0

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,12 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URL;
-import java.time.temporal.Temporal;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -351,19 +346,7 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static boolean isSimpleValueType(Class<?> type) {
-    return Void.class != type && void.class != type
-            && (
-            ClassUtils.isPrimitiveOrWrapper(type)
-                    || URI.class == type
-                    || URL.class == type
-                    || Class.class == type
-                    || Locale.class == type
-                    || Date.class.isAssignableFrom(type)
-                    || Enum.class.isAssignableFrom(type)
-                    || Number.class.isAssignableFrom(type)
-                    || Temporal.class.isAssignableFrom(type)
-                    || CharSequence.class.isAssignableFrom(type)
-    );
+    return ObjectUtils.isSimpleValueType(type);
   }
 
   /**
@@ -752,14 +735,14 @@ public abstract class BeanUtils {
     }
   }
 
-  private static void doCopy(
-          Object source, Object target, Method writeMethod, Method readMethod) throws Exception {
+  private static void doCopy(Object source, Object target,
+          Method writeMethod, Method readMethod) throws Exception {
     if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
-      readMethod.setAccessible(true);
+      ReflectionUtils.makeAccessible(readMethod);
     }
     Object value = readMethod.invoke(source);
     if (!Modifier.isPublic(writeMethod.getDeclaringClass().getModifiers())) {
-      writeMethod.setAccessible(true);
+      ReflectionUtils.makeAccessible(readMethod);
     }
     writeMethod.invoke(target, value);
   }

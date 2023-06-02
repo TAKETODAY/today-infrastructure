@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,10 +24,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.parsing.BeanComponentDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ManagedList;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.scheduling.support.ScheduledMethodRunnable;
@@ -76,7 +76,7 @@ public class ScheduledTasksBeanDefinitionParser extends AbstractSingleBeanDefini
       String method = taskElement.getAttribute("method");
 
       // Check that 'ref' and 'method' are specified
-      if (!StringUtils.hasText(ref) || !StringUtils.hasText(method)) {
+      if (StringUtils.isBlank(ref) || StringUtils.isBlank(method)) {
         parserContext.getReaderContext().error("Both 'ref' and 'method' are required", taskElement);
         // Continue with the possible next task element
         continue;

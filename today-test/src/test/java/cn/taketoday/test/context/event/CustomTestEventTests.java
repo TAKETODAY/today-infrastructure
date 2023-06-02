@@ -34,7 +34,7 @@ import cn.taketoday.context.event.EventListener;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 
 import static cn.taketoday.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@ExtendWith(ApplicationExtension.class)
+@ExtendWith(InfraExtension.class)
 @TestExecutionListeners(listeners = CustomTestEventTests.CustomEventPublishingTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
 public class CustomTestEventTests {
 

@@ -87,7 +87,7 @@ class AutowiredConfigurationErrorsIntegrationTests {
 
   /**
    * A non-autowired test method should fail the same as an autowired test
-   * method in the same class, since Spring still should not autowire the
+   * method in the same class, since Infra still should not autowire the
    * autowired test method as a "configuration method" when JUnit attempts to
    * execute the non-autowired test method.
    */

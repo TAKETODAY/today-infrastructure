@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,13 +39,14 @@ class WebListenerHandler extends ServletComponentHandler {
   }
 
   @Override
-  protected void doHandle(Map<String, Object> attributes, AnnotatedBeanDefinition beanDefinition,
-          BeanDefinitionRegistry registry) {
+  protected void doHandle(Map<String, Object> attributes,
+          AnnotatedBeanDefinition beanDefinition, BeanDefinitionRegistry registry) {
     BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(
             ServletComponentWebListenerRegistrar.class);
 
     builder.addConstructorArgValue(beanDefinition.getBeanClassName());
-    registry.registerBeanDefinition(beanDefinition.getBeanClassName() + "Registrar", builder.getBeanDefinition());
+    registry.registerBeanDefinition(
+            beanDefinition.getBeanClassName() + "Registrar", builder.getBeanDefinition());
   }
 
   static class ServletComponentWebListenerRegistrar implements WebListenerRegistrar {

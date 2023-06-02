@@ -41,8 +41,8 @@ import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.accept.MappingMediaTypeFileExtensionResolver;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
-import cn.taketoday.web.context.support.StaticWebServletApplicationContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceView;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -63,7 +63,7 @@ public class ContentNegotiatingViewResolverTests {
   private MockHttpServletRequest request;
 
   RequestContext requestContext;
-  StaticWebServletApplicationContext wac = new StaticWebServletApplicationContext();
+  StaticWebApplicationContext wac = new StaticWebApplicationContext();
 
   @BeforeEach
   public void createViewResolver() {
@@ -418,7 +418,7 @@ public class ContentNegotiatingViewResolverTests {
     request.addHeader("Accept", "application/json");
     request.setRequestURI("/test");
 
-    StaticWebServletApplicationContext webAppContext = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext webAppContext = new StaticWebApplicationContext();
     webAppContext.setServletContext(new MockServletContext());
     webAppContext.refresh();
 
@@ -493,7 +493,7 @@ public class ContentNegotiatingViewResolverTests {
 
   @Test
   public void nestedViewResolverIsNotSpringBean() throws Exception {
-    StaticWebServletApplicationContext webAppContext = new StaticWebServletApplicationContext();
+    StaticWebApplicationContext webAppContext = new StaticWebApplicationContext();
     webAppContext.setServletContext(new MockServletContext());
     webAppContext.refresh();
 

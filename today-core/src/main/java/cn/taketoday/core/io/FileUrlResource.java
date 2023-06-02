@@ -54,7 +54,7 @@ public class FileUrlResource extends UrlResource implements WritableResource {
   private volatile File file;
 
   /**
-   * Create a new {@code FileUrlBasedResource} based on the given URL object.
+   * Create a new {@code FileUrlResource} based on the given URL object.
    * <p>Note that this does not enforce "file" as URL protocol. If a protocol
    * is known to be resolvable to a file, it is acceptable for this purpose.
    *
@@ -67,7 +67,7 @@ public class FileUrlResource extends UrlResource implements WritableResource {
   }
 
   /**
-   * Create a new {@code FileUrlBasedResource} based on the given file location,
+   * Create a new {@code FileUrlResource} based on the given file location,
    * using the URL protocol "file".
    * <p>The given parts will automatically get encoded if necessary.
    *

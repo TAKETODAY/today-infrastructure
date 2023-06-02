@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,24 +25,25 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.context.support.RequestScope;
+import cn.taketoday.web.context.support.SessionManagerDiscover;
 import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.util.UriComponents;
@@ -413,8 +414,14 @@ public class RequestContextUtils {
         valueStart = valueEnd + 1;
       }
       String name = s.substring(nameStart, valueStart - 1);
-      String value = s.substring(valueStart, valueEnd);
-      params.add(name, value);
+      if (valueStart >= valueEnd) {
+        // ?name&name1=
+        params.add(name, "");
+      }
+      else {
+        String value = s.substring(valueStart, valueEnd);
+        params.add(name, value);
+      }
     }
   }
 
@@ -428,9 +435,9 @@ public class RequestContextUtils {
 
     // @Autowired WebSession currentSession;
     beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(beanFactory));
-    beanFactory.registerScope(WebApplicationContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
-    beanFactory.registerScope(WebApplicationContext.SCOPE_REQUEST, new RequestScope());
+    beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
+    beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
     // register RequestContext
     // @Autowired RequestContext currentRequest;
@@ -1131,41 +1138,19 @@ public class RequestContextUtils {
   /**
    * Factory that exposes the current web-session object on demand.
    */
-  @SuppressWarnings("serial")
   final static class WebSessionSupplier implements Supplier<WebSession>, Serializable {
 
-    final ConfigurableBeanFactory beanFactory;
+    private final SessionManagerDiscover sessionManagerDiscover;
 
-    @Nullable
-    private SessionManager sessionManager;
-
-    private boolean managerLoaded;
-
-    private WebSessionSupplier(ConfigurableBeanFactory beanFactory) {
-      this.beanFactory = beanFactory;
+    private WebSessionSupplier(BeanFactory beanFactory) {
+      this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
     }
 
     @Override
     public WebSession get() {
       RequestContext request = RequestContextHolder.getRequired();
-      SessionManager sessionManager = this.sessionManager;
-      if (sessionManager == null) {
-        Assert.state(!managerLoaded, "No SessionManager in context");
-        this.managerLoaded = true;
-        sessionManager = BeanFactoryUtils.find(
-                beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
-        if (sessionManager == null) {
-          sessionManager = BeanFactoryUtils.find(beanFactory, SessionManager.class);
-          if (sessionManager == null) {
-            sessionManager = RequestContextUtils.getSessionManager(request);
-            if (sessionManager == null) {
-              throw new IllegalStateException("No SessionManager in context");
-            }
-          }
-        }
-        this.sessionManager = sessionManager;
-      }
-      return sessionManager.getSession(request);
+      return sessionManagerDiscover.obtain(request)
+              .getSession(request);
     }
 
     @Override
@@ -1178,7 +1163,6 @@ public class RequestContextUtils {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  @SuppressWarnings("serial")
   private static class RequestContextSupplier implements Supplier<RequestContext>, Serializable {
 
     @Override

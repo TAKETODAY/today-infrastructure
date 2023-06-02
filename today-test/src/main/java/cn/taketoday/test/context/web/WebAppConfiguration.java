@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,11 +29,12 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.NestedTestConfiguration;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@code @WebAppConfiguration} is a class-level annotation that is used to
  * declare that the {@code ApplicationContext} loaded for an integration test
- * should be a {@link cn.taketoday.web.WebApplicationContext WebApplicationContext}.
+ * should be a {@link WebApplicationContext WebApplicationContext}.
  *
  * <p>The presence of {@code @WebAppConfiguration} on a test class indicates that
  * a {@code WebApplicationContext} should be loaded for the test using a default
@@ -53,7 +54,7 @@ import cn.taketoday.test.context.NestedTestConfiguration;
  * for details.
  *
  * @author Sam Brannen
- * @see cn.taketoday.web.servlet.WebServletApplicationContext
+ * @see WebApplicationContext
  * @see ContextConfiguration
  * @see ServletTestExecutionListener
  * @since 4.0
@@ -66,7 +67,7 @@ public @interface WebAppConfiguration {
 
   /**
    * The resource path to the root directory of the web application.
-   * <p>A path that does not include a Spring resource prefix (e.g., {@code classpath:},
+   * <p>A path that does not include a Infra resource prefix (e.g., {@code classpath:},
    * {@code file:}, etc.) will be interpreted as a file system resource, and a
    * path should not end with a slash.
    * <p>Defaults to {@code "src/main/webapp"} as a file system resource. Note

@@ -23,8 +23,8 @@ package cn.taketoday.framework.test.context.assertj;
 import java.util.function.Supplier;
 
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * A {@link WebApplicationContext} that additionally supports AssertJ style assertions.
@@ -34,12 +34,13 @@ import cn.taketoday.web.context.ConfigurableWebApplicationContext;
  * See {@link ApplicationContextAssertProvider} for more details.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebApplicationContextRunner
  * @see WebApplicationContext
  * @since 4.0
  */
 public interface AssertableWebApplicationContext
-        extends ApplicationContextAssertProvider<ConfigurableWebApplicationContext>, ConfigurableWebApplicationContext {
+        extends ApplicationContextAssertProvider<ConfigurableWebApplicationContext>, WebApplicationContext {
 
   /**
    * Factory method to create a new {@link AssertableWebApplicationContext} instance.

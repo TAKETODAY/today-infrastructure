@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -65,7 +64,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
    * A session index that contains the current principal name (i.e. username).
    * <p>
    * It is the responsibility of the developer to ensure the index is populated since
-   * Spring Session is not aware of the authentication mechanism being used.
+   * Infra Session is not aware of the authentication mechanism being used.
    */
   private static final String PRINCIPAL_NAME_INDEX_NAME = Conventions.getQualifiedAttributeName(
           RedissonSessionRepository.class, "PRINCIPAL_NAME_INDEX_NAME");
@@ -84,7 +83,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   @Nullable
   private Duration defaultMaxInactiveInterval;
 
-  private final SessionEventDispatcher sessionEventDispatcher;
+  private final SessionEventDispatcher eventDispatcher;
   private final SessionIdGenerator idGenerator;
 
   public RedissonSessionRepository(RedissonClient redissonClient) {
@@ -118,7 +117,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     }
 
     this.idGenerator = idGenerator;
-    this.sessionEventDispatcher = eventDispatcher;
+    this.eventDispatcher = eventDispatcher;
   }
 
   @Nullable
@@ -156,7 +155,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     if (createdTopic.getPatternNames().contains(patternString)) {
       RedissonSession session = retrieveSession(body);
       if (session != null) {
-        sessionEventDispatcher.onSessionCreated(session);
+        eventDispatcher.onSessionCreated(session);
       }
     }
     else if (expiredTopic.getPatternNames().contains(patternString)
@@ -168,7 +167,7 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
         if (mapSession != null) {
           RedissonSession session = new RedissonSession(mapSession);
           session.clearPrincipal();
-          sessionEventDispatcher.onSessionDestroyed(session);
+          eventDispatcher.onSessionDestroyed(session);
         }
       }
     }
@@ -181,6 +180,15 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
   @Override
   public RedissonSession createSession() {
     RedissonSession session = new RedissonSession();
+    if (defaultMaxInactiveInterval != null) {
+      session.setMaxIdleTime(defaultMaxInactiveInterval);
+    }
+    return session;
+  }
+
+  @Override
+  public WebSession createSession(String id) {
+    RedissonSession session = new RedissonSession(id);
     if (defaultMaxInactiveInterval != null) {
       session.setMaxIdleTime(defaultMaxInactiveInterval);
     }
@@ -286,8 +294,11 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     private RMap<String, Object> map;
 
     RedissonSession() {
-      String id = idGenerator.generateId();
-      this.delegate = new MapSession(id);
+      this(idGenerator.generateId());
+    }
+
+    RedissonSession(String id) {
+      this.delegate = new MapSession(id, RedissonSessionRepository.this.eventDispatcher);
       map = redisson.getMap(keyPrefix + delegate.getId(),
               new CompositeCodec(StringCodec.INSTANCE, redisson.getConfig().getCodec()));
 
@@ -478,16 +489,6 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
     @Override
     public Map<String, Object> getAttributes() {
       return delegate.getAttributes();
-    }
-
-    @Override
-    public void copyAttributesFrom(AttributeAccessor source) {
-      delegate.copyAttributesFrom(source);
-    }
-
-    @Override
-    public void clearAttributes() {
-      delegate.clearAttributes();
     }
 
     @Override

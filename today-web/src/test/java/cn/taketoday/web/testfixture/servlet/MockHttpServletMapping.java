@@ -28,7 +28,6 @@ import jakarta.servlet.http.MappingMatch;
  * Mock implementation of {@link HttpServletMapping}.
  *
  * @author Rossen Stoyanchev
- * @since 5.3.4
  */
 public class MockHttpServletMapping implements HttpServletMapping {
 

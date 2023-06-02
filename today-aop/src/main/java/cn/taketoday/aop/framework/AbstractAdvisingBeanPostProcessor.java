@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -78,6 +78,12 @@ public abstract class AbstractAdvisingBeanPostProcessor
       // Add our local Advisor to the existing proxy's Advisor chain...
       if (this.beforeExistingAdvisors) {
         advised.addAdvisor(0, this.advisor);
+      }
+      else if (advised.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE
+              && advised.getAdvisorCount() > 0) {
+        // No target, leave last advisor in place
+        advised.addAdvisor(advised.getAdvisorCount() - 1, this.advisor);
+        return bean;
       }
       else {
         advised.addAdvisor(this.advisor);

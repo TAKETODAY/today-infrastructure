@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.core.io.buffer;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -320,6 +321,9 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     assertThat(result).isEqualTo((byte) 'b');
     assertThat(inputStream.available()).isEqualTo(3);
 
+    assertThat(inputStream.markSupported()).isTrue();
+    inputStream.mark(2);
+
     byte[] bytes = new byte[2];
     int len = inputStream.read(bytes);
     assertThat(len).isEqualTo(2);
@@ -334,6 +338,12 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
     assertThat(inputStream.read()).isEqualTo(-1);
     assertThat(inputStream.read(bytes)).isEqualTo(-1);
+
+    inputStream.reset();
+    bytes = new byte[3];
+    len = inputStream.read(bytes);
+    assertThat(len).isEqualTo(3);
+    assertThat(bytes).containsExactly('c', 'd', 'e');
 
     release(buffer);
   }
@@ -391,7 +401,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void increaseCapacity(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -405,7 +414,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void decreaseCapacityLowReadPosition(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support decreasing the capacity");
@@ -421,7 +429,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void decreaseCapacityHighReadPosition(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support decreasing the capacity");
@@ -438,7 +445,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void capacityLessThanZero(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -504,7 +510,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void asByteBuffer(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -526,7 +531,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void asByteBufferIndexLength(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -536,8 +540,10 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     ByteBuffer result = buffer.asByteBuffer(1, 2);
     assertThat(result.capacity()).isEqualTo(2);
 
-    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
-            "Netty 5 does share the internal buffer");
+    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory, () -> {
+      DataBufferUtils.release(buffer);
+      return "Netty 5 does share the internal buffer";
+    });
 
     buffer.write((byte) 'c');
     assertThat(result.remaining()).isEqualTo(2);
@@ -550,7 +556,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void byteBufferContainsDataBufferChanges(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support sharing data between buffers");
@@ -570,7 +575,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void dataBufferContainsByteBufferChanges(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support sharing data between buffers");
@@ -590,7 +594,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void emptyAsByteBuffer(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -637,6 +640,72 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     assertThat(resultBytes).isEqualTo(new byte[] { 'b', 'c' });
 
     release(buffer);
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void toByteBufferDestination(DataBufferFactory bufferFactory) {
+    super.bufferFactory = bufferFactory;
+
+    DataBuffer buffer = createDataBuffer(4);
+    buffer.write(new byte[] { 'a', 'b', 'c' });
+
+    ByteBuffer byteBuffer = createByteBuffer(2);
+    buffer.toByteBuffer(1, byteBuffer, 0, 2);
+    assertThat(byteBuffer.capacity()).isEqualTo(2);
+    assertThat(byteBuffer.remaining()).isEqualTo(2);
+
+    byte[] resultBytes = new byte[2];
+    byteBuffer.get(resultBytes);
+    assertThat(resultBytes).isEqualTo(new byte[] { 'b', 'c' });
+
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+            .isThrownBy(() -> buffer.toByteBuffer(0, byteBuffer, 0, 3));
+
+    release(buffer);
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void readableByteBuffers(DataBufferFactory bufferFactory) throws IOException {
+    super.bufferFactory = bufferFactory;
+
+    DataBuffer dataBuffer = this.bufferFactory.join(Arrays.asList(stringBuffer("a"),
+            stringBuffer("b"), stringBuffer("c")));
+
+    byte[] result = new byte[3];
+    try (var iterator = dataBuffer.readableByteBuffers()) {
+      assertThat(iterator).hasNext();
+      int i = 0;
+      while (iterator.hasNext()) {
+        ByteBuffer byteBuffer = iterator.next();
+        int len = byteBuffer.remaining();
+        byteBuffer.get(result, i, len);
+        i += len;
+        assertThatException().isThrownBy(() -> byteBuffer.put((byte) 'd'));
+      }
+    }
+
+    assertThat(result).containsExactly('a', 'b', 'c');
+
+    release(dataBuffer);
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void writableByteBuffers(DataBufferFactory bufferFactory) {
+    super.bufferFactory = bufferFactory;
+
+    DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(1);
+
+    try (DataBuffer.ByteBufferIterator iterator = dataBuffer.writableByteBuffers()) {
+      assertThat(iterator).hasNext();
+      ByteBuffer byteBuffer = iterator.next();
+      byteBuffer.put((byte) 'a');
+      dataBuffer.writePosition(1);
+
+      assertThat(iterator).isExhausted();
+    }
+    assertThat(dataBuffer.read()).isEqualTo((byte) 'a');
+
+    release(dataBuffer);
   }
 
   @ParameterizedDataBufferAllocatingTest
@@ -693,7 +762,6 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void slice(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -725,8 +793,10 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void retainedSlice(DataBufferFactory bufferFactory) {
+    assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
+            "Netty 5 does not support retainedSlice");
+
     super.bufferFactory = bufferFactory;
 
     DataBuffer buffer = createDataBuffer(3);
@@ -746,18 +816,12 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     result = new byte[2];
     slice.read(result);
 
-    if (!(bufferFactory instanceof Netty5DataBufferFactory)) {
-      assertThat(result).isEqualTo(new byte[] { 'b', 'c' });
-    }
-    else {
-      assertThat(result).isEqualTo(new byte[] { 'b', 0 });
-    }
+    assertThat(result).isEqualTo(new byte[] { 'b', 'c' });
 
     release(buffer, slice);
   }
 
   @ParameterizedDataBufferAllocatingTest
-  @SuppressWarnings("deprecation")
   void spr16351(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -774,6 +838,9 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
 
     assertThat(result).isEqualTo(bytes);
 
+    if (bufferFactory instanceof Netty5DataBufferFactory) {
+      release(slice);
+    }
     release(buffer);
   }
 

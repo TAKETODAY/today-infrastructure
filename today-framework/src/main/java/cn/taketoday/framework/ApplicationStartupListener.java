@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.time.Duration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
 /**
@@ -60,7 +61,7 @@ public interface ApplicationStartupListener {
    *
    * @param bootstrapContext the bootstrap context
    */
-  default void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass, ApplicationArguments arguments) { }
+  default void starting(ConfigurableBootstrapContext bootstrapContext, @Nullable Class<?> mainApplicationClass, ApplicationArguments arguments) { }
 
   /**
    * Called once the environment has been prepared, but before the
@@ -95,7 +96,7 @@ public interface ApplicationStartupListener {
    * @param context the application context.
    * @param timeTaken the time taken to start the application or {@code null} if unknown
    */
-  default void started(ConfigurableApplicationContext context, Duration timeTaken) { }
+  default void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) { }
 
   /**
    * Called immediately before the run method finishes, when the application context has
@@ -106,7 +107,7 @@ public interface ApplicationStartupListener {
    * @param timeTaken the time taken for the application to be ready or {@code null} if
    * unknown
    */
-  default void ready(ConfigurableApplicationContext context, Duration timeTaken) { }
+  default void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) { }
 
   /**
    * Called when a failure occurs when running the application.
@@ -115,6 +116,6 @@ public interface ApplicationStartupListener {
    * the context was created
    * @param exception the failure
    */
-  default void failed(ConfigurableApplicationContext context, Throwable exception) { }
+  default void failed(@Nullable ConfigurableApplicationContext context, Throwable exception) { }
 
 }

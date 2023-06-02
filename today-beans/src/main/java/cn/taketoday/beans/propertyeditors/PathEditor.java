@@ -81,7 +81,7 @@ public class PathEditor extends PropertyEditorSupport {
     boolean nioPathCandidate = !text.startsWith(ResourceLoader.CLASSPATH_URL_PREFIX);
     if (nioPathCandidate && !text.startsWith("/")) {
       try {
-        URI uri = new URI(text);
+        URI uri = ResourceUtils.toURI(text);
         if (uri.getScheme() != null) {
           nioPathCandidate = false;
           // Let's try NIO file system providers via Paths.get(URI)

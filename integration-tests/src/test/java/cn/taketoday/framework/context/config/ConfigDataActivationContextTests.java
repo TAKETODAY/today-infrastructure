@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,7 +50,7 @@ class ConfigDataActivationContextTests {
     Environment environment = new MockEnvironment();
     Binder binder = Binder.get(environment);
     ConfigDataActivationContext context = new ConfigDataActivationContext(environment, binder);
-    assertThat(context.getCloudPlatform()).isNull();
+    assertThat(context.cloudPlatform).isNull();
   }
 
   @Test
@@ -58,7 +58,7 @@ class ConfigDataActivationContextTests {
     MockEnvironment environment = createKubernetesEnvironment();
     Binder binder = Binder.get(environment);
     ConfigDataActivationContext context = new ConfigDataActivationContext(environment, binder);
-    assertThat(context.getCloudPlatform()).isEqualTo(CloudPlatform.KUBERNETES);
+    assertThat(context.cloudPlatform).isEqualTo(CloudPlatform.KUBERNETES);
   }
 
   @Test
@@ -67,7 +67,7 @@ class ConfigDataActivationContextTests {
     Binder binder = new Binder(
             new MapConfigurationPropertySource(Collections.singletonMap("app.main.cloud-platform", "HEROKU")));
     ConfigDataActivationContext context = new ConfigDataActivationContext(environment, binder);
-    assertThat(context.getCloudPlatform()).isEqualTo(CloudPlatform.HEROKU);
+    assertThat(context.cloudPlatform).isEqualTo(CloudPlatform.HEROKU);
   }
 
   @Test
@@ -75,7 +75,7 @@ class ConfigDataActivationContextTests {
     Environment environment = new MockEnvironment();
     Binder binder = Binder.get(environment);
     ConfigDataActivationContext context = new ConfigDataActivationContext(environment, binder);
-    assertThat(context.getProfiles()).isNull();
+    assertThat(context.profiles).isNull();
   }
 
   @Test
@@ -86,7 +86,7 @@ class ConfigDataActivationContextTests {
     ConfigDataActivationContext context = new ConfigDataActivationContext(environment, binder);
     Profiles profiles = new Profiles(environment, binder, null);
     context = context.withProfiles(profiles);
-    assertThat(context.getProfiles()).isEqualTo(profiles);
+    assertThat(context.profiles).isEqualTo(profiles);
   }
 
   private MockEnvironment createKubernetesEnvironment() {

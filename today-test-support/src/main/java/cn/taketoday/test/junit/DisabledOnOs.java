@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,18 +41,25 @@ import java.lang.annotation.Target;
 public @interface DisabledOnOs {
 
   /**
-   * See {@link org.junit.jupiter.api.condition.DisabledOnOs#value()}.
+   * The operating systems on which the annotated class or method should be disabled.
    *
-   * @return os
+   * @return the operating systems where the test is disabled
    */
-  OS os();
+  OS[] value() default {};
 
   /**
-   * Architecture of the operating system.
+   * The operating systems on which the annotated class or method should be disabled.
    *
-   * @return architecture
+   * @return the operating systems where the test is disabled
    */
-  String architecture();
+  OS[] os() default {};
+
+  /**
+   * The architectures on which the annotated class or method should be disabled.
+   *
+   * @return the architectures where the test is disabled
+   */
+  String[] architecture() default {};
 
   /**
    * See {@link org.junit.jupiter.api.condition.DisabledOnOs#disabledReason()}.

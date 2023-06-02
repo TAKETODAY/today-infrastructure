@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,8 +54,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.bytecode.ClassReader;
+import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -1350,8 +1350,8 @@ public abstract class ClassUtils {
    * type, assuming setting by reflection. Considers primitive wrapper
    * classes as assignable to the corresponding primitive types.
    *
-   * @param lhsType the target type
-   * @param rhsType the value type that should be assigned to the target type
+   * @param lhsType the target type (left-hand side (LHS) type)
+   * @param rhsType the value type (right-hand side (RHS) type) that should
    * @return if the target type is assignable from the value type
    * @see TypeUtils#isAssignable(java.lang.reflect.Type, java.lang.reflect.Type)
    * @since 4.0

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,6 +37,7 @@ import io.undertow.servlet.api.DeploymentManager;
  * @author Eddú Meléndez
  * @author Christoph Dreis
  * @author Kristine Jetzke
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see UndertowServletWebServerFactory
  * @since 4.0
  */
@@ -53,10 +54,9 @@ public class UndertowServletWebServer extends UndertowWebServer {
    * @param httpHandlerFactories the handler factories
    * @param contextPath the root context path
    * @param autoStart if the server should be started
-   * @since 4.0
    */
-  public UndertowServletWebServer(
-          Builder builder, Iterable<HttpHandlerFactory> httpHandlerFactories, String contextPath, boolean autoStart) {
+  public UndertowServletWebServer(Builder builder,
+          Iterable<HttpHandlerFactory> httpHandlerFactories, String contextPath, boolean autoStart) {
     super(builder, httpHandlerFactories, autoStart);
     this.contextPath = contextPath;
     this.manager = findManager(httpHandlerFactories);
@@ -68,7 +68,8 @@ public class UndertowServletWebServer extends UndertowWebServer {
         return ((DeploymentManagerHttpHandlerFactory) httpHandlerFactory).getDeploymentManager();
       }
     }
-    return null;
+    throw new IllegalStateException(
+            "Cannot determine the DeploymentManager from httpHandlerFactories:" + httpHandlerFactories);
   }
 
   @Override

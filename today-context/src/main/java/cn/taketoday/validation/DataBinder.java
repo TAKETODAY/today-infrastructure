@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,8 +63,8 @@ import cn.taketoday.util.StringUtils;
  * external clients. Therefore the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
  * sections on data binding for
- * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Spring Web MVC</a> and
- * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Spring WebFlux</a>
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Infra Web MVC</a> and
+ * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Infra WebFlux</a>
  * in the reference manual.
  *
  * <p>The binding results can be examined via the {@link BindingResult} interface,
@@ -207,7 +207,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * <p>If "true", a null path location will be populated with a default object value and traversed
    * instead of resulting in an exception. This flag also enables auto-growth of collection elements
    * when accessing an out-of-bounds index.
-   * <p>Default is "true" on a standard DataBinder. Note that since Spring 4.1 this feature is supported
+   * <p>Default is "true" on a standard DataBinder. Note that this feature is supported
    * for bean property access (DataBinder's default mode) and field access.
    *
    * @see #initBeanPropertyAccess()
@@ -868,10 +868,10 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         boolean empty = pv == null || pv.getValue() == null;
         if (!empty) {
           if (pv.getValue() instanceof String) {
-            empty = !StringUtils.hasText((String) pv.getValue());
+            empty = StringUtils.isBlank((String) pv.getValue());
           }
           else if (pv.getValue() instanceof String[] values) {
-            empty = values.length == 0 || !StringUtils.hasText(values[0]);
+            empty = values.length == 0 || StringUtils.isBlank(values[0]);
           }
         }
         if (empty) {

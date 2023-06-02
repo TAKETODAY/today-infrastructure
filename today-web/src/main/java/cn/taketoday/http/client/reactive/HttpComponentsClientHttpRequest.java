@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -108,7 +108,11 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     return doCommit(() -> {
-      this.byteBufferFlux = Flux.from(body).map(DataBuffer::toByteBuffer);
+      this.byteBufferFlux = Flux.from(body).map(dataBuffer -> {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+        dataBuffer.toByteBuffer(byteBuffer);
+        return byteBuffer;
+      });
       return Mono.empty();
     });
   }
@@ -135,8 +139,8 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
       }
     }
 
-    if (!this.httpRequest.containsHeader(HttpHeaders.ACCEPT)) {
-      this.httpRequest.addHeader(HttpHeaders.ACCEPT, ALL_VALUE);
+    if (!httpRequest.containsHeader(HttpHeaders.ACCEPT)) {
+      httpRequest.addHeader(HttpHeaders.ACCEPT, ALL_VALUE);
     }
 
     this.contentLength = headers.getContentLength();
@@ -148,7 +152,7 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
       return;
     }
 
-    CookieStore cookieStore = this.context.getCookieStore();
+    CookieStore cookieStore = context.getCookieStore();
     for (Map.Entry<String, List<HttpCookie>> entry : getCookies().entrySet()) {
       for (HttpCookie cookie : entry.getValue()) {
         BasicClientCookie clientCookie = new BasicClientCookie(cookie.getName(), cookie.getValue());
@@ -161,23 +165,24 @@ class HttpComponentsClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new HttpComponentsHeadersAdapter(this.httpRequest));
+    return HttpHeaders.readOnlyHttpHeaders(new HttpComponentsHeadersAdapter(httpRequest));
   }
 
   public AsyncRequestProducer toRequestProducer() {
     ReactiveEntityProducer reactiveEntityProducer = null;
 
-    if (this.byteBufferFlux != null) {
-      String contentEncoding = getHeaders().getFirst(HttpHeaders.CONTENT_ENCODING);
+    if (byteBufferFlux != null) {
+      HttpHeaders headers = getHeaders();
+      String contentEncoding = headers.getFirst(HttpHeaders.CONTENT_ENCODING);
       ContentType contentType = null;
-      if (getHeaders().getContentType() != null) {
-        contentType = ContentType.parse(getHeaders().getContentType().toString());
+      if (headers.getContentType() != null) {
+        contentType = ContentType.parse(headers.getContentType().toString());
       }
       reactiveEntityProducer = new ReactiveEntityProducer(
-              this.byteBufferFlux, contentLength, contentType, contentEncoding);
+              byteBufferFlux, contentLength, contentType, contentEncoding);
     }
 
-    return new BasicRequestProducer(this.httpRequest, reactiveEntityProducer);
+    return new BasicRequestProducer(httpRequest, reactiveEntityProducer);
   }
 
 }

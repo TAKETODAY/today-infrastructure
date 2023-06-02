@@ -25,8 +25,8 @@ import java.util.EventListener;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.EnvironmentAware;
+import cn.taketoday.context.ResourceLoaderAware;
 
 /**
  * Listener that can be registered with {@code today-strategies.properties} to receive details of

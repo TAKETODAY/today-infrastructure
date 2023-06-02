@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.annotation.MergedAnnotations;
 
 /**
- * Definition of a Spring {@link Qualifier @Qualifier}.
+ * Definition of a Infra {@link Qualifier @Qualifier}.
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
@@ -50,7 +50,7 @@ class QualifierDefinition {
   QualifierDefinition(Field field, Set<Annotation> annotations) {
     // We can't use the field or descriptor as part of the context key
     // but we can assume that if two fields have the same qualifiers then
-    // it's safe for Spring to use either for qualifier logic
+    // it's safe for Infra to use either for qualifier logic
     this.field = field;
     this.descriptor = new DependencyDescriptor(field, true);
     this.annotations = annotations;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,9 +68,11 @@ import cn.taketoday.util.ObjectUtils;
  * example, {@link ContextConfiguration#inheritLocations}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationUtils
  * @see AnnotatedElementUtils
  * @see AnnotationDescriptor
+ * @since 4.0
  */
 public abstract class TestContextAnnotationUtils {
 
@@ -91,10 +93,9 @@ public abstract class TestContextAnnotationUtils {
    * @param annotationType the type of annotation to look for
    * @return {@code true} if a matching annotation is present
    * @see #findMergedAnnotation(Class, Class)
-   * @since 4.0
    */
   public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationType) {
-    return (findMergedAnnotation(clazz, annotationType) != null);
+    return findMergedAnnotation(clazz, annotationType) != null;
   }
 
   /**
@@ -126,12 +127,12 @@ public abstract class TestContextAnnotationUtils {
   }
 
   @Nullable
-  private static <T extends Annotation> T findMergedAnnotation(Class<?> clazz, Class<T> annotationType,
-          Predicate<Class<?>> searchEnclosingClass) {
+  private static <T extends Annotation> T findMergedAnnotation(Class<?> clazz,
+          Class<T> annotationType, Predicate<Class<?>> searchEnclosingClass) {
 
-    AnnotationDescriptor<T> descriptor =
-            findAnnotationDescriptor(clazz, annotationType, searchEnclosingClass, new HashSet<>());
-    return (descriptor != null ? descriptor.getAnnotation() : null);
+    AnnotationDescriptor<T> descriptor = findAnnotationDescriptor(
+            clazz, annotationType, searchEnclosingClass, new HashSet<>());
+    return descriptor != null ? descriptor.getAnnotation() : null;
   }
 
   /**
@@ -217,8 +218,8 @@ public abstract class TestContextAnnotationUtils {
           Class<?> clazz, Class<T> annotationType) {
 
     Assert.notNull(annotationType, "Annotation type must not be null");
-    return findAnnotationDescriptor(clazz, annotationType, TestContextAnnotationUtils::searchEnclosingClass,
-            new HashSet<>());
+    return findAnnotationDescriptor(clazz, annotationType,
+            TestContextAnnotationUtils::searchEnclosingClass, new HashSet<>());
   }
 
   /**

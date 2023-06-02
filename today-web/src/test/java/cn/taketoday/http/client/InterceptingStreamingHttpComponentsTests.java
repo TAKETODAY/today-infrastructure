@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,13 +32,13 @@ public class InterceptingStreamingHttpComponentsTests extends AbstractHttpReques
   @Override
   protected ClientHttpRequestFactory createRequestFactory() {
     HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-    requestFactory.setBufferRequestBody(false);
     return new InterceptingClientHttpRequestFactory(requestFactory, null);
   }
 
   @Override
   @Test
   public void httpMethods() throws Exception {
+    super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
   }
 

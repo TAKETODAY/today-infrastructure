@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 final class GracefulShutdown {
 
-  private static final Logger logger = LoggerFactory.getLogger(JettyWebServer.class);
+  private static final Logger logger = LoggerFactory.getLogger(GracefulShutdown.class);
 
   private final Server server;
 

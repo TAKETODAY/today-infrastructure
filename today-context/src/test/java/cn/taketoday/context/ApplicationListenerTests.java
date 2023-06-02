@@ -38,28 +38,20 @@ class ApplicationListenerTests {
 
   @Test
   void testAddApplicationListener() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.addApplicationListener(new ApplicationListener<ContextRefreshedEvent>() {
-
-        @Override
-        public void onApplicationEvent(ContextRefreshedEvent event) {
-          i = true;
-        }
-      });
-      applicationContext.register(ContextCloseMetaInfoListener.class);
-      applicationContext.refresh();
-      assert i;
-    }
+    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    applicationContext.addApplicationListener((ApplicationListener<ContextRefreshedEvent>) event -> i = true);
+    applicationContext.register(ContextCloseMetaInfoListener.class);
+    applicationContext.refresh();
+    applicationContext.close();
+    assert i;
   }
 
   @Test
   void testLoadMetaInfoListeners() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.register(ContextCloseMetaInfoListener.class);
-      applicationContext.refresh();
-
-    }
+    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    applicationContext.register(ContextCloseMetaInfoListener.class);
+    applicationContext.refresh();
+    applicationContext.close();
     // auto close
     assert testLoadedMetaInfoListener;
   }

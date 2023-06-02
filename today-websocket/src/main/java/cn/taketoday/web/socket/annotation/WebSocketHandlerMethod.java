@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,16 +35,17 @@ import cn.taketoday.web.handler.method.ResolvableParameterFactory;
 public class WebSocketHandlerMethod {
   private final BeanSupplier<Object> supplier; // controller bean
   /** action **/
-  private final Method method;
+  public final Method method;
 
   private final MethodInvoker handlerInvoker;
 
   @Nullable
-  private final ResolvableMethodParameter[] parameters;
+  public final ResolvableMethodParameter[] parameters;
 
-  public WebSocketHandlerMethod(BeanSupplier<Object> supplier, Method method, ResolvableParameterFactory parameterBuilder) {
-    this.supplier = supplier;
+  public WebSocketHandlerMethod(BeanSupplier<Object> supplier,
+          Method method, ResolvableParameterFactory parameterBuilder) {
     this.method = method;
+    this.supplier = supplier;
     this.handlerInvoker = MethodInvoker.fromMethod(method);
     this.parameters = parameterBuilder.createArray(method);
   }
@@ -53,12 +54,4 @@ public class WebSocketHandlerMethod {
     handlerInvoker.invoke(supplier.get(), args);
   }
 
-  @Nullable
-  public ResolvableMethodParameter[] getParameters() {
-    return parameters;
-  }
-
-  public Method getMethod() {
-    return method;
-  }
 }

@@ -84,7 +84,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
   private final boolean combine;
 
-  private RequestMappingInfo(@Nullable String name,
+  RequestMappingInfo(@Nullable String name,
           PathPatternsRequestCondition pathPatternsCondition,
           RequestMethodsRequestCondition methodsCondition,
           ParamsRequestCondition paramsCondition,
@@ -383,9 +383,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     if (!this.methodsCondition.isEmpty()) {
       Set<HttpMethod> httpMethods = this.methodsCondition.getMethods();
       builder.append(httpMethods.size() == 1 ? httpMethods.iterator().next() : httpMethods);
-      // Patterns conditions are never empty and have "" (empty path) at least.
-      builder.append(' ').append(getPathPatternsCondition());
     }
+
+    // Patterns conditions are never empty and have "" (empty path) at least.
+    builder.append(' ').append(getPathPatternsCondition());
 
     if (!this.paramsCondition.isEmpty()) {
       builder.append(", params ").append(this.paramsCondition);
@@ -629,9 +630,10 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 
     @Override
     public Builder paths(String... paths) {
-      this.pathPatternsCondition = ObjectUtils.isEmpty(paths)
-                                   ? EMPTY_PATH_PATTERNS
-                                   : new PathPatternsRequestCondition(this.options.getPatternParser(), paths);
+      this.pathPatternsCondition
+              = ObjectUtils.isEmpty(paths)
+                ? EMPTY_PATH_PATTERNS
+                : new PathPatternsRequestCondition(this.options.getPatternParser(), paths);
       return this;
     }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,9 +44,11 @@ public abstract class TypeUtils {
    * Check if the right-hand side type may be assigned to the left-hand side
    * type following the Java generics rules.
    *
-   * @param lhsType the target type
-   * @param rhsType the value type that should be assigned to the target type
-   * @return true if rhs is assignable to lhs
+   * @param lhsType the target type (left-hand side (LHS) type)
+   * @param rhsType the value type (right-hand side (RHS) type) that should
+   * be assigned to the target type
+   * @return {@code true} if {@code rhsType} is assignable to {@code lhsType}
+   * @see ClassUtils#isAssignable(Class, Class)
    */
   public static boolean isAssignable(Type lhsType, Type rhsType) {
     Assert.notNull(lhsType, "Left-hand side type must not be null");
@@ -141,35 +143,15 @@ public abstract class TypeUtils {
   }
 
   private static boolean isAssignable(WildcardType lhsType, Type rhsType) {
-    Type[] lUpperBounds = lhsType.getUpperBounds();
-
-    // supply the implicit upper bound if none are specified
-    if (lUpperBounds.length == 0) {
-      lUpperBounds = new Type[] { Object.class };
-    }
-
-    Type[] lLowerBounds = lhsType.getLowerBounds();
-
-    // supply the implicit lower bound if none are specified
-    if (lLowerBounds.length == 0) {
-      lLowerBounds = new Type[] { null };
-    }
+    Type[] lUpperBounds = getUpperBounds(lhsType);
+    Type[] lLowerBounds = getLowerBounds(lhsType);
 
     if (rhsType instanceof WildcardType rhsWcType) {
       // both the upper and lower bounds of the right-hand side must be
       // completely enclosed in the upper and lower bounds of the left-
       // hand side.
-      Type[] rUpperBounds = rhsWcType.getUpperBounds();
-
-      if (rUpperBounds.length == 0) {
-        rUpperBounds = new Type[] { Object.class };
-      }
-
-      Type[] rLowerBounds = rhsWcType.getLowerBounds();
-
-      if (rLowerBounds.length == 0) {
-        rLowerBounds = new Type[] { null };
-      }
+      Type[] rUpperBounds = getUpperBounds(rhsWcType);
+      Type[] rLowerBounds = getLowerBounds(rhsWcType);
 
       for (Type lBound : lUpperBounds) {
         for (Type rBound : rUpperBounds) {
@@ -224,6 +206,26 @@ public abstract class TypeUtils {
       return true;
     }
     return !isAssignable(lhsType, rhsType);
+  }
+
+  private static Type[] getLowerBounds(WildcardType wildcardType) {
+    Type[] lowerBounds = wildcardType.getLowerBounds();
+
+    // supply the implicit lower bound if none are specified
+    if (lowerBounds.length == 0) {
+      lowerBounds = new Type[] { null };
+    }
+    return lowerBounds;
+  }
+
+  private static Type[] getUpperBounds(WildcardType wildcardType) {
+    Type[] upperBounds = wildcardType.getUpperBounds();
+
+    // supply the implicit upper bound if none are specified
+    if (upperBounds.length == 0) {
+      upperBounds = new Type[] { Object.class };
+    }
+    return upperBounds;
   }
 
 }

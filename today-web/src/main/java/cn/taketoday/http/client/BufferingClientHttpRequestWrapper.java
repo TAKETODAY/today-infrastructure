@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.net.URI;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 
@@ -32,6 +33,7 @@ import cn.taketoday.util.StreamUtils;
  * Simple implementation of {@link ClientHttpRequest} that wraps another request.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHttpRequest {
@@ -60,9 +62,16 @@ final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHtt
 
   @Override
   protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
-    this.request.getHeaders().putAll(headers);
-    StreamUtils.copy(bufferedOutput, this.request.getBody());
-    ClientHttpResponse response = this.request.execute();
+    request.getHeaders().putAll(headers);
+
+    if (request instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(stream -> StreamUtils.copy(bufferedOutput, stream));
+    }
+    else {
+      StreamUtils.copy(bufferedOutput, request.getBody());
+    }
+
+    ClientHttpResponse response = request.execute();
     return new BufferingClientHttpResponseWrapper(response);
   }
 

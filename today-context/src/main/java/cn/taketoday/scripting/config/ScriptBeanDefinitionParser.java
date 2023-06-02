@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -198,7 +198,7 @@ class ScriptBeanDefinitionParser extends AbstractBeanDefinitionParser {
     // This is used for Groovy. It's a bean reference to a customizer bean.
     if (element.hasAttribute(CUSTOMIZER_REF_ATTRIBUTE)) {
       String customizerBeanName = element.getAttribute(CUSTOMIZER_REF_ATTRIBUTE);
-      if (!StringUtils.hasText(customizerBeanName)) {
+      if (StringUtils.isBlank(customizerBeanName)) {
         parserContext.getReaderContext().error("Attribute 'customizer-ref' has empty value", element);
       }
       else {

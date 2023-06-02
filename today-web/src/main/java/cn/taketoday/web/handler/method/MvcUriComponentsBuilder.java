@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,15 +22,15 @@ package cn.taketoday.web.handler.method;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -56,14 +56,14 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
+import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.ServletUriComponentsBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Creates instances of {@link cn.taketoday.web.util.UriComponentsBuilder}
@@ -110,7 +110,8 @@ public class MvcUriComponentsBuilder {
 
   private static final CompositeUriComponentsContributor defaultUriComponentsContributor =
           new CompositeUriComponentsContributor(
-                  new PathVariableMethodArgumentResolver()
+                  new PathVariableMethodArgumentResolver(),
+                  new RequestParamMethodArgumentResolver(false)
           );
 
   private final UriComponentsBuilder baseUrl;
@@ -449,8 +450,8 @@ public class MvcUriComponentsBuilder {
    * if there is no unique match
    */
   public static MethodArgumentBuilder fromMappingName(@Nullable UriComponentsBuilder builder, String name) {
-    WebApplicationContext wac = getWebApplicationContext();
-    Assert.notNull(wac, "No WebApplicationContext. ");
+    ApplicationContext wac = getApplicationContext();
+    Assert.notNull(wac, "No ApplicationContext. ");
     Map<String, RequestMappingInfoHandlerMapping> map = wac.getBeansOfType(RequestMappingInfoHandlerMapping.class);
     List<HandlerMethod> handlerMethods = null;
     for (RequestMappingInfoHandlerMapping mapping : map.values()) {
@@ -546,13 +547,18 @@ public class MvcUriComponentsBuilder {
   }
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
+    if (ServletDetector.isPresent) {
+      return baseUrl == null ?
+             ServletUriComponentsBuilder.fromCurrentServletMapping() :
+             baseUrl.cloneBuilder();
+    }
     return baseUrl == null ?
-           ServletUriComponentsBuilder.fromCurrentServletMapping() :
+           UriComponentsBuilder.fromHttpRequest(RequestContextHolder.getRequired()) :
            baseUrl.cloneBuilder();
   }
 
   private static String getPathPrefix(Class<?> controllerType) {
-    WebApplicationContext wac = getWebApplicationContext();
+    ApplicationContext wac = getApplicationContext();
     if (wac != null) {
       Map<String, RequestMappingHandlerMapping> map = wac.getBeansOfType(RequestMappingHandlerMapping.class);
       for (RequestMappingHandlerMapping mapping : map.values()) {
@@ -578,7 +584,7 @@ public class MvcUriComponentsBuilder {
       return "/";
     }
     if (paths.length > 1 && logger.isTraceEnabled()) {
-      logger.trace("Using first of multiple paths on " + controllerType.getName());
+      logger.trace("Using first of multiple paths on {}", controllerType.getName());
     }
     return paths[0];
   }
@@ -591,10 +597,10 @@ public class MvcUriComponentsBuilder {
     }
     String[] paths = requestMapping.path();
     if (ObjectUtils.isEmpty(paths) || StringUtils.isEmpty(paths[0])) {
-      return "/";
+      return "";
     }
     if (paths.length > 1 && logger.isTraceEnabled()) {
-      logger.trace("Using first of multiple paths on " + method.toGenericString());
+      logger.trace("Using first of multiple paths on {}", method.toGenericString());
     }
     return paths[0];
   }
@@ -641,7 +647,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static CompositeUriComponentsContributor getUriComponentsContributor() {
-    WebApplicationContext wac = getWebApplicationContext();
+    ApplicationContext wac = getApplicationContext();
     if (wac != null) {
       try {
         return wac.getBean(MVC_URI_COMPONENTS_CONTRIBUTOR_BEAN_NAME, CompositeUriComponentsContributor.class);
@@ -654,18 +660,17 @@ public class MvcUriComponentsBuilder {
   }
 
   @Nullable
-  private static WebApplicationContext getWebApplicationContext() {
+  private static ApplicationContext getApplicationContext() {
     RequestContext context = RequestContextHolder.get();
     if (context == null) {
       return null;
     }
     ApplicationContext applicationContext = context.getApplicationContext();
-    if (applicationContext instanceof WebApplicationContext wac) {
-      return wac;
+    if (applicationContext != null) {
+      return applicationContext;
     }
-    HttpServletRequest request = ServletUtils.getServletRequest(context);
     String attributeName = ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE;
-    return (WebApplicationContext) request.getAttribute(attributeName);
+    return (ApplicationContext) context.getAttribute(attributeName);
   }
 
   /**
@@ -690,7 +695,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static class ControllerMethodInvocationInterceptor
-          implements cn.taketoday.bytecode.proxy.MethodInterceptor, MethodInterceptor, MethodInvocationInfo {
+          implements cn.taketoday.bytecode.proxy.MethodInterceptor, InvocationHandler, MethodInterceptor, MethodInvocationInfo {
 
     private final Class<?> controllerType;
 
@@ -767,11 +772,14 @@ public class MvcUriComponentsBuilder {
         return (T) interceptor;
       }
       else if (controllerType.isInterface()) {
-        ProxyFactory factory = new ProxyFactory(EmptyTargetSource.INSTANCE);
-        factory.addInterface(controllerType);
-        factory.addInterface(MethodInvocationInfo.class);
-        factory.addAdvice(interceptor);
-        return (T) factory.getProxy();
+        ClassLoader classLoader = controllerType.getClassLoader();
+        if (classLoader == null || classLoader.getParent() == null) {
+          // JDK interface type from bootstrap loader or platform loader ->
+          // use higher-level loader which can see Infra infrastructure classes
+          classLoader = MethodInvocationInfo.class.getClassLoader();
+        }
+        Class<?>[] ifcs = new Class<?>[] { controllerType, MethodInvocationInfo.class };
+        return (T) Proxy.newProxyInstance(classLoader, ifcs, interceptor);
       }
       else {
         Enhancer enhancer = new Enhancer();
@@ -799,6 +807,13 @@ public class MvcUriComponentsBuilder {
         return (T) proxy;
       }
     }
+
+    @Override
+    @Nullable
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      return intercept(proxy, method, args, null);
+    }
+
   }
 
   /**

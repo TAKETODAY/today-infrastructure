@@ -115,69 +115,68 @@ public class SimpleTransactionScopeTests {
 
   @Test
   public void getWithTransactionManager() throws Exception {
-    try (GenericApplicationContext context = new GenericApplicationContext()) {
-      context.getBeanFactory().registerScope("tx", new SimpleTransactionScope());
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.getBeanFactory().registerScope("tx", new SimpleTransactionScope());
 
-      RootBeanDefinition bd1 = new RootBeanDefinition();
-      bd1.setBeanClass(TestBean.class);
-      bd1.setScope("tx");
-      bd1.setPrimary(true);
-      context.registerBeanDefinition("txScopedObject1", bd1);
+    RootBeanDefinition bd1 = new RootBeanDefinition();
+    bd1.setBeanClass(TestBean.class);
+    bd1.setScope("tx");
+    bd1.setPrimary(true);
+    context.registerBeanDefinition("txScopedObject1", bd1);
 
-      RootBeanDefinition bd2 = new RootBeanDefinition();
-      bd2.setBeanClass(DerivedTestBean.class);
-      bd2.setScope("tx");
-      context.registerBeanDefinition("txScopedObject2", bd2);
+    RootBeanDefinition bd2 = new RootBeanDefinition();
+    bd2.setBeanClass(DerivedTestBean.class);
+    bd2.setScope("tx");
+    context.registerBeanDefinition("txScopedObject2", bd2);
 
-      context.refresh();
+    context.refresh();
 
-      CallCountingTransactionManager tm = new CallCountingTransactionManager();
-      TransactionTemplate tt = new TransactionTemplate(tm);
-      Set<DerivedTestBean> finallyDestroy = new HashSet<>();
+    CallCountingTransactionManager tm = new CallCountingTransactionManager();
+    TransactionTemplate tt = new TransactionTemplate(tm);
+    Set<DerivedTestBean> finallyDestroy = new HashSet<>();
 
-      tt.execute(status -> {
-        TestBean bean1 = context.getBean(TestBean.class);
-        assertThat(context.getBean(TestBean.class)).isSameAs(bean1);
+    tt.execute(status -> {
+      TestBean bean1 = context.getBean(TestBean.class);
+      assertThat(context.getBean(TestBean.class)).isSameAs(bean1);
 
-        DerivedTestBean bean2 = context.getBean(DerivedTestBean.class);
-        assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2);
-        context.getBeanFactory().destroyScopedBean("txScopedObject2");
-        assertThat(TransactionSynchronizationManager.hasResource("txScopedObject2")).isFalse();
-        assertThat(bean2.wasDestroyed()).isTrue();
+      DerivedTestBean bean2 = context.getBean(DerivedTestBean.class);
+      assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2);
+      context.getBeanFactory().destroyScopedBean("txScopedObject2");
+      assertThat(TransactionSynchronizationManager.hasResource("txScopedObject2")).isFalse();
+      assertThat(bean2.wasDestroyed()).isTrue();
 
-        DerivedTestBean bean2a = context.getBean(DerivedTestBean.class);
-        assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2a);
-        assertThat(bean2a).isNotSameAs(bean2);
-        context.getBeanFactory().getRegisteredScope("tx").remove("txScopedObject2");
-        assertThat(TransactionSynchronizationManager.hasResource("txScopedObject2")).isFalse();
-        assertThat(bean2a.wasDestroyed()).isFalse();
+      DerivedTestBean bean2a = context.getBean(DerivedTestBean.class);
+      assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2a);
+      assertThat(bean2a).isNotSameAs(bean2);
+      context.getBeanFactory().getRegisteredScope("tx").remove("txScopedObject2");
+      assertThat(TransactionSynchronizationManager.hasResource("txScopedObject2")).isFalse();
+      assertThat(bean2a.wasDestroyed()).isFalse();
 
-        DerivedTestBean bean2b = context.getBean(DerivedTestBean.class);
-        finallyDestroy.add(bean2b);
-        assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2b);
-        assertThat(bean2b).isNotSameAs(bean2);
-        assertThat(bean2b).isNotSameAs(bean2a);
+      DerivedTestBean bean2b = context.getBean(DerivedTestBean.class);
+      finallyDestroy.add(bean2b);
+      assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2b);
+      assertThat(bean2b).isNotSameAs(bean2);
+      assertThat(bean2b).isNotSameAs(bean2a);
 
-        Set<DerivedTestBean> immediatelyDestroy = new HashSet<>();
-        TransactionTemplate tt2 = new TransactionTemplate(tm);
-        tt2.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRED);
-        tt2.execute(status2 -> {
-          DerivedTestBean bean2c = context.getBean(DerivedTestBean.class);
-          immediatelyDestroy.add(bean2c);
-          assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2c);
-          assertThat(bean2c).isNotSameAs(bean2);
-          assertThat(bean2c).isNotSameAs(bean2a);
-          assertThat(bean2c).isNotSameAs(bean2b);
-          return null;
-        });
-        assertThat(immediatelyDestroy.iterator().next().wasDestroyed()).isTrue();
-        assertThat(bean2b.wasDestroyed()).isFalse();
-
+      Set<DerivedTestBean> immediatelyDestroy = new HashSet<>();
+      TransactionTemplate tt2 = new TransactionTemplate(tm);
+      tt2.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRED);
+      tt2.execute(status2 -> {
+        DerivedTestBean bean2c = context.getBean(DerivedTestBean.class);
+        immediatelyDestroy.add(bean2c);
+        assertThat(context.getBean(DerivedTestBean.class)).isSameAs(bean2c);
+        assertThat(bean2c).isNotSameAs(bean2);
+        assertThat(bean2c).isNotSameAs(bean2a);
+        assertThat(bean2c).isNotSameAs(bean2b);
         return null;
       });
+      assertThat(immediatelyDestroy.iterator().next().wasDestroyed()).isTrue();
+      assertThat(bean2b.wasDestroyed()).isFalse();
 
-      assertThat(finallyDestroy.iterator().next().wasDestroyed()).isTrue();
-    }
+      return null;
+    });
+
+    assertThat(finallyDestroy.iterator().next().wasDestroyed()).isTrue();
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework.context.event;
 
+import java.io.Serial;
 import java.time.Duration;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -27,6 +28,7 @@ import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationArguments;
 import cn.taketoday.framework.ApplicationRunner;
 import cn.taketoday.framework.CommandLineRunner;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Event published once the application context has been refreshed but before any
@@ -37,11 +39,14 @@ import cn.taketoday.framework.CommandLineRunner;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class ApplicationStartedEvent extends ApplicationStartupEvent {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final ConfigurableApplicationContext context;
 
+  @Nullable
   private final Duration timeTaken;
 
   /**
@@ -52,8 +57,8 @@ public class ApplicationStartedEvent extends ApplicationStartupEvent {
    * @param context the context that was being created
    * @param timeTaken the time taken to start the application
    */
-  public ApplicationStartedEvent(Application application, ApplicationArguments args, ConfigurableApplicationContext context,
-          Duration timeTaken) {
+  public ApplicationStartedEvent(Application application,
+          ApplicationArguments args, ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
     super(application, args);
     this.context = context;
     this.timeTaken = timeTaken;
@@ -73,6 +78,7 @@ public class ApplicationStartedEvent extends ApplicationStartupEvent {
    *
    * @return the startup time
    */
+  @Nullable
   public Duration getTimeTaken() {
     return this.timeTaken;
   }

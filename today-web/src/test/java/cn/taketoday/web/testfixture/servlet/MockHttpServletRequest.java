@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,27 +47,33 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.UrlPathHelper;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
+import jakarta.servlet.http.MappingMatch;
 import jakarta.servlet.http.Part;
 
 /**
@@ -97,9 +103,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
-  private static final ServletInputStream EMPTY_SERVLET_INPUT_STREAM =
-          new DelegatingServletInputStream(new ByteArrayInputStream(new byte[0]));
-
   private static final BufferedReader EMPTY_BUFFERED_READER =
           new BufferedReader(new StringReader(""));
 
@@ -120,15 +123,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /**
    * The default protocol: 'HTTP/1.1'.
-   *
-   * @since 4.0
    */
   public static final String DEFAULT_PROTOCOL = "HTTP/1.1";
 
   /**
    * The default scheme: 'http'.
-   *
-   * @since 4.0
    */
   public static final String DEFAULT_SCHEME = HTTP;
 
@@ -171,14 +170,19 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
 
+  @Nullable
   private String characterEncoding;
 
+  @Nullable
   private byte[] content;
 
+  @Nullable
   private String contentType;
 
+  @Nullable
   private ServletInputStream inputStream;
 
+  @Nullable
   private BufferedReader reader;
 
   private final Map<String, String[]> parameters = new LinkedHashMap<>(16);
@@ -212,6 +216,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   private boolean asyncSupported = false;
 
+  @Nullable
   private MockAsyncContext asyncContext;
 
   private DispatcherType dispatcherType = DispatcherType.REQUEST;
@@ -220,32 +225,42 @@ public class MockHttpServletRequest implements HttpServletRequest {
   // HttpServletRequest properties
   // ---------------------------------------------------------------------
 
+  @Nullable
   private String authType;
 
+  @Nullable
   private Cookie[] cookies;
 
   private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
 
+  @Nullable
   private String method;
 
+  @Nullable
   private String pathInfo;
 
   private String contextPath = "";
 
+  @Nullable
   private String queryString;
 
+  @Nullable
   private String remoteUser;
 
   private final Set<String> userRoles = new HashSet<>();
 
+  @Nullable
   private Principal userPrincipal;
 
+  @Nullable
   private String requestedSessionId;
 
+  @Nullable
   private String requestURI;
 
   private String servletPath = "";
 
+  @Nullable
   private HttpSession session;
 
   private boolean requestedSessionIdValid = true;
@@ -254,7 +269,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   private boolean requestedSessionIdFromURL = false;
 
-  private final MultiValueMap<String, Part> parts = new DefaultMultiValueMap<>();
+  private final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
+
+  @Nullable
+  private HttpServletMapping httpServletMapping;
 
   // ---------------------------------------------------------------------
   // Constructors
@@ -280,7 +298,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #setRequestURI
    * @see #MockHttpServletRequest(ServletContext, String, String)
    */
-  public MockHttpServletRequest(String method, String requestURI) {
+  public MockHttpServletRequest(@Nullable String method, @Nullable String requestURI) {
     this(null, method, requestURI);
   }
 
@@ -291,7 +309,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * (may be {@code null} to use a default {@link MockServletContext})
    * @see #MockHttpServletRequest(ServletContext, String, String)
    */
-  public MockHttpServletRequest(ServletContext servletContext) {
+  public MockHttpServletRequest(@Nullable ServletContext servletContext) {
     this(servletContext, "", "");
   }
 
@@ -309,7 +327,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #setPreferredLocales
    * @see MockServletContext
    */
-  public MockHttpServletRequest(ServletContext servletContext, String method, String requestURI) {
+  public MockHttpServletRequest(@Nullable ServletContext servletContext, @Nullable String method, @Nullable String requestURI) {
     this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
     this.method = method;
     this.requestURI = requestURI;
@@ -376,13 +394,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
+  @Nullable
   public String getCharacterEncoding() {
     return this.characterEncoding;
   }
 
   @Override
-  public void setCharacterEncoding(String characterEncoding) {
+  public void setCharacterEncoding(@Nullable String characterEncoding) {
     this.characterEncoding = characterEncoding;
     updateContentTypeHeader();
   }
@@ -407,7 +425,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #getContentAsByteArray()
    * @see #getContentAsString()
    */
-  public void setContent(byte[] content) {
+  public void setContent(@Nullable byte[] content) {
     this.content = content;
     this.inputStream = null;
     this.reader = null;
@@ -419,9 +437,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @return the content as a byte array (potentially {@code null})
    * @see #setContent(byte[])
    * @see #getContentAsString()
-   * @since 4.0
    */
-
+  @Nullable
   public byte[] getContentAsByteArray() {
     return this.content;
   }
@@ -436,8 +453,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #setContent(byte[])
    * @see #setCharacterEncoding(String)
    * @see #getContentAsByteArray()
-   * @since 4.0
    */
+  @Nullable
   public String getContentAsString() throws IllegalStateException, UnsupportedEncodingException {
     Assert.state(this.characterEncoding != null,
             "Cannot get content as a String for a null character encoding. " +
@@ -459,7 +476,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return getContentLength();
   }
 
-  public void setContentType(String contentType) {
+  public void setContentType(@Nullable String contentType) {
     this.contentType = contentType;
     if (contentType != null) {
       try {
@@ -480,7 +497,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
+  @Nullable
   public String getContentType() {
     return this.contentType;
   }
@@ -497,7 +514,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     this.inputStream = (this.content != null ?
                         new DelegatingServletInputStream(new ByteArrayInputStream(this.content)) :
-                        EMPTY_SERVLET_INPUT_STREAM);
+                        new DelegatingServletInputStream(InputStream.nullInputStream()));
     return this.inputStream;
   }
 
@@ -528,11 +545,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public void setParameters(Map<String, ?> params) {
     Assert.notNull(params, "Parameter map must not be null");
     params.forEach((key, value) -> {
-      if (value instanceof String) {
-        setParameter(key, (String) value);
+      if (value instanceof String str) {
+        setParameter(key, str);
       }
-      else if (value instanceof String[]) {
-        setParameter(key, (String[]) value);
+      else if (value instanceof String[] strings) {
+        setParameter(key, strings);
       }
       else {
         throw new IllegalArgumentException(
@@ -546,7 +563,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * <p>If there are already one or more values registered for the given
    * parameter name, the given value will be added to the end of the list.
    */
-  public void addParameter(String name, String value) {
+  public void addParameter(String name, @Nullable String value) {
     addParameter(name, new String[] { value });
   }
 
@@ -577,11 +594,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public void addParameters(Map<String, ?> params) {
     Assert.notNull(params, "Parameter map must not be null");
     params.forEach((key, value) -> {
-      if (value instanceof String) {
-        addParameter(key, (String) value);
+      if (value instanceof String str) {
+        addParameter(key, str);
       }
-      else if (value instanceof String[]) {
-        addParameter(key, (String[]) value);
+      else if (value instanceof String[] strings) {
+        addParameter(key, strings);
       }
       else {
         throw new IllegalArgumentException("Parameter map value must be single value " +
@@ -606,6 +623,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
+  @Nullable
   public String getParameter(String name) {
     Assert.notNull(name, "Parameter name must not be null");
     String[] arr = this.parameters.get(name);
@@ -691,7 +709,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         idx = host.indexOf(':');
       }
       if (idx != -1) {
-        return Integer.parseInt(host.substring(idx + 1));
+        return Integer.parseInt(host, idx + 1, host.length(), 10);
       }
     }
 
@@ -741,7 +759,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public void setAttribute(String name, Object value) {
+  public void setAttribute(String name, @Nullable Object value) {
     checkActive();
     Assert.notNull(name, "Attribute name must not be null");
     if (value != null) {
@@ -863,12 +881,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return new MockRequestDispatcher(path);
   }
 
-  @Override
-  @Deprecated
-  public String getRealPath(String path) {
-    return this.servletContext.getRealPath(path);
-  }
-
   public void setRemotePort(int remotePort) {
     this.remotePort = remotePort;
   }
@@ -911,7 +923,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public AsyncContext startAsync(ServletRequest request, ServletResponse response) {
+  public AsyncContext startAsync(ServletRequest request, @Nullable ServletResponse response) {
     Assert.state(this.asyncSupported, "Async not supported");
     this.asyncStarted = true;
     this.asyncContext = new MockAsyncContext(request, response);
@@ -936,12 +948,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return this.asyncSupported;
   }
 
-  public void setAsyncContext(MockAsyncContext asyncContext) {
+  public void setAsyncContext(@Nullable MockAsyncContext asyncContext) {
     this.asyncContext = asyncContext;
   }
 
   @Override
-
+  @Nullable
   public AsyncContext getAsyncContext() {
     return this.asyncContext;
   }
@@ -955,20 +967,56 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return this.dispatcherType;
   }
 
+  @Override
+  public String getRequestId() {
+    return "";
+  }
+
+  @Override
+  public String getProtocolRequestId() {
+    return "";
+  }
+
+  @Override
+  public ServletConnection getServletConnection() {
+    return new ServletConnection() {
+      @Override
+      public String getConnectionId() {
+        return MockHttpServletRequest.this.getRequestId();
+      }
+
+      @Override
+      public String getProtocol() {
+        return MockHttpServletRequest.this.getProtocol();
+      }
+
+      @Override
+      public String getProtocolConnectionId() {
+        return MockHttpServletRequest.this.getProtocolRequestId();
+      }
+
+      @Override
+      public boolean isSecure() {
+        return MockHttpServletRequest.this.isSecure();
+      }
+    };
+  }
+
   // ---------------------------------------------------------------------
   // HttpServletRequest interface
   // ---------------------------------------------------------------------
 
-  public void setAuthType(String authType) {
+  public void setAuthType(@Nullable String authType) {
     this.authType = authType;
   }
 
   @Override
+  @Nullable
   public String getAuthType() {
     return this.authType;
   }
 
-  public void setCookies(Cookie... cookies) {
+  public void setCookies(@Nullable Cookie... cookies) {
     this.cookies = (ObjectUtils.isEmpty(cookies) ? null : cookies);
     if (this.cookies == null) {
       removeHeader(HttpHeaders.COOKIE);
@@ -978,13 +1026,14 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
   }
 
-  private static String encodeCookies(Cookie... cookies) {
+  private static String encodeCookies(@NonNull Cookie... cookies) {
     return Arrays.stream(cookies)
             .map(c -> c.getName() + '=' + (c.getValue() == null ? "" : c.getValue()))
             .collect(Collectors.joining("; "));
   }
 
   @Override
+  @Nullable
   public Cookie[] getCookies() {
     return this.cookies;
   }
@@ -1032,15 +1081,15 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
   }
 
-  private void doAddHeaderValue(String name, Object value, boolean replace) {
+  private void doAddHeaderValue(String name, @Nullable Object value, boolean replace) {
     HeaderValueHolder header = this.headers.get(name);
     Assert.notNull(value, "Header value must not be null");
     if (header == null || replace) {
       header = new HeaderValueHolder();
       this.headers.put(name, header);
     }
-    if (value instanceof Collection) {
-      header.addValues((Collection<?>) value);
+    if (value instanceof Collection<?> collection) {
+      header.addValues(collection);
     }
     else if (value.getClass().isArray()) {
       header.addValueArray(value);
@@ -1052,8 +1101,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /**
    * Remove already registered entries for the specified HTTP header, if any.
-   *
-   * @since 4.00
    */
   public void removeHeader(String name) {
     Assert.notNull(name, "Header name must not be null");
@@ -1077,14 +1124,14 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public long getDateHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     Object value = (header != null ? header.getValue() : null);
-    if (value instanceof Date) {
-      return ((Date) value).getTime();
+    if (value instanceof Date date) {
+      return date.getTime();
     }
-    else if (value instanceof Number) {
-      return ((Number) value).longValue();
+    else if (value instanceof Number number) {
+      return number.longValue();
     }
-    else if (value instanceof String) {
-      return parseDateHeader(name, (String) value);
+    else if (value instanceof String str) {
+      return parseDateHeader(name, str);
     }
     else if (value != null) {
       throw new IllegalArgumentException(
@@ -1110,7 +1157,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
+  @Nullable
   public String getHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     return (header != null ? header.getStringValue() : null);
@@ -1131,11 +1178,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   public int getIntHeader(String name) {
     HeaderValueHolder header = this.headers.get(name);
     Object value = (header != null ? header.getValue() : null);
-    if (value instanceof Number) {
-      return ((Number) value).intValue();
+    if (value instanceof Number number) {
+      return number.intValue();
     }
-    else if (value instanceof String) {
-      return Integer.parseInt((String) value);
+    else if (value instanceof String str) {
+      return Integer.parseInt(str);
     }
     else if (value != null) {
       throw new NumberFormatException("Value for header '" + name + "' is not a Number: " + value);
@@ -1145,30 +1192,30 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
   }
 
-  public void setMethod(String method) {
+  public void setMethod(@Nullable String method) {
     this.method = method;
   }
 
   @Override
-
+  @Nullable
   public String getMethod() {
     return this.method;
   }
 
-  public void setPathInfo(String pathInfo) {
+  public void setPathInfo(@Nullable String pathInfo) {
     this.pathInfo = pathInfo;
   }
 
   @Override
-
+  @Nullable
   public String getPathInfo() {
     return this.pathInfo;
   }
 
   @Override
-
+  @Nullable
   public String getPathTranslated() {
-    return (this.pathInfo != null ? getRealPath(this.pathInfo) : null);
+    return (this.pathInfo != null ? this.servletContext.getRealPath(this.pathInfo) : null);
   }
 
   public void setContextPath(String contextPath) {
@@ -1180,22 +1227,22 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return this.contextPath;
   }
 
-  public void setQueryString(String queryString) {
+  public void setQueryString(@Nullable String queryString) {
     this.queryString = queryString;
   }
 
   @Override
-
+  @Nullable
   public String getQueryString() {
     return this.queryString;
   }
 
-  public void setRemoteUser(String remoteUser) {
+  public void setRemoteUser(@Nullable String remoteUser) {
     this.remoteUser = remoteUser;
   }
 
   @Override
-
+  @Nullable
   public String getRemoteUser() {
     return this.remoteUser;
   }
@@ -1206,36 +1253,37 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   @Override
   public boolean isUserInRole(String role) {
-    return (this.userRoles.contains(role) || (this.servletContext instanceof MockServletContext &&
-            ((MockServletContext) this.servletContext).getDeclaredRoles().contains(role)));
+    return (this.userRoles.contains(role) ||
+            (this.servletContext instanceof MockServletContext mockContext &&
+                    mockContext.getDeclaredRoles().contains(role)));
   }
 
-  public void setUserPrincipal(Principal userPrincipal) {
+  public void setUserPrincipal(@Nullable Principal userPrincipal) {
     this.userPrincipal = userPrincipal;
   }
 
   @Override
-
+  @Nullable
   public Principal getUserPrincipal() {
     return this.userPrincipal;
   }
 
-  public void setRequestedSessionId(String requestedSessionId) {
+  public void setRequestedSessionId(@Nullable String requestedSessionId) {
     this.requestedSessionId = requestedSessionId;
   }
 
   @Override
-
+  @Nullable
   public String getRequestedSessionId() {
     return this.requestedSessionId;
   }
 
-  public void setRequestURI(String requestURI) {
+  public void setRequestURI(@Nullable String requestURI) {
     this.requestURI = requestURI;
   }
 
   @Override
-
+  @Nullable
   public String getRequestURI() {
     return this.requestURI;
   }
@@ -1269,18 +1317,17 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   public void setSession(HttpSession session) {
     this.session = session;
-    if (session instanceof MockHttpSession) {
-      MockHttpSession mockSession = ((MockHttpSession) session);
+    if (session instanceof MockHttpSession mockSession) {
       mockSession.access();
     }
   }
 
   @Override
-
+  @Nullable
   public HttpSession getSession(boolean create) {
     checkActive();
     // Reset session if invalidated.
-    if (this.session instanceof MockHttpSession && ((MockHttpSession) this.session).isInvalid()) {
+    if (this.session instanceof MockHttpSession mockSession && mockSession.isInvalid()) {
       this.session = null;
     }
     // Create new session if necessary.
@@ -1291,7 +1338,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
+  @Nullable
   public HttpSession getSession() {
     return getSession(true);
   }
@@ -1300,14 +1347,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * The implementation of this (Servlet 3.1+) method calls
    * {@link MockHttpSession#changeSessionId()} if the session is a mock session.
    * Otherwise it simply returns the current session id.
-   *
-   * @since 4.0
    */
   @Override
   public String changeSessionId() {
     Assert.isTrue(this.session != null, "The request does not have a session");
-    if (this.session instanceof MockHttpSession) {
-      return ((MockHttpSession) this.session).changeSessionId();
+    if (this.session instanceof MockHttpSession mockSession) {
+      return mockSession.changeSessionId();
     }
     return this.session.getId();
   }
@@ -1340,12 +1385,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  @Deprecated
-  public boolean isRequestedSessionIdFromUrl() {
-    return isRequestedSessionIdFromURL();
-  }
-
-  @Override
   public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
     throw new UnsupportedOperationException();
   }
@@ -1367,7 +1406,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-
+  @Nullable
   public Part getPart(String name) throws IOException, ServletException {
     return this.parts.getFirst(name);
   }
@@ -1379,6 +1418,32 @@ public class MockHttpServletRequest implements HttpServletRequest {
       result.addAll(list);
     }
     return result;
+  }
+
+  public void setHttpServletMapping(@Nullable HttpServletMapping httpServletMapping) {
+    this.httpServletMapping = httpServletMapping;
+  }
+
+  @Override
+  public HttpServletMapping getHttpServletMapping() {
+    return (this.httpServletMapping == null ?
+            new MockHttpServletMapping("", "", "", determineMappingMatch()) :
+            this.httpServletMapping);
+  }
+
+  /**
+   * Best effort to detect a Servlet path mapping, e.g. {@code "/foo/*"}, by
+   * checking whether the length of requestURI > contextPath + servletPath.
+   * to take into account the Servlet path when parsing the requestURI.
+   */
+  @Nullable
+  private MappingMatch determineMappingMatch() {
+    if (StringUtils.hasText(this.requestURI) && StringUtils.hasText(this.servletPath)) {
+      String path = UrlPathHelper.defaultInstance.getRequestUri(this);
+      String prefix = this.contextPath + this.servletPath;
+      return (path.startsWith(prefix) && (path.length() > prefix.length()) ? MappingMatch.PATH : null);
+    }
+    return null;
   }
 
   @Override

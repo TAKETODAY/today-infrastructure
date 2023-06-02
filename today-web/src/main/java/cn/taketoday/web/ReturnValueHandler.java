@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,11 @@
 
 package cn.taketoday.web;
 
+import java.util.List;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.method.HandlerMethod;
+import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 
 /**
  * handler return-value Handler
@@ -41,7 +44,6 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * @see HandlerMethod
  */
 public interface ReturnValueHandler {
-  String REDIRECT_URL_PREFIX = "redirect:";
 
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
@@ -81,5 +83,57 @@ public interface ReturnValueHandler {
    */
   void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue)
           throws Exception;
+
+  /**
+   * Multiple ReturnValueHandlers under the ReturnValueHandler system choose different
+   * ReturnValueHandlers corresponding to different {@code handler} and {@code returnValue}
+   *
+   * @param handlers Multiple ReturnValueHandlers
+   * @param handler Request handler
+   * @param returnValue handler's result ,if returnValue is
+   * {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
+   * @return A ReturnValueHandler that matches the situation ,
+   * null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
+   */
+  @Nullable
+  static ReturnValueHandler select(List<ReturnValueHandler> handlers,
+          @Nullable Object handler, @Nullable Object returnValue) {
+    if (returnValue != NONE_RETURN_VALUE) {
+      if (handler != null) {
+        // match handler and return-value
+        for (ReturnValueHandler returnValueHandler : handlers) {
+          if (returnValueHandler instanceof SmartReturnValueHandler smartHandler) {
+            // smart handler
+            if (smartHandler.supportsHandler(handler, returnValue)) {
+              return returnValueHandler;
+            }
+          }
+          else {
+            if (returnValueHandler.supportsHandler(handler)
+                    || returnValueHandler.supportsReturnValue(returnValue)) {
+              return returnValueHandler;
+            }
+          }
+        }
+      }
+      else {
+        // match return-value only
+        for (ReturnValueHandler returnValueHandler : handlers) {
+          if (returnValueHandler.supportsReturnValue(returnValue)) {
+            return returnValueHandler;
+          }
+        }
+      }
+    }
+    else if (handler != null) {
+      // match handler only
+      for (ReturnValueHandler returnValueHandler : handlers) {
+        if (returnValueHandler.supportsHandler(handler)) {
+          return returnValueHandler;
+        }
+      }
+    }
+    return null;
+  }
 
 }

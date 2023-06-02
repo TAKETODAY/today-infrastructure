@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,12 +33,12 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.junit4.Runner;
+import cn.taketoday.test.context.junit4.InfraRunner;
 
 /**
- * Annotation that can be used to add mocks to a Spring {@link ApplicationContext}. Can be
+ * Annotation that can be used to add mocks to a Infra {@link ApplicationContext}. Can be
  * used as a class level annotation or on fields in either {@code @Configuration} classes,
- * or test classes that are {@link RunWith @RunWith} the {@link Runner}.
+ * or test classes that are {@link RunWith @RunWith} the {@link InfraRunner}.
  * <p>
  * Mocks can be registered by type or by {@link #name() bean name}. When registered by
  * type, any existing single bean of a matching type (including subclasses) in the context
@@ -46,7 +46,7 @@ import cn.taketoday.test.context.junit4.Runner;
  * specifically targeted for replacement by a mock. In either case, if no existing bean is
  * defined a new one will be added. Dependencies that are known to the application context
  * but are not beans (such as those
- * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerResolvableDependency(Class, Object)
+ * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerDependency(Class, Object)
  * registered directly}) will not be found and a mocked bean will be added to the context
  * alongside the existing dependency.
  * <p>

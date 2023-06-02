@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,12 +25,12 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -42,37 +42,35 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingClass
  * @since 4.0 2022/1/16 16:09
  */
-final class OnClassCondition extends FilteringContextCondition implements Condition, Ordered {
+final class OnClassCondition extends FilteringInfraCondition implements Condition, Ordered {
 
   @Override
-  protected ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
-          AutoConfigurationMetadata autoConfigurationMetadata) {
+  protected ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     // Split the work and perform half in a background thread if more than one
     // processor is available. Using a single additional thread seems to offer the
     // best performance. More threads make things worse.
-    if (autoConfigurationClasses.length > 1 && Runtime.getRuntime().availableProcessors() > 1) {
-      return resolveOutcomesThreaded(autoConfigurationClasses, autoConfigurationMetadata);
+    if (configClasses.length > 1 && Runtime.getRuntime().availableProcessors() > 1) {
+      return resolveOutcomesThreaded(configClasses, configMetadata);
     }
     else {
-      OutcomesResolver outcomesResolver = new StandardOutcomesResolver(autoConfigurationClasses, 0,
-              autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
+      OutcomesResolver outcomesResolver = new StandardOutcomesResolver(configClasses, 0,
+              configClasses.length, configMetadata, getBeanClassLoader());
       return outcomesResolver.resolveOutcomes();
     }
   }
 
   private ConditionOutcome[] resolveOutcomesThreaded(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-    int split = autoConfigurationClasses.length / 2;
+          String[] configClasses, AutoConfigurationMetadata configMetadata) {
+    int split = configClasses.length / 2;
     OutcomesResolver firstHalfResolver = createOutcomesResolver(
-            autoConfigurationClasses, 0, split, autoConfigurationMetadata);
+            configClasses, 0, split, configMetadata);
 
     OutcomesResolver secondHalfResolver = new StandardOutcomesResolver(
-            autoConfigurationClasses, split,
-            autoConfigurationClasses.length, autoConfigurationMetadata, getBeanClassLoader());
+            configClasses, split, configClasses.length, configMetadata, getBeanClassLoader());
 
     ConditionOutcome[] secondHalf = secondHalfResolver.resolveOutcomes();
     ConditionOutcome[] firstHalf = firstHalfResolver.resolveOutcomes();
-    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     System.arraycopy(firstHalf, 0, outcomes, 0, firstHalf.length);
     System.arraycopy(secondHalf, 0, outcomes, split, secondHalf.length);
     return outcomes;
@@ -88,7 +86,7 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
 
   @Override
   public ConditionOutcome getMatchOutcome(
-          ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+          ConditionContext context, AnnotatedTypeMetadata metadata) {
     ClassLoader classLoader = context.getClassLoader();
     ConditionMessage matchMessage = ConditionMessage.empty();
     List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class);
@@ -148,15 +146,22 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
 
   }
 
-  private static final class ThreadedOutcomesResolver implements OutcomesResolver {
+  private static final class ThreadedOutcomesResolver implements OutcomesResolver, Runnable {
 
     private final Thread thread;
+    private final OutcomesResolver outcomesResolver;
 
     private volatile ConditionOutcome[] outcomes;
 
     private ThreadedOutcomesResolver(OutcomesResolver outcomesResolver) {
-      this.thread = new Thread(() -> this.outcomes = outcomesResolver.resolveOutcomes());
+      this.thread = new Thread(this);
+      this.outcomesResolver = outcomesResolver;
       this.thread.start();
+    }
+
+    @Override
+    public void run() {
+      this.outcomes = outcomesResolver.resolveOutcomes();
     }
 
     @Override
@@ -173,17 +178,16 @@ final class OnClassCondition extends FilteringContextCondition implements Condit
   }
 
   private record StandardOutcomesResolver(
-          String[] autoConfigurationClasses, int start, int end,
-          AutoConfigurationMetadata autoConfigurationMetadata, ClassLoader beanClassLoader) implements OutcomesResolver {
+          String[] configClasses, int start, int end,
+          AutoConfigurationMetadata configMetadata, ClassLoader beanClassLoader) implements OutcomesResolver {
 
     @Override
     public ConditionOutcome[] resolveOutcomes() {
-      return getOutcomes(this.autoConfigurationClasses, this.start, this.end, this.autoConfigurationMetadata);
+      return getOutcomes(this.configClasses, this.start, this.end, this.configMetadata);
     }
 
-    private ConditionOutcome[] getOutcomes(
-            String[] autoConfigurationClasses, int start, int end,
-            AutoConfigurationMetadata autoConfigurationMetadata) {
+    private ConditionOutcome[] getOutcomes(String[] autoConfigurationClasses,
+            int start, int end, AutoConfigurationMetadata autoConfigurationMetadata) {
       ConditionOutcome[] outcomes = new ConditionOutcome[end - start];
       for (int i = start; i < end; i++) {
         String autoConfigurationClass = autoConfigurationClasses[i];

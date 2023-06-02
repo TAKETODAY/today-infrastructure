@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.util.ClassUtils;
  * Parser that can read JSON formatted strings into {@link Map}s or {@link List}s.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JsonParser#lookup()
  * @see BasicJsonParser
  * @see JacksonJsonParser
@@ -68,9 +69,6 @@ public interface JsonParser {
     }
     if (ClassUtils.isPresent("com.google.gson.Gson", null)) {
       return new GsonJsonParser();
-    }
-    if (ClassUtils.isPresent("org.yaml.snakeyaml.Yaml", null)) {
-      return new YamlJsonParser();
     }
     return new BasicJsonParser();
   }

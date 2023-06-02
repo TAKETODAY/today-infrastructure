@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.ExpressionParser;
 import cn.taketoday.expression.ParseException;
 import cn.taketoday.expression.ParserContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -50,9 +51,11 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
   @Override
   public Expression parseExpression(String expressionString, @Nullable ParserContext context) throws ParseException {
     if (context != null && context.isTemplate()) {
+      Assert.notNull(expressionString, "'expressionString' must not be null");
       return parseTemplate(expressionString, context);
     }
     else {
+      Assert.hasText(expressionString, "'expressionString' must not be null or blank");
       return doParseExpression(expressionString, context);
     }
   }

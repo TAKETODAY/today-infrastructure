@@ -28,6 +28,8 @@ import java.util.List;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationConfigurationException;
+import cn.taketoday.framework.test.mock.mockito.MockitoTestExecutionListener;
+import cn.taketoday.framework.test.mock.mockito.ResetMocksTestExecutionListener;
 import cn.taketoday.test.context.event.ApplicationEventsTestExecutionListener;
 import cn.taketoday.test.context.event.EventPublishingTestExecutionListener;
 import cn.taketoday.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -64,11 +66,13 @@ class TestExecutionListenersTests {
     List<Class<?>> expected = asList(ServletTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
+            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class
+            EventPublishingTestExecutionListener.class,
+            ResetMocksTestExecutionListener.class
     );
     assertRegisteredListeners(DefaultListenersTestCase.class, expected);
   }
@@ -82,11 +86,15 @@ class TestExecutionListenersTests {
             ServletTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
+            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class
+            EventPublishingTestExecutionListener.class,
+
+            ResetMocksTestExecutionListener.class
+
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerPrependedTestCase.class, expected);
   }
@@ -99,11 +107,13 @@ class TestExecutionListenersTests {
     List<Class<?>> expected = asList(ServletTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
+            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,
             SqlScriptsTestExecutionListener.class,//
             EventPublishingTestExecutionListener.class,//
+            ResetMocksTestExecutionListener.class,
             BazTestExecutionListener.class
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerAppendedTestCase.class, expected);
@@ -117,25 +127,28 @@ class TestExecutionListenersTests {
     List<Class<?>> expected = asList(ServletTestExecutionListener.class,//
             DirtiesContextBeforeModesTestExecutionListener.class,//
             ApplicationEventsTestExecutionListener.class,//
+            MockitoTestExecutionListener.class,
             DependencyInjectionTestExecutionListener.class,//
             BarTestExecutionListener.class,//
             DirtiesContextTestExecutionListener.class,//
             TransactionalTestExecutionListener.class,//
             SqlScriptsTestExecutionListener.class,//
-            EventPublishingTestExecutionListener.class
+            EventPublishingTestExecutionListener.class,
+
+            ResetMocksTestExecutionListener.class
     );
     assertRegisteredListeners(MergedDefaultListenersWithCustomListenerInsertedTestCase.class, expected);
   }
 
   @Test
   void nonInheritedDefaultListeners() {
-    assertRegisteredListeners(NonInheritedDefaultListenersTestCase.class, asList(QuuxTestExecutionListener.class));
+    assertRegisteredListeners(NonInheritedDefaultListenersTestCase.class, List.of(QuuxTestExecutionListener.class));
   }
 
   @Test
   void inheritedDefaultListeners() {
-    assertRegisteredListeners(InheritedDefaultListenersTestCase.class, asList(QuuxTestExecutionListener.class));
-    assertRegisteredListeners(SubInheritedDefaultListenersTestCase.class, asList(QuuxTestExecutionListener.class));
+    assertRegisteredListeners(InheritedDefaultListenersTestCase.class, List.of(QuuxTestExecutionListener.class));
+    assertRegisteredListeners(SubInheritedDefaultListenersTestCase.class, List.of(QuuxTestExecutionListener.class));
     assertRegisteredListeners(SubSubInheritedDefaultListenersTestCase.class,
             asList(QuuxTestExecutionListener.class, EnigmaTestExecutionListener.class));
   }
@@ -207,7 +220,9 @@ class TestExecutionListenersTests {
 
   private void assertRegisteredListeners(Class<?> testClass, List<Class<?>> expected) {
     TestContextManager testContextManager = new TestContextManager(testClass);
-    assertThat(names(classes(testContextManager))).as("TELs registered for " + testClass.getSimpleName()).isEqualTo(names(expected));
+    assertThat(names(classes(testContextManager)))
+            .as("TELs registered for " + testClass.getSimpleName())
+            .isEqualTo(names(expected));
   }
 
   private void assertNumRegisteredListeners(Class<?> testClass, int expected) {

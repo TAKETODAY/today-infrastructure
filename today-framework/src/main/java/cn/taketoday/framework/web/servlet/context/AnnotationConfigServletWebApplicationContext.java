@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,15 +36,15 @@ import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.loader.ScopeMetadataResolver;
+import cn.taketoday.context.annotation.ScopeMetadataResolver;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**
  * {@link GenericWebApplicationContext}that accepts annotated classes as input - in
@@ -62,9 +62,10 @@ import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
  * @see #register(Class...)
  * @see #scan(String...)
  * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public class AnnotationConfigServletWebApplicationContext extends GenericWebServletApplicationContext
-        implements AnnotationConfigRegistry {
+public class AnnotationConfigServletWebApplicationContext extends GenericWebApplicationContext
+        implements AnnotationConfigRegistry, ConfigurableWebApplicationContext {
 
   private final AnnotatedBeanDefinitionReader reader;
 

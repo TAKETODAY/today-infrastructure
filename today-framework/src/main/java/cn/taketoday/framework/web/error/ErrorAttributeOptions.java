@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Options controlling the contents of {@code ErrorAttributes}.
@@ -71,7 +73,7 @@ public final class ErrorAttributeOptions {
    */
   public ErrorAttributeOptions including(Include... includes) {
     EnumSet<Include> updated = copyIncludes();
-    updated.addAll(Arrays.asList(includes));
+    CollectionUtils.addAll(updated, includes);
     return new ErrorAttributeOptions(Collections.unmodifiableSet(updated));
   }
 
@@ -84,12 +86,14 @@ public final class ErrorAttributeOptions {
    */
   public ErrorAttributeOptions excluding(Include... excludes) {
     EnumSet<Include> updated = copyIncludes();
-    updated.removeAll(Arrays.asList(excludes));
+    for (Include exclude : excludes) {
+      updated.remove(exclude);
+    }
     return new ErrorAttributeOptions(Collections.unmodifiableSet(updated));
   }
 
   private EnumSet<Include> copyIncludes() {
-    return (this.includes.isEmpty()) ? EnumSet.noneOf(Include.class) : EnumSet.copyOf(this.includes);
+    return includes.isEmpty() ? EnumSet.noneOf(Include.class) : EnumSet.copyOf(includes);
   }
 
   /**

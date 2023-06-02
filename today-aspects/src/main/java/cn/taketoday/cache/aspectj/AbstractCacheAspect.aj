@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import cn.taketoday.util.ExceptionUtils;
  *
  * <p>Suitable for use inside or outside the Spring IoC container. Set the
  * {@link #setCacheManager cacheManager} property appropriately, allowing use of any cache
- * implementation supported by Spring.
+ * implementation supported by Infra.
  *
  * <p><b>NB:</b> If a method implements an interface that is itself cache annotated, the
  * relevant Spring cache definition will <i>not</i> be resolved.

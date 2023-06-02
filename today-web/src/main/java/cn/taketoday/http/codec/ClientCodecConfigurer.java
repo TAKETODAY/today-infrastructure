@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,7 @@
 package cn.taketoday.http.codec;
 
 import cn.taketoday.core.codec.Decoder;
-import cn.taketoday.core.codec.Encoder;
+import cn.taketoday.util.MultiValueMap;
 
 /**
  * Extension of {@link CodecConfigurer} for HTTP message reader and writer
@@ -33,7 +33,7 @@ import cn.taketoday.core.codec.Encoder;
  * <li>{@link cn.taketoday.core.io.buffer.DataBuffer DataBuffer}
  * <li>{@link cn.taketoday.core.io.Resource Resource}
  * <li>{@link String}
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,String&gt;} for form data
  * <li>JSON and Smile, if Jackson is present
  * <li>XML, if JAXB2 is present
@@ -46,9 +46,9 @@ import cn.taketoday.core.codec.Encoder;
  * <li>{@link cn.taketoday.core.io.buffer.DataBuffer DataBuffer}
  * <li>{@link cn.taketoday.core.io.Resource Resource}
  * <li>{@link String}
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,String&gt;} for form data
- * <li>{@link cn.taketoday.core.MultiValueMap
+ * <li>{@link MultiValueMap
  * MultiValueMap&lt;String,Object&gt;} for multipart data
  * <li>JSON and Smile, if Jackson is present
  * <li>XML, if JAXB2 is present
@@ -86,46 +86,16 @@ public interface ClientCodecConfigurer extends CodecConfigurer {
   interface ClientDefaultCodecs extends DefaultCodecs {
 
     /**
-     * Configure encoders or writers for use with
-     * {@link cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter
-     * MultipartHttpMessageWriter}.
-     */
-    MultipartCodecs multipartCodecs();
-
-    /**
      * Configure the {@code Decoder} to use for Server-Sent Events.
-     * <p>By default if this is not set, and Jackson is available, the
-     * {@link #jackson2JsonDecoder} override is used instead. Use this property
-     * if you want to further customize the SSE decoder.
-     * <p>Note that {@link #maxInMemorySize(int)}, if configured, will be
-     * applied to the given decoder.
+     * <p>By default if this is not set, and Jackson is available,
+     * the {@link #jackson2JsonDecoder} override is used instead.
+     * Use this method to customize the SSE decoder.
+     * <p>Note that {@link #maxInMemorySize(int)}, if configured,
+     * will be applied to the given decoder.
      *
      * @param decoder the decoder to use
      */
     void serverSentEventDecoder(Decoder<?> decoder);
-  }
-
-  /**
-   * Registry and container for multipart HTTP message writers.
-   */
-  interface MultipartCodecs {
-
-    /**
-     * Add a Part {@code Encoder}, internally wrapped with
-     * {@link EncoderHttpMessageWriter}.
-     *
-     * @param encoder the encoder to add
-     */
-    MultipartCodecs encoder(Encoder<?> encoder);
-
-    /**
-     * Add a Part {@link HttpMessageWriter}. For writers of type
-     * {@link EncoderHttpMessageWriter} consider using the shortcut
-     * {@link #encoder(Encoder)} instead.
-     *
-     * @param writer the writer to add
-     */
-    MultipartCodecs writer(HttpMessageWriter<?> writer);
   }
 
 }

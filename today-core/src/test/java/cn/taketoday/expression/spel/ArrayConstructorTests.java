@@ -22,10 +22,13 @@ package cn.taketoday.expression.spel;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
+import cn.taketoday.expression.spel.support.SimpleEvaluationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Test construction of arrays.
@@ -54,6 +57,13 @@ public class ArrayConstructorTests extends AbstractExpressionTests {
     evaluateAndCheckError("new int[]", SpelMessage.MISSING_ARRAY_DIMENSION);
     evaluateAndCheckError("new String[]", SpelMessage.MISSING_ARRAY_DIMENSION);
     evaluateAndCheckError("new int[][1]", SpelMessage.MISSING_ARRAY_DIMENSION);
+  }
+
+  @Test
+  void noArrayConstruction() {
+    EvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding().build();
+    assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
+            parser.parseExpression("new int[2]").getValue(context));
   }
 
   @Test

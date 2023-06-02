@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,6 @@ package cn.taketoday.context.expression;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -74,7 +73,7 @@ class CachedExpressionEvaluatorTests {
   }
 
   private void hasParsedExpression(String expression) {
-    verify(expressionEvaluator.getParser(), times(1)).parseExpression(expression);
+    verify(expressionEvaluator.parser, times(1)).parseExpression(expression);
   }
 
   private static class TestExpressionEvaluator extends CachedExpressionEvaluator {

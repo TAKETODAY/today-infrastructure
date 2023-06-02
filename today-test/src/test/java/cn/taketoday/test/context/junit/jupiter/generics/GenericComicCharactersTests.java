@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.junit.jupiter.TestConfig;
 import cn.taketoday.test.context.junit.jupiter.comics.Character;
@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Abstract base class for integration tests that demonstrate support for
- * Java generics in JUnit Jupiter test classes when used with the Spring TestContext
- * Framework and the {@link ApplicationExtension}.
+ * Java generics in JUnit Jupiter test classes when used with the Infra TestContext
+ * Framework and the {@link InfraExtension}.
  *
  * @author Sam Brannen
  * @since 4.0

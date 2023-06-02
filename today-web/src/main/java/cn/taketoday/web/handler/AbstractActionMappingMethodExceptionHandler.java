@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,7 +50,7 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
 
     // unwrap HandlerExecutionChain
     if (handler instanceof HandlerExecutionChain chain) {
-      handler = chain.getHandler();
+      handler = chain.getRawHandler();
     }
 
     if (handler instanceof HandlerMethod handlerMethod) {
@@ -82,7 +82,7 @@ public abstract class AbstractActionMappingMethodExceptionHandler extends Abstra
   @Override
   protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) throws Exception {
     if (handler instanceof HandlerExecutionChain chain) {
-      handler = chain.getHandler();
+      handler = chain.getRawHandler();
     }
 
     if (handler instanceof HandlerMethod handlerMethod) {

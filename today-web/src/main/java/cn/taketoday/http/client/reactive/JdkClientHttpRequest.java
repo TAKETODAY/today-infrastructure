@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -72,23 +72,23 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   public HttpMethod getMethod() {
-    return this.method;
+    return method;
   }
 
   @Override
   public URI getURI() {
-    return this.uri;
+    return uri;
   }
 
   @Override
   public DataBufferFactory bufferFactory() {
-    return this.bufferFactory;
+    return bufferFactory;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNativeRequest() {
-    return (T) this.builder.build();
+    return (T) builder.build();
   }
 
   @Override
@@ -99,38 +99,49 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
         continue;
       }
       for (String value : entry.getValue()) {
-        this.builder.header(entry.getKey(), value);
+        builder.header(entry.getKey(), value);
       }
     }
     if (!getHeaders().containsKey(HttpHeaders.ACCEPT)) {
-      this.builder.header(HttpHeaders.ACCEPT, "*/*");
+      builder.header(HttpHeaders.ACCEPT, "*/*");
     }
   }
 
   @Override
   protected void applyCookies() {
-    this.builder.header(HttpHeaders.COOKIE, getCookies().values().stream()
-            .flatMap(List::stream).map(HttpCookie::toString).collect(Collectors.joining(";")));
+    builder.header(
+            HttpHeaders.COOKIE, getCookies().values().stream()
+                    .flatMap(List::stream)
+                    .map(HttpCookie::toString)
+                    .collect(Collectors.joining(";"))
+    );
   }
 
   @Override
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     return doCommit(() -> {
-      this.builder.method(this.method.name(), toBodyPublisher(body));
+      builder.method(method.name(), toBodyPublisher(body));
       return Mono.empty();
     });
   }
 
   private HttpRequest.BodyPublisher toBodyPublisher(Publisher<? extends DataBuffer> body) {
-    Publisher<ByteBuffer> byteBufferBody = (body instanceof Mono ?
-                                            Mono.from(body).map(DataBuffer::toByteBuffer) :
-                                            Flux.from(body).map(DataBuffer::toByteBuffer));
+    Publisher<ByteBuffer> byteBufferBody =
+            body instanceof Mono
+            ? Mono.from(body).map(this::toByteBuffer)
+            : Flux.from(body).map(this::toByteBuffer);
 
     Flow.Publisher<ByteBuffer> bodyFlow = JdkFlowAdapter.publisherToFlowPublisher(byteBufferBody);
 
     return (getHeaders().getContentLength() > 0 ?
             HttpRequest.BodyPublishers.fromPublisher(bodyFlow, getHeaders().getContentLength()) :
             HttpRequest.BodyPublishers.fromPublisher(bodyFlow));
+  }
+
+  private ByteBuffer toByteBuffer(DataBuffer dataBuffer) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    dataBuffer.toByteBuffer(byteBuffer);
+    return byteBuffer;
   }
 
   @Override
@@ -141,7 +152,7 @@ class JdkClientHttpRequest extends AbstractClientHttpRequest {
   @Override
   public Mono<Void> setComplete() {
     return doCommit(() -> {
-      this.builder.method(this.method.name(), HttpRequest.BodyPublishers.noBody());
+      builder.method(method.name(), HttpRequest.BodyPublishers.noBody());
       return Mono.empty();
     });
   }

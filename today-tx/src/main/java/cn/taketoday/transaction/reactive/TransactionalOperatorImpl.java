@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Mark Paluch
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #execute
  * @see ReactiveTransactionManager
  * @since 4.0
@@ -45,8 +46,9 @@ import reactor.core.publisher.Mono;
 final class TransactionalOperatorImpl implements TransactionalOperator {
   private static final Logger log = LoggerFactory.getLogger(TransactionalOperatorImpl.class);
 
-  private final TransactionDefinition transactionDefinition;
   private final ReactiveTransactionManager transactionManager;
+
+  private final TransactionDefinition transactionDefinition;
 
   /**
    * Construct a new TransactionTemplate using the given transaction manager,
@@ -56,9 +58,10 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
    * @param transactionDefinition the transaction definition to copy the
    * default settings from. Local properties can still be set to change values.
    */
-  TransactionalOperatorImpl(ReactiveTransactionManager transactionManager, TransactionDefinition transactionDefinition) {
+  TransactionalOperatorImpl(ReactiveTransactionManager transactionManager,
+          TransactionDefinition transactionDefinition) {
     Assert.notNull(transactionManager, "ReactiveTransactionManager must not be null");
-    Assert.notNull(transactionManager, "TransactionDefinition must not be null");
+    Assert.notNull(transactionDefinition, "TransactionDefinition must not be null");
     this.transactionManager = transactionManager;
     this.transactionDefinition = transactionDefinition;
   }
@@ -71,41 +74,14 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
   }
 
   @Override
-  public <T> Mono<T> transactional(Mono<T> mono) {
-    return TransactionContextManager.currentContext().flatMap(context -> {
-              Mono<ReactiveTransaction> status = transactionManager.getReactiveTransaction(transactionDefinition);
-              // This is an around advice: Invoke the next interceptor in the chain.
-              // This will normally result in a target object being invoked.
-              // Need re-wrapping of ReactiveTransaction until we get hold of the exception
-              // through usingWhen.
-              return status.flatMap(it -> Mono.usingWhen(Mono.just(it),
-                              ignore -> mono,
-                              transactionManager::commit,
-                              (res, err) -> Mono.empty(),
-                              transactionManager::rollback
-                      )
-                      .onErrorResume(ex -> rollbackOnException(it, ex).then(Mono.error(ex))));
-            })
-            .contextWrite(TransactionContextManager.getOrCreateContext())
-            .contextWrite(TransactionContextManager.getOrCreateContextHolder());
-  }
-
-  @Override
   public <T> Flux<T> execute(TransactionCallback<T> action) throws TransactionException {
-    return TransactionContextManager.currentContext().flatMapMany(context -> {
-              Mono<ReactiveTransaction> status = transactionManager.getReactiveTransaction(transactionDefinition);
-              // This is an around advice: Invoke the next interceptor in the chain.
-              // This will normally result in a target object being invoked.
-              // Need re-wrapping of ReactiveTransaction until we get hold of the exception
-              // through usingWhen.
-              return status.flatMapMany(it -> Flux.usingWhen(Mono.just(it),
-                              action::doInTransaction,
-                              transactionManager::commit,
-                              (tx, ex) -> Mono.empty(),
-                              transactionManager::rollback
-                      )
-                      .onErrorResume(ex -> rollbackOnException(it, ex).then(Mono.error(ex))));
-            })
+    return TransactionContextManager.currentContext().flatMapMany(context ->
+                    Flux.usingWhen(this.transactionManager.getReactiveTransaction(this.transactionDefinition),
+                                    action::doInTransaction,
+                                    this.transactionManager::commit,
+                                    this::rollbackOnException,
+                                    this.transactionManager::rollback)
+                            .onErrorMap(this::unwrapIfResourceCleanupFailure))
             .contextWrite(TransactionContextManager.getOrCreateContext())
             .contextWrite(TransactionContextManager.getOrCreateContextHolder());
   }
@@ -121,18 +97,37 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
     log.debug("Initiating transaction rollback on application exception", ex);
     return transactionManager.rollback(status).onErrorMap(ex2 -> {
               log.error("Application exception overridden by rollback exception", ex);
-              if (ex2 instanceof TransactionSystemException) {
-                ((TransactionSystemException) ex2).initApplicationException(ex);
+              if (ex2 instanceof TransactionSystemException tse) {
+                tse.initApplicationException(ex);
+              }
+              else {
+                ex2.addSuppressed(ex);
               }
               return ex2;
             }
     );
   }
 
+  /**
+   * Unwrap the cause of a throwable, if produced by a failure
+   * during the async resource cleanup in {@link Flux#usingWhen}.
+   *
+   * @param ex the throwable to try to unwrap
+   */
+  private Throwable unwrapIfResourceCleanupFailure(Throwable ex) {
+    if (ex instanceof RuntimeException &&
+            ex.getCause() != null &&
+            ex.getMessage().startsWith("Async resource cleanup failed")) {
+      return ex.getCause();
+    }
+    return ex;
+  }
+
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (super.equals(other) && (!(other instanceof TransactionalOperatorImpl)
-            || getTransactionManager() == ((TransactionalOperatorImpl) other).getTransactionManager())));
+    return this == other
+            || (super.equals(other) && (!(other instanceof TransactionalOperatorImpl toi)
+            || getTransactionManager() == toi.getTransactionManager()));
   }
 
   @Override

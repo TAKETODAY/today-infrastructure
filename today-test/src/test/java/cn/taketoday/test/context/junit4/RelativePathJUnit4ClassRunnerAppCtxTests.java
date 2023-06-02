@@ -32,7 +32,7 @@ import cn.taketoday.test.context.ContextConfiguration;
  * @see AbsolutePathJUnit4ClassRunnerAppCtxTests
  * @since 4.0
  */
-@ContextConfiguration(locations = { "SpringJUnit4ClassRunnerAppCtxTests-context.xml" })
+@ContextConfiguration(locations = { "JUnit4ClassRunnerAppCtxTests-context.xml" })
 public class RelativePathJUnit4ClassRunnerAppCtxTests extends JUnit4ClassRunnerAppCtxTests {
   /* all tests are in the parent class. */
 }

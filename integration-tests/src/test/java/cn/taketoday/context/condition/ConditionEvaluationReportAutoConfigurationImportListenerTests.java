@@ -56,7 +56,7 @@ class ConditionEvaluationReportAutoConfigurationImportListenerTests {
 
   @Test
   void shouldBeInSpringFactories() {
-    List<AutoConfigurationImportListener> factories = TodayStrategies.get(AutoConfigurationImportListener.class);
+    List<AutoConfigurationImportListener> factories = TodayStrategies.find(AutoConfigurationImportListener.class);
     assertThat(factories)
             .hasAtLeastOneElementOfType(ConditionEvaluationReportAutoConfigurationImportListener.class);
   }

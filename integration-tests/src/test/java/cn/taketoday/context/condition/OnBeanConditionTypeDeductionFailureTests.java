@@ -28,8 +28,8 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.context.condition.OnBeanCondition.BeanTypeDeductionException;
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.test.classpath.ClassPathExclusions;
 

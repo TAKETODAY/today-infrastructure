@@ -22,9 +22,6 @@ package cn.taketoday.http.codec.multipart;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -52,6 +49,7 @@ import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.DisabledIfInContinuousIntegration;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.Exceptions;
 import reactor.core.publisher.BaseSubscriber;
@@ -65,13 +63,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * @author Arjen Poutsma
  */
 //@Execution(ExecutionMode.SAME_THREAD)
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
+@DisabledIfInContinuousIntegration(disabledReason = "file CRLF problem")
 public class DefaultPartHttpMessageReaderTests {
 
   private static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer iaculis metus id vestibulum nullam.";

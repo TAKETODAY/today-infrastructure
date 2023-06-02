@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.classify.SubclassClassifier;
-import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.ExhaustedRetryException;
 import cn.taketoday.retry.RetryContext;
@@ -76,7 +76,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     this.target = target;
     var types = new HashMap<Class<? extends Throwable>, Method>();
     final Method failingMethod = method;
-    Retryable retryable = AnnotationUtils.findAnnotation(method, Retryable.class);
+    Retryable retryable = AnnotatedElementUtils.findMergedAnnotation(method, Retryable.class);
     if (retryable != null) {
       String recoverMethodName = retryable.recover();
       if (StringUtils.hasText(recoverMethodName)) {
@@ -84,7 +84,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
       }
     }
     ReflectionUtils.doWithMethods(target.getClass(), candidate -> {
-      Recover recover = AnnotationUtils.findAnnotation(candidate, Recover.class);
+      Recover recover = AnnotatedElementUtils.findMergedAnnotation(candidate, Recover.class);
       if (recover == null) {
         recover = findAnnotationOnTarget(target, candidate);
       }
@@ -106,6 +106,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public T recover(Object[] args, Throwable cause) {
     Method method = findClosestMatch(args, cause.getClass());
     if (method == null) {
@@ -113,35 +114,25 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     }
     SimpleMetadata meta = this.methods.get(method);
     Object[] argsToUse = meta.getArgs(cause, args);
-    boolean methodAccessible = method.isAccessible();
-    try {
-      ReflectionUtils.makeAccessible(method);
-      RetryContext context = RetrySynchronizationManager.getContext();
-      Object proxy = null;
-      if (context != null) {
-        proxy = context.getAttribute("___proxy___");
-        if (proxy != null) {
-          Method proxyMethod = findMethodOnProxy(method, proxy);
-          if (proxyMethod == null) {
-            proxy = null;
-          }
-          else {
-            method = proxyMethod;
-          }
+    ReflectionUtils.makeAccessible(method);
+    RetryContext context = RetrySynchronizationManager.getContext();
+    Object proxy = null;
+    if (context != null) {
+      proxy = context.getAttribute("___proxy___");
+      if (proxy != null) {
+        Method proxyMethod = findMethodOnProxy(method, proxy);
+        if (proxyMethod == null) {
+          proxy = null;
+        }
+        else {
+          method = proxyMethod;
         }
       }
-      if (proxy == null) {
-        proxy = this.target;
-      }
-      @SuppressWarnings("unchecked")
-      T result = (T) ReflectionUtils.invokeMethod(method, proxy, argsToUse);
-      return result;
     }
-    finally {
-      if (methodAccessible != method.isAccessible()) {
-        method.setAccessible(methodAccessible);
-      }
+    if (proxy == null) {
+      proxy = this.target;
     }
+    return (T) ReflectionUtils.invokeMethod(method, proxy, argsToUse);
   }
 
   private Method findMethodOnProxy(Method method, Object proxy) {
@@ -191,7 +182,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     return result;
   }
 
-  private int calculateDistance(Class<? extends Throwable> cause, Class<? extends Throwable> type) {
+  private int calculateDistance(Class<? extends Throwable> cause, @Nullable Class<? extends Throwable> type) {
     int result = 0;
     Class<?> current = cause;
     while (current != type && current != Throwable.class) {
@@ -212,8 +203,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
         if (argument == null) {
           continue;
         }
-        Class<?> parameterType = parameterTypes[i];
-        parameterType = ClassUtils.resolvePrimitiveIfNecessary(parameterType);
+        Class<?> parameterType = ClassUtils.resolvePrimitiveIfNecessary(parameterTypes[i]);
         if (!parameterType.isAssignableFrom(argument.getClass())) {
           return false;
         }
@@ -228,9 +218,11 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
    * failingMethodReturnType. Takes nested generics into consideration as well, while
    * deciding a match.
    *
+   * @param methodReturnType the method return type
+   * @param failingMethodReturnType the failing method return type
    * @return true if the parameterized return types match.
    */
-  private boolean isParameterizedTypeAssignable(
+  private static boolean isParameterizedTypeAssignable(
           ParameterizedType methodReturnType, ParameterizedType failingMethodReturnType) {
 
     Type[] methodActualArgs = methodReturnType.getActualTypeArguments();
@@ -242,12 +234,18 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     for (int i = startingIndex; i < methodActualArgs.length; i++) {
       Type methodArgType = methodActualArgs[i];
       Type failingMethodArgType = failingMethodActualArgs[i];
-      if (methodArgType instanceof ParameterizedType pType && failingMethodArgType instanceof ParameterizedType fPtype) {
-        return isParameterizedTypeAssignable(pType, fPtype);
+      if (methodArgType instanceof ParameterizedType pType
+              && failingMethodArgType instanceof ParameterizedType fPtype) {
+        if (!isParameterizedTypeAssignable(pType, fPtype)) {
+          return false;
+        }
       }
-      if (methodArgType instanceof Class
-              && failingMethodArgType instanceof Class
-              && !failingMethodArgType.equals(methodArgType)) {
+      else if (methodArgType instanceof Class && failingMethodArgType instanceof Class) {
+        if (!failingMethodArgType.equals(methodArgType)) {
+          return false;
+        }
+      }
+      else if (!methodArgType.equals(failingMethodArgType)) {
         return false;
       }
     }
@@ -271,7 +269,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
   private Recover findAnnotationOnTarget(Object target, Method method) {
     try {
       Method targetMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
-      return AnnotationUtils.findAnnotation(targetMethod, Recover.class);
+      return AnnotatedElementUtils.findMergedAnnotation(targetMethod, Recover.class);
     }
     catch (Exception e) {
       return null;

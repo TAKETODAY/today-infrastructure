@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.support;
 
 import java.beans.PropertyEditor;
@@ -108,11 +109,12 @@ import cn.taketoday.util.StringUtils;
  * @author Costin Leau
  * @author Chris Beams
  * @author Phillip Webb
- * @author TODAY 2018-06-23 11:20:58
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getBeanDefinition
  * @see #createBean
  * @see AbstractAutowireCapableBeanFactory#createBean
  * @see StandardBeanFactory#getBeanDefinition
+ * @since 2018-06-23 11:20:58
  */
 public abstract class AbstractBeanFactory
         extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
@@ -815,33 +817,36 @@ public abstract class AbstractBeanFactory
     }
 
     RootBeanDefinition mergedDef = getMergedLocalBeanDefinition(beanName);
-
-    // Check decorated bean definition, if any: We assume it'll be easier
-    // to determine the decorated bean's type than the proxy's type.
-    BeanDefinitionHolder decorated = mergedDef.getDecoratedDefinition();
-    if (decorated != null && !BeanFactoryUtils.isFactoryDereference(name)) {
-      RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
-      Class<?> targetClass = predictBeanType(decorated.getBeanName(), tbd);
-      if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
-        return targetClass;
-      }
-    }
-
     Class<?> beanClass = predictBeanType(beanName, mergedDef);
 
-    // Check bean class whether we're dealing with a FactoryBean.
-    if (beanClass != null && FactoryBean.class.isAssignableFrom(beanClass)) {
-      if (!BeanFactoryUtils.isFactoryDereference(name)) {
-        // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
-        return getTypeForFactoryBean(beanName, mergedDef, allowFactoryBeanInit).resolve();
+    if (beanClass != null) {
+      // Check bean class whether we're dealing with a FactoryBean.
+      if (FactoryBean.class.isAssignableFrom(beanClass)) {
+        if (!BeanFactoryUtils.isFactoryDereference(name)) {
+          // If it's a FactoryBean, we want to look at what it creates, not at the factory class.
+          beanClass = getTypeForFactoryBean(beanName, mergedDef, allowFactoryBeanInit).resolve();
+        }
       }
-      else {
-        return beanClass;
+      else if (BeanFactoryUtils.isFactoryDereference(name)) {
+        return null;
       }
     }
-    else {
-      return (!BeanFactoryUtils.isFactoryDereference(name) ? beanClass : null);
+
+    if (beanClass == null) {
+      // Check decorated bean definition, if any: We assume it'll be easier
+      // to determine the decorated bean's type than the proxy's type.
+      BeanDefinitionHolder decorated = mergedDef.getDecoratedDefinition();
+      if (decorated != null && !BeanFactoryUtils.isFactoryDereference(name)) {
+        RootBeanDefinition tbd = getMergedBeanDefinition(
+                decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
+        Class<?> targetClass = predictBeanType(decorated.getBeanName(), tbd);
+        if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
+          return targetClass;
+        }
+      }
     }
+
+    return beanClass;
   }
 
   // FactoryBean
@@ -2013,11 +2018,11 @@ public abstract class AbstractBeanFactory
    * @since 4.0
    */
   public void clearMetadataCache() {
-    this.mergedBeanDefinitions.forEach((beanName, bd) -> {
-      if (!isBeanEligibleForMetadataCaching(beanName)) {
-        bd.stale = true;
+    for (var entry : mergedBeanDefinitions.entrySet()) {
+      if (!isBeanEligibleForMetadataCaching(entry.getKey())) {
+        entry.getValue().stale = true;
       }
-    });
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
@@ -37,6 +36,7 @@ import cn.taketoday.util.StringUtils;
  * API to encourage consistency across all condition messages.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ConditionMessage {
@@ -409,7 +409,7 @@ public final class ConditionMessage {
       Assert.notNull(style, "Style must not be null");
       StringBuilder message = new StringBuilder(this.reason);
       items = style.applyTo(items);
-      if ((this.condition == null || items == null || items.size() <= 1)
+      if ((items == null || items.size() <= 1)
               && StringUtils.isNotEmpty(this.singular)) {
         message.append(" ").append(this.singular);
       }
@@ -455,7 +455,7 @@ public final class ConditionMessage {
       if (items == null) {
         return null;
       }
-      List<Object> result = new ArrayList<>(items.size());
+      ArrayList<Object> result = new ArrayList<>(items.size());
       for (Object item : items) {
         result.add(applyToItem(item));
       }

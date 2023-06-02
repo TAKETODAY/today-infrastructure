@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -78,6 +78,8 @@ import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.util.function.ThrowingConsumer;
+import cn.taketoday.util.function.ThrowingSupplier;
 
 /**
  * Class that can be used to bootstrap and launch a application from a Java main
@@ -96,8 +98,8 @@ import cn.taketoday.util.StringUtils;
  * In most circumstances the static {@link #run(Class, String[])} method can be called
  * directly from your {@literal main} method to bootstrap your application:
  *
- * <pre class="code">
- * &#064;Configuration
+ * <pre>{@code
+ * @Configuration
  * public class MyApplication  {
  *
  *   // ... Bean definitions
@@ -107,19 +109,19 @@ import cn.taketoday.util.StringUtils;
  *     WebApplication.run(MyApplication.class, args);
  *   }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>
  * For more advanced configuration a {@link Application} instance can be created and
  * customized before being run:
  *
- * <pre class="code">
+ * <pre> {@code
  * public static void main(String[] args) {
  *   Application application = new Application(MyApplication.class);
  *   // ... customize application settings here
  *   application.run(args)
  * }
- * </pre>
+ * }</pre>
  *
  * {@link Application}s can read beans from a {@code mainApplicationClass} or {@code configSources}
  *
@@ -143,9 +145,12 @@ import cn.taketoday.util.StringUtils;
 public class Application {
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
-  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
+
+  private static final ThreadLocal<ApplicationHook> applicationHook = new ThreadLocal<>();
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private Class<?> mainApplicationClass;
@@ -159,6 +164,7 @@ public class Application {
   @Nullable
   private ConfigurableEnvironment environment;
 
+  @Nullable
   private Map<String, Object> defaultProperties;
 
   private Set<String> additionalProfiles = Collections.emptySet();
@@ -179,6 +185,9 @@ public class Application {
   private String environmentPrefix;
 
   private List<ApplicationListener<?>> listeners;
+
+  @Nullable
+  private List<ApplicationStartupListener> startupListeners;
 
   @Nullable
   private Banner banner;
@@ -228,18 +237,20 @@ public class Application {
     Assert.notNull(primarySources, "PrimarySources is required");
     this.resourceLoader = resourceLoader;
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
+    this.applicationType = ApplicationType.forClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
-    this.applicationType = ApplicationType.deduceFromClasspath();
-    this.bootstrapRegistryInitializers = TodayStrategies.get(BootstrapRegistryInitializer.class);
-    setInitializers(TodayStrategies.get(ApplicationContextInitializer.class));
-    setListeners(TodayStrategies.get(ApplicationListener.class));
+    this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);
+    setInitializers(TodayStrategies.find(ApplicationContextInitializer.class));
+    setListeners(TodayStrategies.find(ApplicationListener.class));
   }
 
+  @Nullable
   private Class<?> deduceMainApplicationClass() {
     return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
             .walk(this::getMainApplicationClass);
   }
 
+  @Nullable
   private Class<?> getMainApplicationClass(Stream<StackFrame> stackFrame) {
     return stackFrame.filter(s -> "main".equals(s.getMethodName()))
             .map(StackFrame::getDeclaringClass)
@@ -330,6 +341,9 @@ public class Application {
       listeners.started(context, timeTakenToStartup);
       callRunners(context, arguments);
     }
+    catch (AbandonedRunException e) {
+      throw e;
+    }
     catch (Throwable e) {
       handleRunFailure(context, e, listeners);
       throw new IllegalStateException(e);
@@ -338,6 +352,9 @@ public class Application {
       Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);
       listeners.ready(context, timeTakenToReady);
       return context;
+    }
+    catch (AbandonedRunException e) {
+      throw e;
     }
     catch (Throwable ex) {
       handleRunFailure(context, ex, null);
@@ -377,7 +394,13 @@ public class Application {
    */
   protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) { }
 
-  private ApplicationStartupListeners getStartupListeners(DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
+  /**
+   * find all ApplicationStartupListeners
+   * <p>
+   * from TodayStrategies, {@link #startupListeners} ,{@link ApplicationHook}
+   */
+  private ApplicationStartupListeners getStartupListeners(
+          DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
     var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
             parameters -> {
               parameters.add(Application.class, this);
@@ -388,13 +411,27 @@ public class Application {
               parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
             });
 
-    List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationStartupListener.class, getClassLoader());
+    List<String> strategiesNames = TodayStrategies.findNames(ApplicationStartupListener.class, getClassLoader());
     List<ApplicationStartupListener> strategies = instantiator.instantiate(strategiesNames);
-    return new ApplicationStartupListeners(log, strategies);
+
+    // user defined
+    if (CollectionUtils.isNotEmpty(startupListeners)) {
+      strategies.addAll(startupListeners);
+      AnnotationAwareOrderComparator.sort(strategies);
+    }
+
+    ApplicationHook hook = applicationHook.get();
+    if (hook != null) {
+      ApplicationStartupListener hookListener = hook.getStartupListener(this);
+      if (hookListener != null) {
+        strategies.add(hookListener);
+      }
+    }
+
+    return new ApplicationStartupListeners(logger, strategies);
   }
 
-  private ConfigurableEnvironment prepareEnvironment(
-          ConfigurableBootstrapContext context,
+  private ConfigurableEnvironment prepareEnvironment(ConfigurableBootstrapContext context,
           ApplicationStartupListeners listeners, ApplicationArguments applicationArguments) {
     // Create and configure the environment
     ConfigurableEnvironment environment = getOrCreateEnvironment();
@@ -411,6 +448,7 @@ public class Application {
 
     if (!this.isCustomEnvironment) {
       environment = EnvironmentConverter.convertIfNecessary(getClassLoader(), environment, switch (applicationType) {
+        case NETTY_WEB -> ApplicationNettyWebEnvironment.class;
         case SERVLET_WEB -> ApplicationServletEnvironment.class;
         case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
         default -> ApplicationEnvironment.class;
@@ -437,9 +475,8 @@ public class Application {
 
   private void configureIgnoreBeanInfo(ConfigurableEnvironment environment) {
     if (System.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME) == null) {
-      Boolean ignore = environment.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME,
-              Boolean.class, Boolean.TRUE);
-      System.setProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, ignore.toString());
+      boolean ignore = environment.getFlag(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, true);
+      System.setProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, Boolean.toString(ignore));
     }
   }
 
@@ -453,9 +490,9 @@ public class Application {
       resourceLoader = new DefaultResourceLoader(null);
     }
 
-    var bannerPrinter = new ApplicationBannerPrinter(resourceLoader, banner);
+    var bannerPrinter = new InfraBannerPrinter(resourceLoader, banner);
     if (this.bannerMode == Banner.Mode.LOG) {
-      return bannerPrinter.print(environment, mainApplicationClass, log);
+      return bannerPrinter.print(environment, mainApplicationClass, logger);
     }
     return bannerPrinter.print(environment, mainApplicationClass, System.out);
   }
@@ -469,27 +506,24 @@ public class Application {
    * @see #setApplicationContextFactory(ApplicationContextFactory)
    */
   protected ConfigurableApplicationContext createApplicationContext() {
-    return this.applicationContextFactory.create(this.applicationType);
+    return applicationContextFactory.create(this.applicationType);
   }
 
   protected void prepareStartup(ApplicationArguments arguments) {
     configureHeadlessProperty();
   }
 
-  private void prepareContext(
-          DefaultBootstrapContext bootstrapContext,
-          ConfigurableApplicationContext context,
-          ApplicationStartupListeners listeners,
-          ApplicationArguments arguments,
-          ConfigurableEnvironment environment, @Nullable Banner printedBanner) {
-
+  private void prepareContext(DefaultBootstrapContext bootstrapContext,
+          ConfigurableApplicationContext context, ApplicationStartupListeners listeners,
+          ApplicationArguments arguments, ConfigurableEnvironment environment, @Nullable Banner printedBanner) //
+  {
     context.setEnvironment(environment);
     postProcessApplicationContext(context);
     applyInitializers(context);
     listeners.contextPrepared(context);
     bootstrapContext.close(context);
 
-    if (this.logStartupInfo) {
+    if (logStartupInfo) {
       logStartupInfo(context.getParent() == null);
       logStartupProfileInfo(context);
     }
@@ -510,7 +544,7 @@ public class Application {
       }
     }
 
-    if (this.lazyInitialization) {
+    if (lazyInitialization) {
       context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
     }
 
@@ -528,8 +562,8 @@ public class Application {
    * @param sources the sources to load
    */
   protected void load(ApplicationContext context, Object[] sources) {
-    if (log.isDebugEnabled()) {
-      log.debug("Loading source {}", StringUtils.arrayToCommaDelimitedString(sources));
+    if (logger.isDebugEnabled()) {
+      logger.debug("Loading source {}", StringUtils.arrayToCommaDelimitedString(sources));
     }
     ApplicationBeanDefinitionLoader loader = createBeanDefinitionLoader(getBeanDefinitionRegistry(context), sources);
     if (this.beanNameGenerator != null) {
@@ -600,6 +634,7 @@ public class Application {
       return this.environment;
     }
     return switch (applicationType) {
+      case NETTY_WEB -> new ApplicationNettyWebEnvironment();
       case SERVLET_WEB -> new ApplicationServletEnvironment();
       case REACTIVE_WEB -> new ApplicationReactiveWebEnvironment();
       default -> new ApplicationEnvironment();
@@ -629,7 +664,7 @@ public class Application {
   /**
    * Configure which profiles are active (or active by default) for this application
    * environment. Additional profiles may be activated during configuration file
-   * processing via the {@code context.profiles.active} property.
+   * processing via the {@code infra.profiles.active} property.
    *
    * @param environment this application's environment
    * @param args arguments passed to the {@code run} method
@@ -647,12 +682,12 @@ public class Application {
    */
   protected void configurePropertySources(ConfigurableEnvironment environment, String[] args) {
     PropertySources sources = environment.getPropertySources();
-    if (CollectionUtils.isNotEmpty(this.defaultProperties)) {
-      DefaultPropertiesPropertySource.addOrMerge(this.defaultProperties, sources);
+    if (CollectionUtils.isNotEmpty(defaultProperties)) {
+      DefaultPropertiesPropertySource.addOrMerge(defaultProperties, sources);
     }
 
     // CommandLine
-    if (this.addCommandLineProperties && args.length > 0) {
+    if (addCommandLineProperties && args.length > 0) {
       String name = CommandLinePropertySource.COMMAND_LINE_PROPERTY_SOURCE_NAME;
       if (sources.contains(name)) {
         PropertySource<?> source = sources.get(name);
@@ -771,7 +806,7 @@ public class Application {
    */
   public Logger getApplicationLog() {
     if (this.mainApplicationClass == null) {
-      return log;
+      return logger;
     }
     return LoggerFactory.getLogger(this.mainApplicationClass);
   }
@@ -910,10 +945,15 @@ public class Application {
    * @return a ClassLoader (never null)
    */
   public ClassLoader getClassLoader() {
-    if (this.resourceLoader != null) {
-      return this.resourceLoader.getClassLoader();
+    ClassLoader classLoader = null;
+    if (resourceLoader != null) {
+      classLoader = resourceLoader.getClassLoader();
     }
-    return ClassUtils.getDefaultClassLoader();
+    if (classLoader == null) {
+      classLoader = ClassUtils.getDefaultClassLoader();
+    }
+    Assert.state(classLoader != null, "Cannot determine ClassLoader");
+    return classLoader;
   }
 
   /**
@@ -965,7 +1005,27 @@ public class Application {
    * @return the listeners
    */
   public Set<ApplicationListener<?>> getListeners() {
-    return asUnmodifiableOrderedSet(this.listeners);
+    return asUnmodifiableOrderedSet(listeners);
+  }
+
+  /**
+   * Sets the {@link ApplicationStartupListener}s that will be applied to the
+   * {@link #getStartupListeners(DefaultBootstrapContext, ApplicationArguments)}
+   *
+   * @param listeners the listeners to add
+   */
+  public void addStartupListeners(ApplicationStartupListener... listeners) {
+    CollectionUtils.addAll(startupListeners, listeners);
+  }
+
+  /**
+   * Sets the {@link ApplicationStartupListener}s that will be applied to the
+   * {@link #getStartupListeners(DefaultBootstrapContext, ApplicationArguments)}
+   *
+   * @param listeners the startup listeners to set
+   */
+  public void setStartupListeners(Collection<ApplicationStartupListener> listeners) {
+    this.startupListeners = new ArrayList<>(listeners);
   }
 
   /**
@@ -1129,18 +1189,18 @@ public class Application {
       }
     }
     catch (Exception ex) {
-      log.warn("Unable to close ApplicationContext", ex);
+      logger.warn("Unable to close ApplicationContext", ex);
     }
     ReflectionUtils.rethrowRuntimeException(exception);
   }
 
-  private List<ApplicationExceptionReporter> getExceptionReporters(ConfigurableApplicationContext context) {
+  private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {
     ClassLoader classLoader = getClassLoader();
     var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class, parameters -> {
       parameters.add(ConfigurableApplicationContext.class, context);
     });
 
-    List<String> strategiesNames = TodayStrategies.getStrategiesNames(ApplicationExceptionReporter.class, classLoader);
+    List<String> strategiesNames = TodayStrategies.findNames(ApplicationExceptionReporter.class, classLoader);
     return instantiator.instantiate(strategiesNames);
   }
 
@@ -1156,8 +1216,8 @@ public class Application {
     catch (Throwable ex) {
       // Continue with normal handling of the original failure
     }
-    if (log.isErrorEnabled()) {
-      log.error("Application run failed", failure);
+    if (logger.isErrorEnabled()) {
+      logger.error("Application run failed", failure);
       registerLoggedException(failure);
     }
   }
@@ -1189,7 +1249,7 @@ public class Application {
             && "main".equals(currentThread.getThreadGroup().getName());
   }
 
-  private void handleExitCode(ConfigurableApplicationContext context, Throwable exception) {
+  private void handleExitCode(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     int exitCode = getExitCodeFromException(context, exception);
     if (exitCode != 0) {
       if (context != null) {
@@ -1202,7 +1262,7 @@ public class Application {
     }
   }
 
-  private int getExitCodeFromException(ConfigurableApplicationContext context, Throwable exception) {
+  private int getExitCodeFromException(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     int exitCode = getExitCodeFromMappedException(context, exception);
     if (exitCode == 0) {
       exitCode = getExitCodeFromExitCodeGeneratorException(exception);
@@ -1210,7 +1270,7 @@ public class Application {
     return exitCode;
   }
 
-  private int getExitCodeFromMappedException(ConfigurableApplicationContext context, Throwable exception) {
+  private int getExitCodeFromMappedException(@Nullable ConfigurableApplicationContext context, Throwable exception) {
     if (context == null || context.getState() == ApplicationContext.State.NONE) {
       return 0;
     }
@@ -1220,7 +1280,7 @@ public class Application {
     return generators.getExitCode();
   }
 
-  private int getExitCodeFromExitCodeGeneratorException(Throwable exception) {
+  private int getExitCodeFromExitCodeGeneratorException(@Nullable Throwable exception) {
     if (exception == null) {
       return 0;
     }
@@ -1231,12 +1291,9 @@ public class Application {
   }
 
   private void callRunners(ApplicationContext context, ApplicationArguments args) {
-    ArrayList<Object> runners = new ArrayList<>();
-    runners.addAll(context.getBeansOfType(ApplicationRunner.class).values());
-    runners.addAll(context.getBeansOfType(CommandLineRunner.class).values());
+    ArrayList<Object> runners = new ArrayList<>(context.getBeansOfType(ApplicationRunner.class).values());
     AnnotationAwareOrderComparator.sort(runners);
 
-    String[] sourceArgs = args.getSourceArgs();
     for (Object runner : new LinkedHashSet<>(runners)) {
       if (runner instanceof ApplicationRunner applicationRunner) {
         try {
@@ -1244,15 +1301,6 @@ public class Application {
         }
         catch (Exception ex) {
           throw new IllegalStateException("Failed to execute ApplicationRunner: " + applicationRunner, ex);
-        }
-      }
-
-      if (runner instanceof CommandLineRunner commandLineRunner) {
-        try {
-          commandLineRunner.run(sourceArgs);
-        }
-        catch (Exception ex) {
-          throw new IllegalStateException("Failed to execute CommandLineRunner: " + commandLineRunner, ex);
         }
       }
     }
@@ -1265,7 +1313,7 @@ public class Application {
    * @return a {@link ApplicationShutdownHandlers} instance
    */
   public static ApplicationShutdownHandlers getShutdownHandlers() {
-    return shutdownHook.getHandlers();
+    return shutdownHook.handlers;
   }
 
   /**
@@ -1354,6 +1402,57 @@ public class Application {
     return exitCode;
   }
 
+  /**
+   * Perform the given action with the given {@link ApplicationHook} attached if
+   * the action triggers an {@link Application#run(String...) application run}.
+   *
+   * @param hook the hook to apply
+   * @param action the action to run
+   * @see #withHook(ApplicationHook, ThrowingSupplier)
+   */
+  public static void withHook(ApplicationHook hook, Runnable action) {
+    withHook(hook, () -> {
+      action.run();
+      return null;
+    });
+  }
+
+  /**
+   * Perform the given action with the given {@link ApplicationHook} attached if
+   * the action triggers an {@link Application#run(String...) application run}.
+   *
+   * @param <T> the result type
+   * @param hook the hook to apply
+   * @param action the action to run
+   * @return the result of the action
+   * @see #withHook(ApplicationHook, Runnable)
+   */
+  public static <T> T withHook(ApplicationHook hook, ThrowingSupplier<T> action) {
+    applicationHook.set(hook);
+    try {
+      return action.get();
+    }
+    finally {
+      applicationHook.remove();
+    }
+  }
+
+  /**
+   * Create an application from an existing {@code main} method that can run with
+   * additional {@code @Configuration} or bean classes. This method can be helpful when
+   * writing a test harness that needs to start an application with additional
+   * configuration.
+   *
+   * @param main the main method entry point that runs the {@link Application}
+   * @return an {@link Application.Augmented} instance that can be used to add
+   * configuration and run the application.
+   * @see #withHook(ApplicationHook, Runnable)
+   */
+  public static Application.Augmented from(ThrowingConsumer<String[]> main) {
+    Assert.notNull(main, "Main must not be null");
+    return new Augmented(main, Collections.emptySet());
+  }
+
   private static void close(ApplicationContext context) {
     if (context instanceof ConfigurableApplicationContext closable) {
       closable.close();
@@ -1364,6 +1463,91 @@ public class Application {
     ArrayList<E> list = new ArrayList<>(elements);
     list.sort(AnnotationAwareOrderComparator.INSTANCE);
     return new LinkedHashSet<>(list);
+  }
+
+  /**
+   * Exception that can be thrown to silently exit a running {@link Application}
+   * without handling run failures.
+   */
+  public static class AbandonedRunException extends RuntimeException {
+
+    @Nullable
+    private final ConfigurableApplicationContext applicationContext;
+
+    /**
+     * Create a new {@link AbandonedRunException} instance.
+     */
+    public AbandonedRunException() {
+      this(null);
+    }
+
+    /**
+     * Create a new {@link AbandonedRunException} instance with the given application
+     * context.
+     *
+     * @param applicationContext the application context that was available when the
+     * run was abandoned
+     */
+    public AbandonedRunException(@Nullable ConfigurableApplicationContext applicationContext) {
+      this.applicationContext = applicationContext;
+    }
+
+    /**
+     * Return the application context that was available when the run was abandoned or
+     * {@code null} if no context was available.
+     *
+     * @return the application context
+     */
+    @Nullable
+    public ConfigurableApplicationContext getApplicationContext() {
+      return this.applicationContext;
+    }
+
+  }
+
+  /**
+   * Used to configure and run an augmented {@link Application} where additional
+   * configuration should be applied.
+   */
+  public static class Augmented {
+
+    private final ThrowingConsumer<String[]> main;
+
+    private final Set<Class<?>> sources;
+
+    Augmented(ThrowingConsumer<String[]> main, Set<Class<?>> sources) {
+      this.main = main;
+      this.sources = Set.copyOf(sources);
+    }
+
+    /**
+     * Return a new {@link Application.Augmented} instance with additional
+     * sources that should be applied when the application runs.
+     *
+     * @param sources the sources that should be applied
+     * @return a new {@link Application.Augmented} instance
+     */
+    public Augmented with(Class<?>... sources) {
+      LinkedHashSet<Class<?>> merged = new LinkedHashSet<>(this.sources);
+      merged.addAll(Arrays.asList(sources));
+      return new Augmented(this.main, merged);
+    }
+
+    /**
+     * Run the application using the given args.
+     *
+     * @param args the main method args
+     */
+    public void run(String... args) {
+      withHook(this::getRunListener, () -> this.main.accept(args));
+    }
+
+    @Nullable
+    private ApplicationStartupListener getRunListener(Application application) {
+      application.addPrimarySources(this.sources);
+      return null;
+    }
+
   }
 
 }

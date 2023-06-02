@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,6 +56,7 @@ public class SpelExpressionParser extends TemplateAwareExpressionParser {
   }
 
   public SpelExpression parseRaw(String expressionString) throws ParseException {
+    Assert.hasText(expressionString, "'expressionString' must not be null or blank");
     return doParseExpression(expressionString, null);
   }
 

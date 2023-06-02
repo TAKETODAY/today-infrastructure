@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.view.xslt;
 
-import org.assertj.core.api.Assertions;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -42,10 +41,11 @@ import javax.xml.transform.stream.StreamSource;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -64,6 +64,8 @@ public class XsltViewTests {
   private final MockHttpServletRequest request = new MockHttpServletRequest();
 
   private final MockHttpServletResponse response = new MockHttpServletResponse();
+
+  private final MockServletContext servletContext = new MockServletContext();
 
   @Test
   public void withNoSource() throws Exception {
@@ -202,7 +204,7 @@ public class XsltViewTests {
   private XsltView getXsltView(String templatePath) {
     XsltView view = new XsltView();
     view.setUrl(templatePath);
-    view.setApplicationContext(new StaticWebApplicationContext());
+    view.setApplicationContext(new StaticWebApplicationContext(servletContext));
     view.initApplicationContext();
     return view;
   }

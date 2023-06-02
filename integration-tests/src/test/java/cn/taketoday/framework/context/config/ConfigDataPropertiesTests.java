@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,13 +55,13 @@ class ConfigDataPropertiesTests {
     ConfigDataLocation l3 = ConfigDataLocation.valueOf("three");
     List<ConfigDataLocation> imports = Arrays.asList(l1, l2, l3);
     ConfigDataProperties properties = new ConfigDataProperties(imports, null);
-    assertThat(properties.getImports()).containsExactly(l1, l2, l3);
+    assertThat(properties.imports).containsExactly(l1, l2, l3);
   }
 
   @Test
   void getImportsWhenImportsAreNullReturnsEmptyList() {
     ConfigDataProperties properties = new ConfigDataProperties(null, null);
-    assertThat(properties.getImports()).isEmpty();
+    assertThat(properties.imports).isEmpty();
   }
 
   @Test
@@ -202,7 +202,7 @@ class ConfigDataPropertiesTests {
     source.put("app.config.import", "one,two,three");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
-    assertThat(properties.getImports().get(1).getOrigin())
+    assertThat(properties.imports.get(1).getOrigin())
             .hasToString("\"app.config.import\" from property source \"source\"");
   }
 
@@ -214,7 +214,7 @@ class ConfigDataPropertiesTests {
     source.put("app.config.import[2]", "three");
     Binder binder = new Binder(source);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
-    assertThat(properties.getImports().get(1).getOrigin())
+    assertThat(properties.imports.get(1).getOrigin())
             .hasToString("\"app.config.import[1]\" from property source \"source\"");
   }
 

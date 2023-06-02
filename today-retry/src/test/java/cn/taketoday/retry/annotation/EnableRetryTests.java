@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,9 +41,9 @@ import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryListener;
 import cn.taketoday.retry.backoff.ExponentialBackOffPolicy;
+import cn.taketoday.retry.backoff.FixedBackOffPolicy;
 import cn.taketoday.retry.backoff.Sleeper;
 import cn.taketoday.retry.interceptor.RetryInterceptorBuilder;
-import cn.taketoday.retry.listener.RetryListenerSupport;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
 import cn.taketoday.retry.support.RetryTemplate;
 
@@ -52,7 +52,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.setMaxStackTraceElementsDisplayed;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -111,6 +110,15 @@ public class EnableRetryTests {
   }
 
   @Test
+  public void order() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+            TestOrderConfiguration.class);
+    RetryConfiguration config = context.getBean(RetryConfiguration.class);
+    assertThat(config.getOrder()).isEqualTo(1);
+    context.close();
+  }
+
+  @Test
   public void marker() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     Service service = context.getBean(Service.class);
@@ -125,7 +133,13 @@ public class EnableRetryTests {
     RecoverableService service = context.getBean(RecoverableService.class);
     service.service();
     assertThat(service.getCount()).isEqualTo(3);
-    assertNotNull(service.getCause());
+    assertThat(service.getCause()).isExactlyInstanceOf(RuntimeException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> service.service());
+    assertThat(service.getCount()).isEqualTo(6);
+    assertThat(service.getCause()).isExactlyInstanceOf(RuntimeException.class);
+    assertThatIllegalStateException().isThrownBy(() -> service.service());
+    assertThat(service.getCount()).isEqualTo(7);
+    assertThat(service.getCause()).isExactlyInstanceOf(RuntimeException.class);
     context.close();
   }
 
@@ -228,10 +242,12 @@ public class EnableRetryTests {
     assertThat(service.getCount()).isEqualTo(9);
     RetryConfiguration config = context.getBean(RetryConfiguration.class);
     AnnotationAwareRetryOperationsInterceptor advice = (AnnotationAwareRetryOperationsInterceptor) new DirectFieldAccessor(
-            config).getPropertyValue("advice");
+            config)
+            .getPropertyValue("advice");
     @SuppressWarnings("unchecked")
     Map<Object, Map<Method, MethodInterceptor>> delegates = (Map<Object, Map<Method, MethodInterceptor>>) new DirectFieldAccessor(
-            advice).getPropertyValue("delegates");
+            advice)
+            .getPropertyValue("delegates");
     MethodInterceptor interceptor = delegates.get(target(service))
             .get(ExpressionService.class.getDeclaredMethod("service3"));
     RetryTemplate template = (RetryTemplate) new DirectFieldAccessor(interceptor)
@@ -246,6 +262,11 @@ public class EnableRetryTests {
     assertThat(retryPolicy.getMaxAttempts()).isEqualTo(5);
     service.service4();
     assertThat(service.getCount()).isEqualTo(11);
+    interceptor = delegates.get(target(service)).get(ExpressionService.class.getDeclaredMethod("service4"));
+    template = (RetryTemplate) new DirectFieldAccessor(interceptor).getPropertyValue("retryOperations");
+    templateAccessor = new DirectFieldAccessor(template);
+    FixedBackOffPolicy fbp = (FixedBackOffPolicy) templateAccessor.getPropertyValue("backOffPolicy");
+    assertThat(fbp.getBackOffPeriod()).isEqualTo(5000L);
     service.service5();
     assertThat(service.getCount()).isEqualTo(12);
     context.close();
@@ -264,10 +285,12 @@ public class EnableRetryTests {
 
     RetryConfiguration config = context.getBean(RetryConfiguration.class);
     AnnotationAwareRetryOperationsInterceptor advice = (AnnotationAwareRetryOperationsInterceptor) new DirectFieldAccessor(
-            config).getPropertyValue("advice");
+            config)
+            .getPropertyValue("advice");
     @SuppressWarnings("unchecked")
     Map<Object, Map<Method, MethodInterceptor>> delegates = (Map<Object, Map<Method, MethodInterceptor>>) new DirectFieldAccessor(
-            advice).getPropertyValue("delegates");
+            advice)
+            .getPropertyValue("delegates");
     MethodInterceptor interceptor = delegates.get(target(service))
             .get(ExpressionService.class.getDeclaredMethod("service6"));
     RetryTemplate template = (RetryTemplate) new DirectFieldAccessor(interceptor)
@@ -343,6 +366,17 @@ public class EnableRetryTests {
         return Integer.MAX_VALUE;
       }
 
+    }
+
+  }
+
+  @Configuration
+  @EnableRetry(order = 1)
+  protected static class TestOrderConfiguration {
+
+    @Bean
+    public Service service() {
+      return new Service();
     }
 
   }
@@ -586,10 +620,18 @@ public class EnableRetryTests {
 
     boolean otherAdviceCalled;
 
-    @Retryable(RuntimeException.class)
+    @Retryable(retryFor = RuntimeException.class, noRetryFor = IllegalStateException.class,
+               notRecoverable = { IllegalArgumentException.class, IllegalStateException.class })
     public void service() {
-      this.count++;
-      throw new RuntimeException("Planned");
+      if (this.count++ >= 3 && count < 7) {
+        throw new IllegalArgumentException("Planned");
+      }
+      else if (count > 6) {
+        throw new IllegalStateException("Planned");
+      }
+      else {
+        throw new RuntimeException("Planned");
+      }
     }
 
     @Recover
@@ -636,7 +678,7 @@ public class EnableRetryTests {
 
     private int count = 0;
 
-    @Retryable(include = RuntimeException.class, exclude = IllegalStateException.class)
+    @Retryable(retryFor = RuntimeException.class, noRetryFor = IllegalStateException.class)
     public void service() {
       if (this.count++ < 2) {
         throw new IllegalStateException("Planned");
@@ -655,7 +697,7 @@ public class EnableRetryTests {
 
     private RuntimeException exceptionToThrow;
 
-    @Retryable(exclude = IllegalStateException.class)
+    @Retryable(noRetryFor = IllegalStateException.class)
     public void service() {
       if (this.count++ < 2) {
         throw this.exceptionToThrow;
@@ -733,14 +775,15 @@ public class EnableRetryTests {
       }
     }
 
-    @Retryable(exceptionExpression = "message.contains('this can be retried')")
+    @Retryable(exceptionExpression = "message.contains('this can be retried')",
+               backoff = @Backoff(delayExpression = "5000"))
     public void service4() {
       if (this.count++ < 10) {
         throw new RuntimeException("this can be retried");
       }
     }
 
-    @Retryable(exceptionExpression = "message.contains('this can be retried')", include = RuntimeException.class)
+    @Retryable(exceptionExpression = "message.contains('this can be retried')", retryFor = RuntimeException.class)
     public void service5() {
       if (this.count++ < 11) {
         throw new RuntimeException("this can be retried");
@@ -902,7 +945,7 @@ public class EnableRetryTests {
 
   }
 
-  public abstract static class OrderedListener extends RetryListenerSupport implements Ordered {
+  public abstract static class OrderedListener implements RetryListener, Ordered {
 
   }
 

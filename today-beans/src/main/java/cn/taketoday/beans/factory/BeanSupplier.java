@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,7 +45,7 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
 
   private final BeanFactory beanFactory;
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected BeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class beanType) {
     Assert.notNull(beanName, "'beanName' is required");
     Assert.notNull(beanFactory, "'beanFactory' is required");
@@ -98,8 +98,8 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     return from(beanFactory, beanType, beanName, singleton);
   }
 
-  public static <E> BeanSupplier<E> from(
-          BeanFactory beanFactory, Class<E> beanType, String beanName, boolean singleton) {
+  public static <E> BeanSupplier<E> from(BeanFactory beanFactory,
+          Class<E> beanType, String beanName, boolean singleton) {
     if (singleton) {
       return new SingletonBeanSupplier<>(beanFactory, beanName, beanType);
     }
@@ -108,7 +108,7 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
 
   private final static class SingletonBeanSupplier<T>
           extends BeanSupplier<T> implements Supplier<T> {
-    private transient T instance;
+    private volatile transient T instance;
 
     SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> beanType) {
       super(beanFactory, beanName, beanType);
@@ -117,9 +117,14 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
     @Override
     public T get() {
       T instance = this.instance;
-      if (instance == null) { // TODO DCL ?
-        instance = super.get();
-        this.instance = instance;
+      if (instance == null) {
+        synchronized(this) {
+          instance = this.instance;
+          if (instance == null) {
+            instance = super.get();
+            this.instance = instance;
+          }
+        }
       }
       return instance;
     }

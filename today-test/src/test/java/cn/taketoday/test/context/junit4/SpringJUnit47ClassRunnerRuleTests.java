@@ -31,14 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Verifies support for JUnit 4.7 {@link Rule Rules} in conjunction with the
- * {@link Runner}. The body of this test class is taken from the
+ * {@link InfraRunner}. The body of this test class is taken from the
  * JUnit 4.7 release notes.
  *
  * @author JUnit 4.7 Team
  * @author Sam Brannen
  * @since 4.0
  */
-@RunWith(Runner.class)
+@RunWith(InfraRunner.class)
 @TestExecutionListeners({})
 public class SpringJUnit47ClassRunnerRuleTests {
 

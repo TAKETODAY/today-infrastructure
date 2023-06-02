@@ -34,7 +34,7 @@ import cn.taketoday.test.context.jdbc.Sql;
 import cn.taketoday.test.context.jdbc.SqlMergeMode;
 import cn.taketoday.test.context.jdbc.SqlMergeMode.MergeMode;
 import cn.taketoday.test.context.jdbc.merging.AbstractSqlMergeModeTests;
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests that verify support for {@link Nested @Nested} test classes in
- * conjunction with the {@link ApplicationExtension}, {@link Sql @Sql}, and
+ * conjunction with the {@link InfraExtension}, {@link Sql @Sql}, and
  * {@link Transactional @Transactional} in a JUnit Jupiter environment.
  *
  * @author Sam Brannen

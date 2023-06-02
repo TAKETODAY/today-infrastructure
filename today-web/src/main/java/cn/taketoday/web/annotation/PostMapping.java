@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,8 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,62 +34,63 @@ import cn.taketoday.http.HttpMethod;
  * methods.
  *
  * <p>Specifically, {@code @PostMapping} is a <em>composed annotation</em> that
- * acts as a shortcut for {@code @ActionMapping(method = HttpMethod.POST)}.
+ * acts as a shortcut for {@code @RequestMapping(method = HttpMethod.POST)}.
  *
  * @author TODAY 2020/12/8 21:48
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping(method = HttpMethod.POST)
+@RequestMapping(method = HttpMethod.POST)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface PostMapping {
 
   /**
-   * Alias for {@link ActionMapping#name}.
+   * Alias for {@link RequestMapping#name}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String name() default "";
 
   /**
-   * Alias for {@link ActionMapping#value}.
+   * Alias for {@link RequestMapping#value}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String[] value() default {};
 
   /**
-   * Alias for {@link ActionMapping#path}.
+   * Alias for {@link RequestMapping#path}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String[] path() default {};
 
   /**
    * Combine this condition with another such as conditions from a
    * type-level and method-level {@code @RequestMapping} annotation.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   boolean combine() default true;
 
   /**
-   * Alias for {@link ActionMapping#params}.
+   * Alias for {@link RequestMapping#params}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String[] params() default {};
 
   /**
-   * Alias for {@link ActionMapping#headers}.
+   * Alias for {@link RequestMapping#headers}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String[] headers() default {};
 
   /**
-   * Alias for {@link ActionMapping#consumes}.
+   * Alias for {@link RequestMapping#consumes}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String[] consumes() default {};
 
   /**
-   * Alias for {@link ActionMapping#produces}.
+   * Alias for {@link RequestMapping#produces}.
    */
-  @AliasFor(annotation = ActionMapping.class)
+  @AliasFor(annotation = RequestMapping.class)
   String[] produces() default {};
 
 }

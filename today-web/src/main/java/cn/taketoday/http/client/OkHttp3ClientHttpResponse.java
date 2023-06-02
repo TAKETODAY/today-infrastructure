@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import kotlin.Pair;
@@ -36,9 +37,10 @@ import okhttp3.ResponseBody;
  * @author Luciano Leggieri
  * @author Arjen Poutsma
  * @author Roy Clarkson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class OkHttp3ClientHttpResponse extends AbstractClientHttpResponse {
+class OkHttp3ClientHttpResponse implements ClientHttpResponse {
 
   private final Response response;
 
@@ -51,8 +53,13 @@ class OkHttp3ClientHttpResponse extends AbstractClientHttpResponse {
   }
 
   @Override
-  public int getRawStatusCode() {
-    return this.response.code();
+  public HttpStatusCode getStatusCode() throws IOException {
+    return HttpStatusCode.valueOf(response.code());
+  }
+
+  @Override
+  public int getRawStatusCode() throws IOException {
+    return response.code();
   }
 
   @Override

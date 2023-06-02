@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -322,9 +322,9 @@ public abstract class AbstractReactiveTransactionAspectTests {
     // Method m2 = getNameMethod;
     // No attributes for m2
 
-    ReactiveTransactionManager rtm = mock(ReactiveTransactionManager.class);
+    ReactiveTransactionManager rtm = mock();
 
-    ReactiveTransaction status = mock(ReactiveTransaction.class);
+    ReactiveTransaction status = mock();
     given(rtm.getReactiveTransaction(txatt)).willReturn(Mono.just(status));
     UnexpectedRollbackException ex = new UnexpectedRollbackException("foobar", null);
     given(rtm.commit(status)).willReturn(Mono.error(ex));
@@ -337,11 +337,7 @@ public abstract class AbstractReactiveTransactionAspectTests {
 
     Mono.from(itb.setName(name))
             .as(StepVerifier::create)
-            .consumeErrorWith(throwable -> {
-              assertThat(throwable.getClass()).isEqualTo(RuntimeException.class);
-              assertThat(throwable.getCause()).isEqualTo(ex);
-            })
-            .verify();
+            .verifyErrorSatisfies(actual -> assertThat(actual).isEqualTo(ex));
 
     // Should have invoked target and changed name
 

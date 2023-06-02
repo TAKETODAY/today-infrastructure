@@ -22,14 +22,14 @@ package cn.taketoday.test.context.junit.jupiter.generics;
 
 import org.junit.jupiter.api.Nested;
 
-import cn.taketoday.test.context.junit.jupiter.ApplicationExtension;
+import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 
 /**
  * Integration tests that verify support for Java generics combined with {@code @Nested}
  * test classes when used with the TestContext Framework and the
- * {@link ApplicationExtension}.
+ * {@link InfraExtension}.
  *
  * <p>
  * To run these tests in an IDE that does not have built-in support for the JUnit

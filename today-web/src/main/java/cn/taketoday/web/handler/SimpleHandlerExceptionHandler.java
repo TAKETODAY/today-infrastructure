@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -122,7 +122,7 @@ import cn.taketoday.web.util.WebUtils;
  * <td><p>400 (SC_BAD_REQUEST)</p></td>
  * </tr>
  * <tr class="rowColor">
- * <td><p>NoHandlerFoundException</p></td>
+ * <td><p>HandlerNotFoundException</p></td>
  * <td><p>404 (SC_NOT_FOUND)</p></td>
  * </tr>
  * <tr class="altColor">
@@ -168,7 +168,6 @@ public class SimpleHandlerExceptionHandler
   @Nullable
   @Override
   protected Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex) {
-    logCatchThrowable(ex);
 
     try {
       // ErrorResponse exceptions that expose HTTP response details
@@ -207,7 +206,7 @@ public class SimpleHandlerExceptionHandler
                   (MethodArgumentNotValidException) ex, request, handler);
         }
         else if (ex instanceof HandlerNotFoundException) {
-          view = handleNoHandlerFoundException(
+          view = handleHandlerNotFoundException(
                   (HandlerNotFoundException) ex, request, handler);
         }
         else if (ex instanceof AsyncRequestTimeoutException) {
@@ -411,7 +410,7 @@ public class SimpleHandlerExceptionHandler
    * <p>The default implementation returns {@code null} in which case the
    * exception is handled in {@link #handleErrorResponse}.
    *
-   * @param ex the NoHandlerFoundException to be handled
+   * @param ex the HandlerNotFoundException to be handled
    * @param request current HTTP request
    * @param handler the executed handler, or {@code null} if none chosen
    * at the time of the exception (for example, if multipart resolution failed)
@@ -420,7 +419,7 @@ public class SimpleHandlerExceptionHandler
    * @since 4.0
    */
   @Nullable
-  protected Object handleNoHandlerFoundException(HandlerNotFoundException ex,
+  protected Object handleHandlerNotFoundException(HandlerNotFoundException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
     pageNotFoundLogger.warn(ex.getMessage());

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,18 +20,17 @@
 
 package cn.taketoday.web.context.support;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.Scope;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
+import cn.taketoday.session.WebSessionAttributeListener;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -47,15 +46,18 @@ import cn.taketoday.web.util.WebUtils;
  * @since 4.0 2022/2/21 11:40
  */
 public class SessionScope extends AbstractRequestContextScope<WebSession> {
-  private final ConfigurableBeanFactory beanFactory;
 
-  @Nullable
-  private SessionManager sessionManager;
+  /**
+   * Constant identifying the {@link String} prefixed to the name of a
+   * destruction callback when it is stored in a {@link WebSession}.
+   */
+  public static final String DESTRUCTION_CALLBACK_NAME_PREFIX =
+          SessionScope.class.getName() + ".DESTRUCTION_CALLBACK.";
 
-  private boolean managerLoaded;
+  private final SessionManagerDiscover sessionManagerDiscover;
 
-  public SessionScope(ConfigurableBeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
+  public SessionScope(BeanFactory beanFactory) {
+    this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
   }
 
   @Override
@@ -74,7 +76,7 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
     WebSession session = getSession(context);
     Object sessionMutex = WebUtils.getSessionMutex(session);
     synchronized(sessionMutex) {
-      return get(session, name, objectFactory);
+      return doGetBean(session, name, objectFactory);
     }
   }
 
@@ -129,24 +131,65 @@ public class SessionScope extends AbstractRequestContextScope<WebSession> {
    * @see #getSession(RequestContext)
    */
   private WebSession getSession(RequestContext request, boolean create) {
-    SessionManager sessionManager = this.sessionManager;
-    if (sessionManager == null) {
-      Assert.state(!managerLoaded, "No SessionManager in context");
-      this.managerLoaded = true;
-      sessionManager = BeanFactoryUtils.find(
-              beanFactory, SessionManager.BEAN_NAME, SessionManager.class);
-      if (sessionManager == null) {
-        sessionManager = BeanFactoryUtils.find(beanFactory, SessionManager.class);
-        if (sessionManager == null) {
-          sessionManager = RequestContextUtils.getSessionManager(request);
-          if (sessionManager == null) {
-            throw new IllegalStateException("No SessionManager in context");
-          }
-        }
-      }
-      this.sessionManager = sessionManager;
-    }
-    return sessionManager.getSession(request, create);
+    return sessionManagerDiscover.obtain(request)
+            .getSession(request, create);
   }
 
+  @Override
+  protected void setAttribute(WebSession context, String beanName, Object scopedObject) {
+    context.setAttribute(beanName, scopedObject);
+  }
+
+  @Override
+  protected Object getAttribute(WebSession context, String beanName) {
+    return context.getAttribute(beanName);
+  }
+
+  @Override
+  protected void removeAttribute(WebSession context, String name) {
+    context.removeAttribute(name);
+  }
+
+  @Nullable
+  @Override
+  public Object resolveContextualObject(String key) {
+    if (RequestContext.SCOPE_REQUEST.equals(key)) {
+      return RequestContextHolder.get();
+    }
+    else if (RequestContext.SCOPE_SESSION.equals(key)) {
+      RequestContext context = RequestContextHolder.get();
+      if (context != null) {
+        return getSession(context, false);
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public void registerDestructionCallback(String name, Runnable callback) {
+    RequestContext context = RequestContextHolder.getRequired();
+    WebSession session = getSession(context);
+    session.setAttribute(getDestructionCallbackName(name),
+            new DestructionCallbackBindingListener(callback));
+  }
+
+  private static String getDestructionCallbackName(String name) {
+    return DESTRUCTION_CALLBACK_NAME_PREFIX + name;
+  }
+
+  public static WebSessionAttributeListener createDestructionCallback() {
+    return new DestructionCallback();
+  }
+
+  static final class DestructionCallback implements WebSessionAttributeListener {
+
+    @Override
+    public void attributeRemoved(WebSession session, String attributeName, @Nullable Object value) {
+      // notify DestructionCallbackBindingListener
+      String destructionName = getDestructionCallbackName(attributeName);
+      if (!Objects.equals(destructionName, attributeName)) {
+        session.removeAttribute(destructionName);
+      }
+    }
+  }
 }

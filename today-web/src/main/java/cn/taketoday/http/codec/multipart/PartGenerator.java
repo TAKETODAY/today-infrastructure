@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -698,9 +698,13 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     private Mono<Void> writeInternal(DataBuffer dataBuffer) {
       try {
-        ByteBuffer byteBuffer = dataBuffer.toByteBuffer();
-        while (byteBuffer.hasRemaining()) {
-          this.channel.write(byteBuffer);
+        try (DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
+          while (iterator.hasNext()) {
+            ByteBuffer byteBuffer = iterator.next();
+            while (byteBuffer.hasRemaining()) {
+              channel.write(byteBuffer);
+            }
+          }
         }
         return Mono.empty();
       }

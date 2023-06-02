@@ -20,9 +20,7 @@
 
 package cn.taketoday.http.server.reactive;
 
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.junit.jupiter.api.Order;
 
 import java.net.URI;
 import java.time.Duration;
@@ -30,6 +28,7 @@ import java.time.Duration;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.web.DisabledIfInContinuousIntegration;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
@@ -44,8 +43,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Maldini
  * @since 4.0
  */
-@Execution(ExecutionMode.SAME_THREAD)
-@DisabledIfEnvironmentVariable(named = "CI", matches = "true", disabledReason = "server port error")
+@Order(Integer.MAX_VALUE)
+@DisabledIfInContinuousIntegration(disabledReason = "server port error")
 class AsyncIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
   private final Scheduler asyncGroup = Schedulers.parallel();

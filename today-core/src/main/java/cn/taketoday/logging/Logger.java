@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,12 +15,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.logging;
 
 import java.io.Serializable;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Logger From slf4j
@@ -57,7 +60,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message string to be logged
    */
   public void trace(String msg) {
-    logInternal(Level.TRACE, msg);
+    logInternal(Level.TRACE, msg, null, null);
   }
 
   /**
@@ -73,7 +76,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void trace(String format, Object arg) {
-    logInternal(Level.TRACE, format, new Object[] { arg });
+    logInternal(Level.TRACE, format, null, new Object[] { arg });
   }
 
   /**
@@ -90,7 +93,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void trace(String format, Object arg1, Object arg2) {
-    logInternal(Level.TRACE, format, new Object[] { arg1, arg2 });
+    logInternal(Level.TRACE, format, null, new Object[] { arg1, arg2 });
   }
 
   /**
@@ -110,7 +113,7 @@ public abstract class Logger implements Serializable {
    * @param arguments a list of 3 or more arguments
    */
   public void trace(String format, Object... arguments) {
-    logInternal(Level.TRACE, format, arguments);
+    logInternal(arguments, Level.TRACE, format);
   }
 
   /**
@@ -138,7 +141,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message string to be logged
    */
   public void debug(String msg) {
-    logInternal(Level.DEBUG, msg);
+    logInternal(Level.DEBUG, msg, null, null);
   }
 
   /**
@@ -154,7 +157,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void debug(String format, Object arg) {
-    logInternal(Level.DEBUG, format, new Object[] { arg });
+    logInternal(Level.DEBUG, format, null, new Object[] { arg });
   }
 
   /**
@@ -171,7 +174,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void debug(String format, Object arg1, Object arg2) {
-    logInternal(Level.DEBUG, format, new Object[] { arg1, arg2 });
+    logInternal(Level.DEBUG, format, null, new Object[] { arg1, arg2 });
   }
 
   /**
@@ -191,7 +194,7 @@ public abstract class Logger implements Serializable {
    * @param arguments a list of 3 or more arguments
    */
   public void debug(String format, Object... arguments) {
-    logInternal(Level.DEBUG, format, arguments);
+    logInternal(arguments, Level.DEBUG, format);
   }
 
   /**
@@ -217,7 +220,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message string to be logged
    */
   public void info(String msg) {
-    logInternal(Level.INFO, msg);
+    logInternal(Level.INFO, msg, null, null);
   }
 
   /**
@@ -233,7 +236,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void info(String format, Object arg) {
-    logInternal(Level.INFO, format, new Object[] { arg });
+    logInternal(Level.INFO, format, null, new Object[] { arg });
   }
 
   /**
@@ -250,7 +253,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void info(String format, Object arg1, Object arg2) {
-    logInternal(Level.INFO, format, new Object[] { arg1, arg2 });
+    logInternal(Level.INFO, format, null, new Object[] { arg1, arg2 });
   }
 
   /**
@@ -270,7 +273,7 @@ public abstract class Logger implements Serializable {
    * @param arguments a list of 3 or more arguments
    */
   public void info(String format, Object... arguments) {
-    logInternal(Level.INFO, format, arguments);
+    logInternal(arguments, Level.INFO, format);
   }
 
   /**
@@ -280,7 +283,7 @@ public abstract class Logger implements Serializable {
    * @param t the exception (throwable) to log
    */
   public void info(String msg, Throwable t) {
-    logInternal(Level.INFO, msg, t);
+    logInternal(Level.INFO, msg, t, null);
   }
 
   /**
@@ -296,7 +299,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message string to be logged
    */
   public void warn(String msg) {
-    logInternal(Level.WARN, msg);
+    logInternal(Level.WARN, msg, null, null);
   }
 
   /**
@@ -312,7 +315,7 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void warn(String format, Object arg) {
-    logInternal(Level.WARN, format, new Object[] { arg });
+    logInternal(Level.WARN, format, null, new Object[] { arg });
   }
 
   /**
@@ -332,7 +335,7 @@ public abstract class Logger implements Serializable {
    * @param arguments a list of 3 or more arguments
    */
   public void warn(String format, Object... arguments) {
-    logInternal(Level.WARN, format, arguments);
+    logInternal(arguments, Level.WARN, format);
   }
 
   /**
@@ -349,7 +352,7 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void warn(String format, Object arg1, Object arg2) {
-    logInternal(Level.WARN, format, new Object[] { arg1, arg2 });
+    logInternal(Level.WARN, format, null, new Object[] { arg1, arg2 });
   }
 
   /**
@@ -359,7 +362,7 @@ public abstract class Logger implements Serializable {
    * @param t the exception (throwable) to log
    */
   public void warn(String msg, Throwable t) {
-    logInternal(Level.WARN, msg, t);
+    logInternal(Level.WARN, msg, t, null);
   }
 
   /**
@@ -375,7 +378,7 @@ public abstract class Logger implements Serializable {
    * @param msg the message string to be logged
    */
   public void error(String msg) {
-    logInternal(Level.ERROR, msg);
+    logInternal(Level.ERROR, msg, null, null);
   }
 
   /**
@@ -391,7 +394,11 @@ public abstract class Logger implements Serializable {
    * @param arg the argument
    */
   public void error(String format, Object arg) {
-    logInternal(Level.ERROR, format, new Object[] { arg });
+    logInternal(Level.ERROR, format, null, new Object[] { arg });
+  }
+
+  public void error(String format, Object arg, Throwable throwable) {
+    logInternal(Level.ERROR, format, throwable, new Object[] { arg });
   }
 
   /**
@@ -408,7 +415,11 @@ public abstract class Logger implements Serializable {
    * @param arg2 the second argument
    */
   public void error(String format, Object arg1, Object arg2) {
-    logInternal(Level.ERROR, format, new Object[] { arg1, arg2 });
+    logInternal(Level.ERROR, format, null, new Object[] { arg1, arg2 });
+  }
+
+  public void error(String format, Object arg1, Object arg2, Throwable throwable) {
+    logInternal(Level.ERROR, format, throwable, new Object[] { arg1, arg2 });
   }
 
   /**
@@ -428,7 +439,7 @@ public abstract class Logger implements Serializable {
    * @param arguments a list of 3 or more arguments
    */
   public void error(String format, Object... arguments) {
-    logInternal(Level.ERROR, format, arguments);
+    logInternal(arguments, Level.ERROR, format);
   }
 
   /**
@@ -438,7 +449,7 @@ public abstract class Logger implements Serializable {
    * @param t the exception (throwable) to log
    */
   public void error(String msg, Throwable t) {
-    logInternal(Level.ERROR, msg, t);
+    logInternal(Level.ERROR, msg, t, null);
   }
 
   //
@@ -449,7 +460,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    */
   public void error(Object message) {
-    logInternal(Level.ERROR, message);
+    logInternal(Level.ERROR, message, null);
   }
 
   /**
@@ -468,7 +479,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    */
   public void warn(Object message) {
-    logInternal(Level.WARN, message);
+    logInternal(Level.WARN, message, null);
   }
 
   /**
@@ -487,7 +498,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    */
   public void info(Object message) {
-    logInternal(Level.INFO, message);
+    logInternal(Level.INFO, message, null);
   }
 
   /**
@@ -506,7 +517,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    */
   public void debug(Object message) {
-    logInternal(Level.DEBUG, message);
+    logInternal(Level.DEBUG, message, null);
   }
 
   /**
@@ -525,7 +536,7 @@ public abstract class Logger implements Serializable {
    * @param message log this message
    */
   public void trace(Object message) {
-    logInternal(Level.TRACE, message);
+    logInternal(Level.TRACE, message, null);
   }
 
   /**
@@ -540,24 +551,33 @@ public abstract class Logger implements Serializable {
 
   // internal
 
-  protected void logInternal(Level level, String msg) {
-    logInternal(level, msg, (Object[]) null);
+  private void logInternal(Object[] arguments, Level level, String format) {
+    Object lastElement = CollectionUtils.lastElement(arguments);
+    if (lastElement instanceof Throwable throwable) {
+      logInternal(level, format, throwable, arguments);
+    }
+    else {
+      logInternal(level, format, null, arguments);
+    }
   }
 
-  protected void logInternal(Level level, String msg, Throwable t) {
-    logInternal(level, msg, t, null);
+  protected void logInternal(Level level, Object msg, Throwable t) {
+    if (isEnabled(level)) {
+      String message = String.valueOf(msg);
+      logInternal(level, message, t, null);
+    }
   }
 
-  protected void logInternal(Level level, String msg, Object[] args) {
-    logInternal(level, msg, null, args);
+  protected boolean isEnabled(Level level) {
+    return switch (level) {
+      case INFO -> isInfoEnabled();
+      case WARN -> isWarnEnabled();
+      case DEBUG -> isDebugEnabled();
+      case ERROR -> isErrorEnabled();
+      case TRACE -> isTraceEnabled();
+    };
   }
 
-  protected abstract void logInternal(Level level, String msg, Throwable t, Object[] args);
-
-  protected void logInternal(Level level, Object msg) {
-    logInternal(level, msg, null);
-  }
-
-  protected abstract void logInternal(Level level, Object msg, Throwable t);
+  protected abstract void logInternal(Level level, String msg, Throwable t, @Nullable Object[] args);
 
 }

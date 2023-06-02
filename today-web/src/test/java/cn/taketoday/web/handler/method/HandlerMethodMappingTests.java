@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,19 +35,19 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.UrlPathHelper;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
@@ -148,9 +148,9 @@ public class HandlerMethodMappingTests {
     HandlerExecutionChain chain = getHandler(context);
 
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler()).isInstanceOf(HttpRequestHandler.class);
+    assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
 
-    if (chain.getHandler() instanceof HttpRequestHandler httpRequestHandler) {
+    if (chain.getRawHandler() instanceof HttpRequestHandler httpRequestHandler) {
       httpRequestHandler.handleRequest(context);
     }
 
@@ -179,9 +179,9 @@ public class HandlerMethodMappingTests {
     ServletRequestContext context = new ServletRequestContext(null, request, response);
     HandlerExecutionChain chain = getHandler(context);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler()).isInstanceOf(HttpRequestHandler.class);
+    assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
 
-    if (chain.getHandler() instanceof HttpRequestHandler httpRequestHandler) {
+    if (chain.getRawHandler() instanceof HttpRequestHandler httpRequestHandler) {
       httpRequestHandler.handleRequest(context);
     }
 
@@ -218,7 +218,7 @@ public class HandlerMethodMappingTests {
 
     // Direct URL lookup
 
-    List<String> directUrlMatches = this.mapping.getMappingRegistry().getMappingsByDirectPath(key1);
+    List<String> directUrlMatches = this.mapping.mappingRegistry.getMappingsByDirectPath(key1);
     assertThat(directUrlMatches).isNotNull();
     assertThat(directUrlMatches.size()).isEqualTo(1);
     assertThat(directUrlMatches.get(0)).isEqualTo(key1);
@@ -229,13 +229,13 @@ public class HandlerMethodMappingTests {
     HandlerMethod handlerMethod2 = new HandlerMethod(this.handler, this.method2);
 
     String name1 = this.method1.getName();
-    List<HandlerMethod> handlerMethods = this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(name1);
+    List<HandlerMethod> handlerMethods = this.mapping.mappingRegistry.getHandlerMethodsByMappingName(name1);
     assertThat(handlerMethods).isNotNull();
     assertThat(handlerMethods.size()).isEqualTo(1);
     assertThat(handlerMethods.get(0)).isEqualTo(handlerMethod1);
 
     String name2 = this.method2.getName();
-    handlerMethods = this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(name2);
+    handlerMethods = this.mapping.mappingRegistry.getHandlerMethodsByMappingName(name2);
     assertThat(handlerMethods).isNotNull();
     assertThat(handlerMethods.size()).isEqualTo(1);
     assertThat(handlerMethods.get(0)).isEqualTo(handlerMethod2);
@@ -257,7 +257,7 @@ public class HandlerMethodMappingTests {
 
     // Direct URL lookup
 
-    List<String> directUrlMatches = this.mapping.getMappingRegistry().getMappingsByDirectPath(key1);
+    List<String> directUrlMatches = this.mapping.mappingRegistry.getMappingsByDirectPath(key1);
     assertThat(directUrlMatches).isNotNull();
     assertThat(directUrlMatches.size()).isEqualTo(1);
     assertThat(directUrlMatches.get(0)).isEqualTo(key1);
@@ -265,7 +265,7 @@ public class HandlerMethodMappingTests {
     // Mapping name lookup
 
     String name = this.method1.getName();
-    List<HandlerMethod> handlerMethods = this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(name);
+    List<HandlerMethod> handlerMethods = this.mapping.mappingRegistry.getHandlerMethodsByMappingName(name);
     assertThat(handlerMethods).isNotNull();
     assertThat(handlerMethods.size()).isEqualTo(2);
     assertThat(handlerMethods.get(0)).isEqualTo(handlerMethod1);
@@ -282,9 +282,9 @@ public class HandlerMethodMappingTests {
 
     this.mapping.unregisterMapping(key);
     assertThat(mapping.getHandlerInternal(new ServletRequestContext(null, new MockHttpServletRequest("GET", key), null))).isNull();
-    assertThat(this.mapping.getMappingRegistry().getMappingsByDirectPath(key)).isNull();
-    assertThat(this.mapping.getMappingRegistry().getHandlerMethodsByMappingName(this.method1.getName())).isNull();
-    assertThat(this.mapping.getMappingRegistry().getCorsConfiguration(handlerMethod)).isNull();
+    assertThat(this.mapping.mappingRegistry.getMappingsByDirectPath(key)).isNull();
+    assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
+    assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
   }
 
   @Test

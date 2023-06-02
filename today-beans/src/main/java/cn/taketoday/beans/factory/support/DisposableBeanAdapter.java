@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -109,9 +109,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
       this.invokeAutoCloseable = bean instanceof AutoCloseable && CLOSE_METHOD_NAME.equals(destroyMethodNames[0]);
       if (!invokeAutoCloseable) {
         this.destroyMethodNames = destroyMethodNames;
-        Method[] destroyMethods = new Method[destroyMethodNames.length];
-        for (int i = 0; i < destroyMethodNames.length; i++) {
-          String destroyMethodName = destroyMethodNames[i];
+        var destroyMethods = new ArrayList<Method>(destroyMethodNames.length);
+        for (String destroyMethodName : destroyMethodNames) {
           Method destroyMethod = determineDestroyMethod(destroyMethodName);
           if (destroyMethod == null) {
             if (beanDefinition.isEnforceDestroyMethod()) {
@@ -132,10 +131,10 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
               }
             }
             destroyMethod = ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod, bean.getClass());
+            destroyMethods.add(destroyMethod);
           }
-          destroyMethods[i] = destroyMethod;
         }
-        this.destroyMethods = destroyMethods;
+        this.destroyMethods = destroyMethods.toArray(new Method[0]);
       }
     }
 
@@ -241,7 +240,18 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   @Nullable
   private Method determineDestroyMethod(String name) {
     try {
-      return findDestroyMethod(name);
+      Class<?> beanClass = bean.getClass();
+      Method destroyMethod = findDestroyMethod(beanClass, name);
+      if (destroyMethod != null) {
+        return destroyMethod;
+      }
+      for (Class<?> beanInterface : beanClass.getInterfaces()) {
+        destroyMethod = findDestroyMethod(beanInterface, name);
+        if (destroyMethod != null) {
+          return destroyMethod;
+        }
+      }
+      return null;
     }
     catch (IllegalArgumentException ex) {
       throw new BeanDefinitionValidationException(
@@ -250,10 +260,10 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   }
 
   @Nullable
-  private Method findDestroyMethod(String name) {
+  private Method findDestroyMethod(Class<?> clazz, String name) {
     return nonPublicAccessAllowed ?
-           ReflectionUtils.findMethodWithMinimalParameters(bean.getClass(), name) :
-           ReflectionUtils.findMethodWithMinimalParameters(bean.getClass().getMethods(), name);
+           ReflectionUtils.findMethodWithMinimalParameters(clazz, name) :
+           ReflectionUtils.findMethodWithMinimalParameters(clazz.getMethods(), name);
   }
 
   /**

@@ -58,13 +58,14 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletConfig;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,11 +208,15 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   public void noHandlerFoundException() {
-    ServletServerHttpRequest req = new ServletServerHttpRequest(
-            new MockHttpServletRequest("GET", "/resource"));
-    Exception ex = new HandlerNotFoundException(req.getMethod().toString(),
-            req.getServletRequest().getRequestURI(), req.getHeaders());
-    testException(ex);
+    HttpHeaders requestHeaders = HttpHeaders.create();
+    requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // gh-29626
+
+    var req = new ServletServerHttpRequest(new MockHttpServletRequest("GET", "/resource"));
+
+    Exception ex = new HandlerNotFoundException(req.getMethodValue(),
+            req.getServletRequest().getRequestURI(), requestHeaders);
+    ResponseEntity<Object> responseEntity = testException(ex);
+    assertThat(responseEntity.getHeaders()).isEmpty();
   }
 
   @Test
@@ -228,6 +233,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
+    ctx.setServletContext(new MockServletContext());
     ctx.refresh();
 
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
@@ -242,7 +248,7 @@ class ResponseEntityExceptionHandlerTests {
 
     assertThat(this.servletResponse.getStatus()).isEqualTo(400);
     assertThat(this.servletResponse.getContentAsString()).isEqualTo("error content");
-    assertThat(this.servletResponse.getHeader("someHeader")).isEqualTo("someHeaderValue");
+    assertThat(request.responseHeaders().getFirst("someHeader")).isEqualTo("someHeaderValue");
   }
 
   @Test
@@ -251,6 +257,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
+    ctx.setServletContext(new MockServletContext());
     ctx.refresh();
 
     ExceptionHandlerAnnotationExceptionHandler resolver = new ExceptionHandlerAnnotationExceptionHandler();
@@ -270,6 +277,7 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
+    ctx.setServletContext(new MockServletContext());
 
     ctx.refresh();
 
@@ -292,6 +300,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
+    ctx.setServletContext(new MockServletContext());
 
     ctx.refresh();
 

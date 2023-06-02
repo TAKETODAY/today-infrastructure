@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.Cacheable;
 
@@ -46,6 +47,7 @@ import cn.taketoday.cache.annotation.Cacheable;
  *
  * @author Costin Leau
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.aop.framework.ProxyFactoryBean
  * @see CacheInterceptor
  * @since 4.0
@@ -122,6 +124,11 @@ public class CacheProxyFactoryBean extends AbstractSingletonProxyFactoryBean
   @Override
   public void afterSingletonsInstantiated() {
     this.cacheInterceptor.afterSingletonsInstantiated();
+  }
+
+  @Override
+  public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
+    cacheInterceptor.afterSingletonsInstantiated(beanFactory);
   }
 
   @Override

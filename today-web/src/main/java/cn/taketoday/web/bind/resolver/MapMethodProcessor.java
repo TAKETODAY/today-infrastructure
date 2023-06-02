@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -61,7 +62,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    return context.getBindingContext().getModel();
+    return context.binding().getModel();
   }
 
   // HandlerMethodReturnValueHandler
@@ -78,9 +79,13 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context,
+          Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Map map) {
-      context.getBindingContext().addAllAttributes(map);
+      BindingContext bindingContext = context.getBinding();
+      if (bindingContext != null) {
+        bindingContext.addAllAttributes(map);
+      }
     }
     else if (returnValue != null) {
       // should not happen

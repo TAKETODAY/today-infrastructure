@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,6 +47,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
+
+import static cn.taketoday.framework.context.config.InactiveConfigDataAccessException.throwIfPropertyFound;
 
 /**
  * Wrapper around a {@link ConfigurableEnvironment} that can be used to import and apply
@@ -147,8 +149,8 @@ class ConfigDataEnvironment {
     this.environment = environment;
     this.bootstrapContext = bootstrapContext;
     this.additionalProfiles = additionalProfiles;
-    this.notFoundAction = binder.bind(
-            ON_NOT_FOUND_PROPERTY, ConfigDataNotFoundAction.class).orRequired(ConfigDataNotFoundAction.FAIL);
+    this.notFoundAction = binder.bind(ON_NOT_FOUND_PROPERTY,
+            ConfigDataNotFoundAction.class).orRequired(ConfigDataNotFoundAction.FAIL);
     this.resolvers = createConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader);
     this.environmentUpdateListener = Optional.ofNullable(environmentUpdateListener).orElse(
             ConfigDataEnvironmentUpdateListener.NONE
@@ -302,14 +304,15 @@ class ConfigDataEnvironment {
     for (ConfigDataEnvironmentContributor contributor : contributors) {
       ConfigurationPropertySource source = contributor.getConfigurationPropertySource();
       if (source != null && !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES)) {
-        Binder binder = new Binder(Collections.singleton(source), placeholdersResolver);
-        binder.bind(Profiles.INCLUDE_PROFILES, STRING_LIST).ifBound(includes -> {
-          if (!contributor.isActive(activationContext)) {
-            InactiveConfigDataAccessException.throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES);
-            InactiveConfigDataAccessException.throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES.append("[0]"));
-          }
-          result.addAll(includes);
-        });
+        new Binder(Collections.singleton(source), placeholdersResolver)
+                .bind(Profiles.INCLUDE_PROFILES, STRING_LIST)
+                .ifBound(includes -> {
+                  if (!contributor.isActive(activationContext)) {
+                    throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES);
+                    throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES.append("[0]"));
+                  }
+                  result.addAll(includes);
+                });
       }
     }
     return result;
@@ -339,7 +342,7 @@ class ConfigDataEnvironment {
     PropertySources propertySources = environment.getPropertySources();
     applyContributor(contributors, activationContext, propertySources);
     DefaultPropertiesPropertySource.moveToEnd(propertySources);
-    Profiles profiles = activationContext.getProfiles();
+    Profiles profiles = activationContext.profiles;
     if (profiles != null) {
       if (traceEnabled) {
         log.trace("Setting default profiles: {}", profiles.getDefault());

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -262,6 +262,8 @@ public interface Opcodes {
   int V17 = 0 << 16 | 61;
   int V18 = 0 << 16 | 62;
   int V19 = 0 << 16 | 63;
+  int V20 = 0 << 16 | 64;
+  int V21 = 0 << 16 | 65;
 
   int JAVA_VERSION = V1_8;
 

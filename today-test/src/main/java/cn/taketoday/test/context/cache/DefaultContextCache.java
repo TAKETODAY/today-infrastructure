@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,7 +48,7 @@ import cn.taketoday.test.context.MergedContextConfiguration;
  * {@link ApplicationContext} instances.
  *
  * <p>The maximum size may be supplied as a {@linkplain #DefaultContextCache(int)
- * constructor argument} or set via a system property or Spring property named
+ * constructor argument} or set via a system property or Infra property named
  * {@code context.test.context.cache.maxSize}.
  *
  * @author Sam Brannen
@@ -61,7 +61,7 @@ public class DefaultContextCache implements ContextCache {
   private static final Logger statsLogger = LoggerFactory.getLogger(CONTEXT_CACHE_LOGGING_CATEGORY);
 
   /**
-   * Map of context keys to Spring {@code ApplicationContext} instances.
+   * Map of context keys to Infra {@code ApplicationContext} instances.
    */
   private final Map<MergedContextConfiguration, ApplicationContext> contextMap =
           Collections.synchronizedMap(new LruCache(32, 0.75f));

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -125,18 +125,20 @@ public class NettyDataBufferFactory implements DataBufferFactory {
   /**
    * Return the given Netty {@link DataBuffer} as a {@link ByteBuf}.
    * <p>Returns the {@linkplain NettyDataBuffer#getNativeBuffer() native buffer}
-   * if {@code buffer} is a {@link NettyDataBuffer}; returns
+   * if {@code dataBuffer} is a {@link NettyDataBuffer}; returns
    * {@link Unpooled#wrappedBuffer(ByteBuffer)} otherwise.
    *
-   * @param buffer the {@code DataBuffer} to return a {@code ByteBuf} for
+   * @param dataBuffer the {@code DataBuffer} to return a {@code ByteBuf} for
    * @return the netty {@code ByteBuf}
    */
-  public static ByteBuf toByteBuf(DataBuffer buffer) {
-    if (buffer instanceof NettyDataBuffer nettyDataBuffer) {
+  public static ByteBuf toByteBuf(DataBuffer dataBuffer) {
+    if (dataBuffer instanceof NettyDataBuffer nettyDataBuffer) {
       return nettyDataBuffer.getNativeBuffer();
     }
     else {
-      return Unpooled.wrappedBuffer(buffer.toByteBuffer());
+      ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+      dataBuffer.toByteBuffer(byteBuffer);
+      return Unpooled.wrappedBuffer(byteBuffer);
     }
   }
 

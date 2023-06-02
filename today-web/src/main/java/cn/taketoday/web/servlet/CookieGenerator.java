@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,6 +60,9 @@ public class CookieGenerator {
   private boolean cookieSecure = false;
 
   private boolean cookieHttpOnly = false;
+
+  @Nullable
+  private String cookieSameSite;
 
   /**
    * Use the given name for cookies created by this generator.
@@ -164,6 +167,22 @@ public class CookieGenerator {
   }
 
   /**
+   * Add the "SameSite" attribute to the cookie.
+   * <p>By default, this is set to {@code "Lax"}.
+   *
+   * @see ResponseCookie.ResponseCookieBuilder#sameSite(String)
+   */
+  public void setCookieSameSite(String cookieSameSite) {
+    Assert.notNull(cookieSameSite, "cookieSameSite must not be null");
+    this.cookieSameSite = cookieSameSite;
+  }
+
+  @Nullable
+  public String getCookieSameSite() {
+    return cookieSameSite;
+  }
+
+  /**
    * Return whether the cookie is supposed to be marked with the "HttpOnly" attribute.
    */
   public boolean isCookieHttpOnly() {
@@ -189,12 +208,7 @@ public class CookieGenerator {
     if (maxAge != null) {
       cookie.maxAge(maxAge);
     }
-    if (isCookieSecure()) {
-      cookie.secure(true);
-    }
-    if (isCookieHttpOnly()) {
-      cookie.httpOnly(true);
-    }
+
     response.addCookie(cookie.build());
     if (logger.isTraceEnabled()) {
       logger.trace("Added cookie [{}={}]", getCookieName(), cookieValue);
@@ -212,15 +226,10 @@ public class CookieGenerator {
    * @see #setCookiePath
    */
   public void removeCookie(RequestContext response) {
-    Assert.notNull(response, "HttpServletResponse must not be null");
+    Assert.notNull(response, "RequestContext must not be null");
     ResponseCookieBuilder cookie = createCookie("");
     cookie.maxAge(0);
-    if (isCookieSecure()) {
-      cookie.secure(true);
-    }
-    if (isCookieHttpOnly()) {
-      cookie.httpOnly(true);
-    }
+
     response.addCookie(cookie.build());
     if (logger.isTraceEnabled()) {
       logger.trace("Removed cookie '{}'", getCookieName());
@@ -238,12 +247,24 @@ public class CookieGenerator {
    * @see #setCookiePath
    */
   protected ResponseCookieBuilder createCookie(String cookieValue) {
-    ResponseCookieBuilder cookieBuilder = ResponseCookie.from(getCookieName(), cookieValue);
+    ResponseCookieBuilder builder = ResponseCookie.from(getCookieName(), cookieValue);
     if (getCookieDomain() != null) {
-      cookieBuilder.domain(getCookieDomain());
+      builder.domain(getCookieDomain());
     }
-    cookieBuilder.path(getCookiePath());
-    return cookieBuilder;
+    builder.path(getCookiePath());
+
+    if (isCookieHttpOnly()) {
+      builder.httpOnly(true);
+    }
+    if (isCookieSecure()) {
+      builder.secure(true);
+    }
+
+    String sameSite = getCookieSameSite();
+    if (sameSite != null) {
+      builder.sameSite(sameSite);
+    }
+    return builder;
   }
 
 }

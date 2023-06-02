@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,15 +41,16 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
 import cn.taketoday.web.handler.method.MethodArgumentTypeMismatchException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -138,7 +139,7 @@ class RequestHeaderMethodArgumentResolverTests {
   void resolveStringArrayArgument() throws Throwable {
     String[] expected = new String[] { "foo", "bar" };
     servletRequest.addHeader("name", expected);
-    webRequest.setBindingContext(new BindingContext());
+    webRequest.setBinding(new BindingContext());
 
     Object result = resolver.resolveArgument(webRequest, paramNamedValueStringArray);
     assertThat(result).isInstanceOf(String[].class);
@@ -216,7 +217,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBindingContext(new BindingContext(bindingInitializer));
+    webRequest.setBinding(new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramDate);
     assertThat(result).isEqualTo(new Date(rfc1123val));
@@ -229,7 +230,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBindingContext(new BindingContext(bindingInitializer));
+    webRequest.setBinding(new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramInstant);
 
@@ -243,7 +244,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBindingContext(new BindingContext(bindingInitializer));
+    webRequest.setBinding(new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramUuid);
 
@@ -256,10 +257,12 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBindingContext(new BindingContext(bindingInitializer));
+    webRequest.setBinding(new BindingContext(bindingInitializer));
 
-    assertThatExceptionOfType(MethodArgumentTypeMismatchException.class).isThrownBy(
-            () -> resolver.resolveArgument(webRequest, paramUuid));
+    assertThatThrownBy(
+            () -> resolver.resolveArgument(webRequest, paramUuid))
+            .isInstanceOf(MethodArgumentTypeMismatchException.class)
+            .extracting("propertyName").isEqualTo("name");
   }
 
   @Test
@@ -277,7 +280,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBindingContext(new BindingContext(bindingInitializer));
+    webRequest.setBinding(new BindingContext(bindingInitializer));
 
     assertThatExceptionOfType(MissingRequestHeaderException.class)
             .isThrownBy(() -> resolver.resolveArgument(webRequest, paramUuid));
@@ -298,7 +301,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBindingContext(new BindingContext(bindingInitializer));
+    webRequest.setBinding(new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramUuidOptional);
 

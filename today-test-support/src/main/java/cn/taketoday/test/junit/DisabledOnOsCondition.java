@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,34 +20,45 @@
 
 package cn.taketoday.test.junit;
 
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.platform.commons.util.AnnotationUtils;
 
-import java.util.Optional;
+import java.util.Arrays;
+
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 
 /**
  * Evaluates {@link DisabledOnOs}.
  *
  * @author Moritz Halbritter
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class DisabledOnOsCondition implements ExecutionCondition {
 
   @Override
   public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-    Optional<DisabledOnOs> annotation = AnnotationUtils.findAnnotation(context.getElement(), DisabledOnOs.class);
-    if (annotation.isEmpty()) {
+    if (context.getElement().isEmpty()) {
+      return ConditionEvaluationResult.enabled("No element for @DisabledOnOs found");
+    }
+    MergedAnnotation<DisabledOnOs> annotation = MergedAnnotations
+            .from(context.getElement().get(), MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+            .get(DisabledOnOs.class);
+    if (!annotation.isPresent()) {
       return ConditionEvaluationResult.enabled("No @DisabledOnOs found");
     }
-    return evaluate(annotation.get());
+    return evaluate(annotation.synthesize());
   }
 
   private ConditionEvaluationResult evaluate(DisabledOnOs annotation) {
     String architecture = System.getProperty("os.arch");
     String os = System.getProperty("os.name");
-    if (annotation.os().isCurrentOs() && annotation.architecture().equals(architecture)) {
+    boolean onDisabledOs = Arrays.stream(annotation.os()).anyMatch(OS::isCurrentOs);
+    boolean onDisabledArchitecture = Arrays.asList(annotation.architecture()).contains(architecture);
+    if (onDisabledOs && onDisabledArchitecture) {
       String reason = annotation.disabledReason().isEmpty()
                       ? String.format("Disabled on OS = %s, architecture = %s", os, architecture)
                       : annotation.disabledReason();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -91,10 +91,11 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   public ProducesRequestCondition(String[] produces, @Nullable String[] headers,
           @Nullable ContentNegotiationManager manager) {
-    this.expressions = MediaTypeExpression.parse(HttpHeaders.ACCEPT, produces, headers);
-    if (this.expressions.size() > 1) {
-      Collections.sort(this.expressions);
+    var expressions = MediaTypeExpression.parse(HttpHeaders.ACCEPT, produces, headers);
+    if (expressions.size() > 1) {
+      Collections.sort(expressions);
     }
+    this.expressions = expressions;
     this.contentNegotiationManager = manager != null ? manager : DEFAULT_CONTENT_NEGOTIATION_MANAGER;
   }
 
@@ -111,7 +112,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * Return the contained "produces" expressions.
    */
   public Set<MediaTypeExpression> getExpressions() {
-    return new LinkedHashSet<>(this.expressions);
+    return new LinkedHashSet<>(expressions);
   }
 
   /**
@@ -126,12 +127,12 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   @Override
   public boolean isEmpty() {
-    return this.expressions.isEmpty();
+    return expressions.isEmpty();
   }
 
   @Override
   protected List<MediaTypeExpression> getContent() {
-    return this.expressions;
+    return expressions;
   }
 
   @Override
@@ -146,7 +147,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   @Override
   public ProducesRequestCondition combine(ProducesRequestCondition other) {
-    return (!other.expressions.isEmpty() ? other : this);
+    return !other.expressions.isEmpty() ? other : this;
   }
 
   /**
@@ -190,8 +191,8 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 
   @Nullable
   private List<MediaTypeExpression> getMatchingExpressions(List<MediaType> acceptedMediaTypes) {
-    List<MediaTypeExpression> result = null;
-    for (MediaTypeExpression expression : this.expressions) {
+    ArrayList<MediaTypeExpression> result = null;
+    for (MediaTypeExpression expression : expressions) {
       if (expression.matchAccept(acceptedMediaTypes)) {
         if (result == null) {
           result = new ArrayList<>();
@@ -301,16 +302,6 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   private List<MediaTypeExpression> getExpressionsToCompare() {
     return expressions.isEmpty() ? MEDIA_TYPE_ALL_LIST : this.expressions;
-  }
-
-  /**
-   * Use this to clear {@link #MEDIA_TYPES_ATTRIBUTE} that contains the parsed,
-   * requested media types.
-   *
-   * @param request the current request
-   */
-  public static void clearMediaTypesAttribute(RequestContext request) {
-    request.removeAttribute(MEDIA_TYPES_ATTRIBUTE);
   }
 
 }

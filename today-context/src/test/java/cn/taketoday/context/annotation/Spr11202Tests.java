@@ -31,7 +31,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -94,7 +93,7 @@ public class Spr11202Tests {
   protected static class NoBarCondition implements Condition {
 
     @Override
-    public boolean matches(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
       if (context.getBeanFactory().getBeanNamesForAnnotation(Bar.class).size() > 0) {
         return false;
       }

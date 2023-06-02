@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,14 +28,17 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * Global enabler for <code>@Retryable</code> annotations in Spring beans. If this is
+ * Global enabler for <code>@Retryable</code> annotations in Infra beans. If this is
  * declared on any <code>@Configuration</code> in the context then beans that have
  * retryable methods will be proxied and the retry handled according to the metadata in
  * the annotations.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Documented
@@ -51,6 +54,16 @@ public @interface EnableRetry {
    *
    * @return whether to proxy or not to proxy the class
    */
+  @AliasFor(annotation = EnableAspectJAutoProxy.class)
   boolean proxyTargetClass() default false;
 
+  /**
+   * Indicate the order in which the {@link RetryConfiguration} AOP <b>advice</b> should
+   * be applied.
+   * <p>
+   * The default is {@code Ordered.LOWEST_PRECEDENCE - 1} in order to make sure the
+   * advice is applied before other advices with {@link Ordered#LOWEST_PRECEDENCE} order
+   * (e.g. an advice responsible for {@code @Transactional} behavior).
+   */
+  int order() default Ordered.LOWEST_PRECEDENCE - 1;
 }

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.service.annotation.GetExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ public class UrlArgumentResolverTests {
     this.service.execute(dynamicUrl);
 
     assertThat(getRequestValues().getUri()).isEqualTo(dynamicUrl);
-    assertThat(getRequestValues().getUriTemplate()).isNull();
+    assertThat(getRequestValues().getUriTemplate()).isEqualTo("/path");
   }
 
   @Test
@@ -70,7 +71,9 @@ public class UrlArgumentResolverTests {
   @Test
   void ignoreNull() {
     this.service.execute(null);
+
     assertThat(getRequestValues().getUri()).isNull();
+    assertThat(getRequestValues().getUriTemplate()).isEqualTo("/path");
   }
 
   private HttpRequestValues getRequestValues() {
@@ -80,7 +83,7 @@ public class UrlArgumentResolverTests {
   private interface Service {
 
     @GetExchange("/path")
-    void execute(URI uri);
+    void execute(@Nullable URI uri);
 
     @GetExchange
     void executeNotUri(String other);

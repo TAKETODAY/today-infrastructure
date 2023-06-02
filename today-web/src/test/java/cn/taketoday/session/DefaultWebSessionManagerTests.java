@@ -20,7 +20,6 @@
 
 package cn.taketoday.session;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -46,37 +45,36 @@ class DefaultWebSessionManagerTests {
   @Test
   public void testWebSession() {
 
-    try (StandardApplicationContext applicationContext = new StandardApplicationContext()) {
-      applicationContext.register(AppConfig.class);
-      applicationContext.refresh();
-      SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
-      MockRequestContext context = new MockRequestContext();
+    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    applicationContext.register(AppConfig.class);
+    applicationContext.refresh();
+    SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
+    MockRequestContext context = new MockRequestContext();
 
-      WebSession noneExistingSession = sessionManager.getSession(context, false);
+    WebSession noneExistingSession = sessionManager.getSession(context, false);
 
-      assertThat(noneExistingSession).isNull();
+    assertThat(noneExistingSession).isNull();
 
-      WebSession createdSession = sessionManager.getSession(context);
-      assertThat(createdSession).isNotNull();
+    WebSession createdSession = sessionManager.getSession(context);
+    assertThat(createdSession).isNotNull();
 
-      // CookieTokenResolver
-      CookieSessionIdResolver cookieTokenResolver = applicationContext.getBean(CookieSessionIdResolver.class);
-      List<HttpCookie> responseCookies = context.responseCookies();
-      String sessionId = createdSession.getId();
-      HttpCookie sessionCookie = cookieTokenResolver.createCookie(sessionId);
+    // CookieTokenResolver
+    CookieSessionIdResolver cookieTokenResolver = applicationContext.getBean(CookieSessionIdResolver.class);
+    List<HttpCookie> responseCookies = context.responseCookies();
+    String sessionId = createdSession.getId();
+    HttpCookie sessionCookie = cookieTokenResolver.createCookie(sessionId);
 
-      assertThat(responseCookies).hasSize(1);
-      assertThat(responseCookies.get(0)).isEqualTo(sessionCookie);
+    assertThat(responseCookies).hasSize(1);
+    assertThat(responseCookies.get(0)).isEqualTo(sessionCookie);
 
-      // WebSessionStorage
-      SessionRepository sessionStorage = applicationContext.getBean(SessionRepository.class);
-      WebSession webSession = sessionStorage.retrieveSession(sessionId);
+    // WebSessionStorage
+    SessionRepository sessionStorage = applicationContext.getBean(SessionRepository.class);
+    WebSession webSession = sessionStorage.retrieveSession(sessionId);
 
-      assertThat(webSession).isEqualTo(createdSession);
-      assertThat(sessionStorage.contains(sessionId)).isTrue();
-      sessionStorage.removeSession(sessionId);
-      assertThat(sessionStorage.contains(sessionId)).isFalse();
-    }
+    assertThat(webSession).isEqualTo(createdSession);
+    assertThat(sessionStorage.contains(sessionId)).isTrue();
+    sessionStorage.removeSession(sessionId);
+    assertThat(sessionStorage.contains(sessionId)).isFalse();
 
   }
 

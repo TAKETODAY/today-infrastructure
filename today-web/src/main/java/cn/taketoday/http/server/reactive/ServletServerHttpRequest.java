@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,19 +30,19 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.http.MediaType;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
@@ -67,6 +67,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   private final byte[] buffer;
   private final HttpServletRequest request;
   private final AsyncListener asyncListener;
+  private final ServletInputStream inputStream;
   private final DataBufferFactory bufferFactory;
   private final RequestBodyPublisher bodyPublisher;
 
@@ -94,7 +95,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
     this.asyncListener = new RequestAsyncListener();
 
     // Tomcat expects ReadListener registration on initial thread
-    ServletInputStream inputStream = request.getInputStream();
+    this.inputStream = request.getInputStream();
     this.bodyPublisher = new RequestBodyPublisher(inputStream);
     this.bodyPublisher.registerReadListener();
   }
@@ -224,20 +225,28 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   /**
+   * Return the {@link ServletInputStream} for the current response.
+   */
+  protected final ServletInputStream getInputStream() {
+    return this.inputStream;
+  }
+
+  /**
    * Read from the request body InputStream and return a DataBuffer.
    * Invoked only when {@link ServletInputStream#isReady()} returns "true".
    *
-   * @return a DataBuffer with data read, or {@link #EOF_BUFFER} if the input
-   * stream returned -1, or null if 0 bytes were read.
+   * @return a DataBuffer with data read, or
+   * {@link AbstractListenerReadPublisher#EMPTY_BUFFER} if 0 bytes were read,
+   * or {@link #EOF_BUFFER} if the input stream returned -1.
    */
   @Nullable
   DataBuffer readFromInputStream() throws IOException {
-    int read = this.request.getInputStream().read(this.buffer);
+    int read = inputStream.read(buffer);
     logBytesRead(read);
 
     if (read > 0) {
-      DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(read);
-      dataBuffer.write(this.buffer, 0, read);
+      DataBuffer dataBuffer = bufferFactory.allocateBuffer(read);
+      dataBuffer.write(buffer, 0, read);
       return dataBuffer;
     }
 
@@ -245,7 +254,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
       return EOF_BUFFER;
     }
 
-    return null;
+    return AbstractListenerReadPublisher.EMPTY_BUFFER;
   }
 
   protected final void logBytesRead(int read) {

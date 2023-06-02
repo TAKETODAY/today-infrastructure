@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class JarEntryResource extends UrlResource implements JarResource {
 
-  private final String name;
+  private final String entryName;
   private final File jarFile;
 
   // @since 4.0
@@ -60,18 +60,18 @@ public class JarEntryResource extends UrlResource implements JarResource {
     this(new URL(getJarUrl(path)), new File(getJarFilePath(path)), getJarEntryName(path));
   }
 
-  public JarEntryResource(URL url, File jarFile, String name) {
+  public JarEntryResource(URL url, File jarFile, String entryName) {
     super(url);
-    Assert.notNull(name, "name must not be null");
+    Assert.notNull(entryName, "name must not be null");
     Assert.notNull(jarFile, "name must not be null");
-    this.name = name;
+    this.entryName = entryName;
     this.jarFile = jarFile;
   }
 
-  JarEntryResource(URL url, File jarFile, String name, JarFile jar) {
+  JarEntryResource(URL url, File jarFile, String entryName, JarFile jar) {
     super(url);
     this.jar = jar;
-    this.name = name;
+    this.entryName = entryName;
     this.jarFile = jarFile;
   }
 
@@ -108,19 +108,18 @@ public class JarEntryResource extends UrlResource implements JarResource {
     return path.substring(indexOf + 2);
   }
 
-  @Override
-  public String getName() {
-    return name;
+  public String getEntryName() {
+    return entryName;
   }
 
   @Override
   public InputStream getInputStream() throws IOException {
-    if (name.isEmpty()) {
+    if (entryName.isEmpty()) {
       return new FileInputStream(jarFile);
     }
 
     JarFile jarFile = getJarFile();
-    InputStream inputStream = jarFile.getInputStream(jarFile.getEntry(name));
+    InputStream inputStream = jarFile.getInputStream(jarFile.getEntry(entryName));
     return new JarEntryInputStream(inputStream, jarFile);
   }
 
@@ -136,11 +135,11 @@ public class JarEntryResource extends UrlResource implements JarResource {
 
   @Override
   public boolean exists() {
-    if (name.isEmpty()) {
+    if (entryName.isEmpty()) {
       return jarFile.exists();
     }
     try (JarFile jarFile = getJarFile()) {
-      return jarFile.getEntry(name) != null;
+      return jarFile.getEntry(entryName) != null;
     }
     catch (IOException e) {
       return false;
@@ -150,7 +149,7 @@ public class JarEntryResource extends UrlResource implements JarResource {
   @Override
   public boolean isDirectory() throws IOException {
     try (JarFile jarFile = getJarFile()) {
-      return jarFile.getEntry(name).isDirectory();
+      return jarFile.getEntry(entryName).isDirectory();
     }
   }
 
@@ -158,7 +157,7 @@ public class JarEntryResource extends UrlResource implements JarResource {
   public String[] list() throws IOException {
     try (JarFile jarFile = getJarFile()) {
 
-      String name = this.name;
+      String name = this.entryName;
       Set<String> result = new HashSet<>();
       Enumeration<JarEntry> entries = jarFile.entries();
       while (entries.hasMoreElements()) {
@@ -186,7 +185,7 @@ public class JarEntryResource extends UrlResource implements JarResource {
   @Override
   public JarEntryResource createRelative(String relativePath) throws IOException {
     URL url = new URL(getURL(), relativePath);
-    String path = ResourceUtils.getRelativePath(name, relativePath);
+    String path = ResourceUtils.getRelativePath(entryName, relativePath);
     return new JarEntryResource(url, getFile(), path, jar);
   }
 
@@ -201,7 +200,7 @@ public class JarEntryResource extends UrlResource implements JarResource {
       return true;
     }
     if (other instanceof JarEntryResource) {
-      return Objects.equals(((JarEntryResource) other).name, name)
+      return Objects.equals(((JarEntryResource) other).entryName, entryName)
               && Objects.equals(((JarEntryResource) other).jarFile, jarFile);
     }
     return false;
@@ -209,7 +208,7 @@ public class JarEntryResource extends UrlResource implements JarResource {
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), name, jarFile);
+    return Objects.hash(super.hashCode(), entryName, jarFile);
   }
 //
 //  @Override

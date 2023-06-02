@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
 
 /**
  * {@code @NestedTestConfiguration} is a type-level annotation that is used to
- * configure how Spring test configuration annotations are processed within
+ * configure how Infra test configuration annotations are processed within
  * enclosing class hierarchies (i.e., for <em>inner</em> test classes).
  *
  * <p>If {@code @NestedTestConfiguration} is not <em>present</em> or
@@ -56,7 +56,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
  * configuration from an enclosing test class will be inherited by inner test
  * classes, analogous to the semantics within a test class inheritance hierarchy.
  * When the {@link EnclosingConfiguration#OVERRIDE OVERRIDE} mode is in use,
- * inner test classes will have to declare their own Spring test configuration
+ * inner test classes will have to declare their own Infra test configuration
  * annotations. If you wish to explicitly configure the mode, annotate either
  * the inner test class or one of its enclosing classes with
  * {@code @NestedTestConfiguration(...)}. Note that a
@@ -96,6 +96,7 @@ import cn.taketoday.test.context.web.WebAppConfiguration;
  * </ul>
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnclosingConfiguration#INHERIT
  * @see EnclosingConfiguration#OVERRIDE
  * @since 4.0
@@ -108,12 +109,12 @@ public @interface NestedTestConfiguration {
 
   /**
    * JVM system property used to change the default <em>enclosing configuration
-   * inheritance mode</em>: {@value #ENCLOSING_CONFIGURATION_PROPERTY_NAME}.
+   * inheritance mode</em>: {@link #ENCLOSING_CONFIGURATION_PROPERTY_NAME}.
    * <p>Supported values include enum constants defined in
    * {@link EnclosingConfiguration}, ignoring case. For example, the default
    * may be changed to {@link EnclosingConfiguration#OVERRIDE} by supplying
    * the following JVM system property via the command line.
-   * <pre style="code">-Dcontext.test.enclosing.configuration=override</pre>
+   * <pre style="code">-Dinfra.test.enclosing.configuration=override</pre>
    * <p>If the property is not set to {@code OVERRIDE}, test configuration for
    * an inner test class will be <em>inherited</em> according to
    * {@link EnclosingConfiguration#INHERIT} semantics by default.
@@ -123,7 +124,7 @@ public @interface NestedTestConfiguration {
    *
    * @see #value
    */
-  String ENCLOSING_CONFIGURATION_PROPERTY_NAME = "context.test.enclosing.configuration";
+  String ENCLOSING_CONFIGURATION_PROPERTY_NAME = "infra.test.enclosing.configuration";
 
   /**
    * Configures the {@link EnclosingConfiguration} mode.

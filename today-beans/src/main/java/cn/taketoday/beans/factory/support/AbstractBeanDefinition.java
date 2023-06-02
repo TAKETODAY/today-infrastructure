@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -172,7 +172,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private boolean primary = false;
 
-  private final LinkedHashMap<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
+  @Nullable
+  private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers;
 
   @Nullable
   private Supplier<?> instanceSupplier;
@@ -193,7 +194,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private PropertyValues propertyValues;
 
-  private MethodOverrides methodOverrides = new MethodOverrides();
+  @Nullable
+  private MethodOverrides methodOverrides;
 
   @Nullable
   private String[] initMethodNames;
@@ -250,6 +252,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setRole(original.getRole());
     setSource(original.getSource());
     copyAttributesFrom(original);
+
+    setEnableDependencyInjection(original.isEnableDependencyInjection());
 
     if (original instanceof AbstractBeanDefinition originalAbd) {
       if (originalAbd.hasBeanClass()) {
@@ -325,6 +329,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     setRole(other.getRole());
     setSource(other.getSource());
     copyAttributesFrom(other);
+
+    setEnableDependencyInjection(other.isEnableDependencyInjection());
 
     if (other instanceof AbstractBeanDefinition otherAbd) {
       if (otherAbd.hasBeanClass()) {
@@ -738,14 +744,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @see AutowireCandidateQualifier#getTypeName()
    */
   public void addQualifier(AutowireCandidateQualifier qualifier) {
-    this.qualifiers.put(qualifier.getTypeName(), qualifier);
+    qualifiers().put(qualifier.getTypeName(), qualifier);
   }
 
   /**
    * Return whether this bean has the specified qualifier.
    */
   public boolean hasQualifier(String typeName) {
-    return this.qualifiers.containsKey(typeName);
+    return qualifiers != null && qualifiers.containsKey(typeName);
   }
 
   /**
@@ -753,7 +759,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Nullable
   public AutowireCandidateQualifier getQualifier(String typeName) {
-    return this.qualifiers.get(typeName);
+    return qualifiers().get(typeName);
   }
 
   /**
@@ -762,6 +768,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @return the Set of {@link AutowireCandidateQualifier} objects.
    */
   public Set<AutowireCandidateQualifier> getQualifiers() {
+    if (qualifiers == null) {
+      return new LinkedHashSet<>();
+    }
     return new LinkedHashSet<>(this.qualifiers.values());
   }
 
@@ -772,7 +781,16 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   public void copyQualifiersFrom(AbstractBeanDefinition source) {
     Assert.notNull(source, "Source must not be null");
-    this.qualifiers.putAll(source.qualifiers);
+    if (source.qualifiers != null) {
+      qualifiers().putAll(source.qualifiers);
+    }
+  }
+
+  private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers() {
+    if (qualifiers == null) {
+      qualifiers = new LinkedHashMap<>();
+    }
+    return qualifiers;
   }
 
   /**
@@ -891,10 +909,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public ConstructorArgumentValues getConstructorArgumentValues() {
-    if (this.constructorArgumentValues == null) {
-      this.constructorArgumentValues = new ConstructorArgumentValues();
+    ConstructorArgumentValues cav = this.constructorArgumentValues;
+    if (cav == null) {
+      cav = new ConstructorArgumentValues();
+      this.constructorArgumentValues = cav;
     }
-    return this.constructorArgumentValues;
+    return cav;
   }
 
   /**
@@ -934,7 +954,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   /**
    * Specify method overrides for the bean, if any.
    */
-  public void setMethodOverrides(MethodOverrides methodOverrides) {
+  public void setMethodOverrides(@Nullable MethodOverrides methodOverrides) {
     this.methodOverrides = methodOverrides;
   }
 
@@ -944,14 +964,17 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * <p>Never returns {@code null}.
    */
   public MethodOverrides getMethodOverrides() {
-    return this.methodOverrides;
+    if (methodOverrides == null) {
+      methodOverrides = new MethodOverrides();
+    }
+    return methodOverrides;
   }
 
   /**
    * Return if there are method overrides defined for this bean.
    */
   public boolean hasMethodOverrides() {
-    return !this.methodOverrides.isEmpty();
+    return methodOverrides != null && !methodOverrides.isEmpty();
   }
 
   /**
@@ -1238,7 +1261,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @see Object#clone()
    */
   @Override
-  public Object clone() {
+  public AbstractBeanDefinition clone() {
     return cloneBeanDefinition();
   }
 
@@ -1268,6 +1291,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
             && this.enforceInitMethod == that.enforceInitMethod
             && this.autowireCandidate == that.autowireCandidate
             && this.nonPublicAccessAllowed == that.nonPublicAccessAllowed
+            && this.enableDependencyInjection == that.enableDependencyInjection
             && this.lenientConstructorResolution == that.lenientConstructorResolution
             && this.enforceDestroyMethod == that.enforceDestroyMethod
             && Objects.equals(this.scope, that.scope)
@@ -1330,6 +1354,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
     sb.append("; factoryMethodName=").append(factoryMethodName);
     sb.append("; initMethodNames=").append(Arrays.toString(initMethodNames));
     sb.append("; destroyMethodNames=").append(Arrays.toString(destroyMethodNames));
+    sb.append("; enableDependencyInjection=").append(isEnableDependencyInjection());
     if (resource != null) {
       sb.append("; defined in ").append(resource);
     }

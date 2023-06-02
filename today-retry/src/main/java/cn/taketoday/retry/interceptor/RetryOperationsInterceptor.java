@@ -111,7 +111,7 @@ public class RetryOperationsInterceptor implements MethodInterceptor {
         }
         else {
           throw new IllegalStateException(
-                  "MethodInvocation of the wrong type detected - this should not happen with Spring AOP, "
+                  "MethodInvocation of the wrong type detected - this should not happen with Infra AOP, "
                           + "so please raise an issue if you see this exception");
         }
       }

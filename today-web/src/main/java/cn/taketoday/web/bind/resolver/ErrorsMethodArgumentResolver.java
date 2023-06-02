@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,13 +21,12 @@
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.ui.ModelMap;
 
 /**
  * Resolves {@link Errors} method arguments.
@@ -52,9 +51,7 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    BindingContext bindingContext = context.getBindingContext();
-
-    ModelMap model = bindingContext.getModel();
+    ModelMap model = context.binding().getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
       return model.getAttribute(lastKey);

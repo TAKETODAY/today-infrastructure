@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import cn.taketoday.core.codec.AbstractDataBufferDecoder;
 import cn.taketoday.core.codec.ByteArrayDecoder;
@@ -62,6 +63,8 @@ import cn.taketoday.http.codec.multipart.DefaultPartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageReader;
 import cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter;
 import cn.taketoday.http.codec.multipart.PartEventHttpMessageReader;
+import cn.taketoday.http.codec.multipart.PartEventHttpMessageWriter;
+import cn.taketoday.http.codec.multipart.PartHttpMessageWriter;
 import cn.taketoday.http.codec.protobuf.ProtobufDecoder;
 import cn.taketoday.http.codec.protobuf.ProtobufEncoder;
 import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
@@ -94,7 +97,7 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     protobufPresent = ClassUtils.isPresent("com.google.protobuf.Message", classLoader);
     synchronossMultipartPresent = ClassUtils.isPresent("org.synchronoss.cloud.nio.multipart.NioMultipartParser", classLoader);
     nettyByteBufPresent = ClassUtils.isPresent("io.netty.buffer.ByteBuf", classLoader);
-    netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.api.Buffer", classLoader);
+    netty5BufferPresent = ClassUtils.isPresent("io.netty5.buffer.Buffer", classLoader);
   }
 
   @Nullable
@@ -114,6 +117,15 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
 
   @Nullable
   private Encoder<?> protobufEncoder;
+
+  @Nullable
+  private DefaultMultipartCodecs multipartCodecs;
+
+  @Nullable
+  private Supplier<List<HttpMessageWriter<?>>> partWritersSupplier;
+
+  @Nullable
+  private HttpMessageReader<?> multipartReader;
 
   @Nullable
   private Consumer<Object> codecConsumer;
@@ -164,6 +176,9 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
     this.jackson2SmileEncoder = other.jackson2SmileEncoder;
     this.protobufDecoder = other.protobufDecoder;
     this.protobufEncoder = other.protobufEncoder;
+    this.multipartCodecs = other.multipartCodecs != null ?
+                           new DefaultMultipartCodecs(other.multipartCodecs) : null;
+    this.multipartReader = other.multipartReader;
     this.codecConsumer = other.codecConsumer;
     this.maxInMemorySize = other.maxInMemorySize;
     this.enableLoggingRequestDetails = other.enableLoggingRequestDetails;
@@ -244,6 +259,31 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
   }
 
   @Override
+  public CodecConfigurer.MultipartCodecs multipartCodecs() {
+    if (this.multipartCodecs == null) {
+      this.multipartCodecs = new DefaultMultipartCodecs();
+    }
+    return this.multipartCodecs;
+  }
+
+  @Override
+  public void multipartReader(HttpMessageReader<?> multipartReader) {
+    this.multipartReader = multipartReader;
+    initTypedReaders();
+  }
+
+  /**
+   * Set a supplier for part writers to use when
+   * {@link #multipartCodecs()} are not explicitly configured.
+   * That's the same set of writers as for general except for the multipart
+   * writer itself.
+   */
+  void setPartWritersSupplier(Supplier<List<HttpMessageWriter<?>>> supplier) {
+    this.partWritersSupplier = supplier;
+    initTypedWriters();
+  }
+
+  @Override
   @Nullable
   public Boolean isEnableLoggingRequestDetails() {
     return this.enableLoggingRequestDetails;
@@ -292,6 +332,16 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
               (ProtobufDecoder) this.protobufDecoder : new ProtobufDecoder()));
     }
     addCodec(this.typedReaders, new FormHttpMessageReader());
+
+    if (this.multipartReader != null) {
+      addCodec(this.typedReaders, this.multipartReader);
+    }
+    else {
+      DefaultPartHttpMessageReader partReader = new DefaultPartHttpMessageReader();
+      addCodec(this.typedReaders, partReader);
+      addCodec(this.typedReaders, new MultipartHttpMessageReader(partReader));
+    }
+    addCodec(this.typedReaders, new PartEventHttpMessageReader());
 
     // client vs server..
     extendTypedReaders(this.typedReaders);
@@ -498,7 +548,23 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
               this.protobufEncoder != null ?
               (ProtobufEncoder) this.protobufEncoder : new ProtobufEncoder()));
     }
+
+    addCodec(writers, new MultipartHttpMessageWriter(this::getPartWriters, new FormHttpMessageWriter()));
+    addCodec(writers, new PartEventHttpMessageWriter());
+    addCodec(writers, new PartHttpMessageWriter());
     return writers;
+  }
+
+  private List<HttpMessageWriter<?>> getPartWriters() {
+    if (this.multipartCodecs != null) {
+      return this.multipartCodecs.getWriters();
+    }
+    else if (this.partWritersSupplier != null) {
+      return this.partWritersSupplier.get();
+    }
+    else {
+      return Collections.emptyList();
+    }
   }
 
   /**
@@ -592,6 +658,38 @@ class BaseDefaultCodecs implements CodecConfigurer.DefaultCodecs, CodecConfigure
       this.jackson2JsonEncoder = new Jackson2JsonEncoder();
     }
     return this.jackson2JsonEncoder;
+  }
+
+  /**
+   * Default implementation of {@link CodecConfigurer.MultipartCodecs}.
+   */
+  protected class DefaultMultipartCodecs implements CodecConfigurer.MultipartCodecs {
+
+    private final List<HttpMessageWriter<?>> writers = new ArrayList<>();
+
+    DefaultMultipartCodecs() { }
+
+    DefaultMultipartCodecs(DefaultMultipartCodecs other) {
+      this.writers.addAll(other.writers);
+    }
+
+    @Override
+    public CodecConfigurer.MultipartCodecs encoder(Encoder<?> encoder) {
+      writer(new EncoderHttpMessageWriter<>(encoder));
+      initTypedWriters();
+      return this;
+    }
+
+    @Override
+    public CodecConfigurer.MultipartCodecs writer(HttpMessageWriter<?> writer) {
+      this.writers.add(writer);
+      initTypedWriters();
+      return this;
+    }
+
+    List<HttpMessageWriter<?>> getWriters() {
+      return this.writers;
+    }
   }
 
 }

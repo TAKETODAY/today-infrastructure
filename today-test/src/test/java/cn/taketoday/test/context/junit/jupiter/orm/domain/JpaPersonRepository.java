@@ -45,7 +45,7 @@ public class JpaPersonRepository implements PersonRepository {
 
   @Override
   public Person findByName(String name) {
-    return this.entityManager.createQuery("from Person where name = :name", Person.class)
+    return this.entityManager.createQuery("from person where name = :name", Person.class)
             .setParameter("name", name)
             .getSingleResult();
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,8 +23,11 @@ package cn.taketoday.web.resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -35,8 +38,10 @@ import java.util.Map;
 import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.io.AbstractResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.io.ResourceFilter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -302,6 +307,53 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     @Override
     public InputStream getInputStream() throws IOException {
       return this.original.getInputStream();
+    }
+
+    @Override
+    public ReadableByteChannel readableChannel() throws IOException {
+      return this.original.readableChannel();
+    }
+
+    @Override
+    public byte[] getContentAsByteArray() throws IOException {
+      return this.original.getContentAsByteArray();
+    }
+
+    @Override
+    public String getContentAsString(Charset charset) throws IOException {
+      return this.original.getContentAsString(charset);
+    }
+
+    @Override
+    public Reader getReader() throws IOException {
+      return original.getReader();
+    }
+
+    @Override
+    public Reader getReader(String encoding) throws IOException {
+      return original.getReader(encoding);
+    }
+
+    @Override
+    public boolean isFile() {
+      return original.isFile();
+    }
+
+    @Override
+    public boolean isDirectory() throws IOException {
+      return original.isDirectory();
+    }
+
+    @Override
+    @Experimental
+    public String[] list() throws IOException {
+      return original.list();
+    }
+
+    @Override
+    @Experimental
+    public Resource[] list(@Nullable ResourceFilter filter) throws IOException {
+      return original.list(filter);
     }
 
     @Override

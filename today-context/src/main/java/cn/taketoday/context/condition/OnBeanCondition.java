@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,11 +41,10 @@ import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.condition.ConditionMessage.Style;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -56,10 +55,11 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -75,7 +75,7 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
  */
-class OnBeanCondition extends FilteringContextCondition implements ConfigurationCondition, Ordered {
+class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCondition, Ordered {
 
   @Override
   public ConfigurationPhase getConfigurationPhase() {
@@ -84,15 +84,15 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
 
   @Override
   protected final ConditionOutcome[] getOutcomes(
-          String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-    ConditionOutcome[] outcomes = new ConditionOutcome[autoConfigurationClasses.length];
+          String[] configClasses, AutoConfigurationMetadata configMetadata) {
+    ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
-      String autoConfigurationClass = autoConfigurationClasses[i];
+      String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
-        Set<String> onBeanTypes = autoConfigurationMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
+        Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
         outcomes[i] = getOutcome(onBeanTypes, ConditionalOnBean.class);
         if (outcomes[i] == null) {
-          Set<String> onSingleCandidateTypes = autoConfigurationMetadata.getSet(
+          Set<String> onSingleCandidateTypes = configMetadata.getSet(
                   autoConfigurationClass, "ConditionalOnSingleCandidate");
           outcomes[i] = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
         }
@@ -113,7 +113,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     ConditionMessage matchMessage = ConditionMessage.empty();
     MergedAnnotations annotations = metadata.getAnnotations();
 
@@ -167,7 +167,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     return ConditionOutcome.match(matchMessage);
   }
 
-  protected final MatchResult getMatchingBeans(ConditionEvaluationContext context, Spec<?> spec) {
+  protected final MatchResult getMatchingBeans(ConditionContext context, Spec<?> spec) {
     ClassLoader classLoader = context.getClassLoader();
     ConfigurableBeanFactory beanFactory = context.getRequiredBeanFactory();
     boolean considerHierarchy = spec.getStrategy() != SearchStrategy.CURRENT;
@@ -220,7 +220,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   private Set<String> getNamesOfBeansIgnoredByType(
-          ClassLoader classLoader, BeanFactory beanFactory,
+          @Nullable ClassLoader classLoader, BeanFactory beanFactory,
           boolean considerHierarchy, Set<String> ignoredTypes, Set<Class<?>> parameterizedContainers) {
     Set<String> result = null;
     for (String ignoredType : ignoredTypes) {
@@ -232,7 +232,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
   }
 
   private Set<String> getBeanNamesForType(
-          ClassLoader classLoader, boolean considerHierarchy,
+          @Nullable ClassLoader classLoader, boolean considerHierarchy,
           BeanFactory beanFactory, String type, Set<Class<?>> parameterizedContainers) throws LinkageError {
     try {
       return getBeanNamesForType(
@@ -417,7 +417,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
     private final SearchStrategy strategy;
     private final Set<Class<?>> parameterizedContainers;
 
-    Spec(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
+    Spec(ConditionContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
       MultiValueMap<String, Object> attributes = annotations.stream(annotationType)
               .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
               .collect(MergedAnnotationCollectors.toMultiValueMap(Adapt.CLASS_TO_STRING));
@@ -506,14 +506,14 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       return "@" + ClassUtils.getShortName(this.annotationType);
     }
 
-    private Set<String> deducedBeanType(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+    private Set<String> deducedBeanType(ConditionContext context, AnnotatedTypeMetadata metadata) {
       if (metadata instanceof MethodMetadata && metadata.isAnnotated(Component.class.getName())) {
         return deducedBeanTypeForBeanMethod(context, (MethodMetadata) metadata);
       }
       return Collections.emptySet();
     }
 
-    private Set<String> deducedBeanTypeForBeanMethod(ConditionEvaluationContext context, MethodMetadata metadata) {
+    private Set<String> deducedBeanTypeForBeanMethod(ConditionContext context, MethodMetadata metadata) {
       try {
         Class<?> returnType = getReturnType(context, metadata);
         return Collections.singleton(returnType.getName());
@@ -523,7 +523,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
       }
     }
 
-    private Class<?> getReturnType(ConditionEvaluationContext context, MethodMetadata metadata)
+    private Class<?> getReturnType(ConditionContext context, MethodMetadata metadata)
             throws ClassNotFoundException, LinkageError {
       // Safe to load at this point since we are in the REGISTER_BEAN phase
       ClassLoader classLoader = context.getClassLoader();
@@ -643,7 +643,7 @@ class OnBeanCondition extends FilteringContextCondition implements Configuration
 
     private static final Collection<String> FILTERED_TYPES = Arrays.asList("", Object.class.getName());
 
-    SingleCandidateSpec(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations) {
+    SingleCandidateSpec(ConditionContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations) {
       super(context, metadata, annotations, ConditionalOnSingleCandidate.class);
     }
 

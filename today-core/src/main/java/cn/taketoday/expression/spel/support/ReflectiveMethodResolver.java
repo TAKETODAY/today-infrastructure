@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -229,8 +229,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
     if (targetObject instanceof Class) {
       Set<Method> result = new LinkedHashSet<>();
       // Add these so that static methods are invocable on the type: e.g. Float.valueOf(..)
-      Method[] methods = getMethods(type);
-      for (Method method : methods) {
+      for (Method method : getMethods(type)) {
         if (Modifier.isStatic(method.getModifiers())) {
           result.add(method);
         }
@@ -243,13 +242,20 @@ public class ReflectiveMethodResolver implements MethodResolver {
       Set<Method> result = new LinkedHashSet<>();
       // Expose interface methods (not proxy-declared overrides) for proper vararg introspection
       for (Class<?> ifc : type.getInterfaces()) {
-        Method[] methods = getMethods(ifc);
-        for (Method method : methods) {
+        for (Method method : getMethods(ifc)) {
           if (isCandidateForInvocation(method, type)) {
             result.add(method);
           }
         }
       }
+
+      // Ensure methods defined in java.lang.Object are exposed for JDK proxies.
+      for (Method method : getMethods(Object.class)) {
+        if (isCandidateForInvocation(method, type)) {
+          result.add(method);
+        }
+      }
+
       return result;
     }
     else {

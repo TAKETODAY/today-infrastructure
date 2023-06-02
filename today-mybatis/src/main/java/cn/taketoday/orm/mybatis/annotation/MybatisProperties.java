@@ -30,7 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;

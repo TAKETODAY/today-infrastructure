@@ -44,8 +44,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
 /**
- * Base class for Mock {@code ServletWebServer} implementations. Reduces the amount of
- * code that would otherwise be duplicated in {@code spring-boot},
+ * Base class for Mock {@code ServletWebServer} implementations.
  * {@code autoconfigure} and {@code actuator}.
  *
  * @author Phillip Webb

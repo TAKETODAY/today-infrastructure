@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.expression.spel.support;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,7 @@ import cn.taketoday.lang.Nullable;
  * @author Andy Clement
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SimpleEvaluationContext
  * @see ReflectivePropertyAccessor
  * @see ReflectiveConstructorResolver
@@ -88,9 +90,9 @@ public class StandardEvaluationContext implements EvaluationContext {
   @Nullable
   private TypeConverter typeConverter;
 
-  private TypeComparator typeComparator = new StandardTypeComparator();
+  private TypeComparator typeComparator = TypeComparator.STANDARD;
 
-  private OperatorOverloader operatorOverloader = new StandardOperatorOverloader();
+  private OperatorOverloader operatorOverloader = OperatorOverloader.STANDARD;
 
   private final Map<String, Object> variables = new ConcurrentHashMap<>();
 
@@ -246,12 +248,43 @@ public class StandardEvaluationContext implements EvaluationContext {
     }
   }
 
+  /**
+   * Set multiple named variables in this evaluation context to given values.
+   * <p>This is a convenience variant of {@link #setVariable(String, Object)}.
+   *
+   * @param variables the names and values of the variables to set
+   * @see #setVariable(String, Object)
+   */
   public void setVariables(Map<String, Object> variables) {
     variables.forEach(this::setVariable);
   }
 
+  /**
+   * Register the specified Method as a SpEL function.
+   * <p>Note: Function names share a namespace with the variables in this
+   * evaluation context, as populated by {@link #setVariable(String, Object)}.
+   * Make sure that specified function names and variable names do not overlap.
+   *
+   * @param name the name of the function
+   * @param method the Method to register
+   * @see #registerFunction(String, MethodHandle)
+   */
   public void registerFunction(String name, Method method) {
     this.variables.put(name, method);
+  }
+
+  /**
+   * Register the specified MethodHandle as a SpEL function.
+   * <p>Note: Function names share a namespace with the variables in this
+   * evaluation context, as populated by {@link #setVariable(String, Object)}.
+   * Make sure that specified function names and variable names do not overlap.
+   *
+   * @param name the name of the function
+   * @param methodHandle the MethodHandle to register
+   * @see #registerFunction(String, Method)
+   */
+  public void registerFunction(String name, MethodHandle methodHandle) {
+    this.variables.put(name, methodHandle);
   }
 
   @Override

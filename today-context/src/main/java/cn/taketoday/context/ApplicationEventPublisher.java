@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context;
 
-import cn.taketoday.context.aware.ApplicationEventPublisherAware;
-
 /**
  * Interface that encapsulates event publication functionality.
  *

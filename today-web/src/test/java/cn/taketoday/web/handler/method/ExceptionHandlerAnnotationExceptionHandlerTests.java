@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,11 +43,12 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
+import cn.taketoday.ui.Model;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -55,12 +56,11 @@ import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 import jakarta.servlet.ServletException;
 
@@ -122,11 +122,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     ModelAndView mav = handleException(ex, handlerMethod);// ViewRenderingException
-
-    assertThat(mav).isNull();
+    assertThat(mav.getViewName()).isNull();
 
 //    assertThat(mav.getViewName()).isEqualTo("errorView");
-//    assertThat(mav.getModel().asMap().get("detail")).isEqualTo("Bad argument");
+//    assertThat(mav.getModel().get("detail")).isEqualTo("Bad argument");
   }
 
   private ModelAndView handleException(Exception ex, HandlerMethod handlerMethod) throws Exception {
@@ -149,7 +148,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
     MockServletRequestContext context1 = new MockServletRequestContext(context, request, response);
-    context1.setBindingContext(new BindingContext());
+    context1.setBinding(new BindingContext());
     Object ret = this.handler.handleException(context1, ex, handler);
     if (ret instanceof ModelAndView mav) {
       return mav;
@@ -222,11 +221,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     };
 
     MockServletRequestContext context = new MockServletRequestContext(null, request, response);
-    context.setBindingContext(new BindingContext());
+    context.setBinding(new BindingContext());
 
     Object ret = this.handler.handleException(context, ex, handler);
 
-    ModelMap model = context.getBindingContext().getModel();
+    ModelMap model = context.getBinding().getModel();
     assertThat(model.size()).isEqualTo(1);
     assertThat(model.getAttribute("exceptionClassName")).isEqualTo("IllegalArgumentException");
   }
@@ -457,7 +456,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   @Controller
-  static class ResponseBodyController extends WebApplicationContextSupport implements ResponseBodyInterface {
+  static class ResponseBodyController extends WebApplicationObjectSupport implements ResponseBodyInterface {
 
     @Override
     public void handle() { }
@@ -574,7 +573,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     }
   }
 
-  @RestControllerAdvice(assignableTypes = WebApplicationContextSupport.class)
+  @RestControllerAdvice(assignableTypes = WebApplicationObjectSupport.class)
   @Order(2)
   static class BasePackageTestExceptionResolver {
 

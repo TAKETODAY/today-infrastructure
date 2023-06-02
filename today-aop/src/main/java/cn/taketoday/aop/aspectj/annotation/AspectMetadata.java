@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.aop.support.ComposablePointcut;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AspectJExpressionPointcut
  * @since 4.0
  */
@@ -105,9 +106,7 @@ public class AspectMetadata implements Serializable {
     this.ajType = ajType;
 
     switch (this.ajType.getPerClause().getKind()) {
-      case SINGLETON -> {
-        this.perClausePointcut = Pointcut.TRUE;
-      }
+      case SINGLETON -> this.perClausePointcut = Pointcut.TRUE;
       case PERTARGET, PERTHIS -> {
         AspectJExpressionPointcut ajexp = new AspectJExpressionPointcut();
         ajexp.setLocation(aspectClass.getName());
@@ -115,10 +114,8 @@ public class AspectMetadata implements Serializable {
         ajexp.setPointcutDeclarationScope(aspectClass);
         this.perClausePointcut = ajexp;
       }
-      case PERTYPEWITHIN -> {
-        // Works with a type pattern
-        this.perClausePointcut = new ComposablePointcut(new TypePatternClassFilter(findPerClause(aspectClass)));
-      }
+      case PERTYPEWITHIN -> this.perClausePointcut = // Works with a type pattern
+              new ComposablePointcut(new TypePatternClassFilter(findPerClause(aspectClass)));
       default -> throw new AopConfigException(
               "PerClause " + ajType.getPerClause().getKind() + " not supported by AOP for " + aspectClass);
     }

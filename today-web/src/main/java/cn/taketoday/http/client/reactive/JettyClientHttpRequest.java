@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import org.reactivestreams.Publisher;
 
 import java.net.HttpCookie;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -38,6 +39,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.http.client.JettyHeadersAdapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
@@ -58,17 +60,17 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   public JettyClientHttpRequest(Request jettyRequest, DataBufferFactory bufferFactory) {
     this.jettyRequest = jettyRequest;
     this.bufferFactory = bufferFactory;
-    this.builder = ReactiveRequest.newBuilder(this.jettyRequest).abortOnCancel(true);
+    this.builder = ReactiveRequest.newBuilder(jettyRequest).abortOnCancel(true);
   }
 
   @Override
   public HttpMethod getMethod() {
-    return HttpMethod.valueOf(this.jettyRequest.getMethod());
+    return HttpMethod.valueOf(jettyRequest.getMethod());
   }
 
   @Override
   public URI getURI() {
-    return this.jettyRequest.getURI();
+    return jettyRequest.getURI();
   }
 
   @Override
@@ -78,13 +80,13 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   public DataBufferFactory bufferFactory() {
-    return this.bufferFactory;
+    return bufferFactory;
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getNativeRequest() {
-    return (T) this.jettyRequest;
+    return (T) jettyRequest;
   }
 
   @Override
@@ -93,7 +95,7 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
               ReactiveRequest.Content content = Flux.from(body)
                       .map(buffer -> toContentChunk(buffer, sink))
                       .as(chunks -> ReactiveRequest.Content.fromPublisher(chunks, getContentType()));
-              this.builder.content(content);
+              builder.content(content);
               sink.success();
             })
             .then(doCommit());
@@ -111,16 +113,18 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
     return contentType != null ? contentType.toString() : MediaType.APPLICATION_OCTET_STREAM_VALUE;
   }
 
-  private ContentChunk toContentChunk(DataBuffer buffer, MonoSink<Void> sink) {
-    return new ContentChunk(buffer.toByteBuffer(), new Callback() {
+  private ContentChunk toContentChunk(DataBuffer dataBuffer, MonoSink<Void> sink) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    dataBuffer.toByteBuffer(byteBuffer);
+    return new ContentChunk(byteBuffer, new Callback() {
       @Override
       public void succeeded() {
-        DataBufferUtils.release(buffer);
+        DataBufferUtils.release(dataBuffer);
       }
 
       @Override
       public void failed(Throwable t) {
-        DataBufferUtils.release(buffer);
+        DataBufferUtils.release(dataBuffer);
         sink.error(t);
       }
     });
@@ -153,11 +157,11 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new JettyHeadersAdapter(this.jettyRequest.getHeaders()));
+    return HttpHeaders.readOnlyHttpHeaders(new JettyHeadersAdapter(jettyRequest.getHeaders()));
   }
 
   public ReactiveRequest toReactiveRequest() {
-    return this.builder.build();
+    return builder.build();
   }
 
 }

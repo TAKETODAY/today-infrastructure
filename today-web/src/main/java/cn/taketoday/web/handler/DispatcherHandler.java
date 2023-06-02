@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,38 +20,37 @@
 
 package cn.taketoday.web.handler;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ArrayHolder;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerAdapterNotFoundException;
 import cn.taketoday.web.HandlerAdapterProvider;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.RequestCompletedListener;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestHandledListener;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.context.async.WebAsyncUtils;
+import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
 
 /**
@@ -60,11 +59,9 @@ import cn.taketoday.web.util.WebUtils;
  * @author TODAY 2019-11-16 19:05
  * @since 3.0
  */
-public class DispatcherHandler implements ApplicationContextAware {
+public class DispatcherHandler extends InfraHandler {
 
   public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
-
-  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -75,13 +72,10 @@ public class DispatcherHandler implements ApplicationContextAware {
   private HandlerExceptionHandler exceptionHandler;
 
   /** @since 4.0 */
-  private SelectableReturnValueHandler returnValueHandler;
+  private ReturnValueHandlerManager returnValueHandler;
 
-  /** Throw a NoHandlerFoundException if no Handler was found to process this request? @since 4.0 */
+  /** Throw a HandlerNotFoundException if no Handler was found to process this request? @since 4.0 */
   private boolean throwExceptionIfNoHandlerFound = false;
-
-  /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
-  private boolean enableLoggingRequestDetails = false;
 
   /** Detect all HandlerMappings or just expect "HandlerRegistry" bean?. */
   private boolean detectAllHandlerMapping = true;
@@ -92,21 +86,21 @@ public class DispatcherHandler implements ApplicationContextAware {
   /** Detect all HandlerExceptionHandlers or just expect "HandlerExceptionHandler" bean?. */
   private boolean detectAllHandlerExceptionHandlers = true;
 
-  private ApplicationContext applicationContext;
-
   private HttpRequestHandler notFoundHandler;
 
-  private final ArrayHolder<RequestHandledListener> requestHandledActions = ArrayHolder.forGenerator(RequestHandledListener[]::new);
+  private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
+
+  protected WebAsyncManagerFactory webAsyncManagerFactory;
 
   public DispatcherHandler() { }
 
   public DispatcherHandler(ApplicationContext context) {
-    this.applicationContext = context;
+    super(context);
   }
 
-  // @since 4.0
-  public void init() {
-    initStrategies(applicationContext);
+  @Override
+  protected void onRefresh(ApplicationContext context) {
+    initStrategies(context);
   }
 
   /**
@@ -120,6 +114,7 @@ public class DispatcherHandler implements ApplicationContextAware {
     initExceptionHandler(context);
     initNotFoundHandler(context);
     initRequestHandledListeners(context);
+    initWebAsyncManagerFactory(context);
   }
 
   /**
@@ -163,7 +158,7 @@ public class DispatcherHandler implements ApplicationContextAware {
         manager.setApplicationContext(context);
         manager.registerDefaultHandlers();
       }
-      this.returnValueHandler = manager.asSelectable();
+      this.returnValueHandler = manager;
     }
   }
 
@@ -199,15 +194,27 @@ public class DispatcherHandler implements ApplicationContextAware {
   /**
    * Collect all the RequestHandledListener used by this class.
    *
-   * @see RequestHandledListener
+   * @see RequestCompletedListener
    */
   private void initRequestHandledListeners(ApplicationContext context) {
     var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
-            context, RequestHandledListener.class, true, false);
+            context, RequestCompletedListener.class, true, false);
     var handlers = new ArrayList<>(matchingBeans.values());
     AnnotationAwareOrderComparator.sort(handlers);
 
     addRequestHandledActions(handlers);
+    addRequestHandledActions(RequestContext::requestCompleted);
+  }
+
+  /**
+   * Initialize the WebAsyncManagerFactory used by this class.
+   *
+   * @see WebAsyncManagerFactory
+   */
+  private void initWebAsyncManagerFactory(ApplicationContext context) {
+    if (webAsyncManagerFactory == null) {
+      webAsyncManagerFactory = WebAsyncManagerFactory.find(context);
+    }
   }
 
   // Handler
@@ -232,7 +239,7 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @return A {@link HandlerAdapter}
    * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
    */
-  public HandlerAdapter lookupHandlerAdapter(final Object handler) {
+  public HandlerAdapter lookupHandlerAdapter(@Nullable Object handler) {
     if (handler instanceof HandlerAdapter) {
       return (HandlerAdapter) handler;
     }
@@ -267,58 +274,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   /**
-   * Handle HTTP request
-   *
-   * @param handler HTTP handler
-   * @param context Current HTTP request context
-   * @throws Throwable If {@link Throwable} cannot handle
-   */
-  @Deprecated
-  public void handle(@Nullable Object handler, RequestContext context) throws Throwable {
-    try {
-      Object returnValue = lookupHandlerAdapter(handler).handle(context, handler);
-      if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-        lookupReturnValueHandler(handler, returnValue)
-                .handleReturnValue(context, handler, returnValue);
-      }
-    }
-    catch (Throwable e) {
-      handleException(handler, e, context);
-    }
-    finally {
-      // @since 3.0 cleanup MultipartFiles
-      context.requestCompleted();
-    }
-  }
-
-  /**
-   * Handle {@link Exception} occurred in target handler
-   *
-   * @param handler HTTP handler
-   * @param exception {@link Throwable} occurred in target handler
-   * @param context Current HTTP request context
-   * @throws Throwable If {@link Throwable} cannot be handled
-   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
-   * @throws IOException throws when write data to response
-   */
-  public void handleException(
-          @Nullable Object handler, Throwable exception, RequestContext context) throws Throwable {
-    // clear context
-    context.reset();
-    // prepare context throwable
-    context.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, exception);
-    // handle exception
-    Object returnValue = exceptionHandler.handleException(context, exception, handler);
-    if (returnValue == null) {
-      throw exception;
-    }
-    else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      returnValueHandler.handleReturnValue(context, null, returnValue);
-    }
-  }
-
-  /**
-   * Set whether to throw a NoHandlerFoundException when no Handler was found for this request.
+   * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
    * This exception can then be caught with a HandlerExceptionHandler or an
    * {@code @ExceptionHandler} controller method.
    *
@@ -329,6 +285,40 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   /**
+   * handle async results
+   *
+   * @param context async request
+   * @param handler sync handler
+   * @param concurrentResult async result
+   */
+  public void handleConcurrentResult(RequestContext context,
+          @Nullable Object handler, Object concurrentResult) throws Throwable {
+    Throwable throwable = null;
+    try {
+      if (handler instanceof AsyncHandler asyncHandler) {
+        handler = asyncHandler.wrapConcurrentResult(concurrentResult);
+      }
+      if (handler instanceof AsyncReturnValueHandler valueHandler) {
+        valueHandler.handleAsyncReturnValue(context, concurrentResult);
+      }
+      else {
+        if (concurrentResult instanceof Throwable asyncError) {
+          throwable = asyncError;
+        }
+        processDispatchResult(context, handler, concurrentResult, throwable);
+        throwable = null;
+      }
+    }
+    catch (Throwable ex) {
+      throwable = ex; // not handled
+    }
+    finally {
+      logResult(context, throwable);
+      requestCompleted(context, throwable);
+    }
+  }
+
+  /**
    * Process the actual dispatching to the handler.
    *
    * @param context current HTTP request and HTTP response
@@ -336,8 +326,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
-    long startTime = System.currentTimeMillis();
-
+    context.setWebAsyncManagerFactory(webAsyncManagerFactory); // TODO 构造注入
+    logRequest(context);
     Object handler = null;
     Object returnValue = null;
     Throwable throwable = null;
@@ -347,17 +337,22 @@ public class DispatcherHandler implements ApplicationContextAware {
       if (handler == null) {
         returnValue = handlerNotFound(context);
       }
-      else if (handler instanceof HttpRequestHandler requestHandler) {
-        // specially for RequestHandler
-        returnValue = requestHandler.handleRequest(context);
-      }
       else {
-        // adaptation for handling this request
-        returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+        if (handler instanceof HandlerAdapterAware aware) {
+          aware.setHandlerAdapter(handlerAdapter);
+        }
+        if (handler instanceof HttpRequestHandler requestHandler) {
+          // specially for HttpRequestHandler
+          returnValue = requestHandler.handleRequest(context);
+        }
+        else {
+          // adaptation for handling this request
+          returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+        }
       }
     }
     catch (Throwable ex) {
-      throwable = ex;
+      throwable = ex; // from request handler
     }
     finally {
       try {
@@ -367,11 +362,11 @@ public class DispatcherHandler implements ApplicationContextAware {
       catch (Throwable ex) {
         throwable = ex; // not handled
       }
-      context.requestCompleted();
-      if (log.isDebugEnabled()) {
-        logResult(context, throwable);
+      logResult(context, throwable);
+
+      if (!context.isConcurrentHandlingStarted()) {
+        requestCompleted(context, throwable);
       }
-      publishRequestHandledEvent(context, startTime, throwable);
     }
   }
 
@@ -379,10 +374,12 @@ public class DispatcherHandler implements ApplicationContextAware {
    * Handle the result of handler selection and handler invocation, which is
    * either a view or an Exception to be resolved to a view.
    */
-  private void processDispatchResult(
-          RequestContext request, @Nullable Object handler,
+  protected void processDispatchResult(RequestContext request, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Throwable {
 
+    if (handler instanceof HandlerWrapper wrapper) {
+      handler = wrapper.getRawHandler();
+    }
     if (exception != null) {
       returnValue = processHandlerException(request, handler, exception);
       handler = null;
@@ -414,6 +411,8 @@ public class DispatcherHandler implements ApplicationContextAware {
     // Check registered HandlerExceptionHandlers...
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {
+      // not found a suitable handler to handle this exception,
+      // throw it to top level to handle
       throw ex;
     }
     else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
@@ -437,99 +436,22 @@ public class DispatcherHandler implements ApplicationContextAware {
   protected Object handlerNotFound(RequestContext request) throws Throwable {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
-              request.getMethodValue(), request.getRequestPath(), request.requestHeaders());
+              request.getMethodValue(), request.getRequestURI(), request.requestHeaders());
     }
     else {
       return notFoundHandler.handleRequest(request);
     }
   }
 
-  private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (failureCause != null) {
-      if (log.isTraceEnabled()) {
-        log.trace("Failed to complete request", failureCause);
-      }
-      else {
-        log.debug("Failed to complete request: {}", failureCause.toString());
-      }
+  protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
+    for (RequestCompletedListener action : requestCompletedActions) {
+      action.requestCompleted(request, notHandled);
     }
-    else {
 
-      if (WebAsyncUtils.isConcurrentHandlingStarted(request)) {
-        log.debug("Exiting but response remains open for further handling");
-        return;
-      }
-
-      String headers = "";  // nothing below trace
-      if (log.isTraceEnabled()) {
-        HttpHeaders httpHeaders = request.responseHeaders();
-        if (enableLoggingRequestDetails) {
-          headers = httpHeaders.entrySet().stream()
-                  .map(entry -> entry.getKey() + ":" + entry.getValue())
-                  .collect(Collectors.joining(", "));
-        }
-        else {
-          headers = httpHeaders.isEmpty() ? "" : "masked";
-        }
-        headers = ", headers={" + headers + "}";
-      }
-      HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-      log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+    // exception not handled
+    if (notHandled != null) {
+      throw notHandled;
     }
-  }
-
-  protected void publishRequestHandledEvent(
-          RequestContext request, long startTime, @Nullable Throwable failureCause) {
-    RequestHandledListener[] requestHandledListeners = requestHandledActions.get();
-    if (ObjectUtils.isNotEmpty(requestHandledListeners)) {
-      for (RequestHandledListener action : requestHandledListeners) {
-        action.requestHandled(request, startTime, failureCause);
-      }
-    }
-  }
-
-  /**
-   * Return this handler's WebApplicationContext.
-   *
-   * @since 4.0
-   */
-  public final ApplicationContext getApplicationContext() {
-    return this.applicationContext;
-  }
-
-  /**
-   * Destroy Application
-   */
-  public void destroy() {
-    var context = getApplicationContext();
-    if (context != null) {
-      State state = context.getState();
-      if (state != State.CLOSING && state != State.CLOSED) {
-        context.close();
-        var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-        log("Your application destroyed at: ["
-                + dateFormat.format(System.currentTimeMillis())
-                + "] on startup date: [" + dateFormat.format(context.getStartupDate()) + ']'
-        );
-      }
-    }
-  }
-
-  /**
-   * Log internal
-   *
-   * @param msg Log message
-   */
-  protected void log(final String msg) {
-    log.info(msg);
-  }
-
-  public HandlerMapping getHandlerMapping() {
-    return handlerMapping;
-  }
-
-  public HandlerExceptionHandler getExceptionHandler() {
-    return exceptionHandler;
   }
 
   public void setHandlerMapping(HandlerMapping handlerMapping) {
@@ -542,6 +464,7 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
+    Assert.notNull(handlerAdapter, "HandlerAdapter is required");
     this.handlerAdapter = handlerAdapter;
   }
 
@@ -550,35 +473,14 @@ public class DispatcherHandler implements ApplicationContextAware {
     this.exceptionHandler = exceptionHandler;
   }
 
-  public SelectableReturnValueHandler getReturnValueHandler() {
-    return returnValueHandler;
-  }
-
-  public void setReturnValueHandler(SelectableReturnValueHandler returnValueHandler) {
-    Assert.notNull(returnValueHandler, "returnValueHandler is required");
+  /**
+   * Set ReturnValueHandlerManager
+   *
+   * @param returnValueHandler ReturnValueHandlerManager
+   */
+  public void setReturnValueHandler(ReturnValueHandlerManager returnValueHandler) {
+    Assert.notNull(returnValueHandler, "ReturnValueHandlerManager is required");
     this.returnValueHandler = returnValueHandler;
-  }
-
-  /**
-   * Whether to log request params at DEBUG level, and headers at TRACE level.
-   * Both may contain sensitive information.
-   * <p>By default set to {@code false} so that request details are not shown.
-   *
-   * @param enable whether to enable or not
-   * @since 4.0
-   */
-  public void setEnableLoggingRequestDetails(boolean enable) {
-    this.enableLoggingRequestDetails = enable;
-  }
-
-  /**
-   * Whether logging of potentially sensitive, request details at DEBUG and
-   * TRACE level is allowed.
-   *
-   * @since 4.0
-   */
-  public boolean isEnableLoggingRequestDetails() {
-    return this.enableLoggingRequestDetails;
   }
 
   /**
@@ -618,24 +520,25 @@ public class DispatcherHandler implements ApplicationContextAware {
   }
 
   /**
-   * Called by Framework via {@link ApplicationContextAware} to inject the current
-   * application context.
-   *
-   * @since 4.0
-   */
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) {
-    this.applicationContext = applicationContext;
-  }
-
-  /**
-   * not found handler
+   * Set not found handler
    *
    * @param notFoundHandler HttpRequestHandler
    * @since 4.0
    */
   public void setNotFoundHandler(HttpRequestHandler notFoundHandler) {
+    Assert.notNull(notFoundHandler, "notFoundHandler is required");
     this.notFoundHandler = notFoundHandler;
+  }
+
+  /**
+   * Set WebAsyncManagerFactory
+   *
+   * @param factory WebAsyncManagerFactory
+   * @since 4.0
+   */
+  public void setWebAsyncManagerFactory(WebAsyncManagerFactory factory) {
+    Assert.notNull(factory, "WebAsyncManagerFactory is required");
+    this.webAsyncManagerFactory = factory;
   }
 
   /**
@@ -644,8 +547,8 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestHandledActions(RequestHandledListener... array) {
-    requestHandledActions.add(array);
+  public void addRequestHandledActions(@Nullable RequestCompletedListener... array) {
+    requestCompletedActions.add(array);
   }
 
   /**
@@ -654,8 +557,116 @@ public class DispatcherHandler implements ApplicationContextAware {
    * @param list RequestHandledListener list
    * @since 4.0
    */
-  public void addRequestHandledActions(Collection<RequestHandledListener> list) {
-    requestHandledActions.addAll(list);
+  public void addRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
+    requestCompletedActions.addAll(list);
+  }
+
+  /**
+   * Set RequestHandledListener list to the list of listeners to be notified when a request is handled.
+   *
+   * @param list RequestHandledListener list
+   * @since 4.0
+   */
+  public void setRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
+    requestCompletedActions.set(list);
+  }
+
+  // @since 4.0
+  private void logRequest(RequestContext request) {
+    if (log.isDebugEnabled()) {
+      String params;
+      String contentType = request.getContentType();
+      if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
+        params = "multipart";
+      }
+      else if (isEnableLoggingRequestDetails()) {
+        params = request.getParameters().entrySet().stream()
+                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
+                .collect(Collectors.joining(", "));
+      }
+      else {
+        // Avoid request body parsing for form data
+        params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                         || !request.getParameters().isEmpty() ? "masked" : "";
+      }
+
+      String queryString = request.getQueryString();
+      String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
+      String message = request.getMethod() + " " + request.getRequestURL() + queryClause;
+
+      if (!params.isEmpty()) {
+        message += ", parameters={" + params + "}";
+      }
+
+      message = URLDecoder.decode(message, StandardCharsets.UTF_8);
+      if (log.isTraceEnabled()) {
+        StringBuilder headers = new StringBuilder();
+        HttpHeaders httpHeaders = request.requestHeaders();
+        if (!httpHeaders.isEmpty()) {
+          if (isEnableLoggingRequestDetails()) {
+            // first
+            Iterator<String> headerNames = httpHeaders.keySet().iterator();
+            if (headerNames.hasNext()) {
+              String name = headerNames.next();
+              headers.append(name)
+                      .append(':')
+                      .append(httpHeaders.getValuesAsList(name));
+
+              while (headerNames.hasNext()) {
+                name = headerNames.next();
+                headers.append(", ");
+                headers.append(name);
+                headers.append(':');
+                headers.append(httpHeaders.get(name));
+              }
+            }
+          }
+          else {
+            headers.append("masked");
+          }
+        }
+
+        log.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
+      }
+      else {
+        log.debug(message);
+      }
+    }
+  }
+
+  private void logResult(RequestContext request, @Nullable Throwable failureCause) {
+    if (log.isDebugEnabled()) {
+      if (failureCause != null) {
+        if (log.isTraceEnabled()) {
+          log.trace("Failed to complete request", failureCause);
+        }
+        else {
+          log.debug("Failed to complete request", failureCause);
+        }
+      }
+      else {
+        if (request.isConcurrentHandlingStarted()) {
+          log.debug("Exiting but response remains open for further handling");
+          return;
+        }
+
+        String headers = "";  // nothing below trace
+        if (log.isTraceEnabled()) {
+          HttpHeaders httpHeaders = request.responseHeaders();
+          if (isEnableLoggingRequestDetails()) {
+            headers = httpHeaders.entrySet().stream()
+                    .map(entry -> entry.getKey() + ":" + entry.getValue())
+                    .collect(Collectors.joining(", "));
+          }
+          else {
+            headers = httpHeaders.isEmpty() ? "" : "masked";
+          }
+          headers = ", headers={" + headers + "}";
+        }
+        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
+        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+      }
+    }
   }
 
 }

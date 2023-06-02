@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,8 +21,8 @@
 package cn.taketoday.framework.diagnostics.analyzer;
 
 import cn.taketoday.beans.BeanInstantiationException;
-import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.InjectionPoint;
+import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
@@ -49,13 +49,11 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
 
   @Nullable
   private String getDescription(Throwable rootFailure) {
-    UnsatisfiedDependencyException unsatisfiedDependency = findMostNestedCause(rootFailure,
-            UnsatisfiedDependencyException.class);
+    var unsatisfiedDependency = findMostNestedCause(rootFailure, UnsatisfiedDependencyException.class);
     if (unsatisfiedDependency != null) {
       return getDescription(unsatisfiedDependency);
     }
-    BeanInstantiationException beanInstantiationException = findMostNestedCause(rootFailure,
-            BeanInstantiationException.class);
+    var beanInstantiationException = findMostNestedCause(rootFailure, BeanInstantiationException.class);
     if (beanInstantiationException != null) {
       return getDescription(beanInstantiationException);
     }
@@ -78,7 +76,15 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
 
   @Nullable
   private String getDescription(UnsatisfiedDependencyException ex) {
-    InjectionPoint injectionPoint = ex.getInjectionPoint();
+    String description = getDescription(ex.getInjectionPoint());
+    if (description != null) {
+      return description;
+    }
+    return ex.getResourceDescription();
+  }
+
+  @Nullable
+  String getDescription(@Nullable InjectionPoint injectionPoint) {
     if (injectionPoint != null) {
       if (injectionPoint.getField() != null) {
         return String.format("Field %s in %s", injectionPoint.getField().getName(),
@@ -97,7 +103,7 @@ public abstract class AbstractInjectionFailureAnalyzer<T extends Throwable> exte
                 parameter.getDeclaringClass().getName());
       }
     }
-    return ex.getResourceDescription();
+    return null;
   }
 
   private String getDescription(BeanInstantiationException ex) {

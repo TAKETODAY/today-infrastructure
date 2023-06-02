@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,18 +39,17 @@ import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
-import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PostMapping;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.context.support.StaticWebApplicationContext;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
@@ -107,7 +106,7 @@ class CrossOriginTests {
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler().toString())
+    assertThat(chain.getRawHandler().toString())
             .endsWith("RequestMappingInfoHandlerMapping$HttpOptionsHandler#handle()");
   }
 
@@ -119,7 +118,7 @@ class CrossOriginTests {
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     HandlerExecutionChain chain = getHandler(mapping, request);
     assertThat(chain).isNotNull();
-    assertThat(chain.getHandler().getClass().getName()).endsWith("AbstractHandlerMapping$PreFlightHandler");
+    assertThat(chain.getRawHandler().getClass().getName()).endsWith("AbstractHandlerMapping$PreFlightHandler");
   }
 
   @PathPatternsParameterizedTest
@@ -395,16 +394,19 @@ class CrossOriginTests {
   private CorsConfiguration getCorsConfiguration(@Nullable HandlerExecutionChain chain, boolean isPreFlightRequest) {
     assertThat(chain).isNotNull();
     if (isPreFlightRequest) {
-      Object handler = chain.getHandler();
+      Object handler = chain.getRawHandler();
       assertThat(handler.getClass().getSimpleName()).isEqualTo("PreFlightHandler");
       DirectFieldAccessor accessor = new DirectFieldAccessor(handler);
       return (CorsConfiguration) accessor.getPropertyValue("config");
     }
     else {
-      for (HandlerInterceptor interceptor : chain.getInterceptorList()) {
-        if (interceptor.getClass().getSimpleName().equals("CorsInterceptor")) {
-          DirectFieldAccessor accessor = new DirectFieldAccessor(interceptor);
-          return (CorsConfiguration) accessor.getPropertyValue("config");
+      HandlerInterceptor[] interceptors = chain.getInterceptors();
+      if (interceptors != null) {
+        for (HandlerInterceptor interceptor : interceptors) {
+          if (interceptor.getClass().getSimpleName().equals("CorsInterceptor")) {
+            DirectFieldAccessor accessor = new DirectFieldAccessor(interceptor);
+            return (CorsConfiguration) accessor.getPropertyValue("config");
+          }
         }
       }
     }
@@ -591,7 +593,7 @@ class CrossOriginTests {
 
     @Override
     protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-      ActionMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, ActionMapping.class);
+      RequestMapping annotation = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
       if (annotation != null) {
         RequestMappingInfo.BuilderConfiguration options = getBuilderConfiguration();
         return RequestMappingInfo.paths(annotation.value())

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.annotation.RequestBody;
@@ -33,7 +34,6 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.ui.ModelMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +59,7 @@ class MapMethodProcessorTests {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
     this.webRequest = new ServletRequestContext(null, new MockHttpServletRequest(), null);
-    webRequest.setBindingContext(mavContainer);
+    webRequest.setBinding(mavContainer);
 
   }
 

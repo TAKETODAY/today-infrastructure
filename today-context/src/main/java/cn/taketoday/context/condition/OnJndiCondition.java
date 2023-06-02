@@ -3,7 +3,7 @@ package cn.taketoday.context.condition;
 import javax.naming.NamingException;
 
 import cn.taketoday.context.annotation.Condition;
-import cn.taketoday.context.annotation.ConditionEvaluationContext;
+import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -19,10 +19,10 @@ import cn.taketoday.util.StringUtils;
  * @see ConditionalOnJndi
  * @since 4.0 2022/1/17 14:52
  */
-class OnJndiCondition extends ContextCondition implements Ordered {
+class OnJndiCondition extends InfraCondition implements Ordered {
 
   @Override
-  public ConditionOutcome getMatchOutcome(ConditionEvaluationContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     MergedAnnotation<ConditionalOnJndi> annotation = metadata.getAnnotation(ConditionalOnJndi.class);
     String[] locations = annotation.getStringValueArray();
     try {

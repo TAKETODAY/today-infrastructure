@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.util.List;
 
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.context.aware.ResourceLoaderAware;
+import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
@@ -60,11 +62,12 @@ import freemarker.template.TemplateException;
  *
  * @author Darren Davison
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setConfigLocation
  * @see #setFreemarkerSettings
  * @see #setTemplateLoaderPath
  * @see #setConfiguration
- * @see cn.taketoday.web.view.freemarker.FreeMarkerConfigurationFactoryBean
+ * @see FreeMarkerConfigurationFactoryBean
  * @see FreeMarkerView
  * @since 4.0
  */

@@ -29,7 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;

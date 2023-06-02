@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1098,7 +1098,7 @@ public abstract class AnnotationUtils {
    */
   @Nullable
   public static Object getValue(@Nullable Annotation annotation, @Nullable String attributeName) {
-    if (annotation == null || !StringUtils.hasText(attributeName)) {
+    if (annotation == null || StringUtils.isBlank(attributeName)) {
       return null;
     }
     try {
@@ -1173,7 +1173,7 @@ public abstract class AnnotationUtils {
   public static Object getDefaultValue(
           @Nullable Class<? extends Annotation> annotationType, @Nullable String attributeName) {
 
-    if (annotationType == null || !StringUtils.hasText(attributeName)) {
+    if (annotationType == null || StringUtils.isBlank(attributeName)) {
       return null;
     }
     return MergedAnnotation.valueOf(annotationType).getDefaultValue(attributeName).orElse(null);
@@ -1295,7 +1295,7 @@ public abstract class AnnotationUtils {
 
   /**
    * Determine if the supplied {@link Annotation} has been <em>synthesized</em>
-   * by Spring (i.e. wrapped in a dynamic proxy) with additional functionality
+   * by Infra (i.e. wrapped in a dynamic proxy) with additional functionality
    * such as attribute alias handling.
    *
    * @param annotation the annotation to check

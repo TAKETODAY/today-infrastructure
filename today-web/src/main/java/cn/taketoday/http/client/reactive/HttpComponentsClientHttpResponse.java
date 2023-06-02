@@ -27,14 +27,15 @@ import org.apache.hc.core5.http.Message;
 import org.reactivestreams.Publisher;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import cn.taketoday.core.DefaultMultiValueMap;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 
 /**
@@ -74,18 +75,18 @@ class HttpComponentsClientHttpResponse implements ClientHttpResponse {
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
-    this.context.getCookieStore().getCookies()
-            .forEach(cookie -> result.add(
-                    cookie.getName(),
-                    ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
-                            .domain(cookie.getDomain())
-                            .path(cookie.getPath())
-                            .maxAge(getMaxAgeSeconds(cookie))
-                            .secure(cookie.isSecure())
-                            .httpOnly(cookie.containsAttribute("httponly"))
-                            .sameSite(cookie.getAttribute("samesite"))
-                            .build())
-            );
+    List<Cookie> cookies = context.getCookieStore().getCookies();
+    for (Cookie cookie : cookies) {
+      result.add(cookie.getName(),
+              ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
+                      .domain(cookie.getDomain())
+                      .path(cookie.getPath())
+                      .maxAge(getMaxAgeSeconds(cookie))
+                      .secure(cookie.isSecure())
+                      .httpOnly(cookie.containsAttribute("httponly"))
+                      .sameSite(cookie.getAttribute("samesite"))
+                      .build());
+    }
     return result;
   }
 

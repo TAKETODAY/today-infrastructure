@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.TypeReference;
 import cn.taketoday.http.HttpHeaders;
@@ -44,6 +43,7 @@ import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyInserter;
 import cn.taketoday.web.reactive.function.BodyInserters;
@@ -77,6 +77,7 @@ import reactor.util.context.Context;
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface WebClient {
@@ -343,7 +344,6 @@ public interface WebClient {
      * designed for use in scenarios where multiple parties wish to update
      * the {@code ExchangeStrategies}.
      */
-    @Deprecated
     Builder exchangeStrategies(Consumer<ExchangeStrategies.Builder> configurer);
 
     /**
@@ -519,12 +519,7 @@ public interface WebClient {
      * Provide a function to populate the Reactor {@code Context}.
      *
      * @param contextModifier the function to modify the context with
-     * @since 4.0
-     * @deprecated in 5.3.2 to be removed soon after; this method cannot
-     * provide context to downstream (nested or subsequent) requests and is
-     * of limited value.
      */
-    @Deprecated
     S context(Function<Context, Context> contextModifier);
 
     /**
@@ -648,16 +643,16 @@ public interface WebClient {
      * allow to check the response status and headers before deciding how or
      * if to consume the response.
      *
+     * <p>
+     * Possibility to leak memory and/or connections; please use
+     * {@link #exchangeToMono(Function)}, {@link #exchangeToFlux(Function)};
+     * consider also using {@link #retrieve()} which provides access to
+     * the response status and headers via {@link ResponseEntity} along
+     * with error status handling.
+     *
      * @return a {@code Mono} for the response
      * @see #retrieve()
-     * @deprecated since 5.3 due to the possibility to leak memory and/or
-     * connections; please, use {@link #exchangeToMono(Function)},
-     * {@link #exchangeToFlux(Function)}; consider also using
-     * {@link #retrieve()} which provides access to the response status
-     * and headers via {@link ResponseEntity} along with error status
-     * handling.
      */
-    @Deprecated
     Mono<ClientResponse> exchange();
   }
 
@@ -701,7 +696,7 @@ public interface WebClient {
      *     .bodyToMono(Void.class);
      * </pre>
      * <p>For multipart requests consider providing
-     * {@link cn.taketoday.core.MultiValueMap MultiValueMap} prepared
+     * {@link MultiValueMap MultiValueMap} prepared
      * with {@link cn.taketoday.http.client.MultipartBodyBuilder
      * MultipartBodyBuilder}.
      *
@@ -780,13 +775,6 @@ public interface WebClient {
      */
     RequestHeadersSpec<?> body(BodyInserter<?, ? super ClientHttpRequest> inserter);
 
-    /**
-     * Shortcut for {@link #body(BodyInserter)} with a
-     * {@linkplain BodyInserters#fromValue value inserter}.
-     * As of 5.2 this method delegates to {@link #bodyValue(Object)}.
-     */
-    @Deprecated
-    RequestHeadersSpec<?> syncBody(Object body);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,15 +39,11 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.ServerSentEvent;
-import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncUtils;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -90,8 +85,6 @@ class ReactiveTypeHandlerTests {
     this.servletResponse = new MockHttpServletResponse();
     this.webRequest = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
 
-    AsyncWebRequest webRequest = new StandardServletAsyncWebRequest(this.servletRequest, this.servletResponse);
-    WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncRequest(webRequest);
     this.servletRequest.setAsyncSupported(true);
   }
 
@@ -104,6 +97,53 @@ class ReactiveTypeHandlerTests {
   @Test
   public void doesNotSupportType() throws Exception {
     assertThat(this.handler.isReactiveType(String.class)).isFalse();
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .isEqualTo(MediaType.APPLICATION_NDJSON);
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType_vendorFirst() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"),
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.APPLICATION_NDJSON);
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .hasToString("application/vnd.myapp.v1+x-ndjson");
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType_plainNdJsonFirst() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.APPLICATION_NDJSON,
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .isEqualTo(MediaType.APPLICATION_NDJSON);
+  }
+
+  @Test
+  void findsConcreteStreamingMediaType_plainStreamingJsonFirst() {
+    final List<MediaType> accept = List.of(
+            MediaType.ALL,
+            MediaType.APPLICATION_STREAM_JSON,
+            MediaType.parseMediaType("application/*+x-ndjson"),
+            MediaType.parseMediaType("application/vnd.myapp.v1+x-ndjson"));
+
+    assertThat(ReactiveTypeHandler.findConcreteStreamingMediaType(accept))
+            .isEqualTo(MediaType.APPLICATION_STREAM_JSON);
   }
 
   @Test
@@ -245,8 +285,9 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
-    emitter.extendResponse(message);
+    ServletRequestContext requestContext = new ServletRequestContext(null, null, servletResponse);
+//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
+    emitter.extendResponse(requestContext);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -255,7 +296,34 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(message.getHeaders().getContentType().toString()).isEqualTo("application/x-ndjson");
+    assertThat(requestContext.responseHeaders().getContentType().toString()).isEqualTo("application/x-ndjson");
+    assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
+  }
+
+  @Test
+  public void writeStreamJsonWithVendorSubtype() throws Exception {
+    this.servletRequest.addHeader("Accept", "application/vnd.myapp.v1+x-ndjson");
+
+    Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
+    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.fromClass(Bar.class));
+
+    assertThat(emitter).as("emitter").isNotNull();
+
+    EmitterHandler emitterHandler = new EmitterHandler();
+    emitter.initialize(emitterHandler);
+
+    ServletRequestContext requestContext = new ServletRequestContext(null, null, servletResponse);
+//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
+    emitter.extendResponse(requestContext);
+
+    Bar bar1 = new Bar("foo");
+    Bar bar2 = new Bar("bar");
+
+    sink.tryEmitNext(bar1);
+    sink.tryEmitNext(bar2);
+    sink.tryEmitComplete();
+
+    assertThat(requestContext.getResponseContentType()).isEqualTo("application/vnd.myapp.v1+x-ndjson");
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 
@@ -300,10 +368,10 @@ class ReactiveTypeHandlerTests {
   }
 
   private void testEmitterContentType(String expected) throws Exception {
-    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
+//    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.fromClass(String.class));
-    emitter.extendResponse(message);
-    assertThat(message.getHeaders().getContentType().toString()).isEqualTo(expected);
+    emitter.extendResponse(webRequest);
+    assertThat(webRequest.responseHeaders().getContentType().toString()).isEqualTo(expected);
     resetRequest();
   }
 
@@ -314,12 +382,12 @@ class ReactiveTypeHandlerTests {
     assertThat(emitter).isNull();
 
     assertThat(this.servletRequest.isAsyncStarted()).isTrue();
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult()).isFalse();
+    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isFalse();
 
     produceTask.run();
 
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult()).isTrue();
-    assertThat(WebAsyncUtils.getAsyncManager(this.webRequest).getConcurrentResult()).isEqualTo(expected);
+    assertThat(webRequest.getAsyncManager().hasConcurrentResult()).isTrue();
+    assertThat(webRequest.getAsyncManager().getConcurrentResult()).isEqualTo(expected);
 
     resetRequest();
   }
@@ -329,7 +397,7 @@ class ReactiveTypeHandlerTests {
 
     BindingContext mavContainer = new BindingContext();
     MethodParameter returnType = on(TestController.class).resolveReturnType(asyncType, genericType);
-    webRequest.setBindingContext(mavContainer);
+    webRequest.setBinding(mavContainer);
     return this.handler.handleValue(returnValue, returnType, this.webRequest);
   }
 

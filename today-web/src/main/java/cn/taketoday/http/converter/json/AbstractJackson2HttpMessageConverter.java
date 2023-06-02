@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -81,6 +82,7 @@ import cn.taketoday.util.TypeUtils;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MappingJackson2HttpMessageConverter
  * @since 4.0
  */
@@ -95,7 +97,8 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     ENCODINGS.put("US-ASCII", JsonEncoding.UTF8);
   }
 
-  private List<MediaType> problemDetailMediaTypes = Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
+  private static final List<MediaType> problemDetailMediaTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   protected ObjectMapper defaultObjectMapper;
 
@@ -123,19 +126,6 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
   protected AbstractJackson2HttpMessageConverter(ObjectMapper objectMapper, MediaType... supportedMediaTypes) {
     this(objectMapper);
     setSupportedMediaTypes(List.of(supportedMediaTypes));
-  }
-
-  @Override
-  public void setSupportedMediaTypes(List<MediaType> supportedMediaTypes) {
-    this.problemDetailMediaTypes = initProblemDetailMediaTypes(supportedMediaTypes);
-    super.setSupportedMediaTypes(supportedMediaTypes);
-  }
-
-  private List<MediaType> initProblemDetailMediaTypes(List<MediaType> supportedMediaTypes) {
-    ArrayList<MediaType> mediaTypes = new ArrayList<>();
-    mediaTypes.add(MediaType.APPLICATION_PROBLEM_JSON);
-    mediaTypes.addAll(supportedMediaTypes);
-    return Collections.unmodifiableList(mediaTypes);
   }
 
   /**
@@ -372,18 +362,18 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     Charset charset = getCharset(contentType);
 
     ObjectMapper objectMapper = selectObjectMapper(javaType.getRawClass(), contentType);
-    if (objectMapper == null) {
-      throw new IllegalStateException("No ObjectMapper for " + javaType);
-    }
-    boolean isUnicode = ENCODINGS.containsKey(charset.name())
-            || "UTF-16".equals(charset.name())
-            || "UTF-32".equals(charset.name());
+    Assert.state(objectMapper != null, "No ObjectMapper for " + javaType);
+
+    boolean isUnicode = ENCODINGS.containsKey(charset.name()) ||
+            "UTF-16".equals(charset.name()) ||
+            "UTF-32".equals(charset.name());
     try {
       InputStream inputStream = StreamUtils.nonClosing(inputMessage.getBody());
       if (inputMessage instanceof MappingJacksonInputMessage mappingJacksonInputMessage) {
         Class<?> deserializationView = mappingJacksonInputMessage.getDeserializationView();
         if (deserializationView != null) {
           ObjectReader objectReader = objectMapper.readerWithView(deserializationView).forType(javaType);
+          objectReader = customizeReader(objectReader, javaType);
           if (isUnicode) {
             return objectReader.readValue(inputStream);
           }
@@ -393,12 +383,15 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
           }
         }
       }
+
+      ObjectReader objectReader = objectMapper.reader().forType(javaType);
+      objectReader = customizeReader(objectReader, javaType);
       if (isUnicode) {
-        return objectMapper.readValue(inputStream, javaType);
+        return objectReader.readValue(inputStream);
       }
       else {
         Reader reader = new InputStreamReader(inputStream, charset);
-        return objectMapper.readValue(reader, javaType);
+        return objectReader.readValue(reader);
       }
     }
     catch (InvalidDefinitionException ex) {
@@ -407,6 +400,18 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     catch (JsonProcessingException ex) {
       throw new HttpMessageNotReadableException("JSON parse error: " + ex.getOriginalMessage(), ex, inputMessage);
     }
+  }
+
+  /**
+   * Subclasses can use this method to customize {@link ObjectReader} used
+   * for reading values.
+   *
+   * @param reader the reader instance to customize
+   * @param javaType the target type of element values to read to
+   * @return the customized {@link ObjectReader}
+   */
+  protected ObjectReader customizeReader(ObjectReader reader, JavaType javaType) {
+    return reader;
   }
 
   /**
@@ -433,11 +438,14 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     MediaType contentType = outputMessage.getHeaders().getContentType();
     JsonEncoding encoding = getJsonEncoding(contentType);
 
-    Class<?> clazz = object instanceof MappingJacksonValue mappingJacksonValue
-                     ? mappingJacksonValue.getValue().getClass() : object.getClass();
-    ObjectMapper objectMapper = selectObjectMapper(clazz, contentType);
-    if (objectMapper == null) {
-      throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
+    ObjectMapper objectMapper = this.defaultObjectMapper;
+    if (objectMapperRegistrations != null) {
+      Class<?> clazz = object instanceof MappingJacksonValue mappingJacksonValue
+                       ? mappingJacksonValue.getValue().getClass() : object.getClass();
+      objectMapper = selectObjectMapper(clazz, contentType);
+      if (objectMapper == null) {
+        throw new IllegalStateException("No ObjectMapper for " + clazz.getName());
+      }
     }
 
     OutputStream outputStream = StreamUtils.nonClosing(outputMessage.getBody());
@@ -463,14 +471,16 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       if (filters != null) {
         objectWriter = objectWriter.with(filters);
       }
-      if (javaType != null && javaType.isContainerType()) {
+      if (javaType != null && (javaType.isContainerType() || javaType.isTypeOrSubTypeOf(Optional.class))) {
         objectWriter = objectWriter.forType(javaType);
       }
       SerializationConfig config = objectWriter.getConfig();
-      if (config.isEnabled(SerializationFeature.INDENT_OUTPUT)
-              && contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM)) {
+      if (contentType != null
+              && config.isEnabled(SerializationFeature.INDENT_OUTPUT)
+              && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM)) {
         objectWriter = objectWriter.with(this.ssePrettyPrinter);
       }
+      objectWriter = customizeWriter(objectWriter, javaType, contentType);
       objectWriter.writeValue(generator, value);
 
       writeSuffix(generator, object);
@@ -482,6 +492,21 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     catch (JsonProcessingException ex) {
       throw new HttpMessageNotWritableException("Could not write JSON: " + ex.getOriginalMessage(), ex);
     }
+  }
+
+  /**
+   * Subclasses can use this method to customize {@link ObjectWriter} used
+   * for writing values.
+   *
+   * @param writer the writer instance to customize
+   * @param javaType the type of element values to write
+   * @param contentType the selected media type
+   * @return the customized {@link ObjectWriter}
+   */
+  protected ObjectWriter customizeWriter(
+          ObjectWriter writer, @Nullable JavaType javaType, @Nullable MediaType contentType) {
+
+    return writer;
   }
 
   /**

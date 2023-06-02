@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -225,8 +225,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see MergedAnnotationPredicates
    * @see MergedAnnotationSelectors
    */
-  <A extends Annotation> MergedAnnotation<A> get(
-          Class<A> annotationType,
+  <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
           @Nullable Predicate<? super MergedAnnotation<A>> predicate,
           @Nullable MergedAnnotationSelector<A> selector);
 
@@ -253,8 +252,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotation} instance
    * @see MergedAnnotationPredicates
    */
-  <A extends Annotation> MergedAnnotation<A> get(
-          String annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate);
+  <A extends Annotation> MergedAnnotation<A> get(String annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate);
 
   /**
    * Get a matching annotation or meta-annotation of the specified type, or
@@ -271,8 +270,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see MergedAnnotationPredicates
    * @see MergedAnnotationSelectors
    */
-  <A extends Annotation> MergedAnnotation<A> get(
-          String annotationType,
+  <A extends Annotation> MergedAnnotation<A> get(String annotationType,
           @Nullable Predicate<? super MergedAnnotation<A>> predicate,
           @Nullable MergedAnnotationSelector<A> selector);
 
@@ -310,6 +308,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
   Stream<MergedAnnotation<Annotation>> stream();
 
   <A extends Annotation> AnnotationAttributes[] getAttributes(Class<A> annotationType);
+
+  // Static Factory Methods
 
   /**
    * Create a new {@link MergedAnnotations} instance containing all
@@ -356,8 +356,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * element annotations
    * @see #search(SearchStrategy)
    */
-  static MergedAnnotations from(
-          AnnotatedElement element, SearchStrategy searchStrategy, RepeatableContainers repeatableContainers) {
+  static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
+          RepeatableContainers repeatableContainers) {
 
     return from(element, searchStrategy, repeatableContainers, AnnotationFilter.PLAIN);
   }
@@ -377,8 +377,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * annotations for the supplied element
    * @see #search(SearchStrategy)
    */
-  static MergedAnnotations from(
-          AnnotatedElement element, SearchStrategy searchStrategy,
+  static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
     Assert.notNull(element, "AnnotatedElement must not be null");
     Assert.notNull(searchStrategy, "SearchStrategy must not be null");
@@ -430,7 +429,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotations} instance containing the annotations
    * @see #search(SearchStrategy)
    */
-  static MergedAnnotations from(Object source, Annotation[] annotations, RepeatableContainers repeatableContainers) {
+  static MergedAnnotations from(Object source, Annotation[] annotations,
+          RepeatableContainers repeatableContainers) {
     return from(source, annotations, repeatableContainers, AnnotationFilter.PLAIN);
   }
 
@@ -449,8 +449,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotations} instance containing the annotations
    * @see #search(SearchStrategy)
    */
-  static MergedAnnotations from(
-          Object source, Annotation[] annotations,
+  static MergedAnnotations from(Object source, Annotation[] annotations,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
     Assert.notNull(repeatableContainers, "RepeatableContainers must not be null");

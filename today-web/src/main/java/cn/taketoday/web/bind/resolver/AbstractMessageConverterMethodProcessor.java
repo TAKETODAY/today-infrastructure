@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -58,7 +58,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHttpOutputMessage;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -281,12 +280,11 @@ public abstract class AbstractMessageConverterMethodProcessor
             }
             addContentDispositionHeader(context);
             if (generic != null) {
-              generic.write(
-                      body, targetType, selectedMediaType, new RequestContextHttpOutputMessage(context));
+              generic.write(body, targetType, selectedMediaType, context.asHttpOutputMessage());
             }
             else {
               ((HttpMessageConverter) converter).write(
-                      body, selectedMediaType, new RequestContextHttpOutputMessage(context));
+                      body, selectedMediaType, context.asHttpOutputMessage());
             }
           }
           else {
@@ -445,7 +443,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     catch (Throwable ex) {
       // ignore
     }
-    String requestUri = request.getRequestPath();
+    String requestUri = request.getRequestURI();
 
     int index = requestUri.lastIndexOf('/') + 1;
     String filename = requestUri.substring(index);
@@ -469,7 +467,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   }
 
   private boolean notSafeExtension(RequestContext request, @Nullable String extension) {
-    if (!StringUtils.hasText(extension)) {
+    if (StringUtils.isBlank(extension)) {
       return false;
     }
     extension = extension.toLowerCase(Locale.ENGLISH);

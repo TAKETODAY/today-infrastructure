@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,6 @@ public class ContentDispositionTests {
   private static final DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
 
   @Test
-  @SuppressWarnings("deprecation")
   void parse() {
     assertThat(parse("form-data; name=\"foo\"; filename=\"foo.txt\"; size=123"))
             .isEqualTo(ContentDisposition.formData()
@@ -178,7 +177,14 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
+  void parseWindowsPath() {
+    ContentDisposition cd = ContentDisposition.parse("form-data; name=\"foo\"; filename=\"D:\\foo\\bar.txt\"");
+    assertThat(cd.getName()).isEqualTo("foo");
+    assertThat(cd.getFilename()).isEqualTo("D:\\foo\\bar.txt");
+    assertThat(cd.toString()).isEqualTo("form-data; name=\"foo\"; filename=\"D:\\\\foo\\\\bar.txt\"");
+  }
+
+  @Test
   void parseWithExtraSemicolons() {
     assertThat(parse("form-data; name=\"foo\";; ; filename=\"foo.txt\"; size=123"))
             .isEqualTo(ContentDisposition.formData()
@@ -189,7 +195,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void parseDates() {
     ZonedDateTime creationTime = ZonedDateTime.parse("Mon, 12 Feb 2007 10:15:30 -0500", formatter);
     ZonedDateTime modificationTime = ZonedDateTime.parse("Tue, 13 Feb 2007 10:15:30 -0500", formatter);
@@ -208,7 +213,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void parseIgnoresInvalidDates() {
     ZonedDateTime readTime = ZonedDateTime.parse("Wed, 14 Feb 2007 10:15:30 -0500", formatter);
 
@@ -242,7 +246,6 @@ public class ContentDispositionTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void format() {
     assertThat(
             ContentDisposition.formData()
@@ -260,7 +263,9 @@ public class ContentDispositionTests {
                     .name("name")
                     .filename("中文.txt", StandardCharsets.UTF_8)
                     .build().toString())
-            .isEqualTo("form-data; name=\"name\"; filename*=UTF-8''%E4%B8%AD%E6%96%87.txt");
+            .isEqualTo("form-data; name=\"name\"; " +
+                    "filename=\"=?UTF-8?Q?=E4=B8=AD=E6=96=87.txt?=\"; " +
+                    "filename*=UTF-8''%E4%B8%AD%E6%96%87.txt");
   }
 
   @Test

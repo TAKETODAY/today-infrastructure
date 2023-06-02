@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -71,8 +71,8 @@ public abstract class ValidationUtils {
    * arguments is {@code null}, or if the supplied {@code Validator} does not
    * {@link Validator#supports(Class) support} the validation of the supplied object's type
    */
-  public static void invokeValidator(
-          Validator validator, Object target, Errors errors, @Nullable Object... validationHints) {
+  public static void invokeValidator(Validator validator,
+          Object target, Errors errors, @Nullable Object... validationHints) {
 
     Assert.notNull(validator, "Validator must not be null");
     Assert.notNull(target, "Target object must not be null");
@@ -172,9 +172,8 @@ public abstract class ValidationUtils {
    * (can be {@code null})
    * @param defaultMessage fallback default message
    */
-  public static void rejectIfEmpty(
-          Errors errors, String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public static void rejectIfEmpty(Errors errors, String field,
+          String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
     Assert.notNull(errors, "Errors object must not be null");
     Object value = errors.getFieldValue(field);
@@ -263,7 +262,7 @@ public abstract class ValidationUtils {
 
     Assert.notNull(errors, "Errors object must not be null");
     Object value = errors.getFieldValue(field);
-    if (value == null || !StringUtils.hasText(value.toString())) {
+    if (value == null || StringUtils.isBlank(value.toString())) {
       errors.rejectValue(field, errorCode, errorArgs, defaultMessage);
     }
   }

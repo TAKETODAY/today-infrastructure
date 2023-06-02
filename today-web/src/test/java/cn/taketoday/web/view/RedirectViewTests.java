@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.view;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,6 @@ import java.util.Map;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.testfixture.beans.TestBean;
@@ -60,7 +58,6 @@ public class RedirectViewTests {
 
   private MockHttpServletResponse response;
 
-  @Nullable
   private RequestContext context;
 
   @BeforeEach
@@ -90,7 +87,7 @@ public class RedirectViewTests {
     rv.setHttp10Compatible(false);
     rv.render(new HashMap<>(), context);
     assertThat(response.getStatus()).isEqualTo(303);
-    assertThat(response.getHeader("Location")).isEqualTo("https://url.somewhere.com");
+    assertThat(context.responseHeaders().getFirst("Location")).isEqualTo("https://url.somewhere.com");
   }
 
   @Test
@@ -101,7 +98,7 @@ public class RedirectViewTests {
     rv.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
     rv.render(new HashMap<>(), context);
     assertThat(response.getStatus()).isEqualTo(301);
-    assertThat(response.getHeader("Location")).isEqualTo("https://url.somewhere.com");
+    assertThat(context.responseHeaders().getFirst("Location")).isEqualTo("https://url.somewhere.com");
   }
 
   @Test
@@ -111,7 +108,7 @@ public class RedirectViewTests {
     rv.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
     rv.render(new HashMap<>(), context);
     assertThat(response.getStatus()).isEqualTo(301);
-    assertThat(response.getHeader("Location")).isEqualTo("https://url.somewhere.com");
+    assertThat(context.responseHeaders().getFirst("Location")).isEqualTo("https://url.somewhere.com");
   }
 
   @Test
@@ -121,7 +118,7 @@ public class RedirectViewTests {
     request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.CREATED);
     rv.render(new HashMap<>(), context);
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getHeader("Location")).isEqualTo("https://url.somewhere.com");
+    assertThat(context.responseHeaders().getFirst("Location")).isEqualTo("https://url.somewhere.com");
   }
 
   @Test
@@ -132,7 +129,7 @@ public class RedirectViewTests {
     request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, HttpStatus.CREATED);
     rv.render(new HashMap<>(), context);
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getHeader("Location")).isEqualTo("https://url.somewhere.com");
+    assertThat(context.responseHeaders().getFirst("Location")).isEqualTo("https://url.somewhere.com");
   }
 
   @Test // SPR-16752

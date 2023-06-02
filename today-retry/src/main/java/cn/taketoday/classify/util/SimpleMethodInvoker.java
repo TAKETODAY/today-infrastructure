@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,9 +51,10 @@ public class SimpleMethodInvoker implements MethodInvoker {
     Assert.notNull(object, "Object to invoke must not be null");
     Assert.notNull(method, "Method to invoke must not be null");
     this.method = method;
-    method.setAccessible(true);
     this.object = object;
     this.parameterTypes = method.getParameterTypes();
+
+    ReflectionUtils.makeAccessible(method);
   }
 
   public SimpleMethodInvoker(Object object, String methodName, Class<?>... paramTypes) {
@@ -72,8 +73,8 @@ public class SimpleMethodInvoker implements MethodInvoker {
 
     this.object = object;
     this.method = method;
-    method.setAccessible(true);
     this.parameterTypes = method.getParameterTypes();
+    ReflectionUtils.makeAccessible(method);
   }
 
   /*

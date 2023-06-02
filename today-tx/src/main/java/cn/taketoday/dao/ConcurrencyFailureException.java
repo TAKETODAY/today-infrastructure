@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,10 +23,10 @@ package cn.taketoday.dao;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Exception thrown on concurrency failure.
+ * Exception thrown on various data access concurrency failures.
  *
- * <p>This exception should be subclassed to indicate the type of failure:
- * optimistic locking, failure to acquire lock, etc.
+ * <p>This exception provides subclasses for specific types of failure,
+ * in particular optimistic locking versus pessimistic locking.
  *
  * @author Thomas Risberg
  * @see OptimisticLockingFailureException

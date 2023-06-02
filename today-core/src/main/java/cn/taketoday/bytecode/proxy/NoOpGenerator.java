@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,13 +32,15 @@ import cn.taketoday.bytecode.core.MethodInfo;
  * @author TODAY <br>
  * 2019-09-03 18:57
  */
-@SuppressWarnings("all") final class NoOpGenerator implements CallbackGenerator {
+@SuppressWarnings("all")
+final class NoOpGenerator implements CallbackGenerator {
   public static final NoOpGenerator INSTANCE = new NoOpGenerator();
 
   public static boolean isBridge(int access) {
     return (Opcodes.ACC_BRIDGE & access) != 0;
   }
 
+  @Override
   public void generate(ClassEmitter ce, Context context, List methods) {
 
     for (Object object : methods) {

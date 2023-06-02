@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,35 +47,35 @@ class WebServerManager {
 
   private final WebServer webServer;
 
-  WebServerManager(ReactiveWebServerApplicationContext applicationContext, ReactiveWebServerFactory factory,
-                   Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
+  WebServerManager(ReactiveWebServerApplicationContext applicationContext,
+          ReactiveWebServerFactory factory, Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
     this.applicationContext = applicationContext;
     Assert.notNull(factory, "Factory must not be null");
     this.handler = new DelayedInitializationHttpHandler(handlerSupplier, lazyInit);
-    this.webServer = factory.getWebServer(this.handler);
+    this.webServer = factory.getWebServer(handler);
   }
 
   void start() {
-    this.handler.initializeHandler();
-    this.webServer.start();
-    this.applicationContext
-            .publishEvent(new ReactiveWebServerInitializedEvent(this.webServer, this.applicationContext));
+    handler.initializeHandler();
+    webServer.start();
+    applicationContext.publishEvent(
+            new ReactiveWebServerInitializedEvent(webServer, applicationContext));
   }
 
   void shutDownGracefully(GracefulShutdownCallback callback) {
-    this.webServer.shutDownGracefully(callback);
+    webServer.shutDownGracefully(callback);
   }
 
   void stop() {
-    this.webServer.stop();
+    webServer.stop();
   }
 
   WebServer getWebServer() {
-    return this.webServer;
+    return webServer;
   }
 
   HttpHandler getHandler() {
-    return this.handler;
+    return handler;
   }
 
   /**
@@ -87,7 +87,7 @@ class WebServerManager {
 
     private final boolean lazyInit;
 
-    private volatile HttpHandler delegate = this::handleUninitialized;
+    volatile HttpHandler delegate = this::handleUninitialized;
 
     private DelayedInitializationHttpHandler(Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
       this.handlerSupplier = handlerSupplier;
@@ -100,15 +100,11 @@ class WebServerManager {
 
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-      return this.delegate.handle(request, response);
+      return delegate.handle(request, response);
     }
 
     void initializeHandler() {
-      this.delegate = this.lazyInit ? new LazyHttpHandler(this.handlerSupplier) : this.handlerSupplier.get();
-    }
-
-    HttpHandler getHandler() {
-      return this.delegate;
+      this.delegate = lazyInit ? new LazyHttpHandler(handlerSupplier) : handlerSupplier.get();
     }
 
   }
@@ -126,7 +122,7 @@ class WebServerManager {
 
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-      return this.delegate.flatMap((handler) -> handler.handle(request, response));
+      return delegate.flatMap((handler) -> handler.handle(request, response));
     }
 
   }

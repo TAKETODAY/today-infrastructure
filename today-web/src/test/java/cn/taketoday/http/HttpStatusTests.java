@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,25 +22,33 @@ package cn.taketoday.http;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * @author Arjen Poutsma
  * @author TODAY 2021/4/15 14:27
  */
 public class HttpStatusTests {
+
   private final Map<Integer, String> statusCodes = new LinkedHashMap<>();
 
   @BeforeEach
-  public void createStatusCodes() {
+  void createStatusCodes() {
     statusCodes.put(100, "CONTINUE");
     statusCodes.put(101, "SWITCHING_PROTOCOLS");
     statusCodes.put(102, "PROCESSING");
-    statusCodes.put(103, "CHECKPOINT");
+    statusCodes.put(103, "EARLY_HINTS");
 
     statusCodes.put(200, "OK");
     statusCodes.put(201, "CREATED");
@@ -109,7 +117,7 @@ public class HttpStatusTests {
   }
 
   @Test
-  public void fromMapToEnum() {
+  void fromMapToEnum() {
     for (Map.Entry<Integer, String> entry : statusCodes.entrySet()) {
       int value = entry.getKey();
       HttpStatus status = HttpStatus.valueOf(value);
@@ -119,11 +127,10 @@ public class HttpStatusTests {
   }
 
   @Test
-  public void fromEnumToMap() {
+  void fromEnumToMap() {
     for (HttpStatus status : HttpStatus.values()) {
       int code = status.value();
-      // The following status codes have more than one corresponding HttpStatus enum constant.
-      if (code == 302 || code == 413 || code == 414) {
+      if (DEPRECATED_CODES.contains(status)) {
         continue;
       }
       assertThat(statusCodes).as("Map has no value for [" + code + "]").containsKey(code);
@@ -132,12 +139,43 @@ public class HttpStatusTests {
   }
 
   @Test
-  public void allStatusSeriesShouldMatchExpectations() {
+  void allStatusSeriesShouldMatchExpectations() {
     // The Series of an HttpStatus is set manually, so we make sure it is the correct one.
     for (HttpStatus status : HttpStatus.values()) {
       HttpStatus.Series expectedSeries = HttpStatus.Series.valueOf(status.value());
       assertThat(status.series()).isEqualTo(expectedSeries);
     }
+  }
+
+  @ParameterizedTest(name = "[{index}] code {0}")
+  @MethodSource("codesWithAliases")
+  void codeWithDeprecatedAlias(int code, HttpStatus expected, HttpStatus outdated) {
+    HttpStatus resolved = HttpStatus.valueOf(code);
+    assertThat(resolved)
+            .as("HttpStatus.valueOf(" + code + ")")
+            .isSameAs(expected)
+            .isNotEqualTo(outdated);
+    assertThat(outdated.isSameCodeAs(resolved))
+            .as("outdated isSameCodeAs(resolved)")
+            .isTrue();
+    assertThat(outdated.value())
+            .as("outdated value()")
+            .isEqualTo(resolved.value());
+  }
+
+  private static final Set<HttpStatus> DEPRECATED_CODES = codesWithAliases()
+          .stream()
+          .map(args -> (HttpStatus) args.get()[2])
+          .collect(Collectors.toUnmodifiableSet());
+
+  @SuppressWarnings("deprecation")
+  static List<Arguments> codesWithAliases() {
+    return List.of(
+            arguments(103, HttpStatus.EARLY_HINTS, HttpStatus.CHECKPOINT),
+            arguments(302, HttpStatus.FOUND, HttpStatus.MOVED_TEMPORARILY),
+            arguments(413, HttpStatus.PAYLOAD_TOO_LARGE, HttpStatus.REQUEST_ENTITY_TOO_LARGE),
+            arguments(414, HttpStatus.URI_TOO_LONG, HttpStatus.REQUEST_URI_TOO_LONG)
+    );
   }
 
 }

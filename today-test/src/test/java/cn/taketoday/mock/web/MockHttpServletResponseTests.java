@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,8 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import cn.taketoday.lang.Constant;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
@@ -34,18 +32,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 
+import cn.taketoday.lang.Constant;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static cn.taketoday.http.HttpHeaders.CONTENT_LANGUAGE;
 import static cn.taketoday.http.HttpHeaders.CONTENT_LENGTH;
 import static cn.taketoday.http.HttpHeaders.CONTENT_TYPE;
 import static cn.taketoday.http.HttpHeaders.LAST_MODIFIED;
 import static cn.taketoday.http.HttpHeaders.LOCATION;
 import static cn.taketoday.http.HttpHeaders.SET_COOKIE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 /**
  * Unit tests for {@link MockHttpServletResponse}.
@@ -202,10 +201,22 @@ class MockHttpServletResponseTests {
   }
 
   @Test
+  void setCharacterEncodingNull() {
+    response.setContentType("test/plain");
+    response.setCharacterEncoding("UTF-8");
+    assertThat(response.getContentType()).isEqualTo("test/plain;charset=UTF-8");
+    assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo("test/plain;charset=UTF-8");
+    response.setCharacterEncoding(null);
+    assertThat(response.getContentType()).isEqualTo("test/plain");
+    assertThat(response.getHeader(CONTENT_TYPE)).isEqualTo("test/plain");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
+  }
+
+  @Test
   void defaultCharacterEncoding() {
     assertThat(response.isCharset()).isFalse();
     assertThat(response.getContentType()).isNull();
-    assertThat(response.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
 
     response.setDefaultCharacterEncoding("UTF-8");
     assertThat(response.isCharset()).isFalse();
@@ -430,11 +441,11 @@ class MockHttpServletResponseTests {
     assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
   }
 
-  @Test  // SPR-10414
-  @SuppressWarnings("deprecation")
+  @Test
+    // SPR-10414
   void modifyStatusMessageAfterSendError() throws IOException {
     response.sendError(HttpServletResponse.SC_NOT_FOUND);
-    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server Error");
+    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
   }
 
@@ -485,20 +496,6 @@ class MockHttpServletResponseTests {
   }
 
   @Test
-  void setCookieHeaderWithComment() {
-    response.setHeader(SET_COOKIE, "SESSION=123;Comment=Test Comment;Path=/");
-
-    assertThat(response.getHeader(SET_COOKIE)).isEqualTo(("SESSION=123; Path=/; Comment=Test Comment"));
-
-    assertNumCookies(1);
-    assertThat(response.getCookies()[0]).isInstanceOf(MockCookie.class).satisfies(mockCookie -> {
-      assertThat(mockCookie.getName()).isEqualTo("SESSION");
-      assertThat(mockCookie.getPath()).isEqualTo("/");
-      assertThat(mockCookie.getComment()).isEqualTo("Test Comment");
-    });
-  }
-
-  @Test
   void addCookieHeader() {
     response.addHeader(SET_COOKIE, "SESSION=123; Path=/; Secure; HttpOnly; SameSite=Lax");
     assertNumCookies(1);
@@ -509,26 +506,6 @@ class MockHttpServletResponseTests {
     assertNumCookies(2);
     assertPrimarySessionCookie("123");
     assertCookieValues("123", "999");
-  }
-
-  @Test
-  void addCookieHeaderWithComment() {
-    response.addHeader(SET_COOKIE, "SESSION=123; Path=/; Secure; HttpOnly; SameSite=Lax");
-    assertNumCookies(1);
-    assertPrimarySessionCookie("123");
-
-    // Adding a 2nd cookie header should result in 2 cookies.
-    response.addHeader(SET_COOKIE, "SESSION=999; Comment=Test Comment; Path=/; Secure; HttpOnly; SameSite=Lax");
-    assertNumCookies(2);
-    assertPrimarySessionCookie("123");
-    assertThat(response.getCookies()[1]).isInstanceOf(MockCookie.class).satisfies(mockCookie -> {
-      assertThat(mockCookie.getName()).isEqualTo("SESSION");
-      assertThat(mockCookie.getValue()).isEqualTo("999");
-      assertThat(mockCookie.getComment()).isEqualTo("Test Comment");
-      assertThat(mockCookie.getPath()).isEqualTo("/");
-      assertThat(mockCookie.getSecure()).isTrue();
-      assertThat(mockCookie.isHttpOnly()).isTrue();
-    });
   }
 
   /**
@@ -627,7 +604,7 @@ class MockHttpServletResponseTests {
     // gh-25501
   void resetResetsCharset() {
     assertThat(response.getContentType()).isNull();
-    assertThat(response.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
     assertThat(response.isCharset()).isFalse();
     response.setCharacterEncoding("UTF-8");
     assertThat(response.isCharset()).isTrue();
@@ -640,7 +617,7 @@ class MockHttpServletResponseTests {
     response.reset();
 
     assertThat(response.getContentType()).isNull();
-    assertThat(response.getCharacterEncoding()).isEqualTo("ISO-8859-1");
+    assertThat(response.getCharacterEncoding()).isEqualTo("UTF-8");
     assertThat(response.isCharset()).isFalse();
     // Do not invoke setCharacterEncoding() since that sets the charset flag to true.
     // response.setCharacterEncoding("UTF-8");

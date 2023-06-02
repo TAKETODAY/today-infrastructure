@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.http;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -238,11 +239,15 @@ public class ProblemDetail {
   /**
    * Set a "dynamic" property to be added to a generic {@link #getProperties()
    * properties map}.
+   * <p>When Jackson JSON is present on the classpath, any properties set here
+   * are rendered as top level key-value pairs in the output JSON. Otherwise,
+   * they are rendered as a {@code "properties"} sub-map.
    *
    * @param name the property name
    * @param value the property value
+   * @see cn.taketoday.http.converter.json.ProblemDetailJacksonMixin
    */
-  public void setProperty(String name, Object value) {
+  public void setProperty(String name, @Nullable Object value) {
     if (properties == null) {
       properties = new LinkedHashMap<>();
     }
@@ -300,10 +305,42 @@ public class ProblemDetail {
    * Return a generic map of properties that are not known ahead of time,
    * possibly {@code null} if no properties have been added. To add a property,
    * use {@link #setProperty(String, Object)}.
+   * <p>When Jackson JSON is present on the classpath, the content of this map
+   * is unwrapped and rendered as top level key-value pairs in the output JSON.
+   * Otherwise, they are rendered as a {@code "properties"} sub-map.
+   *
+   * @see cn.taketoday.http.converter.json.ProblemDetailJacksonMixin
    */
   @Nullable
   public Map<String, Object> getProperties() {
     return this.properties;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other instanceof ProblemDetail otherDetail) {
+      return status == otherDetail.status
+              && Objects.equals(type, otherDetail.type)
+              && Objects.equals(getTitle(), otherDetail.getTitle())
+              && Objects.equals(detail, otherDetail.detail)
+              && Objects.equals(instance, otherDetail.instance)
+              && Objects.equals(properties, otherDetail.properties);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = type.hashCode();
+    result = 31 * result + Objects.hashCode(getTitle());
+    result = 31 * result + status;
+    result = 31 * result + Objects.hashCode(detail);
+    result = 31 * result + Objects.hashCode(instance);
+    result = 31 * result + Objects.hashCode(properties);
+    return result;
   }
 
   @Override
@@ -316,7 +353,7 @@ public class ProblemDetail {
    * Subclasses can override this to append additional fields.
    */
   protected String initToStringContent() {
-    return "type='" + this.type + "'" +
+    return "type='" + getType() + "'" +
             ", title='" + getTitle() + "'" +
             ", status=" + getStatus() +
             ", detail='" + getDetail() + "'" +

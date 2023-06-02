@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.RequestContext;
 
 /**
  * {@code @SessionScope} is a specialization of {@link Scope @Scope} for a
@@ -39,18 +39,19 @@ import cn.taketoday.web.WebApplicationContext;
  * composed annotations.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestScope
- * @see ApplicationScope
  * @see cn.taketoday.context.annotation.Scope
- * @see cn.taketoday.web.WebApplicationContext#SCOPE_SESSION
+ * @see RequestContext#SCOPE_SESSION
  * @see cn.taketoday.stereotype.Component
+ * @see cn.taketoday.web.context.support.SessionScope
  * @see cn.taketoday.context.annotation.Bean
  * @since 4.0
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Scope(WebApplicationContext.SCOPE_SESSION)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Scope(RequestContext.SCOPE_SESSION)
 public @interface SessionScope {
 
   /**

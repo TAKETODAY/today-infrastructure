@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,16 +25,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.expression.AccessException;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.CompilablePropertyAccessor;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
@@ -51,6 +52,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Juergen Hoeller
  * @author Clark Duplichien
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class PropertyOrFieldReference extends SpelNodeImpl {
@@ -149,8 +151,12 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
   }
 
   @Override
-  public void setValue(ExpressionState state, @Nullable Object newValue) throws EvaluationException {
-    writeProperty(state.getActiveContextObject(), state.getEvaluationContext(), this.name, newValue);
+  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier)
+          throws EvaluationException {
+
+    TypedValue typedValue = valueSupplier.get();
+    writeProperty(state.getActiveContextObject(), state.getEvaluationContext(), this.name, typedValue.getValue());
+    return typedValue;
   }
 
   @Override

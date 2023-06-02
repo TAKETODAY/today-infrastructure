@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,9 @@
 
 package cn.taketoday.web;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -272,6 +273,16 @@ class RequestContextUtilsTests {
 
     assertThat(RequestContextUtils.getStringParameter(context, "paramEmpty")).isEmpty();
     assertThat(RequestContextUtils.getRequiredStringParameter(context, "paramEmpty")).isEmpty();
+  }
+
+  @Test
+  void parseParameters() {
+    var parameters = RequestContextUtils.parseParameters("most-popular");
+    assertThat(parameters).hasSize(1).containsKey("most-popular");
+
+    parameters = RequestContextUtils.parseParameters("most-popular&name=value&name=");
+    assertThat(parameters).hasSize(2).containsKeys("name", "most-popular")
+            .containsValues(List.of(""), List.of("value", ""));
   }
 
 }

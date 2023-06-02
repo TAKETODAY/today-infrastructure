@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,7 +45,7 @@ import cn.taketoday.lang.Constant;
  * and resolving properties from them.
  *
  * <p>Beans managed within an {@code ApplicationContext} may register to be {@link
- * cn.taketoday.context.aware.EnvironmentAware EnvironmentAware} or {@code @Inject} the
+ * cn.taketoday.context.EnvironmentAware EnvironmentAware} or {@code @Inject} the
  * {@code Environment} in order to query profile state or resolve properties directly.
  *
  *
@@ -56,12 +56,13 @@ import cn.taketoday.lang.Constant;
  * of property sources prior to application context {@code refresh()}.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyResolver
  * @see EnvironmentCapable
  * @see ConfigurableEnvironment
  * @see AbstractEnvironment
  * @see StandardEnvironment
- * @see cn.taketoday.context.aware.EnvironmentAware
+ * @see cn.taketoday.context.EnvironmentAware
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#setEnvironment
  * @see cn.taketoday.context.support.AbstractApplicationContext#createEnvironment
@@ -92,10 +93,6 @@ public interface Environment extends PropertyResolver {
    */
   String SYSTEM_ENVIRONMENT_BEAN_NAME = "systemEnvironment";
 
-  String DEFAULT_YML_FILE = "classpath:application.yml"; // @since 1.0.2
-  String DEFAULT_YAML_FILE = "classpath:application.yaml";
-  String DEFAULT_PROPERTIES_FILE = "classpath:application.properties";
-
   /**
    * System property that instructs to ignore system environment variables,
    * i.e. to never attempt to retrieve such a variable via {@link System#getenv()}.
@@ -106,7 +103,7 @@ public interface Environment extends PropertyResolver {
    *
    * @see AbstractEnvironment#suppressGetenvAccess()
    */
-  String KEY_IGNORE_GETENV = "context.getenv.ignore";
+  String KEY_IGNORE_GETENV = "infra.getenv.ignore";
 
   /**
    * Name of property to set to specify active profiles: {@value}. Value may be comma
@@ -118,7 +115,7 @@ public interface Environment extends PropertyResolver {
    *
    * @see ConfigurableEnvironment#setActiveProfiles
    */
-  String KEY_ACTIVE_PROFILES = "context.profiles.active";
+  String KEY_ACTIVE_PROFILES = "infra.profiles.active";
 
   /**
    * Name of property to set to specify profiles active by default: {@value}. Value may
@@ -130,7 +127,7 @@ public interface Environment extends PropertyResolver {
    *
    * @see ConfigurableEnvironment#setDefaultProfiles
    */
-  String KEY_DEFAULT_PROFILES = "context.profiles.default";
+  String KEY_DEFAULT_PROFILES = "infra.profiles.default";
 
   /**
    * Name of reserved default profile name: {@value}. If no default profile names are
@@ -149,7 +146,7 @@ public interface Environment extends PropertyResolver {
    * are used for creating logical groupings of bean definitions to be registered
    * conditionally, for example based on deployment environment. Profiles can be
    * activated by setting {@linkplain AbstractEnvironment#KEY_ACTIVE_PROFILES
-   * "context.profiles.active"} as a system property or by calling
+   * "infra.profiles.active"} as a system property or by calling
    * {@link ConfigurableEnvironment#setActiveProfiles(String...)}.
    * <p>If no profiles have explicitly been specified as active, then any
    * {@linkplain #getDefaultProfiles() default profiles} will automatically be activated.
@@ -171,26 +168,34 @@ public interface Environment extends PropertyResolver {
   String[] getDefaultProfiles();
 
   /**
-   * Return whether one or more of the given profiles is active or, in the case of no
-   * explicit active profiles, whether one or more of the given profiles is included in
-   * the set of default profiles. If a profile begins with '!' the logic is inverted,
-   * i.e. the method will return {@code true} if the given profile is <em>not</em> active.
-   * For example, {@code env.acceptsProfiles("p1", "!p2")} will return {@code true} if
-   * profile 'p1' is active or 'p2' is not active.
+   * Determine whether one of the given profile expressions matches the
+   * {@linkplain #getActiveProfiles() active profiles} &mdash; or in the case
+   * of no explicit active profiles, whether one of the given profile expressions
+   * matches the {@linkplain #getDefaultProfiles() default profiles}.
+   * <p>Profile expressions allow for complex, boolean profile logic to be
+   * expressed &mdash; for example {@code "p1 & p2"}, {@code "(p1 & p2) | p3"},
+   * etc. See {@link Profiles#of(String...)} for details on the supported
+   * expression syntax.
+   * <p>This method is a convenient shortcut for
+   * {@code env.acceptsProfiles(Profiles.of(profileExpressions))}.
    *
-   * @throws IllegalArgumentException if called with zero arguments
-   * or if any profile is {@code null}, empty, or whitespace only
-   * @see #getActiveProfiles
-   * @see #getDefaultProfiles
+   * @see Profiles#of(String...)
    * @see #acceptsProfiles(Profiles)
    */
-  default boolean acceptsProfiles(String... profiles) {
-    return acceptsProfiles(Profiles.of(profiles));
+  default boolean matchesProfiles(String... profileExpressions) {
+    return acceptsProfiles(Profiles.of(profileExpressions));
   }
 
   /**
-   * Return whether the {@linkplain #getActiveProfiles() active profiles}
-   * match the given {@link Profiles} predicate.
+   * Determine whether the given {@link Profiles} predicate matches the
+   * {@linkplain #getActiveProfiles() active profiles} &mdash; or in the case
+   * of no explicit active profiles, whether the given {@code Profiles} predicate
+   * matches the {@linkplain #getDefaultProfiles() default profiles}.
+   * <p>If you wish provide profile expressions directly as strings, use
+   * {@link #matchesProfiles(String...)} instead.
+   *
+   * @see #matchesProfiles(String...)
+   * @see Profiles#of(String...)
    */
   boolean acceptsProfiles(Profiles profiles);
 

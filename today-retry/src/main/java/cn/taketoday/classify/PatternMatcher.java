@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,9 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.classify;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Map;
 
 import cn.taketoday.lang.Assert;
@@ -28,6 +30,8 @@ import cn.taketoday.lang.Assert;
  * @param <S> the type of the thing to match a pattern on
  * @author Dave Syer
  * @author Dan Garrette
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class PatternMatcher<S> {
 
@@ -44,15 +48,11 @@ public class PatternMatcher<S> {
     this.map = map;
     // Sort keys to start with the most specific
     this.sorted = new ArrayList<>(map.keySet());
-    this.sorted.sort((o1, o2) -> {
-      String s1 = o1; // .replace('?', '{');
-      String s2 = o2; // .replace('*', '}');
-      return s2.compareTo(s1);
-    });
+    this.sorted.sort(Comparator.reverseOrder());
   }
 
   /**
-   * Lifted from AntPathMatcher in Spring Core. Tests whether or not a string matches
+   * Lifted from AntPathMatcher in Infra Core. Tests whether or not a string matches
    * against a pattern. The pattern may contain two special characters:<br>
    * '*' means zero or more characters<br>
    * '?' means one and only one character

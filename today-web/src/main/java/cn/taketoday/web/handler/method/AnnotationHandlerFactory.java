@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,7 +61,7 @@ public class AnnotationHandlerFactory {
   public void initDefaults() {
     ParameterResolvingRegistry registry = beanFactory.getBean(ParameterResolvingRegistry.class);
     setReturnValueHandlerManager(beanFactory.getBean(ReturnValueHandlerManager.class));
-    setParameterFactory(new ParameterResolvingRegistryResolvableParameterFactory(registry));
+    setParameterFactory(new RegistryResolvableParameterFactory(registry));
   }
 
   /**
@@ -80,14 +80,15 @@ public class AnnotationHandlerFactory {
   /**
    * @see ActionMappingAnnotationHandler#ActionMappingAnnotationHandler(HandlerMethod, ResolvableMethodParameter[], Class)
    */
-  public ActionMappingAnnotationHandler create(Object handlerBean, Method method, Class<?> beanType, List<HandlerInterceptor> interceptors) {
+  public ActionMappingAnnotationHandler create(Object handlerBean,
+          Method method, Class<?> beanType, List<HandlerInterceptor> interceptors) {
     var handlerMethod = create(handlerBean, method, beanType);
     handlerMethod.setInterceptors(interceptors);
     return handlerMethod;
   }
 
-  public ActionMappingAnnotationHandler create(
-          Supplier<Object> handlerBean, Method method, Class<?> beanType, @Nullable List<HandlerInterceptor> interceptors) {
+  public ActionMappingAnnotationHandler create(Supplier<Object> handlerBean,
+          Method method, Class<?> beanType, @Nullable List<HandlerInterceptor> interceptors) {
     Assert.state(returnValueHandlerManager != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
     var handler = ActionMappingAnnotationHandler.from(handlerBean, method, parameterFactory, beanType);
@@ -96,8 +97,8 @@ public class AnnotationHandlerFactory {
     return handler;
   }
 
-  public ActionMappingAnnotationHandler create(
-          String beanName, Method method, @Nullable Class<?> beanType, @Nullable List<HandlerInterceptor> interceptors) {
+  public ActionMappingAnnotationHandler create(String beanName, Method method,
+          @Nullable Class<?> beanType, @Nullable List<HandlerInterceptor> interceptors) {
     Assert.state(returnValueHandlerManager != null, "No ReturnValueHandlers set");
     Assert.state(parameterFactory != null, "No ResolvableParameterFactory set");
 
@@ -130,7 +131,7 @@ public class AnnotationHandlerFactory {
   }
 
   public void setParameterResolvingRegistry(@Nullable ParameterResolvingRegistry registry) {
-    this.parameterFactory = new ParameterResolvingRegistryResolvableParameterFactory(registry);
+    this.parameterFactory = new RegistryResolvableParameterFactory(registry);
   }
 
 }

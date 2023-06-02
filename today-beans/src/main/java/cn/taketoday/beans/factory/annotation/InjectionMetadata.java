@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -107,15 +107,20 @@ public class InjectionMetadata {
   }
 
   public void checkConfigMembers(RootBeanDefinition beanDefinition) {
-    LinkedHashSet<InjectedElement> checkedElements = new LinkedHashSet<>(injectedElements.size());
-    for (InjectedElement element : injectedElements) {
-      Member member = element.getMember();
-      if (!beanDefinition.isExternallyManagedConfigMember(member)) {
-        beanDefinition.registerExternallyManagedConfigMember(member);
-        checkedElements.add(element);
-      }
+    if (this.injectedElements.isEmpty()) {
+      this.checkedElements = Collections.emptySet();
     }
-    this.checkedElements = checkedElements;
+    else {
+      var checkedElements = new LinkedHashSet<InjectedElement>((this.injectedElements.size() * 4 / 3) + 1);
+      for (InjectedElement element : this.injectedElements) {
+        Member member = element.getMember();
+        if (!beanDefinition.isExternallyManagedConfigMember(member)) {
+          beanDefinition.registerExternallyManagedConfigMember(member);
+          checkedElements.add(element);
+        }
+      }
+      this.checkedElements = checkedElements;
+    }
   }
 
   public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {

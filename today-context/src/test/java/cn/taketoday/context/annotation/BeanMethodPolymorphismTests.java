@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import cn.taketoday.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator;
 import cn.taketoday.aop.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -46,7 +46,7 @@ public class BeanMethodPolymorphismTests {
   @Test
   public void beanMethodDetectedOnSuperClass() {
     StandardApplicationContext ctx = new StandardApplicationContext(Config.class);
-    assertThat(ctx.getBean("testBean", TestBean.class)).isNotNull();
+    assertThat(ctx.getBean("testBean", BaseTestBean.class)).isNotNull();
   }
 
   @Test
@@ -56,7 +56,7 @@ public class BeanMethodPolymorphismTests {
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isFalse();
-    assertThat(ctx.getBean("testBean", TestBean.class).toString()).isEqualTo("overridden");
+    assertThat(ctx.getBean("testBean", BaseTestBean.class).toString()).isEqualTo("overridden");
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isTrue();
   }
 
@@ -67,7 +67,7 @@ public class BeanMethodPolymorphismTests {
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isFalse();
-    assertThat(ctx.getBean("testBean", TestBean.class).toString()).isEqualTo("overridden");
+    assertThat(ctx.getBean("testBean", BaseTestBean.class).toString()).isEqualTo("overridden");
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isTrue();
   }
 
@@ -78,7 +78,7 @@ public class BeanMethodPolymorphismTests {
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isFalse();
-    assertThat(ctx.getBean("testBean", TestBean.class).toString()).isEqualTo("overridden");
+    assertThat(ctx.getBean("testBean", BaseTestBean.class).toString()).isEqualTo("overridden");
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isTrue();
   }
 
@@ -89,18 +89,18 @@ public class BeanMethodPolymorphismTests {
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isFalse();
-    assertThat(ctx.getBean("testBean", TestBean.class).toString()).isEqualTo("overridden");
+    assertThat(ctx.getBean("testBean", BaseTestBean.class).toString()).isEqualTo("overridden");
     assertThat(ctx.getBeanFactory().containsSingleton("testBean")).isTrue();
   }
 
-/*  @Test
+  @Test
   public void beanMethodOverloadingWithoutInheritance() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(ConfigWithOverloading.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
     assertThat(ctx.getBean(String.class)).isEqualTo("regular");
-  }*/
+  }
 
   @Test
   public void beanMethodOverloadingWithoutInheritanceAndExtraDependency() {
@@ -111,7 +111,6 @@ public class BeanMethodPolymorphismTests {
     ctx.refresh();
     assertThat(ctx.getBean(String.class)).isEqualTo("overloaded5");
   }
-/*
 
   @Test
   public void beanMethodOverloadingWithAdditionalMetadata() {
@@ -123,7 +122,6 @@ public class BeanMethodPolymorphismTests {
     assertThat(ctx.getBean(String.class)).isEqualTo("regular");
     assertThat(ctx.getBeanFactory().containsSingleton("aString")).isTrue();
   }
-*/
 
   @Test
   public void beanMethodOverloadingWithAdditionalMetadataButOtherMethodExecuted() {
@@ -175,18 +173,18 @@ public class BeanMethodPolymorphismTests {
   public void beanMethodThroughAopProxy() {
     StandardApplicationContext ctx = new StandardApplicationContext();
     ctx.register(Config.class);
-//    ctx.register(AnnotationAwareAspectJAutoProxyCreator.class);
+    ctx.register(AnnotationAwareAspectJAutoProxyCreator.class);
     ctx.register(TestAdvisor.class);
     ctx.refresh();
-    ctx.getBean("testBean", TestBean.class);
+    ctx.getBean("testBean", BaseTestBean.class);
   }
 
   @Configuration
   static class BaseConfig {
 
     @Bean
-    public TestBean testBean() {
-      return new TestBean();
+    public BaseTestBean testBean() {
+      return new BaseTestBean();
     }
   }
 
@@ -200,8 +198,8 @@ public class BeanMethodPolymorphismTests {
     @Bean
     @Lazy
     @Override
-    public TestBean testBean() {
-      return new TestBean() {
+    public BaseTestBean testBean() {
+      return new BaseTestBean() {
         @Override
         public String toString() {
           return "overridden";
@@ -210,7 +208,10 @@ public class BeanMethodPolymorphismTests {
     }
   }
 
-  static class ExtendedTestBean extends TestBean {
+  static class BaseTestBean {
+  }
+
+  static class ExtendedTestBean extends BaseTestBean {
   }
 
   @Configuration
@@ -229,7 +230,7 @@ public class BeanMethodPolymorphismTests {
     }
   }
 
-  @Configuration
+  @Configuration(enforceUniqueMethods = false)
   static class ConfigWithOverloading {
 
     @Bean
@@ -243,7 +244,7 @@ public class BeanMethodPolymorphismTests {
     }
   }
 
-  @Configuration
+  @Configuration(enforceUniqueMethods = false)
   static class ConfigWithOverloadingAndAdditionalMetadata {
 
     @Bean

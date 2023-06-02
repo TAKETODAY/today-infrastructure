@@ -27,10 +27,9 @@ import java.util.function.Consumer;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageConverter;
-import cn.taketoday.http.server.ServerHttpResponse;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 
 /**
@@ -169,14 +168,14 @@ public class ResponseBodyEmitter {
    * response is committed, i.e. before the response body has been written to.
    * <p>The default implementation is empty.
    */
-  protected void extendResponse(ServerHttpResponse outputMessage) {
+  protected void extendResponse(RequestContext outputMessage) {
 
   }
 
   /**
    * Write the given object to the response.
    * <p>If any exception occurs a dispatch is made back to the app server where
-   * Spring MVC will pass the exception through its exception handling mechanism.
+   * Web MVC will pass the exception through its exception handling mechanism.
    * <p><strong>Note:</strong> if the send fails with an IOException, you do
    * not need to call {@link #completeWithError(Throwable)} in order to clean
    * up. Instead the Servlet container creates a notification that results in a
@@ -201,9 +200,10 @@ public class ResponseBodyEmitter {
    * @throws java.lang.IllegalStateException wraps any other errors
    */
   public synchronized void send(Object object, @Nullable MediaType mediaType) throws IOException {
-    Assert.state(!this.complete,
-            "ResponseBodyEmitter has already completed" +
-                    (this.failure != null ? " with error: " + this.failure : ""));
+    if (complete) {
+      throw new IllegalStateException("ResponseBodyEmitter has already completed" +
+              (this.failure != null ? " with error: " + this.failure : ""));
+    }
     sendInternal(object, mediaType);
   }
 
@@ -228,7 +228,7 @@ public class ResponseBodyEmitter {
 
   /**
    * Complete request processing by performing a dispatch into the servlet
-   * container, where Spring MVC is invoked once more, and completes the
+   * container, where Web MVC is invoked once more, and completes the
    * request processing lifecycle.
    * <p><strong>Note:</strong> this method should be called by the application
    * to complete request processing. It should not be used after container
@@ -247,7 +247,7 @@ public class ResponseBodyEmitter {
 
   /**
    * Complete request processing with an error.
-   * <p>A dispatch is made into the app server where Spring MVC will pass the
+   * <p>A dispatch is made into the app server where Web MVC will pass the
    * exception through its exception handling mechanism. Note however that
    * at this stage of request processing, the response is committed and the
    * response status can no longer be changed.

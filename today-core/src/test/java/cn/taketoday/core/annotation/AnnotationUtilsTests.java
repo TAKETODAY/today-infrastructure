@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -1335,7 +1335,7 @@ class AnnotationUtilsTests {
   }
 
   /**
-   * Mock of {@code cn.taketoday.web.bind.annotation.RequestMapping}.
+   * Mock of {@code cn.taketoday.web.annotation.RequestMapping}.
    */
   @Retention(RetentionPolicy.RUNTIME)
   @interface WebMapping {
@@ -1352,7 +1352,7 @@ class AnnotationUtilsTests {
   }
 
   /**
-   * Mock of {@code cn.taketoday.web.bind.annotation.GetMapping}, except
+   * Mock of {@code cn.taketoday.web.annotation.GetMapping}, except
    * that the String arrays are overridden with single String elements.
    */
   @Retention(RetentionPolicy.RUNTIME)
@@ -1367,7 +1367,7 @@ class AnnotationUtilsTests {
   }
 
   /**
-   * Mock of {@code cn.taketoday.web.bind.annotation.PostMapping}, except
+   * Mock of {@code cn.taketoday.web.annotation.PostMapping}, except
    * that the path is overridden by convention with single String element.
    */
   @Retention(RetentionPolicy.RUNTIME)

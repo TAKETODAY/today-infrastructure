@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,16 +86,15 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       if (beanFactory instanceof ConfigurableBeanFactory configurable) {
         beanClassLoader = configurable.getBeanClassLoader();
       }
-      strategies = TodayStrategies.get(DependencyResolvingStrategy.class, beanClassLoader,
-              BeanFactoryAwareInstantiator.forFunction(beanFactory)
-      );
+      strategies = TodayStrategies.find(DependencyResolvingStrategy.class,
+              beanClassLoader, BeanFactoryAwareInstantiator.from(beanFactory));
     }
     else {
-      strategies = TodayStrategies.get(DependencyResolvingStrategy.class);
+      strategies = TodayStrategies.find(DependencyResolvingStrategy.class);
     }
 
+    strategies.add(new BeanFactoryDependencyResolver());
     resolvingStrategies.addAll(strategies); // @since 4.0
-    resolvingStrategies.add(new BeanFactoryDependencyResolver());
   }
 
   public ArrayHolder<DependencyResolvingStrategy> getStrategies() {

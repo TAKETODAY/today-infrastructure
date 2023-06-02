@@ -25,9 +25,8 @@ import java.util.function.Supplier;
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebApplicationContext;
-import cn.taketoday.web.context.ConfigurableWebServletApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Servlet
@@ -76,9 +75,9 @@ public final class WebApplicationContextRunner extends
    * @return an updated supplier that will set the {@link MockServletContext}
    */
   public static Supplier<ConfigurableWebApplicationContext> withMockServletContext(
-          Supplier<ConfigurableWebServletApplicationContext> contextFactory) {
+          Supplier<ConfigurableWebApplicationContext> contextFactory) {
     return (contextFactory != null) ? () -> {
-      ConfigurableWebServletApplicationContext context = contextFactory.get();
+      ConfigurableWebApplicationContext context = contextFactory.get();
       context.setServletContext(new MockServletContext());
       return context;
     } : null;

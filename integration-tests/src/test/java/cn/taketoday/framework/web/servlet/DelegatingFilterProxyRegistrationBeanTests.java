@@ -28,10 +28,9 @@ import cn.taketoday.mock.web.MockFilterConfig;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.context.support.GenericWebApplicationContext;
-import cn.taketoday.web.context.support.GenericWebServletApplicationContext;
 import cn.taketoday.web.servlet.filter.DelegatingFilterProxy;
 import cn.taketoday.web.servlet.filter.GenericFilterBean;
+import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
@@ -50,7 +49,7 @@ class DelegatingFilterProxyRegistrationBeanTests extends AbstractFilterRegistrat
 
   private static ThreadLocal<Boolean> mockFilterInitialized = new ThreadLocal<>();
 
-  private GenericWebApplicationContext applicationContext = new GenericWebServletApplicationContext(
+  private GenericWebApplicationContext applicationContext = new GenericWebApplicationContext(
           new MockServletContext());
 
   @Test
@@ -75,7 +74,7 @@ class DelegatingFilterProxyRegistrationBeanTests extends AbstractFilterRegistrat
     DelegatingFilterProxyRegistrationBean registrationBean = createFilterRegistrationBean();
     Filter filter = registrationBean.getFilter();
     assertThat(filter).isInstanceOf(DelegatingFilterProxy.class);
-    assertThat(filter).extracting("webApplicationContext").isEqualTo(this.applicationContext);
+    assertThat(filter).extracting("applicationContext").isEqualTo(this.applicationContext);
     assertThat(filter).extracting("targetBeanName").isEqualTo("mockFilter");
   }
 

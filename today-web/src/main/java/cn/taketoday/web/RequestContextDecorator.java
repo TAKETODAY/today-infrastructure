@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -38,15 +39,18 @@ import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AttributeAccessor;
-import cn.taketoday.core.MultiValueMap;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.server.PathContainer;
+import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
@@ -72,6 +76,11 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   // delegate
+
+  @Override
+  public long getRequestTimeMillis() {
+    return delegate.getRequestTimeMillis();
+  }
 
   @Override
   public ApplicationContext getApplicationContext() {
@@ -124,13 +133,33 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public String getRequestPath() {
+  public String getRequestURI() {
+    return delegate.getRequestURI();
+  }
+
+  @Override
+  public PathContainer getLookupPath() {
+    return delegate.getLookupPath();
+  }
+
+  @Override
+  public boolean isPreFlightRequest() {
+    return delegate.isPreFlightRequest();
+  }
+
+  @Override
+  public boolean isCorsRequest() {
+    return delegate.isCorsRequest();
+  }
+
+  @Override
+  public RequestPath getRequestPath() {
     return delegate.getRequestPath();
   }
 
   @Override
-  public String doGetRequestPath() {
-    return delegate.doGetRequestPath();
+  public String doGetRequestURI() {
+    return delegate.doGetRequestURI();
   }
 
   @Override
@@ -167,6 +196,16 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public void addCookie(HttpCookie cookie) {
     delegate.addCookie(cookie);
+  }
+
+  @Override
+  public void addCookie(String name, @Nullable String value) {
+    delegate.addCookie(name, value);
+  }
+
+  @Override
+  public List<HttpCookie> removeCookie(String name) {
+    return delegate.removeCookie(name);
   }
 
   @Override
@@ -327,11 +366,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setStatus(int status, String message) {
-    delegate.setStatus(status, message);
-  }
-
-  @Override
   public void setStatus(HttpStatusCode status) {
     delegate.setStatus(status);
   }
@@ -408,8 +442,8 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
-    return delegate.getServerHttpResponse();
+  public ServerHttpResponse asHttpOutputMessage() {
+    return delegate.asHttpOutputMessage();
   }
 
   @Override
@@ -424,17 +458,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public <T> T nativeResponse() {
-    return delegate.nativeResponse();
-  }
-
-  @Override
-  @Nullable
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return delegate.unwrapResponse(responseClass);
-  }
-
-  @Override
   public HandlerMatchingMetadata getMatchingMetadata() {
     return delegate.getMatchingMetadata();
   }
@@ -442,6 +465,11 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public void setMatchingMetadata(HandlerMatchingMetadata handlerMatchingMetadata) {
     delegate.setMatchingMetadata(handlerMatchingMetadata);
+  }
+
+  @Override
+  public boolean hasMatchingMetadata() {
+    return delegate.hasMatchingMetadata();
   }
 
   @Override
@@ -470,11 +498,6 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void resetResponseHeader() {
-    delegate.resetResponseHeader();
-  }
-
-  @Override
   public void writeHeaders() {
     delegate.writeHeaders();
   }
@@ -490,8 +513,28 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
+  public void requestCompleted(@Nullable Throwable notHandled) {
+    delegate.requestCompleted(notHandled);
+  }
+
+  @Override
   protected MultipartRequest createMultipartRequest() {
     return delegate.createMultipartRequest();
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return delegate.createAsyncWebRequest();
+  }
+
+  @Override
+  public AsyncWebRequest getAsyncWebRequest() {
+    return delegate.getAsyncWebRequest();
+  }
+
+  @Override
+  public boolean isConcurrentHandlingStarted() {
+    return delegate.isConcurrentHandlingStarted();
   }
 
   @Override
@@ -500,13 +543,23 @@ public class RequestContextDecorator extends RequestContext {
   }
 
   @Override
-  public void setBindingContext(BindingContext bindingContext) {
-    delegate.setBindingContext(bindingContext);
+  public void setBinding(BindingContext bindingContext) {
+    delegate.setBinding(bindingContext);
   }
 
   @Override
-  public BindingContext getBindingContext() {
-    return delegate.getBindingContext();
+  public BindingContext getBinding() {
+    return delegate.getBinding();
+  }
+
+  @Override
+  public BindingContext binding() {
+    return delegate.binding();
+  }
+
+  @Override
+  public boolean hasBinding() {
+    return delegate.hasBinding();
   }
 
   // AttributeAccessorSupport

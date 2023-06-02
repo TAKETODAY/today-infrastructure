@@ -20,12 +20,14 @@
 
 package cn.taketoday.jdbc.config;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.jdbcx.JdbcDataSource;
 import org.postgresql.ds.PGSimpleDataSource;
 
+import java.beans.PropertyVetoException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -255,7 +257,23 @@ public final class DataSourceBuilder<T extends DataSource> {
         throw new IllegalStateException("Unable to unwrap embedded database", ex);
       }
     }
-    return new DataSourceBuilder<>(dataSource);
+    return new DataSourceBuilder<>(unwrap(dataSource));
+  }
+
+  private static DataSource unwrap(DataSource dataSource) {
+    try {
+      while (dataSource.isWrapperFor(DataSource.class)) {
+        DataSource unwrapped = dataSource.unwrap(DataSource.class);
+        if (unwrapped == dataSource) {
+          return unwrapped;
+        }
+        dataSource = unwrapped;
+      }
+    }
+    catch (SQLException ex) {
+      // Try to continue with the existing, potentially still wrapped, DataSource
+    }
+    return dataSource;
   }
 
   /**
@@ -412,11 +430,11 @@ public final class DataSourceBuilder<T extends DataSource> {
     @Nullable
     private static <T extends DataSource> MappedDataSourceProperties<T> lookupPooled(
             @Nullable ClassLoader classLoader, @Nullable Class<T> type) {
-      MappedDataSourceProperties<T> result =
-              lookup(classLoader, type, null, "com.zaxxer.hikari.HikariDataSource", HikariDataSourceProperties::new);
+      var result = lookup(classLoader, type, null, "com.zaxxer.hikari.HikariDataSource", HikariDataSourceProperties::new);
       result = lookup(classLoader, type, result, "org.apache.tomcat.jdbc.pool.DataSource", TomcatPoolDataSourceProperties::new);
       result = lookup(classLoader, type, result, "org.apache.commons.dbcp2.BasicDataSource", MappedDbcp2DataSource::new);
       result = lookup(classLoader, type, result, "oracle.ucp.jdbc.PoolDataSourceImpl", OraclePoolDataSourceProperties::new, "oracle.jdbc.OracleConnection");
+      result = lookup(classLoader, type, result, "com.mchange.v2.c3p0.ComboPooledDataSource", ComboPooledDataSourceProperties::new);
       return result;
     }
 
@@ -661,6 +679,29 @@ public final class DataSourceBuilder<T extends DataSource> {
       add(DataSourceProperty.USERNAME, PoolDataSource::getUser, PoolDataSource::setUser);
       add(DataSourceProperty.PASSWORD, null, PoolDataSource::setPassword);
       add(DataSourceProperty.DRIVER_CLASS_NAME, PoolDataSource::getConnectionFactoryClassName, PoolDataSource::setConnectionFactoryClassName);
+    }
+
+  }
+
+  /**
+   * {@link DataSourceProperties} for C3P0.
+   */
+  private static class ComboPooledDataSourceProperties extends MappedDataSourceProperties<ComboPooledDataSource> {
+
+    ComboPooledDataSourceProperties() {
+      add(DataSourceProperty.URL, ComboPooledDataSource::getJdbcUrl, ComboPooledDataSource::setJdbcUrl);
+      add(DataSourceProperty.DRIVER_CLASS_NAME, ComboPooledDataSource::getDriverClass, this::setDriverClass);
+      add(DataSourceProperty.USERNAME, ComboPooledDataSource::getUser, ComboPooledDataSource::setUser);
+      add(DataSourceProperty.PASSWORD, ComboPooledDataSource::getPassword, ComboPooledDataSource::setPassword);
+    }
+
+    private void setDriverClass(ComboPooledDataSource dataSource, String driverClass) {
+      try {
+        dataSource.setDriverClass(driverClass);
+      }
+      catch (PropertyVetoException ex) {
+        throw new IllegalArgumentException(ex);
+      }
     }
 
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,15 +26,15 @@ import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.ui.Model;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.BindingAwareModelMap;
-import cn.taketoday.ui.Model;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.view.RedirectModel;
 
 /**
@@ -57,16 +57,19 @@ public class BindingContext {
   @Nullable
   private Object view;
 
-  private final ModelMap model = new BindingAwareModelMap();
+  private ModelMap model;
 
   @Nullable
   private RedirectModel redirectModel;
 
-  private final Set<String> noBinding = new HashSet<>(4);
+  @Nullable
+  private Set<String> noBinding;
 
-  private final Set<String> bindingDisabled = new HashSet<>(4);
+  @Nullable
+  private Set<String> bindingDisabled;
 
-  private final SessionStatus sessionStatus = new SimpleSessionStatus();
+  @Nullable
+  private SessionStatus sessionStatus;
 
   @Nullable
   private final WebBindingInitializer initializer;
@@ -179,6 +182,7 @@ public class BindingContext {
    * ViewResolver, or {@code null} if a View object is set.
    */
   @Nullable
+  @Deprecated
   public String getViewName() {
     return view instanceof String ? (String) this.view : null;
   }
@@ -187,6 +191,7 @@ public class BindingContext {
    * Set a View object to be used by the DispatcherServlet.
    * Will override any pre-existing view name or View.
    */
+  @Deprecated
   public void setView(@Nullable Object view) {
     this.view = view;
   }
@@ -196,6 +201,7 @@ public class BindingContext {
    * to be resolved by the DispatcherServlet via a ViewResolver.
    */
   @Nullable
+  @Deprecated
   public Object getView() {
     return this.view;
   }
@@ -204,15 +210,28 @@ public class BindingContext {
    * Whether the view is a view reference specified via a name to be
    * resolved by the DispatcherServlet via a ViewResolver.
    */
+  @Deprecated
   public boolean isViewReference() {
     return view instanceof String;
+  }
+
+  /**
+   * @since 4.0
+   */
+  public boolean hasModel() {
+    return model != null;
   }
 
   /**
    * Return the default model.
    */
   public ModelMap getModel() {
-    return this.model;
+    ModelMap model = this.model;
+    if (model == null) {
+      model = new BindingAwareModelMap();
+      this.model = model;
+    }
+    return model;
   }
 
   @Nullable
@@ -231,14 +250,26 @@ public class BindingContext {
    * @param attributeName the name of the attribute
    */
   public void setBindingDisabled(String attributeName) {
-    this.bindingDisabled.add(attributeName);
+    if (bindingDisabled == null) {
+      bindingDisabled = new HashSet<>(4);
+    }
+    bindingDisabled.add(attributeName);
   }
 
   /**
    * Whether binding is disabled for the given model attribute.
    */
   public boolean isBindingDisabled(String name) {
-    return bindingDisabled.contains(name) || this.noBinding.contains(name);
+    if (bindingDisabled != null) {
+      if (noBinding != null) {
+        return bindingDisabled.contains(name) || noBinding.contains(name);
+      }
+      return bindingDisabled.contains(name);
+    }
+    else if (noBinding != null) {
+      return noBinding.contains(name);
+    }
+    return false;
   }
 
   /**
@@ -250,11 +281,14 @@ public class BindingContext {
    * @param attributeName the name of the attribute
    */
   public void setBinding(String attributeName, boolean enabled) {
+    if (noBinding == null) {
+      noBinding = new HashSet<>(4);
+    }
     if (!enabled) {
-      this.noBinding.add(attributeName);
+      noBinding.add(attributeName);
     }
     else {
-      this.noBinding.remove(attributeName);
+      noBinding.remove(attributeName);
     }
   }
 
@@ -263,7 +297,10 @@ public class BindingContext {
    * signal that session processing is complete.
    */
   public SessionStatus getSessionStatus() {
-    return this.sessionStatus;
+    if (sessionStatus == null) {
+      sessionStatus = new SimpleSessionStatus();
+    }
+    return sessionStatus;
   }
 
   /**
@@ -271,7 +308,7 @@ public class BindingContext {
    * A shortcut for {@code getModel().addAttribute(String, Object)}.
    */
   public BindingContext addAttribute(String name, @Nullable Object value) {
-    getModel().setAttribute(name, value);
+    getModel().addAttribute(name, value);
     return this;
   }
 
@@ -289,7 +326,9 @@ public class BindingContext {
    * A shortcut for {@code getModel().addAllAttributes(Map)}.
    */
   public BindingContext addAllAttributes(@Nullable Map<String, ?> attributes) {
-    getModel().addAllAttributes(attributes);
+    if (attributes != null) {
+      getModel().addAllAttributes(attributes);
+    }
     return this;
   }
 
@@ -299,7 +338,9 @@ public class BindingContext {
    * A shortcut for {@code getModel().mergeAttributes(Map<String, ?>)}.
    */
   public BindingContext mergeAttributes(@Nullable Map<String, ?> attributes) {
-    getModel().mergeAttributes(attributes);
+    if (attributes != null) {
+      getModel().mergeAttributes(attributes);
+    }
     return this;
   }
 

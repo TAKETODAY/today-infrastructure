@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -64,11 +64,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import cn.taketoday.beans.BeansException;
 import cn.taketoday.http.ProblemDetail;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test cases for {@link Jackson2ObjectMapperFactoryBean}.
@@ -90,7 +89,7 @@ public class Jackson2ObjectMapperFactoryBeanTests {
   @Test
   public void unknownFeature() {
     this.factory.setFeaturesToEnable(Boolean.TRUE);
-    assertThatExceptionOfType(BeansException.class).isThrownBy(
+    assertThatIllegalArgumentException().isThrownBy(
             this.factory::afterPropertiesSet);
   }
 

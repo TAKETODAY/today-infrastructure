@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * This class is a JUnit 4 based copy of
  * {@link cn.taketoday.test.context.jdbc.TransactionalSqlScriptsTests}
- * that has been modified to use {@link ApplicationClassRule} and {@link ApplicationMethodRule}.
+ * that has been modified to use {@link InfraClassRule} and {@link InfraMethodRule}.
  *
  * @author Sam Brannen
  * @since 4.0
@@ -57,10 +57,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TransactionalSqlScriptsSpringRuleTests {
 
   @ClassRule
-  public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();
+  public static final InfraClassRule applicationClassRule = new InfraClassRule();
 
   @Rule
-  public final ApplicationMethodRule applicationMethodRule = new ApplicationMethodRule();
+  public final InfraMethodRule infraMethodRule = new InfraMethodRule();
 
   @Rule
   public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();

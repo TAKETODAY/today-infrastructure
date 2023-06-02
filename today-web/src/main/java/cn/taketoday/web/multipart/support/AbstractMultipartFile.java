@@ -22,8 +22,10 @@ package cn.taketoday.web.multipart.support;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
@@ -64,5 +66,20 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   }
 
   protected abstract byte[] doGetBytes() throws IOException;
+
+  @Override
+  public boolean isFormField() {
+    return false;
+  }
+
+  @Override
+  public String getValue() {
+    try {
+      return new String(getBytes(), StandardCharsets.UTF_8);
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
 
 }

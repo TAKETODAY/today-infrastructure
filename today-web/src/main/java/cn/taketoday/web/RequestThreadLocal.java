@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.web;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * @author TODAY 2021/4/1 19:28
  * @since 3.0
@@ -28,8 +30,9 @@ public abstract class RequestThreadLocal {
 
   public abstract void remove();
 
+  @Nullable
   public abstract RequestContext get();
 
-  public abstract void set(RequestContext context);
+  public abstract void set(@Nullable RequestContext context);
 
 }

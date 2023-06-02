@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.lang.Assert;
@@ -30,8 +29,6 @@ import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.InitBinder;
-import cn.taketoday.web.bind.support.SessionStatus;
-import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 
 /**
@@ -44,8 +41,8 @@ import cn.taketoday.web.bind.support.WebBindingInitializer;
 public class InitBinderBindingContext extends BindingContext {
 
   private final BindingContext binderMethodContext;
+  @Nullable
   private final List<InvocableHandlerMethod> binderMethods;
-  private final SessionStatus sessionStatus = new SimpleSessionStatus();
 
   /**
    * Create a new InitBinderDataBinderFactory instance.
@@ -57,16 +54,8 @@ public class InitBinderBindingContext extends BindingContext {
           @Nullable List<InvocableHandlerMethod> binderMethods) {
 
     super(initializer);
-    this.binderMethods = binderMethods != null ? binderMethods : Collections.emptyList();
+    this.binderMethods = binderMethods;
     this.binderMethodContext = new BindingContext(initializer);
-  }
-
-  /**
-   * Return the {@link SessionStatus} instance to use that can be used to
-   * signal that session processing is complete.
-   */
-  public SessionStatus getSessionStatus() {
-    return this.sessionStatus;
   }
 
   /**
@@ -79,19 +68,24 @@ public class InitBinderBindingContext extends BindingContext {
    */
   @Override
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
-    for (InvocableHandlerMethod binderMethod : binderMethods) {
-      if (isBinderMethodApplicable(binderMethod, dataBinder)) {
-        Object returnValue = binderMethod.invokeForRequest(request, binderMethodContext, dataBinder);
-        if (returnValue != null) {
-          throw new IllegalStateException(
-                  "@InitBinder methods must not return a value (should be void): " + binderMethod);
-        }
-        // Should not happen (no Model argument resolution) ...
-        if (!binderMethodContext.getModel().isEmpty()) {
-          throw new IllegalStateException(
-                  "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
+    if (binderMethods != null) {
+      BindingContext bindingContext = request.getBinding();
+      request.setBinding(binderMethodContext);
+      for (InvocableHandlerMethod binderMethod : binderMethods) {
+        if (isBinderMethodApplicable(binderMethod, dataBinder)) {
+          Object returnValue = binderMethod.invokeForRequest(request, dataBinder);
+          if (returnValue != null) {
+            throw new IllegalStateException(
+                    "@InitBinder methods must not return a value (should be void): " + binderMethod);
+          }
+          // Should not happen (no Model argument resolution) ...
+          if (!binderMethodContext.getModel().isEmpty()) {
+            throw new IllegalStateException(
+                    "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
+          }
         }
       }
+      request.setBinding(bindingContext);
     }
   }
 

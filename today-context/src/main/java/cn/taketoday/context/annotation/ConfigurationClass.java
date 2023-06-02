@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,19 +24,18 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -47,27 +46,34 @@ import cn.taketoday.util.ClassUtils;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ComponentMethod
  * @see ConfigurationClassParser
  * @since 4.0
  */
 final class ConfigurationClass {
 
-  private final AnnotationMetadata metadata;
+  public final AnnotationMetadata metadata;
 
-  private final Resource resource;
+  public final Resource resource;
 
   @Nullable
-  private String beanName;
+  public String beanName;
 
-  private final LinkedHashSet<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
+  /**
+   * Return the configuration classes that imported this class,
+   * or an empty Set if this configuration was not imported.
+   *
+   * @see #isImported()
+   */
+  public final LinkedHashSet<ConfigurationClass> importedBy = new LinkedHashSet<>(1);
 
-  private final LinkedHashSet<ComponentMethod> componentMethods = new LinkedHashSet<>();
+  public final LinkedHashSet<ComponentMethod> componentMethods = new LinkedHashSet<>();
 
-  private final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata>
+  public final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata>
           importBeanDefinitionRegistrars = new LinkedHashMap<>();
 
-  private final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
+  public final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
           new LinkedHashMap<>();
 
   final HashSet<String> skippedComponentMethods = new HashSet<>();
@@ -79,7 +85,7 @@ final class ConfigurationClass {
    * @param beanName must not be {@code null}
    * @see ConfigurationClass#ConfigurationClass(Class, ConfigurationClass)
    */
-  ConfigurationClass(MetadataReader metadataReader, String beanName) {
+  ConfigurationClass(MetadataReader metadataReader, @Nullable String beanName) {
     this.metadata = metadataReader.getAnnotationMetadata();
     this.resource = metadataReader.getResource();
     this.beanName = beanName;
@@ -106,7 +112,7 @@ final class ConfigurationClass {
    * @param beanName name of the {@code @Configuration} class bean
    * @see ConfigurationClass#ConfigurationClass(Class, ConfigurationClass)
    */
-  ConfigurationClass(Class<?> clazz, String beanName) {
+  ConfigurationClass(Class<?> clazz, @Nullable String beanName) {
     this.metadata = AnnotationMetadata.introspect(clazz);
     this.resource = new DescriptiveResource(clazz.getName());
     this.beanName = beanName;
@@ -133,38 +139,25 @@ final class ConfigurationClass {
    * @param beanName name of the {@code @Configuration} class bean
    * @see ConfigurationClass#ConfigurationClass(Class, ConfigurationClass)
    */
-  ConfigurationClass(AnnotationMetadata metadata, String beanName) {
+  ConfigurationClass(AnnotationMetadata metadata, @Nullable String beanName) {
     this.metadata = metadata;
     this.resource = new DescriptiveResource(metadata.getClassName());
     this.beanName = beanName;
   }
 
-  AnnotationMetadata getMetadata() {
-    return this.metadata;
-  }
-
-  Resource getResource() {
-    return this.resource;
-  }
-
   String getSimpleName() {
-    return ClassUtils.getShortName(getMetadata().getClassName());
+    return ClassUtils.getShortName(metadata.getClassName());
   }
 
-  void setBeanName(String beanName) {
+  void setBeanName(@Nullable String beanName) {
     this.beanName = beanName;
-  }
-
-  @Nullable
-  public String getBeanName() {
-    return this.beanName;
   }
 
   /**
    * Return whether this configuration class was registered via @{@link Import} or
    * automatically registered due to being nested within another configuration class.
    *
-   * @see #getImportedBy()
+   * @see #importedBy
    */
   public boolean isImported() {
     return !this.importedBy.isEmpty();
@@ -177,50 +170,40 @@ final class ConfigurationClass {
     this.importedBy.addAll(otherConfigClass.importedBy);
   }
 
-  /**
-   * Return the configuration classes that imported this class,
-   * or an empty Set if this configuration was not imported.
-   *
-   * @see #isImported()
-   */
-  Set<ConfigurationClass> getImportedBy() {
-    return this.importedBy;
-  }
-
   void addMethod(ComponentMethod method) {
     this.componentMethods.add(method);
-  }
-
-  Set<ComponentMethod> getMethods() {
-    return this.componentMethods;
   }
 
   void addImportBeanDefinitionRegistrar(ImportBeanDefinitionRegistrar registrar, AnnotationMetadata importingClassMetadata) {
     this.importBeanDefinitionRegistrars.put(registrar, importingClassMetadata);
   }
 
-  Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> getImportBeanDefinitionRegistrars() {
-    return this.importBeanDefinitionRegistrars;
-  }
-
   void addImportedResource(String importedResource, Class<? extends BeanDefinitionReader> readerClass) {
     this.importedResources.put(importedResource, readerClass);
   }
 
-  Map<String, Class<? extends BeanDefinitionReader>> getImportedResources() {
-    return this.importedResources;
-  }
-
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
-    MergedAnnotation<Configuration> annotation = metadata.getAnnotation(Configuration.class);
+    var annotation = metadata.getAnnotation(Configuration.class);
     if (annotation.isPresent()
             && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
       if (metadata.isFinal()) {
         problemReporter.error(new FinalConfigurationProblem());
       }
-      for (ComponentMethod componentMethod : this.componentMethods) {
+      for (ComponentMethod componentMethod : componentMethods) {
         componentMethod.validate(problemReporter);
+      }
+    }
+
+    // A configuration class may not contain overloaded bean methods unless it declares enforceUniqueMethods=false
+    if (annotation.isPresent() && annotation.getBoolean("enforceUniqueMethods")) {
+      Map<String, MethodMetadata> beanMethodsByName = new LinkedHashMap<>();
+      for (ComponentMethod beanMethod : componentMethods) {
+        MethodMetadata current = beanMethod.metadata;
+        MethodMetadata existing = beanMethodsByName.put(current.getMethodName(), current);
+        if (existing != null && existing.getDeclaringClassName().equals(current.getDeclaringClassName())) {
+          problemReporter.error(new BeanMethodOverloadingProblem(existing.getMethodName()));
+        }
       }
     }
   }
@@ -228,12 +211,12 @@ final class ConfigurationClass {
   @Override
   public boolean equals(@Nullable Object other) {
     return (this == other || (other instanceof ConfigurationClass &&
-            getMetadata().getClassName().equals(((ConfigurationClass) other).getMetadata().getClassName())));
+            metadata.getClassName().equals(((ConfigurationClass) other).metadata.getClassName())));
   }
 
   @Override
   public int hashCode() {
-    return getMetadata().getClassName().hashCode();
+    return metadata.getClassName().hashCode();
   }
 
   @Override
@@ -248,7 +231,21 @@ final class ConfigurationClass {
 
     FinalConfigurationProblem() {
       super(String.format("@Configuration class '%s' may not be final, when proxyBeanMethods is enabled. Remove the final modifier to continue.",
-              getSimpleName()), new Location(getResource(), getMetadata()));
+              getSimpleName()), new Location(resource, metadata));
+    }
+  }
+
+  /**
+   * Configuration classes are not allowed to contain overloaded bean methods
+   * by default
+   */
+  private class BeanMethodOverloadingProblem extends Problem {
+
+    BeanMethodOverloadingProblem(String methodName) {
+      super(String.format("@Configuration class '%s' contains overloaded @Bean methods with name '%s'. Use " +
+                      "unique method names for separate bean definitions (with individual conditions etc) " +
+                      "or switch '@Configuration.enforceUniqueMethods' to 'false'.",
+              getSimpleName(), methodName), new Location(resource, metadata));
     }
   }
 

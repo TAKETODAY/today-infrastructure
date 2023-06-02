@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import cn.taketoday.http.converter.feed.RssChannelHttpMessageConverter;
 import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -64,9 +65,10 @@ class HttpMessageConvertersTests {
             AllEncompassingFormHttpMessageConverter.class,
             AtomFeedHttpMessageConverter.class,
             RssChannelHttpMessageConverter.class,
-
             MappingJackson2HttpMessageConverter.class,
-            MappingJackson2SmileHttpMessageConverter.class, MappingJackson2CborHttpMessageConverter.class);
+            MappingJackson2SmileHttpMessageConverter.class,
+            MappingJackson2CborHttpMessageConverter.class,
+            MappingJackson2XmlHttpMessageConverter.class);
   }
 
   @Test
@@ -136,12 +138,12 @@ class HttpMessageConvertersTests {
             StringHttpMessageConverter.class, ResourceHttpMessageConverter.class,
             ResourceRegionHttpMessageConverter.class,
             AllEncompassingFormHttpMessageConverter.class,
-
             AtomFeedHttpMessageConverter.class,
             RssChannelHttpMessageConverter.class,
-
             MappingJackson2HttpMessageConverter.class,
-            MappingJackson2SmileHttpMessageConverter.class, MappingJackson2CborHttpMessageConverter.class);
+            MappingJackson2SmileHttpMessageConverter.class,
+            MappingJackson2CborHttpMessageConverter.class,
+            MappingJackson2XmlHttpMessageConverter.class);
   }
 
   @Test
@@ -159,9 +161,15 @@ class HttpMessageConvertersTests {
     for (HttpMessageConverter<?> converter : extractFormPartConverters(converters.getConverters())) {
       converterClasses.add(converter.getClass());
     }
-    assertThat(converterClasses).containsExactly(ByteArrayHttpMessageConverter.class,
-            StringHttpMessageConverter.class, ResourceHttpMessageConverter.class,
-            MappingJackson2HttpMessageConverter.class, MappingJackson2SmileHttpMessageConverter.class);
+    assertThat(converterClasses)
+            .containsExactly(
+                    ByteArrayHttpMessageConverter.class,
+                    StringHttpMessageConverter.class,
+                    ResourceHttpMessageConverter.class,
+                    MappingJackson2HttpMessageConverter.class,
+                    MappingJackson2XmlHttpMessageConverter.class,
+                    MappingJackson2SmileHttpMessageConverter.class
+            );
   }
 
   private List<HttpMessageConverter<?>> extractFormPartConverters(List<HttpMessageConverter<?>> converters) {

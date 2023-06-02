@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,6 @@ import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.ObjectSupplier;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -682,7 +681,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return ((StandardBeanFactory) parent).resolveBean(requiredType, args, nonUniqueAsNull);
     }
     else if (parent != null) {
-      ObjectSupplier<T> parentProvider = parent.getObjectSupplier(requiredType);
+      ObjectProvider<T> parentProvider = parent.getBeanProvider(requiredType);
       if (args != null) {
         return parentProvider.get(args);
       }
@@ -779,24 +778,24 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType) {
-    return getObjectSupplier(requiredType, true);
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) {
+    return getBeanProvider(requiredType, true);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType) {
-    return getObjectSupplier(requiredType, true);
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) {
+    return getBeanProvider(requiredType, true);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(Class<T> requiredType, boolean allowEagerInit) {
+  public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
     Assert.notNull(requiredType, "Required type must not be null");
-    return getObjectSupplier(ResolvableType.fromRawClass(requiredType), allowEagerInit);
+    return getBeanProvider(ResolvableType.fromRawClass(requiredType), allowEagerInit);
   }
 
   @Override
-  public <T> ObjectSupplier<T> getObjectSupplier(ResolvableType requiredType, boolean allowEagerInit) {
-    return new BeanObjectSupplier<>() {
+  public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType, boolean allowEagerInit) {
+    return new BeanObjectProvider<>() {
       @Override
       public T get() throws BeansException {
         T resolved = resolveBean(requiredType, null, false);
@@ -828,16 +827,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      public void ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
+      public boolean ifAvailable(Consumer<T> dependencyConsumer) throws BeansException {
         T dependency = getIfAvailable();
         if (dependency != null) {
           try {
             dependencyConsumer.accept(dependency);
+            return true;
           }
           catch (ScopeNotActiveException ex) {
             // Ignore resolved bean in non-active scope, even on scoped proxy invocation
           }
         }
+        return false;
       }
 
       @Override
@@ -853,16 +854,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
 
       @Override
-      public void ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
+      public boolean ifUnique(Consumer<T> dependencyConsumer) throws BeansException {
         T dependency = getIfUnique();
         if (dependency != null) {
           try {
             dependencyConsumer.accept(dependency);
+            return true;
           }
           catch (ScopeNotActiveException ex) {
             // Ignore resolved bean in non-active scope, even on scoped proxy invocation
           }
         }
+        return false;
       }
 
       @SuppressWarnings("unchecked")
@@ -1267,6 +1270,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
+  @Override
   public boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor)
           throws NoSuchBeanDefinitionException {
 
@@ -1357,8 +1361,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       return createOptionalDependency(descriptor, requestingBeanName);
     }
     else if (Supplier.class == dependencyType
-            || ObjectProvider.class == dependencyType
-            || ObjectSupplier.class == dependencyType) {
+            || ObjectProvider.class == dependencyType) {
       return new DependencyObjectProvider(descriptor, requestingBeanName);
     }
     else if (injectProviderClass == dependencyType) {
@@ -1453,6 +1456,20 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       Object result = instanceCandidate;
       if (result == null) {
         if (isRequired(descriptor)) {
+          if (matchingBeans.size() == 1) {
+            // factory method returns null
+            BeanDefinition merged = getMergedBeanDefinition(autowiredBeanName);
+            String factoryMethodName = merged.getFactoryMethodName();
+            if (factoryMethodName != null) {
+              String factoryBeanName = merged.getFactoryBeanName();
+              if (factoryBeanName == null) {
+                factoryBeanName = merged.getBeanClassName();
+              }
+              throw new FactoryMethodBeanException(merged, descriptor, autowiredBeanName,
+                      "Only one bean which qualifies as autowire candidate, but its factory method '"
+                              + factoryMethodName + "' in '" + factoryBeanName + "' returns null");
+            }
+          }
           raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
         }
       }
@@ -1658,9 +1675,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Add an entry to the candidate map: a bean instance if available or just the resolved
    * type, preventing early bean initialization ahead of primary candidate selection.
    */
-  private void addCandidateEntry(
-          Map<String, Object> candidates, String candidateName,
-          DependencyDescriptor descriptor, Class<?> requiredType) {
+  private void addCandidateEntry(Map<String, Object> candidates,
+          String candidateName, DependencyDescriptor descriptor, Class<?> requiredType) {
 
     if (descriptor instanceof MultiElementDescriptor) {
       Object beanInstance = descriptor.resolveCandidate(candidateName, requiredType, this);
@@ -1855,8 +1871,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Raise a NoSuchBeanDefinitionException or BeanNotOfRequiredTypeException
    * for an unresolvable dependency.
    */
-  private void raiseNoMatchingBeanFound(
-          Class<?> type, ResolvableType resolvableType, DependencyDescriptor descriptor) throws BeansException {
+  private void raiseNoMatchingBeanFound(Class<?> type,
+          ResolvableType resolvableType, DependencyDescriptor descriptor) throws BeansException {
 
     checkBeanNotOfRequiredType(type, descriptor);
     throw new NoSuchBeanDefinitionException(resolvableType,
@@ -1891,9 +1907,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
 
-    BeanFactory parent = getParentBeanFactory();
-    if (parent instanceof StandardBeanFactory) {
-      ((StandardBeanFactory) parent).checkBeanNotOfRequiredType(type, descriptor);
+    if (getParentBeanFactory() instanceof StandardBeanFactory parent) {
+      parent.checkBeanNotOfRequiredType(type, descriptor);
     }
   }
 
@@ -1985,7 +2000,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
-  private interface BeanObjectSupplier<T> extends ObjectProvider<T>, Serializable { }
+  private interface BeanObjectProvider<T> extends ObjectProvider<T>, Serializable { }
 
   /**
    * A dependency descriptor marker for nested elements.
@@ -2027,7 +2042,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /**
    * Serializable ObjectFactory/ObjectProvider for lazy resolution of a dependency.
    */
-  private class DependencyObjectProvider implements BeanObjectSupplier<Object> {
+  private class DependencyObjectProvider implements BeanObjectProvider<Object> {
 
     @Nullable
     private final String beanName;
@@ -2099,16 +2114,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    public void ifAvailable(Consumer<Object> dependencyConsumer) throws BeansException {
+    public boolean ifAvailable(Consumer<Object> dependencyConsumer) throws BeansException {
       Object dependency = getIfAvailable();
       if (dependency != null) {
         try {
           dependencyConsumer.accept(dependency);
+          return true;
         }
         catch (ScopeNotActiveException ex) {
           // Ignore resolved bean in non-active scope, even on scoped proxy invocation
         }
       }
+      return false;
     }
 
     @Override
@@ -2141,16 +2158,18 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     @Override
-    public void ifUnique(Consumer<Object> dependencyConsumer) throws BeansException {
+    public boolean ifUnique(Consumer<Object> dependencyConsumer) throws BeansException {
       Object dependency = getIfUnique();
       if (dependency != null) {
         try {
           dependencyConsumer.accept(dependency);
+          return true;
         }
         catch (ScopeNotActiveException ex) {
           // Ignore resolved bean in non-active scope, even on scoped proxy invocation
         }
       }
+      return false;
     }
 
     @Nullable

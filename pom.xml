@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -44,6 +44,7 @@
     <module>today-core</module>
     <module>today-tx</module>
     <module>today-orm</module>
+    <module>today-oxm</module>
     <module>today-aop</module>
     <module>today-web</module>
     <module>today-jdbc</module>
@@ -52,6 +53,7 @@
     <module>today-retry</module>
     <module>today-jcache</module>
     <module>today-context</module>
+    <module>today-starter</module>
     <module>today-aspects</module>
     <module>today-mybatis</module>
     <module>today-redisson</module>
@@ -60,8 +62,8 @@
     <module>today-instrument</module>
     <module>today-test-support</module>
     <module>today-context-indexer</module>
-    <module>today-annotation-config</module>
     <module>integration-tests</module>
+    <module>today-infra-maven-plugin</module>
   </modules>
 
   <description>
@@ -173,16 +175,5 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-    </snapshotRepository>
-    <repository>
-      <id>release</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
 
 </project>

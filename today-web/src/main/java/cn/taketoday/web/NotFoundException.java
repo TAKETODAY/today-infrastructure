@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,12 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web;
 
 import java.io.Serial;
 import java.util.function.Supplier;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 
 /**
  * 404 NotFound
@@ -31,8 +33,10 @@ import cn.taketoday.http.HttpStatus;
  * @since 2018-11-26 20:04
  */
 public class NotFoundException extends ResponseStatusException {
+
   @Serial
   private static final long serialVersionUID = 1L;
+
   public static final String NOT_FOUND = HttpStatus.NOT_FOUND.getReasonPhrase();
 
   public NotFoundException(Throwable cause) {
@@ -54,7 +58,7 @@ public class NotFoundException extends ResponseStatusException {
   /**
    * Assert that an object is not {@code null}.
    */
-  public static void notNull(Object object) {
+  public static void notNull(@Nullable Object object) {
     notNull(object, NOT_FOUND);
   }
 
@@ -66,7 +70,7 @@ public class NotFoundException extends ResponseStatusException {
    * @param message the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object is {@code null}
    */
-  public static void notNull(Object object, String message) {
+  public static void notNull(@Nullable Object object, String message) {
     if (object == null) {
       throw new NotFoundException(message);
     }
@@ -81,7 +85,7 @@ public class NotFoundException extends ResponseStatusException {
    * @param messageSupplier a supplier for the exception message to use if the assertion fails
    * @throws IllegalArgumentException if the object is {@code null}
    */
-  public static void notNull(Object object, Supplier<String> messageSupplier) {
+  public static void notNull(@Nullable Object object, Supplier<String> messageSupplier) {
     if (object == null) {
       throw new NotFoundException(nullSafeGet(messageSupplier));
     }

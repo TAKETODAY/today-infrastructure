@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ import cn.taketoday.util.ResourceUtils;
  * <p>This is an extension to the {@link cn.taketoday.core.io.ResourceLoader}
  * interface. A passed-in {@code ResourceLoader} (for example, an
  * {@link cn.taketoday.context.ApplicationContext} passed in via
- * {@link cn.taketoday.context.aware.ResourceLoaderAware} when running in a context)
+ * {@link cn.taketoday.context.ResourceLoaderAware} when running in a context)
  * can be checked whether it implements this extended interface too.
  *
  * <p>{@link PathMatchingPatternResourceLoader} is a standalone implementation
@@ -55,7 +55,7 @@ import cn.taketoday.util.ResourceUtils;
  * @see Resource
  * @see ResourceLoader
  * @see cn.taketoday.context.ApplicationContext
- * @see cn.taketoday.context.aware.ResourceLoaderAware
+ * @see cn.taketoday.context.ResourceLoaderAware
  * @since 4.0
  */
 public interface PatternResourceLoader extends ResourceLoader {

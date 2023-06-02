@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,14 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.bytecode.proxy;
 
-import cn.taketoday.bytecode.core.CodeGenerationException;
-import cn.taketoday.lang.Constant;
+package cn.taketoday.bytecode.proxy;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Objects;
+
+import cn.taketoday.bytecode.core.CodeGenerationException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 
 /**
  * This class is meant to be used as replacement for
@@ -108,20 +109,21 @@ public class Proxy implements Serializable {
    *
    * @param loader the class loader to define the proxy class
    * @param interfaces the list of interfaces for the proxy class to implement
-   * @param h the invocation handler to dispatch method invocations to
+   * @param handler the invocation handler to dispatch method invocations to
    * @return a proxy instance with the specified invocation handler of a proxy
    * class that is defined by the specified class loader and that
    * implements the specified interfaces
-   * @throws NullPointerException if the {@code interfaces} array argument or any of its elements
+   * @throws IllegalArgumentException if the {@code interfaces} array argument or any of its elements
    * are {@code null}, or if the invocation handler, {@code h}, is
    * {@code null}
    */
-  public static Object newProxyInstance(
-          final ClassLoader loader, final Class<?>[] interfaces, final InvocationHandler h) {
+  public static Object newProxyInstance(ClassLoader loader,
+          Class<?>[] interfaces, InvocationHandler handler) {
+    Assert.notNull(handler, "InvocationHandler is required");
     try {
-      return getProxyClass(loader, interfaces)//
-              .getConstructor(InvocationHandler.class)//
-              .newInstance(Objects.requireNonNull(h));
+      return getProxyClass(loader, interfaces)
+              .getConstructor(InvocationHandler.class)
+              .newInstance(handler);
     }
     catch (RuntimeException e) {
       throw e;

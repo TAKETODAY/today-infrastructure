@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.aop;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
@@ -29,10 +30,11 @@ import java.lang.reflect.Method;
  * Canonical MethodMatcher instance that matches all methods.
  *
  * @author Rod Johnson
- * @author TODAY 2021/2/1 18:24
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/2/1 18:24
  */
 final class TrueMethodMatcher implements MethodMatcher, Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public static final TrueMethodMatcher INSTANCE = new TrueMethodMatcher();
@@ -55,7 +57,7 @@ final class TrueMethodMatcher implements MethodMatcher, Serializable {
   @Override
   public boolean matches(MethodInvocation invocation) {
     // Should never be invoked as isRuntime returns false.
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Runtime is unsupported");
   }
 
   @Override
@@ -68,6 +70,7 @@ final class TrueMethodMatcher implements MethodMatcher, Serializable {
    * instance on deserialization, protecting Singleton pattern.
    * Alternative to overriding {@code equals()}.
    */
+  @Serial
   private Object readResolve() {
     return INSTANCE;
   }

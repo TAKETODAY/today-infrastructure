@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,59 +20,127 @@
 
 package cn.taketoday.web;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.ServerHttpResponse;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * @author TODAY 2021/3/10 16:35
  */
 public class MockRequestContext extends RequestContext {
+  private final long requestTimeMillis = System.currentTimeMillis();
+
+  private String method = "GET";
+  private String scheme = "http";
+  private String serverName = "localhost";
+  private String requestURI = "/";
+  private String queryString = "";
+
+  @Nullable
+  private String requestURL;
+
+  private int serverPort = 8080;
+  private String remoteAddress;
+
+  private long contentLength = 0;
+
+  @Nullable
+  private MediaType contentType;
+
+  @Nullable
+  private HttpHeaders requestHeaders;
+
+  private boolean committed;
+
+  private String redirectLocation;
+
+  protected HttpStatus status = HttpStatus.OK;
+
+  private String errorMessage;
 
   public MockRequestContext() {
     super(null);
   }
 
-  public MockRequestContext(WebApplicationContext context) { super(context); }
+  public MockRequestContext(ApplicationContext context) { super(context); }
+
+  @Override
+  public long getRequestTimeMillis() {
+    return requestTimeMillis;
+  }
 
   @Override
   public String getScheme() {
-    return null;
+    return scheme;
+  }
+
+  public void setScheme(String scheme) {
+    this.scheme = scheme;
   }
 
   @Override
   public String getServerName() {
-    return null;
+    return serverName;
+  }
+
+  public void setServerName(String serverName) {
+    this.serverName = serverName;
+  }
+
+  public void setServerPort(int serverPort) {
+    this.serverPort = serverPort;
   }
 
   @Override
   public int getServerPort() {
-    return 0;
+    return serverPort;
   }
 
   @Override
-  protected String doGetRequestPath() {
-    return null;
+  protected String doGetRequestURI() {
+    return requestURI;
+  }
+
+  public void setRequestURI(String requestURI) {
+    this.requestURI = requestURI;
+  }
+
+  public void setRequestURL(@Nullable String requestURL) {
+    this.requestURL = requestURL;
   }
 
   @Override
   public String getRequestURL() {
-    return null;
+    if (requestURL == null) {
+      return super.getRequestURL();
+    }
+    return requestURL;
   }
 
   @Override
   protected String doGetQueryString() {
-    return null;
+    return queryString;
+  }
+
+  public void setQueryString(String queryString) {
+    this.queryString = queryString;
   }
 
   @Override
@@ -80,39 +148,87 @@ public class MockRequestContext extends RequestContext {
     return requestCookies.toArray(new HttpCookie[0]);
   }
 
-  final List<HttpCookie> requestCookies = new ArrayList<>();
+  private final ArrayList<HttpCookie> requestCookies = new ArrayList<>();
 
   public List<HttpCookie> getRequestCookies() {
     return requestCookies;
   }
 
+  public void addRequestCookies(List<HttpCookie> requestCookies) {
+    this.requestCookies.addAll(requestCookies);
+  }
+
+  public void addRequestCookies(HttpCookie... requestCookies) {
+    CollectionUtils.addAll(this.requestCookies, requestCookies);
+  }
+
+  public void setRequestCookies(List<HttpCookie> requestCookies) {
+    this.requestCookies.clear();
+    this.requestCookies.addAll(requestCookies);
+  }
+
   @Override
   public Map<String, String[]> doGetParameters() {
-    return null;
+    if (parameters == null) {
+      return Collections.emptyMap();
+    }
+    return parameters;
+  }
+
+  public void setParameters(Map<String, String[]> parameters) {
+    this.parameters = parameters;
   }
 
   @Override
   protected String doGetMethod() {
-    return null;
+    return method;
+  }
+
+  public void setMethod(@Nullable String method) {
+    this.method = method;
   }
 
   @Override
   public String getRemoteAddress() {
-    return null;
+    return remoteAddress;
+  }
+
+  public void setRemoteAddress(String remoteAddress) {
+    this.remoteAddress = remoteAddress;
   }
 
   @Override
   public long getContentLength() {
-    return 0;
+    return contentLength;
   }
 
+  private ByteArrayInputStream requestBody;
+
   @Override
-  protected InputStream doGetInputStream() throws IOException {
-    return null;
+  protected InputStream doGetInputStream() {
+    if (requestBody == null) {
+      requestBody = new ByteArrayInputStream(new byte[0]);
+      this.contentLength = 0;
+    }
+    return requestBody;
+  }
+
+  public void setRequestBody(ByteArrayInputStream requestBody) {
+    this.requestBody = requestBody;
+    this.contentLength = requestBody.available();
+  }
+
+  public void setRequestBody(String requestBody) {
+    this.requestBody = new ByteArrayInputStream(requestBody.getBytes(StandardCharsets.UTF_8));
+    this.contentLength = this.requestBody.available();
   }
 
   public void setMultipartRequest(MultipartRequest multipartRequest) {
     this.multipartRequest = multipartRequest;
+  }
+
+  public void setAsyncWebRequest(AsyncWebRequest asyncWebRequest) {
+    this.asyncWebRequest = asyncWebRequest;
   }
 
   @Override
@@ -121,27 +237,69 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    throw new UnsupportedOperationException();
+  }
+
+  public void setRequestContentType(@Nullable String contentType) {
+    Optional.ofNullable(contentType)
+            .map(MediaType::valueOf)
+            .ifPresent(this::setRequestContentType);
+  }
+
+  public void setRequestContentType(@Nullable MediaType contentType) {
+    this.contentType = contentType;
+  }
+
+  @Override
   public String getContentType() {
-    MediaType contentType = responseHeaders().getContentType();
     if (contentType == null) {
-      return null;
+      MediaType contentType = responseHeaders().getContentType();
+      if (contentType == null) {
+        return null;
+      }
+      return contentType.toString();
     }
     return contentType.toString();
   }
 
   @Override
   protected HttpHeaders createRequestHeaders() {
-    return null;
+    if (requestHeaders == null) {
+      requestHeaders = HttpHeaders.create();
+    }
+    return requestHeaders;
+  }
+
+  public void setRequestHeaders(@Nullable HttpHeaders requestHeaders) {
+    this.requestHeaders = requestHeaders;
+  }
+
+  @Nullable
+  public HttpHeaders getRequestHeaders() {
+    return requestHeaders;
+  }
+
+  public void setCommitted(boolean committed) {
+    this.committed = committed;
   }
 
   @Override
   public boolean isCommitted() {
-    return false;
+    return committed;
+  }
+
+  public void setRedirectLocation(String redirectLocation) {
+    this.redirectLocation = redirectLocation;
   }
 
   @Override
-  public void sendRedirect(String location) throws IOException {
+  public void sendRedirect(String redirectLocation) throws IOException {
+    this.redirectLocation = redirectLocation;
+  }
 
+  public String getRedirectLocation() {
+    return redirectLocation;
   }
 
   @Override
@@ -150,33 +308,42 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
-  public void setStatus(int status, String message) {
-    this.status = HttpStatus.valueOf(status);
-  }
-
-  protected HttpStatus status = HttpStatus.OK;
-
-  @Override
   public int getStatus() {
     return status.value();
   }
 
   @Override
   public void sendError(int sc) throws IOException {
+    setStatus(sc);
   }
 
   @Override
   public void sendError(int sc, String msg) throws IOException {
+    setStatus(sc);
+    this.errorMessage = msg;
   }
 
-  @Override
-  protected OutputStream doGetOutputStream() throws IOException {
-    return null;
+  public String getErrorMessage() {
+    return errorMessage;
   }
 
+  public boolean hasError() {
+    return errorMessage != null;
+  }
+
+  @Nullable
+  private ByteArrayOutputStream responseBody;
+
   @Override
-  public ServerHttpResponse getServerHttpResponse() {
-    return null;
+  protected ByteArrayOutputStream doGetOutputStream() {
+    if (responseBody == null) {
+      responseBody = new ByteArrayOutputStream();
+    }
+    return responseBody;
+  }
+
+  public void setResponseBody(@Nullable ByteArrayOutputStream outputStream) {
+    this.responseBody = outputStream;
   }
 
   @Override
@@ -190,24 +357,8 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
-  public <T> T nativeResponse() {
-    return null;
-  }
-
-  @Override
-  public <T> T unwrapResponse(Class<T> responseClass) {
-    return null;
-  }
-
-  @Override
   public String toString() {
     return "Mock Request context";
-  }
-
-  //
-
-  public void setMethod(String method) {
-    this.method = method;
   }
 
 }

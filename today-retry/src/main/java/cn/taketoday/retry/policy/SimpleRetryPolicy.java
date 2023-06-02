@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,9 @@
 
 package cn.taketoday.retry.policy;
 
+import java.io.Serial;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -60,10 +63,13 @@ import cn.taketoday.util.ClassUtils;
  * @author Rob Harrop
  * @author Gary Russell
  * @author Aleksandr Shamukov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class SimpleRetryPolicy implements RetryPolicy {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The default limit to the number of attempts for a new policy.
@@ -74,7 +80,10 @@ public class SimpleRetryPolicy implements RetryPolicy {
 
   private Supplier<Integer> maxAttemptsSupplier;
 
-  private BinaryExceptionClassifier retryableClassifier = new BinaryExceptionClassifier(false);
+  private final BinaryExceptionClassifier retryableClassifier;
+
+  private BinaryExceptionClassifier recoverableClassifier = new BinaryExceptionClassifier(
+          Collections.emptyMap(), true, true);
 
   /**
    * Create a {@link SimpleRetryPolicy} with the default number of retry attempts,
@@ -166,6 +175,20 @@ public class SimpleRetryPolicy implements RetryPolicy {
   }
 
   /**
+   * Configure throwables that should not be passed to a recoverer (if present) but
+   * thrown immediately.
+   *
+   * @param noRecovery the throwables.
+   */
+  public void setNotRecoverable(Class<? extends Throwable>... noRecovery) {
+    Map<Class<? extends Throwable>, Boolean> map = new HashMap<>();
+    for (Class<? extends Throwable> clazz : noRecovery) {
+      map.put(clazz, false);
+    }
+    this.recoverableClassifier = new BinaryExceptionClassifier(map, true, true);
+  }
+
+  /**
    * Set a supplier for the number of attempts before retries are exhausted. Includes
    * the initial attempt before the retries begin so, generally, will be {@code >= 1}.
    * For example setting this property to 3 means 3 attempts total (initial + 2
@@ -176,8 +199,8 @@ public class SimpleRetryPolicy implements RetryPolicy {
    * @param maxAttemptsSupplier the maximum number of attempts including the initial
    * attempt.
    */
-  public void setMaxAttempts(Supplier<Integer> maxAttemptsSupplier) {
-    Assert.notNull(maxAttemptsSupplier, "maxAttemptsSupplier is required");
+  public void maxAttemptsSupplier(Supplier<Integer> maxAttemptsSupplier) {
+    Assert.notNull(maxAttemptsSupplier, "'maxAttemptsSupplier' is required");
     this.maxAttemptsSupplier = maxAttemptsSupplier;
   }
 
@@ -203,7 +226,14 @@ public class SimpleRetryPolicy implements RetryPolicy {
   @Override
   public boolean canRetry(RetryContext context) {
     Throwable t = context.getLastThrowable();
-    return (t == null || retryForException(t)) && context.getRetryCount() < getMaxAttempts();
+    boolean can = (t == null || retryForException(t)) && context.getRetryCount() < getMaxAttempts();
+    if (!can && t != null && !this.recoverableClassifier.classify(t)) {
+      context.setAttribute(RetryContext.NO_RECOVERY, true);
+    }
+    else {
+      context.removeAttribute(RetryContext.NO_RECOVERY);
+    }
+    return can;
   }
 
   /**

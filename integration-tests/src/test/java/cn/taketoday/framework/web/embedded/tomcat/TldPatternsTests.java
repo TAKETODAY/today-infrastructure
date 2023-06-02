@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.StringUtils;
 
@@ -39,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 class TldPatternsTests {
-  static final Resource resource = new DefaultResourceLoader().getResource(
-          "classpath:org/apache/catalina/startup/catalina.properties");
+  static final Resource resource = new ClassPathResource(
+          "org/apache/catalina/startup/catalina.properties");
 
   @Test
   void tomcatSkipAlignsWithTomcatDefaults() throws IOException {
