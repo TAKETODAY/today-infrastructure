@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -57,7 +59,7 @@ class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
   public JettyClientHttpRequest(Request request, Duration timeOut) {
     this.request = request;
     this.timeOut = timeOut;
-    this.method = HttpMethod.valueOf(this.request.getMethod());
+    this.method = HttpMethod.valueOf(request.getMethod());
   }
 
   @Override
@@ -79,11 +81,13 @@ class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
   protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
     if (!headers.isEmpty()) {
       this.request.headers(httpFields -> {
-        headers.forEach((headerName, headerValues) -> {
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+          String headerName = entry.getKey();
+          List<String> headerValues = entry.getValue();
           for (String headerValue : headerValues) {
             httpFields.add(headerName, headerValue);
           }
-        });
+        }
       });
     }
     String contentType = null;

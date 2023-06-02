@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,7 +41,6 @@ import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.PathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.support.ApplicationConversionService;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.OriginProvider;
@@ -364,7 +363,9 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
     }
 
     private void assertStillExists() {
-      Assert.state(Files.exists(this.path), () -> "The property file '" + this.path + "' no longer exists");
+      if (!Files.exists(this.path)) {
+        throw new IllegalStateException("The property file '" + this.path + "' no longer exists");
+      }
     }
 
   }

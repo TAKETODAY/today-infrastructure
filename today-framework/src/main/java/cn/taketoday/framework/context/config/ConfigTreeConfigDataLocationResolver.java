@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,13 +28,13 @@ import java.util.List;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.framework.context.config.LocationResourceLoader.ResourceType;
-import cn.taketoday.lang.Assert;
 
 /**
  * {@link ConfigDataLocationResolver} for config tree locations.
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ConfigTreeConfigDataLocationResolver implements ConfigDataLocationResolver<ConfigTreeConfigDataResource> {
@@ -53,8 +53,8 @@ public class ConfigTreeConfigDataLocationResolver implements ConfigDataLocationR
   }
 
   @Override
-  public List<ConfigTreeConfigDataResource> resolve(ConfigDataLocationResolverContext context,
-          ConfigDataLocation location) {
+  public List<ConfigTreeConfigDataResource> resolve(
+          ConfigDataLocationResolverContext context, ConfigDataLocation location) {
     try {
       return resolve(location.getNonPrefixedValue(PREFIX));
     }
@@ -64,13 +64,14 @@ public class ConfigTreeConfigDataLocationResolver implements ConfigDataLocationR
   }
 
   private List<ConfigTreeConfigDataResource> resolve(String location) throws IOException {
-    Assert.isTrue(location.endsWith("/"),
-            () -> String.format("Config tree location '%s' must end with '/'", location));
-    if (!this.resourceLoader.isPattern(location)) {
+    if (!location.endsWith("/")) {
+      throw new IllegalArgumentException(String.format("Config tree location '%s' must end with '/'", location));
+    }
+    if (!resourceLoader.isPattern(location)) {
       return Collections.singletonList(new ConfigTreeConfigDataResource(location));
     }
-    List<Resource> resources = this.resourceLoader.getResources(location, ResourceType.DIRECTORY);
-    List<ConfigTreeConfigDataResource> resolved = new ArrayList<>(resources.size());
+    List<Resource> resources = resourceLoader.getResources(location, ResourceType.DIRECTORY);
+    var resolved = new ArrayList<ConfigTreeConfigDataResource>(resources.size());
     for (Resource resource : resources) {
       resolved.add(new ConfigTreeConfigDataResource(resource.getFile().toPath()));
     }
