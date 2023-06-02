@@ -179,15 +179,6 @@ class ClientHttpRequestFactoriesTests {
     assertThat(requestFactory).hasFieldOrPropertyWithValue("readTimeout", 1234);
   }
 
-  @Test
-  void bufferRequestBodyCanBeConfiguredOnAWrappedRequestFactory() {
-    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-    BufferingClientHttpRequestFactory result = ClientHttpRequestFactories.get(
-            () -> new BufferingClientHttpRequestFactory(requestFactory),
-            ClientHttpRequestFactorySettings.DEFAULTS.withBufferRequestBody(false));
-    assertThat(result).extracting("requestFactory").isSameAs(requestFactory);
-  }
-
   public static class TestClientHttpRequestFactory implements ClientHttpRequestFactory {
 
     private int connectTimeout;

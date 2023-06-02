@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import cn.taketoday.test.util.ReflectionTestUtils;
  *
  * @author Andy Wilkinson
  */
-@ClassPathExclusions({ "httpclient-*.jar", "okhttp-*.jar" })
+@ClassPathExclusions({ "httpclient5-*.jar", "okhttp-*.jar" })
 class ClientHttpRequestFactoriesSimpleTests
         extends AbstractClientHttpRequestFactoriesTests<SimpleClientHttpRequestFactory> {
 

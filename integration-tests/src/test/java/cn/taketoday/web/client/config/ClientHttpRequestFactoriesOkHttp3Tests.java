@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Andy Wilkinson
  */
 @ClassPathOverrides("com.squareup.okhttp3:okhttp:3.14.9")
-@ClassPathExclusions("httpclient-*.jar")
+@ClassPathExclusions("httpclient5-*.jar")
 class ClientHttpRequestFactoriesOkHttp3Tests
         extends AbstractClientHttpRequestFactoriesTests<OkHttp3ClientHttpRequestFactory> {
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,11 @@
 
 package cn.taketoday.web.client.config;
 
+import org.apache.hc.client5.http.HttpRoute;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.core5.function.Resolver;
+import org.apache.hc.core5.http.io.SocketConfig;
+
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
@@ -38,14 +43,18 @@ class ClientHttpRequestFactoriesHttpComponentsTests
 
   @Override
   protected long connectTimeout(HttpComponentsClientHttpRequestFactory requestFactory) {
-    Object requestConfig = ReflectionTestUtils.getField(requestFactory, "requestConfig");
-    return (int) ReflectionTestUtils.getField(requestConfig, "connectTimeout");
+    return (int) ReflectionTestUtils.getField(requestFactory, "connectTimeout");
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected long readTimeout(HttpComponentsClientHttpRequestFactory requestFactory) {
-    Object requestConfig = ReflectionTestUtils.getField(requestFactory, "requestConfig");
-    return (int) ReflectionTestUtils.getField(requestConfig, "socketTimeout");
+    HttpClient httpClient = requestFactory.getHttpClient();
+    Object connectionManager = ReflectionTestUtils.getField(httpClient, "connManager");
+    SocketConfig socketConfig = ((Resolver<HttpRoute, SocketConfig>) ReflectionTestUtils.getField(connectionManager,
+            "socketConfigResolver"))
+            .resolve(null);
+    return socketConfig.getSoTimeout().toMilliseconds();
   }
 
 }

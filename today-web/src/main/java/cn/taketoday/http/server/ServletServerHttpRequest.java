@@ -83,7 +83,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   public ServletServerHttpRequest(HttpServletRequest servletRequest) {
     Assert.notNull(servletRequest, "HttpServletRequest must not be null");
     this.servletRequest = servletRequest;
-    this.method = HttpMethod.valueOf(this.servletRequest.getMethod());
+    this.method = HttpMethod.valueOf(servletRequest.getMethod());
   }
 
   /**

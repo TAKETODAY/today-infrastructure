@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,9 +20,8 @@
 
 package cn.taketoday.framework.web.embedded.undertow;
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.jasper.servlet.JspServlet;
-import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -212,8 +211,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     assertThat(request.get()).isInstanceOf(HttpResponse.class);
     Object rejectedResult = initiateGetRequest(port, "/").get();
     assertThat(rejectedResult).isInstanceOf(HttpResponse.class);
-    assertThat(((HttpResponse) rejectedResult).getStatusLine().getStatusCode())
-            .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE.value());
+    assertThat(((HttpResponse) rejectedResult).getCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE.value());
     this.webServer.stop();
   }
 
@@ -225,7 +223,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     factory.setAccessLogSuffix(suffix);
     File accessLogDirectory = this.tempDir;
     factory.setAccessLogDirectory(accessLogDirectory);
-    assertThat(accessLogDirectory.listFiles()).isEmpty();
+    assertThat(accessLogDirectory).isEmptyDirectory();
     this.webServer = factory.getWebServer(new ServletRegistrationBean<>(new ExampleServlet(), "/hello"));
     this.webServer.start();
     assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
@@ -297,7 +295,8 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
 
   @Override
   protected Map<String, String> getActualMimeMappings() {
-    return ((UndertowServletWebServer) this.webServer).getDeploymentManager().getDeployment()
+    return ((UndertowServletWebServer) this.webServer).getDeploymentManager()
+            .getDeployment()
             .getMimeExtensionMappings();
   }
 

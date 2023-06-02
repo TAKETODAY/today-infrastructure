@@ -39,7 +39,6 @@ import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
-import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -455,21 +454,6 @@ public class RestTemplateBuilder {
    */
   public RestTemplateBuilder setReadTimeout(Duration readTimeout) {
     return new RestTemplateBuilder(requestFactorySettings.withReadTimeout(readTimeout),
-            detectRequestFactory, rootUri, messageConverters, interceptors, requestFactory,
-            uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
-            customizers, requestCustomizers);
-  }
-
-  /**
-   * Sets if the underlying {@link ClientHttpRequestFactory} should buffer the
-   * {@linkplain ClientHttpRequest#getBody() request body} internally.
-   *
-   * @param bufferRequestBody value of the bufferRequestBody parameter
-   * @return a new builder instance.
-   * @see HttpComponentsClientHttpRequestFactory#setBufferRequestBody(boolean)
-   */
-  public RestTemplateBuilder setBufferRequestBody(boolean bufferRequestBody) {
-    return new RestTemplateBuilder(requestFactorySettings.withBufferRequestBody(bufferRequestBody),
             detectRequestFactory, rootUri, messageConverters, interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
             customizers, requestCustomizers);

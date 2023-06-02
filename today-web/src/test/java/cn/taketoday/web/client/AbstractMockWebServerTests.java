@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -53,7 +53,7 @@ abstract class AbstractMockWebServerTests {
   protected static final MediaType textContentType =
           new MediaType("text", "plain", Collections.singletonMap("charset", "UTF-8"));
 
-  protected static final String helloWorld = "H\u00e9llo W\u00f6rld";
+  protected static final String helloWorld = "Héllo Wörld";
 
   private final MockWebServer server = new MockWebServer();
 
@@ -93,11 +93,11 @@ abstract class AbstractMockWebServerTests {
   private MockResponse postRequest(RecordedRequest request, String expectedRequestContent,
           String location, String contentType, byte[] responseBody) {
 
-    assertThat(request.getHeaders().values(CONTENT_LENGTH).size()).isEqualTo(1);
+    assertThat(request.getHeaders().values(CONTENT_LENGTH)).hasSize(1);
     assertThat(Integer.parseInt(request.getHeader(CONTENT_LENGTH))).as("Invalid request content-length").isGreaterThan(0);
     String requestContentType = request.getHeader(CONTENT_TYPE);
     assertThat(requestContentType).as("No content-type").isNotNull();
-    Charset charset = StandardCharsets.UTF_8;
+    Charset charset = StandardCharsets.ISO_8859_1;
     if (requestContentType.contains("charset=")) {
       String charsetName = requestContentType.split("charset=")[1];
       charset = Charset.forName(charsetName);
@@ -115,7 +115,10 @@ abstract class AbstractMockWebServerTests {
 
   private MockResponse jsonPostRequest(RecordedRequest request, String location, String contentType) {
     if (request.getBodySize() > 0) {
-      assertThat(Integer.parseInt(request.getHeader(CONTENT_LENGTH))).as("Invalid request content-length").isGreaterThan(0);
+      String contentLength = request.getHeader(CONTENT_LENGTH);
+      if (contentLength != null) {
+        assertThat(Integer.parseInt(contentLength)).as("Invalid request content-length").isGreaterThan(0);
+      }
       assertThat(request.getHeader(CONTENT_TYPE)).as("No content-type").isNotNull();
     }
     return new MockResponse()
@@ -172,7 +175,7 @@ abstract class AbstractMockWebServerTests {
     assertThat(line).contains("name=\"" + name + "\"");
     assertThat(buffer.readUtf8Line()).startsWith("Content-Type: " + contentType);
     assertThat(buffer.readUtf8Line()).isEqualTo("Content-Length: " + value.length());
-    assertThat(buffer.readUtf8Line()).isEqualTo("");
+    assertThat(buffer.readUtf8Line()).isEmpty();
     assertThat(buffer.readUtf8Line()).isEqualTo(value);
   }
 
@@ -186,7 +189,7 @@ abstract class AbstractMockWebServerTests {
     assertThat(line).contains("filename=\"" + filename + "\"");
     assertThat(buffer.readUtf8Line()).startsWith("Content-Type: " + contentType);
     assertThat(buffer.readUtf8Line()).startsWith("Content-Length: ");
-    assertThat(buffer.readUtf8Line()).isEqualTo("");
+    assertThat(buffer.readUtf8Line()).isEmpty();
     assertThat(buffer.readUtf8Line()).isNotNull();
   }
 

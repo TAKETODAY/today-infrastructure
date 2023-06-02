@@ -76,7 +76,7 @@ public abstract class ClientHttpRequestFactories {
   public static ClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
     Assert.notNull(settings, "Settings is required");
     ClassLoader classLoader = ClientHttpRequestFactories.class.getClassLoader();
-    if (ClassUtils.isPresent("org.apache.http.client.HttpClient", classLoader)) {
+    if (ClassUtils.isPresent("org.apache.hc.client5.http.impl.classic.HttpClients", classLoader)) {
       return HttpComponents.get(settings);
     }
     if (ClassUtils.isPresent("okhttp3.OkHttpClient", classLoader)) {

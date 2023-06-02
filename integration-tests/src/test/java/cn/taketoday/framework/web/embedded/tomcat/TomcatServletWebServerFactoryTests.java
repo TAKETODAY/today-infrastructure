@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,13 +51,11 @@ import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -65,6 +63,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -72,6 +71,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import cn.taketoday.core.io.ByteArrayResource;
+import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.Shutdown;
@@ -99,6 +100,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -186,9 +188,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatContextCustomizer customizer = mock(TomcatContextCustomizer.class);
     factory.addContextCustomizers(customizer);
     this.webServer = factory.getWebServer();
-    ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-    then(customizer).should().customize(contextCaptor.capture());
-    assertThat(contextCaptor.getValue().getParent()).isNotNull();
+    then(customizer).should().customize(assertArg((context) -> assertThat(context.getParent()).isNotNull()));
   }
 
   @Test
@@ -372,13 +372,6 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   }
 
   @Test
-  @Disabled("session 持久化问题")
-  void persistSession() {
-
-  }
-
-  @Test
-  @Disabled("session 持久化问题")
   void disableDoesNotSaveSessionFiles() throws Exception {
     TomcatServletWebServerFactory factory = getFactory();
     // If baseDir is not set SESSIONS.ser is written to a different temp directory
@@ -421,12 +414,15 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   }
 
   @Test
-  void defaultLocaleCharsetMappingsAreOverridden() {
+  void defaultLocaleCharsetMappingsAreOverridden() throws IOException {
     TomcatServletWebServerFactory factory = getFactory();
     this.webServer = factory.getWebServer();
     // override defaults, see org.apache.catalina.util.CharsetMapperDefault.properties
-    assertThat(getCharset(Locale.ENGLISH)).isEqualTo(StandardCharsets.UTF_8);
-    assertThat(getCharset(Locale.FRENCH)).isEqualTo(StandardCharsets.UTF_8);
+    Properties charsetMapperDefault = PropertiesUtils.loadProperties(
+            new ClassPathResource("CharsetMapperDefault.properties", CharsetMapper.class));
+    for (String language : charsetMapperDefault.stringPropertyNames()) {
+      assertThat(getCharset(new Locale(language))).isEqualTo(StandardCharsets.UTF_8);
+    }
   }
 
   @Test
@@ -489,8 +485,8 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   void exceptionThrownOnLoadFailureWhenFailCtxIfServletStartFailsIsTrue() {
     TomcatServletWebServerFactory factory = getFactory();
     factory.addContextCustomizers((context) -> {
-      if (context instanceof StandardContext) {
-        ((StandardContext) context).setFailCtxIfServletStartFails(true);
+      if (context instanceof StandardContext standardContext) {
+        standardContext.setFailCtxIfServletStartFails(true);
       }
     });
     this.webServer = factory
@@ -502,8 +498,8 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   void exceptionThrownOnLoadFailureWhenFailCtxIfServletStartFailsIsFalse() {
     TomcatServletWebServerFactory factory = getFactory();
     factory.addContextCustomizers((context) -> {
-      if (context instanceof StandardContext) {
-        ((StandardContext) context).setFailCtxIfServletStartFails(false);
+      if (context instanceof StandardContext standardContext) {
+        standardContext.setFailCtxIfServletStartFails(false);
       }
     });
     this.webServer = factory
@@ -524,7 +520,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   }
 
   @Test
-  void nonExistentUploadDirectoryIsCreatedUponMultipartUpload() throws IOException, URISyntaxException {
+  void nonExistentUploadDirectoryIsCreatedUponMultipartUpload() {
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0);
     AtomicReference<ServletContext> servletContextReference = new AtomicReference<>();
     factory.addInitializers((servletContext) -> {
@@ -604,9 +600,9 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     blockingServlet.awaitQueue();
     this.webServer.shutDownGracefully((result) -> {
     });
-    Object unconnectableRequest = Awaitility.await().until(
-            () -> initiateGetRequest(HttpClients.createDefault(), port, "/").get(),
-            (result) -> result instanceof Exception);
+    Object unconnectableRequest = Awaitility.await()
+            .until(() -> initiateGetRequest(HttpClients.createDefault(), port, "/").get(),
+                    (result) -> result instanceof Exception);
     assertThat(unconnectableRequest).isInstanceOf(HttpHostConnectException.class);
     blockingServlet.admitOne();
     assertThat(request.get()).isInstanceOf(HttpResponse.class);
@@ -640,8 +636,8 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
       return result;
     }, (result) -> result instanceof Exception);
     assertThat(idleConnectionRequestResult).isInstanceOfAny(SocketException.class, NoHttpResponseException.class);
-    if (idleConnectionRequestResult instanceof SocketException) {
-      assertThat((SocketException) idleConnectionRequestResult).hasMessage("Connection reset");
+    if (idleConnectionRequestResult instanceof SocketException socketException) {
+      assertThat(socketException).hasMessage("Connection reset");
     }
     blockingServlet.admitOne();
     Object response = request.get();

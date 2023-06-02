@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.util.DefaultMultiValueMap;
@@ -709,9 +710,10 @@ class UriComponentsBuilderTests {
     // gh-19890
   void fromHttpRequestWithEmptyScheme() {
     HttpRequest request = new HttpRequest() {
+
       @Override
-      public String getMethodValue() {
-        return "GET";
+      public HttpMethod getMethod() {
+        return HttpMethod.GET;
       }
 
       @Override

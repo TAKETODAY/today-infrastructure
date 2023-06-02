@@ -20,11 +20,11 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.HttpHostConnectException;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.jasper.servlet.JspServlet;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.server.Connector;
@@ -71,6 +71,7 @@ import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactoryTests;
 import cn.taketoday.test.classpath.ClassPathOverrides;
+import cn.taketoday.test.web.servlet.Servlet5ClassPathOverrides;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -91,17 +92,14 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Henri Kerola
  */
-@ClassPathOverrides("org.eclipse.jetty:jetty-jndi:11.0.15")
+@Servlet5ClassPathOverrides
+@ClassPathOverrides({ "org.eclipse.jetty:jetty-jndi:11.0.15",
+        "org.eclipse.jetty:jetty-server:11.0.15" })
 class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryTests {
 
   @Override
   protected JettyServletWebServerFactory getFactory() {
     return new JettyServletWebServerFactory(0);
-  }
-
-  @Disabled("Jetty")
-  public void cookieSameSiteSuppliers() {
-
   }
 
   @Override
@@ -330,7 +328,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     blockingServlet.admitOne();
     Object response = request.get();
     assertThat(response).isInstanceOf(HttpResponse.class);
-    assertThat(((HttpResponse) response).getStatusLine().getStatusCode()).isEqualTo(200);
+    assertThat(((HttpResponse) response).getCode()).isEqualTo(200);
     assertThat(((HttpResponse) response).getFirstHeader("Connection")).isNull();
     this.webServer.shutDownGracefully((result) -> {
     });
@@ -339,8 +337,9 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     blockingServlet.admitOne();
     response = request.get();
     assertThat(response).isInstanceOf(HttpResponse.class);
-    assertThat(((HttpResponse) response).getStatusLine().getStatusCode()).isEqualTo(200);
-    assertThat(((HttpResponse) response).getFirstHeader("Connection")).isNotNull().extracting(Header::getValue)
+    assertThat(((HttpResponse) response).getCode()).isEqualTo(200);
+    assertThat(((HttpResponse) response).getFirstHeader("Connection")).isNotNull()
+            .extracting(Header::getValue)
             .isEqualTo("close");
     this.webServer.stop();
   }
@@ -532,11 +531,11 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
   }
 
   private WebAppContext findWebAppContext(Handler handler) {
-    if (handler instanceof WebAppContext) {
-      return (WebAppContext) handler;
+    if (handler instanceof WebAppContext webAppContext) {
+      return webAppContext;
     }
-    if (handler instanceof HandlerWrapper) {
-      return findWebAppContext(((HandlerWrapper) handler).getHandler());
+    if (handler instanceof HandlerWrapper wrapper) {
+      return findWebAppContext(wrapper.getHandler());
     }
     throw new IllegalStateException("No WebAppContext found");
   }
