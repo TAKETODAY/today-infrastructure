@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -916,7 +916,7 @@ public abstract class HttpHeaders
    * @see #encodeBasicAuth(String, String, Charset)
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
-  public void setBasicAuth(String username, String password, Charset charset) {
+  public void setBasicAuth(String username, String password, @Nullable Charset charset) {
     setBasicAuth(encodeBasicAuth(username, password, charset));
   }
 
@@ -1902,7 +1902,7 @@ public abstract class HttpHeaders
    * @see #setBasicAuth(String, String, Charset)
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
-  public static String encodeBasicAuth(String username, String password, Charset charset) {
+  public static String encodeBasicAuth(String username, String password, @Nullable Charset charset) {
     Assert.notNull(username, "Username must not be null");
     Assert.doesNotContain(username, ":", "Username must not contain a colon");
     Assert.notNull(password, "Password must not be null");

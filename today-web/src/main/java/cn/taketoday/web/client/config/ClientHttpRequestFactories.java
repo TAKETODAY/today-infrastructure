@@ -20,16 +20,19 @@
 
 package cn.taketoday.web.client.config;
 
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.io.SocketConfig;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -141,31 +144,40 @@ public abstract class ClientHttpRequestFactories {
   static class HttpComponents {
 
     static HttpComponentsClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
-      var requestFactory = new HttpComponentsClientHttpRequestFactory();
-      SslBundle sslBundle = settings.sslBundle();
-      if (sslBundle != null) {
-        SslOptions options = sslBundle.getOptions();
-        SSLConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(sslBundle.createSslContext(),
-                options.getEnabledProtocols(), options.getCiphers(), new DefaultHostnameVerifier());
-        CloseableHttpClient client = HttpClients.custom()
-                .setSSLSocketFactory(sslFactory)
-                .build();
-        requestFactory = new HttpComponentsClientHttpRequestFactory(client);
-      }
-      else {
-        requestFactory = new HttpComponentsClientHttpRequestFactory();
-      }
-      if (settings.readTimeout() != null) {
-        requestFactory.setReadTimeout((int) settings.readTimeout().toMillis());
-      }
+      var requestFactory = createRequestFactory(settings.readTimeout(), settings.sslBundle());
       if (settings.connectTimeout() != null) {
         requestFactory.setConnectTimeout((int) settings.connectTimeout().toMillis());
       }
-
-      if (settings.bufferRequestBody() != null) {
-        requestFactory.setBufferRequestBody(settings.bufferRequestBody());
-      }
       return requestFactory;
+    }
+
+    private static HttpComponentsClientHttpRequestFactory createRequestFactory(
+            @Nullable Duration readTimeout, @Nullable SslBundle sslBundle) {
+      return new HttpComponentsClientHttpRequestFactory(createHttpClient(readTimeout, sslBundle));
+    }
+
+    private static HttpClient createHttpClient(@Nullable Duration readTimeout, @Nullable SslBundle sslBundle) {
+      var connectionManagerBuilder = PoolingHttpClientConnectionManagerBuilder.create();
+      if (readTimeout != null) {
+        SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout((int) readTimeout.toMillis(), TimeUnit.MILLISECONDS)
+                .build();
+        connectionManagerBuilder.setDefaultSocketConfig(socketConfig);
+      }
+      if (sslBundle != null) {
+        SslOptions options = sslBundle.getOptions();
+        var socketFactory = new SSLConnectionSocketFactory(
+                sslBundle.createSslContext(),
+                options.getEnabledProtocols(),
+                options.getCiphers(),
+                new DefaultHostnameVerifier()
+        );
+        connectionManagerBuilder.setSSLSocketFactory(socketFactory);
+      }
+      var connectionManager = connectionManagerBuilder.build();
+      return HttpClientBuilder.create()
+              .setConnectionManager(connectionManager)
+              .build();
     }
 
   }

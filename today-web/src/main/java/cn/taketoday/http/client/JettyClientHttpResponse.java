@@ -45,22 +45,20 @@ class JettyClientHttpResponse implements ClientHttpResponse {
 
   private final HttpHeaders headers;
 
+  private final HttpStatusCode statusCode;
+
   public JettyClientHttpResponse(Response response, InputStream inputStream) {
     this.response = response;
     this.body = inputStream;
 
     MultiValueMap<String, String> headers = new JettyHeadersAdapter(response.getHeaders());
     this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+    this.statusCode = HttpStatusCode.valueOf(this.response.getStatus());
   }
 
   @Override
   public HttpStatusCode getStatusCode() throws IOException {
-    return HttpStatusCode.valueOf(this.response.getStatus());
-  }
-
-  @Override
-  public int getRawStatusCode() throws IOException {
-    return response.getStatus();
+    return statusCode;
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,9 +46,7 @@ public interface ClientHttpResponse extends HttpInputMessage, Closeable {
    * @return the HTTP status as {@code HttpStatusCode} value (never {@code null})
    * @throws IOException in case of I/O errors
    */
-  default HttpStatusCode getStatusCode() throws IOException {
-    return HttpStatusCode.valueOf(getRawStatusCode());
-  }
+  HttpStatusCode getStatusCode() throws IOException;
 
   /**
    * Get the HTTP status code (potentially non-standard and not
@@ -59,7 +57,9 @@ public interface ClientHttpResponse extends HttpInputMessage, Closeable {
    * @see #getStatusCode()
    * @see HttpStatusCode#valueOf(int)
    */
-  int getRawStatusCode() throws IOException;
+  default int getRawStatusCode() throws IOException {
+    return getStatusCode().value();
+  }
 
   /**
    * Get the HTTP status text of the response.

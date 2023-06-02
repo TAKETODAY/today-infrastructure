@@ -410,7 +410,7 @@ public class RestTemplateBuilder {
    * @param charset the charset to use
    * @return a new builder instance
    */
-  public RestTemplateBuilder basicAuthentication(String username, String password, Charset charset) {
+  public RestTemplateBuilder basicAuthentication(String username, String password, @Nullable Charset charset) {
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
             errorHandler, new BasicAuthentication(username, password, charset), defaultHeaders,

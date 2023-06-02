@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,6 +54,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
 public class ServletServerHttpRequest implements ServerHttpRequest {
@@ -71,6 +72,8 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   @Nullable
   private ServerHttpAsyncRequestControl asyncRequestControl;
 
+  private final HttpMethod method;
+
   /**
    * Construct a new instance of the ServletServerHttpRequest based on the
    * given {@link HttpServletRequest}.
@@ -80,6 +83,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   public ServletServerHttpRequest(HttpServletRequest servletRequest) {
     Assert.notNull(servletRequest, "HttpServletRequest must not be null");
     this.servletRequest = servletRequest;
+    this.method = HttpMethod.valueOf(this.servletRequest.getMethod());
   }
 
   /**
@@ -90,14 +94,8 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   }
 
   @Override
-  @Nullable
   public HttpMethod getMethod() {
-    return HttpMethod.from(this.servletRequest.getMethod());
-  }
-
-  @Override
-  public String getMethodValue() {
-    return this.servletRequest.getMethod();
+    return method;
   }
 
   @Override

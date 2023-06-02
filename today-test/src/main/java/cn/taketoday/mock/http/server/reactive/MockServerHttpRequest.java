@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -91,12 +91,6 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
   @Override
   public HttpMethod getMethod() {
     return this.httpMethod;
-  }
-
-  @Override
-  @Deprecated
-  public String getMethodValue() {
-    return this.httpMethod.name();
   }
 
   @Override

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import reactor.core.publisher.Flux;
  * Default implementation of {@link ClientResponse.Builder}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class DefaultClientResponseBuilder implements ClientResponse.Builder {
@@ -56,12 +57,6 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     @Override
     public HttpMethod getMethod() {
       return HttpMethod.GET;
-    }
-
-    @Override
-    @Deprecated
-    public String getMethodValue() {
-      return "GET";
     }
 
     @Override

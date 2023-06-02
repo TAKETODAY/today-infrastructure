@@ -68,11 +68,6 @@ class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
   }
 
   @Override
-  public String getMethodValue() {
-    return method.name();
-  }
-
-  @Override
   public URI getURI() {
     return this.request.getURI();
   }

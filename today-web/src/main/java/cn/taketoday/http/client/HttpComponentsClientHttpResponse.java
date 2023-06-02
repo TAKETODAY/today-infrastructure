@@ -61,12 +61,6 @@ final class HttpComponentsClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  @Deprecated
-  public int getRawStatusCode() {
-    return this.httpResponse.getCode();
-  }
-
-  @Override
   public String getStatusText() {
     return this.httpResponse.getReasonPhrase();
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,11 @@
 
 package cn.taketoday.http.client;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.List;
+
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
@@ -27,16 +32,12 @@ import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StreamUtils;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * Wrapper for a {@link ClientHttpRequest} that has support for {@link ClientHttpRequestInterceptor
  * ClientHttpRequestInterceptors}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
@@ -59,11 +60,6 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
   @Override
   public HttpMethod getMethod() {
     return this.method;
-  }
-
-  @Override
-  public String getMethodValue() {
-    return this.method.name();
   }
 
   @Override

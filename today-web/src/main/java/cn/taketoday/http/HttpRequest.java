@@ -38,9 +38,7 @@ public interface HttpRequest extends HttpMessage {
    * @return the HTTP method as an HttpMethod value
    * @see HttpMethod#from(String)
    */
-  default HttpMethod getMethod() {
-    return HttpMethod.from(getMethodValue());
-  }
+  HttpMethod getMethod();
 
   /**
    * Return the HTTP method of the request as a String value.
@@ -48,7 +46,9 @@ public interface HttpRequest extends HttpMessage {
    * @return the HTTP method as a plain String
    * @see #getMethod()
    */
-  String getMethodValue();
+  default String getMethodValue() {
+    return getMethod().name();
+  }
 
   /**
    * Return the URI of the request (including a query string if any,

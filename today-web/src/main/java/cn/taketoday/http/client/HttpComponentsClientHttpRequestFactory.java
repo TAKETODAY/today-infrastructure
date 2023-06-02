@@ -37,7 +37,6 @@ import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Timeout;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -58,7 +57,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Allows to use a pre-configured {@link HttpClient} instance -
  * potentially with authentication, HTTP connection pooling, etc.
  *
- * <p><b>NOTE:</b> Requires Apache HttpComponents 4.3 or higher
+ * <p><b>NOTE:</b> Requires Apache HttpComponents 5.1 or higher.
  *
  * @author Oleg Kalnichevski
  * @author Arjen Poutsma
@@ -70,8 +69,6 @@ import cn.taketoday.lang.Nullable;
 public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
 
   private HttpClient httpClient;
-
-  private boolean bufferRequestBody = true;
 
   private int connectTimeout = -1;
 
@@ -150,33 +147,6 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   }
 
   /**
-   * As of version 6.0, setting this property has no effect.
-   *
-   * <p/>To change the socket read timeout, use {@link SocketConfig.Builder#setSoTimeout(Timeout)},
-   * supply the resulting {@link SocketConfig} to
-   * {@link org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder#setDefaultSocketConfig(SocketConfig)},
-   * use the resulting connection manager for
-   * {@link org.apache.hc.client5.http.impl.classic.HttpClientBuilder#setConnectionManager(HttpClientConnectionManager)},
-   * and supply the built {@link HttpClient} to {@link #HttpComponentsClientHttpRequestFactory(HttpClient)}.
-   *
-   * @deprecated as of 6.0, in favor of {@link SocketConfig.Builder#setSoTimeout(Timeout)}, see above.
-   */
-  @Deprecated(since = "6.0", forRemoval = true)
-  public void setReadTimeout(int timeout) {
-    logger.warn("HttpComponentsClientHttpRequestFactory.setReadTimeout has no effect");
-  }
-
-  /**
-   * Indicates whether this request factory should buffer the request body internally.
-   * <p>Default is {@code true}. When sending large amounts of data via POST or PUT, it is
-   * recommended to change this property to {@code false}, so as not to run out of memory.
-   */
-  @Deprecated(forRemoval = true)
-  public void setBufferRequestBody(boolean bufferRequestBody) {
-    this.bufferRequestBody = bufferRequestBody;
-  }
-
-  /**
    * Configure a factory to pre-create the {@link HttpContext} for each request.
    * <p>This may be useful for example in mutual TLS authentication where a
    * different {@code RestTemplate} for each client certificate such that
@@ -205,8 +175,8 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
     if (context.getAttribute(HttpClientContext.REQUEST_CONFIG) == null) {
       // Use request configuration given by the user, when available
       RequestConfig config = null;
-      if (httpRequest instanceof Configurable) {
-        config = ((Configurable) httpRequest).getConfig();
+      if (httpRequest instanceof Configurable configurable) {
+        config = configurable.getConfig();
       }
       if (config == null) {
         config = createRequestConfig(client);
@@ -215,13 +185,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
         context.setAttribute(HttpClientContext.REQUEST_CONFIG, config);
       }
     }
-
-    if (this.bufferRequestBody) {
-      return new HttpComponentsClientHttpRequest(client, httpRequest, context);
-    }
-    else {
-      return new HttpComponentsStreamingClientHttpRequest(client, httpRequest, context);
-    }
+    return new HttpComponentsClientHttpRequest(client, httpRequest, context);
   }
 
   /**
@@ -251,6 +215,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * @param clientConfig the config held by the current
    * @return the merged request config
    */
+  @SuppressWarnings("deprecation")  // setConnectTimeout
   protected RequestConfig mergeRequestConfig(RequestConfig clientConfig) {
     if (this.connectTimeout == -1 && this.connectionRequestTimeout == -1) {  // nothing to merge
       return clientConfig;
@@ -317,9 +282,8 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   @Override
   public void destroy() throws Exception {
     HttpClient httpClient = getHttpClient();
-    if (httpClient instanceof Closeable) {
-      ((Closeable) httpClient).close();
+    if (httpClient instanceof Closeable closeable) {
+      closeable.close();
     }
   }
-
 }

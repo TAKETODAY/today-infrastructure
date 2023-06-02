@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLSession;
@@ -51,6 +50,7 @@ import reactor.core.publisher.Flux;
  *
  * @author Marek Hawrylczak
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class UndertowServerHttpRequest extends AbstractServerHttpRequest {
@@ -81,16 +81,12 @@ class UndertowServerHttpRequest extends AbstractServerHttpRequest {
     return this.exchange.getRequestMethod().toString();
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
     MultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
-    // getRequestCookies() is deprecated in Undertow 2.2
-    for (Map.Entry<String, Cookie> entry : exchange.getRequestCookies().entrySet()) {
-      String name = entry.getKey();
-      Cookie cookie = entry.getValue();
-      HttpCookie httpCookie = new HttpCookie(name, cookie.getValue());
-      cookies.add(name, httpCookie);
+    for (Cookie cookie : exchange.requestCookies()) {
+      HttpCookie httpCookie = new HttpCookie(cookie.getName(), cookie.getValue());
+      cookies.add(cookie.getName(), httpCookie);
     }
     return cookies;
   }

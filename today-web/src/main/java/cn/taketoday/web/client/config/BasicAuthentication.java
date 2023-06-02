@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,21 +24,25 @@ import java.nio.charset.Charset;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Basic authentication details to be applied to {@link HttpHeaders}.
  *
  * @author Dmytro Nosan
  * @author Ilya Lukyanovich
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class BasicAuthentication {
 
   private final String username;
   private final String password;
+
+  @Nullable
   private final Charset charset;
 
-  BasicAuthentication(String username, String password, Charset charset) {
+  BasicAuthentication(String username, String password, @Nullable Charset charset) {
     Assert.notNull(username, "Username must not be null");
     Assert.notNull(password, "Password must not be null");
     this.username = username;

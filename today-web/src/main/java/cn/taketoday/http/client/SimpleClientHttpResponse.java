@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
@@ -53,8 +54,8 @@ final class SimpleClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
-  public int getRawStatusCode() throws IOException {
-    return this.connection.getResponseCode();
+  public HttpStatusCode getStatusCode() throws IOException {
+    return HttpStatusCode.valueOf(connection.getResponseCode());
   }
 
   @Override

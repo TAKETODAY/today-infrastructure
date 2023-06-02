@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,7 +21,6 @@
 package cn.taketoday.http.client;
 
 import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -59,15 +58,18 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
   private final HttpContext httpContext;
   private final ClassicHttpRequest httpRequest;
 
+  private final HttpMethod method;
+
   HttpComponentsClientHttpRequest(HttpClient client, ClassicHttpRequest request, HttpContext context) {
     this.httpClient = client;
     this.httpRequest = request;
     this.httpContext = context;
+    this.method = HttpMethod.valueOf(httpRequest.getMethod());
   }
 
   @Override
-  public String getMethodValue() {
-    return this.httpRequest.getMethod();
+  public HttpMethod getMethod() {
+    return method;
   }
 
   @Override
