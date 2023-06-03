@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.aop.target.dynamic;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.aop.DisabledIfInContinuousIntegration;
 import cn.taketoday.aop.target.AbstractRefreshableTargetSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +81,7 @@ public class RefreshableTargetSourceTests {
   }
 
   @Test
-//  @EnabledForTestGroups(LONG_RUNNING)
+  @DisabledIfInContinuousIntegration
   public void testRefreshOverTime() throws Exception {
     CountingRefreshableTargetSource ts = new CountingRefreshableTargetSource(true);
     ts.setRefreshCheckDelay(100);
