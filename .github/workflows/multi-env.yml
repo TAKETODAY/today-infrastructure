@@ -1,0 +1,29 @@
+name: Multi Environment CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy-snapshot:
+    if: github.repository_owner == 'TAKETODAY'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        java: [ 17, 20, 21 ]
+      fail-fast: false
+      max-parallel: 4
+    name: Test JDK ${{ matrix.java }} on ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: adopt
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn -B package -DCI=true
