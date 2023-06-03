@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,10 +23,12 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
+import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericXmlApplicationContext;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,6 +53,8 @@ public class DestroyMethodInferenceTests {
     WithInheritedCloseMethod c8 = ctx.getBean("c8", WithInheritedCloseMethod.class);
     WithDisposableBean c9 = ctx.getBean("c9", WithDisposableBean.class);
     WithAutoCloseable c10 = ctx.getBean("c10", WithAutoCloseable.class);
+    WithCompletableFutureMethod c11 = ctx.getBean("c11", WithCompletableFutureMethod.class);
+    WithReactorMonoMethod c12 = ctx.getBean("c12", WithReactorMonoMethod.class);
 
     assertThat(c0.closed).as("c0").isFalse();
     assertThat(c1.closed).as("c1").isFalse();
@@ -63,6 +67,8 @@ public class DestroyMethodInferenceTests {
     assertThat(c8.closed).as("c8").isFalse();
     assertThat(c9.closed).as("c9").isFalse();
     assertThat(c10.closed).as("c10").isFalse();
+    assertThat(c11.closed).as("c11").isFalse();
+    assertThat(c12.closed).as("c12").isFalse();
 
     ctx.close();
     assertThat(c0.closed).as("c0").isTrue();
@@ -76,6 +82,8 @@ public class DestroyMethodInferenceTests {
     assertThat(c8.closed).as("c8").isFalse();
     assertThat(c9.closed).as("c9").isTrue();
     assertThat(c10.closed).as("c10").isTrue();
+    assertThat(c11.closed).as("c11").isTrue();
+    assertThat(c12.closed).as("c12").isTrue();
   }
 
   @Test
@@ -175,6 +183,16 @@ public class DestroyMethodInferenceTests {
     public WithAutoCloseable c10() {
       return new WithAutoCloseable();
     }
+
+    @Bean
+    public WithCompletableFutureMethod c11() {
+      return new WithCompletableFutureMethod();
+    }
+
+    @Bean
+    public WithReactorMonoMethod c12() {
+      return new WithReactorMonoMethod();
+    }
   }
 
   static class WithExplicitDestroyMethod {
@@ -236,6 +254,38 @@ public class DestroyMethodInferenceTests {
     @Override
     public void close() {
       closed = true;
+    }
+  }
+
+  static class WithCompletableFutureMethod {
+
+    boolean closed = false;
+
+    public CompletableFuture<Void> close() {
+      return CompletableFuture.runAsync(() -> {
+        try {
+          Thread.sleep(100);
+        }
+        catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+        closed = true;
+      });
+    }
+  }
+
+  static class WithReactorMonoMethod {
+
+    boolean closed = false;
+
+    public Mono<Void> close() {
+      try {
+        Thread.sleep(100);
+      }
+      catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+      return Mono.fromRunnable(() -> closed = true);
     }
   }
 

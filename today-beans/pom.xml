@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
   ~
   ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
   ~
@@ -56,6 +56,12 @@
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.reactivestreams</groupId>
+      <artifactId>reactive-streams</artifactId>
       <scope>provided</scope>
     </dependency>
 
