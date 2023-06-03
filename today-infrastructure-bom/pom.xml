@@ -63,7 +63,7 @@
     <jooq.version>3.3.0</jooq.version>
     <junit5.version>5.9.3</junit5.version>
     <mockito.version>5.3.1</mockito.version>
-    <byte-buddy.version>1.12.12</byte-buddy.version>
+    <byte-buddy.version>1.14.5</byte-buddy.version>
     <slf4j.version>1.7.25</slf4j.version>
     <spring-jdbc.version>5.2.3.RELEASE</spring-jdbc.version>
     <reactor.version>3.4.18</reactor.version>
