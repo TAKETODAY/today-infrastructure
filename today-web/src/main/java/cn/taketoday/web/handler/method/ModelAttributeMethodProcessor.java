@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,8 +22,6 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -347,7 +345,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
       }
 
       try {
-        MethodParameter methodParam = new FieldAwareConstructorParameter(ctor, i, paramName);
+        MethodParameter methodParam = MethodParameter.forFieldAwareConstructor(ctor, i, paramName);
         if (value == null && methodParam.isOptional()) {
           args[i] = methodParam.getParameterType() == Optional.class ? Optional.empty() : null;
         }
@@ -525,61 +523,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     if (returnValue != null) {
       String name = ModelHandler.getNameForReturnValue(returnValue, handler);
       context.binding().addAttribute(name, returnValue);
-    }
-  }
-
-  /**
-   * {@link MethodParameter} subclass which detects field annotations as well.
-   */
-  private static class FieldAwareConstructorParameter extends MethodParameter {
-
-    private final String parameterName;
-
-    @Nullable
-    private volatile Annotation[] combinedAnnotations;
-
-    public FieldAwareConstructorParameter(Constructor<?> constructor, int parameterIndex, String parameterName) {
-      super(constructor, parameterIndex);
-      this.parameterName = parameterName;
-    }
-
-    @Override
-    public Annotation[] getParameterAnnotations() {
-      Annotation[] anns = this.combinedAnnotations;
-      if (anns == null) {
-        anns = super.getParameterAnnotations();
-        try {
-          Field field = getDeclaringClass().getDeclaredField(parameterName);
-          Annotation[] fieldAnns = field.getAnnotations();
-          if (fieldAnns.length > 0) {
-            ArrayList<Annotation> merged = new ArrayList<>(anns.length + fieldAnns.length);
-            CollectionUtils.addAll(merged, anns);
-            for (Annotation fieldAnn : fieldAnns) {
-              boolean existingType = false;
-              for (Annotation ann : anns) {
-                if (ann.annotationType() == fieldAnn.annotationType()) {
-                  existingType = true;
-                  break;
-                }
-              }
-              if (!existingType) {
-                merged.add(fieldAnn);
-              }
-            }
-            anns = merged.toArray(new Annotation[0]);
-          }
-        }
-        catch (NoSuchFieldException | SecurityException ex) {
-          // ignore
-        }
-        this.combinedAnnotations = anns;
-      }
-      return anns;
-    }
-
-    @Override
-    public String getParameterName() {
-      return this.parameterName;
     }
   }
 
