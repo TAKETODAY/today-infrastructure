@@ -29,7 +29,7 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: zulu
-          if: ${{ matrix.java == '17' }}
+        if: ${{ matrix.java == '17' }}
       - name: Print JDK Version
         run: java -version
       - name: Cache local Maven m2
