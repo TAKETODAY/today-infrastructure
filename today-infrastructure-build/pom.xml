@@ -172,9 +172,9 @@
           <release>${java.version}</release>
           <compilerVersion>${java.version}</compilerVersion>
           <encoding>UTF-8</encoding>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
+          <parameters>true</parameters>
+          <!-- Slightly faster builds, see https://issues.apache.org/jira/browse/MCOMPILER-209 -->
+          <useIncrementalCompilation>false</useIncrementalCompilation>
         </configuration>
 
       </plugin>
