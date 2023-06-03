@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,35 +37,37 @@ import cn.taketoday.util.MultiValueMap;
  * Extension of {@link HttpEntity} that adds a {@link HttpStatusCode} status code.
  * Used in {@code RestTemplate} as well {@code @Controller} methods.
  *
- * <p>Can also be used in TODAY Web MVC, as the return value from a @Controller method:
- * <pre class="code">
- * &#64;RequestMapping("/handle")
- * public ResponseEntity&lt;String&gt; handle() {
+ * <p>Can also be used in Web MVC, as the return value from a @Controller method:
+ * <pre>{@code
+ * @RequestMapping("/handle")
+ * public ResponseEntity<String> handle() {
  *   URI location = ...;
  *   HttpHeaders responseHeaders = HttpHeaders.create();
  *   responseHeaders.setLocation(location);
  *   responseHeaders.set("MyResponseHeader", "MyValue");
- *   return new ResponseEntity&lt;String&gt;("Hello World", responseHeaders, HttpStatus.CREATED);
+ *   return new ResponseEntity<>("Hello World", responseHeaders, HttpStatus.CREATED);
  * }
- * </pre>
+ * }</pre>
  *
  * Or, by using a builder accessible via static methods:
- * <pre class="code">
- * &#64;RequestMapping("/handle")
- * public ResponseEntity&lt;String&gt; handle() {
+ * <pre>{@code
+ * @RequestMapping("/handle")
+ * public ResponseEntity<String> handle() {
  *   URI location = ...;
- *   return ResponseEntity.created(location).header("MyResponseHeader", "MyValue").body("Hello World");
+ *   return ResponseEntity.created(location)
+ *              .header("MyResponseHeader", "MyValue")
+ *              .body("Hello World");
  * }
- * </pre>
+ * }</pre>
  *
  * From Spring
  *
  * @param <T> the body type
  * @author Arjen Poutsma
  * @author Brian Clozel
- * @author TODAY 2020/12/6 17:06
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getStatusCode()
- * @since 3.0
+ * @since 3.0 2020/12/6 17:06
  */
 public class ResponseEntity<T> extends HttpEntity<T> {
 
@@ -109,7 +111,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    */
   public ResponseEntity(@Nullable T body, MultiValueMap<String, String> headers, HttpStatusCode status) {
     super(body, headers);
-    Assert.notNull(status, "HttpStatusCode must not be null");
+    Assert.notNull(status, "HttpStatusCode is required");
     this.status = status;
   }
 
@@ -135,7 +137,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    */
   private ResponseEntity(T body, MultiValueMap<String, String> headers, Object status) {
     super(body, headers);
-    Assert.notNull(status, "HttpStatusCode must not be null");
+    Assert.notNull(status, "HttpStatusCode is required");
     this.status = status;
   }
 
@@ -213,7 +215,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @return the created builder
    */
   public static BodyBuilder status(HttpStatusCode status) {
-    Assert.notNull(status, "HttpStatusCode must not be null");
+    Assert.notNull(status, "HttpStatusCode is required");
     return new DefaultBuilder(status);
   }
 
@@ -255,8 +257,9 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @return the created {@code ResponseEntity}
    */
   public static <T> ResponseEntity<T> of(Optional<T> body) {
-    Assert.notNull(body, "Body must not be null");
-    return body.map(ResponseEntity::ok).orElseGet(() -> notFound().build());
+    Assert.notNull(body, "Body is required");
+    return body.map(ResponseEntity::ok)
+            .orElseGet(() -> notFound().build());
   }
 
   /**

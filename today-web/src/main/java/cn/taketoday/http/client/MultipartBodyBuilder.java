@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -50,7 +50,7 @@ import cn.taketoday.util.MultiValueMap;
  * {@link cn.taketoday.core.ReactiveAdapterRegistry ReactiveAdapterRegistry}.
  *
  * <p>Below are examples of using this builder:
- * <pre class="code">
+ * <pre>{@code
  *
  * // Add form field
  * MultipartBodyBuilder builder = new MultipartBodyBuilder();
@@ -65,25 +65,25 @@ import cn.taketoday.util.MultiValueMap;
  * builder.part("account", account).header("foo", "bar");
  *
  * // Add content from Publisher
- * Mono&lt;Account&gt; accountMono = ...
+ * Mono<Account> accountMono = ...
  * builder.asyncPart("account", accountMono).header("foo", "bar");
  *
  * // Build and use
- * MultiValueMap&lt;String, HttpEntity&lt;?&gt;&gt; multipartBody = builder.build();
+ * MultiValueMap<String, HttpEntity<?>> multipartBody = builder.build();
  *
- * Mono&lt;Void&gt; result = webClient.post()
+ * Mono<Void> result = webClient.post()
  *     .uri("...")
  *     .body(multipartBody)
  *     .retrieve()
  *     .bodyToMono(Void.class)
- * </pre>
+ * }</pre>
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @author TODAY 2021/11/5 23:00
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://tools.ietf.org/html/rfc7578">RFC 7578</a>
- * @since 4.0
+ * @since 4.0 2021/11/5 23:00
  */
 public final class MultipartBodyBuilder {
   private final DefaultMultiValueMap<String, DefaultPartBuilder> parts = MultiValueMap.fromLinkedHashMap();
@@ -117,7 +117,7 @@ public final class MultipartBodyBuilder {
    */
   public PartBuilder part(String name, Object part, @Nullable MediaType contentType) {
     Assert.hasLength(name, "'name' must not be empty");
-    Assert.notNull(part, "'part' must not be null");
+    Assert.notNull(part, "'part' is required");
 
     if (part instanceof Part partObject) {
       PartBuilder builder = asyncPart(name, partObject.content(), DataBuffer.class);
@@ -180,8 +180,8 @@ public final class MultipartBodyBuilder {
    */
   public <T, P extends Publisher<T>> PartBuilder asyncPart(String name, P publisher, Class<T> elementClass) {
     Assert.hasLength(name, "'name' must not be empty");
-    Assert.notNull(publisher, "'publisher' must not be null");
-    Assert.notNull(elementClass, "'elementClass' must not be null");
+    Assert.notNull(publisher, "'publisher' is required");
+    Assert.notNull(elementClass, "'elementClass' is required");
 
     PublisherPartBuilder<T, P> builder = new PublisherPartBuilder<>(name, null, publisher, elementClass);
     this.parts.add(name, builder);
@@ -201,8 +201,8 @@ public final class MultipartBodyBuilder {
           String name, P publisher, TypeReference<T> typeReference) {
 
     Assert.hasLength(name, "'name' must not be empty");
-    Assert.notNull(publisher, "'publisher' must not be null");
-    Assert.notNull(typeReference, "'typeReference' must not be null");
+    Assert.notNull(publisher, "'publisher' is required");
+    Assert.notNull(typeReference, "'typeReference' is required");
 
     PublisherPartBuilder<T, P> builder = new PublisherPartBuilder<>(name, null, publisher, typeReference);
     this.parts.add(name, builder);
@@ -252,7 +252,7 @@ public final class MultipartBodyBuilder {
      * @param headerName the part header name
      * @param headerValues the part header value(s)
      * @return this builder
-     * @see HttpHeaders#addAll(String, Collection)
+     * @see HttpHeaders#addAll(Object, Collection)
      */
     PartBuilder header(String headerName, String... headerValues);
 
@@ -342,7 +342,7 @@ public final class MultipartBodyBuilder {
     @SuppressWarnings("unchecked")
     public HttpEntity<?> build() {
       P publisher = (P) this.body;
-      Assert.state(publisher != null, "Publisher must not be null");
+      Assert.state(publisher != null, "Publisher is required");
       return new PublisherEntity<>(this.headers, publisher, this.resolvableType);
     }
   }
@@ -364,8 +364,8 @@ public final class MultipartBodyBuilder {
             @Nullable MultiValueMap<String, String> headers, P publisher, ResolvableType resolvableType) {
 
       super(publisher, headers);
-      Assert.notNull(publisher, "'publisher' must not be null");
-      Assert.notNull(resolvableType, "'resolvableType' must not be null");
+      Assert.notNull(publisher, "'publisher' is required");
+      Assert.notNull(resolvableType, "'resolvableType' is required");
       this.resolvableType = resolvableType;
     }
 

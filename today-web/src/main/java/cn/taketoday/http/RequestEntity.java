@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,35 +43,35 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * and in {@code @Controller} methods to represent request input.
  *
  * <p>Example use with the {@code RestTemplate}:
- * <pre class="code">
+ * <pre>{@code
  * MyRequest body = ...
- * RequestEntity&lt;MyRequest&gt; request = RequestEntity
- *     .post(&quot;https://example.com/{foo}&quot;, &quot;bar&quot;)
+ * RequestEntity<MyRequest> request = RequestEntity
+ *     .post("https://example.com/{foo}", "bar")
  *     .accept(MediaType.APPLICATION_JSON)
  *     .body(body);
- * ResponseEntity&lt;MyResponse&gt; response = template.exchange(request, MyResponse.class);
- * </pre>
+ * ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);
+ * }</pre>
  *
  * <p>Example use in an {@code @Controller}:
- * <pre class="code">
- * &#64;RequestMapping("/handle")
- * public void handle(RequestEntity&lt;String&gt; request) {
+ * <pre>{@code
+ * @RequestMapping("/handle")
+ * public void handle(RequestEntity<String> request) {
  *   HttpMethod method = request.getMethod();
  *   URI url = request.getUrl();
  *   String body = request.getBody();
  * }
- * </pre>
+ * }</pre>
  *
  * @param <T> the body type
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author Parviz Rozikov
- * @author TODAY 2021/11/5 21:46
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getMethod()
  * @see #getUrl()
  * @see RestOperations#exchange(RequestEntity, Class)
  * @see ResponseEntity
- * @since 4.0
+ * @since 4.0 2021/11/5 21:46
  */
 public class RequestEntity<T> extends HttpEntity<T> {
 
@@ -136,8 +136,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * @param method the method
    * @param url the URL
    */
-  public RequestEntity(
-          @Nullable T body, @Nullable MultiValueMap<String, String> headers,
+  public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
           @Nullable HttpMethod method, URI url) {
     this(body, headers, method, url, null);
   }
@@ -151,8 +150,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    * @param url the URL
    * @param type the type used for generic type resolution
    */
-  public RequestEntity(
-          @Nullable T body, @Nullable MultiValueMap<String, String> headers,
+  public RequestEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers,
           @Nullable HttpMethod method, @Nullable URI url, @Nullable Type type) {
     super(body, headers);
     this.method = method;
@@ -167,7 +165,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
    */
   @Nullable
   public HttpMethod getMethod() {
-    return this.method;
+    return method;
   }
 
   /**
@@ -224,8 +222,8 @@ public class RequestEntity<T> extends HttpEntity<T> {
   @Override
   public int hashCode() {
     int hashCode = super.hashCode();
-    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.method);
-    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.url);
+    hashCode = 29 * hashCode + Objects.hashCode(this.method);
+    hashCode = 29 * hashCode + Objects.hashCode(this.url);
     return hashCode;
   }
 
@@ -234,7 +232,8 @@ public class RequestEntity<T> extends HttpEntity<T> {
     return format(getMethod(), getUrl().toString(), getBody(), getHeaders());
   }
 
-  static <T> String format(@Nullable HttpMethod httpMethod, String url, @Nullable T body, HttpHeaders headers) {
+  static <T> String format(@Nullable HttpMethod httpMethod,
+          String url, @Nullable T body, HttpHeaders headers) {
     StringBuilder builder = new StringBuilder("<");
     builder.append(httpMethod);
     builder.append(' ');
@@ -588,7 +587,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
     @Nullable
     private final Map<String, ?> uriVarsMap;
 
-    DefaultBodyBuilder(HttpMethod method, URI url) {
+    DefaultBodyBuilder(HttpMethod method, @Nullable URI url) {
       this.method = method;
       this.uri = url;
       this.uriTemplate = null;
@@ -596,7 +595,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       this.uriVarsMap = null;
     }
 
-    DefaultBodyBuilder(HttpMethod method, String uriTemplate, Object... uriVars) {
+    DefaultBodyBuilder(HttpMethod method, @Nullable String uriTemplate, @Nullable Object... uriVars) {
       this.method = method;
       this.uri = null;
       this.uriTemplate = uriTemplate;
@@ -604,7 +603,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
       this.uriVarsMap = null;
     }
 
-    DefaultBodyBuilder(HttpMethod method, String uriTemplate, Map<String, ?> uriVars) {
+    DefaultBodyBuilder(HttpMethod method, @Nullable String uriTemplate, @Nullable Map<String, ?> uriVars) {
       this.method = method;
       this.uri = null;
       this.uriTemplate = uriTemplate;
@@ -768,7 +767,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
 
     @Override
     public int hashCode() {
-      return (29 * super.hashCode() + ObjectUtils.nullSafeHashCode(this.uriTemplate));
+      return 29 * super.hashCode() + Objects.hashCode(this.uriTemplate);
     }
 
     @Override

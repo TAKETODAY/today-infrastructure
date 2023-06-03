@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
 import java.util.Objects;
@@ -26,37 +27,37 @@ import cn.taketoday.util.MultiValueMap;
 
 /**
  * Represents an HTTP request or response entity, consisting of headers and body.
- *
+ * <p>
  * like so:
- * <pre class="code">
+ * <pre>{@code
  * HttpHeaders headers = HttpHeaders.create();
  * headers.setContentType(MediaType.TEXT_PLAIN);
- * HttpEntity&lt;String&gt; entity = new HttpEntity&lt;String&gt;(helloWorld, headers);
+ * HttpEntity<String> entity = new HttpEntity<>(helloWorld, headers);
  * URI location = template.postForLocation("https://example.com", entity);
- * </pre>
+ * }</pre>
  * or
- * <pre class="code">
- * HttpEntity&lt;String&gt; entity = template.getForEntity("https://example.com", String.class);
+ * <pre>{@code
+ * HttpEntity<String> entity = template.getForEntity("https://example.com", String.class);
  * String body = entity.getBody();
  * MediaType contentType = entity.getHeaders().getContentType();
- * </pre>
+ * }</pre>
  * Can also be used in Web MVC, as a return value from a @Controller method:
- * <pre class="code">
- * &#64;RequestMapping("/handle")
- * public HttpEntity&lt;String&gt; handle() {
+ * <pre>{@code
+ * @RequestMapping("/handle")
+ * public HttpEntity<String> handle() {
  *   HttpHeaders responseHeaders = HttpHeaders.create();
  *   responseHeaders.set("MyResponseHeader", "MyValue");
- *   return new HttpEntity&lt;String&gt;("Hello World", responseHeaders);
+ *   return new HttpEntity<>("Hello World", responseHeaders);
  * }
- * </pre>
+ * }</pre>
  *
  * @param <T> the body type
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @author TODAY 2020/12/6 17:10
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getBody()
  * @see #getHeaders()
- * @since 3.0
+ * @since 3.0 2020/12/6 17:10
  */
 public class HttpEntity<T> {
 
@@ -114,7 +115,7 @@ public class HttpEntity<T> {
    * Returns the headers of this entity.
    */
   public HttpHeaders getHeaders() {
-    return this.headers;
+    return headers;
   }
 
   /**
@@ -122,14 +123,14 @@ public class HttpEntity<T> {
    */
   @Nullable
   public T getBody() {
-    return this.body;
+    return body;
   }
 
   /**
    * Indicates whether this entity has a body.
    */
   public boolean hasBody() {
-    return (this.body != null);
+    return body != null;
   }
 
   @Override
@@ -141,13 +142,13 @@ public class HttpEntity<T> {
       return false;
     }
     HttpEntity<?> otherEntity = (HttpEntity<?>) other;
-    return (Objects.equals(this.headers, otherEntity.headers) &&
-            Objects.equals(this.body, otherEntity.body));
+    return Objects.equals(this.headers, otherEntity.headers)
+            && Objects.equals(this.body, otherEntity.body);
   }
 
   @Override
   public int hashCode() {
-    return (Objects.hashCode(this.headers) * 29 + Objects.hashCode(this.body));
+    return Objects.hashCode(this.headers) * 29 + Objects.hashCode(this.body);
   }
 
   @Override
