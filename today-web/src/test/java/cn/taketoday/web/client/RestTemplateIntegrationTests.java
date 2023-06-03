@@ -371,7 +371,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 
     HttpHeaders requestHeaders = HttpHeaders.create();
     requestHeaders.set("MyHeader", "MyValue");
-    requestHeaders.setContentType(MediaType.TEXT_PLAIN);
+    requestHeaders.setContentType(textContentType);
     HttpEntity<String> entity = new HttpEntity<>(helloWorld, requestHeaders);
     HttpEntity<Void> result = template.exchange(baseUrl + "/{method}", POST, entity, Void.class, "post");
     assertThat(result.getHeaders().getLocation()).as("Invalid location").isEqualTo(URI.create(baseUrl + "/post/1"));

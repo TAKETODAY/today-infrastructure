@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,6 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
   public SmartList(Collection<? extends E> elements) {
     int size = elements.size();
     if (size == 1) {
-      //noinspection unchecked
       E element = elements instanceof RandomAccess
                   ? ((List<? extends E>) elements).get(0) : elements.iterator().next();
       add(element);

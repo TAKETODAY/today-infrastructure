@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,6 +61,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.SmartList;
 import cn.taketoday.web.util.AbstractUriTemplateHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.DefaultUriBuilderFactory.EncodingMode;
@@ -226,7 +227,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * <p>By default, RestTemplate uses a {@link DefaultResponseErrorHandler}.
    */
   public void setErrorHandler(ResponseErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ResponseErrorHandler must not be null");
+    Assert.notNull(errorHandler, "ResponseErrorHandler is required");
     this.errorHandler = errorHandler;
     updateErrorHandlerConverters();
   }
@@ -273,7 +274,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    * @see cn.taketoday.web.util.DefaultUriTemplateHandler
    */
   public void setUriTemplateHandler(UriTemplateHandler handler) {
-    Assert.notNull(handler, "UriTemplateHandler must not be null");
+    Assert.notNull(handler, "UriTemplateHandler is required");
     this.uriTemplateHandler = handler;
   }
 
@@ -920,8 +921,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       Object requestBody = this.requestEntity.getBody();
       if (requestBody == null) {
         HttpHeaders httpHeaders = httpRequest.getHeaders();
-        HttpHeaders requestHeaders = this.requestEntity.getHeaders();
-        copyHttpHeaders(httpHeaders, requestHeaders);
+        copyHttpHeaders(httpHeaders, requestEntity.getHeaders());
         if (httpHeaders.getContentLength() < 0) {
           httpHeaders.setContentLength(0L);
         }
@@ -977,7 +977,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   private static void copyHttpHeaders(HttpHeaders httpHeaders, HttpHeaders requestHeaders) {
     if (!requestHeaders.isEmpty()) {
       for (Map.Entry<String, List<String>> entry : requestHeaders.entrySet()) {
-        httpHeaders.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        httpHeaders.put(entry.getKey(), new SmartList<>(entry.getValue()));
       }
     }
   }
