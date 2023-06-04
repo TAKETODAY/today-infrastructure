@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -28,17 +29,18 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
  * scoped bean. An {@link cn.taketoday.context.ApplicationContext} is supposed
  * to dispose all of its singletons on shutdown, driven by the application lifecycle.
  *
- * <p>A Framework-managed bean may also implement Java's {@link AutoCloseable} interface
+ * <p>A Infra-managed bean may also implement Java's {@link AutoCloseable} interface
  * for the same purpose. An alternative to implementing an interface is specifying a
  * custom destroy method, for example in an XML bean definition. For a list of all
  * bean lifecycle methods, see the {@link BeanFactory BeanFactory javadocs}.
  *
  * @author Juergen Hoeller
- * @author TODAY 2018-7-18 1:07:15
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see InitializingBean
- * @see BeanDefinition#getDestroyMethod()
+ * @see BeanDefinition#getDestroyMethodName()
  * @see ConfigurableBeanFactory#destroySingletons()
  * @see cn.taketoday.context.ConfigurableApplicationContext#close()
+ * @since 2018-7-18 1:07:15
  */
 public interface DisposableBean {
 

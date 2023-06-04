@@ -105,7 +105,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   public DisposableBeanAdapter(String beanName, Object bean, RootBeanDefinition beanDefinition,
           List<DestructionAwareBeanPostProcessor> postProcessors) {
 
-    Assert.notNull(bean, "Disposable bean must not be null");
+    Assert.notNull(bean, "Disposable bean is required");
     this.bean = bean;
     this.beanName = beanName;
     this.nonPublicAccessAllowed = beanDefinition.isNonPublicAccessAllowed();
@@ -160,7 +160,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * (potentially DestructionAwareBeanPostProcessor), if any
    */
   public DisposableBeanAdapter(Object bean, List<DestructionAwareBeanPostProcessor> postProcessors) {
-    Assert.notNull(bean, "Disposable bean must not be null");
+    Assert.notNull(bean, "Disposable bean is required");
     this.bean = bean;
     this.nonPublicAccessAllowed = true;
     this.beanName = bean.getClass().getName();
@@ -381,8 +381,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param beanDefinition the corresponding bean definition
    */
   public static boolean hasDestroyMethod(Object bean, RootBeanDefinition beanDefinition) {
-    return (bean instanceof DisposableBean ||
-            inferDestroyMethodsIfNecessary(bean.getClass(), beanDefinition) != null);
+    return bean instanceof DisposableBean
+            || inferDestroyMethodsIfNecessary(bean, beanDefinition) != null;
   }
 
   /**

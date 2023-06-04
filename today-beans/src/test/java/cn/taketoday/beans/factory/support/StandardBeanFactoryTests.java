@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -114,7 +114,7 @@ import static org.mockito.Mockito.verify;
  */
 class StandardBeanFactoryTests {
 
-  private StandardBeanFactory lbf = new StandardBeanFactory();
+  private final StandardBeanFactory lbf = new StandardBeanFactory();
 
   {
     // No parameter name discovery expected unless named arguments are used
