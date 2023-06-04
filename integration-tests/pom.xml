@@ -311,21 +311,25 @@
       <artifactId>undertow-servlet</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>jakarta.websocket</groupId>
       <artifactId>jakarta.websocket-api</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-websocket</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>cn.taketoday</groupId>
       <artifactId>today-websocket</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
@@ -413,7 +417,6 @@
       <scope>test</scope>
     </dependency>
 
-
     <dependency>
       <groupId>com.oracle.database.jdbc</groupId>
       <artifactId>ojdbc8</artifactId>
@@ -483,6 +486,7 @@
       <groupId>com.ibm.db2</groupId>
       <artifactId>jcc</artifactId>
       <version>11.5.7.0</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -505,7 +509,6 @@
       <version>1.16.2</version>
       <scope>test</scope>
     </dependency>
-
 
     <dependency>
       <groupId>com.mchange</groupId>
