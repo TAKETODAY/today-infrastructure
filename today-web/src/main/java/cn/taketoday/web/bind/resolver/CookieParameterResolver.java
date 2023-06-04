@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,13 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind.resolver;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.ConversionServiceAware;
-import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -31,8 +29,8 @@ import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
- * @author TODAY <br>
- * 2019-07-12 23:39
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-12 23:39
  */
 public class CookieParameterResolver
         extends AbstractNamedValueResolvingStrategy implements ParameterResolvingStrategy {
@@ -58,7 +56,7 @@ public class CookieParameterResolver
     resolvers.add(new CookieParameterResolver(),
             new AllCookieParameterResolver(),
             new CookieValueAnnotationParameterResolver(beanFactory),
-            new CookieCollectionParameterResolver());
+            new CookieCollectionParameterResolver(beanFactory));
   }
 
   private static class CookieValueAnnotationParameterResolver extends AbstractNamedValueResolvingStrategy {
@@ -87,6 +85,9 @@ public class CookieParameterResolver
     protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) {
       HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
+        if (resolvable.is(HttpCookie.class)) {
+          return cookie;
+        }
         return cookie.getValue();
       }
       return null;
@@ -103,13 +104,16 @@ public class CookieParameterResolver
     }
 
     @Override
-    public Object resolveArgument(RequestContext requestContext, ResolvableMethodParameter resolvable) throws Throwable {
+    public Object resolveArgument(RequestContext requestContext, ResolvableMethodParameter resolvable) {
       return requestContext.getCookies();
     }
   }
 
-  private static class CookieCollectionParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
-    private ConversionService conversionService = ApplicationConversionService.getSharedInstance();
+  private static class CookieCollectionParameterResolver extends AbstractNamedValueResolvingStrategy {
+
+    public CookieCollectionParameterResolver(ConfigurableBeanFactory beanFactory) {
+      super(beanFactory);
+    }
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -119,15 +123,10 @@ public class CookieParameterResolver
 
     @Nullable
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      HttpCookie[] cookies = context.getCookies();
-      return conversionService.convert(cookies, resolvable.getTypeDescriptor());
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+      return context.getCookies();
     }
 
-    @Override
-    public void setConversionService(ConversionService conversionService) {
-      this.conversionService = conversionService;
-    }
   }
 
 }

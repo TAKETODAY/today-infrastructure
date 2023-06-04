@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,14 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.core.conversion.ConversionService;
-import cn.taketoday.core.conversion.ConversionServiceAware;
-import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.annotation.ServletContextAttribute;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
@@ -36,32 +37,33 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * @author TODAY <br>
- * 2019-07-12 18:04
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-12 18:04
  */
 public class ServletParameterResolvers {
 
-  public static void register(ParameterResolvingStrategies resolvers, ServletContext context) {
+  public static void register(ConfigurableBeanFactory beanFactory,
+          ParameterResolvingStrategies resolvers, ServletContext context) {
     resolvers.add(new ServletRequestMethodArgumentResolver());
     // Servlet cookies parameter
     // ----------------------------
-    resolvers.add(new ServletCookieParameterResolver());
-    resolvers.add(new ServletCookieArrayParameterResolver());
-    resolvers.add(new ServletCookieCollectionParameterResolver());
+    resolvers.add(new ForCookie(beanFactory));
+    resolvers.add(new ForCookieArray());
+    resolvers.add(new ForCookieCollection(beanFactory));
     // Servlet components parameter
     // ----------------------------
-    resolvers.add(new HttpSessionParameterResolver());
-    resolvers.add(new ServletRequestParameterResolver());
-    resolvers.add(new ServletResponseParameterResolver());
-    resolvers.add(new ServletContextParameterResolver(context));
+    resolvers.add(new ForHttpSession());
+    resolvers.add(new ForServletRequest());
+    resolvers.add(new ForServletResponse());
+    resolvers.add(new ForServletContext(context));
     // Attributes
     // ------------------------
-    resolvers.add(new HttpSessionAttributeParameterResolver());
-    resolvers.add(new ServletContextAttributeParameterResolver(context));
+    resolvers.add(new ForHttpSessionAttribute());
+    resolvers.add(new ForServletContextAttribute(beanFactory, context));
     resolvers.add(new PrincipalMethodArgumentResolver());
   }
 
-  static class ServletRequestParameterResolver implements ParameterResolvingStrategy {
+  static class ForServletRequest implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
@@ -74,7 +76,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletResponseParameterResolver implements ParameterResolvingStrategy {
+  static class ForServletResponse implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
@@ -87,7 +89,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class HttpSessionParameterResolver implements ParameterResolvingStrategy {
+  static class ForHttpSession implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
@@ -101,7 +103,7 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class HttpSessionAttributeParameterResolver implements ParameterResolvingStrategy {
+  static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
@@ -118,11 +120,11 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletContextParameterResolver implements ParameterResolvingStrategy {
+  static class ForServletContext implements ParameterResolvingStrategy {
 
     private final ServletContext servletContext;
 
-    public ServletContextParameterResolver(ServletContext servletContext) {
+    public ForServletContext(ServletContext servletContext) {
       this.servletContext = servletContext;
     }
 
@@ -139,31 +141,11 @@ public class ServletParameterResolvers {
 
   // ------------- cookie
 
-  static class ServletCookieParameterResolver implements ParameterResolvingStrategy {
+  static class ForCookieCollection extends AbstractNamedValueResolvingStrategy {
 
-    @Override
-    public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.is(Cookie.class);
+    public ForCookieCollection(ConfigurableBeanFactory beanFactory) {
+      super(beanFactory);
     }
-
-    @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      String name = resolvable.getName();
-      HttpCookie cookie = context.getCookie(name);
-      if (cookie == null) {
-        // no cookie
-        if (resolvable.isRequired()) {
-          throw new MissingRequestCookieException(name, resolvable.getParameter());
-        }
-        return null;
-      }
-      return new Cookie(cookie.getName(), cookie.getValue());
-    }
-  }
-
-  static class ServletCookieCollectionParameterResolver implements ParameterResolvingStrategy, ConversionServiceAware {
-
-    private ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -173,23 +155,18 @@ public class ServletParameterResolvers {
 
     @Nullable
     @Override
-    public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      Cookie[] cookies = ServletUtils.getServletRequest(context).getCookies();
-      return conversionService.convert(cookies, resolvable.getTypeDescriptor());
-    }
-
-    @Override
-    public void setConversionService(ConversionService conversionService) {
-      this.conversionService = conversionService;
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+      return ServletUtils.getServletRequest(context).getCookies();
     }
 
   }
 
-  static class ServletCookieArrayParameterResolver implements ParameterResolvingStrategy {
+  static class ForCookieArray implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isArray() && parameter.getParameterType().getComponentType() == Cookie.class;
+      return parameter.isArray()
+              && parameter.getParameterType().getComponentType() == Cookie.class;
     }
 
     @Override
@@ -198,10 +175,51 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ServletContextAttributeParameterResolver extends AbstractNamedValueResolvingStrategy {
+  private static class ForCookie extends AbstractNamedValueResolvingStrategy {
+
+    public ForCookie(@Nullable ConfigurableBeanFactory beanFactory) {
+      super(beanFactory);
+    }
+
+    @Override
+    public boolean supportsParameter(ResolvableMethodParameter resolvable) {
+      return resolvable.is(Cookie.class)
+              || resolvable.is(HttpCookie.class)
+              || resolvable.hasParameterAnnotation(CookieValue.class);
+    }
+
+    @Override
+    protected void handleMissingValue(String name, MethodParameter parameter) {
+      throw new MissingRequestCookieException(name, parameter);
+    }
+
+    @Override
+    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) {
+      throw new MissingRequestCookieException(name, parameter, true);
+    }
+
+    @Nullable
+    @Override
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) {
+      HttpCookie cookie = context.getCookie(name);
+      if (cookie != null) {
+        if (resolvable.is(Cookie.class)) {
+          return new Cookie(cookie.getName(), cookie.getValue());
+        }
+        if (resolvable.is(HttpCookie.class)) {
+          return cookie;
+        }
+        return cookie.getValue();
+      }
+      return null;
+    }
+  }
+
+  static class ForServletContextAttribute extends AbstractNamedValueResolvingStrategy {
     private final ServletContext servletContext;
 
-    public ServletContextAttributeParameterResolver(ServletContext servletContext) {
+    public ForServletContextAttribute(ConfigurableBeanFactory beanFactory, ServletContext servletContext) {
+      super(beanFactory);
       this.servletContext = servletContext;
     }
 

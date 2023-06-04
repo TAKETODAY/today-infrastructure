@@ -248,14 +248,14 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestAttributeMethodArgumentResolver(beanFactory));
     strategies.add(new AutowiredParameterResolver(context));
 
-    CookieParameterResolver.register(strategies, beanFactory);
-
     // type-based argument resolution
     if (ServletDetector.isPresent && context instanceof WebApplicationContext servletApp) {
       ServletContext servletContext = servletApp.getServletContext();
       Assert.state(servletContext != null, "ServletContext is not available");
-      ServletParameterResolvers.register(strategies, servletContext);
+      ServletParameterResolvers.register(beanFactory, strategies, servletContext);
     }
+
+    CookieParameterResolver.register(strategies, beanFactory);
 
     strategies.add(new RequestContextMethodArgumentResolver());
     strategies.add(new ModelAndViewMethodArgumentResolver());
