@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,6 +41,7 @@ import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.env.SystemEnvironmentPropertySource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -75,7 +76,7 @@ public class TestPropertyValues {
    * @param pairs the property pairs to add
    * @return a new {@link TestPropertyValues} instance
    */
-  public TestPropertyValues and(Iterable<String> pairs) {
+  public TestPropertyValues and(@Nullable Iterable<String> pairs) {
     return (pairs != null) ? and(StreamSupport.stream(pairs.spliterator(), false)) : this;
   }
 
@@ -86,7 +87,7 @@ public class TestPropertyValues {
    * @param pairs the property pairs to add
    * @return a new {@link TestPropertyValues} instance
    */
-  public TestPropertyValues and(Stream<String> pairs) {
+  public TestPropertyValues and(@Nullable Stream<String> pairs) {
     return (pairs != null) ? and(pairs, Pair::parse) : this;
   }
 
@@ -96,7 +97,7 @@ public class TestPropertyValues {
    * @param map the map of properties that need to be added to the environment
    * @return a new {@link TestPropertyValues} instance
    */
-  public TestPropertyValues and(Map<String, String> map) {
+  public TestPropertyValues and(@Nullable Map<String, String> map) {
     return (map != null) ? and(map.entrySet().stream(), Pair::fromMapEntry) : this;
   }
 
@@ -109,7 +110,7 @@ public class TestPropertyValues {
    * {@link Pair}
    * @return a new {@link TestPropertyValues} instance
    */
-  public <T> TestPropertyValues and(Stream<T> stream, Function<T, Pair> mapper) {
+  public <T> TestPropertyValues and(@Nullable Stream<T> stream, Function<T, Pair> mapper) {
     if (stream == null) {
       return this;
     }
@@ -225,7 +226,7 @@ public class TestPropertyValues {
    * environment
    * @return the new instance
    */
-  public static TestPropertyValues of(Iterable<String> pairs) {
+  public static TestPropertyValues of(@Nullable Iterable<String> pairs) {
     return (pairs != null) ? of(StreamSupport.stream(pairs.spliterator(), false)) : empty();
   }
 
@@ -238,7 +239,7 @@ public class TestPropertyValues {
    * environment
    * @return the new instance
    */
-  public static TestPropertyValues of(Stream<String> pairs) {
+  public static TestPropertyValues of(@Nullable Stream<String> pairs) {
     return (pairs != null) ? of(pairs, Pair::parse) : empty();
   }
 
@@ -249,7 +250,7 @@ public class TestPropertyValues {
    * @param map the map of properties that need to be added to the environment
    * @return the new instance
    */
-  public static TestPropertyValues of(Map<String, String> map) {
+  public static TestPropertyValues of(@Nullable Map<String, String> map) {
     return (map != null) ? of(map.entrySet().stream(), Pair::fromMapEntry) : empty();
   }
 
@@ -263,7 +264,7 @@ public class TestPropertyValues {
    * {@link Pair}
    * @return the new instance
    */
-  public static <T> TestPropertyValues of(Stream<T> stream, Function<T, Pair> mapper) {
+  public static <T> TestPropertyValues of(@Nullable Stream<T> stream, Function<T, Pair> mapper) {
     return (stream != null) ? empty().and(stream, mapper) : empty();
   }
 
@@ -294,9 +295,10 @@ public class TestPropertyValues {
 
     private final Class<? extends MapPropertySource> sourceClass;
 
+    @Nullable
     private final String suffix;
 
-    Type(Class<? extends MapPropertySource> sourceClass, String suffix) {
+    Type(Class<? extends MapPropertySource> sourceClass, @Nullable String suffix) {
       this.sourceClass = sourceClass;
       this.suffix = suffix;
     }
@@ -330,6 +332,7 @@ public class TestPropertyValues {
       properties.put(this.name, this.value);
     }
 
+    @Nullable
     public static Pair parse(String pair) {
       int index = getSeparatorIndex(pair);
       String name = (index > 0) ? pair.substring(0, index) : pair;
@@ -355,7 +358,8 @@ public class TestPropertyValues {
      * @param entry the map entry
      * @return the {@link Pair} instance or {@code null}
      */
-    public static Pair fromMapEntry(Map.Entry<String, String> entry) {
+    @Nullable
+    public static Pair fromMapEntry(@Nullable Map.Entry<String, String> entry) {
       return (entry != null) ? of(entry.getKey(), entry.getValue()) : null;
     }
 
@@ -366,6 +370,7 @@ public class TestPropertyValues {
      * @param value the value
      * @return the {@link Pair} instance or {@code null}
      */
+    @Nullable
     public static Pair of(String name, String value) {
       if (StringUtils.isNotEmpty(name) || StringUtils.isNotEmpty(value)) {
         return new Pair(name, value);
