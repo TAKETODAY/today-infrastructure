@@ -27,7 +27,6 @@ import cn.taketoday.annotation.config.gson.GsonAutoConfiguration;
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
@@ -81,7 +80,7 @@ public class HttpMessageConvertersAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
+  static HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
     return new HttpMessageConverters(converters.orderedList());
   }
 
@@ -89,9 +88,9 @@ public class HttpMessageConvertersAutoConfiguration {
   @ConditionalOnClass(StringHttpMessageConverter.class)
   protected static class StringHttpMessageConverterConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean
-    public StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
+    static StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
       var encoding = Binder.get(environment).bindOrCreate("server.encoding", EncodingProperties.class);
       StringHttpMessageConverter converter = new StringHttpMessageConverter(encoding.getCharset());
       converter.setWriteAcceptCharset(false);
@@ -108,7 +107,7 @@ public class HttpMessageConvertersAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(MappingJackson2HttpMessageConverter.class)
-    MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+    static MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
       return new MappingJackson2HttpMessageConverter(objectMapper);
     }
 
@@ -119,9 +118,9 @@ public class HttpMessageConvertersAutoConfiguration {
   @ConditionalOnBean(Jackson2ObjectMapperBuilder.class)
   protected static class MappingJackson2XmlHttpMessageConverterConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean
-    public MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter(
+    static MappingJackson2XmlHttpMessageConverter mappingJackson2XmlHttpMessageConverter(
             Jackson2ObjectMapperBuilder builder) {
       return new MappingJackson2XmlHttpMessageConverter(builder.createXmlMapper(true).build());
     }
