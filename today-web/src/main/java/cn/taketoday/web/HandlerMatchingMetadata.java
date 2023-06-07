@@ -92,9 +92,10 @@ public class HandlerMatchingMetadata {
   public HandlerMatchingMetadata(HandlerMatchingMetadata other) {
     this.handler = other.handler;
     this.lookupPath = other.lookupPath;
-    this.directLookupPath = other.directLookupPath;
+    this.pathVariables = other.pathVariables;
     this.pathMatchInfo = other.pathMatchInfo;
     this.patternParser = other.patternParser;
+    this.directLookupPath = other.directLookupPath;
     this.pathWithinMapping = other.pathWithinMapping;
     this.bestMatchingPattern = other.bestMatchingPattern;
     this.producibleMediaTypes = other.producibleMediaTypes;
