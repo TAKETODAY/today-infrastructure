@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.View;
@@ -171,7 +170,7 @@ public class ParameterizableViewController extends AbstractController {
 
   /**
    * Return a ModelAndView object with the specified view name.
-   * <p>The content of the {@link RequestContextUtils#getInputRedirectModel(RequestContext)}
+   * <p>The content of the {@link RequestContext#getInputRedirectModel()}
    * "input" RedirectModel} is also added to the model.
    *
    * @see #getViewName()
@@ -208,7 +207,7 @@ public class ParameterizableViewController extends AbstractController {
     }
 
     ModelAndView modelAndView = new ModelAndView();
-    RedirectModel redirectModel = RequestContextUtils.getInputRedirectModel(request);
+    RedirectModel redirectModel = request.getInputRedirectModel();
     if (redirectModel != null) {
       modelAndView.addAllObjects(redirectModel.asMap());
     }

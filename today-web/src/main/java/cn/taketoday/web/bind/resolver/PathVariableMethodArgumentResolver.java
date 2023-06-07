@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -70,8 +70,8 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
 
   @Nullable
   @Override
-  protected Object resolveName(
-          String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+  protected Object resolveName(String name,
+          ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
     HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariable(name);
@@ -88,6 +88,12 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   protected void handleMissingValueAfterConversion(
           String name, MethodParameter parameter, RequestContext request) {
     throw new MissingPathVariableException(name, parameter, true);
+  }
+
+  @Override
+  protected void handleResolvedValue(@Nullable Object arg,
+          String name, ResolvableMethodParameter resolvable, RequestContext request) {
+    request.matchingMetadata().getPathVariables().put(name, arg);
   }
 
   @Override

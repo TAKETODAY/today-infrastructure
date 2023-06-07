@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.http.MediaType;
@@ -54,6 +55,9 @@ public class HandlerMatchingMetadata {
   private MediaType[] producibleMediaTypes;
 
   private final PathPatternParser patternParser;
+
+  @Nullable
+  private Map<String, Object> pathVariables;
 
   public HandlerMatchingMetadata(RequestContext request) {
     this(NullValue.INSTANCE, request);
@@ -121,6 +125,22 @@ public class HandlerMatchingMetadata {
       this.pathWithinMapping = pathWithinMapping;
     }
     return pathWithinMapping;
+  }
+
+  /**
+   * This method returns PathVariables is after type conversion
+   */
+  public Map<String, Object> getPathVariables() {
+    Map<String, Object> pathVariables = this.pathVariables;
+    if (pathVariables == null) {
+      pathVariables = new LinkedHashMap<>();
+      this.pathVariables = pathVariables;
+    }
+    return pathVariables;
+  }
+
+  public boolean hasPathVariables() {
+    return pathVariables != null;
   }
 
   public Map<String, String> getUriVariables() {

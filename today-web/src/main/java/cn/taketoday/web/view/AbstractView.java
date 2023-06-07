@@ -345,11 +345,13 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
       size += staticAttributes.size();
     }
 
-    Map<String, String> pathVars = null;
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
-    if (exposePathVariables && matchingMetadata != null) {
-      pathVars = matchingMetadata.getUriVariables();
-      size += pathVars.size();
+    Map<String, Object> pathVars = null;
+    if (exposePathVariables) {
+      HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+      if (metadata != null && metadata.hasPathVariables()) {
+        pathVars = metadata.getPathVariables();
+        size += pathVars.size();
+      }
     }
 
     Map<String, Object> mergedModel = CollectionUtils.newLinkedHashMap(size);

@@ -63,6 +63,7 @@ import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -74,6 +75,8 @@ import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
+import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 
@@ -175,7 +178,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   private HandlerMatchingMetadata matchingMetadata;
 
+  @Nullable
   protected BindingContext bindingContext;
+
+  @Nullable
+  protected Object redirectModel;
 
   protected Boolean multipartFlag;
 
@@ -1385,6 +1392,46 @@ public abstract class RequestContext extends AttributeAccessorSupport
     BindingContext bindingContext = this.bindingContext;
     Assert.state(bindingContext != null, "BindingContext is required");
     return bindingContext;
+  }
+
+  /**
+   * Return read-only "input" flash attributes from request before redirect.
+   *
+   * @return a RedirectModel, or {@code null} if not found
+   * @see RedirectModel
+   */
+  @Nullable
+  public RedirectModel getInputRedirectModel() {
+    return getInputRedirectModel(null);
+  }
+
+  /**
+   * Return read-only "input" flash attributes from request before redirect.
+   *
+   * @param manager RedirectModelManager manage RedirectModel
+   * @return a RedirectModel, or {@code null} if not found
+   * @see RedirectModel
+   */
+  @Nullable
+  public RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
+    if (redirectModel instanceof RedirectModel ret) {
+      return ret;
+    }
+    else if (redirectModel == NullValue.INSTANCE) {
+      return null;
+    }
+
+    if (manager == null) {
+      manager = RequestContextUtils.getRedirectModelManager(this);
+    }
+    if (manager != null) {
+      RedirectModel redirectModel = manager.retrieveAndUpdate(this);
+      if (redirectModel != null) {
+        return redirectModel;
+      }
+    }
+    this.redirectModel = NullValue.INSTANCE;
+    return null;
   }
 
   /**

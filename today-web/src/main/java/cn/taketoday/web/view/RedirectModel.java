@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,7 +61,7 @@ import cn.taketoday.web.RequestContextUtils;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestContextUtils#getOutputRedirectModel
- * @see RequestContextUtils#getInputRedirectModel
+ * @see RequestContext#getInputRedirectModel
  * @since 2.3.3 2018-11-18 16:39
  */
 public class RedirectModel extends ModelMap implements Serializable, Comparable<RedirectModel> {
@@ -73,7 +73,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds a RedirectModel with "input"
    * redirect attributes saved by a previous request, if any.
    *
-   * @see RequestContextUtils#getInputRedirectModel(RequestContext)
+   * @see RequestContext#getInputRedirectModel()
    */
   public static final String INPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "INPUT");

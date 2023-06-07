@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,14 +62,16 @@ public interface View {
    * Name of the {@link RequestContext} attribute that contains the response status code.
    * <p>Note: This attribute is not required to be supported by all View implementations.
    */
-  String RESPONSE_STATUS_ATTRIBUTE = Conventions.getQualifiedAttributeName(View.class, "responseStatus");
+  String RESPONSE_STATUS_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          View.class, "responseStatus");
 
   /**
    * The {@link MediaType} selected during content negotiation,
    * which may be more specific than the one the View is configured with. For example:
    * "application/vnd.example-v1+xml" vs "application/*+xml".
    */
-  String SELECTED_CONTENT_TYPE = Conventions.getQualifiedAttributeName(View.class, "selectedContentType");
+  String SELECTED_CONTENT_TYPE = Conventions.getQualifiedAttributeName(
+          View.class, "selectedContentType");
 
   /**
    * Return the content type of the view, if predetermined.

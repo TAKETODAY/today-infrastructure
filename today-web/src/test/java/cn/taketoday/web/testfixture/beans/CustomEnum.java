@@ -18,44 +18,18 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view;
-
-import java.util.Locale;
-
-import cn.taketoday.lang.Nullable;
+package cn.taketoday.web.testfixture.beans;
 
 /**
- * ViewRef contains a view-name and locale
- *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/13 21:49
+ * @author Juergen Hoeller
  */
-public class ViewRef {
+public enum CustomEnum {
 
-  @Nullable
-  private final Locale locale;
-  private final String viewName;
+  VALUE_1, VALUE_2;
 
-  public ViewRef(String viewName, @Nullable Locale locale) {
-    this.viewName = viewName;
-    this.locale = locale;
-  }
-
-  @Nullable
-  public Locale getLocale() {
-    return locale;
-  }
-
-  public String getViewName() {
-    return viewName;
-  }
-
-  public static ViewRef forViewName(String viewName) {
-    return new ViewRef(viewName, null);
-  }
-
-  public static ViewRef forViewName(String viewName, @Nullable Locale locale) {
-    return new ViewRef(viewName, locale);
+  @Override
+  public String toString() {
+    return "CustomEnum: " + name();
   }
 
 }

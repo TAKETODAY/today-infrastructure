@@ -21,7 +21,6 @@
 package cn.taketoday.web.handler.mvc;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
 
@@ -42,7 +41,7 @@ public abstract class AbstractUrlViewController extends AbstractController {
   /**
    * Retrieves the URL path to use for lookup and delegates to
    * {@link #getViewNameForRequest}. Also adds the content of
-   * {@link RequestContextUtils#getInputRedirectModel(RequestContext)} to the model.
+   * {@link RequestContext#getInputRedirectModel()} to the model.
    */
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) {
@@ -50,7 +49,7 @@ public abstract class AbstractUrlViewController extends AbstractController {
     if (log.isTraceEnabled()) {
       log.trace("Returning view name '{}'", viewName);
     }
-    RedirectModel model = RequestContextUtils.getInputRedirectModel(request);
+    RedirectModel model = request.getInputRedirectModel(null);
     if (model != null) {
       return new ModelAndView(viewName, model.asMap());
     }

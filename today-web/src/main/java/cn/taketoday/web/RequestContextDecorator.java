@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,6 +52,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Provides a convenient implementation of the RequestContext
@@ -560,6 +562,18 @@ public class RequestContextDecorator extends RequestContext {
   @Override
   public boolean hasBinding() {
     return delegate.hasBinding();
+  }
+
+  @Nullable
+  @Override
+  public RedirectModel getInputRedirectModel() {
+    return delegate.getInputRedirectModel();
+  }
+
+  @Nullable
+  @Override
+  public RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
+    return delegate.getInputRedirectModel(manager);
   }
 
   // AttributeAccessorSupport

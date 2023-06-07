@@ -18,44 +18,44 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view;
+package cn.taketoday.web.testfixture.security;
 
-import java.util.Locale;
+import java.security.Principal;
 
 import cn.taketoday.lang.Nullable;
 
 /**
- * ViewRef contains a view-name and locale
+ * An implementation of {@link Principal} for testing.
  *
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/13 21:49
+ * @author Rossen Stoyanchev
  */
-public class ViewRef {
+public class TestPrincipal implements Principal {
 
-  @Nullable
-  private final Locale locale;
-  private final String viewName;
+  private final String name;
 
-  public ViewRef(String viewName, @Nullable Locale locale) {
-    this.viewName = viewName;
-    this.locale = locale;
+  public TestPrincipal(String name) {
+    this.name = name;
   }
 
-  @Nullable
-  public Locale getLocale() {
-    return locale;
+  @Override
+  public String getName() {
+    return this.name;
   }
 
-  public String getViewName() {
-    return viewName;
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (!(obj instanceof TestPrincipal p)) {
+      return false;
+    }
+    return this.name.equals(p.name);
   }
 
-  public static ViewRef forViewName(String viewName) {
-    return new ViewRef(viewName, null);
-  }
-
-  public static ViewRef forViewName(String viewName, @Nullable Locale locale) {
-    return new ViewRef(viewName, locale);
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
   }
 
 }

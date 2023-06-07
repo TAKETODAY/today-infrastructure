@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
-import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
@@ -249,52 +248,6 @@ public class RequestContextUtils {
       }
     }
     return null;
-  }
-
-  /**
-   * Return read-only "input" flash attributes from request before redirect.
-   *
-   * @param request current request
-   * @return a RedirectModel, or {@code null} if not found
-   * @see RedirectModel
-   */
-  @Nullable
-  public static RedirectModel getInputRedirectModel(RequestContext request) {
-    return getInputRedirectModel(request, null);
-  }
-
-  /**
-   * Return read-only "input" flash attributes from request before redirect.
-   *
-   * @param request current request
-   * @param manager RedirectModelManager manage RedirectModel
-   * @return a RedirectModel, or {@code null} if not found
-   * @see RedirectModel
-   */
-  @Nullable
-  public static RedirectModel getInputRedirectModel(
-          RequestContext request, @Nullable RedirectModelManager manager) {
-    Object attribute = request.getAttribute(RedirectModel.INPUT_ATTRIBUTE);
-    if (attribute instanceof RedirectModel redirectModel) {
-      return redirectModel;
-    }
-    else if (attribute == NullValue.INSTANCE) {
-      return null;
-    }
-    else {
-      if (manager == null) {
-        manager = getRedirectModelManager(request);
-      }
-      if (manager != null) {
-        RedirectModel redirectModel = manager.retrieveAndUpdate(request);
-        if (redirectModel != null) {
-          request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, redirectModel);
-          return redirectModel;
-        }
-      }
-      request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, NullValue.INSTANCE);
-      return null;
-    }
   }
 
   /**
