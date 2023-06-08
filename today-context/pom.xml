@@ -147,6 +147,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.crac</groupId>
+      <artifactId>crac</artifactId>
+      <version>0.1.3</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!--
                           tests
     -->

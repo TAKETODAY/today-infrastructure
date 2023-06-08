@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -250,6 +250,59 @@ class DefaultLifecycleProcessorTests {
     assertThat(getPhase(startedBeans.get(3))).isEqualTo(0);
     assertThat(getPhase(startedBeans.get(4))).isEqualTo(0);
     assertThat(getPhase(startedBeans.get(5))).isEqualTo(5);
+  }
+
+  @Test
+  void contextRefreshThenStopForRestartWithMixedBeans() {
+    CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
+    TestLifecycleBean simpleBean1 = TestLifecycleBean.forStartupTests(startedBeans);
+    TestLifecycleBean simpleBean2 = TestLifecycleBean.forStartupTests(startedBeans);
+    TestSmartLifecycleBean smartBean1 = TestSmartLifecycleBean.forStartupTests(5, startedBeans);
+    TestSmartLifecycleBean smartBean2 = TestSmartLifecycleBean.forStartupTests(-3, startedBeans);
+    StaticApplicationContext context = new StaticApplicationContext();
+    context.getBeanFactory().registerSingleton("simpleBean1", simpleBean1);
+    context.getBeanFactory().registerSingleton("smartBean1", smartBean1);
+    context.getBeanFactory().registerSingleton("simpleBean2", simpleBean2);
+    context.getBeanFactory().registerSingleton("smartBean2", smartBean2);
+    assertThat(simpleBean1.isRunning()).isFalse();
+    assertThat(simpleBean2.isRunning()).isFalse();
+    assertThat(smartBean1.isRunning()).isFalse();
+    assertThat(smartBean2.isRunning()).isFalse();
+    context.refresh();
+    DefaultLifecycleProcessor lifecycleProcessor = (DefaultLifecycleProcessor)
+            new DirectFieldAccessor(context).getPropertyValue("lifecycleProcessor");
+    assertThat(smartBean1.isRunning()).isTrue();
+    assertThat(smartBean2.isRunning()).isTrue();
+    assertThat(simpleBean1.isRunning()).isFalse();
+    assertThat(simpleBean2.isRunning()).isFalse();
+    smartBean2.stop();
+    simpleBean1.start();
+    assertThat(startedBeans).hasSize(3);
+    assertThat(getPhase(startedBeans.get(0))).isEqualTo(-3);
+    assertThat(getPhase(startedBeans.get(1))).isEqualTo(5);
+    assertThat(getPhase(startedBeans.get(2))).isEqualTo(0);
+    lifecycleProcessor.stopForRestart();
+    assertThat(simpleBean1.isRunning()).isFalse();
+    assertThat(simpleBean2.isRunning()).isFalse();
+    assertThat(smartBean1.isRunning()).isFalse();
+    assertThat(smartBean2.isRunning()).isFalse();
+    lifecycleProcessor.restartAfterStop();
+    assertThat(smartBean1.isRunning()).isTrue();
+    assertThat(smartBean2.isRunning()).isFalse();
+    assertThat(simpleBean1.isRunning()).isTrue();
+    assertThat(simpleBean2.isRunning()).isFalse();
+    assertThat(startedBeans).hasSize(5);
+    assertThat(getPhase(startedBeans.get(3))).isEqualTo(0);
+    assertThat(getPhase(startedBeans.get(4))).isEqualTo(5);
+    context.start();
+    assertThat(smartBean1.isRunning()).isTrue();
+    assertThat(smartBean2.isRunning()).isTrue();
+    assertThat(simpleBean1.isRunning()).isTrue();
+    assertThat(simpleBean2.isRunning()).isTrue();
+    assertThat(startedBeans).hasSize(7);
+    assertThat(getPhase(startedBeans.get(5))).isEqualTo(-3);
+    assertThat(getPhase(startedBeans.get(6))).isEqualTo(0);
+    context.close();
   }
 
   @Test

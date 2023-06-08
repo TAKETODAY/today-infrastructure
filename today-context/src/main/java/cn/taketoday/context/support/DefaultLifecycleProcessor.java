@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,8 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.support;
 
+import org.crac.CheckpointException;
+import org.crac.Core;
+import org.crac.RestoreException;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,7 +34,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -42,11 +50,18 @@ import cn.taketoday.context.Phased;
 import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Default implementation of the {@link LifecycleProcessor} strategy.
+ *
+ * <p>Provides interaction with {@link Lifecycle} and {@link SmartLifecycle} beans in
+ * groups for specific phases, on startup/shutdown as well as for explicit start/stop
+ * interactions on a {@link cn.taketoday.context.ConfigurableApplicationContext}.
+ * this also includes support for JVM checkpoint/restore (Project CRaC).
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
@@ -55,11 +70,44 @@ import cn.taketoday.logging.LoggerFactory;
 public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactoryAware {
   private static final Logger log = LoggerFactory.getLogger(DefaultLifecycleProcessor.class);
 
+  /**
+   * Property name for checkpoint restore: {@value}.
+   *
+   * @see #CHECKPOINT_RESTORE_ON_REFRESH
+   * @see org.crac.Core#checkpointRestore()
+   */
+  public static final String CHECKPOINT_RESTORE_PROPERTY_NAME = "infra.checkpoint.restore";
+
+  /**
+   * Recognized value for checkpoint restore property: {@value}.
+   *
+   * @see #CHECKPOINT_RESTORE_PROPERTY_NAME
+   * @see org.crac.Core#checkpointRestore()
+   */
+  public static final String CHECKPOINT_RESTORE_ON_REFRESH = "onRefresh";
+
+  private final static boolean checkpointRestoreOnRefresh = CHECKPOINT_RESTORE_ON_REFRESH.equalsIgnoreCase(
+          TodayStrategies.getProperty(CHECKPOINT_RESTORE_PROPERTY_NAME));
+
   private volatile long timeoutPerShutdownPhase = 30000;
+
   private volatile boolean running;
 
   @Nullable
   private volatile ConfigurableBeanFactory beanFactory;
+
+  @Nullable
+  private volatile Set<String> stoppedBeans;
+
+  // Just for keeping a strong reference to the registered CRaC Resource, if any
+  @Nullable
+  private Object cracResource;
+
+  public DefaultLifecycleProcessor() {
+    if (ClassUtils.isPresent("org.crac.Core", getClass().getClassLoader())) {
+      this.cracResource = new CracDelegate().registerResource();
+    }
+  }
 
   /**
    * Specify the maximum time allotted in milliseconds for the shutdown of
@@ -97,6 +145,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    */
   @Override
   public void start() {
+    this.stoppedBeans = null;
     startBeans(false);
     this.running = true;
   }
@@ -117,6 +166,11 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   @Override
   public void onRefresh() {
+    if (checkpointRestoreOnRefresh) {
+      new CracDelegate().checkpointRestore();
+    }
+
+    this.stoppedBeans = null;
     startBeans(true);
     this.running = true;
   }
@@ -134,13 +188,29 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   // Internal helpers
 
+  void stopForRestart() {
+    if (this.running) {
+      this.stoppedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      stopBeans();
+      this.running = false;
+    }
+  }
+
+  void restartAfterStop() {
+    if (this.stoppedBeans != null) {
+      startBeans(true);
+      this.stoppedBeans = null;
+      this.running = true;
+    }
+  }
+
   private void startBeans(boolean autoStartupOnly) {
     Map<String, Lifecycle> lifecycleBeans = getLifecycleBeans();
     TreeMap<Integer, LifecycleGroup> phases = new TreeMap<>();
     for (Map.Entry<String, Lifecycle> entry : lifecycleBeans.entrySet()) {
       String beanName = entry.getKey();
       Lifecycle bean = entry.getValue();
-      if (!autoStartupOnly || (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup())) {
+      if (!autoStartupOnly || isAutoStartupCandidate(beanName, bean)) {
         int phase = getPhase(bean);
         LifecycleGroup lifecycleGroup = phases.get(phase);
         if (lifecycleGroup == null) {
@@ -158,6 +228,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     }
   }
 
+  private boolean isAutoStartupCandidate(String beanName, Lifecycle bean) {
+    Set<String> stoppedBeans = this.stoppedBeans;
+    return stoppedBeans != null ? stoppedBeans.contains(beanName) :
+           (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup());
+  }
+
   /**
    * Start the specified bean as part of the given set of Lifecycle beans,
    * making sure that any beans that it depends on are started first.
@@ -173,8 +249,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
         doStart(lifecycleBeans, dependency, autoStartupOnly);
       }
 
-      if (!bean.isRunning()
-              && (!autoStartupOnly || !(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup())) {
+      if (!bean.isRunning() && (!autoStartupOnly || toBeStarted(beanName, bean))) {
         if (log.isTraceEnabled()) {
           log.trace("Starting bean '{}' of type [{}]", beanName, bean.getClass().getName());
         }
@@ -187,6 +262,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
         log.debug("Successfully started bean '{}'", beanName);
       }
     }
+  }
+
+  private boolean toBeStarted(String beanName, Lifecycle bean) {
+    Set<String> stoppedBeans = this.stoppedBeans;
+    return stoppedBeans != null ? stoppedBeans.contains(beanName) :
+           (!(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup());
   }
 
   private void stopBeans() {
@@ -385,6 +466,93 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    */
   private record LifecycleGroupMember(String name, Lifecycle bean) {
 
+  }
+
+  /**
+   * Inner class to avoid a hard dependency on Project CRaC at runtime.
+   *
+   * @see org.crac.Core
+   */
+  private class CracDelegate {
+
+    public Object registerResource() {
+      log.debug("Registering JVM checkpoint/restore callback for Infra-managed lifecycle beans");
+      CracResourceAdapter resourceAdapter = new CracResourceAdapter();
+      org.crac.Core.getGlobalContext().register(resourceAdapter);
+      return resourceAdapter;
+    }
+
+    public void checkpointRestore() {
+      log.info("Triggering JVM checkpoint/restore");
+      try {
+        Core.checkpointRestore();
+      }
+      catch (UnsupportedOperationException ex) {
+        throw new ApplicationContextException("CRaC checkpoint not supported on current JVM", ex);
+      }
+      catch (CheckpointException ex) {
+        throw new ApplicationContextException("Failed to take CRaC checkpoint on refresh", ex);
+      }
+      catch (RestoreException ex) {
+        throw new ApplicationContextException("Failed to restore CRaC checkpoint on refresh", ex);
+      }
+    }
+  }
+
+  /**
+   * Resource adapter for Project CRaC, triggering a stop-and-restart cycle
+   * for Infra-managed lifecycle beans around a JVM checkpoint/restore.
+   *
+   * @see #stopForRestart()
+   * @see #restartAfterStop()
+   */
+  private class CracResourceAdapter implements org.crac.Resource {
+
+    @Nullable
+    private CyclicBarrier barrier;
+
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends org.crac.Resource> context) {
+      // A non-daemon thread for preventing an accidental JVM shutdown before the checkpoint
+      this.barrier = new CyclicBarrier(2);
+
+      Thread thread = new Thread(() -> {
+        awaitPreventShutdownBarrier();
+        // Checkpoint happens here
+        awaitPreventShutdownBarrier();
+      }, "prevent-shutdown");
+
+      thread.setDaemon(false);
+      thread.start();
+      awaitPreventShutdownBarrier();
+
+      log.debug("Stopping Infra-managed lifecycle beans before JVM checkpoint");
+      stopForRestart();
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends org.crac.Resource> context) {
+      long restartTime = System.nanoTime();
+      log.debug("Restarting Infra-managed lifecycle beans after JVM restore");
+      restartAfterStop();
+
+      // Barrier for prevent-shutdown thread not needed anymore
+      this.barrier = null;
+
+      Duration timeTakenToRestart = Duration.ofNanos(System.nanoTime() - restartTime);
+      log.debug("Restart complete in {} ms", timeTakenToRestart.toMillis());
+    }
+
+    private void awaitPreventShutdownBarrier() {
+      try {
+        if (this.barrier != null) {
+          this.barrier.await();
+        }
+      }
+      catch (Exception ex) {
+        log.trace("Exception from prevent-shutdown barrier", ex);
+      }
+    }
   }
 
 }
