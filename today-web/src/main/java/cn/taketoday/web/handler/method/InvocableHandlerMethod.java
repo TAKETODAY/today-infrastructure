@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -87,7 +87,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @see #doInvoke
    */
   @Nullable
-  public Object invokeForRequest(RequestContext request, Object... providedArgs) throws Throwable {
+  public Object invokeForRequest(RequestContext request, @Nullable Object... providedArgs) throws Throwable {
     Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
       log.trace("Arguments: {}", Arrays.toString(args));

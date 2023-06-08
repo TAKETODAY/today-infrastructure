@@ -20,13 +20,13 @@
 
 package cn.taketoday.web;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -134,7 +134,7 @@ public class HandlerMatchingMetadata {
   public Map<String, Object> getPathVariables() {
     Map<String, Object> pathVariables = this.pathVariables;
     if (pathVariables == null) {
-      pathVariables = new LinkedHashMap<>();
+      pathVariables = CollectionUtils.newLinkedHashMap(getUriVariables().size());
       this.pathVariables = pathVariables;
     }
     return pathVariables;

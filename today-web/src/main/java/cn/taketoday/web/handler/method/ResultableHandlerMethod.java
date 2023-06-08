@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -80,12 +80,9 @@ public class ResultableHandlerMethod extends InvocableHandlerMethod {
    * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
    *
    * @param request the current request
-   * @param providedArgs "given" arguments matched by type (not resolved)
    */
-  public Object invokeAndHandle(
-          RequestContext request, Object... providedArgs) throws Throwable {
-
-    Object returnValue = invokeForRequest(request, providedArgs);
+  public Object invokeAndHandle(RequestContext request) throws Throwable {
+    Object returnValue = invokeForRequest(request, (Object[]) null);
     applyResponseStatus(request);
 
     if (returnValue == null) {
@@ -97,17 +94,17 @@ public class ResultableHandlerMethod extends InvocableHandlerMethod {
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
-    ReturnValueHandler returnValueHandler = returnValueHandlerManager.findHandler(this, returnValue);
-    if (returnValueHandler == null) {
-      returnValueHandler = returnValueHandlerManager.getByReturnValue(returnValue);
+    ReturnValueHandler handler = returnValueHandlerManager.findHandler(this, returnValue);
+    if (handler == null) {
+      handler = returnValueHandlerManager.getByReturnValue(returnValue);
     }
 
-    if (returnValueHandler == null) {
+    if (handler == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, this);
     }
 
     try {
-      returnValueHandler.handleReturnValue(request, this, returnValue);
+      handler.handleReturnValue(request, this, returnValue);
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
     catch (Exception ex) {

@@ -342,7 +342,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     modelHandler.initModel(request, binding, handlerMethod);
 
     var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
-    Object returnValue = invocableMethod.invokeAndHandle(request, binding);
+    Object returnValue = invocableMethod.invokeAndHandle(request);
 
     if (request.isConcurrentHandlingStarted()) {
       return HttpRequestHandler.NONE_RETURN_VALUE;
