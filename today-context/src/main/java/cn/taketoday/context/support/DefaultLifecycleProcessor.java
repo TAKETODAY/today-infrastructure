@@ -311,6 +311,10 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
       try {
         if (bean.isRunning()) {
+          Set<String> stoppedBeans = this.stoppedBeans;
+          if (stoppedBeans != null) {
+            stoppedBeans.add(beanName);
+          }
           if (bean instanceof SmartLifecycle smartLifecycle) {
             if (log.isTraceEnabled()) {
               log.trace("Asking bean '{}' of type [{}] to stop", beanName, bean.getClass().getName());
