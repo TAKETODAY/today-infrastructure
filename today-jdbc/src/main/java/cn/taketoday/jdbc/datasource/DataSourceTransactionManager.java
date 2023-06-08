@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,49 +40,52 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionSynchronizationUtils;
 
 /**
- * {@link cn.taketoday.transaction.PlatformTransactionManager}
- * implementation for a single JDBC {@link javax.sql.DataSource}. This class is
- * capable of working in any environment with any JDBC driver, as long as the setup
- * uses a {@code javax.sql.DataSource} as its {@code Connection} factory mechanism.
- * Binds a JDBC Connection from the specified DataSource to the current thread,
- * potentially allowing for one thread-bound Connection per DataSource.
+ * {@link cn.taketoday.transaction.PlatformTransactionManager} implementation
+ * for a single JDBC {@link javax.sql.DataSource}. This class is capable of working
+ * in any environment with any JDBC driver, as long as the setup uses a
+ * {@code javax.sql.DataSource} as its {@code Connection} factory mechanism.
+ * Binds a JDBC {@code Connection} from the specified {@code DataSource} to the
+ * current thread, potentially allowing for one thread-bound {@code Connection}
+ * per {@code DataSource}.
  *
- * <p><b>Note: The DataSource that this transaction manager operates on needs
- * to return independent Connections.</b> The Connections may come from a pool
- * (the typical case), but the DataSource must not return thread-scoped /
- * request-scoped Connections or the like. This transaction manager will
- * associate Connections with thread-bound transactions itself, according
- * to the specified propagation behavior. It assumes that a separate,
- * independent Connection can be obtained even during an ongoing transaction.
+ * <p><b>Note: The {@code DataSource} that this transaction manager operates on
+ * needs to return independent {@code Connection}s.</b> The {@code Connection}s
+ * typically come from a connection pool but the {@code DataSource} must not return
+ * specifically scoped or constrained {@code Connection}s. This transaction manager
+ * will associate {@code Connection}s with thread-bound transactions, according
+ * to the specified propagation behavior. It assumes that a separate, independent
+ * {@code Connection} can be obtained even during an ongoing transaction.
  *
- * <p>Application code is required to retrieve the JDBC Connection via
- * {@link cn.taketoday.jdbc.datasource.DataSourceUtils#getConnection(DataSource)} instead of a standard
- * Jakarta EE-style {@link DataSource#getConnection()} call. Framework classes such as
+ * <p>Application code is required to retrieve the JDBC {@code Connection} via
+ * {@link DataSourceUtils#getConnection(DataSource)} instead of a standard
+ * EE-style {@link DataSource#getConnection()} call. Infra classes such as
  * {@link cn.taketoday.jdbc.core.JdbcTemplate} use this strategy implicitly.
  * If not used in combination with this transaction manager, the
- * {@link cn.taketoday.jdbc.datasource.DataSourceUtils} lookup strategy behaves exactly like the native
- * DataSource lookup; it can thus be used in a portable fashion.
+ * {@link DataSourceUtils} lookup strategy behaves exactly like the native
+ * {@code DataSource} lookup; it can thus be used in a portable fashion.
  *
  * <p>Alternatively, you can allow application code to work with the standard
- * Jakarta EE-style lookup pattern {@link DataSource#getConnection()}, for example for
- * legacy code that is not aware of Framework at all. In that case, define a
- * {@link cn.taketoday.jdbc.datasource.TransactionAwareDataSourceProxy} for your target DataSource, and pass
- * that proxy DataSource to your DAOs, which will automatically participate in
- * Framework-managed transactions when accessing it.
+ * EE-style lookup pattern {@link DataSource#getConnection()}, for example
+ * for legacy code that is not aware of Infra at all. In that case, define a
+ * {@link TransactionAwareDataSourceProxy} for your target {@code DataSource},
+ * and pass that proxy {@code DataSource} to your DAOs which will automatically
+ * participate in Infra-managed transactions when accessing it.
  *
  * <p>Supports custom isolation levels, and timeouts which get applied as
  * appropriate JDBC statement timeouts. To support the latter, application code
  * must either use {@link cn.taketoday.jdbc.core.JdbcTemplate}, call
- * {@link cn.taketoday.jdbc.datasource.DataSourceUtils#applyTransactionTimeout} for each created JDBC Statement,
- * or go through a {@link cn.taketoday.jdbc.datasource.TransactionAwareDataSourceProxy} which will create
- * timeout-aware JDBC Connections and Statements automatically.
+ * {@link DataSourceUtils#applyTransactionTimeout} for each created JDBC
+ * {@code Statement}, or go through a {@link TransactionAwareDataSourceProxy}
+ * which will create timeout-aware JDBC {@code Connection}s and {@code Statement}s
+ * automatically.
  *
- * <p>Consider defining a {@link cn.taketoday.jdbc.datasource.LazyConnectionDataSourceProxy} for your target
- * DataSource, pointing both this transaction manager and your DAOs to it.
+ * <p>Consider defining a {@link LazyConnectionDataSourceProxy} for your target
+ * {@code DataSource}, pointing both this transaction manager and your DAOs to it.
  * This will lead to optimized handling of "empty" transactions, i.e. of transactions
- * without any JDBC statements executed. A LazyConnectionDataSourceProxy will not fetch
- * an actual JDBC Connection from the target DataSource until a Statement gets executed,
- * lazily applying the specified transaction settings to the target Connection.
+ * without any JDBC statements executed. A {@code LazyConnectionDataSourceProxy} will
+ * not fetch an actual JDBC {@code Connection} from the target {@code DataSource}
+ * until a {@code Statement} gets executed, lazily applying the specified transaction
+ * settings to the target {@code Connection}.
  *
  * <p>This transaction manager supports nested transactions via the JDBC 3.0
  * {@link java.sql.Savepoint} mechanism. The
@@ -93,9 +96,9 @@ import cn.taketoday.transaction.support.TransactionSynchronizationUtils;
  * <p>This transaction manager can be used as a replacement for the
  * {@link cn.taketoday.transaction.jta.JtaTransactionManager} in the single
  * resource case, as it does not require a container that supports JTA, typically
- * in combination with a locally defined JDBC DataSource (e.g. an Apache Commons
- * DBCP connection pool). Switching between this local strategy and a JTA
- * environment is just a matter of configuration!
+ * in combination with a locally defined JDBC {@code DataSource} (e.g. a Hikari
+ * connection pool). Switching between this local strategy and a JTA environment
+ * is just a matter of configuration!
  *
  * <p>this transaction manager triggers flush callbacks on registered
  * transaction synchronizations (if synchronization is generally active), assuming
@@ -103,7 +106,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationUtils;
  * setup analogous to {@code JtaTransactionManager}, in particular with respect to
  * lazily registered ORM resources (e.g. a Hibernate {@code Session}).
  *
- * <p><b>NOTE: {@link cn.taketoday.jdbc.support.JdbcTransactionManager}
+ * <p>{@link cn.taketoday.jdbc.support.JdbcTransactionManager}
  * is available as an extended subclass which includes commit/rollback exception
  * translation, aligned with {@link cn.taketoday.jdbc.core.JdbcTemplate}.</b>
  *
@@ -117,6 +120,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationUtils;
  * @see cn.taketoday.jdbc.datasource.TransactionAwareDataSourceProxy
  * @see cn.taketoday.jdbc.datasource.LazyConnectionDataSourceProxy
  * @see cn.taketoday.jdbc.core.JdbcTemplate
+ * @see cn.taketoday.jdbc.support.JdbcTransactionManager
  * @since 4.0 2021/12/10 21:05
  */
 public class DataSourceTransactionManager extends AbstractPlatformTransactionManager
@@ -130,8 +134,8 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
   private boolean enforceReadOnly = false;
 
   /**
-   * Create a new DataSourceTransactionManager instance.
-   * A DataSource has to be set to be able to use it.
+   * Create a new {@code DataSourceTransactionManager} instance.
+   * A {@code DataSource} has to be set to be able to use it.
    *
    * @see #setDataSource
    */
@@ -140,7 +144,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
   }
 
   /**
-   * Create a new DataSourceTransactionManager instance.
+   * Create a new {@code DataSourceTransactionManager} instance.
    *
    * @param dataSource the JDBC DataSource to manage transactions for
    */

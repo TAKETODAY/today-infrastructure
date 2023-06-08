@@ -109,7 +109,7 @@ import jakarta.persistence.PersistenceException;
  * @see DataSourceUtils#getConnection
  * @see DataSourceUtils#releaseConnection
  * @see cn.taketoday.jdbc.core.JdbcTemplate
- * @see cn.taketoday.jdbc.datasource.DataSourceTransactionManager
+ * @see cn.taketoday.jdbc.support.JdbcTransactionManager
  * @see cn.taketoday.transaction.jta.JtaTransactionManager
  * @since 4.0
  */
