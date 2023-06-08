@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,8 +34,7 @@ import jakarta.persistence.spi.PersistenceProvider;
 
 /**
  * {@link cn.taketoday.orm.jpa.JpaVendorAdapter} implementation for Eclipse
- * Persistence Services (EclipseLink). Developed and tested against EclipseLink 2.7;
- * backwards-compatible with EclipseLink 2.5 and 2.6 at runtime.
+ * Persistence Services (EclipseLink). Compatible with EclipseLink 3.0/4.0.
  *
  * <p>Exposes EclipseLink's persistence provider and EntityManager extension interface,
  * and adapts {@link AbstractJpaVendorAdapter}'s common configuration settings.
@@ -45,6 +44,7 @@ import jakarta.persistence.spi.PersistenceProvider;
  *
  * @author Juergen Hoeller
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EclipseLinkJpaDialect
  * @see org.eclipse.persistence.jpa.PersistenceProvider
  * @see org.eclipse.persistence.jpa.JpaEntityManager

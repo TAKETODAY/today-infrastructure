@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.orm.jpa;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.SQLException;
 
@@ -40,11 +41,14 @@ import jakarta.persistence.PersistenceException;
  * performs standard exception translation through {@link EntityManagerFactoryUtils}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JpaTransactionManager#setJpaDialect
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DefaultJpaDialect implements JpaDialect, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * This implementation invokes the standard JPA {@code Transaction.begin}
