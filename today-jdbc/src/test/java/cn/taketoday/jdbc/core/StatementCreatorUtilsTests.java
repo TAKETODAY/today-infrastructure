@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,10 +30,12 @@ import java.sql.DatabaseMetaData;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.GregorianCalendar;
 import java.util.stream.Stream;
@@ -41,6 +43,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Named.named;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -51,7 +54,7 @@ import static org.mockito.Mockito.verify;
  */
 public class StatementCreatorUtilsTests {
 
-  private PreparedStatement preparedStatement = mock();
+  private final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
   @Test
   public void testSetParameterValueWithNullAndType() throws SQLException {
@@ -243,6 +246,23 @@ public class StatementCreatorUtilsTests {
             Arguments.of(named("OffsetDateTime", now.atOffset(PLUS_NINE)),
                     named("TIMESTAMP_WITH_TIMEZONE", Types.TIMESTAMP_WITH_TIMEZONE))
     );
+  }
+
+  @Test  // gh-30556
+  public void testSetParameterValueWithOffsetDateTimeAndNotSupported() throws SQLException {
+    OffsetDateTime time = OffsetDateTime.now();
+    doThrow(new SQLFeatureNotSupportedException()).when(preparedStatement).setObject(1, time, Types.TIMESTAMP_WITH_TIMEZONE);
+    StatementCreatorUtils.setParameterValue(preparedStatement, 1, Types.TIMESTAMP_WITH_TIMEZONE, null, time);
+    verify(preparedStatement).setObject(1, time, Types.TIMESTAMP_WITH_TIMEZONE);
+    verify(preparedStatement).setObject(1, time);
+  }
+
+  @Test  // gh-30556
+  public void testSetParameterValueWithNullAndNotSupported() throws SQLException {
+    doThrow(new SQLFeatureNotSupportedException()).when(preparedStatement).setNull(1, Types.TIMESTAMP_WITH_TIMEZONE);
+    StatementCreatorUtils.setParameterValue(preparedStatement, 1, Types.TIMESTAMP_WITH_TIMEZONE, null, null);
+    verify(preparedStatement).setNull(1, Types.TIMESTAMP_WITH_TIMEZONE);
+    verify(preparedStatement).setNull(1, Types.NULL);
   }
 
   @Test  // SPR-8571

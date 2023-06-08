@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import java.sql.Clob;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -105,14 +106,14 @@ public abstract class StatementCreatorUtils {
     javaTypeToSqlTypeMap.put(double.class, Types.DOUBLE);
     javaTypeToSqlTypeMap.put(Double.class, Types.DOUBLE);
     javaTypeToSqlTypeMap.put(BigDecimal.class, Types.DECIMAL);
-    javaTypeToSqlTypeMap.put(java.sql.Date.class, Types.DATE);
-    javaTypeToSqlTypeMap.put(java.sql.Time.class, Types.TIME);
-    javaTypeToSqlTypeMap.put(java.sql.Timestamp.class, Types.TIMESTAMP);
     javaTypeToSqlTypeMap.put(LocalDate.class, Types.DATE);
     javaTypeToSqlTypeMap.put(LocalTime.class, Types.TIME);
     javaTypeToSqlTypeMap.put(LocalDateTime.class, Types.TIMESTAMP);
-    javaTypeToSqlTypeMap.put(OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE);
     javaTypeToSqlTypeMap.put(OffsetTime.class, Types.TIME_WITH_TIMEZONE);
+    javaTypeToSqlTypeMap.put(OffsetDateTime.class, Types.TIMESTAMP_WITH_TIMEZONE);
+    javaTypeToSqlTypeMap.put(java.sql.Date.class, Types.DATE);
+    javaTypeToSqlTypeMap.put(java.sql.Time.class, Types.TIME);
+    javaTypeToSqlTypeMap.put(java.sql.Timestamp.class, Types.TIMESTAMP);
     javaTypeToSqlTypeMap.put(Blob.class, Types.BLOB);
     javaTypeToSqlTypeMap.put(Clob.class, Types.CLOB);
   }
@@ -295,7 +296,19 @@ public abstract class StatementCreatorUtils {
       ps.setNull(paramIndex, sqlType, typeName);
     }
     else {
-      ps.setNull(paramIndex, sqlType);
+      // Fall back to generic setNull call.
+      try {
+        // Try generic setNull call with SQL type specified.
+        ps.setNull(paramIndex, sqlType);
+      }
+      catch (SQLFeatureNotSupportedException ex) {
+        if (sqlType == Types.NULL) {
+          throw ex;
+        }
+        // Fall back to generic setNull call without SQL type specified
+        // (e.g. for MySQL TIME_WITH_TIMEZONE / TIMESTAMP_WITH_TIMEZONE).
+        ps.setNull(paramIndex, Types.NULL);
+      }
     }
   }
 
@@ -421,8 +434,16 @@ public abstract class StatementCreatorUtils {
       }
     }
     else {
-      // Fall back to generic setObject call with SQL type specified.
-      ps.setObject(paramIndex, inValue, sqlType);
+      // Fall back to generic setObject call.
+      try {
+        // Try generic setObject call with SQL type specified.
+        ps.setObject(paramIndex, inValue, sqlType);
+      }
+      catch (SQLFeatureNotSupportedException ex) {
+        // Fall back to generic setObject call without SQL type specified
+        // (e.g. for MySQL TIME_WITH_TIMEZONE / TIMESTAMP_WITH_TIMEZONE).
+        ps.setObject(paramIndex, inValue);
+      }
     }
   }
 
