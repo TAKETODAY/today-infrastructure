@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,15 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * <p>The annotated method must expect no arguments. It will typically have
  * a {@code void} return type; if not, the returned value will be ignored
  * when called through the scheduler.
+ *
+ * <p>Methods that return a reactive {@code Publisher} or a type which can be adapted
+ * to {@code Publisher} by the default {@code ReactiveAdapterRegistry} are supported.
+ * The {@code Publisher} must support multiple subsequent subscriptions. The returned
+ * {@code Publisher} is only produced once, and the scheduling infrastructure then
+ * periodically subscribes to it according to configuration. Values emitted by
+ * the publisher are ignored. Errors are logged at {@code WARN} level, which
+ * doesn't prevent further iterations. If a fixed delay is configured, the
+ * subscription is blocked in order to respect the fixed delay semantics.
  *
  * <p>Processing of {@code @Scheduled} annotations is performed by
  * registering a {@link ScheduledAnnotationBeanPostProcessor}. This can be
