@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.expression.spel.ast;
 
-import java.util.StringJoiner;
 import java.util.function.Supplier;
 
 import cn.taketoday.bytecode.MethodVisitor;
@@ -29,10 +28,14 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
+import cn.taketoday.expression.spel.SpelNode;
 
 /**
  * Represents a DOT separated expression sequence, such as
  * {@code 'property1.property2.methodOne()'}.
+ *
+ * <p>May also contain array/collection/map indexers, such as
+ * {@code property1[0].property2['key']}.
  *
  * @author Andy Clement
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -116,11 +119,19 @@ public class CompoundExpression extends SpelNodeImpl {
 
   @Override
   public String toStringAST() {
-    StringJoiner sj = new StringJoiner(".");
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < getChildCount(); i++) {
-      sj.add(getChild(i).toStringAST());
+      sb.append(getChild(i).toStringAST());
+      if (i < getChildCount() - 1) {
+        SpelNode nextChild = getChild(i + 1);
+        // Don't append a '.' if the next child is an Indexer.
+        // For example, we want 'myVar[0]' instead of 'myVar.[0]'.
+        if (!(nextChild instanceof Indexer)) {
+          sb.append('.');
+        }
+      }
     }
-    return sj.toString();
+    return sb.toString();
   }
 
   @Override
