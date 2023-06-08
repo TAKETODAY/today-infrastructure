@@ -173,7 +173,7 @@ class ScheduledAnnotationReactiveSupportTests {
             .as("checkpoint class")
             .isEqualTo("reactor.core.publisher.FluxOnAssembly");
 
-    assertThat(p).hasToString("checkpoint(\"@Scheduled 'mono()' in 'org.springframework.scheduling.annotation.ScheduledAnnotationReactiveSupportTests$ReactiveMethods'\")");
+    assertThat(p).hasToString("checkpoint(\"@Scheduled 'mono()' in 'cn.taketoday.scheduling.annotation.ScheduledAnnotationReactiveSupportTests$ReactiveMethods'\")");
   }
 
   static class ReactiveMethods {
