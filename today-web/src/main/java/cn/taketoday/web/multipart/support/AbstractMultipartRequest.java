@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -86,7 +85,7 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
   public MultiValueMap<String, MultipartFile> getMultipartFiles() {
     var multipartFiles = this.multipartFiles;
     if (multipartFiles == null) {
-      multipartFiles = new LinkedMultiValueMap<>();
+      multipartFiles = MultiValueMap.fromLinkedHashMap();
       for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
         for (Multipart multipart : entry.getValue()) {
           if (multipart instanceof MultipartFile file) {

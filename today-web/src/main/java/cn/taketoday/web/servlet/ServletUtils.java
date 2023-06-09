@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -503,12 +503,20 @@ public abstract class ServletUtils {
     Assert.notNull(request, "Request must not be null");
     Enumeration<String> paramNames = request.getParameterNames();
     Map<String, Object> params = new TreeMap<>();
-    if (prefix == null) {
-      prefix = "";
-    }
     while (paramNames != null && paramNames.hasMoreElements()) {
       String paramName = paramNames.nextElement();
-      if (prefix.isEmpty() || paramName.startsWith(prefix)) {
+      if (prefix == null) {
+        String[] values = request.getParameterValues(paramName);
+        if (ObjectUtils.isNotEmpty(values)) {
+          if (values.length > 1) {
+            params.put(paramName, values);
+          }
+          else {
+            params.put(paramName, values[0]);
+          }
+        }
+      }
+      else if (paramName.startsWith(prefix)) {
         String unprefixed = paramName.substring(prefix.length());
         String[] values = request.getParameterValues(paramName);
         if (ObjectUtils.isNotEmpty(values)) {

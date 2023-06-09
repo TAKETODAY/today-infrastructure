@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,8 +30,12 @@ import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -54,6 +58,24 @@ import cn.taketoday.web.multipart.MultipartFile;
  * A field marker allows to detect that state and reset the corresponding
  * bean property accordingly. Default values, for parameters that are otherwise
  * not present, can specify a value for the field other then empty.
+ *
+ * <p>Can also used for manual data binding in custom web controllers or interceptors
+ * that build on Infra {@link RequestContext} implementation. Simply instantiate
+ * a WebDataBinder for each binding process, and invoke {@code bind} with
+ * the current RequestContext as argument:
+ *
+ * <pre> {@code
+ * MyBean myBean = new MyBean();
+ * // apply binder to custom target object
+ * WebDataBinder binder = new WebDataBinder(myBean);
+ * // register custom editors, if desired
+ * binder.registerCustomEditor(...);
+ * // trigger actual binding of request parameters
+ * binder.bind(request);
+ * // optionally evaluate binding errors
+ * Errors errors = binder.getErrors();
+ * // ...
+ * }</pre>
  *
  * @author Juergen Hoeller
  * @author Scott Andrews
@@ -348,6 +370,45 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
+   * Bind the parameters of the given request to this binder's target,
+   * also binding multipart files in case of a multipart request.
+   * <p>This call can create field errors, representing basic binding
+   * errors like a required field (code "required"), or type mismatch
+   * between value and bean property (code "typeMismatch").
+   * <p>Multipart files are bound via their parameter name, just like normal
+   * HTTP parameters: i.e. "uploadedFile" to an "uploadedFile" bean property,
+   * invoking a "setUploadedFile" setter method.
+   * <p>The type of the target property for a multipart file can be Part, MultipartFile,
+   * byte[], or String. The latter two receive the contents of the uploaded file;
+   * all metadata like original file name, content type, etc are lost in those cases.
+   *
+   * @param request the request with parameters to bind (can be multipart)
+   * @see cn.taketoday.web.multipart.MultipartFile
+   * @see #bind(PropertyValues)
+   */
+  public void bind(RequestContext request) {
+    doBind(getValuesToBind(request));
+  }
+
+  /**
+   * method to obtain the values for data binding.
+   *
+   * @param request the current exchange
+   * @return a map of bind values
+   */
+  public PropertyValues getValuesToBind(RequestContext request) {
+    PropertyValues propertyValues = new PropertyValues(request.getParameters());
+    if (request.isMultipart()) {
+      MultipartRequest multipartRequest = request.getMultipartRequest();
+      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultipartFiles();
+      if (multipartFiles != null) {
+        bindMultipart(multipartFiles, propertyValues);
+      }
+    }
+    return propertyValues;
+  }
+
+  /**
    * Bind all multipart files contained in the given request, if any
    * (in case of a multipart request). To be called by subclasses.
    * <p>Multipart files will only be added to the property values if they
@@ -371,6 +432,19 @@ public class WebDataBinder extends DataBinder {
       else {
         mpvs.add(key, values);
       }
+    }
+  }
+
+  /**
+   * Treats errors as fatal.
+   * <p>Use this method only if it's an error if the input isn't valid.
+   * This might be appropriate if all input is from dropdowns, for example.
+   *
+   * @throws BindException if binding errors have been encountered
+   */
+  public void closeNoCatch() throws BindException {
+    if (getBindingResult().hasErrors()) {
+      throw new BindException(getBindingResult());
     }
   }
 

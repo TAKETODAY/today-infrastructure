@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,28 +23,22 @@ package cn.taketoday.util;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
  *
- * <p>
- * From Spring
- *
  * @param <K> the key type
  * @param <V> the value element type
  * @author Arjen Poutsma
- * @author TODAY <br>
- * 2020-01-27 13:06
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.7 2020-01-27 13:06
  */
 public interface MultiValueMap<K, V> extends Map<K, List<V>> {
 
@@ -185,8 +179,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 3.0
    */
   default void copyToArrayMap(Map<K, V[]> newMap, IntFunction<V[]> mappingFunction) {
-    Assert.notNull(newMap, "newMap must not be null");
-    Assert.notNull(mappingFunction, "mappingFunction must not be null");
+    Assert.notNull(newMap, "newMap is required");
+    Assert.notNull(mappingFunction, "mappingFunction is required");
     for (Entry<K, List<V>> entry : entrySet()) {
       List<V> values = entry.getValue();
       if (CollectionUtils.isNotEmpty(values)) {
@@ -226,8 +220,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  @Experimental
-  static <K, V> DefaultMultiValueMap<K, V> from(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
+  static <K, V> DefaultMultiValueMap<K, V> from(
+          Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
     return new DefaultMultiValueMap<>(targetMap, mappingFunction);
   }
 
@@ -238,21 +232,12 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  static <K, V> DefaultMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
-    return new DefaultMultiValueMap<>(new LinkedHashMap<>(targetMap));
+  static <K, V> LinkedMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
+    return new LinkedMultiValueMap<>(targetMap);
   }
 
-  static <K, V> DefaultMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
-    return new DefaultMultiValueMap<>(new LinkedHashMap<>(targetMap), mappingFunction);
-  }
-
-  /**
-   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
-   *
-   * @since 4.0
-   */
-  static <K, V> DefaultMultiValueMap<K, V> fromLinkedHashMap() {
-    return from(new LinkedHashMap<>());
+  static <K, V> LinkedMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
+    return new LinkedMultiValueMap<>(targetMap, mappingFunction);
   }
 
   /**
@@ -260,8 +245,17 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @since 4.0
    */
-  static <K, V> DefaultMultiValueMap<K, V> fromLinkedHashMap(int initialCapacity) {
-    return from(new LinkedHashMap<>(initialCapacity));
+  static <K, V> LinkedMultiValueMap<K, V> fromLinkedHashMap() {
+    return new LinkedMultiValueMap<>();
+  }
+
+  /**
+   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @since 4.0
+   */
+  static <K, V> LinkedMultiValueMap<K, V> fromLinkedHashMap(int initialCapacity) {
+    return new LinkedMultiValueMap<>(initialCapacity);
   }
 
   /**
@@ -272,9 +266,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
-  static <K, V> MultiValueMap<K, V> unmodifiable(
-          MultiValueMap<? extends K, ? extends V> targetMap) {
-    Assert.notNull(targetMap, "'targetMap' must not be null");
+  static <K, V> MultiValueMap<K, V> unmodifiable(MultiValueMap<? extends K, ? extends V> targetMap) {
+    Assert.notNull(targetMap, "'targetMap' is required");
     if (targetMap instanceof UnmodifiableMultiValueMap) {
       return (MultiValueMap<K, V>) targetMap;
     }

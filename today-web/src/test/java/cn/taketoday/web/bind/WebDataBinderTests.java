@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.bind;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyEditorSupport;
@@ -47,13 +46,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:39
  */
-public class RequestContextDataBinderTests {
+public class WebDataBinderTests {
 
   @Test
   public void testBindingWithNestedObjectCreation() throws Exception {
     TestBean tb = new TestBean();
 
-    RequestContextDataBinder binder = new RequestContextDataBinder(tb, "person");
+    WebDataBinder binder = new WebDataBinder(tb, "person");
     binder.registerCustomEditor(ITestBean.class, new PropertyEditorSupport() {
       @Override
       public void setAsText(String text) throws IllegalArgumentException {
@@ -74,7 +73,7 @@ public class RequestContextDataBinderTests {
   public void testBindingWithNestedObjectCreationThroughAutoGrow() throws Exception {
     TestBean tb = new TestBeanWithConcreteSpouse();
 
-    RequestContextDataBinder binder = new RequestContextDataBinder(tb, "person");
+    WebDataBinder binder = new WebDataBinder(tb, "person");
     binder.setIgnoreUnknownFields(false);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -88,7 +87,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testFieldPrefixCausesFieldReset() throws Exception {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("_postProcessed", "visible");
@@ -104,7 +103,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testFieldPrefixCausesFieldResetWithIgnoreUnknownFields() throws Exception {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
     binder.setIgnoreUnknownFields(false);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
@@ -121,7 +120,7 @@ public class RequestContextDataBinderTests {
   @Test // gh-25836
   public void testFieldWithEmptyArrayIndex() {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("stringArray[]", "ONE");
@@ -133,7 +132,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testFieldDefault() throws Exception {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("!postProcessed", "off");
@@ -153,7 +152,7 @@ public class RequestContextDataBinderTests {
     target.setSomeSet(null);
     target.setSomeList(null);
     target.setSomeMap(null);
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("_someSet", "visible");
@@ -169,7 +168,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testFieldDefaultPreemptsFieldMarker() throws Exception {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("!postProcessed", "on");
@@ -191,7 +190,7 @@ public class RequestContextDataBinderTests {
   public void testFieldDefaultWithNestedProperty() throws Exception {
     TestBean target = new TestBean();
     target.setSpouse(new TestBean());
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("!spouse.postProcessed", "on");
@@ -212,7 +211,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testFieldDefaultNonBoolean() throws Exception {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("!name", "anonymous");
@@ -228,7 +227,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testWithCommaSeparatedStringArray() throws Exception {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("stringArray", "bar");
@@ -246,7 +245,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testEnumBinding() {
     EnumHolder target = new EnumHolder();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("myEnum", "FOO");
@@ -257,7 +256,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testMultipartFileAsString() {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
     binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
 
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
@@ -269,7 +268,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testMultipartFileAsStringArray() {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
     binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
 
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
@@ -282,7 +281,7 @@ public class RequestContextDataBinderTests {
   @Test
   public void testMultipartFilesAsStringArray() {
     TestBean target = new TestBean();
-    RequestContextDataBinder binder = new RequestContextDataBinder(target);
+    WebDataBinder binder = new WebDataBinder(target);
     binder.registerCustomEditor(String.class, new StringMultipartFileEditor());
 
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();

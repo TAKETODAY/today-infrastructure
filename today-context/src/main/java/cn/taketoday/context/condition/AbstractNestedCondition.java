@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -106,7 +106,7 @@ public abstract class AbstractNestedCondition
 
     private Map<AnnotationMetadata, List<Condition>> getMemberConditions(
             String[] members, ConfigurationPhase phase, String className) {
-      MultiValueMap<AnnotationMetadata, Condition> memberConditions = MultiValueMap.fromLinkedHashMap();
+      var memberConditions = MultiValueMap.<AnnotationMetadata, Condition>fromLinkedHashMap();
       for (String member : members) {
         AnnotationMetadata metadata = getMetadata(member);
         for (String[] conditionClasses : getConditionClasses(metadata)) {
@@ -117,7 +117,7 @@ public abstract class AbstractNestedCondition
           }
         }
       }
-      return Collections.unmodifiableMap(memberConditions);
+      return memberConditions;
     }
 
     private void validateMemberCondition(

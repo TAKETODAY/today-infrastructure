@@ -50,7 +50,6 @@ import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
-import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
@@ -158,7 +157,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     if (bindingResult == null) {
       // Bean property binding and validation;
       // skipped in case of binding failure on construction.
-      RequestContextDataBinder binder = bindingContext.createBinder(context, attribute, name);
+      WebDataBinder binder = bindingContext.createBinder(context, attribute, name);
       if (binder.getTarget() != null) {
         if (!bindingContext.isBindingDisabled(name)) {
           bindRequestParameters(binder, context);
@@ -202,6 +201,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @throws BindException in case of constructor argument binding failure
    * @throws Exception in case of constructor invocation failure
    * @see #constructAttribute(Constructor, String, MethodParameter, BindingContext, RequestContext)
+   * @see #createAttributeFromRequestValue
    */
   protected Object createAttribute(String attributeName, MethodParameter parameter,
           BindingContext bindingContext, RequestContext request) throws Throwable {
@@ -399,12 +399,13 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param binder the data binder instance to use for the binding
    * @param request the current request
    */
-  protected void bindRequestParameters(RequestContextDataBinder binder, RequestContext request) {
+  protected void bindRequestParameters(WebDataBinder binder, RequestContext request) {
     binder.bind(request);
   }
 
   @Nullable
-  public Object resolveConstructorArgument(String paramName, Class<?> paramType, RequestContext request) throws Exception {
+  public Object resolveConstructorArgument(String paramName,
+          Class<?> paramType, RequestContext request) throws Exception {
     if (request.isMultipart()) {
       MultipartRequest multipartRequest = request.getMultipartRequest();
       MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultipartFiles();

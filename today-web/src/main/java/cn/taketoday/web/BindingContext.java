@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
-import cn.taketoday.web.bind.RequestContextDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
@@ -41,7 +40,7 @@ import cn.taketoday.web.view.RedirectModel;
  * Context to assist with binding request data onto Objects and provide access
  * to a shared {@link Model} with controller-specific attributes.
  *
- * <p>Provides methods to create a {@link RequestContextDataBinder} for a specific
+ * <p>Provides methods to create a {@link WebDataBinder} for a specific
  * target, command Object to apply data binding and validation to, or without a
  * target Object for simple type conversion from request values.
  *
@@ -93,7 +92,7 @@ public class BindingContext {
   }
 
   /**
-   * Create a {@link RequestContextDataBinder} without a target object for type
+   * Create a {@link WebDataBinder} without a target object for type
    * conversion of request values to simple types.
    *
    * @param exchange the current exchange
@@ -101,12 +100,12 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public RequestContextDataBinder createBinder(RequestContext exchange, String name) throws Throwable {
+  public WebDataBinder createBinder(RequestContext exchange, String name) throws Throwable {
     return createBinder(exchange, null, name);
   }
 
   /**
-   * Create a {@link RequestContextDataBinder} to apply data binding and
+   * Create a {@link WebDataBinder} to apply data binding and
    * validation with on the target, command object.
    *
    * @param exchange the current exchange
@@ -115,9 +114,9 @@ public class BindingContext {
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public RequestContextDataBinder createBinder(
+  public WebDataBinder createBinder(
           RequestContext exchange, @Nullable Object target, String name) throws Throwable {
-    RequestContextDataBinder dataBinder = new HandlerMatchingMetadataDataBinder(target, name);
+    WebDataBinder dataBinder = new HandlerMatchingMetadataDataBinder(target, name);
     if (initializer != null) {
       initializer.initBinder(dataBinder);
     }
@@ -135,9 +134,9 @@ public class BindingContext {
   }
 
   /**
-   * Extended variant of {@link RequestContextDataBinder}, adding path variables.
+   * Extended variant of {@link WebDataBinder}, adding path variables.
    */
-  private static class HandlerMatchingMetadataDataBinder extends RequestContextDataBinder {
+  private static class HandlerMatchingMetadataDataBinder extends WebDataBinder {
 
     public HandlerMatchingMetadataDataBinder(@Nullable Object target, String objectName) {
       super(target, objectName);

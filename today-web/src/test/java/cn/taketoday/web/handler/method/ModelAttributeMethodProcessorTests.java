@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
-import cn.taketoday.web.bind.RequestContextDataBinder;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -155,7 +155,7 @@ class ModelAttributeMethodProcessorTests {
 
   @Test
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(null);
+    WebDataBinder dataBinder = new WebDataBinder(null);
     BindingContext factory = mock(BindingContext.class);
     request.setBinding(factory);
     given(factory.createBinder(ArgumentMatchers.any(), ArgumentMatchers.notNull(), ArgumentMatchers.eq("attrName"))).willReturn(dataBinder);
@@ -282,7 +282,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext factory = mock(BindingContext.class);
     given(factory.createBinder(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.eq("testBeanWithConstructorArgs")))
             .willAnswer(invocation -> {
-              RequestContextDataBinder binder = new RequestContextDataBinder(invocation.getArgument(1));
+              WebDataBinder binder = new WebDataBinder(invocation.getArgument(1));
               // Add conversion service which will convert "1,2" to a list
               binder.setConversionService(new DefaultFormattingConversionService());
               return binder;
@@ -298,7 +298,7 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
     this.container.addAttribute(expectedAttrName, target);
 
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(target);
+    WebDataBinder dataBinder = new WebDataBinder(target);
     BindingContext factory = mock(BindingContext.class);
     given(factory.createBinder(this.request, target, expectedAttrName)).willReturn(dataBinder);
     request.setBinding(factory);
@@ -306,7 +306,7 @@ class ModelAttributeMethodProcessorTests {
     verify(factory).createBinder(this.request, target, expectedAttrName);
   }
 
-  private static class StubRequestDataBinder extends RequestContextDataBinder {
+  private static class StubRequestDataBinder extends WebDataBinder {
 
     private boolean bindInvoked;
 

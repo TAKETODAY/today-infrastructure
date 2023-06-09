@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.MultipartException;
-import cn.taketoday.web.bind.RequestContextDataBinder;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -446,7 +446,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test  // SPR-10578
   public void missingRequestParamEmptyValueConvertedToNull() throws Throwable {
-    RequestContextDataBinder binder = new RequestContextDataBinder(null);
+    WebDataBinder binder = new WebDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
@@ -468,7 +468,7 @@ class RequestParamMethodArgumentResolverTests {
 
   @Test
   public void missingRequestParamEmptyValueNotRequired() throws Throwable {
-    RequestContextDataBinder binder = new RequestContextDataBinder(null);
+    WebDataBinder binder = new WebDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
     request.addParameter("name", "");
 

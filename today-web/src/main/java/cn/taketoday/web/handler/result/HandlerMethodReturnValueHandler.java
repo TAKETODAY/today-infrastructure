@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.result;
 
 import cn.taketoday.lang.Nullable;
@@ -66,8 +67,8 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    * @throws Exception return-value handled failed
    */
   @Override
-  default void handleReturnValue(
-          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  default void handleReturnValue(RequestContext context,
+          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (handler instanceof HandlerMethod handlerMethod) {
       handleHandlerMethodReturnValue(context, handlerMethod, returnValue);
     }
@@ -86,8 +87,8 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    * @throws Exception return-value handled failed
    */
-  default void handleHandlerMethodReturnValue(RequestContext context, HandlerMethod handler, @Nullable Object returnValue)
-          throws Exception {
+  default void handleHandlerMethodReturnValue(RequestContext context,
+          HandlerMethod handler, @Nullable Object returnValue) throws Exception {
 
   }
 

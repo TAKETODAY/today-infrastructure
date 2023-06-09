@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import cn.taketoday.ui.Model;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.bind.RequestContextDataBinder;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
@@ -202,7 +202,7 @@ class ModelHandlerTests {
   public void updateModelBindingResult() throws Throwable {
     String commandName = "attr1";
     Object command = new Object();
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(command, commandName);
+    WebDataBinder dataBinder = new WebDataBinder(command, commandName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(commandName, command);
 
@@ -216,14 +216,14 @@ class ModelHandlerTests {
   }
 
   static class BindingContext0 extends BindingContext {
-    final RequestContextDataBinder dataBinder;
+    final WebDataBinder dataBinder;
 
-    BindingContext0(RequestContextDataBinder dataBinder) {
+    BindingContext0(WebDataBinder dataBinder) {
       this.dataBinder = dataBinder;
     }
 
     @Override
-    public RequestContextDataBinder createBinder(RequestContext exchange, @Nullable Object target, String name) throws Throwable {
+    public WebDataBinder createBinder(RequestContext exchange, @Nullable Object target, String name) throws Throwable {
       return dataBinder;
     }
   }
@@ -232,7 +232,7 @@ class ModelHandlerTests {
   public void updateModelSessionAttributesSaved() throws Throwable {
     String attributeName = "sessionAttr";
     String attribute = "value";
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
@@ -247,7 +247,7 @@ class ModelHandlerTests {
   public void updateModelSessionAttributesRemoved() throws Throwable {
     String attributeName = "sessionAttr";
     String attribute = "value";
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 
@@ -267,7 +267,7 @@ class ModelHandlerTests {
     String attributeName = "sessionAttr";
     String attribute = "value";
 
-    RequestContextDataBinder dataBinder = new RequestContextDataBinder(attribute, attributeName);
+    WebDataBinder dataBinder = new WebDataBinder(attribute, attributeName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 

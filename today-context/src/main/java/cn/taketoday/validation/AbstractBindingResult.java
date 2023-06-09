@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,10 +43,10 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Errors
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public abstract class AbstractBindingResult extends AbstractErrors implements BindingResult, Serializable {
 
   private final String objectName;
@@ -101,8 +101,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
   }
 
   @Override
-  public void rejectValue(
-          @Nullable String field, String errorCode,
+  public void rejectValue(@Nullable String field, String errorCode,
           @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
     if (StringUtils.isEmpty(getNestedPath()) && StringUtils.isEmpty(field)) {
