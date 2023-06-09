@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,6 +36,7 @@ import java.text.MessageFormat;
  * @author Andy Clement
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public enum SpelMessage {
@@ -272,7 +273,6 @@ public enum SpelMessage {
   MAX_REGEX_LENGTH_EXCEEDED(Kind.ERROR, 1077,
           "Regular expression is too long, exceeding the threshold of ''{0}'' characters"),
 
-  /** @since 5.2.24 */
   MAX_CONCATENATED_STRING_LENGTH_EXCEEDED(Kind.ERROR, 1078,
           "Concatenated string is too long, exceeding the threshold of ''{0}'' characters"),
 

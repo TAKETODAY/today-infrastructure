@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,9 +34,10 @@ import cn.taketoday.expression.spel.SpelParseException;
  * @author Andy Clement
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class Tokenizer {
+final class Tokenizer {
 
   // If this gets changed, it must remain sorted...
   private static final String[] ALTERNATIVE_OPERATOR_NAMES = {
@@ -49,8 +50,6 @@ class Tokenizer {
 
   private static final byte IS_HEXDIGIT = 0x02;
 
-  private static final byte IS_ALPHA = 0x04;
-
   static {
     for (int ch = '0'; ch <= '9'; ch++) {
       FLAGS[ch] |= IS_DIGIT | IS_HEXDIGIT;
@@ -60,12 +59,6 @@ class Tokenizer {
     }
     for (int ch = 'a'; ch <= 'f'; ch++) {
       FLAGS[ch] |= IS_HEXDIGIT;
-    }
-    for (int ch = 'A'; ch <= 'Z'; ch++) {
-      FLAGS[ch] |= IS_ALPHA;
-    }
-    for (int ch = 'a'; ch <= 'z'; ch++) {
-      FLAGS[ch] |= IS_ALPHA;
     }
   }
 
@@ -77,7 +70,7 @@ class Tokenizer {
 
   private final int max;
 
-  private final List<Token> tokens = new ArrayList<>();
+  private final ArrayList<Token> tokens = new ArrayList<>();
 
   public Tokenizer(String inputData) {
     this.expressionString = inputData;
@@ -87,6 +80,7 @@ class Tokenizer {
   }
 
   public List<Token> process() {
+    char[] charsToProcess = this.charsToProcess;
     while (pos < max) {
       char ch = charsToProcess[pos];
       if (isAlphabetic(ch)) {
@@ -94,76 +88,46 @@ class Tokenizer {
       }
       else {
         switch (ch) {
-          case '+':
+          case '+' -> {
             if (isTwoCharToken(TokenKind.INC)) {
               pushPairToken(TokenKind.INC);
             }
             else {
               pushCharToken(TokenKind.PLUS);
             }
-            break;
-          case '_': // the other way to start an identifier
-            lexIdentifier();
-            break;
-          case '-':
+          }
+          case '_' -> lexIdentifier(); // the other way to start an identifier
+          case '-' -> {
             if (isTwoCharToken(TokenKind.DEC)) {
               pushPairToken(TokenKind.DEC);
             }
             else {
               pushCharToken(TokenKind.MINUS);
             }
-            break;
-          case ':':
-            pushCharToken(TokenKind.COLON);
-            break;
-          case '.':
-            pushCharToken(TokenKind.DOT);
-            break;
-          case ',':
-            pushCharToken(TokenKind.COMMA);
-            break;
-          case '*':
-            pushCharToken(TokenKind.STAR);
-            break;
-          case '/':
-            pushCharToken(TokenKind.DIV);
-            break;
-          case '%':
-            pushCharToken(TokenKind.MOD);
-            break;
-          case '(':
-            pushCharToken(TokenKind.LPAREN);
-            break;
-          case ')':
-            pushCharToken(TokenKind.RPAREN);
-            break;
-          case '[':
-            pushCharToken(TokenKind.LSQUARE);
-            break;
-          case '#':
-            pushCharToken(TokenKind.HASH);
-            break;
-          case ']':
-            pushCharToken(TokenKind.RSQUARE);
-            break;
-          case '{':
-            pushCharToken(TokenKind.LCURLY);
-            break;
-          case '}':
-            pushCharToken(TokenKind.RCURLY);
-            break;
-          case '@':
-            pushCharToken(TokenKind.BEAN_REF);
-            break;
-          case '^':
+          }
+          case ':' -> pushCharToken(TokenKind.COLON);
+          case '.' -> pushCharToken(TokenKind.DOT);
+          case ',' -> pushCharToken(TokenKind.COMMA);
+          case '*' -> pushCharToken(TokenKind.STAR);
+          case '/' -> pushCharToken(TokenKind.DIV);
+          case '%' -> pushCharToken(TokenKind.MOD);
+          case '(' -> pushCharToken(TokenKind.LPAREN);
+          case ')' -> pushCharToken(TokenKind.RPAREN);
+          case '[' -> pushCharToken(TokenKind.LSQUARE);
+          case '#' -> pushCharToken(TokenKind.HASH);
+          case ']' -> pushCharToken(TokenKind.RSQUARE);
+          case '{' -> pushCharToken(TokenKind.LCURLY);
+          case '}' -> pushCharToken(TokenKind.RCURLY);
+          case '@' -> pushCharToken(TokenKind.BEAN_REF);
+          case '^' -> {
             if (isTwoCharToken(TokenKind.SELECT_FIRST)) {
               pushPairToken(TokenKind.SELECT_FIRST);
             }
             else {
               pushCharToken(TokenKind.POWER);
             }
-            break;
-          case '!':
+          }
+          case '!' -> {
             if (isTwoCharToken(TokenKind.NE)) {
               pushPairToken(TokenKind.NE);
             }
@@ -173,30 +137,30 @@ class Tokenizer {
             else {
               pushCharToken(TokenKind.NOT);
             }
-            break;
-          case '=':
+          }
+          case '=' -> {
             if (isTwoCharToken(TokenKind.EQ)) {
               pushPairToken(TokenKind.EQ);
             }
             else {
               pushCharToken(TokenKind.ASSIGN);
             }
-            break;
-          case '&':
+          }
+          case '&' -> {
             if (isTwoCharToken(TokenKind.SYMBOLIC_AND)) {
               pushPairToken(TokenKind.SYMBOLIC_AND);
             }
             else {
               pushCharToken(TokenKind.FACTORY_BEAN_REF);
             }
-            break;
-          case '|':
+          }
+          case '|' -> {
             if (!isTwoCharToken(TokenKind.SYMBOLIC_OR)) {
               raiseParseException(pos, SpelMessage.MISSING_CHARACTER, "|");
             }
             pushPairToken(TokenKind.SYMBOLIC_OR);
-            break;
-          case '?':
+          }
+          case '?' -> {
             if (isTwoCharToken(TokenKind.SELECT)) {
               pushPairToken(TokenKind.SELECT);
             }
@@ -209,65 +173,41 @@ class Tokenizer {
             else {
               pushCharToken(TokenKind.QMARK);
             }
-            break;
-          case '$':
+          }
+          case '$' -> {
             if (isTwoCharToken(TokenKind.SELECT_LAST)) {
               pushPairToken(TokenKind.SELECT_LAST);
             }
             else {
               lexIdentifier();
             }
-            break;
-          case '>':
+          }
+          case '>' -> {
             if (isTwoCharToken(TokenKind.GE)) {
               pushPairToken(TokenKind.GE);
             }
             else {
               pushCharToken(TokenKind.GT);
             }
-            break;
-          case '<':
+          }
+          case '<' -> {
             if (isTwoCharToken(TokenKind.LE)) {
               pushPairToken(TokenKind.LE);
             }
             else {
               pushCharToken(TokenKind.LT);
             }
-            break;
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-            lexNumericLiteral(ch == '0');
-            break;
-          case ' ':
-          case '\t':
-          case '\r':
-          case '\n':
-            // drift over white space
-            this.pos++;
-            break;
-          case '\'':
-            lexQuotedStringLiteral();
-            break;
-          case '"':
-            lexDoubleQuotedStringLiteral();
-            break;
-          case 0:
-            // hit sentinel at end of value
-            this.pos++;  // will take us to the end
-            break;
-          case '\\':
-            raiseParseException(pos, SpelMessage.UNEXPECTED_ESCAPE_CHAR);
-            break;
-          default:
-            throw new IllegalStateException("Cannot handle (" + (int) ch + ") '" + ch + "'");
+          }
+          case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> lexNumericLiteral(ch == '0');
+          case ' ', '\t', '\r', '\n' -> this.pos++; // drift over white space
+          case '\'' -> lexQuotedStringLiteral();
+          case '"' -> lexDoubleQuotedStringLiteral();
+          // hit sentinel at end of value
+          case 0 -> this.pos++;  // will take us to the end
+          case '\\' -> raiseParseException(pos, SpelMessage.UNEXPECTED_ESCAPE_CHAR);
+          default -> throw new IllegalStateException(
+                  "Unsupported character '%s' (%d) encountered at position %d in expression."
+                          .formatted(ch, (int) ch, (this.pos + 1)));
         }
       }
     }
@@ -276,14 +216,17 @@ class Tokenizer {
 
   // STRING_LITERAL: '\''! (APOS|~'\'')* '\''!;
   private void lexQuotedStringLiteral() {
+    char[] charsToProcess = this.charsToProcess;
+
     int start = this.pos;
     boolean terminated = false;
     while (!terminated) {
       this.pos++;
-      char ch = this.charsToProcess[this.pos];
+
+      char ch = charsToProcess[this.pos];
       if (ch == '\'') {
         // may not be the end if the char after is also a '
-        if (this.charsToProcess[this.pos + 1] == '\'') {
+        if (charsToProcess[this.pos + 1] == '\'') {
           this.pos++;  // skip over that too, and continue
         }
         else {
@@ -300,14 +243,16 @@ class Tokenizer {
 
   // DQ_STRING_LITERAL: '"'! (~'"')* '"'!;
   private void lexDoubleQuotedStringLiteral() {
+    char[] charsToProcess = this.charsToProcess;
+
     int start = this.pos;
     boolean terminated = false;
     while (!terminated) {
       this.pos++;
-      char ch = this.charsToProcess[this.pos];
+      char ch = charsToProcess[this.pos];
       if (ch == '"') {
         // may not be the end if the char after is also a "
-        if (this.charsToProcess[this.pos + 1] == '"') {
+        if (charsToProcess[this.pos + 1] == '"') {
           this.pos++;  // skip over that too, and continue
         }
         else {
@@ -339,9 +284,11 @@ class Tokenizer {
   // : (DECIMAL_DIGIT)+ (INTEGER_TYPE_SUFFIX)?;
 
   private void lexNumericLiteral(boolean firstCharIsZero) {
+    final char[] charsToProcess = this.charsToProcess;
+
     boolean isReal = false;
     int start = this.pos;
-    char ch = this.charsToProcess[this.pos + 1];
+    char ch = charsToProcess[this.pos + 1];
     boolean isHex = ch == 'x' || ch == 'X';
 
     // deal with hexadecimal
@@ -350,7 +297,7 @@ class Tokenizer {
       do {
         this.pos++;
       }
-      while (isHexadecimalDigit(this.charsToProcess[this.pos]));
+      while (isHexadecimalDigit(charsToProcess[this.pos]));
       if (isChar('L', 'l')) {
         pushHexIntToken(subarray(start + 2, this.pos), true, start, this.pos);
         this.pos++;
@@ -367,10 +314,10 @@ class Tokenizer {
     do {
       this.pos++;
     }
-    while (isDigit(this.charsToProcess[this.pos]));
+    while (isDigit(charsToProcess[this.pos]));
 
     // a '.' indicates this number is a real
-    ch = this.charsToProcess[this.pos];
+    ch = charsToProcess[this.pos];
     if (ch == '.') {
       isReal = true;
       int dotpos = this.pos;
@@ -378,7 +325,7 @@ class Tokenizer {
       do {
         this.pos++;
       }
-      while (isDigit(this.charsToProcess[this.pos]));
+      while (isDigit(charsToProcess[this.pos]));
       if (this.pos == dotpos + 1) {
         // the number is something like '3.'. It is really an int but may be
         // part of something like '3.toString()'. In this case process it as
@@ -401,10 +348,10 @@ class Tokenizer {
       pushIntToken(subarray(start, endOfNumber), true, start, endOfNumber);
       this.pos++;
     }
-    else if (isExponentChar(this.charsToProcess[this.pos])) {
+    else if (isExponentChar(charsToProcess[this.pos])) {
       isReal = true;  // if it wasn't before, it is now
       this.pos++;
-      char possibleSign = this.charsToProcess[this.pos];
+      char possibleSign = charsToProcess[this.pos];
       if (isSign(possibleSign)) {
         this.pos++;
       }
@@ -413,19 +360,19 @@ class Tokenizer {
       do {
         this.pos++;
       }
-      while (isDigit(this.charsToProcess[this.pos]));
+      while (isDigit(charsToProcess[this.pos]));
       boolean isFloat = false;
-      if (isFloatSuffix(this.charsToProcess[this.pos])) {
+      if (isFloatSuffix(charsToProcess[this.pos])) {
         isFloat = true;
         endOfNumber = ++this.pos;
       }
-      else if (isDoubleSuffix(this.charsToProcess[this.pos])) {
+      else if (isDoubleSuffix(charsToProcess[this.pos])) {
         endOfNumber = ++this.pos;
       }
       pushRealToken(subarray(start, this.pos), isFloat, start, this.pos);
     }
     else {
-      ch = this.charsToProcess[this.pos];
+      ch = charsToProcess[this.pos];
       boolean isFloat = false;
       if (isFloatSuffix(ch)) {
         isReal = true;
@@ -446,11 +393,13 @@ class Tokenizer {
   }
 
   private void lexIdentifier() {
+    char[] charsToProcess = this.charsToProcess;
+
     int start = this.pos;
     do {
       this.pos++;
     }
-    while (isIdentifier(this.charsToProcess[this.pos]));
+    while (isIdentifier(charsToProcess[this.pos]));
     char[] subarray = subarray(start, this.pos);
 
     // Check if this is the alternative (textual) representation of an operator (see
@@ -568,10 +517,7 @@ class Tokenizer {
   }
 
   private boolean isAlphabetic(char ch) {
-    if (ch > 255) {
-      return false;
-    }
-    return (FLAGS[ch] & IS_ALPHA) != 0;
+    return Character.isLetter(ch);
   }
 
   private boolean isHexadecimalDigit(char ch) {
