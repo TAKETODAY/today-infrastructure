@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -54,6 +54,7 @@ import reactor.core.publisher.MonoSink;
  * @author Marek Hawrylczak
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse implements ZeroCopyHttpOutputMessage {
@@ -64,11 +65,10 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
   private final HttpServerExchange exchange;
   private final UndertowServerHttpRequest request;
 
-  UndertowServerHttpResponse(
-          HttpServerExchange exchange, DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
-
+  UndertowServerHttpResponse(HttpServerExchange exchange,
+          DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
     super(bufferFactory, createHeaders(exchange));
-    Assert.notNull(exchange, "HttpServerExchange must not be null");
+    Assert.notNull(exchange, "HttpServerExchange is required");
     this.exchange = exchange;
     this.request = request;
   }
@@ -93,7 +93,7 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
   @Override
   public Integer getRawStatusCode() {
     Integer status = super.getRawStatusCode();
-    return (status != null ? status : this.exchange.getStatusCode());
+    return status != null ? status : this.exchange.getStatusCode();
   }
 
   @Override
@@ -107,10 +107,8 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
   @Override
   protected void applyHeaders() { }
 
-  @SuppressWarnings("deprecation")
   @Override
   protected void applyCookies() {
-
     for (Map.Entry<String, List<ResponseCookie>> entry : getCookies().entrySet()) {
       String name = entry.getKey();
       for (ResponseCookie httpCookie : entry.getValue()) {
@@ -127,8 +125,7 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
         cookie.setSecure(httpCookie.isSecure());
         cookie.setHttpOnly(httpCookie.isHttpOnly());
         cookie.setSameSiteMode(httpCookie.getSameSite());
-        // getResponseCookies() is deprecated in Undertow 2.2
-        this.exchange.getResponseCookies().putIfAbsent(name, cookie);
+        this.exchange.setResponseCookie(cookie);
       }
     }
   }
@@ -173,7 +170,7 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
 
     public ResponseBodyProcessor(StreamSinkChannel channel) {
       super(request.getLogPrefix());
-      Assert.notNull(channel, "StreamSinkChannel must not be null");
+      Assert.notNull(channel, "StreamSinkChannel is required");
       this.channel = channel;
       this.channel.getWriteSetter().set(c -> {
         this.writePossible = true;
