@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.util;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
@@ -305,7 +304,7 @@ public abstract class WebUtils {
           try {
             multipartFile.delete();
           }
-          catch (IOException e) {
+          catch (Exception e) {
             LoggerFactory.getLogger(WebUtils.class)
                     .error("error occurred when cleanup multipart", e);
           }
