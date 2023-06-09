@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,7 +68,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   public AbstractClientHttpRequest(HttpHeaders headers) {
     Assert.notNull(headers, "HttpHeaders must not be null");
     this.headers = headers;
-    this.cookies = MultiValueMap.fromLinkedHashMap();
+    this.cookies = MultiValueMap.forLinkedHashMap();
   }
 
   @Override
@@ -97,7 +97,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
     if (State.COMMITTED.equals(this.state.get())) {
-      return MultiValueMap.unmodifiable(this.cookies);
+      return MultiValueMap.forUnmodifiable(this.cookies);
     }
     return this.cookies;
   }

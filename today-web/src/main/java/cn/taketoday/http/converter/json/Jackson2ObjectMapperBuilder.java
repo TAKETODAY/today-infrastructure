@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -713,7 +713,7 @@ public class Jackson2ObjectMapperBuilder {
    */
   public void configure(ObjectMapper objectMapper) {
     Assert.notNull(objectMapper, "ObjectMapper must not be null");
-    DefaultMultiValueMap<Object, Module> modulesToRegister = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<Object, Module> modulesToRegister = MultiValueMap.forLinkedHashMap();
     if (this.findModulesViaServiceLoader) {
       for (Module module : ObjectMapper.findModules(this.moduleClassLoader)) {
         registerModule(module, modulesToRegister);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -79,7 +79,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    DefaultMultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
     for (Map.Entry<CharSequence, Set<Cookie>> entry : request.cookies().entrySet()) {
       CharSequence name = entry.getKey();
       for (Cookie cookie : entry.getValue()) {

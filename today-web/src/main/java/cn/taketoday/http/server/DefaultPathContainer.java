@@ -152,7 +152,7 @@ final class DefaultPathContainer extends PathContainer {
   }
 
   private static MultiValueMap<String, String> parsePathParams(String input) {
-    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap();
     int begin = 1;
     while (begin < input.length()) {
       int end = input.indexOf(';', begin);
@@ -243,7 +243,7 @@ final class DefaultPathContainer extends PathContainer {
   private static final class DefaultPathSegment implements PathSegment {
 
     private static final MultiValueMap<String, String> EMPTY_PARAMS =
-            MultiValueMap.unmodifiable(new DefaultMultiValueMap<>());
+            MultiValueMap.forUnmodifiable(new DefaultMultiValueMap<>());
 
     private final String value;
     private final String valueToMatch;
@@ -271,7 +271,7 @@ final class DefaultPathContainer extends PathContainer {
      * Factory for decoded and parsed segments.
      */
     static DefaultPathSegment from(String value, String valueToMatch, MultiValueMap<String, String> params) {
-      return new DefaultPathSegment(value, valueToMatch, MultiValueMap.unmodifiable(params));
+      return new DefaultPathSegment(value, valueToMatch, MultiValueMap.forUnmodifiable(params));
     }
 
     private DefaultPathSegment(String value, String valueToMatch, MultiValueMap<String, String> params) {

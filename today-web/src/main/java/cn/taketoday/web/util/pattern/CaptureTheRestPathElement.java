@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -72,7 +72,7 @@ class CaptureTheRestPathElement extends PathElement implements VariableNameProvi
           MultiValueMap<String, String> parameters = ((PathSegment) element).parameters();
           if (!parameters.isEmpty()) {
             if (parametersCollector == null) {
-              parametersCollector = MultiValueMap.fromLinkedHashMap();
+              parametersCollector = MultiValueMap.forLinkedHashMap();
             }
             parametersCollector.addAll(parameters);
           }

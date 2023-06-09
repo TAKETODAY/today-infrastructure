@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -130,7 +130,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    MultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, ResponseCookie> result = MultiValueMap.forLinkedHashMap();
     for (Map.Entry<CharSequence, Set<Cookie>> entry : response.cookies().entrySet()) {
       Set<Cookie> cookies = entry.getValue();
       for (Cookie cookie : cookies) {
@@ -145,7 +145,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
                         .build());
       }
     }
-    return MultiValueMap.unmodifiable(result);
+    return MultiValueMap.forUnmodifiable(result);
   }
 
   @Nullable

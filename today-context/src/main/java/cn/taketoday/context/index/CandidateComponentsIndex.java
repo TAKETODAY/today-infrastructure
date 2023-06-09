@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,7 +61,7 @@ public class CandidateComponentsIndex {
   }
 
   private static MultiValueMap<String, Entry> parseIndex(List<Properties> content) {
-    MultiValueMap<String, Entry> index = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, Entry> index = MultiValueMap.forLinkedHashMap();
     for (Properties entry : content) {
       entry.forEach((type, values) -> {
         String[] stereotypes = ((String) values).split(",");

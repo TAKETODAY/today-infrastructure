@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -345,7 +345,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
 
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(pairs.length);
+    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {

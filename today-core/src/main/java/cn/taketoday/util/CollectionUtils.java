@@ -923,7 +923,7 @@ public abstract class CollectionUtils {
   }
 
   public static <K, V> MultiValueMap<K, V> buckets(V[] c, Function<V, K> transformer) {
-    DefaultMultiValueMap<K, V> buckets = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<K, V> buckets = MultiValueMap.forLinkedHashMap();
     for (final V value : c) {
       final K key = transformer.apply(value);
       buckets.add(key, value);
@@ -932,7 +932,7 @@ public abstract class CollectionUtils {
   }
 
   public static <K, V> MultiValueMap<K, V> buckets(Iterable<V> c, Function<V, K> transformer) {
-    DefaultMultiValueMap<K, V> buckets = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<K, V> buckets = MultiValueMap.forLinkedHashMap();
     for (final V value : c) {
       final K key = transformer.apply(value);
       buckets.add(key, value);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -154,7 +154,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
   private MultiValueMap<String, String> parseFormData(Charset charset, String body) {
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(pairs.length);
+    MultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {

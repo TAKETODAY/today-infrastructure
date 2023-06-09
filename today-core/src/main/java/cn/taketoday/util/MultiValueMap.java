@@ -245,7 +245,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @since 4.0
    */
-  static <K, V> LinkedMultiValueMap<K, V> fromLinkedHashMap() {
+  static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap() {
     return new LinkedMultiValueMap<>();
   }
 
@@ -254,8 +254,31 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    *
    * @since 4.0
    */
-  static <K, V> LinkedMultiValueMap<K, V> fromLinkedHashMap(int initialCapacity) {
-    return new LinkedMultiValueMap<>(initialCapacity);
+  static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap(Function<K, List<V>> mappingFunction) {
+    return new LinkedMultiValueMap<>(mappingFunction);
+  }
+
+  /**
+   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param expectedSize the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
+   * @since 4.0
+   */
+  static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap(int expectedSize) {
+    return new LinkedMultiValueMap<>(expectedSize);
+  }
+
+  /**
+   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
+   *
+   * @param expectedSize the expected number of elements (with a corresponding
+   * capacity to be derived so that no resize/rehash operations are needed)
+   * @since 4.0
+   */
+  static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap(
+          int expectedSize, Function<K, List<V>> mappingFunction) {
+    return new LinkedMultiValueMap<>(expectedSize, mappingFunction);
   }
 
   /**
@@ -266,7 +289,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
-  static <K, V> MultiValueMap<K, V> unmodifiable(MultiValueMap<? extends K, ? extends V> targetMap) {
+  static <K, V> MultiValueMap<K, V> forUnmodifiable(MultiValueMap<? extends K, ? extends V> targetMap) {
     Assert.notNull(targetMap, "'targetMap' is required");
     if (targetMap instanceof UnmodifiableMultiValueMap) {
       return (MultiValueMap<K, V>) targetMap;

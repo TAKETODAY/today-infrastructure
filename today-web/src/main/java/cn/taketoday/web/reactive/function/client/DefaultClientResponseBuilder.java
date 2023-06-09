@@ -233,7 +233,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
       this.statusCode = statusCode;
       this.headers = (headers != null ? HttpHeaders.readOnlyHttpHeaders(headers) : null);
-      this.cookies = (cookies != null ? MultiValueMap.unmodifiable(cookies) : null);
+      this.cookies = (cookies != null ? MultiValueMap.forUnmodifiable(cookies) : null);
       this.body = body;
       this.originalResponse = originalResponse;
     }

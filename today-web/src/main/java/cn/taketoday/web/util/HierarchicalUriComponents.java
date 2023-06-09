@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,7 +63,7 @@ final class HierarchicalUriComponents extends UriComponents {
   private static final String PATH_DELIMITER_STRING = String.valueOf(PATH_DELIMITER);
 
   private static final MultiValueMap<String, String> EMPTY_QUERY_PARAMS =
-          MultiValueMap.unmodifiable(new DefaultMultiValueMap<>());
+          MultiValueMap.forUnmodifiable(new DefaultMultiValueMap<>());
 
   /**
    * Represents an empty path.
@@ -148,7 +148,7 @@ final class HierarchicalUriComponents extends UriComponents {
     this.host = host;
     this.port = port;
     this.path = path != null ? path : NULL_PATH_COMPONENT;
-    this.queryParams = query != null ? MultiValueMap.unmodifiable(query) : EMPTY_QUERY_PARAMS;
+    this.queryParams = query != null ? MultiValueMap.forUnmodifiable(query) : EMPTY_QUERY_PARAMS;
     this.encodeState = encoded ? EncodeState.FULLY_ENCODED : EncodeState.RAW;
 
     // Check for illegal characters..
@@ -312,7 +312,7 @@ final class HierarchicalUriComponents extends UriComponents {
   }
 
   private MultiValueMap<String, String> encodeQueryParams(BiFunction<String, Type, String> encoder) {
-    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(queryParams.size());
+    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(queryParams.size());
     for (Entry<String, List<String>> entry : queryParams.entrySet()) {
       String key = entry.getKey();
       List<String> values = entry.getValue();
@@ -323,7 +323,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, encodedValues);
     }
-    return MultiValueMap.unmodifiable(result);
+    return MultiValueMap.forUnmodifiable(result);
   }
 
   /**
@@ -463,7 +463,7 @@ final class HierarchicalUriComponents extends UriComponents {
   }
 
   private MultiValueMap<String, String> expandQueryParams(UriTemplateVariables variables) {
-    DefaultMultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(queryParams.size());
+    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(queryParams.size());
     QueryUriTemplateVariables queryVariables = new QueryUriTemplateVariables(variables);
 
     for (Entry<String, List<String>> entry : queryParams.entrySet()) {
@@ -475,7 +475,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, expandedValues);
     }
-    return MultiValueMap.unmodifiable(result);
+    return MultiValueMap.forUnmodifiable(result);
   }
 
   @Override

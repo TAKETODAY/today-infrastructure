@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -235,7 +235,7 @@ class MapToMapConverterTests {
   @SuppressWarnings("unchecked")
   void multiValueMapToMultiValueMap() throws Exception {
     DefaultConversionService.addDefaultConverters(conversionService);
-    MultiValueMap<String, Integer> source = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, Integer> source = MultiValueMap.forLinkedHashMap();
     source.put("a", Arrays.asList(1, 2, 3));
     source.put("b", Arrays.asList(4, 5, 6));
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("multiValueMapTarget"));

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -133,7 +133,7 @@ public class ImportAutoConfigurationImportSelector
   }
 
   protected final Map<Class<?>, List<Annotation>> getAnnotations(AnnotationMetadata metadata) {
-    MultiValueMap<Class<?>, Annotation> annotations = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<Class<?>, Annotation> annotations = MultiValueMap.forLinkedHashMap();
     Class<?> source = ClassUtils.resolveClassName(metadata.getClassName(), null);
     collectAnnotations(source, annotations, new HashSet<>());
     return Collections.unmodifiableMap(annotations);

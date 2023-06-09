@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -125,7 +125,7 @@ public class MultipartHttpMessageReader
   }
 
   private DefaultMultiValueMap<String, Part> toMultiValueMap(Map<String, Collection<Part>> map) {
-    DefaultMultiValueMap<String, Part> ret = MultiValueMap.fromLinkedHashMap(map.size());
+    DefaultMultiValueMap<String, Part> ret = MultiValueMap.forLinkedHashMap(map.size());
     for (Map.Entry<String, Collection<Part>> entry : map.entrySet()) {
       ret.put(entry.getKey(), toList(entry.getValue()));
     }

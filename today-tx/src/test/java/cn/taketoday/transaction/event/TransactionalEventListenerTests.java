@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -392,7 +392,7 @@ public class TransactionalEventListenerTests {
 
     public static final String[] ALL_PHASES = { IMMEDIATELY, BEFORE_COMMIT, AFTER_COMMIT, AFTER_ROLLBACK };
 
-    private final MultiValueMap<String, Object> events = MultiValueMap.fromLinkedHashMap();
+    private final MultiValueMap<String, Object> events = MultiValueMap.forLinkedHashMap();
 
     public void addEvent(String phase, Object event) {
       this.events.add(phase, event);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -74,7 +74,7 @@ class HttpComponentsClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.forLinkedHashMap();
     List<Cookie> cookies = context.getCookieStore().getCookies();
     for (Cookie cookie : cookies) {
       result.add(cookie.getName(),

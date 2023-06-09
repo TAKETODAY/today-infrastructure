@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,7 +62,7 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
 
   @Override
   protected MultiValueMap<String, Multipart> parseRequest() {
-    var map = MultiValueMap.<String, Multipart>fromLinkedHashMap();
+    var map = MultiValueMap.<String, Multipart>forLinkedHashMap();
     for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload fileUpload) {
         map.add(data.getName(), new FileUploadMultipartFile(fileUpload));

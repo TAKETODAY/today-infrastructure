@@ -106,7 +106,7 @@ public abstract class AbstractNestedCondition
 
     private Map<AnnotationMetadata, List<Condition>> getMemberConditions(
             String[] members, ConfigurationPhase phase, String className) {
-      var memberConditions = MultiValueMap.<AnnotationMetadata, Condition>fromLinkedHashMap();
+      var memberConditions = MultiValueMap.<AnnotationMetadata, Condition>forLinkedHashMap();
       for (String member : members) {
         AnnotationMetadata metadata = getMetadata(member);
         for (String[] conditionClasses : getConditionClasses(metadata)) {

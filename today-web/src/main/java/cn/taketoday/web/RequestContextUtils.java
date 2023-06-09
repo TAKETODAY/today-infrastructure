@@ -354,7 +354,7 @@ public class RequestContextUtils {
    * @return Map of list parameters
    */
   public static MultiValueMap<String, String> parseParameters(String s) {
-    DefaultMultiValueMap<String, String> params = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
     parseParameters(params, s);
     return params;
   }

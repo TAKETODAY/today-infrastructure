@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -137,7 +137,7 @@ class ReactorNetty2ClientHttpResponse implements ClientHttpResponse {
                             .httpOnly(cookie.isHttpOnly())
                             .sameSite(getSameSite(cookie))
                             .build()));
-    return MultiValueMap.unmodifiable(result);
+    return MultiValueMap.forUnmodifiable(result);
   }
 
   @Nullable

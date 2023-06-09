@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -273,7 +273,7 @@ public abstract class UriUtils {
    */
   public static MultiValueMap<String, String> encodeQueryParams(MultiValueMap<String, String> params) {
     Charset charset = StandardCharsets.UTF_8;
-    MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap(params.size());
+    MultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(params.size());
     for (Map.Entry<String, List<String>> entry : params.entrySet()) {
       for (String value : entry.getValue()) {
         result.add(encodeQueryParam(entry.getKey(), charset), encodeQueryParam(value, charset));

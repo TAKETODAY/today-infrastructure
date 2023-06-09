@@ -66,7 +66,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    var result = MultiValueMap.<String, ResponseCookie>fromLinkedHashMap();
+    var result = MultiValueMap.<String, ResponseCookie>forLinkedHashMap();
     List<String> cookieHeader = getHeaders().get(HttpHeaders.SET_COOKIE);
     if (cookieHeader != null) {
       for (String header : cookieHeader) {
@@ -84,7 +84,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
         }
       }
     }
-    return MultiValueMap.unmodifiable(result);
+    return MultiValueMap.forUnmodifiable(result);
   }
 
   @Nullable

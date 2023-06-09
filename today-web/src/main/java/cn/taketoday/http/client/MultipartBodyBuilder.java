@@ -86,7 +86,7 @@ import cn.taketoday.util.MultiValueMap;
  * @since 4.0 2021/11/5 23:00
  */
 public final class MultipartBodyBuilder {
-  private final DefaultMultiValueMap<String, DefaultPartBuilder> parts = MultiValueMap.fromLinkedHashMap();
+  private final DefaultMultiValueMap<String, DefaultPartBuilder> parts = MultiValueMap.forLinkedHashMap();
 
   /**
    * Add a part where the Object may be:
@@ -213,7 +213,7 @@ public final class MultipartBodyBuilder {
    * Return a {@code MultiValueMap} with the configured parts.
    */
   public MultiValueMap<String, HttpEntity<?>> build() {
-    DefaultMultiValueMap<String, HttpEntity<?>> result = MultiValueMap.fromLinkedHashMap(this.parts.size());
+    DefaultMultiValueMap<String, HttpEntity<?>> result = MultiValueMap.forLinkedHashMap(this.parts.size());
     for (Map.Entry<String, List<DefaultPartBuilder>> entry : this.parts.entrySet()) {
       for (DefaultPartBuilder builder : entry.getValue()) {
         HttpEntity<?> entity = builder.build();

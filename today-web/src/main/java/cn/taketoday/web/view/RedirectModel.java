@@ -92,7 +92,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
   private String targetRequestPath;
 
   // @since 4.0
-  private final MultiValueMap<String, String> targetRequestParams = MultiValueMap.fromLinkedHashMap(3);
+  private final MultiValueMap<String, String> targetRequestParams = MultiValueMap.forLinkedHashMap(3);
 
   // @since 4.0
   private long expirationTime = -1;

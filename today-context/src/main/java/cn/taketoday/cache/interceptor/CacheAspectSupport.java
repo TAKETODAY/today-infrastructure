@@ -613,7 +613,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     public CacheOperationContexts(Collection<? extends CacheOperation> operations, Method method,
             Object[] args, Object target, Class<?> targetClass) {
 
-      this.contexts = MultiValueMap.fromLinkedHashMap(operations.size());
+      this.contexts = MultiValueMap.forLinkedHashMap(operations.size());
       for (CacheOperation op : operations) {
         this.contexts.add(op.getClass(), getOperationContext(op, method, args, target, targetClass));
       }

@@ -815,7 +815,7 @@ public abstract class ServletUtils {
    */
   public static MultiValueMap<String, Part> getParts(HttpServletRequest request) throws MultipartException {
     try {
-      MultiValueMap<String, Part> parts = MultiValueMap.fromLinkedHashMap();
+      MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
       for (Part part : request.getParts()) {
         parts.add(part.getName(), part);
       }

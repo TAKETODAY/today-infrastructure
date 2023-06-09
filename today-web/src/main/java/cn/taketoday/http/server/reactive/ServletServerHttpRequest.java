@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -158,7 +158,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    MultiValueMap<String, HttpCookie> httpCookies = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, HttpCookie> httpCookies = MultiValueMap.forLinkedHashMap();
     Cookie[] cookies;
     synchronized(this.cookieLock) {
       cookies = this.request.getCookies();

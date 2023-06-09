@@ -177,7 +177,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
    * parsing is thread-safe nevertheless.
    */
   protected MultiValueMap<String, String> initQueryParams() {
-    DefaultMultiValueMap<String, String> queryParams = MultiValueMap.fromLinkedHashMap();
+    DefaultMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
     String query = getURI().getRawQuery();
     if (query != null) {
       Matcher matcher = QUERY_PATTERN.matcher(query);

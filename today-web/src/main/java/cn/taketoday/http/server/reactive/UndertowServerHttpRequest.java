@@ -83,7 +83,7 @@ class UndertowServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    MultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
     for (Cookie cookie : exchange.requestCookies()) {
       HttpCookie httpCookie = new HttpCookie(cookie.getName(), cookie.getValue());
       cookies.add(cookie.getName(), httpCookie);

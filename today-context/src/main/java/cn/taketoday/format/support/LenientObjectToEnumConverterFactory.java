@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,7 +46,7 @@ abstract class LenientObjectToEnumConverterFactory<T> implements ConverterFactor
   private static final Map<String, List<String>> ALIASES;
 
   static {
-    MultiValueMap<String, String> aliases = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, String> aliases = MultiValueMap.forLinkedHashMap();
     aliases.add("true", "on");
     aliases.add("false", "off");
     ALIASES = Collections.unmodifiableMap(aliases);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,7 @@ import cn.taketoday.util.MultiValueMap;
  */
 final class ImportRegistry extends ArrayDeque<ConfigurationClass> {
 
-  private final MultiValueMap<String, AnnotationMetadata> imports = MultiValueMap.fromLinkedHashMap();
+  private final MultiValueMap<String, AnnotationMetadata> imports = MultiValueMap.forLinkedHashMap();
 
   public void registerImport(AnnotationMetadata importingClass, String importedClass) {
     this.imports.add(importedClass, importingClass);

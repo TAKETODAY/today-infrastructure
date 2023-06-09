@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -71,7 +71,7 @@ public abstract class MediaTypeFactory {
       throw new IllegalStateException(MIME_TYPES_FILE_NAME + " not found in classpath");
     }
     try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
-      MultiValueMap<String, MediaType> result = MultiValueMap.fromLinkedHashMap();
+      MultiValueMap<String, MediaType> result = MultiValueMap.forLinkedHashMap();
       String line;
       while ((line = reader.readLine()) != null) {
         if (line.isEmpty() || line.charAt(0) == '#') {

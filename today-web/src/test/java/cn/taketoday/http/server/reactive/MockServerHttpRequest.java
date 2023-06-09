@@ -461,7 +461,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     private final HttpHeaders headers = HttpHeaders.create();
 
-    private final MultiValueMap<String, HttpCookie> cookies = MultiValueMap.fromLinkedHashMap();
+    private final MultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
 
     @Nullable
     private InetSocketAddress remoteAddress;

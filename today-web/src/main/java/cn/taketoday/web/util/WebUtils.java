@@ -96,7 +96,7 @@ public abstract class WebUtils {
    * @return a map with matrix variable names and values (never {@code null})
    */
   public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
-    MultiValueMap<String, String> result = MultiValueMap.fromLinkedHashMap();
+    MultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap();
     if (StringUtils.isBlank(matrixVariables)) {
       return result;
     }
@@ -191,7 +191,7 @@ public abstract class WebUtils {
    * @return the same Map or a new Map instance
    */
   public static MultiValueMap<String, String> decodeMatrixVariables(MultiValueMap<String, String> vars) {
-    MultiValueMap<String, String> decodedVars = MultiValueMap.fromLinkedHashMap(vars.size());
+    MultiValueMap<String, String> decodedVars = MultiValueMap.forLinkedHashMap(vars.size());
     for (Map.Entry<String, List<String>> entry : vars.entrySet()) {
       String key = entry.getKey();
       List<String> values = entry.getValue();

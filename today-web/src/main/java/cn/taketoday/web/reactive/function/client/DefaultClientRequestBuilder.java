@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -202,7 +202,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
       this.method = method;
       this.url = url;
       this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-      this.cookies = MultiValueMap.unmodifiable(cookies);
+      this.cookies = MultiValueMap.forUnmodifiable(cookies);
       this.body = body;
       this.attributes = Collections.unmodifiableMap(attributes);
       this.httpRequestConsumer = httpRequestConsumer;
