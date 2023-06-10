@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,13 +34,14 @@ import cn.taketoday.http.MediaType;
  * This can be overridden through the {@link #setSupportedMediaTypes supportedMediaTypes} property.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Feed
  * @since 4.0
  */
 public class AtomFeedHttpMessageConverter extends AbstractWireFeedHttpMessageConverter<Feed> {
 
   public AtomFeedHttpMessageConverter() {
-    super(new MediaType("application", "atom+xml"));
+    super(MediaType.APPLICATION_ATOM_XML);
   }
 
   @Override
