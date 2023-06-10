@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,30 +36,33 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Costin Leau
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
-abstract class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
+class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
-  protected CacheOperationSourcePointcut() {
+  @Nullable
+  private CacheOperationSource cacheOperationSource;
+
+  public CacheOperationSourcePointcut() {
     setClassFilter(new CacheOperationSourceClassFilter());
+  }
+
+  public void setCacheOperationSource(@Nullable CacheOperationSource cacheOperationSource) {
+    this.cacheOperationSource = cacheOperationSource;
   }
 
   @Override
   public boolean matches(Method method, Class<?> targetClass) {
-    CacheOperationSource cas = getCacheOperationSource();
-    return (cas != null && CollectionUtils.isNotEmpty(cas.getCacheOperations(method, targetClass)));
+    return cacheOperationSource == null
+            || CollectionUtils.isNotEmpty(cacheOperationSource.getCacheOperations(method, targetClass));
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof CacheOperationSourcePointcut otherPc)) {
-      return false;
-    }
-    return ObjectUtils.nullSafeEquals(getCacheOperationSource(), otherPc.getCacheOperationSource());
+    return (this == other || (other instanceof CacheOperationSourcePointcut otherPc &&
+            ObjectUtils.nullSafeEquals(this.cacheOperationSource, otherPc.cacheOperationSource)));
   }
 
   @Override
@@ -69,15 +72,8 @@ abstract class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut 
 
   @Override
   public String toString() {
-    return getClass().getName() + ": " + getCacheOperationSource();
+    return getClass().getName() + ": " + this.cacheOperationSource;
   }
-
-  /**
-   * Obtain the underlying {@link CacheOperationSource} (may be {@code null}).
-   * To be implemented by subclasses.
-   */
-  @Nullable
-  protected abstract CacheOperationSource getCacheOperationSource();
 
   /**
    * {@link ClassFilter} that delegates to {@link CacheOperationSource#isCandidateClass}
@@ -90,8 +86,7 @@ abstract class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut 
       if (CacheManager.class.isAssignableFrom(clazz)) {
         return false;
       }
-      CacheOperationSource cas = getCacheOperationSource();
-      return (cas == null || cas.isCandidateClass(clazz));
+      return (cacheOperationSource == null || cacheOperationSource.isCandidateClass(clazz));
     }
   }
 

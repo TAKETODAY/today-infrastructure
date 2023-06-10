@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,34 +20,29 @@
 
 package cn.taketoday.transaction.interceptor;
 
+import java.io.Serial;
+
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.support.AbstractBeanFactoryPointcutAdvisor;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Advisor driven by a {@link TransactionAttributeSource}, used to include
  * a transaction advice bean for methods that are transactional.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setAdviceBeanName
  * @see TransactionInterceptor
  * @see TransactionAttributeSourceAdvisor
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BeanFactoryTransactionAttributeSourceAdvisor extends AbstractBeanFactoryPointcutAdvisor {
 
-  @Nullable
-  private TransactionAttributeSource transactionAttributeSource;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-  private final TransactionAttributeSourcePointcut pointcut = new TransactionAttributeSourcePointcut() {
-    @Override
-    @Nullable
-    protected TransactionAttributeSource getTransactionAttributeSource() {
-      return transactionAttributeSource;
-    }
-  };
+  private final TransactionAttributeSourcePointcut pointcut = new TransactionAttributeSourcePointcut();
 
   /**
    * Set the transaction attribute source which is used to find transaction
@@ -57,7 +52,7 @@ public class BeanFactoryTransactionAttributeSourceAdvisor extends AbstractBeanFa
    * @see TransactionInterceptor#setTransactionAttributeSource
    */
   public void setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) {
-    this.transactionAttributeSource = transactionAttributeSource;
+    this.pointcut.setTransactionAttributeSource(transactionAttributeSource);
   }
 
   /**

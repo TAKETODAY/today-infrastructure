@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,10 +20,11 @@
 
 package cn.taketoday.cache.interceptor;
 
+import java.io.Serial;
+
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.support.AbstractBeanFactoryPointcutAdvisor;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Advisor driven by a {@link CacheOperationSource}, used to include a
@@ -32,27 +33,22 @@ import cn.taketoday.lang.Nullable;
  * @author Costin Leau
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BeanFactoryCacheOperationSourceAdvisor extends AbstractBeanFactoryPointcutAdvisor {
 
-  @Nullable
-  private CacheOperationSource cacheOperationSource;
+  @Serial
+  private static final long serialVersionUID = 1L;
 
-  private final CacheOperationSourcePointcut pointcut = new CacheOperationSourcePointcut() {
-    @Override
-    @Nullable
-    protected CacheOperationSource getCacheOperationSource() {
-      return cacheOperationSource;
-    }
-  };
+  private final CacheOperationSourcePointcut pointcut = new CacheOperationSourcePointcut();
 
   /**
    * Set the cache operation attribute source which is used to find cache
    * attributes. This should usually be identical to the source reference
    * set on the cache interceptor itself.
+   *
+   * @see CacheInterceptor#setCacheOperationSource
    */
   public void setCacheOperationSource(CacheOperationSource cacheOperationSource) {
-    this.cacheOperationSource = cacheOperationSource;
+    this.pointcut.setCacheOperationSource(cacheOperationSource);
   }
 
   /**

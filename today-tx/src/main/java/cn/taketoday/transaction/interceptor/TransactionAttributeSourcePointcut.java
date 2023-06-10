@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,45 +20,51 @@
 
 package cn.taketoday.transaction.interceptor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.PlatformTransactionManager;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.transaction.TransactionManager;
 
 /**
  * Abstract class that implements a Pointcut that matches if the underlying
  * {@link TransactionAttributeSource} has an attribute for a given method.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
-abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
+class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
-  protected TransactionAttributeSourcePointcut() {
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  @Nullable
+  private TransactionAttributeSource transactionAttributeSource;
+
+  public TransactionAttributeSourcePointcut() {
     setClassFilter(new TransactionAttributeSourceClassFilter());
+  }
+
+  public void setTransactionAttributeSource(@Nullable TransactionAttributeSource transactionAttributeSource) {
+    this.transactionAttributeSource = transactionAttributeSource;
   }
 
   @Override
   public boolean matches(Method method, Class<?> targetClass) {
-    TransactionAttributeSource tas = getTransactionAttributeSource();
-    return (tas == null || tas.getTransactionAttribute(method, targetClass) != null);
+    return transactionAttributeSource == null
+            || transactionAttributeSource.getTransactionAttribute(method, targetClass) != null;
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof TransactionAttributeSourcePointcut otherPc)) {
-      return false;
-    }
-    return ObjectUtils.nullSafeEquals(getTransactionAttributeSource(), otherPc.getTransactionAttributeSource());
+    return (this == other || (other instanceof TransactionAttributeSourcePointcut otherPc &&
+            Objects.equals(this.transactionAttributeSource, otherPc.transactionAttributeSource)));
   }
 
   @Override
@@ -68,15 +74,8 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 
   @Override
   public String toString() {
-    return getClass().getName() + ": " + getTransactionAttributeSource();
+    return getClass().getName() + ": " + this.transactionAttributeSource;
   }
-
-  /**
-   * Obtain the underlying TransactionAttributeSource (may be {@code null}).
-   * To be implemented by subclasses.
-   */
-  @Nullable
-  protected abstract TransactionAttributeSource getTransactionAttributeSource();
 
   /**
    * {@link ClassFilter} that delegates to {@link TransactionAttributeSource#isCandidateClass}
@@ -86,13 +85,12 @@ abstract class TransactionAttributeSourcePointcut extends StaticMethodMatcherPoi
 
     @Override
     public boolean matches(Class<?> clazz) {
-      if (TransactionalProxy.class.isAssignableFrom(clazz) ||
-              PlatformTransactionManager.class.isAssignableFrom(clazz) ||
-              PersistenceExceptionTranslator.class.isAssignableFrom(clazz)) {
+      if (TransactionalProxy.class.isAssignableFrom(clazz)
+              || TransactionManager.class.isAssignableFrom(clazz)
+              || PersistenceExceptionTranslator.class.isAssignableFrom(clazz)) {
         return false;
       }
-      TransactionAttributeSource tas = getTransactionAttributeSource();
-      return (tas == null || tas.isCandidateClass(clazz));
+      return transactionAttributeSource == null || transactionAttributeSource.isCandidateClass(clazz);
     }
   }
 

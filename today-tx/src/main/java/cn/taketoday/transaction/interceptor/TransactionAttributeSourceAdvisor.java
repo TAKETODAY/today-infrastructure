@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,8 @@ package cn.taketoday.transaction.interceptor;
 
 import org.aopalliance.aop.Advice;
 
+import java.io.Serial;
+
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.support.AbstractPointcutAdvisor;
@@ -38,27 +40,25 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setTransactionInterceptor
  * @see TransactionProxyFactoryBean
  */
-@SuppressWarnings("serial")
 public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private TransactionInterceptor transactionInterceptor;
 
-  private final TransactionAttributeSourcePointcut pointcut = new TransactionAttributeSourcePointcut() {
-    @Override
-    @Nullable
-    protected TransactionAttributeSource getTransactionAttributeSource() {
-      return (transactionInterceptor != null ? transactionInterceptor.getTransactionAttributeSource() : null);
-    }
-  };
+  private final TransactionAttributeSourcePointcut pointcut = new TransactionAttributeSourcePointcut();
 
   /**
    * Create a new TransactionAttributeSourceAdvisor.
    */
-  public TransactionAttributeSourceAdvisor() { }
+  public TransactionAttributeSourceAdvisor() {
+  }
 
   /**
    * Create a new TransactionAttributeSourceAdvisor.
@@ -73,7 +73,9 @@ public class TransactionAttributeSourceAdvisor extends AbstractPointcutAdvisor {
    * Set the transaction interceptor to use for this advisor.
    */
   public void setTransactionInterceptor(TransactionInterceptor interceptor) {
+    Assert.notNull(interceptor, "TransactionInterceptor is required");
     this.transactionInterceptor = interceptor;
+    this.pointcut.setTransactionAttributeSource(interceptor.getTransactionAttributeSource());
   }
 
   /**
