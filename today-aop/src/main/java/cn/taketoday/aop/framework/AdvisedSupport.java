@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
@@ -39,6 +40,8 @@ import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.InterceptorChainFactory;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInfo;
+import cn.taketoday.aop.Pointcut;
+import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
@@ -48,6 +51,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Base class for AOP proxy configuration managers.
@@ -98,6 +102,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    */
   private ArrayList<Advisor> advisors = new ArrayList<>();
 
+  ArrayList<Advisor> advisorKey = this.advisors;
+
   /** The InterceptorChainFactory to use. */
   private InterceptorChainFactory interceptorChainFactory = DefaultInterceptorChainFactory.INSTANCE;
 
@@ -116,6 +122,17 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   public AdvisedSupport(Class<?>... interfaces) {
     this();
     setInterfaces(interfaces);
+  }
+
+  /**
+   * Internal constructor for {@link #getConfigurationOnlyCopy()}.
+   *
+   * @since 4.0
+   */
+  private AdvisedSupport(InterceptorChainFactory chainFactory,
+          ConcurrentHashMap<MethodCacheKey, MethodInterceptor[]> methodCache) {
+    this.methodCache = methodCache;
+    this.interceptorChainFactory = chainFactory;
   }
 
   /**
@@ -539,13 +556,21 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * replacing the TargetSource.
    */
   AdvisedSupport getConfigurationOnlyCopy() {
-    AdvisedSupport copy = new AdvisedSupport();
+    AdvisedSupport copy = new AdvisedSupport(this.interceptorChainFactory, this.methodCache);
     copy.copyFrom(this);
-    copy.advisors = new ArrayList<>(this.advisors);
-    copy.interfaces = new ArrayList<>(this.interfaces);
-    copy.interceptorChainFactory = this.interceptorChainFactory;
     copy.targetSource = EmptyTargetSource.forClass(getTargetClass(), getTargetSource().isStatic());
+    copy.interfaces = new ArrayList<>(this.interfaces);
+    copy.advisors = new ArrayList<>(this.advisors);
+    copy.advisorKey = new ArrayList<>(this.advisors.size());
+    for (Advisor advisor : this.advisors) {
+      copy.advisorKey.add(new AdvisorKeyEntry(advisor));
+    }
     return copy;
+  }
+
+  void reduceToAdvisorKey() {
+    this.advisors = this.advisorKey;
+    this.methodCache.clear();
   }
 
   //---------------------------------------------------------------------
@@ -618,6 +643,55 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
       }
       return result;
     }
+  }
+
+  /**
+   * Stub for an Advisor instance that is just needed for key purposes,
+   * allowing for efficient equals and hashCode comparisons against the
+   * advice class and the pointcut.
+   *
+   * @see #getConfigurationOnlyCopy()
+   * @see #getAdvisorKey()
+   * @since 4.0
+   */
+  private static class AdvisorKeyEntry implements Advisor {
+
+    private final Class<?> adviceType;
+
+    @Nullable
+    private String classFilterKey;
+
+    @Nullable
+    private String methodMatcherKey;
+
+    public AdvisorKeyEntry(Advisor advisor) {
+      this.adviceType = advisor.getAdvice().getClass();
+      if (advisor instanceof PointcutAdvisor pointcutAdvisor) {
+        Pointcut pointcut = pointcutAdvisor.getPointcut();
+        this.classFilterKey = ObjectUtils.identityToString(pointcut.getClassFilter());
+        this.methodMatcherKey = ObjectUtils.identityToString(pointcut.getMethodMatcher());
+      }
+    }
+
+    @Override
+    public Advice getAdvice() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return this == other ||
+              (other instanceof AdvisorKeyEntry otherEntry
+                      && this.adviceType == otherEntry.adviceType
+                      && Objects.equals(this.classFilterKey, otherEntry.classFilterKey)
+                      && Objects.equals(this.methodMatcherKey, otherEntry.methodMatcherKey));
+    }
+
+    @Override
+    public int hashCode() {
+      return this.adviceType.hashCode();
+    }
+
   }
 
 }

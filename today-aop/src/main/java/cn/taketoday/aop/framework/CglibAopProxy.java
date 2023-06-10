@@ -20,8 +20,6 @@
 
 package cn.taketoday.aop.framework;
 
-import org.aopalliance.aop.Advice;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -30,11 +28,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AopInvocationException;
-import cn.taketoday.aop.PointcutAdvisor;
 import cn.taketoday.aop.RawTargetAccess;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
@@ -142,17 +137,22 @@ class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Seri
       types[x] = callbacks[x].getClass();
     }
     // fixedInterceptorMap only populated at this point, after getCallbacks call above
-    enhancer.setCallbackFilter(
-            new ProxyCallbackFilter(
-                    config.getConfigurationOnlyCopy(),
-                    fixedInterceptorMap,
-                    fixedInterceptorOffset
-            )
-    );
+    ProxyCallbackFilter filter = new ProxyCallbackFilter(
+            config.getConfigurationOnlyCopy(), fixedInterceptorMap, fixedInterceptorOffset);
+
+    enhancer.setCallbackFilter(filter);
     enhancer.setCallbackTypes(types);
 
     // Generate the proxy class and create a proxy instance.
-    return createProxyClassAndInstance(enhancer, callbacks);
+    // ProxyCallbackFilter has method introspection capability with Advisor access.
+    try {
+      return createProxyClassAndInstance(enhancer, callbacks);
+    }
+    finally {
+      // Reduce ProxyCallbackFilter to key-only state for its class cache role
+      // in the CGLIB$CALLBACK_FILTER field, not leaking any Advisor state...
+      filter.advised.reduceToAdvisorKey();
+    }
   }
 
   protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) throws Exception {
@@ -745,66 +745,19 @@ class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Seri
       if (!(other instanceof ProxyCallbackFilter otherCallbackFilter)) {
         return false;
       }
-      AdvisedSupport advised = this.advised;
       AdvisedSupport otherAdvised = otherCallbackFilter.advised;
-      if (advised.isFrozen() != otherAdvised.isFrozen()) {
-        return false;
-      }
-      if (advised.isExposeProxy() != otherAdvised.isExposeProxy()) {
-        return false;
-      }
-      if (advised.getTargetSource().isStatic() != otherAdvised.getTargetSource().isStatic()) {
-        return false;
-      }
-      if (!AopProxyUtils.equalsProxiedInterfaces(advised, otherAdvised)) {
-        return false;
-      }
-      // Advice instance identity is unimportant to the proxy class:
-      // All that matters is type and ordering.
-      Advisor[] thisAdvisors = advised.getAdvisors();
-      Advisor[] thatAdvisors = otherAdvised.getAdvisors();
-      if (thisAdvisors.length != thatAdvisors.length) {
-        return false;
-      }
-      for (int i = 0; i < thisAdvisors.length; i++) {
-        Advisor thisAdvisor = thisAdvisors[i];
-        Advisor thatAdvisor = thatAdvisors[i];
-        if (!equalsAdviceClasses(thisAdvisor, thatAdvisor)) {
-          return false;
-        }
-        if (!equalsPointcuts(thisAdvisor, thatAdvisor)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    static boolean equalsAdviceClasses(Advisor a, Advisor b) {
-      return (a.getAdvice().getClass() == b.getAdvice().getClass());
-    }
-
-    static boolean equalsPointcuts(Advisor a, Advisor b) {
-      // If only one of the advisor (but not both) is PointcutAdvisor, then it is a mismatch.
-      // Takes care of the situations where an IntroductionAdvisor is used (see SPR-3959).
-      return (!(a instanceof PointcutAdvisor) ||
-              (b instanceof PointcutAdvisor &&
-                      Objects.equals(((PointcutAdvisor) a).getPointcut(), ((PointcutAdvisor) b).getPointcut())));
+      return (this.advised.advisorKey.equals(otherAdvised.advisorKey) &&
+              AopProxyUtils.equalsProxiedInterfaces(this.advised, otherAdvised) &&
+              ObjectUtils.nullSafeEquals(this.advised.getTargetClass(), otherAdvised.getTargetClass()) &&
+              this.advised.getTargetSource().isStatic() == otherAdvised.getTargetSource().isStatic() &&
+              this.advised.isFrozen() == otherAdvised.isFrozen() &&
+              this.advised.isExposeProxy() == otherAdvised.isExposeProxy() &&
+              this.advised.isOpaque() == otherAdvised.isOpaque());
     }
 
     @Override
     public int hashCode() {
-      int hashCode = 0;
-      AdvisedSupport advised = this.advised;
-      Advisor[] advisors = advised.getAdvisors();
-      for (Advisor advisor : advisors) {
-        Advice advice = advisor.getAdvice();
-        hashCode = 13 * hashCode + advice.getClass().hashCode();
-      }
-      hashCode = 13 * hashCode + (advised.isFrozen() ? 1 : 0);
-      hashCode = 13 * hashCode + (advised.isExposeProxy() ? 1 : 0);
-      hashCode = 13 * hashCode + (advised.isOptimize() ? 1 : 0);
-      hashCode = 13 * hashCode + (advised.isOpaque() ? 1 : 0);
-      return hashCode;
+      return this.advised.advisorKey.hashCode();
     }
   }
 
