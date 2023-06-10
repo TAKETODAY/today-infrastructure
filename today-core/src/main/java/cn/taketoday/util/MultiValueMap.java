@@ -20,6 +20,7 @@
 
 package cn.taketoday.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -40,7 +41,10 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.1.7 2020-01-27 13:06
  */
+@SuppressWarnings({ "rawtypes" })
 public interface MultiValueMap<K, V> extends Map<K, List<V>> {
+
+  Function defaultMappingFunction = k -> new ArrayList<>(1);
 
   /**
    * Return the first value for the given key.

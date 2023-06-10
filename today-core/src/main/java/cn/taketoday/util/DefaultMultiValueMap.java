@@ -53,13 +53,11 @@ import cn.taketoday.lang.Nullable;
  * 2020-01-27 13:15
  * @since 2.1.7
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({ "unchecked" })
 public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable, Cloneable, ArraySizeTrimmer {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  public static final Function defaultMappingFunction = k -> new ArrayList<>(1);
 
   protected final Map<K, List<V>> map;
   protected transient final Function<K, List<V>> mappingFunction;
