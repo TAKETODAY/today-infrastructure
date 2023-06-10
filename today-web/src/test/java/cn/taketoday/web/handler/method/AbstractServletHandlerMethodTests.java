@@ -22,14 +22,22 @@ package cn.taketoday.web.handler.method;
 
 import org.junit.jupiter.api.AfterEach;
 
+import java.util.List;
 import java.util.function.Consumer;
 
+import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.config.DelegatingWebMvcConfiguration;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
@@ -89,12 +97,9 @@ public abstract class AbstractServletHandlerMethodTests {
           initializer.accept(wac);
         }
 
-        if (!wac.containsBeanDefinition("handlerMapping")) {
-          register("handlerMapping", RequestMappingHandlerMapping.class, wac);
-        }
         register("handlerAdapter", RequestMappingHandlerAdapter.class, wac);
 
-        register("delegatingWebMvcConfiguration", DelegatingWebMvcConfiguration.class, wac);
+        register("testConfig", TestConfig.class, wac);
 
         AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
 
@@ -128,6 +133,26 @@ public abstract class AbstractServletHandlerMethodTests {
     RootBeanDefinition beanDef = new RootBeanDefinition(beanType);
     wac.registerBeanDefinition(beanType.getSimpleName(), beanDef);
     return beanDef;
+  }
+
+  @EnableWebMvc
+  @Configuration(proxyBeanMethods = false)
+  static class TestConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private HttpMessageConverters messageConverters;
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+      converters.addAll(messageConverters.getConverters());
+    }
+
+    @Component
+    @ConditionalOnMissingBean
+    static HttpMessageConverters messageConverters(List<HttpMessageConverter<?>> converters) {
+      return new HttpMessageConverters(converters);
+    }
+
   }
 
 }
