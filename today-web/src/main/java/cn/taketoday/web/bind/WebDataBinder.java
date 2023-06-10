@@ -30,12 +30,12 @@ import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -399,12 +399,17 @@ public class WebDataBinder extends DataBinder {
   public PropertyValues getValuesToBind(RequestContext request) {
     PropertyValues propertyValues = new PropertyValues(request.getParameters());
     if (request.isMultipart()) {
-      MultipartRequest multipartRequest = request.getMultipartRequest();
-      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultipartFiles();
-      if (multipartFiles != null) {
+      var multipartFiles = request.getMultipartRequest().getMultipartFiles();
+      if (!multipartFiles.isEmpty()) {
         bindMultipart(multipartFiles, propertyValues);
       }
+
+      if (ServletDetector.runningInServlet(request)) {
+        ServletUtils.bindParts(ServletUtils.getServletRequest(request),
+                propertyValues, isBindEmptyMultipartFiles());
+      }
     }
+
     return propertyValues;
   }
 

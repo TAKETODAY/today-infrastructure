@@ -37,7 +37,6 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
@@ -49,13 +48,15 @@ import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.MultipartRequest;
+import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.http.Part;
 
 /**
  * Resolve {@code @ModelAttribute} annotated method arguments and handle
@@ -404,16 +405,20 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   }
 
   @Nullable
-  public Object resolveConstructorArgument(String paramName,
-          Class<?> paramType, RequestContext request) throws Exception {
+  public Object resolveConstructorArgument(
+          String paramName, Class<?> paramType, RequestContext request) throws Exception {
     if (request.isMultipart()) {
-      MultipartRequest multipartRequest = request.getMultipartRequest();
-      MultiValueMap<String, MultipartFile> multipartFiles = multipartRequest.getMultipartFiles();
-      if (CollectionUtils.isNotEmpty(multipartFiles)) {
-        List<MultipartFile> files = multipartFiles.get(paramName);
-        if (CollectionUtils.isNotEmpty(files)) {
-          return files.size() == 1 ? files.get(0) : files;
+
+      if (ServletDetector.runningInServlet(request)) {
+        if (paramType == Part.class) {
+          List<Part> parts = ServletUtils.getParts(ServletUtils.getServletRequest(request), paramName);
+          return parts.size() == 1 ? parts.get(0) : parts;
         }
+      }
+
+      List<MultipartFile> files = request.getMultipartRequest().getFiles(paramName);
+      if (CollectionUtils.isNotEmpty(files)) {
+        return files.size() == 1 ? files.get(0) : files;
       }
     }
 
