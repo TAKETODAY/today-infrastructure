@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.framework;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
@@ -48,8 +49,15 @@ import cn.taketoday.util.ClassUtils;
  * @see AdvisedSupport#setInterfaces
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Singleton instance of this class.
+   */
+  public static final DefaultAopProxyFactory INSTANCE = new DefaultAopProxyFactory();
 
   @Override
   public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {

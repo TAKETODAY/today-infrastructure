@@ -639,11 +639,6 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
     }
 
     @Override
-    public boolean isPerInstance() {
-      throw new UnsupportedOperationException("Cannot invoke methods: " + this.message);
-    }
-
-    @Override
     public String toString() {
       return this.message;
     }

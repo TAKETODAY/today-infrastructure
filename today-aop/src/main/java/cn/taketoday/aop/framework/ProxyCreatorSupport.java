@@ -51,7 +51,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
    * Create a new ProxyCreatorSupport instance.
    */
   public ProxyCreatorSupport() {
-    this.aopProxyFactory = new DefaultAopProxyFactory();
+    this.aopProxyFactory = DefaultAopProxyFactory.INSTANCE;
   }
 
   /**

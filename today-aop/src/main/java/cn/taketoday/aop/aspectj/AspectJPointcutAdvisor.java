@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,8 +21,6 @@
 package cn.taketoday.aop.aspectj;
 
 import org.aopalliance.aop.Advice;
-
-import java.util.Objects;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.PointcutAdvisor;
@@ -64,12 +62,10 @@ public class AspectJPointcutAdvisor implements PointcutAdvisor, Ordered {
 
   @Override
   public int getOrder() {
-    return Objects.requireNonNullElseGet(this.order, this.advice::getOrder);
-  }
-
-  @Override
-  public boolean isPerInstance() {
-    return true;
+    if (order != null) {
+      return order;
+    }
+    return advice.getOrder();
   }
 
   @Override

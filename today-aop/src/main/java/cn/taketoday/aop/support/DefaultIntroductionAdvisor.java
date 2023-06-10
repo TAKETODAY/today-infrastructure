@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -133,11 +133,6 @@ public class DefaultIntroductionAdvisor
   }
 
   @Override
-  public boolean isPerInstance() {
-    return true;
-  }
-
-  @Override
   public ClassFilter getClassFilter() {
     return this;
   }
@@ -152,10 +147,9 @@ public class DefaultIntroductionAdvisor
     if (this == other) {
       return true;
     }
-    if (!(other instanceof DefaultIntroductionAdvisor)) {
+    if (!(other instanceof DefaultIntroductionAdvisor otherAdvisor)) {
       return false;
     }
-    DefaultIntroductionAdvisor otherAdvisor = (DefaultIntroductionAdvisor) other;
     return (this.advice.equals(otherAdvisor.advice) && this.interfaces.equals(otherAdvisor.interfaces));
   }
 
