@@ -23,10 +23,11 @@ package cn.taketoday.annotation.config.http;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import java.util.List;
+
 import cn.taketoday.annotation.config.gson.GsonAutoConfiguration;
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration;
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
@@ -80,8 +81,8 @@ public class HttpMessageConvertersAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  static HttpMessageConverters messageConverters(ObjectProvider<HttpMessageConverter<?>> converters) {
-    return new HttpMessageConverters(converters.orderedList());
+  static HttpMessageConverters messageConverters(List<HttpMessageConverter<?>> converters) {
+    return new HttpMessageConverters(converters);
   }
 
   @Configuration(proxyBeanMethods = false)
