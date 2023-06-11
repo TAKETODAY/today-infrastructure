@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,8 +68,8 @@ public class RequestResponseBodyMethodProcessor
    * {@code @ResponseBody} without {@code Request~} or
    * {@code ResponseBodyAdvice}.
    */
-  public RequestResponseBodyMethodProcessor(
-          List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager) {
+  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
+          @Nullable ContentNegotiationManager manager) {
     super(converters, manager);
   }
 
@@ -78,8 +78,8 @@ public class RequestResponseBodyMethodProcessor
    * For handling {@code @ResponseBody} consider also providing a
    * {@code ContentNegotiationManager}.
    */
-  public RequestResponseBodyMethodProcessor(
-          List<HttpMessageConverter<?>> converters, @Nullable List<Object> requestResponseBodyAdvice) {
+  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
+          @Nullable List<Object> requestResponseBodyAdvice) {
     super(converters, null, requestResponseBodyAdvice);
   }
 
@@ -87,8 +87,7 @@ public class RequestResponseBodyMethodProcessor
    * Complete constructor for resolving {@code @RequestBody} and handling
    * {@code @ResponseBody}.
    */
-  public RequestResponseBodyMethodProcessor(
-          List<HttpMessageConverter<?>> converters,
+  public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
           @Nullable ContentNegotiationManager manager, @Nullable List<Object> requestResponseBodyAdvice) {
     super(converters, manager, requestResponseBodyAdvice);
   }

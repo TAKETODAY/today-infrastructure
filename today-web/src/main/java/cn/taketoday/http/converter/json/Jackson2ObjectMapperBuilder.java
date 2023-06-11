@@ -101,12 +101,16 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Tadaya Tsuyukubo
  * @author Eddú Meléndez
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #build()
  * @see #configure(ObjectMapper)
  * @see Jackson2ObjectMapperFactoryBean
  * @since 4.0
  */
 public class Jackson2ObjectMapperBuilder {
+
+  private static final boolean jackson2XmlPresent = ClassUtils.isPresent(
+          "com.fasterxml.jackson.dataformat.xml.XmlMapper", Jackson2ObjectMapperBuilder.class.getClassLoader());
 
   private final LinkedHashMap<Object, Boolean> features = new LinkedHashMap<>();
   private final LinkedHashMap<Class<?>, Class<?>> mixIns = new LinkedHashMap<>();
@@ -766,7 +770,13 @@ public class Jackson2ObjectMapperBuilder {
       objectMapper.setFilterProvider(this.filters);
     }
 
-    objectMapper.addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class);
+    if (jackson2XmlPresent) {
+      objectMapper.addMixIn(ProblemDetail.class, ProblemDetailJacksonXmlMixin.class);
+    }
+    else {
+      objectMapper.addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class);
+    }
+
     this.mixIns.forEach(objectMapper::addMixIn);
 
     if (!this.serializers.isEmpty() || !this.deserializers.isEmpty()) {

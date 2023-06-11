@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -49,6 +51,9 @@ import cn.taketoday.lang.Assert;
  * @since 4.0 2022/5/27 23:00
  */
 public class MappingJackson2XmlHttpMessageConverter extends AbstractJackson2HttpMessageConverter {
+
+  private static final List<MediaType> problemDetailMediaTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_XML);
 
   /**
    * Construct a new {@code MappingJackson2XmlHttpMessageConverter} using default configuration
@@ -80,6 +85,11 @@ public class MappingJackson2XmlHttpMessageConverter extends AbstractJackson2Http
   public void setObjectMapper(ObjectMapper objectMapper) {
     Assert.isInstanceOf(XmlMapper.class, objectMapper, "XmlMapper required");
     super.setObjectMapper(objectMapper);
+  }
+
+  @Override
+  protected List<MediaType> getMediaTypesForProblemDetail() {
+    return problemDetailMediaTypes;
   }
 
 }

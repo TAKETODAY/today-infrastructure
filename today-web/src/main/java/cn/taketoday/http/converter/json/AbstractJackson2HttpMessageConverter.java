@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -96,9 +96,6 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
     }
     ENCODINGS.put("US-ASCII", JsonEncoding.UTF8);
   }
-
-  private static final List<MediaType> problemDetailMediaTypes =
-          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   protected ObjectMapper defaultObjectMapper;
 
@@ -211,12 +208,20 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
       return result;
     }
     return ProblemDetail.class.isAssignableFrom(clazz)
-           ? problemDetailMediaTypes
+           ? getMediaTypesForProblemDetail()
            : getSupportedMediaTypes();
   }
 
   private Map<Class<?>, Map<MediaType, ObjectMapper>> getObjectMapperRegistrations() {
     return this.objectMapperRegistrations != null ? this.objectMapperRegistrations : Collections.emptyMap();
+  }
+
+  /**
+   * Return the supported media type(s) for {@link ProblemDetail}.
+   * By default, an empty list, unless overridden in subclasses.
+   */
+  protected List<MediaType> getMediaTypesForProblemDetail() {
+    return Collections.emptyList();
   }
 
   /**

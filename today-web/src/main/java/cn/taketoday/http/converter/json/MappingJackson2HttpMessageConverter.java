@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,9 +24,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Implementation of {@link cn.taketoday.http.converter.HttpMessageConverter} that can read and
@@ -50,6 +52,9 @@ import cn.taketoday.http.MediaType;
  * @since 4.0
  */
 public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMessageConverter {
+
+  private static final List<MediaType> problemDetailMediaTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   @Nullable
   private String jsonPrefix;
@@ -99,6 +104,11 @@ public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMes
     if (this.jsonPrefix != null) {
       generator.writeRaw(this.jsonPrefix);
     }
+  }
+
+  @Override
+  protected List<MediaType> getMediaTypesForProblemDetail() {
+    return problemDetailMediaTypes;
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -87,9 +87,6 @@ public abstract class Jackson2CodecSupport {
           new MediaType("application", "*+json"),
           MediaType.APPLICATION_NDJSON
   );
-
-  private static final List<MimeType> problemDetailMimeTypes =
-          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   protected final Logger logger = HttpLogging.forLogName(getClass());
 
@@ -192,7 +189,7 @@ public abstract class Jackson2CodecSupport {
       return result;
     }
     return ProblemDetail.class.isAssignableFrom(elementClass)
-           ? problemDetailMimeTypes
+           ? getMediaTypesForProblemDetail()
            : getMimeTypes();
   }
 
@@ -206,6 +203,14 @@ public abstract class Jackson2CodecSupport {
       }
     }
     return true;
+  }
+
+  /**
+   * Return the supported media type(s) for {@link ProblemDetail}.
+   * By default, an empty list, unless overridden in subclasses.
+   */
+  protected List<MimeType> getMediaTypesForProblemDetail() {
+    return Collections.emptyList();
   }
 
   /**

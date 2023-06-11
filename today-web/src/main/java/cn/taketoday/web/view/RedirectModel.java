@@ -47,7 +47,7 @@ import cn.taketoday.web.RequestContextUtils;
  *
  * <p>Example usage in an {@code @Controller}:
  * <pre class="code">
- * &#064;RequestMapping(value = "/accounts", method = RequestMethod.POST)
+ * &#064;RequestMapping(value = "/accounts", method = HttpMethod.POST)
  * public String handle(Account account, BindingResult result, RedirectModel redirectAttrs) {
  *   if (result.hasErrors()) {
  *     return "accounts/new";

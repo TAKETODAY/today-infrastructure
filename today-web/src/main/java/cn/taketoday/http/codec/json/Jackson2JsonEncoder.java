@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,9 @@ import reactor.core.publisher.Flux;
  * @since 4.0
  */
 public class Jackson2JsonEncoder extends AbstractJackson2Encoder {
+
+  private static final List<MimeType> problemDetailMimeTypes =
+          Collections.singletonList(MediaType.APPLICATION_PROBLEM_JSON);
 
   @Nullable
   private final PrettyPrinter ssePrettyPrinter;
@@ -79,6 +83,11 @@ public class Jackson2JsonEncoder extends AbstractJackson2Encoder {
                    && writer.getConfig().isEnabled(SerializationFeature.INDENT_OUTPUT)
            ? writer.with(this.ssePrettyPrinter)
            : writer;
+  }
+
+  @Override
+  protected List<MimeType> getMediaTypesForProblemDetail() {
+    return problemDetailMimeTypes;
   }
 
 }

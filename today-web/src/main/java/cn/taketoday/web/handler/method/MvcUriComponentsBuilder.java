@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -281,7 +281,7 @@ public class MvcUriComponentsBuilder {
    *   &#064;RequestMapping("/{country}")
    *   public HttpEntity&lt;Void&gt; getAddressesForCountry(&#064;PathVariable String country) { ... }
    *
-   *   &#064;RequestMapping(value="/", method=RequestMethod.POST)
+   *   &#064;RequestMapping(value="/", method=HttpMethod.POST)
    *   public void addAddress(Address address) { ... }
    * }
    * </pre>

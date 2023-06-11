@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -270,8 +270,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType)
                             : converter.canWrite(valueType, selectedMediaType)) {
 
-          body = advice.beforeBodyWrite(
-                  body, returnType, selectedMediaType, converter, context);
+          body = advice.beforeBodyWrite(body, returnType, selectedMediaType, converter, context);
           if (body != null) {
             if (log.isDebugEnabled()) {
               Object theBody = body;
@@ -287,10 +286,8 @@ public abstract class AbstractMessageConverterMethodProcessor
                       body, selectedMediaType, context.asHttpOutputMessage());
             }
           }
-          else {
-            if (log.isDebugEnabled()) {
-              log.debug("Nothing to write: null body");
-            }
+          else if (log.isDebugEnabled()) {
+            log.debug("Nothing to write: null body");
           }
           return;
         }
