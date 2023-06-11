@@ -1427,8 +1427,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
     if (manager != null) {
       RedirectModel redirectModel = manager.retrieveAndUpdate(this);
       if (redirectModel != null) {
+        this.redirectModel = redirectModel;
         return redirectModel;
       }
+    }
+    Object attribute = getAttribute(RedirectModel.INPUT_ATTRIBUTE);
+    if (attribute instanceof RedirectModel redirectModel) {
+      this.redirectModel = redirectModel;
+      return redirectModel;
     }
     this.redirectModel = NullValue.INSTANCE;
     return null;
