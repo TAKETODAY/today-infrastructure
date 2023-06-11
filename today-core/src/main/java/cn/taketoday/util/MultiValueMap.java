@@ -23,7 +23,7 @@ package cn.taketoday.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -160,7 +160,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return a single value representation of this map
    */
   default Map<K, V> toSingleValueMap() {
-    HashMap<K, V> singleValueMap = CollectionUtils.newHashMap(size());
+    LinkedHashMap<K, V> singleValueMap = CollectionUtils.newLinkedHashMap(size());
     for (Entry<K, List<V>> entry : entrySet()) {
       List<V> values = entry.getValue();
       if (CollectionUtils.isNotEmpty(values)) {
@@ -174,7 +174,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @since 3.0
    */
   default Map<K, V[]> toArrayMap(IntFunction<V[]> function) {
-    HashMap<K, V[]> singleValueMap = CollectionUtils.newHashMap(size());
+    LinkedHashMap<K, V[]> singleValueMap = CollectionUtils.newLinkedHashMap(size());
     copyToArrayMap(singleValueMap, function);
     return singleValueMap;
   }
