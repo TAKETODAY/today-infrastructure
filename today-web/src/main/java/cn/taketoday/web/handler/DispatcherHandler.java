@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,6 +44,7 @@ import cn.taketoday.web.HandlerAdapterNotFoundException;
 import cn.taketoday.web.HandlerAdapterProvider;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestCompletedListener;
 import cn.taketoday.web.RequestContext;
@@ -404,10 +405,19 @@ public class DispatcherHandler extends InfraHandler {
   @Nullable
   protected Object processHandlerException(
           RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
+
+    // Success and error responses may use different content types
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      matchingMetadata.setProducibleMediaTypes(null);
+    }
+
     // clear context
     request.reset();
+
     // prepare context throwable
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
+
     // Check registered HandlerExceptionHandlers...
     Object returnValue = exceptionHandler.handleException(request, ex, handler);
     if (returnValue == null) {
