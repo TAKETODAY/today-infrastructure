@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import java.io.BufferedReader;
@@ -47,7 +48,27 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY 2018-06-26 21:19:09
+ * Miscellaneous {@link String} utility methods.
+ *
+ * <p>Mainly for internal use within the framework; consider
+ * <a href="https://commons.apache.org/proper/commons-lang/">Apache's Commons Lang</a>
+ * for a more comprehensive suite of {@code String} utilities.
+ *
+ * <p>This class delivers some simple functionality that should really be
+ * provided by the core Java {@link String} and {@link StringBuilder}
+ * classes. It also provides easy-to-use methods to convert between
+ * delimited strings, such as CSV strings, and collections and arrays.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Keith Donald
+ * @author Rob Harrop
+ * @author Rick Evans
+ * @author Arjen Poutsma
+ * @author Sam Brannen
+ * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-06-26 21:19:09
  */
 public abstract class StringUtils {
 
@@ -68,11 +89,11 @@ public abstract class StringUtils {
   // General convenience methods for working with Strings
   //---------------------------------------------------------------------
 
-  public static boolean isEmpty(CharSequence str) {
+  public static boolean isEmpty(@Nullable CharSequence str) {
     return str == null || str.length() == 0;
   }
 
-  public static boolean isNotEmpty(CharSequence str) {
+  public static boolean isNotEmpty(@Nullable CharSequence str) {
     return !isEmpty(str);
   }
 
@@ -84,7 +105,7 @@ public abstract class StringUtils {
    * {@link Constant#EMPTY_STRING_ARRAY}
    */
 
-  public static String[] split(String source) {
+  public static String[] split(@Nullable String source) {
     if (source == null) {
       return Constant.EMPTY_STRING_ARRAY;
     }
@@ -100,7 +121,7 @@ public abstract class StringUtils {
    * @see Collections#emptyList()
    * @since 4.0
    */
-  public static List<String> splitAsList(String source) {
+  public static List<String> splitAsList(@Nullable String source) {
     if (source == null) {
       return Collections.emptyList();
     }
@@ -309,7 +330,7 @@ public abstract class StringUtils {
    * @see #delimitedListToStringArray
    */
   public static String[] tokenizeToStringArray(
-          String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+          @Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
     if (str == null) {
       return Constant.EMPTY_STRING_ARRAY;
     }
@@ -1085,7 +1106,8 @@ else */
    * @param path the file path (may be {@code null})
    * @return the extracted filename, or {@code null} if none
    */
-  public static String getFilename(String path) {
+  @Nullable
+  public static String getFilename(@Nullable String path) {
     if (path == null) {
       return null;
     }
@@ -1100,7 +1122,8 @@ else */
    * @param path the file path (may be {@code null})
    * @return the extracted filename extension, or {@code null} if none
    */
-  public static String getFilenameExtension(String path) {
+  @Nullable
+  public static String getFilenameExtension(@Nullable String path) {
     if (path == null) {
       return null;
     }
@@ -1150,7 +1173,7 @@ else */
    * @param str the String to match
    * @return whether the String matches the given pattern
    */
-  public static boolean simpleMatch(String pattern, String str) {
+  public static boolean simpleMatch(@Nullable String pattern, @Nullable String str) {
     if (pattern == null || str == null) {
       return false;
     }
@@ -1219,19 +1242,21 @@ else */
   private static char generateRandomCharacter(int type) {
     int rand;
     switch (type) {
-      case 0://随机小写字母
+      case 0 -> {//随机小写字母
         rand = random.nextInt(26);
         rand += 97;
         return (char) rand;
-      case 1://随机大写字母
+      }
+      case 1 -> {//随机大写字母
         rand = random.nextInt(26);
         rand += 65;
         return (char) rand;
-      case 2://随机数字
-      default:
+      }//随机数字
+      default -> {
         rand = random.nextInt(10);
         rand += 48;
         return (char) rand;
+      }
     }
   }
   // 3.0
@@ -1339,6 +1364,7 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
+  @Nullable
   public static String trimLeadingWhitespace(@Nullable String str) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1354,6 +1380,7 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
+  @Nullable
   public static String trimTrailingWhitespace(@Nullable String str) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1369,7 +1396,8 @@ else */
    * @return the trimmed {@code String}
    * @since 3.0
    */
-  public static String trimLeadingCharacter(String str, char leadingCharacter) {
+  @Nullable
+  public static String trimLeadingCharacter(@Nullable String str, char leadingCharacter) {
     if (str == null || str.isEmpty()) {
       return str;
     }
@@ -1390,7 +1418,8 @@ else */
    * @return the trimmed {@code String}
    * @since 3.0
    */
-  public static String trimTrailingCharacter(String str, char trailingCharacter) {
+  @Nullable
+  public static String trimTrailingCharacter(@Nullable String str, char trailingCharacter) {
     if (str == null || str.isEmpty()) {
       return str;
     }
@@ -1462,7 +1491,7 @@ else */
    * @param singleCharacter the character to compare to
    * @since 3.0
    */
-  public static boolean matchesCharacter(String str, char singleCharacter) {
+  public static boolean matchesCharacter(@Nullable String str, char singleCharacter) {
     return (str != null && str.length() == 1 && str.charAt(0) == singleCharacter);
   }
 
@@ -1522,6 +1551,7 @@ else */
    * @see Locale#forLanguageTag
    * @since 3.0
    */
+  @Nullable
   public static Locale parseLocale(String localeValue) {
     if (!localeValue.contains("_") && !localeValue.contains(" ")) {
       validateLocalePart(localeValue);
@@ -1549,6 +1579,7 @@ else */
    * @throws IllegalArgumentException in case of an invalid locale specification
    * @since 3.0
    */
+  @Nullable
   public static Locale parseLocaleString(String localeString) {
     if (localeString.equals("")) {
       return null;

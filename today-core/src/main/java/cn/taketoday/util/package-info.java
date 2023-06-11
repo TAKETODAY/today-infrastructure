@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,8 +19,14 @@
  */
 
 /**
- * Useful Tools
+ * Miscellaneous utility classes, such as utilities for working with strings,
+ * classes, collections, reflection, etc.
  *
- * @author TODAY 2021/3/27 10:45
+ * @since 2021/3/27 10:45
  */
+@NonNullApi
+@NonNullFields
 package cn.taketoday.util;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;
