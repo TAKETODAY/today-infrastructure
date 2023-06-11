@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,7 @@ import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Test fixture for {@link ContentNegotiationManagerFactoryBean} tests.
@@ -116,6 +117,44 @@ class ContentNegotiationManagerFactoryBeanTests {
   }
 
   @Test
+  void favorPath() throws Exception {
+    this.factoryBean.setFavorPathExtension(true);
+    this.factoryBean.addMediaType("bar", new MediaType("application", "bar"));
+    this.factoryBean.afterPropertiesSet();
+    ContentNegotiationManager manager = this.factoryBean.getObject();
+
+    this.servletRequest.setRequestURI("/flower.foo");
+    assertThat(manager.resolveMediaTypes(this.webRequest))
+            .isEqualTo(Collections.singletonList(new MediaType("application", "foo")));
+
+    this.servletRequest.setRequestURI("/flower.bar");
+    webRequest = new MockServletRequestContext(servletRequest, null);
+
+    assertThat(manager.resolveMediaTypes(this.webRequest))
+            .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
+
+    this.servletRequest.setRequestURI("/flower.gif");
+
+    webRequest = new MockServletRequestContext(servletRequest, null);
+    assertThat(manager.resolveMediaTypes(this.webRequest))
+            .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
+  }
+
+  @Test
+  void favorPathWithIgnoreUnknownPathExtensionTurnedOff() {
+    this.factoryBean.setFavorPathExtension(true);
+    this.factoryBean.setIgnoreUnknownPathExtensions(false);
+    this.factoryBean.afterPropertiesSet();
+    ContentNegotiationManager manager = this.factoryBean.getObject();
+
+    this.servletRequest.setRequestURI("/flower.foobarbaz");
+    this.servletRequest.addParameter("format", "json");
+
+    assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class).isThrownBy(() ->
+            manager.resolveMediaTypes(this.webRequest));
+  }
+
+  @Test
   void favorParameter() throws Exception {
     this.factoryBean.setFavorParameter(true);
     this.factoryBean.addMediaType("json", MediaType.APPLICATION_JSON);
@@ -131,7 +170,6 @@ class ContentNegotiationManagerFactoryBeanTests {
   }
 
   @Test
-    // SPR-10170
   void favorParameterWithUnknownMediaType() {
     this.factoryBean.setFavorParameter(true);
     this.factoryBean.afterPropertiesSet();
@@ -145,7 +183,6 @@ class ContentNegotiationManagerFactoryBeanTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void mediaTypeMappingsWithoutPathAndParameterStrategies() {
     this.factoryBean.setFavorParameter(false);
 
@@ -165,7 +202,6 @@ class ContentNegotiationManagerFactoryBeanTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void fileExtensions() {
     this.factoryBean.setFavorParameter(false);
 
@@ -208,13 +244,11 @@ class ContentNegotiationManagerFactoryBeanTests {
 
     assertThat(manager.resolveMediaTypes(this.webRequest).get(0)).isEqualTo(MediaType.APPLICATION_JSON);
 
-    // SPR-10513
     this.servletRequest.addHeader("Accept", MediaType.ALL_VALUE);
     assertThat(manager.resolveMediaTypes(this.webRequest).get(0)).isEqualTo(MediaType.APPLICATION_JSON);
   }
 
   @Test
-    // SPR-15367
   void setDefaultContentTypes() throws Exception {
     List<MediaType> mediaTypes = Arrays.asList(MediaType.APPLICATION_JSON, MediaType.ALL);
     this.factoryBean.setDefaultContentTypes(mediaTypes);
@@ -228,7 +262,6 @@ class ContentNegotiationManagerFactoryBeanTests {
   }
 
   @Test
-    // SPR-12286
   void setDefaultContentTypeWithStrategy() throws Exception {
     this.factoryBean.setDefaultContentTypeStrategy(new FixedContentNegotiationStrategy(MediaType.APPLICATION_JSON));
     this.factoryBean.afterPropertiesSet();
@@ -242,7 +275,35 @@ class ContentNegotiationManagerFactoryBeanTests {
             .isEqualTo(Collections.singletonList(MediaType.APPLICATION_JSON));
   }
 
-  private static class TestServletContext extends MockServletContext {
+  @Test
+  void setServletContext() {
+    assertThatThrownBy(() -> factoryBean.setServletContext(new Object()))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Not a required type of ServletContext: java.lang.Object");
+
+    TestServletContext servletContext = new TestServletContext();
+    factoryBean.setServletContext(servletContext);
+    factoryBean.setFavorPathExtension(true);
+
+    assertThat(factoryBean.getObject()).isNull();
+    factoryBean.afterPropertiesSet();
+    assertThat(factoryBean.getObject()).isNotNull();
+
+    List<ContentNegotiationStrategy> strategies = factoryBean.getObject().getStrategies();
+    assertThat(strategies).hasSize(2);
+
+    assertThat(strategies.get(0)).isInstanceOf(PathExtensionContentNegotiationStrategy.class)
+            .hasFieldOrPropertyWithValue("servletContext", servletContext);
+  }
+
+  @Test
+  void basic() {
+    assertThat(factoryBean.getObjectType()).isSameAs(ContentNegotiationManager.class);
+    assertThat(factoryBean.isSingleton()).isTrue();
+
+  }
+
+  static class TestServletContext extends MockServletContext {
 
     private final Map<String, String> mimeTypes = new HashMap<>();
 

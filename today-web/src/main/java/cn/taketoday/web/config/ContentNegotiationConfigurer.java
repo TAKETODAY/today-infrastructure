@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.accept.ContentNegotiationStrategy;
@@ -88,6 +88,12 @@ public class ContentNegotiationConfigurer {
   private final ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
 
   private final Map<String, MediaType> mediaTypes = new HashMap<>();
+
+  public ContentNegotiationConfigurer() { }
+
+  public ContentNegotiationConfigurer(@Nullable Object servletContext) {
+    factory.setServletContext(servletContext);
+  }
 
   /**
    * Set the exact list of strategies to use.

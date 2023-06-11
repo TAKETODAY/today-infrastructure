@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,10 +30,12 @@ import java.util.Properties;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.http.MediaType;
+
+import static cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy.assertServletContext;
 
 /**
  * Factory to create a {@code ContentNegotiationManager} and configure it with
@@ -82,6 +84,7 @@ import cn.taketoday.http.MediaType;
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ContentNegotiationManagerFactoryBean
@@ -93,6 +96,10 @@ public class ContentNegotiationManagerFactoryBean
   private boolean favorParameter = false;
 
   private String parameterName = "format";
+
+  private boolean ignoreUnknownPathExtensions = true;
+
+  private boolean favorPathExtension = false;
 
   private final Map<String, MediaType> mediaTypes = new HashMap<>();
 
@@ -106,6 +113,9 @@ public class ContentNegotiationManagerFactoryBean
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
+
+  @Nullable
+  private Object servletContext;
 
   /**
    * Set the exact list of strategies to use.
@@ -138,6 +148,16 @@ public class ContentNegotiationManagerFactoryBean
   public void setParameterName(String parameterName) {
     Assert.notNull(parameterName, "parameterName is required");
     this.parameterName = parameterName;
+  }
+
+  /**
+   * Whether the path extension in the URL path should be used to determine
+   * the requested media type.
+   * <p>By default this is set to {@code false} in which case path extensions
+   * have no impact on content negotiation.
+   */
+  public void setFavorPathExtension(boolean favorPathExtension) {
+    this.favorPathExtension = favorPathExtension;
   }
 
   /**
@@ -186,6 +206,16 @@ public class ContentNegotiationManagerFactoryBean
   }
 
   /**
+   * Whether to ignore requests with path extension that cannot be resolved
+   * to any media type. Setting this to {@code false} will result in an
+   * {@code HttpMediaTypeNotAcceptableException} if there is no match.
+   * <p>By default this is set to {@code true}.
+   */
+  public void setIgnoreUnknownPathExtensions(boolean ignore) {
+    this.ignoreUnknownPathExtensions = ignore;
+  }
+
+  /**
    * When {@link #setFavorParameter(boolean)} is set, this property determines
    * whether to use only registered {@code MediaType} mappings or to allow
    * dynamic resolution, e.g. via {@link MediaType#fromFileName(String)}  MediaTypeFactory}.
@@ -193,10 +223,6 @@ public class ContentNegotiationManagerFactoryBean
    */
   public void setUseRegisteredExtensionsOnly(boolean useRegisteredExtensionsOnly) {
     this.useRegisteredExtensionsOnly = useRegisteredExtensionsOnly;
-  }
-
-  public boolean useRegisteredExtensionsOnly() {
-    return (this.useRegisteredExtensionsOnly != null && this.useRegisteredExtensionsOnly);
   }
 
   /**
@@ -238,6 +264,11 @@ public class ContentNegotiationManagerFactoryBean
     this.defaultNegotiationStrategy = strategy;
   }
 
+  public void setServletContext(@Nullable Object servletContext) {
+    assertServletContext(servletContext);
+    this.servletContext = servletContext;
+  }
+
   @Override
   public void afterPropertiesSet() {
     build();
@@ -253,6 +284,15 @@ public class ContentNegotiationManagerFactoryBean
       strategies.addAll(this.strategies);
     }
     else {
+      if (this.favorPathExtension) {
+        var strategy = new PathExtensionContentNegotiationStrategy(servletContext, mediaTypes);
+        strategy.setIgnoreUnknownExtensions(this.ignoreUnknownPathExtensions);
+        if (this.useRegisteredExtensionsOnly != null) {
+          strategy.setUseRegisteredExtensionsOnly(this.useRegisteredExtensionsOnly);
+        }
+        strategies.add(strategy);
+      }
+
       if (this.favorParameter) {
         var strategy = new ParameterContentNegotiationStrategy(mediaTypes);
         strategy.setParameterName(this.parameterName);
@@ -273,7 +313,7 @@ public class ContentNegotiationManagerFactoryBean
     // Ensure media type mappings are available via ContentNegotiationManager#getMediaTypeMappings()
     // independent of path extension or parameter strategies.
 
-    if (CollectionUtils.isNotEmpty(this.mediaTypes) && !this.favorParameter) {
+    if (CollectionUtils.isNotEmpty(this.mediaTypes) && !this.favorPathExtension && !this.favorParameter) {
       this.contentNegotiationManager.addFileExtensionResolvers(
               new MappingMediaTypeFileExtensionResolver(this.mediaTypes));
     }

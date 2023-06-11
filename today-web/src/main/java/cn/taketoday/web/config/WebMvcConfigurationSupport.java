@@ -385,13 +385,22 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public ContentNegotiationManager mvcContentNegotiationManager() {
-    if (this.contentNegotiationManager == null) {
-      ContentNegotiationConfigurer configurer = new ContentNegotiationConfigurer();
+    if (contentNegotiationManager == null) {
+      ContentNegotiationConfigurer configurer = createNegotiationConfigurer();
       configurer.mediaTypes(getDefaultMediaTypes());
       configureContentNegotiation(configurer);
       this.contentNegotiationManager = configurer.buildContentNegotiationManager();
     }
-    return this.contentNegotiationManager;
+    return contentNegotiationManager;
+  }
+
+  private ContentNegotiationConfigurer createNegotiationConfigurer() {
+    if (ServletDetector.isPresent
+            && getApplicationContext() instanceof WebApplicationContext wac) {
+      Object servletContext = wac.getServletContext();
+      return new ContentNegotiationConfigurer(servletContext);
+    }
+    return new ContentNegotiationConfigurer();
   }
 
   protected Map<String, MediaType> getDefaultMediaTypes() {

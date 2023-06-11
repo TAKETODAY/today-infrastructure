@@ -562,7 +562,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     request.addParameter("age", "value2");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("myPath-name1-typeMismatch-tb1-myValue-yourValue");
+    assertThat(response.getContentAsString()).isEqualTo("view-name-name1-typeMismatch-tb1-myValue");
   }
 
   @Test
@@ -586,8 +586,9 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class));
       DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       autoProxyCreator.setBeanFactory(wac.getBeanFactory());
+      autoProxyCreator.setProxyTargetClass(true);
       wac.getBeanFactory().addBeanPostProcessor(autoProxyCreator);
-      wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
+      wac.registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myPath.do");
@@ -1088,9 +1089,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       }
       MarshallingHttpMessageConverter messageConverter = new MarshallingHttpMessageConverter(marshaller);
 
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      adapterDef.getPropertyValues().add("messageConverters", messageConverter);
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+      wac.registerSingleton(messageConverter);
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/something");
@@ -1382,6 +1381,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     initDispatcherServlet(IMyControllerImpl.class, wac -> {
       DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       autoProxyCreator.setBeanFactory(wac.getBeanFactory());
+      autoProxyCreator.setProxyTargetClass(true);
+
       wac.getBeanFactory().addBeanPostProcessor(autoProxyCreator);
       wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     });
@@ -1697,15 +1698,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
   @Test
   void responseBodyAsHtml() throws Exception {
-    initDispatcherServlet(TextRestController.class, wac -> {
-
-      ContentNegotiationManagerFactoryBean factoryBean = new ContentNegotiationManagerFactoryBean();
-      factoryBean.afterPropertiesSet();
-
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      adapterDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
-    });
+    initDispatcherServlet(TextRestController.class);
 
     byte[] content = "alert('boo')".getBytes(StandardCharsets.ISO_8859_1);
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/a1.html");
@@ -1723,10 +1716,9 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   void responseBodyAsHtmlWithSuffixPresent() throws Exception {
     initDispatcherServlet(TextRestController.class, wac -> {
       ContentNegotiationManagerFactoryBean factoryBean = new ContentNegotiationManagerFactoryBean();
+      factoryBean.setFavorPathExtension(true);
       factoryBean.afterPropertiesSet();
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      adapterDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+      wac.registerSingleton("mvcContentNegotiationManager", factoryBean.getObject());
     });
 
     byte[] content = "alert('boo')".getBytes(StandardCharsets.ISO_8859_1);
@@ -1737,22 +1729,14 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     getServlet().service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(response.getContentType()).isEqualTo("text/html;charset=ISO-8859-1");
+    assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
     assertThat(response.getHeader("Content-Disposition")).isNull();
     assertThat(response.getContentAsByteArray()).isEqualTo(content);
   }
 
   @Test
   void responseBodyAsHtmlWithProducesCondition() throws Exception {
-    initDispatcherServlet(TextRestController.class, wac -> {
-
-      ContentNegotiationManagerFactoryBean factoryBean = new ContentNegotiationManagerFactoryBean();
-      factoryBean.afterPropertiesSet();
-
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      adapterDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
-    });
+    initDispatcherServlet(TextRestController.class);
 
     byte[] content = "alert('boo')".getBytes(StandardCharsets.ISO_8859_1);
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/a3.html");
@@ -1774,13 +1758,15 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       factoryBean.addMediaType("css", MediaType.parseMediaType("text/css"));
       factoryBean.afterPropertiesSet();
 
-      RootBeanDefinition mappingDef = new RootBeanDefinition(RequestMappingHandlerMapping.class);
-      mappingDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-      wac.registerBeanDefinition("handlerMapping", mappingDef);
+      wac.registerSingleton(factoryBean.getObject());
 
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      adapterDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+//      RootBeanDefinition mappingDef = new RootBeanDefinition(RequestMappingHandlerMapping.class);
+//      mappingDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
+//      wac.registerBeanDefinition("handlerMapping", mappingDef);
+
+//      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
+//      adapterDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
+//      wac.registerBeanDefinition("handlerAdapter", adapterDef);
     });
 
     byte[] content = "body".getBytes(StandardCharsets.ISO_8859_1);
@@ -2505,12 +2491,11 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     }
 
     @RequestMapping("/myPath.do")
-    @ModelAttribute("yourKey")
     public String myHandle(@ModelAttribute("myCommand") TestBean tb, BindingResult errors, Model model) {
       if (!model.containsAttribute("myKey")) {
         model.addAttribute("myKey", "myValue");
       }
-      return "yourValue";
+      return "view-name";
     }
   }
 

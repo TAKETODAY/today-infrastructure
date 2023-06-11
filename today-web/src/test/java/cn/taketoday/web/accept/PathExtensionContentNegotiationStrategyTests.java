@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,19 +22,21 @@ package cn.taketoday.web.accept;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBeanTests.TestServletContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -54,13 +56,13 @@ class PathExtensionContentNegotiationStrategyTests {
 
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
 
-    assertThat(mediaTypes).isEqualTo(Arrays.asList(new MediaType("text", "html")));
+    assertThat(mediaTypes).isEqualTo(List.of(new MediaType("text", "html")));
 
     Map<String, MediaType> mapping = Collections.singletonMap("HTML", MediaType.APPLICATION_XHTML_XML);
     this.strategy = new PathExtensionContentNegotiationStrategy(mapping);
     mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
 
-    assertThat(mediaTypes).isEqualTo(Arrays.asList(new MediaType("application", "xhtml+xml")));
+    assertThat(mediaTypes).isEqualTo(List.of(new MediaType("application", "xhtml+xml")));
   }
 
   @Test
@@ -69,7 +71,7 @@ class PathExtensionContentNegotiationStrategyTests {
 
     List<MediaType> mediaTypes = this.strategy.resolveMediaTypes(this.webRequest);
 
-    assertThat(mediaTypes).isEqualTo(Arrays.asList(new MediaType("application", "vnd.ms-excel")));
+    assertThat(mediaTypes).isEqualTo(List.of(new MediaType("application", "vnd.ms-excel")));
   }
 
   @Test
@@ -109,6 +111,26 @@ class PathExtensionContentNegotiationStrategyTests {
     this.strategy.setIgnoreUnknownExtensions(false);
     assertThatExceptionOfType(HttpMediaTypeNotAcceptableException.class)
             .isThrownBy(() -> this.strategy.resolveMediaTypes(this.webRequest));
+  }
+
+  @Test
+  void getMediaTypeForResource() {
+    assertThatThrownBy(() -> strategy.getMediaTypeForResource(null))
+            .isInstanceOf(IllegalArgumentException.class).hasMessage("Resource is required");
+
+    TestServletContext context = new TestServletContext();
+    context.getMimeTypes().put("foo", "application/foo");
+
+    strategy = new PathExtensionContentNegotiationStrategy(context, null);
+
+    ClassPathResource resource = new ClassPathResource("logback.xml");
+
+    MediaType textXml = strategy.getMediaTypeForResource(resource);
+    assertThat(textXml).isEqualTo(MediaType.APPLICATION_XML);
+
+    assertThat(strategy.getMediaTypeForResource(new ClassPathResource("test.foo")))
+            .isEqualTo(new MediaType("application", "foo"));
+
   }
 
 }
