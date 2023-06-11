@@ -65,6 +65,12 @@ import static cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy.as
  * <td>Enabled</td>
  * </tr>
  * <tr>
+ * <td>{@link #setFavorPathExtension favorPathExtension}</td>
+ * <td>false</td>
+ * <td>{@link PathExtensionContentNegotiationStrategy}</td>
+ * <td>Off</td>
+ * </tr>
+ * <tr>
  * <td>{@link #setDefaultContentType defaultContentType}</td>
  * <td>null</td>
  * <td>{@link FixedContentNegotiationStrategy}</td>

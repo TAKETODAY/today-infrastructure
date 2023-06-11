@@ -83,6 +83,7 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
+import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AbstractHandlerMapping;
@@ -382,8 +383,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * requested {@linkplain MediaType media types} in a given request.
    */
   @Component
-  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnMissingBean(ContentNegotiationManager.class)
   public ContentNegotiationManager mvcContentNegotiationManager() {
     if (contentNegotiationManager == null) {
       ContentNegotiationConfigurer configurer = createNegotiationConfigurer();
@@ -549,7 +550,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(ReturnValueHandlerManager.class)
   ReturnValueHandlerManager returnValueHandlerManager(
-          ViewReturnValueHandler viewHandler, @Nullable RedirectModelManager redirectModelManager) {
+          ViewReturnValueHandler viewHandler, @Nullable RedirectModelManager redirectModelManager,
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
     var manager = new ReturnValueHandlerManager(getMessageConverters());
 
@@ -561,6 +563,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       manager.setTaskExecutor(configurer.getTaskExecutor());
     }
 
+    manager.setContentNegotiationManager(contentNegotiationManager);
     manager.setViewReturnValueHandler(viewHandler);
     manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
     manager.registerDefaultHandlers();
@@ -581,17 +584,17 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   ParameterResolvingRegistry parameterResolvingRegistry(
-          ParameterResolvingStrategy[] resolvingStrategies,
-          @Nullable RedirectModelManager redirectModelManager) {
+          ParameterResolvingStrategy[] strategies, @Nullable RedirectModelManager redirectModelManager,
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
     var registry = new ParameterResolvingRegistry(getMessageConverters());
     registry.setApplicationContext(getApplicationContext());
     registry.setRedirectModelManager(redirectModelManager);
-
     registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
+    registry.setContentNegotiationManager(contentNegotiationManager);
 
     registry.registerDefaultStrategies();
-    registry.addCustomizedStrategies(resolvingStrategies);
+    registry.addCustomizedStrategies(strategies);
 
     modifyParameterResolvingRegistry(registry);
     return registry;
@@ -967,9 +970,10 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   public RequestMappingHandlerAdapter requestMappingHandlerAdapter(
           @Nullable SessionManager sessionManager,
           @Nullable RedirectModelManager redirectModelManager,
-          @Qualifier("mvcValidator") Validator validator,
+          @Nullable WebBindingInitializer webBindingInitializer,
           ReturnValueHandlerManager returnValueHandlerManager,
           ParameterResolvingRegistry parameterResolvingRegistry,
+          @Qualifier("mvcValidator") Validator validator,
           @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
 
     var adapter = createRequestMappingHandlerAdapter();
@@ -978,7 +982,10 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     adapter.setRedirectModelManager(redirectModelManager);
     adapter.setResolvingRegistry(parameterResolvingRegistry);
     adapter.setReturnValueHandlerManager(returnValueHandlerManager);
-    adapter.setWebBindingInitializer(getWebBindingInitializer(conversionService, validator));
+    if (webBindingInitializer == null) {
+      webBindingInitializer = getWebBindingInitializer(conversionService, validator);
+    }
+    adapter.setWebBindingInitializer(webBindingInitializer);
 
     return adapter;
   }
@@ -1002,10 +1009,10 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   }
 
   /**
-   * Return the {@link ConfigurableWebBindingInitializer} to use for
+   * Return the {@link WebBindingInitializer} to use for
    * initializing all {@link WebDataBinder} instances.
    */
-  protected ConfigurableWebBindingInitializer getWebBindingInitializer(
+  protected WebBindingInitializer getWebBindingInitializer(
           FormattingConversionService mvcConversionService, Validator mvcValidator) {
 
     var initializer = new ConfigurableWebBindingInitializer();

@@ -59,7 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractServletHandlerMethodTests {
 
   @Nullable
-  private DispatcherServlet servlet;
+  protected DispatcherServlet servlet;
 
   protected DispatcherServlet getServlet() {
     assertThat(servlet).as("DispatcherServlet not initialized").isNotNull();
@@ -71,10 +71,18 @@ public abstract class AbstractServletHandlerMethodTests {
     this.servlet = null;
   }
 
+  protected WebApplicationContext initDispatcherServlet() {
+    return initDispatcherServlet(null, null);
+  }
+
+  protected WebApplicationContext initDispatcherServlet(@Nullable Consumer<GenericWebApplicationContext> initializer) {
+    return initDispatcherServlet(null, initializer);
+  }
+
   /**
    * Initialize a DispatcherServlet instance registering zero or more controller classes.
    */
-  protected WebApplicationContext initDispatcherServlet(Class<?> controllerClass) {
+  protected WebApplicationContext initDispatcherServlet(@Nullable Class<?> controllerClass) {
     return initDispatcherServlet(controllerClass, null);
   }
 

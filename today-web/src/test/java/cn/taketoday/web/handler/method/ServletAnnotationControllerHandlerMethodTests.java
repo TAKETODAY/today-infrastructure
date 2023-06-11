@@ -128,10 +128,8 @@ import cn.taketoday.web.handler.function.RouterFunctions;
 import cn.taketoday.web.handler.function.ServerResponse;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
-import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.testfixture.beans.DerivedTestBean;
 import cn.taketoday.web.testfixture.beans.GenericBean;
@@ -393,6 +391,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(ModelExposingViewResolver.class));
       DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       autoProxyCreator.setBeanFactory(wac.getBeanFactory());
+      autoProxyCreator.setProxyTargetClass(true);
       wac.getBeanFactory().addBeanPostProcessor(autoProxyCreator);
       wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
     });
@@ -621,12 +620,9 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   void typedCommandProvidingFormController() throws Exception {
     initDispatcherServlet(MyTypedCommandProvidingFormController.class, wac -> {
       wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(TestViewResolver.class));
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      adapterDef.getPropertyValues().add("webBindingInitializer", new MyWebBindingInitializer());
-      List<ParameterResolvingStrategy> argumentResolvers = new ArrayList<>();
-      argumentResolvers.add(new MySpecialArgumentResolver());
-      adapterDef.getPropertyValues().add("customArgumentResolvers", argumentResolvers);
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+
+      wac.registerSingleton(new MyWebBindingInitializer());
+      wac.registerSingleton(new MySpecialArgumentResolver());
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myPath.do");
@@ -896,10 +892,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @Test
   void responseBodyNoAcceptableMediaType() throws Exception {
     initDispatcherServlet(RequestResponseBodyProducesController.class, wac -> {
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-      StringHttpMessageConverter converter = new StringHttpMessageConverter();
-      adapterDef.getPropertyValues().add("messageConverters", converter);
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+      wac.registerSingleton(new StringHttpMessageConverter());
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/something");
@@ -929,11 +922,9 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @Test
   void unsupportedRequestBody() throws Exception {
     initDispatcherServlet(RequestResponseBodyController.class, wac -> {
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
       StringHttpMessageConverter converter = new StringHttpMessageConverter();
       converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
-      adapterDef.getPropertyValues().add("messageConverters", converter);
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+      wac.registerSingleton(converter);
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/something");
@@ -949,11 +940,10 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @Test
   void unsupportedPatchBody() throws Exception {
     initDispatcherServlet(RequestResponseBodyController.class, wac -> {
-      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
       StringHttpMessageConverter converter = new StringHttpMessageConverter();
       converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
-      adapterDef.getPropertyValues().add("messageConverters", converter);
-      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+
+      wac.registerSingleton(converter);
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("PATCH", "/something");
@@ -1718,6 +1708,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       ContentNegotiationManagerFactoryBean factoryBean = new ContentNegotiationManagerFactoryBean();
       factoryBean.setFavorPathExtension(true);
       factoryBean.afterPropertiesSet();
+
       wac.registerSingleton("mvcContentNegotiationManager", factoryBean.getObject());
     });
 
@@ -1758,15 +1749,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       factoryBean.addMediaType("css", MediaType.parseMediaType("text/css"));
       factoryBean.afterPropertiesSet();
 
-      wac.registerSingleton(factoryBean.getObject());
-
-//      RootBeanDefinition mappingDef = new RootBeanDefinition(RequestMappingHandlerMapping.class);
-//      mappingDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-//      wac.registerBeanDefinition("handlerMapping", mappingDef);
-
-//      RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
-//      adapterDef.getPropertyValues().add("contentNegotiationManager", factoryBean.getObject());
-//      wac.registerBeanDefinition("handlerAdapter", adapterDef);
+      wac.registerSingleton("mvcContentNegotiationManager", factoryBean.getObject());
     });
 
     byte[] content = "body".getBytes(StandardCharsets.ISO_8859_1);
@@ -1778,7 +1761,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     getServlet().service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(200);
-    assertThat(response.getContentType()).isEqualTo("text/css;charset=ISO-8859-1");
+    assertThat(response.getContentType()).isEqualTo("text/css;charset=UTF-8");
     assertThat(response.getHeader("Content-Disposition")).isNull();
     assertThat(response.getContentAsByteArray()).isEqualTo(content);
   }
@@ -2128,25 +2111,17 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
   @Test
   void routerFunction() throws ServletException, IOException {
-    GenericWebApplicationContext wac = new GenericWebApplicationContext();
-    wac.registerBean(RouterFunction.class, () ->
-            RouterFunctions.route()
-                    .GET("/foo", request -> ServerResponse.ok().body("foo-body"))
-                    .build());
+    initDispatcherServlet(wac -> {
+      wac.registerBean(RouterFunction.class, () ->
+              RouterFunctions.route()
+                      .GET("/foo", request -> ServerResponse.ok().body("foo-body"))
+                      .build());
 
-    MockServletConfig servletConfig = new MockServletConfig();
-    wac.setServletConfig(servletConfig);
-    wac.setServletContext(servletConfig.getServletContext());
-    wac.refresh();
-
-    DispatcherServlet servlet = new DispatcherServlet();
-    servlet.setApplicationContext(wac);
-
-    servlet.init(servletConfig);
+    });
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo");
     MockHttpServletResponse response = new MockHttpServletResponse();
-    servlet.service(request, response);
+    getServlet().service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("foo-body");

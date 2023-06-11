@@ -33,7 +33,6 @@ import cn.taketoday.annotation.config.web.WebProperties.Resources;
 import cn.taketoday.annotation.config.web.WebProperties.Resources.Chain.Strategy;
 import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
@@ -70,7 +69,6 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
-import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CompositeWebMvcConfigurer;
 import cn.taketoday.web.config.ContentNegotiationConfigurer;
@@ -317,17 +315,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       return resolver;
     }
     return null;
-  }
-
-  @Override
-  protected ConfigurableWebBindingInitializer getWebBindingInitializer(
-          FormattingConversionService mvcConversionService, Validator mvcValidator) {
-    try {
-      return this.beanFactory.getBean(ConfigurableWebBindingInitializer.class);
-    }
-    catch (NoSuchBeanDefinitionException ex) {
-      return super.getWebBindingInitializer(mvcConversionService, mvcValidator);
-    }
   }
 
   @Override
