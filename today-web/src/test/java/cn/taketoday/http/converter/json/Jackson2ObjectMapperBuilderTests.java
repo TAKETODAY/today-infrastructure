@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -67,6 +67,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -279,7 +280,7 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-  void wellKnownModules() throws JsonProcessingException {
+  void wellKnownModules() throws JsonProcessingException, UnsupportedEncodingException {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
     Path file = Paths.get("foo");
@@ -372,7 +373,7 @@ class Jackson2ObjectMapperBuilderTests {
             .build();
 
     assertThat(mapper.mixInCount()).isEqualTo(2);
-    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonMixin.class);
+    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonXmlMixin.class);
     assertThat(mapper.findMixInClassFor(target)).isSameAs(mixInSource);
   }
 
@@ -388,7 +389,7 @@ class Jackson2ObjectMapperBuilderTests {
             .build();
 
     assertThat(mapper.mixInCount()).isEqualTo(2);
-    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonMixin.class);
+    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonXmlMixin.class);
     assertThat(mapper.findMixInClassFor(target)).isSameAs(mixInSource);
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -129,16 +129,12 @@ public class BaseViewTests {
     p.setProperty("something", "else");
     tv.setAttributes(p);
 
-    Map pathVars = new HashMap<>();
+    Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", new HashMap<>());
     pathVars.put("two", new Object());
-    RequestContext requestContext = ServletUtils.getRequestContext(request, response);
-    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext) {
-      @Override
-      public Map<String, String> getUriVariables() {
-        return pathVars;
-      }
-    };
+    RequestContext requestContext = ServletUtils.getRequestContext(wac, request, response);
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
+    metadata.getPathVariables().putAll(pathVars);
     requestContext.setMatchingMetadata(metadata);
 
     tv.render(new HashMap<>(), requestContext);
@@ -191,17 +187,13 @@ public class BaseViewTests {
     MockHttpServletRequest request = new MockHttpServletRequest();
     MockHttpServletResponse response = new MockHttpServletResponse();
 
-    Map<String, String> pathVars = new HashMap<>();
+    Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", "bar");
     pathVars.put("something", "else");
     RequestContext requestContext = ServletUtils.getRequestContext(request, response);
 
-    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext) {
-      @Override
-      public Map<String, String> getUriVariables() {
-        return pathVars;
-      }
-    };
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
+    metadata.getPathVariables().putAll(pathVars);
     requestContext.setMatchingMetadata(metadata);
 
     Map<String, Object> model = new HashMap<>();

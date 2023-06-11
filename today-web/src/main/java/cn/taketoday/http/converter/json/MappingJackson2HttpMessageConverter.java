@@ -49,6 +49,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMessageConverter {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -67,6 +67,8 @@ class PathVariableMethodArgumentResolverTests {
     resolver = new PathVariableMethodArgumentResolver();
     request = new MockHttpServletRequest();
     webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+
+    webRequest.setMatchingMetadata(new HandlerMatchingMetadata(webRequest));
 
     Method method = ReflectionUtils.findMethod(getClass(), "handle", (Class<?>[]) null);
     paramNamedString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));

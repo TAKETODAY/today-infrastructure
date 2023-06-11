@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.http.converter.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.net.URI;
 
@@ -41,46 +42,77 @@ class ProblemDetailJacksonMixinTests {
 
   @Test
   void writeStatusAndHeaders() throws Exception {
-    testWrite(
-            ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing header"),
-            "{\"type\":\"about:blank\"," +
-                    "\"title\":\"Bad Request\"," +
-                    "\"status\":400," +
-                    "\"detail\":\"Missing header\"}");
+    ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing header");
+    testWrite(detail,
+            """
+                    {
+                      "type": "about:blank",
+                      "title": "Bad Request",
+                      "status": 400,
+                      "detail": "Missing header"
+                    }""");
   }
 
   @Test
   void writeCustomProperty() throws Exception {
-    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing header");
-    problemDetail.setProperty("host", "abc.org");
+    ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing header");
+    detail.setProperty("host", "abc.org");
+    detail.setProperty("user", null);
 
-    testWrite(problemDetail,
-            "{\"type\":\"about:blank\"," +
-                    "\"title\":\"Bad Request\"," +
-                    "\"status\":400," +
-                    "\"detail\":\"Missing header\"," +
-                    "\"host\":\"abc.org\"}");
+    testWrite(detail, """
+            {
+            	"type": "about:blank",
+            	"title": "Bad Request",
+            	"status": 400,
+            	"detail": "Missing header",
+            	"host": "abc.org",
+            	"user": null
+            }""");
   }
 
   @Test
   void readCustomProperty() throws Exception {
-    ProblemDetail problemDetail = this.mapper.readValue(
-            "{\"type\":\"about:blank\"," +
-                    "\"title\":\"Bad Request\"," +
-                    "\"status\":400," +
-                    "\"detail\":\"Missing header\"," +
-                    "\"host\":\"abc.org\"}", ProblemDetail.class);
+    ProblemDetail detail = this.mapper.readValue("""
+            {
+            	"type": "about:blank",
+            	"title": "Bad Request",
+            	"status": 400,
+            	"detail": "Missing header",
+            	"host": "abc.org",
+            	"user": null
+            }""", ProblemDetail.class);
 
-    assertThat(problemDetail.getType()).isEqualTo(URI.create("about:blank"));
-    assertThat(problemDetail.getTitle()).isEqualTo("Bad Request");
-    assertThat(problemDetail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-    assertThat(problemDetail.getDetail()).isEqualTo("Missing header");
-    assertThat(problemDetail.getProperties()).containsEntry("host", "abc.org");
+    assertThat(detail.getType()).isEqualTo(URI.create("about:blank"));
+    assertThat(detail.getTitle()).isEqualTo("Bad Request");
+    assertThat(detail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    assertThat(detail.getDetail()).isEqualTo("Missing header");
+    assertThat(detail.getProperties())
+            .containsEntry("host", "abc.org")
+            .containsEntry("user", null);
+  }
+
+  @Test
+  void readCustomPropertyFromXml() throws Exception {
+    ObjectMapper xmlMapper = new Jackson2ObjectMapperBuilder().createXmlMapper(true).build();
+    ProblemDetail detail = xmlMapper.readValue("""
+            <problem xmlns="urn:ietf:rfc:7807">
+            	<type>about:blank</type>
+            	<title>Bad Request</title>
+            	<status>400</status>
+            	<detail>Missing header</detail>
+            	<host>abc.org</host>
+            </problem>""", ProblemDetail.class);
+
+    assertThat(detail.getType()).isEqualTo(URI.create("about:blank"));
+    assertThat(detail.getTitle()).isEqualTo("Bad Request");
+    assertThat(detail.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    assertThat(detail.getDetail()).isEqualTo("Missing header");
+    assertThat(detail.getProperties()).containsEntry("host", "abc.org");
   }
 
   private void testWrite(ProblemDetail problemDetail, String expected) throws Exception {
     String output = this.mapper.writeValueAsString(problemDetail);
-    assertThat(output).isEqualTo(expected);
+    JSONAssert.assertEquals(expected, output, false);
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -248,7 +248,7 @@ public class Jackson2ObjectMapperFactoryBeanTests {
     ObjectMapper mapper = this.factory.getObject();
 
     assertThat(mapper.mixInCount()).isEqualTo(2);
-    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonMixin.class);
+    assertThat(mapper.findMixInClassFor(ProblemDetail.class)).isAssignableFrom(ProblemDetailJacksonXmlMixin.class);
     assertThat(mapper.findMixInClassFor(target)).isSameAs(mixinSource);
   }
 

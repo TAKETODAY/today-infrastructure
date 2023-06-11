@@ -1203,13 +1203,10 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @Test
   void produces() throws Exception {
     initDispatcherServlet(ProducesController.class, wac -> {
-//      List<HttpMessageConverter<?>> converters = new ArrayList<>();
-//      converters.add(new MappingJackson2HttpMessageConverter());
-//      converters.add(new Jaxb2RootElementHttpMessageConverter());
-//      wac.registerSingleton(new HttpMessageConverters(converters));
-
-      wac.registerSingleton(new MappingJackson2HttpMessageConverter());
+      MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+      wac.registerSingleton(converter);
       wac.registerSingleton(new Jaxb2RootElementHttpMessageConverter());
+      converter.setSupportedMediaTypes(List.of(MediaType.parseMediaType("text/csv")));
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/something");

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.xmlunit.assertj.XmlAssert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -423,17 +425,31 @@ class RequestResponseBodyMethodProcessorTests {
                     Collections.singletonList(new MappingJackson2HttpMessageConverter()));
 
     Method method = getClass().getDeclaredMethod("handleAndReturnProblemDetail");
-    MethodParameter returnType = new MethodParameter(method, -1);
 
     processor.handleReturnValue(request, new HandlerMethod(this, method), problemDetail);
 
     assertThat(this.servletResponse.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     assertThat(this.servletResponse.getContentType()).isEqualTo(expectedContentType);
-    assertThat(this.servletResponse.getContentAsString()).isEqualTo(
-            "{\"type\":\"about:blank\"," +
-                    "\"title\":\"Bad Request\"," +
-                    "\"status\":400," +
-                    "\"instance\":\"/path\"}");
+    if (expectedContentType.equals(MediaType.APPLICATION_PROBLEM_XML_VALUE)) {
+      XmlAssert.assertThat(this.servletResponse.getContentAsString()).and("""
+                      <problem xmlns="urn:ietf:rfc:7807">
+                      	<type>about:blank</type>
+                      	<title>Bad Request</title>
+                      	<status>400</status>
+                      	<instance>/path</instance>
+                      </problem>""")
+              .ignoreWhitespace()
+              .areIdentical();
+    }
+    else {
+      JSONAssert.assertEquals("""
+              {
+              	"type":     "about:blank",
+              	"title":    "Bad Request",
+              	"status":   400,
+              	"instance": "/path"
+              }""", this.servletResponse.getContentAsString(), false);
+    }
   }
 
   @Test // SPR-13135
