@@ -282,8 +282,10 @@ final class ModelHandler {
       return ann.value();
     }
     else {
-      Method method = handler.getMethod();
-      Class<?> containingClass = method.getDeclaringClass();
+      MethodParameter returnType = handler.getReturnType();
+      Method method = returnType.getMethod();
+      Assert.state(method != null, "No handler method");
+      Class<?> containingClass = returnType.getContainingClass();
       Class<?> resolvedType = GenericTypeResolver.resolveReturnType(method, containingClass);
       return Conventions.getVariableNameForReturnType(method, resolvedType, returnValue);
     }
