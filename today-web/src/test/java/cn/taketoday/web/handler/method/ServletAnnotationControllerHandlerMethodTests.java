@@ -924,7 +924,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     initDispatcherServlet(RequestResponseBodyController.class, wac -> {
       StringHttpMessageConverter converter = new StringHttpMessageConverter();
       converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
-      wac.registerSingleton(converter);
+
+      wac.registerSingleton(new HttpMessageConverters(false, List.of(converter)));
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/something");
@@ -942,8 +943,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     initDispatcherServlet(RequestResponseBodyController.class, wac -> {
       StringHttpMessageConverter converter = new StringHttpMessageConverter();
       converter.setSupportedMediaTypes(Collections.singletonList(MediaType.TEXT_PLAIN));
-
-      wac.registerSingleton(converter);
+      wac.registerSingleton(new HttpMessageConverters(false, List.of(converter)));
     });
 
     MockHttpServletRequest request = new MockHttpServletRequest("PATCH", "/something");

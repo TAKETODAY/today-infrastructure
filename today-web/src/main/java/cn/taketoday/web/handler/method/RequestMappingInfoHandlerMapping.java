@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -393,7 +393,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     }
 
     private static Set<HttpMethod> initAllowedHttpMethods(Set<String> declaredMethods) {
-      Set<HttpMethod> result = new LinkedHashSet<>(declaredMethods.size());
+      var result = new LinkedHashSet<HttpMethod>(declaredMethods.size());
       if (declaredMethods.isEmpty()) {
         for (HttpMethod method : HttpMethod.values()) {
           if (method != HttpMethod.TRACE) {

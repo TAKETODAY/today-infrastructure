@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -220,7 +220,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
         return null;
       }
       throw new HttpMediaTypeNotSupportedException(contentType,
-              getSupportedMediaTypes(targetClass != null ? targetClass : Object.class));
+              getSupportedMediaTypes(targetClass != null ? targetClass : Object.class), httpMethod);
     }
 
     if (log.isDebugEnabled()) {
