@@ -852,6 +852,25 @@ else */
     return changeFirstCharacterCase(str, false);
   }
 
+  /**
+   * Uncapitalize a {@code String} in JavaBeans property format,
+   * changing the first letter to lower case as per
+   * {@link Character#toLowerCase(char)}, unless the initial two
+   * letters are upper case in direct succession.
+   *
+   * @param str the {@code String} to uncapitalize
+   * @return the uncapitalized {@code String}
+   * @see java.beans.Introspector#decapitalize(String)
+   * @since 4.0
+   */
+  public static String uncapitalizeAsProperty(String str) {
+    if (isEmpty(str) || (str.length() > 1 && Character.isUpperCase(str.charAt(0))
+            && Character.isUpperCase(str.charAt(1)))) {
+      return str;
+    }
+    return changeFirstCharacterCase(str, false);
+  }
+
   public static String changeFirstCharacterCase(String str, boolean capitalize) {
     if (isEmpty(str)) {
       return str;

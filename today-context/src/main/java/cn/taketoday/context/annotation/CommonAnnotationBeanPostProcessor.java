@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Serial;
 import java.io.Serializable;
@@ -576,7 +575,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       if (this.isDefaultName) {
         resourceName = this.member.getName();
         if (this.member instanceof Method && resourceName.startsWith("set") && resourceName.length() > 3) {
-          resourceName = Introspector.decapitalize(resourceName.substring(3));
+          resourceName = StringUtils.uncapitalizeAsProperty(resourceName.substring(3));
         }
       }
       else if (embeddedValueResolver != null) {
@@ -622,7 +621,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       if (this.isDefaultName) {
         resourceName = this.member.getName();
         if (this.member instanceof Method && resourceName.startsWith("set") && resourceName.length() > 3) {
-          resourceName = Introspector.decapitalize(resourceName.substring(3));
+          resourceName = StringUtils.uncapitalizeAsProperty(resourceName.substring(3));
         }
       }
       Class<?> resourceType = resource.beanInterface();

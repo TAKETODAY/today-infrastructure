@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,7 +19,6 @@
  */
 package cn.taketoday.util;
 
-import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.IOException;
@@ -1140,14 +1139,16 @@ public abstract class ClassUtils {
    *
    * @param clazz the class
    * @return the short name rendered in a standard JavaBeans property format
-   * @see java.beans.Introspector#decapitalize(String)
+   * @see StringUtils#uncapitalizeAsProperty(String)
    * @since 4.0
    */
   public static String getShortNameAsProperty(Class<?> clazz) {
     String shortName = getShortName(clazz);
     int dotIndex = shortName.lastIndexOf(Constant.PACKAGE_SEPARATOR);
-    shortName = (dotIndex != -1 ? shortName.substring(dotIndex + 1) : shortName);
-    return Introspector.decapitalize(shortName);
+    if (dotIndex != -1) {
+      shortName = shortName.substring(dotIndex + 1);
+    }
+    return StringUtils.uncapitalizeAsProperty(shortName);
   }
 
   /**

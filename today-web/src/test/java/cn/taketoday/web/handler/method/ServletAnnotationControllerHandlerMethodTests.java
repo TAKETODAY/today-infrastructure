@@ -66,7 +66,6 @@ import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.annotation.DateTimeFormat;
-import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.format.support.FormattingConversionServiceFactoryBean;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -88,7 +87,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.oxm.jaxb.Jaxb2Marshaller;
 import cn.taketoday.stereotype.Controller;
-import cn.taketoday.ui.ExtendedModelMap;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.util.MultiValueMap;
@@ -2522,7 +2520,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     }
 
     @RequestMapping("/myOtherPath.do")
-    public String myOtherHandle(TB tb, BindingResult errors, ExtendedModelMap model, MySpecialArg arg) {
+    public String myOtherHandle(TB tb, BindingResult errors, ModelMap model, MySpecialArg arg) {
       TestBean tbReal = (TestBean) tb;
       tbReal.setName("myName");
       boolean condition = model.get("ITestBean") instanceof DerivedTestBean;
@@ -3837,7 +3835,6 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-      binder.setConversionService(new DefaultFormattingConversionService());
       binder.registerCustomEditor(String.class, "param1", new StringTrimmerEditor(true));
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
@@ -3983,7 +3980,6 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     @InitBinder
     public void initBinder(WebDataBinder binder) {
       binder.initDirectFieldAccess();
-      binder.setConversionService(new DefaultFormattingConversionService());
     }
 
     @RequestMapping("/bind")

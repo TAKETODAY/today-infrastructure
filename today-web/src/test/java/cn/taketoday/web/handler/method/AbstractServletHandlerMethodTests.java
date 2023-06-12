@@ -105,7 +105,7 @@ public abstract class AbstractServletHandlerMethodTests {
           initializer.accept(wac);
         }
 
-        register("handlerAdapter", RequestMappingHandlerAdapter.class, wac);
+//        register("handlerAdapter", RequestMappingHandlerAdapter.class, wac);
 
         register("testConfig", TestConfig.class, wac);
 
