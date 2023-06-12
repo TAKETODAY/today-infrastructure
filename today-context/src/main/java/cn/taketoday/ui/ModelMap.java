@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.ui;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -33,8 +34,10 @@ import cn.taketoday.lang.Nullable;
  * Implementation of {@link java.util.Map} for use when building model data for use
  * with UI tools. Supports chained calls and generation of model attribute names.
  *
- * <p>This class serves as generic model holder for Servlet MVC but is not tied to it.
- * Check out the {@link Model} interface for an interface variant.
+ * <p>This is an implementation class exposed to handler methods by Web MVC, typically via
+ * a declaration of the {@link cn.taketoday.ui.Model} interface. There is no need to
+ * build it within user code; a plain {@link ModelMap} or even a just
+ * a regular {@link Map} with String keys will be good enough to return a user model.
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
@@ -42,8 +45,10 @@ import cn.taketoday.lang.Nullable;
  * @see Conventions#getVariableName
  * @since 4.0 2022/4/8 22:58
  */
-@SuppressWarnings("serial")
 public class ModelMap extends LinkedHashMap<String, Object> implements Model {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a new, empty {@code ModelMap}.
