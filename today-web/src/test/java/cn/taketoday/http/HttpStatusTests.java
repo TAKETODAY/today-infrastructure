@@ -174,7 +174,7 @@ public class HttpStatusTests {
             arguments(103, HttpStatus.EARLY_HINTS, HttpStatus.CHECKPOINT),
             arguments(302, HttpStatus.FOUND, HttpStatus.MOVED_TEMPORARILY),
             arguments(413, HttpStatus.PAYLOAD_TOO_LARGE, HttpStatus.REQUEST_ENTITY_TOO_LARGE),
-            arguments(414, HttpStatus.URI_TOO_LONG, HttpStatus.URI_TOO_LONG)
+            arguments(414, HttpStatus.URI_TOO_LONG, HttpStatus.REQUEST_URI_TOO_LONG)
     );
   }
 

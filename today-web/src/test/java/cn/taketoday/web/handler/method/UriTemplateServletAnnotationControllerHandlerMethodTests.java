@@ -43,6 +43,7 @@ import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.InitBinder;
+import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -132,7 +133,11 @@ public class UriTemplateServletAnnotationControllerHandlerMethodTests extends Ab
     getServlet().service(request, response);
     assertThat(response.getStatus()).isEqualTo(400);
 
-    initDispatcherServlet(NonBindingUriTemplateController.class);
+    initDispatcherServlet(NonBindingUriTemplateController.class, wac -> {
+      wac.registerSingleton((WebBindingInitializer) binder -> {
+        // no conversion service
+      });
+    });
     request = new MockHttpServletRequest("GET", "/hotels/42/dates/2008-foo-bar");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);

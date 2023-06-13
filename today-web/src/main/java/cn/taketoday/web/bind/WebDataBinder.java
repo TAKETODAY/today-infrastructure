@@ -32,6 +32,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
+import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.MultipartFile;
@@ -408,6 +409,12 @@ public class WebDataBinder extends DataBinder {
         ServletUtils.bindParts(ServletUtils.getServletRequest(request),
                 propertyValues, isBindEmptyMultipartFiles());
       }
+    }
+
+    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    if (matchingMetadata != null) {
+      Map<String, String> uriVariables = matchingMetadata.getUriVariables();
+      propertyValues.add(uriVariables);
     }
 
     return propertyValues;

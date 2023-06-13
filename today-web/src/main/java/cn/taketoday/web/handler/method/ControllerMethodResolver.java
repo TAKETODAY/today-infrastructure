@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/30 22:33
  */
-class ControllerMethodResolver {
+final class ControllerMethodResolver {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
@@ -74,11 +75,9 @@ class ControllerMethodResolver {
   private final ResolvableParameterFactory resolvableParameterFactory;
   private final ReturnValueHandlerManager returnValueHandlerManager;
 
-  ControllerMethodResolver(@Nullable ApplicationContext context,
-          SessionAttributeStore sessionAttributeStore,
-          ResolvableParameterFactory parameterFactory,
-          ReturnValueHandlerManager returnValueHandlerManager) {
-    this.sessionAttributeStore = sessionAttributeStore;
+  ControllerMethodResolver(@Nullable ApplicationContext context, SessionAttributeStore sessionStore,
+          ResolvableParameterFactory parameterFactory, ReturnValueHandlerManager returnValueHandlerManager) {
+    this.sessionAttributeStore = sessionStore;
     this.resolvableParameterFactory = parameterFactory;
     this.returnValueHandlerManager = returnValueHandlerManager;
 
@@ -159,9 +158,8 @@ class ControllerMethodResolver {
   }
 
   /**
-   * @return {@code null} or non-null InvocableHandlerMethods
+   * @return non-null InvocableHandlerMethods
    */
-  @Nullable
   public List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
     Set<Method> methods = initBinderCache.get(handlerType);
@@ -187,7 +185,7 @@ class ControllerMethodResolver {
       Object bean = handlerMethod.getBean();
       initBinderMethods.add(createHandlerMethod(bean, method));
     }
-    return initBinderMethods.isEmpty() ? null : initBinderMethods;
+    return initBinderMethods.isEmpty() ? Collections.emptyList() : initBinderMethods;
   }
 
   /**

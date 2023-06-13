@@ -218,10 +218,19 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
       }
     }
 
+    // Model from BindingContext
     BindingContext binding = context.getBinding();
-    if (binding != null && binding.hasModel()) {
-      // injected arguments Model
-      model.putAll(binding.getModel());
+    if (binding != null) {
+      try {
+        binding.updateModel(context);
+      }
+      catch (Throwable e) {
+        throw new ViewRenderingException("View model update failed", e);
+      }
+      if (binding.hasModel()) {
+        // injected arguments Model
+        model.putAll(binding.getModel());
+      }
     }
     try {
       // do rendering

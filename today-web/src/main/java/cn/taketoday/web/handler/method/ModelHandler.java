@@ -37,6 +37,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.ui.Model;
+import cn.taketoday.ui.ModelMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.BindingContext;
@@ -200,30 +201,28 @@ final class ModelHandler {
    */
   public void updateModel(RequestContext request, BindingContext container, Class<?> handlerMethod)
           throws Throwable {
-    Model model = container.getModel();
+    ModelMap model = container.getModel();
     var sessionAttrHandler = methodResolver.getSessionAttributesHandler(handlerMethod);
-    if (container.getSessionStatus().isComplete()) {
+    if (container.isSessionComplete()) {
       sessionAttrHandler.cleanupAttributes(request);
     }
     else {
-      sessionAttrHandler.storeAttributes(request, model.asMap());
+      sessionAttrHandler.storeAttributes(request, model);
     }
 
-    updateBindingResult(request, container, model.asMap(), sessionAttrHandler);
+    updateBindingResult(request, container, model, sessionAttrHandler);
   }
 
   /**
    * Add {@link BindingResult} attributes to the model for attributes that require it.
    */
-  private void updateBindingResult(RequestContext request,
-          BindingContext bindingContext, Map<String, Object> model,
-          SessionAttributesHandler sessionAttributesHandler) throws Throwable {
-    ArrayList<String> keyNames = new ArrayList<>(model.keySet());
-    for (String name : keyNames) {
+  private void updateBindingResult(RequestContext request, BindingContext bindingContext,
+          ModelMap model, SessionAttributesHandler sessionAttributesHandler) throws Throwable {
+    for (String name : new ArrayList<>(model.keySet())) {
       Object value = model.get(name);
       if (value != null && isBindingCandidate(name, value, sessionAttributesHandler)) {
         String bindingResultKey = BindingResult.MODEL_KEY_PREFIX + name;
-        if (!model.containsKey(bindingResultKey)) {
+        if (!model.containsAttribute(bindingResultKey)) {
           WebDataBinder dataBinder = bindingContext.createBinder(request, value, name);
           model.put(bindingResultKey, dataBinder.getBindingResult());
         }

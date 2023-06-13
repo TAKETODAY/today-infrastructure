@@ -24,10 +24,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
+import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
@@ -108,19 +108,18 @@ public class BindingContext {
    * Create a {@link WebDataBinder} to apply data binding and
    * validation with on the target, command object.
    *
-   * @param exchange the current exchange
+   * @param request the current request
    * @param target the object to create a data binder for
    * @param name the name of the target object
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(
-          RequestContext exchange, @Nullable Object target, String name) throws Throwable {
-    WebDataBinder dataBinder = new HandlerMatchingMetadataDataBinder(target, name);
+  public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String name) throws Throwable {
+    WebDataBinder dataBinder = new WebDataBinder(target, name);
     if (initializer != null) {
       initializer.initBinder(dataBinder);
     }
-    initBinder(dataBinder, exchange);
+    initBinder(dataBinder, request);
     return dataBinder;
   }
 
@@ -131,27 +130,6 @@ public class BindingContext {
    */
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
 
-  }
-
-  /**
-   * Extended variant of {@link WebDataBinder}, adding path variables.
-   */
-  private static class HandlerMatchingMetadataDataBinder extends WebDataBinder {
-
-    public HandlerMatchingMetadataDataBinder(@Nullable Object target, String objectName) {
-      super(target, objectName);
-    }
-
-    @Override
-    public PropertyValues getValuesToBind(RequestContext request) {
-      PropertyValues valuesToBind = super.getValuesToBind(request);
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-      if (matchingMetadata != null) {
-        Map<String, String> uriVariables = matchingMetadata.getUriVariables();
-        valuesToBind.add(uriVariables);
-      }
-      return valuesToBind;
-    }
   }
 
   /**
@@ -233,6 +211,34 @@ public class BindingContext {
     return model;
   }
 
+  /**
+   * Promote model attributes listed as {@code @SessionAttributes} to the session.
+   * Add {@link BindingResult} attributes where necessary.
+   *
+   * @param request the current request
+   * @throws Throwable if creating BindingResult attributes fails
+   */
+  public void updateModel(RequestContext request) throws Throwable {
+
+  }
+
+  /**
+   * Populate the model in the following order:
+   * <ol>
+   * <li>Retrieve "known" session attributes listed as {@code @SessionAttributes}.
+   * <li>Invoke {@code @ModelAttribute} methods
+   * <li>Find {@code @ModelAttribute} method arguments also listed as
+   * {@code @SessionAttributes} and ensure they're present in the model raising
+   * an exception if necessary.
+   * </ol>
+   *
+   * @param request the current request
+   * @throws Throwable may arise from {@code @ModelAttribute} methods
+   */
+  public void initModel(RequestContext request) throws Throwable {
+
+  }
+
   @Nullable
   public RedirectModel getRedirectModel() {
     return redirectModel;
@@ -303,6 +309,14 @@ public class BindingContext {
   }
 
   /**
+   * Return whether the current handler's session processing has been marked
+   * as complete.
+   */
+  public boolean isSessionComplete() {
+    return sessionStatus != null && sessionStatus.isComplete();
+  }
+
+  /**
    * Add the supplied attribute to the underlying model.
    * A shortcut for {@code getModel().addAttribute(String, Object)}.
    */
@@ -348,8 +362,9 @@ public class BindingContext {
    */
   public BindingContext removeAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
+      ModelMap modelMap = getModel();
       for (String key : attributes.keySet()) {
-        getModel().removeAttribute(key);
+        modelMap.removeAttribute(key);
       }
     }
     return this;

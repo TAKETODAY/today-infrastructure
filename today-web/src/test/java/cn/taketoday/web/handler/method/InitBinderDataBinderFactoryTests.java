@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,7 @@ package cn.taketoday.web.handler.method;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.List;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
@@ -33,6 +33,8 @@ import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
+import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
@@ -128,8 +130,14 @@ class InitBinderDataBinderFactoryTests {
 
     var parameterFactory = new RegistryResolvableParameterFactory(argumentResolvers);
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(handler, method, parameterFactory);
+
+    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null,
+            new DefaultSessionAttributeStore(), parameterFactory, new ReturnValueHandlerManager());
+
+    ModelHandler modelHandler = new ModelHandler(methodResolver);
+
     return new InitBinderBindingContext(
-            this.bindingInitializer, Collections.singletonList(handlerMethod));
+            modelHandler, this.bindingInitializer, methodResolver, List.of(handlerMethod), handlerMethod);
   }
 
   private static class InitBinderHandler {
@@ -152,6 +160,10 @@ class InitBinderDataBinderFactoryTests {
     @InitBinder
     public void initBinderTypeConversion(WebDataBinder dataBinder, @RequestParam int requestParam) {
       dataBinder.setDisallowedFields("requestParam-" + requestParam);
+    }
+
+    public void handle() {
+
     }
   }
 

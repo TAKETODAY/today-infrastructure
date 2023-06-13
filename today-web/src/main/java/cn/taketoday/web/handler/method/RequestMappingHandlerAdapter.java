@@ -329,7 +329,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
           RequestContext request, HandlerMethod handlerMethod) throws Throwable {
 
     BindingContext binding = new InitBinderBindingContext(
-            getWebBindingInitializer(), methodResolver.getBinderMethods(handlerMethod));
+            modelHandler, getWebBindingInitializer(), methodResolver, handlerMethod);
 
     request.setBinding(binding);
 
@@ -339,7 +339,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       binding.addAllAttributes(inputRedirectModel);
     }
 
-    modelHandler.initModel(request, binding, handlerMethod);
+    binding.initModel(request);
 
     var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
     Object returnValue = invocableMethod.invokeAndHandle(request);
@@ -348,7 +348,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
-    modelHandler.updateModel(request, binding, handlerMethod.getBeanType());
     return returnValue;
   }
 

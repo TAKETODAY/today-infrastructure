@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,22 +39,49 @@ import cn.taketoday.web.bind.support.WebBindingInitializer;
  * @since 4.0 2022/4/26 14:24
  */
 public class InitBinderBindingContext extends BindingContext {
+  private final Class<?> beanType;
+
+  private final ModelHandler modelHandler;
+
+  private final HandlerMethod handlerMethod;
 
   private final BindingContext binderMethodContext;
+
+  private final ControllerMethodResolver methodResolver;
+
   @Nullable
-  private final List<InvocableHandlerMethod> binderMethods;
+  private List<InvocableHandlerMethod> binderMethods;
 
   /**
-   * Create a new InitBinderDataBinderFactory instance.
+   * Create a new InitBinderBindingContext instance.
    *
-   * @param binderMethods {@code @InitBinder} methods
    * @param initializer for global data binder initialization
    */
-  InitBinderBindingContext(@Nullable WebBindingInitializer initializer,
-          @Nullable List<InvocableHandlerMethod> binderMethods) {
+  InitBinderBindingContext(ModelHandler modelHandler, @Nullable WebBindingInitializer initializer,
+          ControllerMethodResolver methodResolver, HandlerMethod handlerMethod) {
 
     super(initializer);
+    this.modelHandler = modelHandler;
+    this.handlerMethod = handlerMethod;
+    this.methodResolver = methodResolver;
+    this.beanType = handlerMethod.getBeanType();
+    this.binderMethodContext = new BindingContext(initializer);
+  }
+
+  /**
+   * Create a new InitBinderBindingContext instance.
+   *
+   * @param initializer for global data binder initialization
+   */
+  InitBinderBindingContext(ModelHandler modelHandler, @Nullable WebBindingInitializer initializer,
+          ControllerMethodResolver methodResolver, List<InvocableHandlerMethod> binderMethods, HandlerMethod handlerMethod) {
+
+    super(initializer);
+    this.modelHandler = modelHandler;
+    this.handlerMethod = handlerMethod;
     this.binderMethods = binderMethods;
+    this.methodResolver = methodResolver;
+    this.beanType = handlerMethod.getBeanType();
     this.binderMethodContext = new BindingContext(initializer);
   }
 
@@ -68,7 +95,13 @@ public class InitBinderBindingContext extends BindingContext {
    */
   @Override
   public void initBinder(WebDataBinder dataBinder, RequestContext request) throws Throwable {
-    if (binderMethods != null) {
+    List<InvocableHandlerMethod> binderMethods = this.binderMethods;
+    if (binderMethods == null) {
+      binderMethods = methodResolver.getBinderMethods(handlerMethod);
+      this.binderMethods = binderMethods;
+    }
+
+    if (!binderMethods.isEmpty()) {
       BindingContext bindingContext = request.getBinding();
       request.setBinding(binderMethodContext);
       for (InvocableHandlerMethod binderMethod : binderMethods) {
@@ -99,6 +132,16 @@ public class InitBinderBindingContext extends BindingContext {
     Assert.state(ann != null, "No InitBinder annotation");
     String[] names = ann.value();
     return ObjectUtils.isEmpty(names) || ObjectUtils.containsElement(names, dataBinder.getObjectName());
+  }
+
+  @Override
+  public void updateModel(RequestContext request) throws Throwable {
+    modelHandler.updateModel(request, this, beanType);
+  }
+
+  @Override
+  public void initModel(RequestContext request) throws Throwable {
+    modelHandler.initModel(request, this, handlerMethod);
   }
 
 }
