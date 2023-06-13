@@ -387,14 +387,14 @@ public class RequestContextUtils {
   public static void registerScopes(ConfigurableBeanFactory beanFactory) {
 
     // @Autowired WebSession currentSession;
-    beanFactory.registerDependency(WebSession.class, new WebSessionSupplier(beanFactory));
+    beanFactory.registerDependency(WebSession.class, new WebSessionProvider(beanFactory));
 
     beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
     beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
     // register RequestContext
     // @Autowired RequestContext currentRequest;
-    beanFactory.registerDependency(RequestContext.class, new RequestContextSupplier());
+    beanFactory.registerDependency(RequestContext.class, new InjectableRequestContext());
   }
 
   //---------------------------------------------------------------------
@@ -1091,11 +1091,11 @@ public class RequestContextUtils {
   /**
    * Factory that exposes the current web-session object on demand.
    */
-  final static class WebSessionSupplier implements Supplier<WebSession>, Serializable {
+  final static class WebSessionProvider implements Supplier<WebSession>, Serializable {
 
     private final SessionManagerDiscover sessionManagerDiscover;
 
-    private WebSessionSupplier(BeanFactory beanFactory) {
+    private WebSessionProvider(BeanFactory beanFactory) {
       this.sessionManagerDiscover = new SessionManagerDiscover(beanFactory);
     }
 
@@ -1116,10 +1116,10 @@ public class RequestContextUtils {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  private static class RequestContextSupplier implements Supplier<RequestContext>, Serializable {
+  private static class InjectableRequestContext extends DecoratingRequestContext {
 
     @Override
-    public RequestContext get() {
+    public RequestContext getDelegate() {
       return RequestContextHolder.getRequired();
     }
 
