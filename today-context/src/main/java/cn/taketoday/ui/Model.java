@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.ui;
 
 import java.util.Collection;
@@ -28,11 +29,13 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
- * Model that defines a holder for model attributes.
- * Primarily designed for adding attributes to the model.
- * Allows for accessing the overall model as a {@code java.util.Map}.
+ * Interface that defines a holder for model attributes.
  *
- * @author TODAY <br>
+ * <p>Primarily designed for adding attributes to the model.
+ * <p>Allows for accessing the overall model as a {@code java.util.Map}.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-10-14 20:30
  */
 public interface Model {

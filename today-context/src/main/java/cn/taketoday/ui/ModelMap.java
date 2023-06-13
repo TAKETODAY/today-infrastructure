@@ -82,8 +82,9 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    * @param attributeName the name of the model attribute (never {@code null})
    * @param attributeValue the model attribute value (can be {@code null})
    */
+  @Override
   public ModelMap addAttribute(String attributeName, @Nullable Object attributeValue) {
-    Assert.notNull(attributeName, "Model attribute name must not be null");
+    Assert.notNull(attributeName, "Model attribute name is required");
     put(attributeName, attributeValue);
     return this;
   }
@@ -98,8 +99,9 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    *
    * @param attributeValue the model attribute value (never {@code null})
    */
+  @Override
   public ModelMap addAttribute(Object attributeValue) {
-    Assert.notNull(attributeValue, "Model object must not be null");
+    Assert.notNull(attributeValue, "Model object is required");
     if (attributeValue instanceof Collection && ((Collection<?>) attributeValue).isEmpty()) {
       return this;
     }
@@ -112,6 +114,7 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    *
    * @see #addAttribute(Object)
    */
+  @Override
   public ModelMap addAllAttributes(@Nullable Collection<?> attributeValues) {
     if (attributeValues != null) {
       for (Object attributeValue : attributeValues) {
@@ -126,6 +129,7 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    *
    * @see #addAttribute(String, Object)
    */
+  @Override
   public ModelMap addAllAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
       putAll(attributes);
@@ -138,13 +142,15 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    * with existing objects of the same name taking precedence (i.e. not getting
    * replaced).
    */
+  @Override
   public ModelMap mergeAttributes(@Nullable Map<String, ?> attributes) {
     if (attributes != null) {
-      attributes.forEach((key, value) -> {
+      for (Map.Entry<String, ?> entry : attributes.entrySet()) {
+        String key = entry.getKey();
         if (!containsKey(key)) {
-          put(key, value);
+          put(key, entry.getValue());
         }
-      });
+      }
     }
     return this;
   }
@@ -155,6 +161,7 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    * @param attributeName the name of the model attribute (never {@code null})
    * @return whether this model contains a corresponding attribute
    */
+  @Override
   public boolean containsAttribute(String attributeName) {
     return containsKey(attributeName);
   }
@@ -166,6 +173,7 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
    * @return the corresponding attribute value, or {@code null} if none
    */
   @Nullable
+  @Override
   public Object getAttribute(String attributeName) {
     return get(attributeName);
   }
