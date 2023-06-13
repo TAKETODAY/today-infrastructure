@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -117,8 +117,7 @@ public class TypeConverterDelegate {
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  public <T> T convertIfNecessary(
-          @Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
+  public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
           @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
     ConversionFailedException conversionAttemptEx = null;
     // Custom editor for this type?
@@ -257,8 +256,11 @@ public class TypeConverterDelegate {
           msg.append(" for property '").append(propertyName).append('\'');
         }
         if (editor != null) {
-          msg.append(": PropertyEditor [").append(editor.getClass().getName()).append(
-                  "] returned inappropriate value of type '").append(ClassUtils.getDescriptiveType(convertedValue)).append('\'');
+          msg.append(": PropertyEditor [")
+                  .append(editor.getClass().getName())
+                  .append("] returned inappropriate value of type '")
+                  .append(ClassUtils.getDescriptiveType(convertedValue))
+                  .append('\'');
           throw new IllegalArgumentException(msg.toString());
         }
         else {
