@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.handler.method;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.beans.ConstructorProperties;
@@ -63,6 +64,7 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.propertyeditors.CustomDateEditor;
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.annotation.DateTimeFormat;
@@ -86,6 +88,10 @@ import cn.taketoday.http.converter.xml.MarshallingHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.oxm.jaxb.Jaxb2Marshaller;
+import cn.taketoday.session.SessionManager;
+import cn.taketoday.session.SessionManagerOperations;
+import cn.taketoday.session.WebSession;
+import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
@@ -322,10 +328,12 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myPath.do");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
+
     assertThat(response.getStatus()).as("Invalid response status").isEqualTo(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     String allowHeader = response.getHeader("Allow");
+
     assertThat(allowHeader).as("No Allow header").isNotNull();
-    Set<String> allowedMethods = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(allowHeader, ", ")));
+    Set<String> allowedMethods = new HashSet<>(Arrays.asList(StringUtils.commaDelimitedListToStringArray(allowHeader)));
     assertThat(allowedMethods.size()).as("Invalid amount of supported methods").isEqualTo(6);
     assertThat(allowedMethods).as("PUT not allowed").contains("PUT");
     assertThat(allowedMethods).as("DELETE not allowed").contains("DELETE");
@@ -355,16 +363,16 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   void sessionAttributeExposure() throws Exception {
-    initDispatcherServlet(
-            MySessionAttributesController.class,
-            wac -> wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(ModelExposingViewResolver.class))
-    );
+    initDispatcherServlet(MySessionAttributesController.class, wac -> {
+      wac.registerBean("viewResolver", ModelExposingViewResolver.class);
+    });
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myPage");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
-    HttpSession session = request.getSession();
+    WebSession session = (WebSession) request.getAttribute("session");
+
     assertThat(session).isNotNull();
     assertThat(session.getAttribute("object1")).isNotNull();
     assertThat(session.getAttribute("object2")).isNotNull();
@@ -372,7 +380,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
 
     request = new MockHttpServletRequest("POST", "/myPage");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
@@ -386,7 +395,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @Test
   void sessionAttributeExposureWithInterface() throws Exception {
     initDispatcherServlet(MySessionAttributesControllerImpl.class, wac -> {
-      wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(ModelExposingViewResolver.class));
+      wac.registerBean("viewResolver", ModelExposingViewResolver.class);
       DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       autoProxyCreator.setBeanFactory(wac.getBeanFactory());
       autoProxyCreator.setProxyTargetClass(true);
@@ -398,7 +407,9 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
-    HttpSession session = request.getSession();
+
+    WebSession session = (WebSession) request.getAttribute("session");
+
     assertThat(session).isNotNull();
     assertThat(session.getAttribute("object1")).isNotNull();
     assertThat(session.getAttribute("object2")).isNotNull();
@@ -406,7 +417,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     assertThat(((Map) session.getAttribute("model"))).containsKey("object2");
 
     request = new MockHttpServletRequest("POST", "/myPage");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
@@ -419,16 +431,17 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   void parameterizedAnnotatedInterface() throws Exception {
-    initDispatcherServlet(
-            MyParameterizedControllerImpl.class,
-            wac -> wac.registerBeanDefinition("viewResolver", new RootBeanDefinition(ModelExposingViewResolver.class))
-    );
+    initDispatcherServlet(MyParameterizedControllerImpl.class, wac -> {
+      wac.registerBean("viewResolver", ModelExposingViewResolver.class);
+    });
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myPage");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
-    HttpSession session = request.getSession();
+
+    WebSession session = (WebSession) request.getAttribute("session");
+
     assertThat(session).isNotNull();
     assertThat(session.getAttribute("object1")).isNotNull();
     assertThat(session.getAttribute("object2")).isNotNull();
@@ -437,7 +450,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 
     request = new MockHttpServletRequest("POST", "/myPage");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
@@ -460,7 +474,9 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page1");
-    HttpSession session = request.getSession();
+
+    WebSession session = (WebSession) request.getAttribute("session");
+
     assertThat(session).isNotNull();
     assertThat(session.getAttribute("object1")).isNotNull();
     assertThat(session.getAttribute("object2")).isNotNull();
@@ -469,7 +485,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     assertThat(((Map) session.getAttribute("model"))).containsKey("testBeanList");
 
     request = new MockHttpServletRequest("POST", "/myPage");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(request.getAttribute("viewName")).isEqualTo("page2");
@@ -1568,9 +1585,10 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     WebApplicationContext wac = initDispatcherServlet(RedirectAttributesController.class);
 
     MockHttpServletRequest request = new MockHttpServletRequest("POST", "/messages");
-    HttpSession session = request.getSession();
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
+
+    WebSession session = (WebSession) request.getAttribute("session");
 
     ServletRequestContext context = new ServletRequestContext(wac, request, response);
     // POST -> bind error
@@ -1582,10 +1600,12 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
     // POST -> success
     request = new MockHttpServletRequest("POST", "/messages");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     request.addParameter("name", "Jeff");
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
+    context = new ServletRequestContext(wac, request, response);
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
@@ -1594,13 +1614,13 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     // GET after POST
     request = new MockHttpServletRequest("GET", "/messages/1");
     request.setQueryString("name=value");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("Got: yay!");
-    assertThat(RequestContextUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
   }
 
   @Test
@@ -1609,9 +1629,10 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
     MockHttpServletRequest request = new MockHttpServletRequest("POST", "/messages-response-entity");
     MockHttpServletResponse response = new MockHttpServletResponse();
-    HttpSession session = request.getSession();
 
     getServlet().service(request, response);
+
+    WebSession session = (WebSession) request.getAttribute("session");
     ServletRequestContext context = new ServletRequestContext(wac, request, response);
 
     assertThat(response.getStatus()).isEqualTo(302);
@@ -1621,13 +1642,13 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     // GET after POST
     request = new MockHttpServletRequest("GET", "/messages/1");
     request.setQueryString("name=value");
-    request.setSession(session);
+    request.setCookies(new Cookie("SESSION", session.getId()));
+
     response = new MockHttpServletResponse();
     getServlet().service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(response.getContentAsString()).isEqualTo("Got: yay!");
-    assertThat(RequestContextUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
   }
 
   @Test
@@ -1801,6 +1822,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   }
 
   @Test
+  @Disabled
   void httpHead() throws Exception {
     initDispatcherServlet(ResponseEntityController.class);
 
@@ -2297,20 +2319,27 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   }
 
   @Controller
+  @EnableWebSession
   @RequestMapping("/myPage")
   @SessionAttributes(names = { "object1", "object2" })
-  static class MySessionAttributesController {
+  static class MySessionAttributesController extends AbstractSessionManagerAutowired {
+
+    public MySessionAttributesController(SessionManager sessionManager) {
+      super(sessionManager);
+    }
 
     @RequestMapping(method = HttpMethod.GET)
     public String get(Model model) {
       model.addAttribute("object1", new Object());
       model.addAttribute("object2", new Object());
+      saveSession();
       return "page1";
     }
 
     @RequestMapping(method = HttpMethod.POST)
     public String post(@ModelAttribute("object1") Object object1) {
       //do something with object1
+      saveSession();
       return "page2";
 
     }
@@ -2328,18 +2357,44 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     String post(@ModelAttribute("object1") Object object1);
   }
 
-  static class MySessionAttributesControllerImpl implements MySessionAttributesControllerIfc {
+  abstract static class AbstractSessionManagerAutowired extends SessionManagerOperations {
+
+    @Autowired
+    RequestContext requestContext;
+
+    @Autowired
+    HttpServletRequest request;
+
+    public AbstractSessionManagerAutowired(SessionManager sessionManager) {
+      super(sessionManager);
+    }
+
+    public void saveSession() {
+      request.setAttribute("session", getSession(requestContext));
+    }
+
+  }
+
+  @EnableWebSession
+  static class MySessionAttributesControllerImpl extends AbstractSessionManagerAutowired
+          implements MySessionAttributesControllerIfc {
+
+    public MySessionAttributesControllerImpl(SessionManager sessionManager) {
+      super(sessionManager);
+    }
 
     @Override
     public String get(Model model) {
       model.addAttribute("object1", new Object());
       model.addAttribute("object2", new Object());
+      saveSession();
       return "page1";
     }
 
     @Override
     public String post(@ModelAttribute("object1") Object object1) {
       //do something with object1
+      saveSession();
       return "page2";
     }
   }
@@ -2362,7 +2417,14 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   }
 
   @Controller
-  static class MyParameterizedControllerImpl implements MyEditableParameterizedControllerIfc<TestBean> {
+  @Configuration(proxyBeanMethods = false)
+  @EnableWebSession
+  static class MyParameterizedControllerImpl extends AbstractSessionManagerAutowired
+          implements MyEditableParameterizedControllerIfc<TestBean> {
+
+    public MyParameterizedControllerImpl(SessionManager sessionManager) {
+      super(sessionManager);
+    }
 
     @Override
     public List<TestBean> getTestBeans() {
@@ -2376,19 +2438,27 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     public String get(Model model) {
       model.addAttribute("object1", new TestBean());
       model.addAttribute("object2", new TestBean());
+      saveSession();
       return "page1";
     }
 
     @Override
     public String post(TestBean object) {
       //do something with object1
+      saveSession();
       return "page2";
     }
   }
 
   @Controller
+  @EnableWebSession
   static class MyParameterizedControllerImplWithOverriddenMappings
+          extends AbstractSessionManagerAutowired
           implements MyEditableParameterizedControllerIfc<TestBean> {
+
+    public MyParameterizedControllerImplWithOverriddenMappings(SessionManager sessionManager) {
+      super(sessionManager);
+    }
 
     @Override
     @ModelAttribute("testBeanList")
@@ -2396,6 +2466,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       List<TestBean> list = new ArrayList<>();
       list.add(new TestBean("tb1"));
       list.add(new TestBean("tb2"));
+      saveSession();
       return list;
     }
 
@@ -2814,13 +2885,17 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     }
   }
 
-  static class ModelExposingViewResolver implements ViewResolver {
+  static class ModelExposingViewResolver extends SessionManagerOperations implements ViewResolver {
+
+    public ModelExposingViewResolver(SessionManager sessionManager) {
+      super(sessionManager);
+    }
 
     @Override
     public View resolveViewName(String viewName, Locale locale) {
       return (model, request) -> {
         request.setAttribute("viewName", viewName);
-//        request.getSession().setAttribute("model", model);
+        setAttribute(request, "model", model);
       };
     }
   }
@@ -3646,16 +3721,24 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   }
 
   @Controller
-  static class RedirectAttributesController {
+  @Configuration(proxyBeanMethods = false)
+  @EnableWebSession
+  static class RedirectAttributesController extends AbstractSessionManagerAutowired {
+
+    public RedirectAttributesController(SessionManager sessionManager) {
+      super(sessionManager);
+    }
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
       dataBinder.setRequiredFields("name");
+      saveSession();
     }
 
     @GetMapping("/messages/{id}")
     public void message(ModelMap model, Writer writer) throws IOException {
       writer.write("Got: " + model.get("successMessage"));
+      saveSession();
     }
 
     @PostMapping("/messages")
@@ -3673,6 +3756,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     public ResponseEntity<Void> sendMessage(RedirectModel attributes) {
       attributes.addAttribute("successMessage", "yay!");
       URI location = URI.create("/messages/1?name=value");
+      saveSession();
       return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
     }
   }

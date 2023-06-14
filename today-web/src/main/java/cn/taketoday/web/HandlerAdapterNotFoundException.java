@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,16 +20,12 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.annotation.ResponseStatus;
-
 /**
  * For {@link HandlerAdapter} not found
  *
  * @author TODAY 2021/4/26 22:26
  * @since 3.0
  */
-@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class HandlerAdapterNotFoundException extends InfraConfigurationException {
   private final Object handler;
 

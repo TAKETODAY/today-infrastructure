@@ -849,6 +849,22 @@ public abstract class HttpHeaders
   }
 
   /**
+   * Set the set of allowed {@link HttpMethod HTTP methods}, as specified by
+   * the {@code Allow} header.
+   */
+  public void setAllow(HttpMethod... allowedMethods) {
+    set(ALLOW, StringUtils.arrayToCommaDelimitedString(allowedMethods)); // special case
+  }
+
+  /**
+   * Set the set of allowed {@link HttpMethod HTTP methods}, as specified by
+   * the {@code Allow} header.
+   */
+  public void setAllow(String... allowedMethods) {
+    set(ALLOW, StringUtils.arrayToCommaDelimitedString(allowedMethods)); // special case
+  }
+
+  /**
    * Return the set of allowed {@link HttpMethod HTTP methods}, as specified by
    * the {@code Allow} header.
    * <p>

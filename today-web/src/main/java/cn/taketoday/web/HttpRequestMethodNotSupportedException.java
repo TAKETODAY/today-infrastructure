@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * Exception thrown when a request handler does not support a
@@ -42,7 +41,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/29 10:29
  */
-@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
 public class HttpRequestMethodNotSupportedException extends NestedRuntimeException implements ErrorResponse {
 
   private final String method;
@@ -150,7 +148,7 @@ public class HttpRequestMethodNotSupportedException extends NestedRuntimeExcepti
       return HttpHeaders.empty();
     }
     HttpHeaders headers = HttpHeaders.create();
-    headers.add(HttpHeaders.ALLOW, StringUtils.arrayToDelimitedString(this.supportedMethods, ", "));
+    headers.setAllow(supportedMethods);
     return headers;
   }
 

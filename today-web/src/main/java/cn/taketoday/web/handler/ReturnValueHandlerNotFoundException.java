@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,11 @@
 
 package cn.taketoday.web.handler;
 
-import cn.taketoday.http.HttpStatus;
+import java.io.Serial;
+
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.InfraConfigurationException;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * For {@link ReturnValueHandler} not found
@@ -32,8 +32,10 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY 2021/4/26 22:18
  * @since 3.0
  */
-@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class ReturnValueHandlerNotFoundException extends InfraConfigurationException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final Object handler;

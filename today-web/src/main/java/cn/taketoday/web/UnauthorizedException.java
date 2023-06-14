@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,13 +22,11 @@ package cn.taketoday.web;
 import java.io.Serial;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * @author TODAY
  * @since 2019-07-20 15:51
  */
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends ResponseStatusException {
 
   @Serial

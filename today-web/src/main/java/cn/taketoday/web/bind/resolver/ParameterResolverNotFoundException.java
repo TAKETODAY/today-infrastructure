@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,9 +20,9 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import cn.taketoday.http.HttpStatus;
+import java.io.Serial;
+
 import cn.taketoday.web.InfraConfigurationException;
-import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 
 /**
@@ -32,8 +32,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @see ParameterResolvingStrategy
  * @since 4.0
  */
-@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class ParameterResolverNotFoundException extends InfraConfigurationException {
+
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private final ResolvableMethodParameter parameter;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -72,7 +73,7 @@ public class SessionAttributesHandler {
   public SessionAttributesHandler(Class<?> handlerType, SessionAttributeStore sessionAttributeStore) {
     Assert.notNull(sessionAttributeStore, "SessionAttributeStore is required");
     this.sessionAttributeStore = sessionAttributeStore;
-    var annotation = MergedAnnotations.from(handlerType).get(SessionAttributes.class);
+    var annotation = MergedAnnotations.from(handlerType, SearchStrategy.TYPE_HIERARCHY).get(SessionAttributes.class);
     if (annotation.isPresent()) {
       Collections.addAll(attributeNames, annotation.getStringArray("names"));
       Collections.addAll(attributeTypes, annotation.getClassArray("types"));
