@@ -34,9 +34,7 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -305,7 +303,7 @@ public class WebDataBinder extends DataBinder {
    */
   protected void adaptEmptyArrayIndices(PropertyValues values) {
     ConfigurablePropertyAccessor propertyAccessor = getPropertyAccessor();
-    for (PropertyValue pv : values) {
+    for (PropertyValue pv : values.toArray()) {
       String name = pv.getName();
       if (name.endsWith("[]")) {
         String field = name.substring(0, name.length() - 2);
@@ -403,11 +401,6 @@ public class WebDataBinder extends DataBinder {
       var multipartFiles = request.getMultipartRequest().getMultipartFiles();
       if (!multipartFiles.isEmpty()) {
         bindMultipart(multipartFiles, propertyValues);
-      }
-
-      if (ServletDetector.runningInServlet(request)) {
-        ServletUtils.bindParts(ServletUtils.getServletRequest(request),
-                propertyValues, isBindEmptyMultipartFiles());
       }
     }
 
