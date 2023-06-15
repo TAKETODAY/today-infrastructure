@@ -958,7 +958,7 @@ public abstract class HttpHeaders
   /**
    * Set the (new) value of the {@code Cache-Control} header.
    */
-  public void setCacheControl(String cacheControl) {
+  public void setCacheControl(@Nullable String cacheControl) {
     setOrRemove(CACHE_CONTROL, cacheControl);
   }
 

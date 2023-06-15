@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,7 @@ import java.util.Set;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.view.View;
 
 /**
@@ -52,6 +53,7 @@ import cn.taketoday.web.view.View;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MappingJackson2JsonView extends AbstractJackson2View {
@@ -160,7 +162,8 @@ public class MappingJackson2JsonView extends AbstractJackson2View {
 
     for (Map.Entry<String, Object> entry : model.entrySet()) {
       String clazz = entry.getKey();
-      if (modelKeys.contains(clazz)
+      if (!(entry.getValue() instanceof BindingResult)
+              && modelKeys.contains(clazz)
               && !clazz.equals(JsonView.class.getName())
               && !clazz.equals(FilterProvider.class.getName())) {
         result.put(clazz, entry.getValue());
