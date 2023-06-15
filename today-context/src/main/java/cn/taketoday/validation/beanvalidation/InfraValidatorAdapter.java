@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,6 +61,7 @@ import jakarta.validation.metadata.ConstraintDescriptor;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SmartValidator
  * @see CustomValidatorBean
  * @see LocalValidatorFactoryBean
@@ -115,8 +116,8 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public void validateValue(
-          Class<?> targetType, String fieldName, @Nullable Object value, Errors errors, Object... validationHints) {
+  public void validateValue(Class<?> targetType, String fieldName,
+          @Nullable Object value, Errors errors, Object... validationHints) {
 
     if (this.targetValidator != null) {
       processConstraintViolations(this.targetValidator.validateValue(
@@ -126,8 +127,6 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
 
   /**
    * Turn the specified validation hints into JSR-303 validation groups.
-   *
-   * @since 4.0
    */
   private Class<?>[] asValidationGroups(Object... validationHints) {
     Set<Class<?>> groups = new LinkedHashSet<>(4);
@@ -146,7 +145,6 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
    * @param violations the JSR-303 ConstraintViolation results
    * @param errors the Framework errors object to register to
    */
-  @SuppressWarnings("serial")
   protected void processConstraintViolations(Set<ConstraintViolation<Object>> violations, Errors errors) {
     for (ConstraintViolation<Object> violation : violations) {
       String field = determineField(violation);
@@ -412,12 +410,6 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     @Override
     public String[] getCodes() {
       return new String[] { this.resolvableString };
-    }
-
-    @Override
-    @Nullable
-    public Object[] getArguments() {
-      return null;
     }
 
     @Override

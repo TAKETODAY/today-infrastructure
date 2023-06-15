@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,24 +24,16 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.util.function.Supplier;
 
 import cn.taketoday.aop.ProxyMethodInvocation;
-import cn.taketoday.aop.framework.AopProxyUtils;
-import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.SmartFactoryBean;
-import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.OrderedSupport;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.executable.ExecutableValidator;
@@ -63,19 +55,20 @@ import jakarta.validation.executable.ExecutableValidator;
  * <p>this functionality requires a Bean Validation 1.1+ provider.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodValidationPostProcessor
  * @see ExecutableValidator
  * @since 4.0
  */
 public class MethodValidationInterceptor extends OrderedSupport implements MethodInterceptor {
 
-  private final Validator validator;
+  private final MethodValidationAdapter delegate;
 
   /**
    * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
    */
   public MethodValidationInterceptor() {
-    this(Validation.buildDefaultValidatorFactory());
+    this.delegate = new MethodValidationAdapter();
   }
 
   /**
@@ -84,7 +77,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    * @param validatorFactory the JSR-303 ValidatorFactory to use
    */
   public MethodValidationInterceptor(ValidatorFactory validatorFactory) {
-    this(validatorFactory.getValidator());
+    this.delegate = new MethodValidationAdapter(validatorFactory);
   }
 
   /**
@@ -93,8 +86,17 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    * @param validator the JSR-303 Validator to use
    */
   public MethodValidationInterceptor(Validator validator) {
-    this.validator = validator;
-    setOrder(HIGHEST_PRECEDENCE); // highest
+    this.delegate = new MethodValidationAdapter(validator);
+  }
+
+  /**
+   * Create a new MethodValidationInterceptor for the supplied
+   * (potentially lazily initialized) Validator.
+   *
+   * @param validator a Supplier for the Validator to use
+   */
+  public MethodValidationInterceptor(Supplier<Validator> validator) {
+    this.delegate = new MethodValidationAdapter(validator);
   }
 
   @Override
@@ -105,42 +107,29 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
       return invocation.proceed();
     }
 
+    Object target = getTarget(invocation);
+    Method method = invocation.getMethod();
     Class<?>[] groups = determineValidationGroups(invocation);
 
-    // Standard Bean Validation 1.1 API
-    ExecutableValidator execVal = this.validator.forExecutables();
-    Method methodToValidate = invocation.getMethod();
-    Set<ConstraintViolation<Object>> result;
+    delegate.validateMethodArguments(target, method, null, invocation.getArguments(), groups)
+            .throwIfViolationsPresent();
 
+    Object returnValue = invocation.proceed();
+
+    delegate.validateMethodReturnValue(target, method, null, returnValue, groups)
+            .throwIfViolationsPresent();
+
+    return returnValue;
+  }
+
+  private static Object getTarget(MethodInvocation invocation) {
     Object target = invocation.getThis();
     if (target == null && invocation instanceof ProxyMethodInvocation methodInvocation) {
       // Allow validation for AOP proxy without a target
       target = methodInvocation.getProxy();
     }
     Assert.state(target != null, "Target must not be null");
-
-    try {
-      result = execVal.validateParameters(target, methodToValidate, invocation.getArguments(), groups);
-    }
-    catch (IllegalArgumentException ex) {
-      // Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
-      // Let's try to find the bridged method on the implementation class...
-      methodToValidate = BridgeMethodResolver.findBridgedMethod(
-              ReflectionUtils.getMostSpecificMethod(invocation.getMethod(), target.getClass()));
-      result = execVal.validateParameters(target, methodToValidate, invocation.getArguments(), groups);
-    }
-    if (!result.isEmpty()) {
-      throw new ConstraintViolationException(result);
-    }
-
-    Object returnValue = invocation.proceed();
-
-    result = execVal.validateReturnValue(target, methodToValidate, returnValue, groups);
-    if (!result.isEmpty()) {
-      throw new ConstraintViolationException(result);
-    }
-
-    return returnValue;
+    return target;
   }
 
   private boolean isFactoryBeanMetadataMethod(Method method) {
@@ -175,25 +164,9 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    * @return the applicable validation groups as a Class array
    */
   protected Class<?>[] determineValidationGroups(MethodInvocation invocation) {
-    Validated validatedAnn = AnnotationUtils.findAnnotation(invocation.getMethod(), Validated.class);
-    if (validatedAnn == null) {
-      Object target = invocation.getThis();
-      if (target != null) {
-        validatedAnn = AnnotationUtils.findAnnotation(target.getClass(), Validated.class);
-      }
-      else if (invocation instanceof ProxyMethodInvocation methodInvocation) {
-        Object proxy = methodInvocation.getProxy();
-        if (AopUtils.isAopProxy(proxy)) {
-          for (Class<?> type : AopProxyUtils.proxiedUserInterfaces(proxy)) {
-            validatedAnn = AnnotationUtils.findAnnotation(type, Validated.class);
-            if (validatedAnn != null) {
-              break;
-            }
-          }
-        }
-      }
-    }
-    return validatedAnn != null ? validatedAnn.value() : Constant.EMPTY_CLASSES;
+    Object target = getTarget(invocation);
+    Method method = invocation.getMethod();
+    return MethodValidationAdapter.determineValidationGroups(target, method);
   }
 
 }
