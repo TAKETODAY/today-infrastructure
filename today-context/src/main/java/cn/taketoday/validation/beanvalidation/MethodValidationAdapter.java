@@ -44,9 +44,9 @@ import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.function.SingletonSupplier;
 import cn.taketoday.validation.BeanPropertyBindingResult;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.DefaultMessageCodesResolver;
@@ -82,7 +82,7 @@ public class MethodValidationAdapter {
 
   private final Validator validator;
 
-  private final Supplier<InfraValidatorAdapter> validatorAdapter;
+  private final InfraValidatorAdapter validatorAdapter;
 
   private MessageCodesResolver messageCodesResolver = new DefaultMessageCodesResolver();
 
@@ -95,8 +95,7 @@ public class MethodValidationAdapter {
    * Create an instance using a default JSR-303 validator underneath.
    */
   public MethodValidationAdapter() {
-    this.validator = Validation.buildDefaultValidatorFactory().getValidator();
-    this.validatorAdapter = SingletonSupplier.from(() -> new InfraValidatorAdapter(this.validator));
+    this(Validation.buildDefaultValidatorFactory());
   }
 
   /**
@@ -105,8 +104,7 @@ public class MethodValidationAdapter {
    * @param validatorFactory the JSR-303 ValidatorFactory to use
    */
   public MethodValidationAdapter(ValidatorFactory validatorFactory) {
-    this.validator = new SuppliedValidator(validatorFactory::getValidator);
-    this.validatorAdapter = SingletonSupplier.from(() -> new InfraValidatorAdapter(this.validator));
+    this(validatorFactory::getValidator);
   }
 
   /**
@@ -115,8 +113,9 @@ public class MethodValidationAdapter {
    * @param validator the JSR-303 Validator to use
    */
   public MethodValidationAdapter(Validator validator) {
+    Assert.notNull(validator, "Validator is required");
     this.validator = validator;
-    this.validatorAdapter = () -> new InfraValidatorAdapter(validator);
+    this.validatorAdapter = new InfraValidatorAdapter(validator);
   }
 
   /**
@@ -125,8 +124,7 @@ public class MethodValidationAdapter {
    * @param validator a Supplier for the Validator to use
    */
   public MethodValidationAdapter(Supplier<Validator> validator) {
-    this.validator = new SuppliedValidator(validator);
-    this.validatorAdapter = () -> new InfraValidatorAdapter(this.validator);
+    this(new SuppliedValidator(validator));
   }
 
   /**
@@ -307,12 +305,19 @@ public class MethodValidationAdapter {
       }
     }
 
-    List<ParameterValidationResult> validatonResultList = new ArrayList<>();
-    parameterViolations.forEach((parameter, builder) -> validatonResultList.add(builder.build()));
-    cascadedViolations.forEach((node, builder) -> validatonResultList.add(builder.build()));
-    validatonResultList.sort(RESULT_COMPARATOR);
+    var validationResultList = new ArrayList<ParameterValidationResult>();
 
-    return new MethodValidationException(target, method, violations, validatonResultList, forReturnValue);
+    for (ValueResultBuilder builder : parameterViolations.values()) {
+      validationResultList.add(builder.build());
+    }
+
+    for (BeanResultBuilder builder : cascadedViolations.values()) {
+      validationResultList.add(builder.build());
+    }
+
+    validationResultList.sort(RESULT_COMPARATOR);
+
+    return new MethodValidationException(target, method, violations, validationResultList, forReturnValue);
   }
 
   /**
@@ -327,13 +332,13 @@ public class MethodValidationAdapter {
           Object target, MethodParameter parameter, ConstraintViolation<Object> violation) {
 
     String objectName = Conventions.getVariableName(target) + "#" + parameter.getExecutable().getName();
-    String paramName = (parameter.getParameterName() != null ? parameter.getParameterName() : "");
+    String paramName = parameter.getParameterName() != null ? parameter.getParameterName() : "";
     Class<?> parameterType = parameter.getParameterType();
 
     ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor();
     String code = descriptor.getAnnotation().annotationType().getSimpleName();
-    String[] codes = this.messageCodesResolver.resolveMessageCodes(code, objectName, paramName, parameterType);
-    Object[] arguments = this.validatorAdapter.get().getArgumentsForConstraint(objectName, paramName, descriptor);
+    String[] codes = messageCodesResolver.resolveMessageCodes(code, objectName, paramName, parameterType);
+    Object[] arguments = validatorAdapter.getArgumentsForConstraint(objectName, paramName, descriptor);
 
     return new DefaultMessageSourceResolvable(codes, arguments, violation.getMessage());
   }
@@ -486,7 +491,7 @@ public class MethodValidationAdapter {
     }
 
     public ParameterErrors build() {
-      validatorAdapter.get().processConstraintViolations(this.violations, this.errors);
+      validatorAdapter.processConstraintViolations(this.violations, this.errors);
       return new ParameterErrors(
               this.parameter, this.argument, this.errors, this.violations,
               this.container, this.containerIndex, this.containerKey);

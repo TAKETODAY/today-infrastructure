@@ -20,6 +20,7 @@
 
 package cn.taketoday.validation.beanvalidation;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -344,10 +345,10 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
    * @see #getArgumentsForConstraint
    */
   protected boolean requiresMessageFormat(ConstraintViolation<?> violation) {
-    return containsSpringStylePlaceholder(violation.getMessage());
+    return containsInfraStylePlaceholder(violation.getMessage());
   }
 
-  private static boolean containsSpringStylePlaceholder(@Nullable String message) {
+  private static boolean containsInfraStylePlaceholder(@Nullable String message) {
     return message != null && message.contains("{0}");
   }
 
@@ -357,37 +358,32 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
 
   @Override
   public <T> Set<ConstraintViolation<T>> validate(T object, Class<?>... groups) {
-    Assert.state(this.targetValidator != null, "No target Validator set");
-    return this.targetValidator.validate(object, groups);
+    return targetValidator().validate(object, groups);
   }
 
   @Override
   public <T> Set<ConstraintViolation<T>> validateProperty(T object, String propertyName, Class<?>... groups) {
-    Assert.state(this.targetValidator != null, "No target Validator set");
-    return this.targetValidator.validateProperty(object, propertyName, groups);
+    return targetValidator().validateProperty(object, propertyName, groups);
   }
 
   @Override
   public <T> Set<ConstraintViolation<T>> validateValue(
           Class<T> beanType, String propertyName, Object value, Class<?>... groups) {
 
-    Assert.state(this.targetValidator != null, "No target Validator set");
-    return this.targetValidator.validateValue(beanType, propertyName, value, groups);
+    return targetValidator().validateValue(beanType, propertyName, value, groups);
   }
 
   @Override
   public BeanDescriptor getConstraintsForClass(Class<?> clazz) {
-    Assert.state(this.targetValidator != null, "No target Validator set");
-    return this.targetValidator.getConstraintsForClass(clazz);
+    return targetValidator().getConstraintsForClass(clazz);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T unwrap(@Nullable Class<T> type) {
-    Validator targetValidator = this.targetValidator;
-    Assert.state(targetValidator != null, "No target Validator set");
+    Validator targetValidator = targetValidator();
     try {
-      return (type != null ? targetValidator.unwrap(type) : (T) targetValidator);
+      return type != null ? targetValidator.unwrap(type) : (T) targetValidator;
     }
     catch (ValidationException ex) {
       // Ignore if just being asked for plain JSR-303 Validator
@@ -400,8 +396,13 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
 
   @Override
   public ExecutableValidator forExecutables() {
-    Assert.state(this.targetValidator != null, "No target Validator set");
-    return this.targetValidator.forExecutables();
+    return targetValidator().forExecutables();
+  }
+
+  private Validator targetValidator() {
+    Validator validator = targetValidator;
+    Assert.state(validator != null, "No target Validator set");
+    return validator;
   }
 
   /**
@@ -427,9 +428,12 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
   }
 
   /**
-   * Subclass of {@code ObjectError} with Framework-style default message rendering.
+   * Subclass of {@code ObjectError} with Infra-style default message rendering.
    */
   private static class ViolationObjectError extends ObjectError implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Nullable
     private final transient InfraValidatorAdapter adapter;
@@ -437,8 +441,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     @Nullable
     private final transient ConstraintViolation<?> violation;
 
-    public ViolationObjectError(
-            String objectName, String[] codes, Object[] arguments,
+    public ViolationObjectError(String objectName, String[] codes, Object[] arguments,
             ConstraintViolation<?> violation, InfraValidatorAdapter adapter) {
 
       super(objectName, codes, arguments, violation.getMessage());
@@ -451,15 +454,17 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     public boolean shouldRenderDefaultMessage() {
       return (this.adapter != null && this.violation != null ?
               this.adapter.requiresMessageFormat(this.violation) :
-              containsSpringStylePlaceholder(getDefaultMessage()));
+              containsInfraStylePlaceholder(getDefaultMessage()));
     }
   }
 
   /**
    * Subclass of {@code FieldError} with Framework-style default message rendering.
    */
-  @SuppressWarnings("serial")
   private static class ViolationFieldError extends FieldError implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Nullable
     private final transient InfraValidatorAdapter adapter;
@@ -467,8 +472,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     @Nullable
     private final transient ConstraintViolation<?> violation;
 
-    public ViolationFieldError(
-            String objectName, String field,
+    public ViolationFieldError(String objectName, String field,
             @Nullable Object rejectedValue, String[] codes,
             Object[] arguments, ConstraintViolation<?> violation, InfraValidatorAdapter adapter) {
 
@@ -482,7 +486,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     public boolean shouldRenderDefaultMessage() {
       return this.adapter != null && this.violation != null
              ? this.adapter.requiresMessageFormat(this.violation)
-             : containsSpringStylePlaceholder(getDefaultMessage());
+             : containsInfraStylePlaceholder(getDefaultMessage());
     }
   }
 

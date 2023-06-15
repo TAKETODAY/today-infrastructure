@@ -34,6 +34,7 @@ import cn.taketoday.lang.Nullable;
  * how a message code list is built for an {@code ObjectError}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FieldError
  * @see DefaultMessageCodesResolver
  * @since 4.0
