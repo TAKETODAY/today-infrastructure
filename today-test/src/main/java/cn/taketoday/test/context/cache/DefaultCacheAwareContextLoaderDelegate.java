@@ -145,51 +145,53 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
   public ApplicationContext loadContext(MergedContextConfiguration mergedConfig) {
     synchronized(contextCache) {
       ApplicationContext context = contextCache.get(mergedConfig);
-      if (context == null) {
-        int failureCount = contextCache.getFailureCount(mergedConfig);
-        if (failureCount >= failureThreshold) {
-          throw new IllegalStateException("""
-                  ApplicationContext failure threshold (%d) exceeded: \
-                  skipping repeated attempt to load context for %s"""
-                  .formatted(failureThreshold, mergedConfig));
-        }
-        try {
-          context = loadContextInternal(mergedConfig);
-          logger.debug("Storing ApplicationContext [{}] in cache under key [{}]",
-                  System.identityHashCode(context), mergedConfig);
-          contextCache.put(mergedConfig, context);
-        }
-        catch (Exception ex) {
-          if (logger.isTraceEnabled()) {
-            logger.trace("Incrementing ApplicationContext failure count for {}", mergedConfig);
+      try {
+        if (context == null) {
+          int failureCount = contextCache.getFailureCount(mergedConfig);
+          if (failureCount >= failureThreshold) {
+            throw new IllegalStateException("""
+                    ApplicationContext failure threshold (%d) exceeded: \
+                    skipping repeated attempt to load context for %s"""
+                    .formatted(failureThreshold, mergedConfig));
           }
-          contextCache.incrementFailureCount(mergedConfig);
-          Throwable cause = ex;
-          if (ex instanceof ContextLoadException cle) {
-            cause = cle.getCause();
-            for (var contextFailureProcessor : contextFailureProcessors) {
-              try {
-                contextFailureProcessor.processLoadFailure(cle.getApplicationContext(), cause);
-              }
-              catch (Throwable throwable) {
-                if (logger.isDebugEnabled()) {
-                  logger.debug("Ignoring exception thrown from ApplicationContextFailureProcessor [%s]: %s"
-                          .formatted(contextFailureProcessor, throwable));
+          try {
+            context = loadContextInternal(mergedConfig);
+            logger.debug("Storing ApplicationContext [{}] in cache under key [{}]",
+                    System.identityHashCode(context), mergedConfig);
+            contextCache.put(mergedConfig, context);
+          }
+          catch (Exception ex) {
+            if (logger.isTraceEnabled()) {
+              logger.trace("Incrementing ApplicationContext failure count for {}", mergedConfig);
+            }
+            contextCache.incrementFailureCount(mergedConfig);
+            Throwable cause = ex;
+            if (ex instanceof ContextLoadException cle) {
+              cause = cle.getCause();
+              for (var contextFailureProcessor : contextFailureProcessors) {
+                try {
+                  contextFailureProcessor.processLoadFailure(cle.getApplicationContext(), cause);
+                }
+                catch (Throwable throwable) {
+                  if (logger.isDebugEnabled()) {
+                    logger.debug("Ignoring exception thrown from ApplicationContextFailureProcessor [%s]: %s"
+                            .formatted(contextFailureProcessor, throwable));
+                  }
                 }
               }
             }
+            throw new IllegalStateException(
+                    "Failed to load ApplicationContext for " + mergedConfig, cause);
           }
-          throw new IllegalStateException(
-                  "Failed to load ApplicationContext for " + mergedConfig, cause);
+        }
+        else {
+          logger.debug("Retrieved ApplicationContext [{}] from cache with key [{}]",
+                  System.identityHashCode(context), mergedConfig);
         }
       }
-      else {
-        logger.debug("Retrieved ApplicationContext [{}] from cache with key [{}]",
-                System.identityHashCode(context), mergedConfig);
-      }
-
-      contextCache.logStatistics();
-      return context;
+      finally {
+        contextCache.logStatistics();
+      } return context;
     }
   }
 
