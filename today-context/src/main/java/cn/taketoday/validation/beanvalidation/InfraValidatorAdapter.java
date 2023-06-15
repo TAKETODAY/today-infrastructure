@@ -33,6 +33,7 @@ import cn.taketoday.context.support.DefaultMessageSourceResolvable;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.FieldError;
@@ -201,7 +202,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
     StringBuilder sb = new StringBuilder();
     boolean first = true;
     for (Path.Node node : path) {
-      if (node.isInIterable()) {
+      if (node.isInIterable() && !first) {
         sb.append('[');
         Object index = node.getIndex();
         if (index == null) {
@@ -292,7 +293,9 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
    * @see #getArgumentsForConstraint
    */
   protected MessageSourceResolvable getResolvableField(String objectName, String field) {
-    String[] codes = new String[] { objectName + Errors.NESTED_PATH_SEPARATOR + field, field };
+    String[] codes = StringUtils.hasText(field)
+                     ? new String[] { objectName + Errors.NESTED_PATH_SEPARATOR + field, field }
+                     : new String[] { objectName };
     return new DefaultMessageSourceResolvable(codes, field);
   }
 
