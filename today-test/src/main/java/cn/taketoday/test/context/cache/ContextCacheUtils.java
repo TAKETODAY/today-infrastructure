@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,31 +21,56 @@
 package cn.taketoday.test.context.cache;
 
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
 import cn.taketoday.util.StringUtils;
 
 /**
  * Collection of utilities for working with {@link ContextCache ContextCaches}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class ContextCacheUtils {
 
   /**
    * Retrieve the maximum size of the {@link ContextCache}.
-   * <p>Uses {@link TodayStrategies} to retrieve a system property or Spring
-   * property named {@code context.test.context.cache.maxSize}.
-   * <p>Falls back to the value of the {@link ContextCache#DEFAULT_MAX_CONTEXT_CACHE_SIZE}
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
+   * property named {@value ContextCache#MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME}.
+   * <p>Defaults to {@value ContextCache#DEFAULT_MAX_CONTEXT_CACHE_SIZE}
    * if no such property has been set or if the property is not an integer.
    *
    * @return the maximum size of the context cache
    * @see ContextCache#MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME
    */
   public static int retrieveMaxCacheSize() {
+    String propertyName = ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME;
+    int defaultValue = ContextCache.DEFAULT_MAX_CONTEXT_CACHE_SIZE;
+    return retrieveProperty(propertyName, defaultValue);
+  }
+
+  /**
+   * Retrieve the <em>failure threshold</em> for application context loading.
+   * <p>Uses {@link TodayStrategies} to retrieve a system property or Infra
+   * property named {@value CacheAwareContextLoaderDelegate#CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME}.
+   * <p>Defaults to {@value CacheAwareContextLoaderDelegate#DEFAULT_CONTEXT_FAILURE_THRESHOLD}
+   * if no such property has been set or if the property is not an integer.
+   *
+   * @return the failure threshold
+   * @see CacheAwareContextLoaderDelegate#CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME
+   * @see CacheAwareContextLoaderDelegate#DEFAULT_CONTEXT_FAILURE_THRESHOLD
+   */
+  public static int retrieveContextFailureThreshold() {
+    String propertyName = CacheAwareContextLoaderDelegate.CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME;
+    int defaultValue = CacheAwareContextLoaderDelegate.DEFAULT_CONTEXT_FAILURE_THRESHOLD;
+    return retrieveProperty(propertyName, defaultValue);
+  }
+
+  private static int retrieveProperty(String key, int defaultValue) {
     try {
-      String maxSize = TodayStrategies.getProperty(ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME);
-      if (StringUtils.hasText(maxSize)) {
-        return Integer.parseInt(maxSize.trim());
+      String value = TodayStrategies.getProperty(key);
+      if (StringUtils.hasText(value)) {
+        return Integer.parseInt(value.trim());
       }
     }
     catch (Exception ex) {
@@ -53,7 +78,7 @@ public abstract class ContextCacheUtils {
     }
 
     // Fallback
-    return ContextCache.DEFAULT_MAX_CONTEXT_CACHE_SIZE;
+    return defaultValue;
   }
 
 }

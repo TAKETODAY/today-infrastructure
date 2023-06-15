@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,13 +20,16 @@
 
 package cn.taketoday.test.context.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.util.StringUtils;
+
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 /**
  * Collection of utility methods for testing scenarios involving the
  * {@link ContextCache}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ContextCacheTestUtils {
@@ -34,8 +37,19 @@ public class ContextCacheTestUtils {
   /**
    * Reset the state of the static context cache in {@link DefaultCacheAwareContextLoaderDelegate}.
    */
-  public static final void resetContextCache() {
+  public static void resetContextCache() {
     DefaultCacheAwareContextLoaderDelegate.defaultContextCache.reset();
+  }
+
+  /**
+   * Assert the statistics of the static context cache in {@link DefaultCacheAwareContextLoaderDelegate}.
+   *
+   * @param expectedSize the expected number of contexts in the cache
+   * @param expectedHitCount the expected hit count
+   * @param expectedMissCount the expected miss count
+   */
+  public static void assertContextCacheStatistics(int expectedSize, int expectedHitCount, int expectedMissCount) {
+    assertContextCacheStatistics(null, expectedSize, expectedHitCount, expectedMissCount);
   }
 
   /**
@@ -46,7 +60,7 @@ public class ContextCacheTestUtils {
    * @param expectedHitCount the expected hit count
    * @param expectedMissCount the expected miss count
    */
-  public static final void assertContextCacheStatistics(String usageScenario, int expectedSize, int expectedHitCount,
+  public static void assertContextCacheStatistics(String usageScenario, int expectedSize, int expectedHitCount,
           int expectedMissCount) {
     assertContextCacheStatistics(DefaultCacheAwareContextLoaderDelegate.defaultContextCache, usageScenario,
             expectedSize, expectedHitCount, expectedMissCount);
@@ -61,12 +75,16 @@ public class ContextCacheTestUtils {
    * @param expectedHitCount the expected hit count
    * @param expectedMissCount the expected miss count
    */
-  public static final void assertContextCacheStatistics(ContextCache contextCache, String usageScenario,
+  public static void assertContextCacheStatistics(ContextCache contextCache, String usageScenario,
           int expectedSize, int expectedHitCount, int expectedMissCount) {
 
-    assertThat(contextCache.size()).as("Verifying number of contexts in cache (" + usageScenario + ").").isEqualTo(expectedSize);
-    assertThat(contextCache.getHitCount()).as("Verifying number of cache hits (" + usageScenario + ").").isEqualTo(expectedHitCount);
-    assertThat(contextCache.getMissCount()).as("Verifying number of cache misses (" + usageScenario + ").").isEqualTo(expectedMissCount);
+    String context = (StringUtils.hasText(usageScenario) ? " (" + usageScenario + ")" : "");
+
+    assertSoftly(softly -> {
+      softly.assertThat(contextCache.size()).as("contexts in cache" + context).isEqualTo(expectedSize);
+      softly.assertThat(contextCache.getHitCount()).as("cache hits" + context).isEqualTo(expectedHitCount);
+      softly.assertThat(contextCache.getMissCount()).as("cache misses" + context).isEqualTo(expectedMissCount);
+    });
   }
 
 }

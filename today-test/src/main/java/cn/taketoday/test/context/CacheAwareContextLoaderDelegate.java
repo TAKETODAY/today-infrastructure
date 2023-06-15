@@ -44,6 +44,30 @@ import cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate;
 public interface CacheAwareContextLoaderDelegate {
 
   /**
+   * The default failure threshold for errors encountered while attempting to
+   * load an application context: {@value}.
+   *
+   * @see #CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME
+   */
+  int DEFAULT_CONTEXT_FAILURE_THRESHOLD = 1;
+
+  /**
+   * System property used to configure the failure threshold for errors
+   * encountered while attempting to load an application context: {@value}.
+   * <p>May alternatively be configured via the
+   * {@link cn.taketoday.lang.TodayStrategies} mechanism.
+   * <p>Implementations of {@code CacheAwareContextLoaderDelegate} are not
+   * required to support this feature. Consult the documentation of the
+   * corresponding implementation for details. Note, however, that the standard
+   * {@code CacheAwareContextLoaderDelegate} implementation in Infra supports
+   * this feature.
+   *
+   * @see #DEFAULT_CONTEXT_FAILURE_THRESHOLD
+   * @see #loadContext(MergedContextConfiguration)
+   */
+  String CONTEXT_FAILURE_THRESHOLD_PROPERTY_NAME = "infra.test.context.failure.threshold";
+
+  /**
    * System property used to configure the fully qualified class name of the
    * default {@code CacheAwareContextLoaderDelegate}.
    * <p>May alternatively be configured via the
@@ -85,18 +109,33 @@ public interface CacheAwareContextLoaderDelegate {
    * configured in the given {@code MergedContextConfiguration}.
    * <p>If the context is present in the {@code ContextCache} it will simply
    * be returned; otherwise, it will be loaded, stored in the cache, and returned.
-   * <p>The cache statistics should be logged by invoking
-   * {@link ContextCache#logStatistics()}.
+   * <p>Implementations of this method should load
+   * {@link ApplicationContextFailureProcessor} implementations via the
+   * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
+   * mechanism, catch any exception thrown by the {@link ContextLoader}, and
+   * delegate to each of the configured failure processors to process the context
+   * load failure if the exception is an instance of {@link ContextLoadException}.
    *
-   * @param mergedContextConfiguration the merged context configuration to use
-   * to load the application context; never {@code null}
+   * <p>Implementations of this method are encouraged
+   * to support the <em>failure threshold</em> feature. Specifically, if repeated
+   * attempts are made to load an application context and that application
+   * context consistently fails to load &mdash; for example, due to a configuration
+   * error that prevents the context from successfully loading &mdash; this
+   * method should preemptively throw an {@link IllegalStateException} if the
+   * configured failure threshold has been exceeded. Note that the {@code ContextCache}
+   * provides support for tracking and incrementing the failure count for a given
+   * context cache key.
+   * <p>The cache statistics should be logged by invoking {@link ContextCache#logStatistics()}.
+   *
+   * @param mergedConfig the merged context configuration to use to load the
+   * application context; never {@code null}
    * @return the application context (never {@code null})
    * @throws IllegalStateException if an error occurs while retrieving or loading
    * the application context
    * @see #isContextLoaded
    * @see #closeContext
    */
-  ApplicationContext loadContext(MergedContextConfiguration mergedContextConfiguration);
+  ApplicationContext loadContext(MergedContextConfiguration mergedConfig);
 
   /**
    * Remove the {@linkplain ApplicationContext application context} for the

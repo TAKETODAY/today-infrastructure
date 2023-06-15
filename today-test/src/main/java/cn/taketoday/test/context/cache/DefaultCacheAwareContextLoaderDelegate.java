@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,16 +20,21 @@
 
 package cn.taketoday.test.context.cache;
 
+import java.util.List;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.annotation.DirtiesContext.HierarchyMode;
+import cn.taketoday.test.context.ApplicationContextFailureProcessor;
 import cn.taketoday.test.context.CacheAwareContextLoaderDelegate;
+import cn.taketoday.test.context.ContextLoadException;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
+import cn.taketoday.test.context.util.TestContextFactoriesUtils;
 
 /**
  * Default implementation of the {@link CacheAwareContextLoaderDelegate} interface.
@@ -40,6 +45,7 @@ import cn.taketoday.test.context.SmartContextLoader;
  * and provide a custom {@link ContextCache} implementation.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContextLoaderDelegate {
@@ -51,7 +57,16 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
    */
   static final ContextCache defaultContextCache = new DefaultContextCache();
 
+  private final List<ApplicationContextFailureProcessor> contextFailureProcessors =
+          TestContextFactoriesUtils.loadFactoryImplementations(ApplicationContextFailureProcessor.class);
+
   private final ContextCache contextCache;
+
+  /**
+   * The configured failure threshold for errors encountered while attempting to
+   * load an {@link ApplicationContext}.
+   */
+  private final int failureThreshold;
 
   /**
    * Construct a new {@code DefaultCacheAwareContextLoaderDelegate} using
@@ -67,14 +82,26 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
   }
 
   /**
-   * Construct a new {@code DefaultCacheAwareContextLoaderDelegate} using
-   * the supplied {@link ContextCache}.
+   * Construct a new {@code DefaultCacheAwareContextLoaderDelegate} using the
+   * supplied {@link ContextCache} and the default or user-configured context
+   * failure threshold.
    *
    * @see #DefaultCacheAwareContextLoaderDelegate()
+   * @see ContextCacheUtils#retrieveContextFailureThreshold()
    */
   public DefaultCacheAwareContextLoaderDelegate(ContextCache contextCache) {
+    this(contextCache, ContextCacheUtils.retrieveContextFailureThreshold());
+  }
+
+  /**
+   * Construct a new {@code DefaultCacheAwareContextLoaderDelegate} using the
+   * supplied {@link ContextCache} and context failure threshold.
+   */
+  private DefaultCacheAwareContextLoaderDelegate(ContextCache contextCache, int failureThreshold) {
     Assert.notNull(contextCache, "ContextCache must not be null");
+    Assert.isTrue(failureThreshold > 0, "'failureThreshold' must be positive");
     this.contextCache = contextCache;
+    this.failureThreshold = failureThreshold;
   }
 
   /**
@@ -90,18 +117,18 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
    *
    * @throws Exception if an error occurs while loading the application context
    */
-  protected ApplicationContext loadContextInternal(MergedContextConfiguration mergedContextConfiguration)
+  protected ApplicationContext loadContextInternal(MergedContextConfiguration mergedContextConfig)
           throws Exception {
 
-    ContextLoader contextLoader = mergedContextConfiguration.getContextLoader();
+    ContextLoader contextLoader = mergedContextConfig.getContextLoader();
     Assert.notNull(contextLoader, "Cannot load an ApplicationContext with a NULL 'contextLoader'. " +
             "Consider annotating your test class with @ContextConfiguration or @ContextHierarchy.");
 
     if (contextLoader instanceof SmartContextLoader smartContextLoader) {
-      return smartContextLoader.loadContext(mergedContextConfiguration);
+      return smartContextLoader.loadContext(mergedContextConfig);
     }
 
-    String[] locations = mergedContextConfiguration.getLocations();
+    String[] locations = mergedContextConfig.getLocations();
     Assert.notNull(locations, "Cannot load an ApplicationContext with a NULL 'locations' array. " +
             "Consider annotating your test class with @ContextConfiguration or @ContextHierarchy.");
     return contextLoader.loadContext(locations);
@@ -109,41 +136,67 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
 
   @Override
   public boolean isContextLoaded(MergedContextConfiguration mergedContextConfiguration) {
-    synchronized(this.contextCache) {
-      return this.contextCache.contains(mergedContextConfiguration);
+    synchronized(contextCache) {
+      return contextCache.contains(mergedContextConfiguration);
     }
   }
 
   @Override
-  public ApplicationContext loadContext(MergedContextConfiguration mergedContextConfiguration) {
-    synchronized(this.contextCache) {
-      ApplicationContext context = this.contextCache.get(mergedContextConfiguration);
+  public ApplicationContext loadContext(MergedContextConfiguration mergedConfig) {
+    synchronized(contextCache) {
+      ApplicationContext context = contextCache.get(mergedConfig);
       if (context == null) {
+        int failureCount = contextCache.getFailureCount(mergedConfig);
+        if (failureCount >= failureThreshold) {
+          throw new IllegalStateException("""
+                  ApplicationContext failure threshold (%d) exceeded: \
+                  skipping repeated attempt to load context for %s"""
+                  .formatted(failureThreshold, mergedConfig));
+        }
         try {
-          context = loadContextInternal(mergedContextConfiguration);
+          context = loadContextInternal(mergedConfig);
           logger.debug("Storing ApplicationContext [{}] in cache under key [{}]",
-                  System.identityHashCode(context), mergedContextConfiguration);
-          this.contextCache.put(mergedContextConfiguration, context);
+                  System.identityHashCode(context), mergedConfig);
+          contextCache.put(mergedConfig, context);
         }
         catch (Exception ex) {
-          throw new IllegalStateException("Failed to load ApplicationContext", ex);
+          if (logger.isTraceEnabled()) {
+            logger.trace("Incrementing ApplicationContext failure count for {}", mergedConfig);
+          }
+          contextCache.incrementFailureCount(mergedConfig);
+          Throwable cause = ex;
+          if (ex instanceof ContextLoadException cle) {
+            cause = cle.getCause();
+            for (var contextFailureProcessor : contextFailureProcessors) {
+              try {
+                contextFailureProcessor.processLoadFailure(cle.getApplicationContext(), cause);
+              }
+              catch (Throwable throwable) {
+                if (logger.isDebugEnabled()) {
+                  logger.debug("Ignoring exception thrown from ApplicationContextFailureProcessor [%s]: %s"
+                          .formatted(contextFailureProcessor, throwable));
+                }
+              }
+            }
+          }
+          throw new IllegalStateException(
+                  "Failed to load ApplicationContext for " + mergedConfig, cause);
         }
       }
       else {
         logger.debug("Retrieved ApplicationContext [{}] from cache with key [{}]",
-                System.identityHashCode(context), mergedContextConfiguration);
+                System.identityHashCode(context), mergedConfig);
       }
 
-      this.contextCache.logStatistics();
-
+      contextCache.logStatistics();
       return context;
     }
   }
 
   @Override
-  public void closeContext(MergedContextConfiguration mergedContextConfiguration, @Nullable HierarchyMode hierarchyMode) {
-    synchronized(this.contextCache) {
-      this.contextCache.remove(mergedContextConfiguration, hierarchyMode);
+  public void closeContext(MergedContextConfiguration mergedConfig, @Nullable HierarchyMode hierarchyMode) {
+    synchronized(contextCache) {
+      contextCache.remove(mergedConfig, hierarchyMode);
     }
   }
 

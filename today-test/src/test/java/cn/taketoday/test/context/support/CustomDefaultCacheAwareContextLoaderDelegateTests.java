@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,7 +86,7 @@ class CustomDefaultCacheAwareContextLoaderDelegateTests {
   static class AotCacheAwareContextLoaderDelegate extends DefaultCacheAwareContextLoaderDelegate {
 
     @Override
-    protected ApplicationContext loadContextInternal(MergedContextConfiguration mergedContextConfiguration) {
+    protected ApplicationContext loadContextInternal(MergedContextConfiguration mergedContextConfig) {
       GenericApplicationContext applicationContext = new GenericApplicationContext();
       applicationContext.registerBean("foo", String.class, () -> "AOT");
       applicationContext.refresh();

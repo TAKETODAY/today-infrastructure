@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -74,6 +74,13 @@ public class DefaultContextCache implements ContextCache {
    */
   private final Map<MergedContextConfiguration, Set<MergedContextConfiguration>> hierarchyMap =
           new ConcurrentHashMap<>(32);
+
+  /**
+   * Map of context keys to context load failure counts.
+   */
+  private final Map<MergedContextConfiguration, Integer> failureCounts = new ConcurrentHashMap<>(32);
+
+  private final AtomicInteger totalFailureCount = new AtomicInteger();
 
   private final int maxSize;
 
@@ -208,6 +215,23 @@ public class DefaultContextCache implements ContextCache {
       context.close();
     }
     removedContexts.add(key);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getFailureCount(MergedContextConfiguration key) {
+    return this.failureCounts.getOrDefault(key, 0);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void incrementFailureCount(MergedContextConfiguration key) {
+    this.totalFailureCount.incrementAndGet();
+    this.failureCounts.merge(key, 1, Integer::sum);
   }
 
   /**
