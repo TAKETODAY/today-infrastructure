@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -55,30 +56,30 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Juergen Hoeller
  */
-public class MethodValidationTests {
+public class MethodValidationProxyTests {
 
   @Test
   @SuppressWarnings("unchecked")
   public void testMethodValidationInterceptor() {
     MyValidBean bean = new MyValidBean();
-    ProxyFactory proxyFactory = new ProxyFactory(bean);
-    proxyFactory.addAdvice(new MethodValidationInterceptor());
-    proxyFactory.addAdvisor(new AsyncAnnotationAdvisor());
-    doTestProxyValidation((MyValidInterface<String>) proxyFactory.getProxy());
+    ProxyFactory factory = new ProxyFactory(bean);
+    factory.addAdvice(new MethodValidationInterceptor());
+    factory.addAdvisor(new AsyncAnnotationAdvisor());
+    doTestProxyValidation((MyValidInterface<String>) factory.getProxy());
   }
 
   @Test
   @SuppressWarnings("unchecked")
   public void testMethodValidationPostProcessor() {
-    StaticApplicationContext ac = new StaticApplicationContext();
-    ac.registerSingleton("mvpp", MethodValidationPostProcessor.class);
+    StaticApplicationContext context = new StaticApplicationContext();
+    context.registerSingleton("mvpp", MethodValidationPostProcessor.class);
     PropertyValues pvs = new PropertyValues();
     pvs.add("beforeExistingAdvisors", false);
-    ac.registerSingleton("aapp", AsyncAnnotationBeanPostProcessor.class, pvs);
-    ac.registerSingleton("bean", MyValidBean.class);
-    ac.refresh();
-    doTestProxyValidation(ac.getBean("bean", MyValidInterface.class));
-    ac.close();
+    context.registerSingleton("aapp", AsyncAnnotationBeanPostProcessor.class, pvs);
+    context.registerSingleton("bean", MyValidBean.class);
+    context.refresh();
+    doTestProxyValidation(context.getBean("bean", MyValidInterface.class));
+    context.close();
   }
 
   @Test // gh-29782
@@ -93,43 +94,40 @@ public class MethodValidationTests {
     context.close();
   }
 
+  @SuppressWarnings("DataFlowIssue")
   private void doTestProxyValidation(MyValidInterface<String> proxy) {
     assertThat(proxy.myValidMethod("value", 5)).isNotNull();
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidMethod(null, 5));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidMethod("value", 0));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidMethod("value", 15));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidMethod(null, 5));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidMethod("value", 0));
     proxy.myValidAsyncMethod("value", 5);
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidAsyncMethod("value", 15));
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myValidAsyncMethod(null, 5));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidAsyncMethod("value", 15));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myValidAsyncMethod(null, 5));
     assertThat(proxy.myGenericMethod("myValue")).isEqualTo("myValue");
-    assertThatExceptionOfType(ValidationException.class).isThrownBy(() ->
-            proxy.myGenericMethod(null));
+    assertThatExceptionOfType(ValidationException.class).isThrownBy(() -> proxy.myGenericMethod(null));
   }
 
   @Test
   public void testLazyValidatorForMethodValidation() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+    ApplicationContext context = new AnnotationConfigApplicationContext(
             LazyMethodValidationConfig.class, CustomValidatorBean.class,
             MyValidBean.class, MyValidFactoryBean.class);
-    ctx.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
+    context.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
   }
 
   @Test
   public void testLazyValidatorForMethodValidationWithProxyTargetClass() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+    ApplicationContext context = new AnnotationConfigApplicationContext(
             LazyMethodValidationConfigWithProxyTargetClass.class, CustomValidatorBean.class,
             MyValidBean.class, MyValidFactoryBean.class);
-    ctx.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
+    context.getBeansOfType(MyValidInterface.class).values().forEach(bean -> bean.myValidMethod("value", 5));
   }
 
   @MyStereotype
   public static class MyValidBean implements MyValidInterface<String> {
 
+    @SuppressWarnings("DataFlowIssue")
+    @NotNull
     @Override
     public Object myValidMethod(String arg1, int arg2) {
       return (arg2 == 0 ? null : "value");
@@ -158,6 +156,8 @@ public class MethodValidationTests {
       return String.class;
     }
 
+    @SuppressWarnings("DataFlowIssue")
+    @NotNull
     @Override
     public Object myValidMethod(String arg1, int arg2) {
       return (arg2 == 0 ? null : "value");
@@ -176,7 +176,8 @@ public class MethodValidationTests {
   @MyStereotype
   public interface MyValidInterface<T> {
 
-    @NotNull Object myValidMethod(@NotNull(groups = MyGroup.class) String arg1, @Max(10) int arg2);
+    @NotNull
+    Object myValidMethod(@NotNull(groups = MyGroup.class) String arg1, @Max(10) int arg2);
 
     @MyValid
     @Async
