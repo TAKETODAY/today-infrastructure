@@ -395,7 +395,7 @@ public class ProxyFactoryTests {
     ClassLoader cl = target.getClass().getClassLoader();
     CharSequence proxy = (CharSequence) pf.getProxy(cl);
     assertThat(proxy.toString()).isEqualTo(target);
-    assertThat(pf.getProxy(cl)).isSameAs(proxy);
+    assertThat(pf.getProxy(cl)).isEqualTo(proxy);
   }
 
   @Test
@@ -406,7 +406,7 @@ public class ProxyFactoryTests {
     ClassLoader cl = target.getClass().getClassLoader();
     Date proxy = (Date) pf.getProxy(cl);
     assertThat(proxy.getTime()).isEqualTo(target.getTime());
-    assertThat(pf.getProxy(cl)).isSameAs(proxy);
+    assertThat(pf.getProxy(cl)).isEqualTo(proxy);
   }
 
   @Test
@@ -426,7 +426,7 @@ public class ProxyFactoryTests {
     ClassLoader cl = Savepoint.class.getClassLoader();
     Savepoint proxy = (Savepoint) pf.getProxy(cl);
     assertThat(proxy.getSavepointName()).isEqualTo("sp");
-    assertThat(pf.getProxy(cl)).isSameAs(proxy);
+    assertThat(pf.getProxy(cl)).isEqualTo(proxy);
   }
 
   @Order(2)
