@@ -65,6 +65,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * @author Chris Beams
  * @author Victor Brown
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EnableScheduling
  * @see ScheduledAnnotationBeanPostProcessor
  * @see Schedules
@@ -134,9 +135,13 @@ public @interface Scheduled {
    * last invocation and the start of the next.
    * <p>The time unit is milliseconds by default but can be overridden via
    * {@link #timeUnit}.
+   * <p>This attribute variant supports Infra-style "${...}" placeholders
+   * as well as SpEL expressions.
    *
    * @return the delay as a String value &mdash; for example, a placeholder
    * or a {@link java.time.Duration#parse java.time.Duration} compliant value
+   * @see #fixedDelay()
+   * @since 3.2.2
    */
   String fixedDelayString() default "";
 
@@ -153,9 +158,12 @@ public @interface Scheduled {
    * Execute the annotated method with a fixed period between invocations.
    * <p>The time unit is milliseconds by default but can be overridden via
    * {@link #timeUnit}.
+   * <p>This attribute variant supports Infra-style "${...}" placeholders
+   * as well as SpEL expressions.
    *
    * @return the period as a String value &mdash; for example, a placeholder
    * or a {@link java.time.Duration#parse java.time.Duration} compliant value
+   * @see #fixedRate()
    */
   String fixedRateString() default "";
 
@@ -174,9 +182,12 @@ public @interface Scheduled {
    * {@link #fixedRate} or {@link #fixedDelay} task.
    * <p>The time unit is milliseconds by default but can be overridden via
    * {@link #timeUnit}.
+   * <p>This attribute variant supports Infra-style "${...}" placeholders
+   * as well as SpEL expressions.
    *
    * @return the initial delay as a String value &mdash; for example, a placeholder
    * or a {@link java.time.Duration#parse java.time.Duration} compliant value
+   * @see #initialDelay()
    */
   String initialDelayString() default "";
 
