@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 import cn.taketoday.bytecode.ClassReader;
 import cn.taketoday.core.GenericTypeResolver;
@@ -1344,6 +1345,38 @@ public abstract class ClassUtils {
     return clazz.isPrimitive() && clazz != void.class
            ? primitiveTypeToWrapperMap.get(clazz)
            : clazz;
+  }
+
+  /**
+   * Delegate for {@link cn.taketoday.beans.BeanUtils#isSimpleValueType}.
+   * Also used by {@link ObjectUtils#nullSafeConciseToString}.
+   * <p>Check if the given type represents a common "simple" value type:
+   * a primitive or primitive wrapper, an {@code Enum}, a {@code String}
+   * or other {@code CharSequence}, a {@code Number}, a {@code Date},
+   * a {@code Temporal}, a {@code UUID}, a {@code URI}, a {@code URL},
+   * a {@code Locale}, or a {@code Class}.
+   * <p>{@code Void} and {@code void} are not considered simple value types.
+   *
+   * @param type the type to check
+   * @return whether the given type represents a "simple" value type,
+   * suggesting value-based data binding and {@code toString} output
+   * @since 4.0
+   */
+  public static boolean isSimpleValueType(Class<?> type) {
+    return Void.class != type && void.class != type
+            && (
+            isPrimitiveOrWrapper(type)
+                    || URI.class == type
+                    || URL.class == type
+                    || UUID.class == type
+                    || Class.class == type
+                    || Locale.class == type
+                    || Date.class.isAssignableFrom(type)
+                    || Enum.class.isAssignableFrom(type)
+                    || Number.class.isAssignableFrom(type)
+                    || Temporal.class.isAssignableFrom(type)
+                    || CharSequence.class.isAssignableFrom(type)
+    );
   }
 
   /**

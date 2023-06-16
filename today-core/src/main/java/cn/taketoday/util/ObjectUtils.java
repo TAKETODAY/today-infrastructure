@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.UUID;
 
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
@@ -1084,7 +1083,7 @@ public abstract class ObjectUtils {
       return StringUtils.truncate(charSequence);
     }
     Class<?> type = obj.getClass();
-    if (isSimpleValueType(type)) {
+    if (ClassUtils.isSimpleValueType(type)) {
       String str = obj.toString();
       if (str != null) {
         return StringUtils.truncate(str);
@@ -1113,33 +1112,6 @@ public abstract class ObjectUtils {
    */
   public static String getClassName(Object obj) {
     return obj.getClass().getName();
-  }
-
-  /**
-   * Check if the given type represents a "simple" value type: a primitive or
-   * primitive wrapper, an enum, a String or other CharSequence, a Number, a
-   * Date, a Temporal, a URI, a URL, a Locale, or a Class.
-   * <p>{@code Void} and {@code void} are not considered simple value types.
-   *
-   * @param type the type to check
-   * @return whether the given type represents a "simple" value type
-   * @since 4.0
-   */
-  public static boolean isSimpleValueType(Class<?> type) {
-    return Void.class != type && void.class != type
-            && (
-            ClassUtils.isPrimitiveOrWrapper(type)
-                    || URI.class == type
-                    || URL.class == type
-                    || UUID.class == type
-                    || Class.class == type
-                    || Locale.class == type
-                    || Date.class.isAssignableFrom(type)
-                    || Enum.class.isAssignableFrom(type)
-                    || Number.class.isAssignableFrom(type)
-                    || Temporal.class.isAssignableFrom(type)
-                    || CharSequence.class.isAssignableFrom(type)
-    );
   }
 
 }

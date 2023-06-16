@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.beans;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -43,6 +42,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.propertyeditors.CustomDateEditor;
@@ -57,7 +57,6 @@ import cn.taketoday.lang.Nullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 /**
  * Unit tests for {@link BeanUtils}.
@@ -394,7 +393,8 @@ class BeanUtilsTests {
   @ValueSource(classes = {
           boolean.class, char.class, byte.class, short.class, int.class, long.class, float.class, double.class,
           Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class,
-          DayOfWeek.class, String.class, LocalDateTime.class, Date.class, URI.class, URL.class, Locale.class, Class.class
+          DayOfWeek.class, String.class, LocalDateTime.class, Date.class, UUID.class, URI.class, URL.class,
+          Locale.class, Class.class
   })
   void isSimpleValueType(Class<?> type) {
     assertThat(BeanUtils.isSimpleValueType(type)).as("Type [" + type.getName() + "] should be a simple value type").isTrue();
@@ -410,8 +410,8 @@ class BeanUtilsTests {
   @ValueSource(classes = {
           boolean.class, char.class, byte.class, short.class, int.class, long.class, float.class, double.class,
           Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class,
-          DayOfWeek.class, String.class, LocalDateTime.class, Date.class, URI.class, URL.class, Locale.class, Class.class,
-          boolean[].class, Boolean[].class, LocalDateTime[].class, Date[].class
+          DayOfWeek.class, String.class, LocalDateTime.class, Date.class, UUID.class, URI.class, URL.class,
+          Locale.class, Class.class, boolean[].class, Boolean[].class, LocalDateTime[].class, Date[].class
   })
   void isSimpleProperty(Class<?> type) {
     assertThat(BeanUtils.isSimpleProperty(type)).as("Type [" + type.getName() + "] should be a simple property").isTrue();

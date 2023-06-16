@@ -335,18 +335,24 @@ public abstract class BeanUtils {
   }
 
   /**
-   * Check if the given type represents a "simple" value type: a primitive or
-   * primitive wrapper, an enum, a String or other CharSequence, a Number, a
-   * Date, a Temporal, a URI, a URL, a Locale, or a Class.
+   * Check if the given type represents a "simple" value type for
+   * bean property and data binding purposes:
+   * a primitive or primitive wrapper, an {@code Enum}, a {@code String}
+   * or other {@code CharSequence}, a {@code Number}, a {@code Date},
+   * a {@code Temporal}, a {@code UUID}, a {@code URI}, a {@code URL},
+   * a {@code Locale}, or a {@code Class}.
    * <p>{@code Void} and {@code void} are not considered simple value types.
+   * <p>this method delegates to {@link ClassUtils#isSimpleValueType}
+   * as-is but could potentially add further rules for bean property purposes.
    *
    * @param type the type to check
    * @return whether the given type represents a "simple" value type
    * @see #isSimpleProperty(Class)
+   * @see ClassUtils#isSimpleValueType(Class)
    * @since 4.0
    */
   public static boolean isSimpleValueType(Class<?> type) {
-    return ObjectUtils.isSimpleValueType(type);
+    return ClassUtils.isSimpleValueType(type);
   }
 
   /**
