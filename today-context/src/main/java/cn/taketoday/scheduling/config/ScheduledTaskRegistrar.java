@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -481,7 +481,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
     }
     if (this.taskScheduler != null) {
       Duration initialDelay = task.getInitialDelayDuration();
-      if (initialDelay.toMillis() > 0) {
+      if (initialDelay.toNanos() > 0) {
         Instant startTime = taskScheduler.getClock().instant().plus(initialDelay);
         scheduledTask.future =
                 this.taskScheduler.scheduleAtFixedRate(task.getRunnable(), startTime, task.getIntervalDuration());

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -209,7 +209,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       return scheduledExecutor.schedule(decorateTask(task, false),
-              initialDelay.toMillis(), TimeUnit.MILLISECONDS);
+              initialDelay.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -223,7 +223,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
     try {
       return scheduledExecutor.scheduleAtFixedRate(
               decorateTask(task, true),
-              initialDelay.toMillis(), period.toMillis(), TimeUnit.MILLISECONDS);
+              initialDelay.toNanos(), period.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -235,7 +235,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Duration period) {
     try {
       return scheduledExecutor.scheduleAtFixedRate(decorateTask(task, true),
-              0, period.toMillis(), TimeUnit.MILLISECONDS);
+              0, period.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -248,7 +248,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       return scheduledExecutor.scheduleWithFixedDelay(decorateTask(task, true),
-              initialDelay.toMillis(), delay.toMillis(), TimeUnit.MILLISECONDS);
+              initialDelay.toNanos(), delay.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -260,7 +260,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Duration delay) {
     try {
       return scheduledExecutor.scheduleWithFixedDelay(decorateTask(task, true),
-              0, delay.toMillis(), TimeUnit.MILLISECONDS);
+              0, delay.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(

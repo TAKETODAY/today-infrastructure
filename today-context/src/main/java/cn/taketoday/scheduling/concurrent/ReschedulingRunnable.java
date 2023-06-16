@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,7 +83,7 @@ class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements Sc
         return null;
       }
       Duration initialDelay = Duration.between(triggerContext.getClock().instant(), scheduledExecutionTime);
-      this.currentFuture = executor.schedule(this, initialDelay.toMillis(), TimeUnit.MILLISECONDS);
+      this.currentFuture = executor.schedule(this, initialDelay.toNanos(), TimeUnit.NANOSECONDS);
       return this;
     }
   }
@@ -160,8 +160,8 @@ class ReschedulingRunnable extends DelegatingErrorHandlingRunnable implements Sc
     if (this == other) {
       return 0;
     }
-    long diff = getDelay(TimeUnit.MILLISECONDS) - other.getDelay(TimeUnit.MILLISECONDS);
-    return (diff == 0 ? 0 : ((diff < 0) ? -1 : 1));
+    long diff = getDelay(TimeUnit.NANOSECONDS) - other.getDelay(TimeUnit.NANOSECONDS);
+    return (diff == 0 ? 0 : (diff < 0 ? -1 : 1));
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -375,7 +375,7 @@ public class ThreadPoolTaskScheduler
     ScheduledExecutorService executor = getScheduledExecutor();
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
-      return executor.schedule(errorHandlingTask(task, false), initialDelay.toMillis(), TimeUnit.MILLISECONDS);
+      return executor.schedule(errorHandlingTask(task, false), initialDelay.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -389,7 +389,7 @@ public class ThreadPoolTaskScheduler
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       return executor.scheduleAtFixedRate(errorHandlingTask(task, true),
-              initialDelay.toMillis(), period.toMillis(), TimeUnit.MILLISECONDS);
+              initialDelay.toNanos(), period.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -401,7 +401,7 @@ public class ThreadPoolTaskScheduler
   public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Duration period) {
     ScheduledExecutorService executor = getScheduledExecutor();
     try {
-      return executor.scheduleAtFixedRate(errorHandlingTask(task, true), 0, period.toMillis(), TimeUnit.MILLISECONDS);
+      return executor.scheduleAtFixedRate(errorHandlingTask(task, true), 0, period.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -415,7 +415,7 @@ public class ThreadPoolTaskScheduler
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       return executor.scheduleWithFixedDelay(errorHandlingTask(task, true),
-              initialDelay.toMillis(), delay.toMillis(), TimeUnit.MILLISECONDS);
+              initialDelay.toNanos(), delay.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(
@@ -428,7 +428,7 @@ public class ThreadPoolTaskScheduler
     ScheduledExecutorService executor = getScheduledExecutor();
     try {
       return executor.scheduleWithFixedDelay(errorHandlingTask(task, true),
-              0, delay.toMillis(), TimeUnit.MILLISECONDS);
+              0, delay.toNanos(), TimeUnit.NANOSECONDS);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(

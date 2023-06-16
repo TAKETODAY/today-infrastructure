@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,18 +59,11 @@ public final class CronExpression {
 
   private final String expression;
 
-  private CronExpression(
-          CronField seconds,
-          CronField minutes,
-          CronField hours,
-          CronField daysOfMonth,
-          CronField months,
-          CronField daysOfWeek,
-          String expression
-  ) {
+  private CronExpression(CronField seconds, CronField minutes, CronField hours,
+          CronField daysOfMonth, CronField months, CronField daysOfWeek, String expression) {
 
-    // reverse order, to make big changes first
-    // to make sure we end up at 0 nanos, we add an extra field
+    // Reverse order, to make big changes first.
+    // To make sure we end up at 0 nanos, we add an extra field.
     this.fields = new CronField[] {
             daysOfWeek, months, daysOfMonth, hours, minutes, seconds, CronField.zeroNanos()
     };
