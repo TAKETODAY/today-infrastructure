@@ -156,8 +156,10 @@ public class DefaultCacheAwareContextLoaderDelegate implements CacheAwareContext
           }
           try {
             context = loadContextInternal(mergedConfig);
-            logger.debug("Storing ApplicationContext [{}] in cache under key [{}]",
-                    System.identityHashCode(context), mergedConfig);
+            if (logger.isTraceEnabled()) {
+              logger.trace("Storing ApplicationContext [{}] in cache under key [{}]",
+                      System.identityHashCode(context), mergedConfig);
+            }
             contextCache.put(mergedConfig, context);
           }
           catch (Exception ex) {

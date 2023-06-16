@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.annotation.config.gson.GsonAutoConfiguration;
-import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration.MappingJackson2HttpMessageConverterConfiguration;
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -184,19 +183,19 @@ class HttpMessageConvertersAutoConfigurationTests {
       BeanDefinition beanDefinition = ((GenericApplicationContext) context.getSourceApplicationContext())
               .getBeanDefinition("mappingJackson2HttpMessageConverter");
       assertThat(beanDefinition.getFactoryBeanName())
-              .isEqualTo(MappingJackson2HttpMessageConverterConfiguration.class.getName());
+              .isNull();
     });
   }
 
   @Test
-  void typeConstrainedConverterFromSpringDataDoesNotPreventAutoConfigurationOfJacksonConverter() {
+  void typeConstrainedConverterDataDoesNotPreventAutoConfigurationOfJacksonConverter() {
     this.contextRunner
             .withUserConfiguration(JacksonObjectMapperBuilderConfig.class)
             .run((context) -> {
               BeanDefinition beanDefinition = ((GenericApplicationContext) context.getSourceApplicationContext())
                       .getBeanDefinition("mappingJackson2HttpMessageConverter");
               assertThat(beanDefinition.getFactoryBeanName())
-                      .isEqualTo(MappingJackson2HttpMessageConverterConfiguration.class.getName());
+                      .isNull();
             });
   }
 

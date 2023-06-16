@@ -258,7 +258,7 @@ public final class TodayStrategies {
    */
   public static int getInt(String key, int val) {
     Integer result = getInteger(key, null);
-    return (result == null) ? Integer.valueOf(val) : result;
+    return result == null ? val : result;
   }
 
   /**
@@ -343,6 +343,7 @@ public final class TodayStrategies {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
+  @Nullable
   public static Long getLong(String nm) {
     return getLong(nm, null);
   }
@@ -387,9 +388,9 @@ public final class TodayStrategies {
    * @see java.lang.System#getProperty(java.lang.String)
    * @see java.lang.System#getProperty(java.lang.String, java.lang.String)
    */
-  public static Long getLong(String key, long val) {
-    Long result = Long.getLong(key, null);
-    return (result == null) ? Long.valueOf(val) : result;
+  public static long getLong(String key, long val) {
+    Long result = getLong(key, null);
+    return result == null ? val : result;
   }
 
   /**
@@ -436,6 +437,7 @@ public final class TodayStrategies {
    * @see System#getProperty(java.lang.String)
    * @see System#getProperty(java.lang.String, java.lang.String)
    */
+  @Nullable
   public static Long getLong(String nm, Long val) {
     try {
       String v = System.getProperty(nm);
