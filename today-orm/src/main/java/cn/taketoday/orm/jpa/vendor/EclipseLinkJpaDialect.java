@@ -39,13 +39,19 @@ import jakarta.persistence.PersistenceException;
  * {@link cn.taketoday.orm.jpa.JpaDialect} implementation for Eclipse
  * Persistence Services (EclipseLink). Compatible with EclipseLink 3.0/4.0.
  *
- * <p>By default, this class acquires an early EclipseLink transaction with an early
- * JDBC Connection for non-read-only transactions. This allows for mixing JDBC and
- * JPA/EclipseLink operations in the same transaction, with cross visibility of
+ * <p>By default, this dialect acquires an early EclipseLink transaction with an
+ * early JDBC Connection for non-read-only transactions. This allows for mixing
+ * JDBC and JPA operations in the same transaction, with cross visibility of
  * their impact. If this is not needed, set the "lazyDatabaseTransaction" flag to
  * {@code true} or consistently declare all affected transactions as read-only.
  * this will reliably avoid early JDBC Connection retrieval
  * and therefore keep EclipseLink in shared cache mode.
+ *
+ * <p><b>NOTE: This dialect supports custom isolation levels with limitations.</b>
+ * Consistent isolation level handling is only guaranteed when all Infra transaction
+ * definitions specify a concrete isolation level, also when using
+ * the default isolation level with non-readOnly and non-lazy transactions. See the
+ * {@link #setLazyDatabaseTransaction "lazyDatabaseTransaction" javadoc} for details.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -62,7 +68,7 @@ public class EclipseLinkJpaDialect extends DefaultJpaDialect {
 
   /**
    * Set whether to lazily start a database resource transaction within a
-   * Spring-managed EclipseLink transaction.
+   * Infra-managed EclipseLink transaction.
    * <p>By default, read-only transactions are started lazily but regular
    * non-read-only transactions are started early. This allows for reusing the
    * same JDBC Connection throughout an entire EclipseLink transaction, for
@@ -89,7 +95,8 @@ public class EclipseLinkJpaDialect extends DefaultJpaDialect {
       // Pass custom isolation level on to EclipseLink's DatabaseLogin configuration
       UnitOfWork uow = entityManager.unwrap(UnitOfWork.class);
       DatabaseLogin databaseLogin = uow.getLogin();
-      // Synchronize on shared DatabaseLogin instance (-> concurrent transactions)
+      // Synchronize on shared DatabaseLogin instance for consistent isolation level
+      // set and reset in case of concurrent transactions with different isolation.
       synchronized(databaseLogin) {
         int originalIsolationLevel = databaseLogin.getTransactionIsolation();
         // Apply current isolation level value, if necessary.
@@ -107,13 +114,23 @@ public class EclipseLinkJpaDialect extends DefaultJpaDialect {
         }
       }
     }
-    else {
-      entityManager.getTransaction().begin();
-      if (!definition.isReadOnly() && !this.lazyDatabaseTransaction) {
-        // Begin an early transaction to force EclipseLink to get a JDBC Connection
-        // so that Infra can manage transactions with JDBC as well as EclipseLink.
-        entityManager.unwrap(UnitOfWork.class).beginEarlyTransaction();
+    else if (!definition.isReadOnly() && !this.lazyDatabaseTransaction) {
+      // Begin an early transaction to force EclipseLink to get a JDBC Connection
+      // so that Infra can manage transactions with JDBC as well as EclipseLink.
+      UnitOfWork uow = entityManager.unwrap(UnitOfWork.class);
+      DatabaseLogin databaseLogin = uow.getLogin();
+      // Synchronize on shared DatabaseLogin instance for consistently picking up
+      // the default isolation level even in case of concurrent transactions with
+      // a custom isolation level (see above)
+      synchronized(databaseLogin) {
+        entityManager.getTransaction().begin();
+        uow.beginEarlyTransaction();
+        entityManager.unwrap(Connection.class);
       }
+    }
+    else {
+      // Regular transaction begin with lazy database transaction.
+      entityManager.getTransaction().begin();
     }
 
     return null;
