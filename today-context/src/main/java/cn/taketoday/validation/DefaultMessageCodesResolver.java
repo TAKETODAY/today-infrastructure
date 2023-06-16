@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.validation;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,10 +92,13 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DefaultMessageCodesResolver implements MessageCodesResolver, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The separator that this implementation uses when resolving message codes.
@@ -129,7 +133,6 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
    * <p>The default is {@link Format#PREFIX_ERROR_CODE}.
    *
    * @see Format
-   * @since 4.0
    */
   public void setMessageCodeFormatter(@Nullable MessageCodeFormatter formatter) {
     this.formatter = (formatter != null ? formatter : DEFAULT_FORMATTER);
@@ -148,7 +151,7 @@ public class DefaultMessageCodesResolver implements MessageCodesResolver, Serial
    * <p>See the {@link DefaultMessageCodesResolver class level javadoc} for
    * details on the generated codes.
    *
-   * @return the list of codes
+   * @return the array of codes
    */
   @Override
   public String[] resolveMessageCodes(

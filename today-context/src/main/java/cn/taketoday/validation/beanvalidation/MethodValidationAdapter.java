@@ -360,8 +360,8 @@ public class MethodValidationAdapter {
    */
   private BindingResult createBindingResult(MethodParameter parameter, @Nullable Object argument) {
     String objectName = null;
-    if (this.objectNameResolver != null) {
-      objectName = this.objectNameResolver.resolveName(parameter, argument);
+    if (objectNameResolver != null) {
+      objectName = objectNameResolver.resolveName(parameter, argument);
     }
     else {
       if (parameter.getParameterIndex() != -1) {

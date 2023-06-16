@@ -66,9 +66,8 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
   /**
    * Create a {@code ParameterErrors}.
    */
-  public ParameterErrors(
-          MethodParameter parameter, @Nullable Object argument, Errors errors,
-          Collection<ConstraintViolation<Object>> violations,
+  public ParameterErrors(MethodParameter parameter, @Nullable Object argument,
+          Errors errors, Collection<ConstraintViolation<Object>> violations,
           @Nullable Object container, @Nullable Integer index, @Nullable Object key) {
 
     super(parameter, argument, errors.getAllErrors(), violations);

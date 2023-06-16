@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.bind;
 
+import java.io.Serial;
+
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
@@ -38,8 +40,10 @@ import cn.taketoday.web.ErrorResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 16:18
  */
-@SuppressWarnings("serial")
 public class MethodArgumentNotValidException extends BindException implements ErrorResponse {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final MethodParameter parameter;
 

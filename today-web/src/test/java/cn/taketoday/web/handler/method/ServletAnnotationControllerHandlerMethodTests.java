@@ -184,6 +184,12 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test");
+
+    request = new MockHttpServletRequest("GET", "/");
+    response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+
+    assertThat(response.getContentAsString()).isEqualTo("test");
   }
 
   @Test

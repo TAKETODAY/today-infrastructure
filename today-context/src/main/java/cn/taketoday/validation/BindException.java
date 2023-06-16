@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.validation;
 
 import java.beans.PropertyEditor;
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 
@@ -41,13 +42,16 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BindingResult
  * @see DataBinder#getBindingResult()
  * @see DataBinder#close()
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BindException extends Exception implements BindingResult {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final BindingResult bindingResult;
 
