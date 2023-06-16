@@ -67,20 +67,19 @@ public interface ContextCache {
    * The default maximum size of the context cache: {@value}.
    *
    * @see #MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME
-   * @since 4.0
    */
   int DEFAULT_MAX_CONTEXT_CACHE_SIZE = 32;
 
   /**
    * System property used to configure the maximum size of the {@link ContextCache}
-   * as a positive integer. May alternatively be configured via the
+   * as a positive integer: {@value}.
+   * <p>May alternatively be configured via the
    * {@link cn.taketoday.lang.TodayStrategies} mechanism.
    * <p>Note that implementations of {@code ContextCache} are not required to
    * actually support a maximum cache size. Consult the documentation of the
    * corresponding implementation for details.
    *
    * @see #DEFAULT_MAX_CONTEXT_CACHE_SIZE
-   * @since 4.0
    */
   String MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME = "infra.test.context.cache.maxSize";
 

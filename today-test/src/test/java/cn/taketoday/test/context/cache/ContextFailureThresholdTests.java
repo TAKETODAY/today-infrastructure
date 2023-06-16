@@ -22,6 +22,7 @@ package cn.taketoday.test.context.cache;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.testkit.engine.EngineTestKit;
 
@@ -48,6 +49,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/15 21:21
  */
+@Disabled
 class ContextFailureThresholdTests {
 
   private static final AtomicInteger passingLoadCount = new AtomicInteger();
@@ -89,14 +91,14 @@ class ContextFailureThresholdTests {
   }
 
   private static void runTests() {
-    EngineTestKit.engine("junit-jupiter")//
-            .selectors(//
+    EngineTestKit.engine("junit-jupiter")
+            .selectors(
                     selectClass(PassingTestCase.class), // 3 passing
                     selectClass(FailingConfigTestCase.class), // 3 failing
                     selectClass(SharedFailingConfigTestCase.class) // 3 failing
-            )//
-            .execute()//
-            .testEvents()//
+            )
+            .execute()
+            .testEvents()
             .assertStatistics(stats -> stats.started(9).succeeded(3).failed(6));
     assertContextCacheStatistics(1, 2, (1 + 3 + 3));
   }

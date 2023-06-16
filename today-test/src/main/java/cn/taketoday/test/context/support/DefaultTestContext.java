@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @author Rob Harrop
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DefaultTestContext implements TestContext {
@@ -56,7 +57,7 @@ public class DefaultTestContext implements TestContext {
 
   private final CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate;
 
-  private final MergedContextConfiguration mergedContextConfiguration;
+  private final MergedContextConfiguration mergedConfig;
 
   private final Class<?> testClass;
 
@@ -80,7 +81,7 @@ public class DefaultTestContext implements TestContext {
    * is {@code null}
    */
   public DefaultTestContext(DefaultTestContext testContext) {
-    this(testContext.testClass, testContext.mergedContextConfiguration,
+    this(testContext.testClass, testContext.mergedConfig,
             testContext.cacheAwareContextLoaderDelegate);
     this.attributes.putAll(testContext.attributes);
   }
@@ -89,19 +90,19 @@ public class DefaultTestContext implements TestContext {
    * Construct a new {@code DefaultTestContext} from the supplied arguments.
    *
    * @param testClass the test class for this test context
-   * @param mergedContextConfiguration the merged application context
+   * @param mergedConfig the merged application context
    * configuration for this test context
    * @param cacheAwareContextLoaderDelegate the delegate to use for loading
    * and closing the application context for this test context
    */
-  public DefaultTestContext(Class<?> testClass, MergedContextConfiguration mergedContextConfiguration,
+  public DefaultTestContext(Class<?> testClass, MergedContextConfiguration mergedConfig,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate) {
 
     Assert.notNull(testClass, "Test Class must not be null");
-    Assert.notNull(mergedContextConfiguration, "MergedContextConfiguration must not be null");
+    Assert.notNull(mergedConfig, "MergedContextConfiguration must not be null");
     Assert.notNull(cacheAwareContextLoaderDelegate, "CacheAwareContextLoaderDelegate must not be null");
     this.testClass = testClass;
-    this.mergedContextConfiguration = mergedContextConfiguration;
+    this.mergedConfig = mergedConfig;
     this.cacheAwareContextLoaderDelegate = cacheAwareContextLoaderDelegate;
   }
 
@@ -116,7 +117,7 @@ public class DefaultTestContext implements TestContext {
    */
   @Override
   public boolean hasApplicationContext() {
-    return this.cacheAwareContextLoaderDelegate.isContextLoaded(this.mergedContextConfiguration);
+    return this.cacheAwareContextLoaderDelegate.isContextLoaded(this.mergedConfig);
   }
 
   /**
@@ -131,15 +132,16 @@ public class DefaultTestContext implements TestContext {
    */
   @Override
   public ApplicationContext getApplicationContext() {
-    ApplicationContext context = this.cacheAwareContextLoaderDelegate.loadContext(this.mergedContextConfiguration);
+    ApplicationContext context = this.cacheAwareContextLoaderDelegate.loadContext(this.mergedConfig);
     if (context instanceof ConfigurableApplicationContext cac) {
-      Assert.state(cac.isActive(), () ->
-              "The ApplicationContext loaded for [" + this.mergedContextConfiguration +
-                      "] is not active. This may be due to one of the following reasons: " +
-                      "1) the context was closed programmatically by user code; " +
-                      "2) the context was closed during parallel test execution either " +
-                      "according to @DirtiesContext semantics or due to automatic eviction " +
-                      "from the ContextCache due to a maximum cache size policy.");
+      Assert.state(cac.isActive(), """
+              The ApplicationContext loaded for %s is not active. \
+              This may be due to one of the following reasons: \
+              1) the context was closed programmatically by user code; \
+              2) the context was closed during parallel test execution either \
+              according to @DirtiesContext semantics or due to automatic eviction \
+              from the ContextCache due to a maximum cache size policy."""
+              .formatted(mergedConfig));
     }
     return context;
   }
@@ -155,7 +157,7 @@ public class DefaultTestContext implements TestContext {
    */
   @Override
   public void markApplicationContextDirty(@Nullable HierarchyMode hierarchyMode) {
-    this.cacheAwareContextLoaderDelegate.closeContext(this.mergedContextConfiguration, hierarchyMode);
+    this.cacheAwareContextLoaderDelegate.closeContext(this.mergedConfig, hierarchyMode);
   }
 
   @Override
@@ -275,7 +277,7 @@ public class DefaultTestContext implements TestContext {
             .append("testInstance", this.testInstance)
             .append("testMethod", this.testMethod)
             .append("testException", this.testException)
-            .append("mergedContextConfiguration", this.mergedContextConfiguration)
+            .append("mergedContextConfiguration", this.mergedConfig)
             .append("attributes", this.attributes)
             .toString();
   }

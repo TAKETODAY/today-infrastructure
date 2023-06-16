@@ -49,10 +49,11 @@ import cn.taketoday.test.context.MergedContextConfiguration;
  *
  * <p>The maximum size may be supplied as a {@linkplain #DefaultContextCache(int)
  * constructor argument} or set via a system property or Infra property named
- * {@code context.test.context.cache.maxSize}.
+ * {@code infra.test.context.cache.maxSize}.
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContextCacheUtils#retrieveMaxCacheSize()
  * @since 4.0
  */
@@ -166,7 +167,7 @@ public class DefaultContextCache implements ContextCache {
     Assert.notNull(key, "Key must not be null");
 
     // startKey is the level at which to begin clearing the cache,
-    // depending on the configured hierarchy mode.s
+    // depending on the configured hierarchy mode.
     MergedContextConfiguration startKey = key;
     if (hierarchyMode == HierarchyMode.EXHAUSTIVE) {
       MergedContextConfiguration parent = startKey.getParent();
@@ -211,8 +212,8 @@ public class DefaultContextCache implements ContextCache {
     // Physically remove and close leaf nodes first (i.e., on the way back up the
     // stack as opposed to prior to the recursive call).
     ApplicationContext context = this.contextMap.remove(key);
-    if (context instanceof ConfigurableApplicationContext) {
-      context.close();
+    if (context instanceof ConfigurableApplicationContext cac) {
+      cac.close();
     }
     removedContexts.add(key);
   }
@@ -281,6 +282,8 @@ public class DefaultContextCache implements ContextCache {
     synchronized(this.contextMap) {
       clear();
       clearStatistics();
+      this.totalFailureCount.set(0);
+      this.failureCounts.clear();
     }
   }
 
@@ -330,6 +333,7 @@ public class DefaultContextCache implements ContextCache {
             .append("parentContextCount", getParentContextCount())
             .append("hitCount", getHitCount())
             .append("missCount", getMissCount())
+            .append("failureCount", this.totalFailureCount)
             .toString();
   }
 
@@ -338,7 +342,6 @@ public class DefaultContextCache implements ContextCache {
    * size and a <em>least recently used</em> (LRU) eviction policy that
    * properly closes application contexts.
    */
-  @SuppressWarnings("serial")
   private class LruCache extends LinkedHashMap<MergedContextConfiguration, ApplicationContext> {
 
     /**
