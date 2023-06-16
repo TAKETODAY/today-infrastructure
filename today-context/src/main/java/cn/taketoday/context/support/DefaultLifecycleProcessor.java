@@ -71,23 +71,23 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private static final Logger log = LoggerFactory.getLogger(DefaultLifecycleProcessor.class);
 
   /**
-   * Property name for checkpoint restore: {@value}.
+   * Property name for a common context checkpoint: {@value}.
    *
-   * @see #CHECKPOINT_RESTORE_ON_REFRESH
+   * @see #CHECKPOINT_ON_REFRESH_VALUE
    * @see org.crac.Core#checkpointRestore()
    */
-  public static final String CHECKPOINT_RESTORE_PROPERTY_NAME = "infra.checkpoint.restore";
+  public static final String CHECKPOINT_PROPERTY_NAME = "infra.context.checkpoint";
 
   /**
-   * Recognized value for checkpoint restore property: {@value}.
+   * Recognized value for the context checkpoint property: {@value}.
    *
-   * @see #CHECKPOINT_RESTORE_PROPERTY_NAME
+   * @see #CHECKPOINT_PROPERTY_NAME
    * @see org.crac.Core#checkpointRestore()
    */
-  public static final String CHECKPOINT_RESTORE_ON_REFRESH = "onRefresh";
+  public static final String CHECKPOINT_ON_REFRESH_VALUE = "onRefresh";
 
-  private final static boolean checkpointRestoreOnRefresh = CHECKPOINT_RESTORE_ON_REFRESH.equalsIgnoreCase(
-          TodayStrategies.getProperty(CHECKPOINT_RESTORE_PROPERTY_NAME));
+  private final static boolean checkpointOnRefresh =
+          CHECKPOINT_ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(CHECKPOINT_PROPERTY_NAME));
 
   private volatile long timeoutPerShutdownPhase = 30000;
 
@@ -166,7 +166,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   @Override
   public void onRefresh() {
-    if (checkpointRestoreOnRefresh) {
+    if (checkpointOnRefresh) {
       new CracDelegate().checkpointRestore();
     }
 
