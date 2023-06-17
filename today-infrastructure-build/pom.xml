@@ -157,6 +157,12 @@
           <version>0.8.8</version>
         </plugin>
 
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.4.0</version>
+        </plugin>
+
       </plugins>
     </pluginManagement>
 
@@ -277,14 +283,6 @@
           </argLine>
         </configuration>
       </plugin>
-
-      <!--
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-failsafe-plugin</artifactId>
-              <version>2.22.2</version>
-            </plugin>
-      -->
 
     </plugins>
   </build>

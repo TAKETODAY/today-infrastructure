@@ -31,9 +31,9 @@ import java.util.Collections;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.env.CompositePropertySource;
-import cn.taketoday.core.env.MockPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
+import cn.taketoday.core.testfixture.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,9 +22,9 @@ package cn.taketoday.core.io.buffer.support;
 
 import java.nio.charset.StandardCharsets;
 
-import cn.taketoday.core.io.buffer.AbstractDataBufferAllocatingTests;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
 import cn.taketoday.core.testfixture.io.buffer.DataBufferTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

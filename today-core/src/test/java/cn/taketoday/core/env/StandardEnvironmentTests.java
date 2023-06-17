@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import cn.taketoday.core.testfixture.env.MockPropertySource;
 import cn.taketoday.lang.TodayStrategies;
 
 import static cn.taketoday.core.env.Environment.DEFAULT_PROFILE;

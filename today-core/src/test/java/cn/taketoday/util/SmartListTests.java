@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -126,7 +126,6 @@ public class SmartListTests {
     l.set(1, 3);
   }
 
-  @SuppressWarnings("RedundantOperationOnEmptyContainer")
   @Test(expected = IndexOutOfBoundsException.class)
   public void testFourElement2() {
     SmartList<Integer> l = new SmartList<>();
@@ -151,7 +150,7 @@ public class SmartListTests {
     l.get(1);
   }
 
-  @SuppressWarnings({ "CollectionAddedToSelf", "RedundantOperationOnEmptyContainer" })
+  @SuppressWarnings({ "CollectionAddedToSelf" })
   @Test(expected = ConcurrentModificationException.class)
   public void testFourElement3() {
     SmartList<Integer> l = new SmartList<>();
@@ -293,13 +292,13 @@ public class SmartListTests {
     assertThat(list).isEqualTo(new ArrayList<>());
     assertThat(list).isEqualTo(new LinkedList<>());
     assertThat(list).isEqualTo(Collections.emptyList());
-    assertThat(list).isEqualTo(Arrays.asList());
+    assertThat(list).isEqualTo(List.of());
     assertThat(list).isEqualTo(Collections.emptyList());
 
     assertThat(list).isNotEqualTo(new SmartList<>(1));
     assertThat(list).isNotEqualTo(new ArrayList<>(Collections.singletonList(1)));
     assertThat(list).isNotEqualTo(new LinkedList<>(Collections.singletonList(1)));
-    assertThat(list).isNotEqualTo(Arrays.asList(1));
+    assertThat(list).isNotEqualTo(List.of(1));
     assertThat(list).isNotEqualTo(Collections.singletonList(1));
   }
 
@@ -317,7 +316,7 @@ public class SmartListTests {
     assertThat(list).isNotEqualTo(new ArrayList<>());
     assertThat(list).isNotEqualTo(new LinkedList<>());
     assertThat(list).isNotEqualTo(Collections.emptyList());
-    assertThat(list).isNotEqualTo(Arrays.asList());
+    assertThat(list).isNotEqualTo(List.of());
     assertThat(list).isNotEqualTo(Collections.emptyList());
   }
 
@@ -327,17 +326,17 @@ public class SmartListTests {
 
     checkForEach(list);
 
-    assertThat(list).isEqualTo(new SmartList<>(new Integer(1)));
-    assertThat(list).isEqualTo(new ArrayList<>(Arrays.asList(new Integer(1))));
-    assertThat(list).isEqualTo(new LinkedList<>(Arrays.asList(new Integer(1))));
-    assertThat(list).isEqualTo(Arrays.asList(new Integer(1)));
-    assertThat(list).isEqualTo(Collections.singletonList(new Integer(1)));
+    assertThat(list).isEqualTo(new SmartList<>(1));
+    assertThat(list).isEqualTo(new ArrayList<>(List.of(1)));
+    assertThat(list).isEqualTo(new LinkedList<>(List.of(1)));
+    assertThat(list).isEqualTo(List.of(1));
+    assertThat(list).isEqualTo(Collections.singletonList(1));
 
     assertThat(list).isNotEqualTo(new SmartList<>());
     assertThat(list).isNotEqualTo(new ArrayList<>());
     assertThat(list).isNotEqualTo(new LinkedList<>());
     assertThat(list).isNotEqualTo(Collections.emptyList());
-    assertThat(list).isNotEqualTo(Arrays.asList());
+    assertThat(list).isNotEqualTo(List.of());
     assertThat(list).isNotEqualTo(Collections.emptyList());
   }
 
@@ -347,21 +346,21 @@ public class SmartListTests {
 
     checkForEach(list);
 
-    assertThat(list).isEqualTo(new SmartList<>(new Integer(1), null, new Integer(3)));
-    assertThat(list).isEqualTo(new ArrayList<>(Arrays.asList(new Integer(1), null, new Integer(3))));
-    assertThat(list).isEqualTo(new LinkedList<>(Arrays.asList(new Integer(1), null, new Integer(3))));
-    assertThat(list).isEqualTo(Arrays.asList(new Integer(1), null, new Integer(3)));
+    assertThat(list).isEqualTo(new SmartList<>(1, null, 3));
+    assertThat(list).isEqualTo(new ArrayList<>(Arrays.asList(1, null, 3)));
+    assertThat(list).isEqualTo(new LinkedList<>(Arrays.asList(1, null, 3)));
+    assertThat(list).isEqualTo(Arrays.asList(1, null, 3));
 
-    assertThat(list).isNotEqualTo(new SmartList<>(new Integer(1), new Integer(2), new Integer(3)));
-    assertThat(list).isNotEqualTo(new ArrayList<>(Arrays.asList(new Integer(1), new Integer(2), new Integer(3))));
-    assertThat(list).isNotEqualTo(new LinkedList<>(Arrays.asList(new Integer(1), new Integer(2), new Integer(3))));
-    assertThat(list).isNotEqualTo(Arrays.asList(new Integer(1), new Integer(2), new Integer(3)));
+    assertThat(list).isNotEqualTo(new SmartList<>(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3)));
+    assertThat(list).isNotEqualTo(new ArrayList<>(Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3))));
+    assertThat(list).isNotEqualTo(new LinkedList<>(Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3))));
+    assertThat(list).isNotEqualTo(Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3)));
   }
 
   private static <T> void checkForEach(@NotNull List<T> list) {
     List<T> checkList = new ArrayList<>();
     //noinspection UseBulkOperation
-    list.forEach(integer -> checkList.add(integer));
+    list.forEach(checkList::add);
     assertThat(list).isEqualTo(checkList);
   }
 }

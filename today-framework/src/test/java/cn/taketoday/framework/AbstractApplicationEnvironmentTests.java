@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,9 +26,9 @@ import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
-import cn.taketoday.core.env.MockPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.testfixture.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

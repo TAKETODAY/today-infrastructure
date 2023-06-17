@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,7 @@ package cn.taketoday.context.support;
 
 import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.MockPropertySource;
+import cn.taketoday.core.testfixture.env.MockPropertySource;
 
 /**
  * Simple {@link ConfigurableEnvironment} implementation exposing

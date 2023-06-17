@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,12 +34,12 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
-import cn.taketoday.core.env.MockPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.testfixture.env.MockPropertySource;
 
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
