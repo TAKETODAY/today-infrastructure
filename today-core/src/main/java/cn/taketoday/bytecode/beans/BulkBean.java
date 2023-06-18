@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * @author Juozas Baliuka
  */
-@SuppressWarnings("all")
+@SuppressWarnings({ "unchecked", "rawtypes" })
 abstract public class BulkBean {
 
   record BulkBeanKey(String target, List<String> getters, List<String> setters, List<String> types) {
@@ -54,15 +54,15 @@ abstract public class BulkBean {
   }
 
   public Class[] getPropertyTypes() {
-    return (Class[]) types.clone();
+    return types.clone();
   }
 
   public String[] getGetters() {
-    return (String[]) getters.clone();
+    return getters.clone();
   }
 
   public String[] getSetters() {
-    return (String[]) setters.clone();
+    return setters.clone();
   }
 
   public static BulkBean create(Class target, String[] getters, String[] setters, Class[] types) {

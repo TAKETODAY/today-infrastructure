@@ -1,0 +1,64 @@
+apply plugin: "maven-publish"
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      pom {
+        afterEvaluate {
+          name = project.description
+          description = project.description
+        }
+        url = "https://github.com/TAKETODAY/today-infrastructure"
+        organization {
+          name = "TODAY Tech"
+          url = "https://taketoday.cn"
+        }
+        licenses {
+          license {
+            name = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+            url = "https://www.gnu.org/licenses/gpl.txt"
+            distribution = "repo"
+          }
+        }
+        scm {
+          url = "https://github.com/TAKETODAY/today-infrastructure.git"
+          connection = "scm:git:git://github.com/TAKETODAY/today-infrastructure"
+          developerConnection = "scm:git:git://github.com/TAKETODAY/today-infrastructure"
+        }
+        developers {
+          developer {
+            id = "taketoday"
+            name = "Harry Yang"
+            email = "taketoday@foxmail.com"
+          }
+        }
+        issueManagement {
+          system = "GitHub"
+          url = "https://github.com/TAKETODAY/today-infrastructure/issues"
+        }
+      }
+      versionMapping {
+        usage('java-api') {
+          fromResolutionResult()
+        }
+        usage('java-runtime') {
+          fromResolutionResult()
+        }
+      }
+    }
+  }
+}
+
+configureDeploymentRepository(project)
+
+void configureDeploymentRepository(Project project) {
+  project.plugins.withType(MavenPublishPlugin.class).all {
+    PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
+    if (project.hasProperty("deploymentRepository")) {
+      publishing.repositories.maven {
+        it.url = project.property("deploymentRepository")
+        it.name = "deployment"
+      }
+    }
+  }
+}

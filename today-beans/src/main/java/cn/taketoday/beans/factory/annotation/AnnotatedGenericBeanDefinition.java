@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,8 @@
  */
 
 package cn.taketoday.beans.factory.annotation;
+
+import java.io.Serial;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
@@ -47,6 +49,9 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/3/8 21:01
  */
 public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final AnnotationMetadata metadata;
 

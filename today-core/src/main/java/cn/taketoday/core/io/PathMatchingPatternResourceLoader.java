@@ -50,6 +50,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
 import cn.taketoday.core.AntPathMatcher;
+import cn.taketoday.core.NativeDetector;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -216,9 +217,11 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see #isNotSystemModule
    * @since 4.0
    */
-  private static final Set<String> systemModuleNames = ModuleFinder.ofSystem().findAll()
-          .stream().map(moduleReference -> moduleReference.descriptor().name()).collect(Collectors.toSet());
-
+  private static final Set<String> systemModuleNames =
+          NativeDetector.inNativeImage() ? Collections.emptySet() :
+          ModuleFinder.ofSystem().findAll().stream()
+                  .map(moduleReference -> moduleReference.descriptor().name())
+                  .collect(Collectors.toSet());
   /**
    * {@link Predicate} that tests whether the supplied {@link ResolvedModule}
    * is not a {@linkplain ModuleFinder#ofSystem() system module}.

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -689,6 +689,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #autowireConstructor
    * @see #instantiateBean
    */
+  @SuppressWarnings("rawtypes")
   protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object[] args) {
     // Make sure bean class is actually resolved at this point.
     Class<?> beanClass = resolveBeanClass(beanName, merged);
@@ -1460,9 +1461,15 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected Class<?> determineTargetType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
     Class<?> targetType = mbd.getTargetType();
     if (targetType == null) {
-      targetType = mbd.getFactoryMethodName() != null
-                   ? getTypeForFactoryMethod(beanName, mbd, typesToMatch)
-                   : resolveBeanClass(beanName, mbd, typesToMatch);
+      if (mbd.getFactoryMethodName() != null) {
+        targetType = getTypeForFactoryMethod(beanName, mbd, typesToMatch);
+      }
+      else {
+        targetType = resolveBeanClass(beanName, mbd, typesToMatch);
+        if (mbd.hasBeanClass()) {
+          targetType = getInstantiationStrategy().getActualBeanClass(mbd, beanName, this);
+        }
+      }
       if (ObjectUtils.isEmpty(typesToMatch) || getTempClassLoader() == null) {
         mbd.resolvedTargetType = targetType;
       }
@@ -1744,7 +1751,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         if (instance == NullValue.INSTANCE) { // created and its instance is null
           return null;
         }
-        if (instance instanceof FactoryBean factory) {
+        if (instance instanceof FactoryBean<?> factory) {
           return factory;
         }
 
@@ -1892,7 +1899,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    *
    * @since 4.0
    */
-  protected InstantiationStrategy getInstantiationStrategy() {
+  public InstantiationStrategy getInstantiationStrategy() {
     return this.instantiationStrategy;
   }
 

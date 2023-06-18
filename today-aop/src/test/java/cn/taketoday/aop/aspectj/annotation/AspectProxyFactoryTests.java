@@ -199,6 +199,7 @@ public class AspectProxyFactoryTests {
   }
 
   @Aspect
+  @SuppressWarnings("serial")
   public static class LoggingAspectOnVarargs implements Serializable {
 
     @Around("execution(* doWithVarargs(*))")
@@ -220,6 +221,7 @@ public class AspectProxyFactoryTests {
 }
 
 @Aspect
+@SuppressWarnings("serial")
 class MultiplyReturnValue implements Serializable {
 
   private int multiple = 2;

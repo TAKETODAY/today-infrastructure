@@ -26,7 +26,7 @@
     <groupId>cn.taketoday</groupId>
     <artifactId>today-infrastructure-build</artifactId>
     <version>${revision}</version>
-    <relativePath>./today-infrastructure-build/pom.xml</relativePath>
+    <relativePath>infra-build/pom.xml</relativePath>
   </parent>
 
   <artifactId>today-infrastructure</artifactId>
@@ -52,7 +52,6 @@
     <module>today-beans</module>
     <module>today-retry</module>
     <module>today-jcache</module>
-    <module>today-native</module>
     <module>today-context</module>
     <module>today-starter</module>
     <module>today-aspects</module>

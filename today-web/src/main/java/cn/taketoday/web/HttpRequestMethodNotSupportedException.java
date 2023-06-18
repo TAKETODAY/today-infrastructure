@@ -41,6 +41,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/29 10:29
  */
+@SuppressWarnings("serial")
 public class HttpRequestMethodNotSupportedException extends NestedRuntimeException implements ErrorResponse {
 
   private final String method;

@@ -20,6 +20,8 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serial;
+
 import cn.taketoday.beans.FatalBeanException;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -29,6 +31,9 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
  * @since 4.0 2023/5/31 22:35
  */
 public class FactoryMethodBeanException extends FatalBeanException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String beanName;
   private final BeanDefinition merged;

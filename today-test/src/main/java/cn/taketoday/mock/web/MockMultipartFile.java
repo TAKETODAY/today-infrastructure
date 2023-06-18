@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
@@ -42,10 +43,13 @@ import cn.taketoday.web.multipart.MultipartFile;
  *
  * @author Juergen Hoeller
  * @author Eric Crampton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MockMultipartHttpServletRequest
  * @since 4.0
  */
 public class MockMultipartFile implements MultipartFile {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String name;
 
@@ -87,7 +91,7 @@ public class MockMultipartFile implements MultipartFile {
    * @param content the content of the file
    */
   public MockMultipartFile(
-      String name, @Nullable String originalFilename, @Nullable String contentType, @Nullable byte[] content) {
+          String name, @Nullable String originalFilename, @Nullable String contentType, @Nullable byte[] content) {
 
     Assert.hasLength(name, "Name must not be empty");
     this.name = name;
@@ -106,8 +110,8 @@ public class MockMultipartFile implements MultipartFile {
    * @throws IOException if reading from the stream failed
    */
   public MockMultipartFile(
-      String name, @Nullable String originalFilename, @Nullable String contentType, InputStream contentStream)
-      throws IOException {
+          String name, @Nullable String originalFilename, @Nullable String contentType, InputStream contentStream)
+          throws IOException {
 
     this(name, originalFilename, contentType, FileCopyUtils.copyToByteArray(contentStream));
   }

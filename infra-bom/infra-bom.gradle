@@ -1,0 +1,23 @@
+description = "TODAY Infrastructure (Bill of Materials)"
+
+apply plugin: 'java-platform'
+apply from: "$rootDir/gradle/publications.gradle"
+
+group = "cn.taketoday"
+
+dependencies {
+  constraints {
+    parent.moduleProjects.sort { "$it.name" }.each {
+      api it
+    }
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifactId = 'today-infrastructure-bom'
+      from components.javaPlatform
+    }
+  }
+}

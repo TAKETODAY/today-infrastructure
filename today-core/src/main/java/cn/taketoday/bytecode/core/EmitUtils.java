@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -443,23 +443,17 @@ public abstract class EmitUtils {
 
   private static void hashPrimitive(GeneratorAdapter e, Type type) {
     switch (type.getSort()) {
-      case Type.BOOLEAN:
+      case Type.BOOLEAN -> {
         // f ? 0 : 1
         e.push(1);
         e.math(CodeEmitter.XOR, Type.INT_TYPE);
-        break;
-      case Type.FLOAT:
-        // Float.floatToIntBits(f)
-        e.invokeStatic(Type.TYPE_FLOAT, FLOAT_TO_INT_BITS);
-        break;
-      case Type.DOUBLE:
-        // Double.doubleToLongBits(f), hash_code(Long.TYPE)
-        e.invokeStatic(Type.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
-        // fall through
-      case Type.LONG:
-        hashLong(e);
-      default:
-        break;
+      }
+      // Float.floatToIntBits(f)
+      case Type.FLOAT -> e.invokeStatic(Type.TYPE_FLOAT, FLOAT_TO_INT_BITS);
+      // Double.doubleToLongBits(f), hash_code(Long.TYPE)
+      case Type.DOUBLE -> e.invokeStatic(Type.TYPE_DOUBLE, DOUBLE_TO_LONG_BITS);
+      // fall through
+      case Type.LONG -> hashLong(e);
     }
   }
 

@@ -20,6 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -1025,6 +1026,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   }
 
   static class JoinPointTransactionAttribute extends DelegatingTransactionAttribute {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final String joinpointIdentification;
 

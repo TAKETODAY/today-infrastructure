@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +45,9 @@ import cn.taketoday.util.ObjectUtils;
  * @author TODAY 2021/3/21 15:49
  */
 public class PropertyValue extends BeanMetadataAttributeAccessor implements Serializable, BeanMetadataElement {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private String name;
   private Object value;

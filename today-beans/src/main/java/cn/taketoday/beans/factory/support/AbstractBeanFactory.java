@@ -778,7 +778,7 @@ public abstract class AbstractBeanFactory
     }
     if (isFactoryBean(beanName, mbd)) {
       FactoryBean<?> fb = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
-      if (fb instanceof SmartFactoryBean smart) {
+      if (fb instanceof SmartFactoryBean<?> smart) {
         return smart.isPrototype() || !fb.isSingleton();
       }
       return fb != null && !fb.isSingleton();

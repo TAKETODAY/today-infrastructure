@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ import cn.taketoday.lang.Nullable;
 public class HttpServerErrorException extends HttpStatusCodeException {
 
   @Serial
-  private static final long serialVersionUID = -2915754006618138282L;
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constructor with a status code only.
@@ -133,6 +133,9 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    */
   public static final class InternalServerError extends HttpServerErrorException {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private InternalServerError(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
       super(HttpStatus.INTERNAL_SERVER_ERROR, statusText, headers, body, charset);
     }
@@ -148,6 +151,9 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * {@link HttpServerErrorException} for status HTTP 501 Not Implemented.
    */
   public static final class NotImplemented extends HttpServerErrorException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private NotImplemented(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
       super(HttpStatus.NOT_IMPLEMENTED, statusText, headers, body, charset);
@@ -165,6 +171,9 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    */
   public static final class BadGateway extends HttpServerErrorException {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private BadGateway(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
       super(HttpStatus.BAD_GATEWAY, statusText, headers, body, charset);
     }
@@ -181,6 +190,9 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    */
   public static final class ServiceUnavailable extends HttpServerErrorException {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private ServiceUnavailable(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
       super(HttpStatus.SERVICE_UNAVAILABLE, statusText, headers, body, charset);
     }
@@ -196,6 +208,9 @@ public class HttpServerErrorException extends HttpStatusCodeException {
    * {@link HttpServerErrorException} for status HTTP 504 Gateway Timeout.
    */
   public static final class GatewayTimeout extends HttpServerErrorException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private GatewayTimeout(String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
       super(HttpStatus.GATEWAY_TIMEOUT, statusText, headers, body, charset);

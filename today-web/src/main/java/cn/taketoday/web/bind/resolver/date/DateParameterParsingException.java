@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.web.bind.resolver.date;
 
+import java.io.Serial;
+
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.bind.resolver.ParameterConversionException;
 
@@ -28,6 +30,9 @@ import cn.taketoday.web.bind.resolver.ParameterConversionException;
  * @since 3.0
  */
 public class DateParameterParsingException extends ParameterConversionException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public DateParameterParsingException(MethodParameter parameter, String value, Throwable cause) {
     super(parameter, value, cause);

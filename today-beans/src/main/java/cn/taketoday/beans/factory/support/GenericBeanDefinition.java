@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -46,6 +47,9 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/3/8 21:11
  */
 public class GenericBeanDefinition extends AbstractBeanDefinition {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private String parentName;

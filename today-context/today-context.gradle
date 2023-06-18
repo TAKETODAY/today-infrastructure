@@ -1,0 +1,64 @@
+plugins {
+  id 'cn.taketoday.build.runtimehints-agent'
+}
+
+description = "Infra Context"
+
+dependencies {
+  api(project(":today-aop"))
+  api(project(":today-beans"))
+  api(project(":today-core"))
+
+  optional(project(":today-instrument"))
+  optional("jakarta.annotation:jakarta.annotation-api")
+  optional("jakarta.ejb:jakarta.ejb-api")
+  optional("jakarta.enterprise.concurrent:jakarta.enterprise.concurrent-api")
+  optional("jakarta.inject:jakarta.inject-api")
+  optional("jakarta.interceptor:jakarta.interceptor-api")
+  optional("jakarta.validation:jakarta.validation-api")
+  optional("javax.money:money-api")
+  optional("org.aspectj:aspectjweaver")
+  optional("org.apache.groovy:groovy")
+  optional("org.apache-extras.beanshell:bsh")
+  optional("org.crac:crac")
+  optional("org.hibernate:hibernate-validator")
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor:reactor-core")
+
+  optional("jakarta.mail:jakarta.mail-api")
+  optional 'jakarta.activation:jakarta.activation-api'
+  optional("javax.cache:cache-api")
+  optional("com.github.ben-manes.caffeine:caffeine")
+  optional("org.freemarker:freemarker")
+
+  testImplementation('com.google.code.findbugs:findbugs')
+  testImplementation(project(":today-core-test"))
+  testImplementation(testFixtures(project(":today-aop")))
+  testImplementation(testFixtures(project(":today-beans")))
+  testImplementation(testFixtures(project(":today-core")))
+  testImplementation("io.projectreactor:reactor-core")
+  testImplementation("org.apache.groovy:groovy-jsr223")
+  testImplementation("org.apache.groovy:groovy-xml")
+  testImplementation("org.apache.commons:commons-pool2")
+  testImplementation("org.awaitility:awaitility")
+  testImplementation("jakarta.inject:jakarta.inject-tck")
+  testImplementation("io.reactivex.rxjava3:rxjava")
+  testImplementation("org.hsqldb:hsqldb")
+  testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testRuntimeOnly("org.ehcache:jcache")
+  testRuntimeOnly("org.ehcache:ehcache")
+  testRuntimeOnly("com.sun.mail:jakarta.mail")
+  testRuntimeOnly("jakarta.xml.bind:jakarta.xml.bind-api")
+  testRuntimeOnly("org.glassfish:jakarta.el")
+  // Substitute for javax.management:jmxremote_optional:1.0.1_04 (not available on Maven Central)
+  testRuntimeOnly("org.glassfish.external:opendmk_jmxremote_optional_jar")
+  testRuntimeOnly("org.javamoney:moneta")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine") // for @Inject TCK
+  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation(testFixtures(project(":today-beans")))
+  testFixturesImplementation("com.google.code.findbugs:jsr305")
+  testFixturesImplementation("org.assertj:assertj-core")
+
+  testImplementation 'org.projectlombok:lombok'
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+}

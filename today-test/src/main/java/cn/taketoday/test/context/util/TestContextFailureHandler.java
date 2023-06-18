@@ -22,6 +22,7 @@ package cn.taketoday.test.context.util;
 
 import java.lang.reflect.InvocationTargetException;
 
+import cn.taketoday.core.NativeDetector;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -55,6 +56,13 @@ class TestContextFailureHandler implements TodayStrategies.FailureHandler {
         logger.debug("""
                 Could not load %1$s [%2$s]. Specify custom %1$s classes or make the default %1$s classes \
                 available.""".formatted(factoryType.getSimpleName(), factoryImplementationName), ex);
+      }
+    }
+    // Workaround for https://github.com/oracle/graal/issues/6691
+    else if (NativeDetector.inNativeImage() && ex instanceof IllegalStateException) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Skipping candidate %1$s [%2$s] due to an error when loading it in a native image."
+                .formatted(factoryType.getSimpleName(), factoryImplementationName));
       }
     }
     else {

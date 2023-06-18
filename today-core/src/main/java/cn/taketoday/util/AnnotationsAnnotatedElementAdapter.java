@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -38,6 +39,8 @@ import cn.taketoday.lang.Nullable;
  * @see AnnotationUtils#getAnnotation(AnnotatedElement, Class)
  */
 public class AnnotationsAnnotatedElementAdapter implements AnnotatedElement, Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final Annotation[] annotations;

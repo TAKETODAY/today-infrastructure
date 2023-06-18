@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,8 @@
  */
 package cn.taketoday.core.conversion;
 
+import java.io.Serial;
+
 import cn.taketoday.core.NestedRuntimeException;
 
 /**
@@ -28,6 +30,8 @@ import cn.taketoday.core.NestedRuntimeException;
  * 2018-06-28 17:05:34
  */
 public abstract class ConversionException extends NestedRuntimeException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Construct a new conversion exception.

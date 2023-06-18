@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.target;
 
+import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,6 +56,9 @@ import cn.taketoday.core.NamedThreadLocal;
  */
 public class ThreadLocalTargetSource
         extends AbstractPrototypeTargetSource implements ThreadLocalTargetSourceStats, DisposableBean {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * ThreadLocal holding the target associated with the current

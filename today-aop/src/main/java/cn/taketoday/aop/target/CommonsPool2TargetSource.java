@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,8 @@ import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+
+import java.io.Serial;
 
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.lang.Assert;
@@ -72,6 +74,9 @@ import cn.taketoday.lang.Nullable;
 @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 public class CommonsPool2TargetSource
         extends AbstractPoolingTargetSource implements PooledObjectFactory<Object> {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
   private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;

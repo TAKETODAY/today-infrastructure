@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serial;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
@@ -65,6 +66,9 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/3/7 16:41
  */
 public class RootBeanDefinition extends AbstractBeanDefinition {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private BeanDefinitionHolder decoratedDefinition;

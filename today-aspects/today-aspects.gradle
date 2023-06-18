@@ -1,0 +1,47 @@
+description = "Infra Aspects"
+
+apply plugin: "io.freefair.aspectj"
+
+sourceSets.main.aspectj.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = files()
+
+sourceSets.test.aspectj.srcDir "src/test/java"
+sourceSets.test.java.srcDirs = files()
+
+compileAspectj {
+  sourceCompatibility "17"
+  targetCompatibility "17"
+  ajcOptions {
+    compilerArgs += "-parameters"
+  }
+}
+compileTestAspectj {
+  sourceCompatibility "17"
+  targetCompatibility "17"
+  ajcOptions {
+    compilerArgs += "-parameters"
+  }
+}
+
+dependencies {
+  api("org.aspectj:aspectjweaver")
+  compileOnly("org.aspectj:aspectjrt")
+
+  optional(project(":today-aop"))  // for @Async support
+  optional(project(":today-jcache"))
+  optional(project(":today-beans"))  // for @Configurable support
+  optional(project(":today-context"))  // for @Enable* support
+  optional(project(":today-orm"))  // for JPA exception translation support
+  optional(project(":today-tx"))  // for JPA, @Transactional support
+  optional("javax.cache:cache-api")  // for JCache aspect
+  optional("jakarta.transaction:jakarta.transaction-api")  // for @jakarta.transaction.Transactional support
+
+  testImplementation(project(":today-core"))  // for CodeStyleAspect
+  testImplementation(project(":today-test"))
+  testImplementation(testFixtures(project(":today-context")))
+  testImplementation(testFixtures(project(":today-core")))
+  testImplementation(testFixtures(project(":today-tx")))
+  testImplementation("jakarta.mail:jakarta.mail-api")
+  testCompileOnly("org.aspectj:aspectjrt")
+}
+

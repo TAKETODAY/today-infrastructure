@@ -122,6 +122,7 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   private E[] resizeIfNecessary(int size) {
     E[] array = asArray();
     int oldCapacity = array.length;
@@ -196,11 +197,13 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
     return oldValue;
   }
 
+  @SuppressWarnings("unchecked")
   private E asElement() {
     //noinspection unchecked
     return (E) element;
   }
 
+  @SuppressWarnings("unchecked")
   private E[] asArray() {
     //noinspection unchecked
     return (E[]) element;
@@ -255,6 +258,7 @@ public class SmartList<E> extends AbstractList<E> implements RandomAccess, Array
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T[] toArray(T[] a) {
     int aLength = a.length;
     int size = this.size;

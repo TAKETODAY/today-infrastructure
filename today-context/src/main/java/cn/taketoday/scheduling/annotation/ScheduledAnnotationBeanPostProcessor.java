@@ -570,8 +570,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
 
   /**
    * Process the given {@code @Scheduled} bean method declaration which returns
-   * a {@code Publisher}, or the given Kotlin suspending function converted to a
-   * {@code Publisher}. A {@code Runnable} which subscribes to that publisher is
+   * a {@code Publisher}, A {@code Runnable} which subscribes to that publisher is
    * then repeatedly scheduled according to the annotation configuration.
    * <p>Note that for fixed delay configuration, the subscription is turned into a blocking
    * call instead. Types for which a {@code ReactiveAdapter} is registered but which cannot
@@ -579,7 +578,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    *
    * @param scheduled the {@code @Scheduled} annotation
    * @param method the method that the annotation has been declared on, which
-   * must either return a Publisher-adaptable type or be a Kotlin suspending function
+   * must either return a Publisher-adaptable type
    * @param bean the target bean instance
    * @see ScheduledAnnotationReactiveSupport
    */

@@ -20,6 +20,8 @@
 
 package cn.taketoday.core.ssl;
 
+import java.io.Serial;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -27,9 +29,13 @@ import cn.taketoday.lang.Nullable;
  * match any registered bundle.
  *
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class NoSuchSslBundleException extends RuntimeException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String bundleName;
 

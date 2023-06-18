@@ -27,6 +27,7 @@ import java.security.Provider;
  *
  * @author Cyril Dangerville
  */
+@SuppressWarnings("serial")
 public class MockPkcs11SecurityProvider extends Provider {
 
   /**

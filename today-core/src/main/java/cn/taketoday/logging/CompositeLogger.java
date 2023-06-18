@@ -20,6 +20,7 @@
 
 package cn.taketoday.logging;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -32,6 +33,10 @@ import java.util.List;
  * @since 4.0
  */
 final class CompositeLogger extends Logger {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private static final Logger NO_OP_LOG = new NoOpLogger();
 
   private final Logger errorLogger;

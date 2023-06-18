@@ -796,6 +796,7 @@ public class MvcUriComponentsBuilder {
       }
       else {
         Enhancer enhancer = new Enhancer();
+        enhancer.setAttemptLoad(true);
         enhancer.setSuperclass(controllerType);
         enhancer.setInterfaces(MethodInvocationInfo.class);
         enhancer.setCallbackType(cn.taketoday.bytecode.proxy.MethodInterceptor.class);

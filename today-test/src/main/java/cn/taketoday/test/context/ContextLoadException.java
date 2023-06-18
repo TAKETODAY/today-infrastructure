@@ -20,6 +20,8 @@
 
 package cn.taketoday.test.context;
 
+import java.io.Serial;
+
 import cn.taketoday.context.ApplicationContext;
 
 /**
@@ -36,6 +38,9 @@ import cn.taketoday.context.ApplicationContext;
  * @since 4.0 2023/6/15 21:12
  */
 public class ContextLoadException extends Exception {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final ApplicationContext applicationContext;
 

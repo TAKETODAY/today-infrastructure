@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.jdbc.config;
 
+import java.io.Serial;
 import java.util.function.Supplier;
 
 /**
@@ -31,6 +32,9 @@ import java.util.function.Supplier;
  * @since 4.0 2022/2/23 17:35
  */
 public class UnsupportedDataSourcePropertyException extends RuntimeException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   UnsupportedDataSourcePropertyException(String message) {
     super(message);

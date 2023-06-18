@@ -1,0 +1,122 @@
+description = "Infra TestContext Framework"
+
+
+dependencies {
+  api(project(":today-core"))
+  optional(project(":today-aop"))
+  optional(project(":today-beans"))
+  optional(project(":today-context"))
+  optional(project(":today-jdbc"))
+  optional(project(":today-orm"))
+  optional(project(":today-tx"))
+  optional(project(":today-web"))
+  optional(project(":today-websocket"))
+  optional(project(":today-framework"))
+
+  optional('info.picocli:picocli')
+  optional("jakarta.activation:jakarta.activation-api")
+  optional("jakarta.el:jakarta.el-api")
+  optional("jakarta.inject:jakarta.inject-api")
+  optional("jakarta.servlet:jakarta.servlet-api")
+  optional("jakarta.servlet.jsp:jakarta.servlet.jsp-api")
+  optional("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api")
+  optional("jakarta.xml.bind:jakarta.xml.bind-api")
+  optional("jakarta.websocket:jakarta.websocket-api")
+  optional("jakarta.websocket:jakarta.websocket-client-api")
+  optional("junit:junit")
+  optional("org.apache.tomcat.embed:tomcat-embed-core")
+  optional("org.junit.platform:junit-platform-launcher")  // for AOT processing
+  optional("org.junit.jupiter:junit-jupiter-api")
+  optional("org.testng:testng")
+  optional("org.aspectj:aspectjweaver")
+  optional("org.apache.groovy:groovy")
+  optional("org.hamcrest:hamcrest")
+  optional 'org.xmlunit:xmlunit-core'
+  optional 'org.htmlunit:htmlunit'
+  optional 'org.seleniumhq.selenium:selenium-api'
+  optional("org.seleniumhq.selenium:htmlunit-driver") {
+    exclude group: "commons-logging", module: "commons-logging"
+    exclude group: "net.bytebuddy", module: "byte-buddy"
+  }
+  optional("org.seleniumhq.selenium:selenium-java") {
+    exclude group: "net.bytebuddy", module: "byte-buddy"
+  }
+  optional("org.xmlunit:xmlunit-matchers")
+  optional("org.skyscreamer:jsonassert")
+  optional("com.jayway.jsonpath:json-path")
+  optional("io.projectreactor:reactor-test")
+  optional('io.micrometer:context-propagation')
+  optional('io.micrometer:micrometer-observation')
+  optional 'org.assertj:assertj-core'
+
+  optional 'org.apache.httpcomponents.core5:httpcore5'
+  optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  optional 'org.apache.httpcomponents.client5:httpclient5'
+
+  optional 'org.reactivestreams:reactive-streams'
+  optional 'io.projectreactor:reactor-core'
+  optional("org.mockito:mockito-core")
+  optional("org.mockito:mockito-junit-jupiter")
+
+  optional 'com.sun.mail:jakarta.mail'
+  optional 'com.google.code.gson:gson'
+  optional 'com.fasterxml.jackson.core:jackson-databind'
+  optional 'jakarta.json.bind:jakarta.json.bind-api'
+
+  testImplementation(project(":today-core-test"))
+  testImplementation(project(":today-oxm"))
+  testImplementation(testFixtures(project(":today-beans")))
+  testImplementation(testFixtures(project(":today-context")))
+  testImplementation(testFixtures(project(":today-core")))
+  testImplementation(testFixtures(project(":today-tx")))
+  testImplementation(testFixtures(project(":today-web")))
+  testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testImplementation("javax.cache:cache-api")
+  testImplementation("jakarta.ejb:jakarta.ejb-api")
+  testImplementation("jakarta.interceptor:jakarta.interceptor-api")
+  testImplementation("jakarta.mail:jakarta.mail-api")
+  testImplementation("org.hibernate:hibernate-core-jakarta")
+  testImplementation("org.hibernate:hibernate-validator")
+  testImplementation("jakarta.validation:jakarta.validation-api")
+  testImplementation("org.junit.platform:junit-platform-testkit")
+  testImplementation("com.fasterxml.jackson.core:jackson-databind")
+  testImplementation("com.thoughtworks.xstream:xstream")
+  testImplementation("com.rometools:rome")
+  testImplementation("org.hsqldb:hsqldb")
+
+  testImplementation("io.projectreactor.netty:reactor-netty-http")
+  testImplementation("de.bechte.junit:junit-hierarchicalcontextrunner")
+  testImplementation("org.awaitility:awaitility")
+  testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {
+    exclude group: "junit", module: "junit"
+  }
+  testRuntimeOnly("org.junit.support:testng-engine")
+  testRuntimeOnly("org.glassfish:jakarta.el")
+  testRuntimeOnly("com.sun.xml.bind:jaxb-core")
+  testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
+}
+
+// Prevent xml-apis from being used so that the corresponding XML APIs from
+// the JDK's `java.xml` module are used instead. This allows today-test to
+// build in Eclipse IDE which fails to compile if there is a split package
+// between a JDK system module and the unnamed module (for JARs on the
+// classpath).
+configurations.optional {
+  exclude group: "xml-apis", module: "xml-apis"
+}
+
+test {
+  description = "Runs JUnit 4, JUnit Jupiter, and TestNG tests."
+  useJUnitPlatform {
+    includeEngines "junit-vintage", "junit-jupiter", "testng"
+    excludeTags "failing-test-case"
+  }
+  // We use `include` instead of `filter.includeTestsMatching`, since
+  // the latter results in some tests being executed/reported
+  // multiple times.
+  include(["**/*Tests.class", "**/*Test.class"])
+  filter.excludeTestsMatching("*TestCase")
+  systemProperty("testGroups", project.properties.get("testGroups"))
+  // Java Util Logging for the JUnit Platform.
+  // systemProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager")
+}

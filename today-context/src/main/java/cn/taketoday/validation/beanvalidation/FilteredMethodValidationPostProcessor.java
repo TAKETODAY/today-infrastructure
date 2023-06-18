@@ -20,6 +20,7 @@
 
 package cn.taketoday.validation.beanvalidation;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
@@ -36,6 +37,9 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
  * @since 4.0
  */
 public class FilteredMethodValidationPostProcessor extends MethodValidationPostProcessor {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Collection<MethodValidationExcludeFilter> excludeFilters;
 

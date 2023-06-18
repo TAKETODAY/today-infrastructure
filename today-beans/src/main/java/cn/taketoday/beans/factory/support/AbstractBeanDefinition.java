@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.io.Serial;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -65,6 +66,9 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor
         implements BeanDefinition, Cloneable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constant for the default scope name: {@code ""}, equivalent to singleton

@@ -1651,6 +1651,7 @@ class ApplicationTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class ExitStatusException extends RuntimeException implements ExitCodeGenerator {
 
     @Override
@@ -1660,6 +1661,7 @@ class ApplicationTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class RefreshFailureException extends RuntimeException {
 
   }

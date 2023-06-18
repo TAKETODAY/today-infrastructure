@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -188,6 +188,7 @@ public class MethodProxy {
    * For internal use by {@link Enhancer} only; see the {@link cn.taketoday.bytecode.reflect.MethodAccess} class
    * for similar functionality.
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {
     MethodProxy proxy = new MethodProxy();
     proxy.sig1 = new MethodSignature(name1, desc);
@@ -231,6 +232,7 @@ public class MethodProxy {
     int i2;
   }
 
+  @SuppressWarnings({ "rawtypes" })
   private static class CreateInfo {
 
     Class c1;
@@ -255,6 +257,7 @@ public class MethodProxy {
     }
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private static MethodAccess helper(CreateInfo ci, Class type) {
     MethodAccess.Generator g = new MethodAccess.Generator(type);
     g.setNeighbor(type);
@@ -317,6 +320,7 @@ public class MethodProxy {
    * @return the MethodProxy instance, or null if no applicable matching method is found
    * @throws IllegalArgumentException if the Class was not created by Enhancer or does not use a MethodInterceptor
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static MethodProxy find(Class type, MethodSignature sig) {
     try {
       Method m = type.getDeclaredMethod(

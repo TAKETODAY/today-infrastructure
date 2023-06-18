@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.util.HashMap;
 
 import cn.taketoday.aop.ProxyMethodInvocation;
@@ -44,6 +45,9 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class AbstractMethodInvocation
         extends AttributeAccessorSupport implements MethodInvocation, Cloneable, ProxyMethodInvocation {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Return the proxy that this method invocation was made through.

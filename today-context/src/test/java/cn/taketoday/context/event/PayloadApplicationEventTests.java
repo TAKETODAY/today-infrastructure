@@ -275,6 +275,7 @@ class PayloadApplicationEventTests {
   public interface Auditable {
   }
 
+  @SuppressWarnings("serial")
   public static class AuditablePayloadEvent<T> extends PayloadApplicationEvent<T> implements Auditable {
 
     public AuditablePayloadEvent(Object source, T payload) {

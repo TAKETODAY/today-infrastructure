@@ -27,7 +27,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import kotlin.Pair;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -78,8 +77,10 @@ class OkHttp3ClientHttpResponse implements ClientHttpResponse {
     HttpHeaders headers = this.headers;
     if (headers == null) {
       headers = HttpHeaders.create();
-      for (Pair<? extends String, ? extends String> header : response.headers()) {
-        headers.add(header.getFirst(), header.getSecond());
+      for (String headerName : this.response.headers().names()) {
+        for (String headerValue : this.response.headers(headerName)) {
+          headers.add(headerName, headerValue);
+        }
       }
       this.headers = headers;
     }

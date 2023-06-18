@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,8 @@
  */
 package cn.taketoday.bytecode.proxy;
 
+import java.io.Serial;
+
 import cn.taketoday.bytecode.core.CodeGenerationException;
 
 /**
@@ -29,6 +31,10 @@ import cn.taketoday.bytecode.core.CodeGenerationException;
  */
 @SuppressWarnings("all")
 public class UndeclaredThrowableException extends CodeGenerationException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   /**
    * Creates a new instance of <code>UndeclaredThrowableException</code> without
    * detail message.

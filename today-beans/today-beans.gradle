@@ -1,0 +1,19 @@
+description = "Infra Beans"
+
+dependencies {
+  api(project(":today-core"))
+  optional("jakarta.inject:jakarta.inject-api")
+  optional("org.yaml:snakeyaml")
+  optional("org.apache.groovy:groovy-xml")
+  optional("org.reactivestreams:reactive-streams")
+
+  testImplementation('com.google.code.findbugs:findbugs')
+  testImplementation(testFixtures(project(":today-core")))
+  testImplementation(project(":today-core-test"))
+  testImplementation("jakarta.annotation:jakarta.annotation-api")
+  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation("org.assertj:assertj-core")
+
+  testImplementation 'org.projectlombok:lombok'
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+}

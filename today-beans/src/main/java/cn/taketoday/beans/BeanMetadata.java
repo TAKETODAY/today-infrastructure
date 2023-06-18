@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,8 @@ import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
+ * Bean Metadata
+ *
  * @author TODAY 2021/1/27 22:26
  * @since 3.0
  */

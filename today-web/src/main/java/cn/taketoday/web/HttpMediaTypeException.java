@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,9 @@ import cn.taketoday.http.ProblemDetail;
  * @since 4.0 2022/1/22 20:03
  */
 public abstract class HttpMediaTypeException extends NestedRuntimeException implements ErrorResponse {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final List<MediaType> supportedMediaTypes;
 

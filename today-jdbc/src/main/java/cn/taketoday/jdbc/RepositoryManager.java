@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -238,7 +238,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     return primitiveTypeNullHandler;
   }
 
-  public void setEntityManager(EntityManager entityManager) {
+  public void setEntityManager(@Nullable EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 
@@ -460,7 +460,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void withConnection(StatementRunnable runnable) {
+  public <T> void withConnection(StatementRunnable<T> runnable) {
     withConnection(runnable, null);
   }
 
@@ -471,7 +471,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    *
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  public void withConnection(StatementRunnable runnable, @Nullable Object argument) {
+  public <T> void withConnection(StatementRunnable<T> runnable, @Nullable T argument) {
     try (JdbcConnection connection = open()) {
       runnable.run(connection, argument);
     }
@@ -816,7 +816,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws IllegalArgumentException if the instance is not an entity
    */
   public void persist(Object entity) {
-    entityManager.persist(entity);
+    getEntityManager().persist(entity);
   }
 
   //

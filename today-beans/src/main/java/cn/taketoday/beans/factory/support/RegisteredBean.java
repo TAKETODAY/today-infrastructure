@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,13 +20,17 @@
 
 package cn.taketoday.beans.factory.support;
 
+import java.lang.reflect.Executable;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
@@ -42,6 +46,7 @@ import cn.taketoday.util.function.SingletonSupplier;
  * In the case of inner-beans, the bean name may have been generated.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class RegisteredBean {
@@ -219,6 +224,32 @@ public final class RegisteredBean {
   @Nullable
   public RegisteredBean getParent() {
     return this.parent;
+  }
+
+  /**
+   * Resolve the constructor or factory method to use for this bean.
+   *
+   * @return the {@link java.lang.reflect.Constructor} or {@link java.lang.reflect.Method}
+   */
+  public Executable resolveConstructorOrFactoryMethod() {
+    return new ConstructorResolver((AbstractAutowireCapableBeanFactory) getBeanFactory())
+            .resolveConstructorOrFactoryMethod(getBeanName(), getMergedBeanDefinition());
+  }
+
+  /**
+   * Resolve an autowired argument.
+   *
+   * @param descriptor the descriptor for the dependency (field/method/constructor)
+   * @param typeConverter the TypeConverter to use for populating arrays and collections
+   * @param autowiredBeans a Set that all names of autowired beans (used for
+   * resolving the given dependency) are supposed to be added to
+   * @return the resolved object, or {@code null} if none found
+   */
+  @Nullable
+  public Object resolveAutowiredArgument(DependencyDescriptor descriptor,
+          TypeConverter typeConverter, Set<String> autowiredBeans) {
+    return new ConstructorResolver((AbstractAutowireCapableBeanFactory) getBeanFactory())
+            .resolveAutowiredArgument(descriptor, getBeanName(), autowiredBeans, typeConverter, true);
   }
 
   @Override

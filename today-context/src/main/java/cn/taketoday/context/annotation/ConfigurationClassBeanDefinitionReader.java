@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -411,6 +412,9 @@ class ConfigurationClassBeanDefinitionReader {
    */
   private static class ConfigurationClassBeanDefinition extends RootBeanDefinition
           implements AnnotatedBeanDefinition {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final AnnotationMetadata annotationMetadata;
 

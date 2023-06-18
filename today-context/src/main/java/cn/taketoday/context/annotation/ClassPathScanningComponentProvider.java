@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -148,6 +148,11 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
     boolean traceEnabled = log.isTraceEnabled();
     String packageSearchPath = getPatternLocation(basePackage);
     getResourceLoader().scan(packageSearchPath, resource -> {
+      String filename = resource.getName();
+      if (filename != null && filename.contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
+        // Ignore CGLIB-generated classes in the classpath
+        return;
+      }
       if (traceEnabled) {
         log.trace("Scanning {}", resource);
       }

@@ -35,6 +35,10 @@ import java.util.stream.Stream;
  * 2019-11-03 14:45
  */
 final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private final Logger logger;
 
   public JavaLoggingLogger(Logger logger, boolean debugEnabled) {
@@ -92,6 +96,9 @@ final class JavaLoggingLogger extends cn.taketoday.logging.Logger {
   }
 
   private static class LocationResolvingLogRecord extends LogRecord {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private volatile boolean resolved;
 

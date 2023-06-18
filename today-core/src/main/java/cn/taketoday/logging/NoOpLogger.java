@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,16 @@
 
 package cn.taketoday.logging;
 
+import java.io.Serial;
+
 /**
  * @author TODAY 2021/11/5 22:53
  * @since 4.0
  */
 public class NoOpLogger extends Logger {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public NoOpLogger() { super(false); }
 

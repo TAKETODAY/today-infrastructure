@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
+import java.io.Serial;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,9 @@ import cn.taketoday.util.MultiValueMap;
  * @since 4.0
  */
 final class ImportRegistry extends ArrayDeque<ConfigurationClass> {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final MultiValueMap<String, AnnotationMetadata> imports = MultiValueMap.forLinkedHashMap();
 

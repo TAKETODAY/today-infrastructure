@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans.factory;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.function.Supplier;
 
@@ -37,6 +38,9 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0 2021/11/29 21:13
  */
 public class BeanSupplier<T> implements Supplier<T>, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String beanName;
 
@@ -108,6 +112,10 @@ public class BeanSupplier<T> implements Supplier<T>, Serializable {
 
   private final static class SingletonBeanSupplier<T>
           extends BeanSupplier<T> implements Supplier<T> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private volatile transient T instance;
 
     SingletonBeanSupplier(BeanFactory beanFactory, String beanName, @Nullable Class<T> beanType) {

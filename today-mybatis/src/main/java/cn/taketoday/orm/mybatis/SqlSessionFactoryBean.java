@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -140,6 +140,7 @@ public class SqlSessionFactoryBean
 
   private ObjectWrapperFactory objectWrapperFactory;
 
+  @Nullable
   private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
   private ClassPathScanningComponentProvider componentProvider;
@@ -149,10 +150,11 @@ public class SqlSessionFactoryBean
    *
    * @param classLoader ClassLoader
    */
-  public void setClassLoader(ClassLoader classLoader) {
+  public void setClassLoader(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 
+  @Nullable
   public ClassLoader getClassLoader() {
     return classLoader;
   }

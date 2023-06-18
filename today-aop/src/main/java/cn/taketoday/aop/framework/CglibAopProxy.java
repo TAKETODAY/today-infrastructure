@@ -28,6 +28,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import cn.taketoday.aop.AopInvocationException;
 import cn.taketoday.aop.RawTargetAccess;
@@ -44,6 +46,7 @@ import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.bytecode.proxy.NoOp;
 import cn.taketoday.core.SmartClassLoader;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -78,12 +81,15 @@ import cn.taketoday.util.ReflectionUtils;
  * @see DefaultAopProxyFactory
  * @since 3.0 2021/2/1 21:47
  */
-class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Serializable {
+class CglibAopProxy implements AopProxy, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   protected static final Logger log = LoggerFactory.getLogger(CglibAopProxy.class);
+
+  /** Keeps track of the Classes that we have validated for final methods. */
+  private static final Map<Class<?>, Boolean> validatedClasses = new WeakHashMap<>();
 
   // Constants for CGLIB callback array indices
   private static final int AOP_PROXY = 0;
@@ -98,6 +104,15 @@ class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Seri
 
   private transient int fixedInterceptorOffset;
 
+  /** The configuration used to configure this proxy. */
+  final AdvisedSupport config;
+
+  @Nullable
+  protected Object[] constructorArgs;
+
+  @Nullable
+  protected Class<?>[] constructorArgTypes;
+
   /**
    * Create a new CglibAopProxy for the given AOP configuration.
    *
@@ -107,52 +122,177 @@ class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Seri
    * happen later.
    */
   public CglibAopProxy(AdvisedSupport config) {
-    super(config);
+    Assert.notNull(config, "AdvisedSupport must not be null");
+    this.config = config;
+  }
+
+  /**
+   * Set constructor arguments to use for creating the proxy.
+   *
+   * @param constructorArgs the constructor argument values
+   * @param constructorArgTypes the constructor argument types
+   */
+  public void setConstructorArguments(@Nullable Object[] constructorArgs, @Nullable Class<?>[] constructorArgTypes) {
+    if (constructorArgs == null || constructorArgTypes == null) {
+      throw new IllegalArgumentException("Both 'constructorArgs' and 'constructorArgTypes' need to be specified");
+    }
+    if (constructorArgs.length != constructorArgTypes.length) {
+      throw new IllegalArgumentException(
+              "Number of 'constructorArgs' (" + constructorArgs.length +
+                      ") must match number of 'constructorArgTypes' (" + constructorArgTypes.length + ")");
+    }
+    this.constructorArgs = constructorArgs;
+    this.constructorArgTypes = constructorArgTypes;
   }
 
   @Override
-  protected Object getProxyInternal(Class<?> rootClass,
-          Class<?> proxySuperClass, @Nullable ClassLoader classLoader) throws Exception {
+  public Object getProxy() {
+    return buildProxy(null, false);
+  }
+
+  @Override
+  public Object getProxy(@Nullable ClassLoader classLoader) {
+    return buildProxy(classLoader, false);
+  }
+
+  @Override
+  public Class<?> getProxyClass(@Nullable ClassLoader classLoader) {
+    return (Class<?>) buildProxy(classLoader, true);
+  }
+
+  private Object buildProxy(@Nullable ClassLoader classLoader, boolean classOnly) {
     if (log.isTraceEnabled()) {
       log.trace("Creating CGLIB proxy: {}", config.getTargetSource());
     }
 
-    // Configure CGLIB Enhancer...
-    Enhancer enhancer = createEnhancer();
-    if (classLoader != null) {
-      enhancer.setClassLoader(classLoader);
-      if (classLoader instanceof SmartClassLoader smart
-              && smart.isClassReloadable(proxySuperClass)) {
-        enhancer.setUseCache(false);
+    try {
+      Class<?> rootClass = config.getTargetClass();
+      Assert.state(rootClass != null, "Target class must be available for creating a CGLIB proxy");
+
+      Class<?> proxySuperClass = rootClass;
+      if (rootClass.getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
+        proxySuperClass = rootClass.getSuperclass();
+        Class<?>[] additionalInterfaces = rootClass.getInterfaces();
+        for (Class<?> additionalInterface : additionalInterfaces) {
+          config.addInterface(additionalInterface);
+        }
+      }
+
+      // Validate the class, writing log messages as necessary.
+      validateClassIfNecessary(proxySuperClass, classLoader);
+
+      // Configure CGLIB Enhancer...
+      Enhancer enhancer = createEnhancer();
+      if (classLoader != null) {
+        enhancer.setClassLoader(classLoader);
+        if (classLoader instanceof SmartClassLoader smartClassLoader &&
+                smartClassLoader.isClassReloadable(proxySuperClass)) {
+          enhancer.setUseCache(false);
+        }
+      }
+
+      enhancer.setAttemptLoad(true);
+      enhancer.setSuperclass(proxySuperClass);
+      enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
+      enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
+
+      Callback[] callbacks = getCallbacks(rootClass);
+      Class<?>[] types = new Class<?>[callbacks.length];
+      for (int x = 0; x < types.length; x++) {
+        types[x] = callbacks[x].getClass();
+      }
+      // fixedInterceptorMap only populated at this point, after getCallbacks call above
+      ProxyCallbackFilter filter = new ProxyCallbackFilter(
+              this.config.getConfigurationOnlyCopy(), this.fixedInterceptorMap, this.fixedInterceptorOffset);
+      enhancer.setCallbackFilter(filter);
+      enhancer.setCallbackTypes(types);
+
+      // Generate the proxy class and create a proxy instance.
+      // ProxyCallbackFilter has method introspection capability with Advisor access.
+      try {
+        return (classOnly ? createProxyClass(enhancer) : createProxyClassAndInstance(enhancer, callbacks));
+      }
+      finally {
+        // Reduce ProxyCallbackFilter to key-only state for its class cache role
+        // in the CGLIB$CALLBACK_FILTER field, not leaking any Advisor state...
+        filter.advised.reduceToAdvisorKey();
       }
     }
-
-    enhancer.setSuperclass(proxySuperClass);
-    enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
-    enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
-
-    Callback[] callbacks = getCallbacks(rootClass);
-    Class<?>[] types = new Class<?>[callbacks.length];
-    for (int x = 0; x < types.length; x++) {
-      types[x] = callbacks[x].getClass();
+    catch (CodeGenerationException | IllegalArgumentException ex) {
+      throw new AopConfigException("Could not generate CGLIB subclass of " + config.getTargetClass() +
+              ": Common causes of this problem include using a final class or a non-visible class", ex);
     }
-    // fixedInterceptorMap only populated at this point, after getCallbacks call above
-    ProxyCallbackFilter filter = new ProxyCallbackFilter(
-            config.getConfigurationOnlyCopy(), fixedInterceptorMap, fixedInterceptorOffset);
-
-    enhancer.setCallbackFilter(filter);
-    enhancer.setCallbackTypes(types);
-
-    // Generate the proxy class and create a proxy instance.
-    // ProxyCallbackFilter has method introspection capability with Advisor access.
-    try {
-      return createProxyClassAndInstance(enhancer, callbacks);
+    catch (Throwable ex) {
+      // TargetSource.getTarget() failed
+      throw new AopConfigException("Unexpected AOP exception", ex);
     }
-    finally {
-      // Reduce ProxyCallbackFilter to key-only state for its class cache role
-      // in the CGLIB$CALLBACK_FILTER field, not leaking any Advisor state...
-      filter.advised.reduceToAdvisorKey();
+  }
+
+  protected Class<?> createProxyClass(Enhancer enhancer) {
+    enhancer.setInterceptDuringConstruction(false);
+    return enhancer.createClass();
+  }
+
+  /**
+   * Checks to see whether the supplied {@code Class} has already been validated
+   * and validates it if not.
+   */
+  void validateClassIfNecessary(Class<?> proxySuperClass, @Nullable ClassLoader proxyClassLoader) {
+    if (!this.config.isOptimize() && log.isInfoEnabled()) {
+      synchronized(validatedClasses) {
+        if (!validatedClasses.containsKey(proxySuperClass)) {
+          doValidateClass(proxySuperClass, proxyClassLoader,
+                  ClassUtils.getAllInterfacesForClassAsSet(proxySuperClass));
+          validatedClasses.put(proxySuperClass, Boolean.TRUE);
+        }
+      }
     }
+  }
+
+  /**
+   * Checks for final methods on the given {@code Class}, as well as
+   * package-visible methods across ClassLoaders, and writes warnings to the log
+   * for each one found.
+   */
+  void doValidateClass(Class<?> proxySuperClass, @Nullable ClassLoader proxyClassLoader, Set<Class<?>> ifcs) {
+    if (proxySuperClass != Object.class) {
+      Method[] methods = proxySuperClass.getDeclaredMethods();
+      for (Method method : methods) {
+        int mod = method.getModifiers();
+        if (!Modifier.isStatic(mod) && !Modifier.isPrivate(mod)) {
+          if (Modifier.isFinal(mod)) {
+            if (log.isInfoEnabled() && implementsInterface(method, ifcs)) {
+              log.info("Unable to proxy interface-implementing method [{}] because " +
+                      "it is marked as final: Consider using interface-based JDK proxies instead!", method);
+            }
+            if (log.isDebugEnabled()) {
+              log.debug("Final method [{}] cannot get proxied via CGLIB: " +
+                      "Calls to this method will NOT be routed to the target instance and " +
+                      "might lead to NPEs against uninitialized fields in the proxy instance.", method);
+            }
+          }
+          else if (log.isDebugEnabled() && !Modifier.isPublic(mod) && !Modifier.isProtected(mod)
+                  && proxyClassLoader != null && proxySuperClass.getClassLoader() != proxyClassLoader) {
+            log.debug("Method [{}] is package-visible across different ClassLoaders " +
+                    "and cannot get proxied via CGLIB: Declare this method as public or protected " +
+                    "if you need to support invocations through the proxy.", method);
+          }
+        }
+      }
+      doValidateClass(proxySuperClass.getSuperclass(), proxyClassLoader, ifcs);
+    }
+  }
+
+  /**
+   * Check whether the given method is declared on any of the given interfaces.
+   */
+  static boolean implementsInterface(Method method, Set<Class<?>> ifcs) {
+    for (Class<?> ifc : ifcs) {
+      if (ReflectionUtils.hasMethod(ifc, method)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) throws Exception {
@@ -547,6 +687,9 @@ class CglibAopProxy extends AbstractSubclassesAopProxy implements AopProxy, Seri
    * Implementation of AOP Alliance MethodInvocation used by this AOP proxy.
    */
   static class CglibMethodInvocation extends DefaultMethodInvocation {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Nullable
     final MethodProxy methodProxy;

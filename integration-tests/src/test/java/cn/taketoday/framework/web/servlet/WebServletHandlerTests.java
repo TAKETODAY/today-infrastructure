@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -124,36 +124,43 @@ class WebServletHandlerTests {
     return this.registry.getBeanDefinition(filterClass.getName());
   }
 
+  @SuppressWarnings("serial")
   @WebServlet
   class DefaultConfigurationServlet extends HttpServlet {
 
   }
 
+  @SuppressWarnings("serial")
   @WebServlet(asyncSupported = true)
   class AsyncSupportedServlet extends HttpServlet {
 
   }
 
+  @SuppressWarnings("serial")
   @WebServlet(initParams = { @WebInitParam(name = "a", value = "alpha"), @WebInitParam(name = "b", value = "bravo") })
   class InitParametersServlet extends HttpServlet {
 
   }
 
+  @SuppressWarnings("serial")
   @WebServlet(urlPatterns = { "alpha", "bravo" })
   class UrlPatternsServlet extends HttpServlet {
 
   }
 
+  @SuppressWarnings("serial")
   @WebServlet({ "alpha", "bravo" })
   class UrlPatternsFromValueServlet extends HttpServlet {
 
   }
 
+  @SuppressWarnings("serial")
   @WebServlet(value = { "alpha", "bravo" }, urlPatterns = { "alpha", "bravo" })
   class UrlPatternsDeclaredTwiceServlet extends HttpServlet {
 
   }
 
+  @SuppressWarnings("serial")
   @WebServlet(name = "custom")
   class CustomNameServlet extends HttpServlet {
 

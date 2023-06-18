@@ -32,6 +32,7 @@ import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.jdbc.UncategorizedSQLException;
 import cn.taketoday.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import cn.taketoday.jdbc.support.SQLExceptionTranslator;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionException;
 
 /**
@@ -42,10 +43,12 @@ import cn.taketoday.transaction.TransactionException;
  * translated.
  *
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MyBatisExceptionTranslator implements PersistenceExceptionTranslator {
 
+  @Nullable
   private SQLExceptionTranslator exceptionTranslator;
 
   private final Supplier<SQLExceptionTranslator> exceptionTranslatorSupplier;

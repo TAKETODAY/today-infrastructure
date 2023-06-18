@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation.config;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
@@ -33,6 +34,9 @@ import java.util.Set;
  * @since 4.0 2022/3/5 23:22
  */
 public class AutoConfigurationImportEvent extends EventObject {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final List<String> candidateConfigurations;
 

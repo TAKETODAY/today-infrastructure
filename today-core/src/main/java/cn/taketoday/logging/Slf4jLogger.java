@@ -29,6 +29,10 @@ import java.io.Serial;
  * 2019-11-03 13:55
  */
 class Slf4jLogger extends Logger {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   protected final String name;
   private final transient org.slf4j.Logger target;
 
@@ -82,6 +86,10 @@ class Slf4jLogger extends Logger {
 }
 
 final class LocationAwareSlf4jLogger extends Slf4jLogger {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private final LocationAwareLogger log;
 
   public LocationAwareSlf4jLogger(LocationAwareLogger log) {

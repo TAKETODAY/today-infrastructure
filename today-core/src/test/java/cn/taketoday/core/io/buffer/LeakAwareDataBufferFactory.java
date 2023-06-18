@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.buffer.PooledByteBufAllocator;
-import lombok.extern.java.Log;
 
 /**
  * Implementation of the {@code DataBufferFactory} interface that keeps track of

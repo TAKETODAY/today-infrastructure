@@ -1,0 +1,67 @@
+pluginManagement {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    gradlePluginPortal()
+    maven { url "https://maven.aliyun.com/repository/public" }
+    maven { url "https://repo.huaweicloud.com/repository/maven" }
+    maven { url "https://repo.spring.io/release" }
+  }
+}
+
+include(':today-retry')
+include(':today-tx')
+include(':today-web')
+include(':today-starter-json')
+include(':today-aspects')
+include(':today-websocket')
+include(':today-jcache')
+include(':today-starter-netty')
+include(':today-starter-web')
+include(':today-redisson')
+include(':today-jdbc')
+//include(':today-infra-maven-plugin')
+include(':today-orm')
+include(':today-core')
+include 'today-core-test'
+include(':today-starter-validation')
+include(':today-framework')
+include(':today-starter-undertow')
+include(':today-oxm')
+include(':today-starter')
+include(':today-aop')
+include(':today-beans')
+include(':today-starter-websocket')
+include(':today-mybatis')
+include(':today-context')
+include(':today-test-support')
+include(':today-starter-jdbc')
+include(':today-instrument')
+include(':today-starter-test')
+include(':integration-tests')
+include(':today-context-indexer')
+include(':today-test')
+include(':today-starter-reactor-netty')
+include(':today-starter-jetty')
+include(':today-starter-tomcat')
+project(":today-starter-json").projectDir = file('today-starter/today-starter-json')
+project(":today-starter-netty").projectDir = file('today-starter/today-starter-netty')
+project(":today-starter-web").projectDir = file('today-starter/today-starter-web')
+project(":today-starter-validation").projectDir = file('today-starter/today-starter-validation')
+project(":today-starter-undertow").projectDir = file('today-starter/today-starter-undertow')
+project(":today-starter-websocket").projectDir = file('today-starter/today-starter-websocket')
+project(":today-starter-jdbc").projectDir = file('today-starter/today-starter-jdbc')
+project(":today-starter-test").projectDir = file('today-starter/today-starter-test')
+project(":today-starter-reactor-netty").projectDir = file('today-starter/today-starter-reactor-netty')
+project(":today-starter-jetty").projectDir = file('today-starter/today-starter-jetty')
+project(":today-starter-tomcat").projectDir = file('today-starter/today-starter-tomcat')
+
+include 'infra-bom'
+include 'infra-docs'
+include 'infra-platform'
+
+rootProject.name = 'today-infrastructure'
+rootProject.children.each { project ->
+  project.buildFileName = "${project.name}.gradle"
+}
+

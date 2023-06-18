@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -148,6 +149,7 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
     return this.pointcut.getClassFilter();
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
   public Class<?>[] getInterfaces() {
     return new Class[] { cn.taketoday.retry.interceptor.Retryable.class };
@@ -235,6 +237,11 @@ public class RetryConfiguration extends AbstractPointcutAdvisor
         return false;
       }
       return ObjectUtils.nullSafeEquals(this.methodResolver, otherAdvisor.methodResolver);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(methodResolver);
     }
 
   }

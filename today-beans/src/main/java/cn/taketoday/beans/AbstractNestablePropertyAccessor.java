@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -285,7 +285,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private void processKeyedProperty(PropertyTokenHolder tokens, PropertyValue pv) {
     Object propValue = getPropertyHoldingValue(tokens);
     PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
@@ -621,7 +621,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     return nestedPa.getPropertyValue(tokens);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Nullable
   protected Object getPropertyValue(PropertyTokenHolder tokens) throws BeansException {
     String actualName = tokens.actualName;
@@ -680,7 +680,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
               }
             }
           }
-          else if (value instanceof Map map) {
+          else if (value instanceof Map<?, ?> map) {
             Class<?> mapKeyType = handler.getResolvableType().getNested(i + 1).asMap().resolveGeneric(0);
             // IMPORTANT: Do not pass full property name in here - property editors
             // must not kick in for map keys but rather only for map values.
@@ -979,11 +979,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     int length = propertyName.length();
     for (int i = startIndex; i < length; i++) {
       switch (propertyName.charAt(i)) {
-        case PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR:
-          // The property name contains opening prefix(es)...
-          unclosedPrefixes++;
-          break;
-        case PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR:
+        // The property name contains opening prefix(es)...
+        case PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR -> unclosedPrefixes++;
+        case PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR -> {
           if (unclosedPrefixes == 0) {
             // No unclosed prefix(es) in the property name (left) ->
             // this is the suffix we are looking for.
@@ -994,7 +992,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             // just one that occurred within the property name.
             unclosedPrefixes--;
           }
-          break;
+        }
       }
     }
     return -1;

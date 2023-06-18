@@ -48,6 +48,7 @@ import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.LifecycleProcessor;
 import cn.taketoday.context.Phased;
 import cn.taketoday.context.SmartLifecycle;
+import cn.taketoday.core.NativeDetector;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -104,7 +105,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private Object cracResource;
 
   public DefaultLifecycleProcessor() {
-    if (ClassUtils.isPresent("org.crac.Core", getClass().getClassLoader())) {
+    if (!NativeDetector.inNativeImage() && ClassUtils.isPresent("org.crac.Core", getClass().getClassLoader())) {
       this.cracResource = new CracDelegate().registerResource();
     }
   }

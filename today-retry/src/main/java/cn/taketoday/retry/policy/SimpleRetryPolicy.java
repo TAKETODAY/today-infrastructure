@@ -180,6 +180,7 @@ public class SimpleRetryPolicy implements RetryPolicy {
    *
    * @param noRecovery the throwables.
    */
+  @SuppressWarnings("unchecked")
   public void setNotRecoverable(Class<? extends Throwable>... noRecovery) {
     Map<Class<? extends Throwable>, Boolean> map = new HashMap<>();
     for (Class<? extends Throwable> clazz : noRecovery) {
@@ -266,6 +267,9 @@ public class SimpleRetryPolicy implements RetryPolicy {
   }
 
   private static class SimpleRetryContext extends RetryContextSupport {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public SimpleRetryContext(RetryContext parent) {
       super(parent);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.orm.mybatis.transaction.ManagedTransactionFactory;
 import cn.taketoday.orm.mybatis.type.AtomicNumberTypeHandler;
 import cn.taketoday.orm.mybatis.type.DummyTypeAlias;
@@ -318,7 +319,7 @@ class SqlSessionFactoryBeanTest {
   void testNullMapperLocations() throws Exception {
     setupFactoryBean();
     // default should also be null, but test explicitly setting to null
-    factoryBean.setMapperLocations(null);
+    factoryBean.setMapperLocations((Resource[]) null);
 
     assertDefaultConfig(factoryBean.getObject());
   }

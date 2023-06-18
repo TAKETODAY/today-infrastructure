@@ -20,6 +20,7 @@
 
 package cn.taketoday.retry.backoff;
 
+import java.io.Serial;
 import java.util.function.Supplier;
 
 import cn.taketoday.lang.Assert;
@@ -261,6 +262,9 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
   }
 
   static class ExponentialBackOffContext implements BackOffContext {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final double multiplier;
 

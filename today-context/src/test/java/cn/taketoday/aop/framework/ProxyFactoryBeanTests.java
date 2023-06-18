@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -476,8 +475,8 @@ public class ProxyFactoryBeanTests {
   public void testEmptyInterceptorNames() {
     StandardBeanFactory bf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new ClassPathResource(INVALID_CONTEXT, CLASS));
-    assertThatExceptionOfType(BeanCreationException.class).as("Interceptor names cannot be empty").isThrownBy(() ->
-            bf.getBean("emptyInterceptorNames"));
+    assertThat(bf.getBean("emptyInterceptorNames")).isInstanceOf(ITestBean.class);
+    assertThat(Proxy.isProxyClass(bf.getBean("emptyInterceptorNames").getClass())).isTrue();
   }
 
   /**

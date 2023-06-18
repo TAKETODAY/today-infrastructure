@@ -67,6 +67,10 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/10/24 22:56
  */
 final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private static final Logger log = LoggerFactory.getLogger(DisposableBeanAdapter.class);
 
   private static final String CLOSE_METHOD_NAME = "close";

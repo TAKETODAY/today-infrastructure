@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.core;
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -92,6 +93,8 @@ import cn.taketoday.util.StringUtils;
  * @since 3.0
  */
 public class ResolvableType implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * {@code ResolvableType} returned when no value is available. {@code NONE} is used
@@ -1056,6 +1059,71 @@ public class ResolvableType implements Serializable {
   // Factory methods
 
   /**
+   * Return a {@link ResolvableType} for the specified {@link Constructor} parameter.
+   *
+   * @param constructor the source constructor (must not be {@code null})
+   * @param parameterIndex the parameter index
+   * @return a {@link ResolvableType} for the specified constructor parameter
+   * @see #forConstructorParameter(Constructor, int, Class)
+   */
+  public static ResolvableType forConstructorParameter(Constructor<?> constructor, int parameterIndex) {
+    Assert.notNull(constructor, "Constructor must not be null");
+    return forMethodParameter(new MethodParameter(constructor, parameterIndex));
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Constructor} parameter
+   * with a given implementation. Use this variant when the class that declares the
+   * constructor includes generic parameter variables that are satisfied by the
+   * implementation class.
+   *
+   * @param constructor the source constructor (must not be {@code null})
+   * @param parameterIndex the parameter index
+   * @param implementationClass the implementation class
+   * @return a {@link ResolvableType} for the specified constructor parameter
+   * @see #forConstructorParameter(Constructor, int)
+   */
+  public static ResolvableType forConstructorParameter(Constructor<?> constructor, int parameterIndex,
+          Class<?> implementationClass) {
+
+    Assert.notNull(constructor, "Constructor must not be null");
+    MethodParameter methodParameter = new MethodParameter(constructor, parameterIndex, implementationClass);
+    return forMethodParameter(methodParameter);
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Method} parameter.
+   *
+   * @param method the source method (must not be {@code null})
+   * @param parameterIndex the parameter index
+   * @return a {@link ResolvableType} for the specified method parameter
+   * @see #forMethodParameter(Method, int, Class)
+   * @see #forMethodParameter(MethodParameter)
+   */
+  public static ResolvableType forMethodParameter(Method method, int parameterIndex) {
+    Assert.notNull(method, "Method must not be null");
+    return forMethodParameter(new MethodParameter(method, parameterIndex));
+  }
+
+  /**
+   * Return a {@link ResolvableType} for the specified {@link Method} parameter with a
+   * given implementation. Use this variant when the class that declares the method
+   * includes generic parameter variables that are satisfied by the implementation class.
+   *
+   * @param method the source method (must not be {@code null})
+   * @param parameterIndex the parameter index
+   * @param implementationClass the implementation class
+   * @return a {@link ResolvableType} for the specified method parameter
+   * @see #forMethodParameter(Method, int, Class)
+   * @see #forMethodParameter(MethodParameter)
+   */
+  public static ResolvableType forMethodParameter(Method method, int parameterIndex, Class<?> implementationClass) {
+    Assert.notNull(method, "Method must not be null");
+    MethodParameter methodParameter = new MethodParameter(method, parameterIndex, implementationClass);
+    return forMethodParameter(methodParameter);
+  }
+
+  /**
    * Return a {@link ResolvableType} for the specified {@link MethodParameter}.
    *
    * @param methodParameter the source method parameter (must not be {@code null})
@@ -1606,6 +1674,9 @@ public class ResolvableType implements Serializable {
   }
 
   static class DefaultVariableResolver implements VariableResolver {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     final ResolvableType source;
 
     DefaultVariableResolver(ResolvableType resolvableType) {
@@ -1787,6 +1858,9 @@ public class ResolvableType implements Serializable {
    * Internal {@link Type} used to represent an empty value.
    */
   static class EmptyType implements Type, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     static final Type INSTANCE = new EmptyType();
 
     @Serial

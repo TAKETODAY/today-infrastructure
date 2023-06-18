@@ -22,6 +22,7 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -38,6 +39,9 @@ import static cn.taketoday.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
  * 2018-11-10 13:14
  */
 public class DefaultMethodInvocation extends AbstractMethodInvocation implements MethodInvocation {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Object proxy;
 

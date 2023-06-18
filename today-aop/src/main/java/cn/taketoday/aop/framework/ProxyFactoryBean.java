@@ -280,23 +280,13 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
   @Override
   public Class<?> getObjectType() {
     synchronized(this) {
-      if (singletonInstance != null) {
-        return singletonInstance.getClass();
+      if (this.singletonInstance != null) {
+        return this.singletonInstance.getClass();
       }
     }
-    Class<?>[] ifcs = getProxiedInterfaces();
-    if (ifcs.length == 1) {
-      return ifcs[0];
-    }
-    else if (ifcs.length > 1) {
-      return createCompositeInterface(ifcs);
-    }
-    else if (targetName != null && beanFactory != null) {
-      return beanFactory.getType(targetName);
-    }
-    else {
-      return getTargetClass();
-    }
+    // This might be incomplete since it potentially misses introduced interfaces
+    // from Advisors that will be lazily retrieved via setInterceptorNames.
+    return createAopProxy().getProxyClass(this.proxyClassLoader);
   }
 
   @Override
@@ -620,6 +610,9 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
    * on creating a proxy.
    */
   private static class PrototypePlaceholderAdvisor implements Advisor, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final String message;
     private final String beanName;

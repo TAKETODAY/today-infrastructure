@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,13 +20,11 @@
 package cn.taketoday.aop;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  * 2018-11-11 09:25
  */
-@Slf4j
 public class DefaultUserService implements UserService {
 
   final private UserDao userDao;
@@ -40,7 +38,6 @@ public class DefaultUserService implements UserService {
   @Logger("登录")
   @Override
   public User login(User user) {
-    log.debug("login");
     //		int i = 1 / 0;
     return userDao.login(user);
   }
@@ -53,8 +50,6 @@ public class DefaultUserService implements UserService {
 
   @Override
   public boolean remove(User user) {
-
-    log.debug("remove");
 
     return true;
   }

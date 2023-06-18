@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.aop.framework;
 
 import java.io.Closeable;
+import java.io.Serial;
 
 import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.framework.autoproxy.AbstractAutoProxyCreator;
@@ -43,8 +44,10 @@ import cn.taketoday.util.ObjectUtils;
  * @see AbstractAutoProxyCreator
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanClassLoaderAware, AopInfrastructureBean {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * This should run after all other processors, so that it can just add

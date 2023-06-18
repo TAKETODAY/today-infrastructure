@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.beans;
 
+import java.io.Serial;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
@@ -35,6 +36,9 @@ import cn.taketoday.reflect.PropertyAccessor;
  * @since 4.0 2022/2/24 15:16
  */
 public final class FieldBeanProperty extends BeanProperty {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   FieldBeanProperty(Field field) {
     super(field);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@ package cn.taketoday.aop.framework;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -35,6 +36,9 @@ import cn.taketoday.lang.Experimental;
 @Experimental
 public class StandardMethodInvocation
         extends AbstractMethodInvocation implements MethodInvocation {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Object proxy;
   protected Object[] args;

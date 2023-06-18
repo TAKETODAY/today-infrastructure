@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.handler.method;
 
@@ -29,6 +29,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
  * @author TODAY 2020/9/26 20:06
  * @since 3.0
  */
+@SuppressWarnings("serial")
 public class ParameterResolverMethodParameter extends ResolvableMethodParameter {
   private final ParameterResolvingRegistry resolvers;
 

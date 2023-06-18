@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,6 +61,12 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
            : null;
   }
 
+  @Override
+  @Nullable
+  public Class<?> getLazyResolutionProxyClass(DependencyDescriptor descriptor, @Nullable String beanName) {
+    return (isLazy(descriptor) ? (Class<?>) buildLazyResolutionProxy(descriptor, beanName, true) : null);
+  }
+
   protected boolean isLazy(DependencyDescriptor descriptor) {
     for (Annotation ann : descriptor.getAnnotations()) {
       Lazy lazy = AnnotationUtils.getAnnotation(ann, Lazy.class);
@@ -79,8 +85,13 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
     return false;
   }
 
-  protected Object buildLazyResolutionProxy(
-          final DependencyDescriptor descriptor, final @Nullable String beanName) {
+  protected Object buildLazyResolutionProxy(DependencyDescriptor descriptor, @Nullable String beanName) {
+    return buildLazyResolutionProxy(descriptor, beanName, false);
+  }
+
+  private Object buildLazyResolutionProxy(
+          final DependencyDescriptor descriptor, final @Nullable String beanName, boolean classOnly) {
+
     BeanFactory beanFactory = getBeanFactory();
     Assert.state(beanFactory instanceof StandardBeanFactory,
             "BeanFactory needs to be a StandardBeanFactory");
@@ -135,7 +146,8 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
     if (dependencyType.isInterface()) {
       pf.addInterface(dependencyType);
     }
-    return pf.getProxy(dlbf.getBeanClassLoader());
+    ClassLoader classLoader = dlbf.getBeanClassLoader();
+    return (classOnly ? pf.getProxyClass(classLoader) : pf.getProxy(classLoader));
   }
 
 }

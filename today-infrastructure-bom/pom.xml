@@ -95,12 +95,6 @@
 
       <dependency>
         <groupId>cn.taketoday</groupId>
-        <artifactId>today-native</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>cn.taketoday</groupId>
         <artifactId>today-beans</artifactId>
         <version>${project.version}</version>
       </dependency>

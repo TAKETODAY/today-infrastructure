@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.mock.web.MockSessionCookieConfig;
-import cn.taketoday.util.ExceptionUtils;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.Servlet;
@@ -49,6 +48,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class MockServletWebServer {
@@ -89,17 +89,18 @@ public abstract class MockServletWebServer {
         initParameters.put(invocation.getArgument(0), invocation.getArgument(1));
         return null;
       }).when(this.servletContext).setInitParameter(anyString(), anyString());
-      lenient().when(this.servletContext.getInitParameterNames())
-              .thenReturn(Collections.enumeration(initParameters.keySet()));
-      lenient().doAnswer((invocation) -> initParameters.get(invocation.getArgument(0))).when(this.servletContext)
+      given(this.servletContext.getInitParameterNames())
+              .willReturn(Collections.enumeration(initParameters.keySet()));
+      lenient().doAnswer((invocation) -> initParameters.get(invocation.getArgument(0)))
+              .when(this.servletContext)
               .getInitParameter(anyString());
-      lenient().when(this.servletContext.getAttributeNames()).thenReturn(Collections.emptyEnumeration());
+      given(this.servletContext.getAttributeNames()).willReturn(Collections.emptyEnumeration());
       for (Initializer initializer : this.initializers) {
         initializer.onStartup(this.servletContext);
       }
     }
     catch (ServletException ex) {
-      throw ExceptionUtils.sneakyThrow(ex);
+      throw new RuntimeException(ex);
     }
   }
 

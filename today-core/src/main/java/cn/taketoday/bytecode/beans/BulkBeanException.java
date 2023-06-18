@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,8 +19,13 @@
  */
 package cn.taketoday.bytecode.beans;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+import java.io.Serial;
+
 public class BulkBeanException extends RuntimeException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private int index;
   private Throwable cause;
 

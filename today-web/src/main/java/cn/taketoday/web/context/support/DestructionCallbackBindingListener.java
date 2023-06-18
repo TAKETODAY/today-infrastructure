@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.context.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.session.AttributeBindingListener;
@@ -30,6 +31,9 @@ import cn.taketoday.session.WebSession;
  * @since 4.0 2022/10/30 21:31
  */
 public class DestructionCallbackBindingListener implements AttributeBindingListener, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Runnable destructionCallback;
 

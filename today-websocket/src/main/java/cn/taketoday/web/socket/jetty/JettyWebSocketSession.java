@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import cn.taketoday.web.socket.PongMessage;
  * @author TODAY 2021/5/6 21:40
  * @since 3.0.1
  */
+@SuppressWarnings("serial")
 public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
 
   @Nullable

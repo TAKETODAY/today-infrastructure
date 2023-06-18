@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -79,7 +79,7 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
   public String[] getPropertyNames() {
     LinkedHashSet<String> names = new LinkedHashSet<>();
     for (PropertySource<?> propertySource : this.propertySources) {
-      if (!(propertySource instanceof EnumerablePropertySource enumerable)) {
+      if (!(propertySource instanceof EnumerablePropertySource<?> enumerable)) {
         throw new IllegalStateException(
                 "Failed to enumerate property names due to non-enumerable property source: " + propertySource);
       }

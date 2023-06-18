@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,6 +86,14 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
 
     // Must generate CGLIB subclass...
     return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
+  }
+
+  @Override
+  public Class<?> getActualBeanClass(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+    if (!bd.hasMethodOverrides()) {
+      return super.getActualBeanClass(bd, beanName, owner);
+    }
+    return new CglibSubclassCreator(bd, owner).createEnhancedSubclass(bd);
   }
 
   /**

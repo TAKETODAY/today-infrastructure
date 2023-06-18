@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serial;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -70,6 +71,9 @@ import jakarta.servlet.http.MappingMatch;
  * @since 2.3.7
  */
 public final class ServletRequestContext extends RequestContext implements ServletIndicator {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;

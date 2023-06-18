@@ -21,23 +21,25 @@
 package cn.taketoday.http.client;
 
 import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -49,10 +51,11 @@ import cn.taketoday.util.StringUtils;
  * @author Oleg Kalnichevski
  * @author Arjen Poutsma
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HttpComponentsClientHttpRequestFactory#createRequest(URI, HttpMethod)
  * @since 4.0
  */
-final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpRequest {
+final class HttpComponentsClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private final HttpClient httpClient;
   private final HttpContext httpContext;
@@ -87,16 +90,15 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
   }
 
   @Override
-  protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
-    addHeaders(this.httpRequest, headers);
+  protected ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException {
+    addHeaders(httpRequest, headers);
 
-    ContentType contentType = ContentType.parse(headers.getFirst(HttpHeaders.CONTENT_TYPE));
-    HttpEntity requestEntity = new ByteArrayEntity(bufferedOutput, contentType);
-    this.httpRequest.setEntity(requestEntity);
-    HttpResponse httpResponse = this.httpClient.execute(this.httpRequest, this.httpContext);
-    Assert.isInstanceOf(ClassicHttpResponse.class, httpResponse,
-            "HttpResponse not an instance of ClassicHttpResponse");
-    return new HttpComponentsClientHttpResponse((ClassicHttpResponse) httpResponse);
+    if (body != null) {
+      HttpEntity requestEntity = new BodyEntity(headers, body);
+      httpRequest.setEntity(requestEntity);
+    }
+    ClassicHttpResponse httpResponse = httpClient.executeOpen(null, httpRequest, httpContext);
+    return new HttpComponentsClientHttpResponse(httpResponse);
   }
 
   /**
@@ -119,6 +121,78 @@ final class HttpComponentsClientHttpRequest extends AbstractBufferingClientHttpR
         }
       }
     }
+  }
+
+  private static class BodyEntity implements HttpEntity {
+
+    private final HttpHeaders headers;
+
+    private final Body body;
+
+    public BodyEntity(HttpHeaders headers, Body body) {
+      this.headers = headers;
+      this.body = body;
+    }
+
+    @Override
+    public long getContentLength() {
+      return this.headers.getContentLength();
+    }
+
+    @Override
+    @Nullable
+    public String getContentType() {
+      return this.headers.getFirst(HttpHeaders.CONTENT_TYPE);
+    }
+
+    @Override
+    public InputStream getContent() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void writeTo(OutputStream outStream) throws IOException {
+      this.body.writeTo(outStream);
+    }
+
+    @Override
+    public boolean isRepeatable() {
+      return false;
+    }
+
+    @Override
+    public boolean isStreaming() {
+      return true;
+    }
+
+    @Override
+    @Nullable
+    public Supplier<List<? extends Header>> getTrailers() {
+      return null;
+    }
+
+    @Override
+    @Nullable
+    public String getContentEncoding() {
+      return this.headers.getFirst(HttpHeaders.CONTENT_ENCODING);
+    }
+
+    @Override
+    public boolean isChunked() {
+      return false;
+    }
+
+    @Override
+    @Nullable
+    public Set<String> getTrailerNames() {
+      return null;
+    }
+
+    @Override
+    public void close() {
+
+    }
+
   }
 
 }

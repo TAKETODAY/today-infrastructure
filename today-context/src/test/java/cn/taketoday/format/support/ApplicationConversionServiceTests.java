@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 class ApplicationConversionServiceTests {
 
-  private FormatterRegistry registry = mock(FormatterRegistry.class);
+  private final FormatterRegistry registry = mock(FormatterRegistry.class);
 
   @Test
   void addBeansWhenHasGenericConverterBeanAddConverter() {
@@ -117,8 +117,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void sharedInstanceCannotBeModified() {
-    ApplicationConversionService instance = (ApplicationConversionService) ApplicationConversionService
-            .getSharedInstance();
+    ApplicationConversionService instance = ApplicationConversionService.getSharedInstance();
     assertUnmodifiableExceptionThrown(() -> instance.addPrinter(null));
     assertUnmodifiableExceptionThrown(() -> instance.addParser(null));
     assertUnmodifiableExceptionThrown(() -> instance.addFormatter(null));
