@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.io;
 
 import java.io.IOException;
@@ -29,18 +30,40 @@ import java.nio.channels.ReadableByteChannel;
 import cn.taketoday.lang.Constant;
 
 /**
- * @author TODAY <br>
- * 2019-07-08 00:12
- * @since 2.1.6
+ * Simple interface for objects that are sources for an {@link InputStream}.
+ *
+ * <p>This is the base interface for Infra more extensive {@link Resource} interface.
+ *
+ * <p>For single-use streams, {@link InputStreamResource} can be used for any
+ * given {@code InputStream}. Infra {@link ByteArrayResource} or any
+ * file-based {@code Resource} implementation can be used as a concrete
+ * instance, allowing one to read the underlying content stream multiple times.
+ * This makes this interface useful as an abstract content source for mail
+ * attachments, for example.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see java.io.InputStream
+ * @see Resource
+ * @see InputStreamResource
+ * @see ByteArrayResource
+ * @since 2.1.6 2019-07-08 00:12
  */
 @FunctionalInterface
 public interface InputStreamSource {
 
   /**
-   * Get the content of the resource as input stream.
+   * Return an {@link InputStream} for the content of an underlying resource.
+   * <p>It is expected that each call creates a <i>fresh</i> stream.
+   * <p>This requirement is particularly important when you consider an API such
+   * as JavaMail, which needs to be able to read the stream multiple times when
+   * creating mail attachments. For such a use case, it is <i>required</i>
+   * that each {@code getInputStream()} call returns a fresh stream.
    *
-   * @return input stream of {@link Resource} content
-   * @throws IOException If an input exception occurs
+   * @return the input stream for the underlying resource (must not be {@code null})
+   * @throws java.io.FileNotFoundException if the underlying resource does not exist
+   * @throws IOException if the content stream could not be opened
+   * @see Resource#isReadable()
    */
   InputStream getInputStream() throws IOException;
 

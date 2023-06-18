@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -213,7 +213,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
    * <p>This method is invoked by {@link #getTestExecutionListeners()}.
    * <p>The default implementation looks up and instantiates all
    * {@code TestExecutionListener} entries
-   * configured in all {@code META-INF/spring.factories} files on the classpath.
+   * configured in all {@code META-INF/today-strategies.properties} files on the classpath.
    * <p>If a particular listener cannot be loaded due to a {@link LinkageError}
    * or {@link ClassNotFoundException}, a {@code DEBUG} message will be logged,
    * but the associated exception will not be rethrown. A {@link RuntimeException}
