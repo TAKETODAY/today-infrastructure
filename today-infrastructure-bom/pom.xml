@@ -95,6 +95,12 @@
 
       <dependency>
         <groupId>cn.taketoday</groupId>
+        <artifactId>today-native</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.taketoday</groupId>
         <artifactId>today-beans</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -1291,6 +1297,12 @@
         <groupId>org.glassfish.jaxb</groupId>
         <artifactId>jaxb-runtime</artifactId>
         <version>3.0.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.graalvm.sdk</groupId>
+        <artifactId>graal-sdk</artifactId>
+        <version>22.3.1</version>
       </dependency>
 
     </dependencies>

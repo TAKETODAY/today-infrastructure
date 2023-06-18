@@ -52,6 +52,12 @@
     </dependency>
 
     <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-native</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>jakarta.annotation</groupId>
       <artifactId>jakarta.annotation-api</artifactId>
       <scope>provided</scope>
@@ -234,6 +240,7 @@
       <artifactId>slf4j-api</artifactId>
       <scope>test</scope>
     </dependency>
+
 
   </dependencies>
 

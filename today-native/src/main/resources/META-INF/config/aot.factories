@@ -1,0 +1,3 @@
+cn.taketoday.aot.hint.RuntimeHintsRegistrar=\
+cn.taketoday.aot.hint.support.ObjectToObjectConverterRuntimeHints,\
+cn.taketoday.aot.hint.support.TodayStrategiesRuntimeHints

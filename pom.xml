@@ -52,6 +52,7 @@
     <module>today-beans</module>
     <module>today-retry</module>
     <module>today-jcache</module>
+    <module>today-native</module>
     <module>today-context</module>
     <module>today-starter</module>
     <module>today-aspects</module>

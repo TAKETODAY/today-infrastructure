@@ -59,7 +59,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/9/5 13:57
  * @since 4.0
  */
-public final class TodayStrategies {
+public class TodayStrategies {
   private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
 
   public static final String STRATEGIES_LOCATION = "META-INF/today-strategies.properties";
