@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import cn.taketoday.contextsupport.testfixture.cache.AbstractValueAdaptingCacheTests;
+import cn.taketoday.context.testfixture.cache.AbstractValueAdaptingCacheTests;
 import cn.taketoday.core.serializer.support.SerializationDelegate;
 
 import static org.assertj.core.api.Assertions.assertThat;

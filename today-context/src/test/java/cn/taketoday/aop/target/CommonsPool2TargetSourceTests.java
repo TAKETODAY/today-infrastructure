@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,12 +30,12 @@ import java.util.NoSuchElementException;
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.Person;
 import cn.taketoday.beans.testfixture.beans.SerializablePerson;
 import cn.taketoday.beans.testfixture.beans.SideEffectBean;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

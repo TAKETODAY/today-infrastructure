@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,6 @@ import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 
-import cn.taketoday.context.DisabledIfInContinuousIntegration;
 import cn.taketoday.jmx.IJmxTestBean;
 import cn.taketoday.jmx.export.assembler.AbstractMetadataAssemblerTests;
 import cn.taketoday.jmx.export.metadata.JmxAttributeSource;
@@ -39,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  */
 @Order(Integer.MAX_VALUE)
-@DisabledIfInContinuousIntegration(disabledReason = "Maven 总是失败")
 public class AnnotationMetadataAssemblerTests extends AbstractMetadataAssemblerTests {
 
   private static final String OBJECT_NAME = "bean:name=testBean4";

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -54,21 +55,21 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.MethodReplacer;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.DependenciesBean;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.FactoryMethods;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
-import cn.taketoday.beans.testfixture.beans.ResourceTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.UrlResource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.tests.sample.beans.ResourceTestBean;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StopWatch;
 
@@ -1901,4 +1902,17 @@ class XmlBeanFactoryTests {
     }
   }
 
+}
+
+class MixedCollectionBean {
+
+  private Collection<?> jumble;
+
+  public void setJumble(Collection<?> jumble) {
+    this.jumble = jumble;
+  }
+
+  public Collection<?> getJumble() {
+    return jumble;
+  }
 }

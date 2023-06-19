@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,12 @@
 
 package cn.taketoday.aop.aspectj;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.testfixture.interceptor.CallCountingInterceptor;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 
@@ -60,4 +61,22 @@ public class AspectJExpressionPointcutAdvisorTests {
 
 }
 
+class CallCountingInterceptor implements MethodInterceptor {
+
+  private int count;
+
+  @Override
+  public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+    count++;
+    return methodInvocation.proceed();
+  }
+
+  public int getCount() {
+    return count;
+  }
+
+  public void reset() {
+    this.count = 0;
+  }
+}
 
