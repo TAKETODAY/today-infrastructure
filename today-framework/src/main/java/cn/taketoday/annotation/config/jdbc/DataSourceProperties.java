@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -157,7 +157,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return this.name;
   }
 
-  public void setName(String name) {
+  public void setName(@Nullable String name) {
     this.name = name;
   }
 
@@ -166,7 +166,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return this.type;
   }
 
-  public void setType(Class<? extends DataSource> type) {
+  public void setType(@Nullable Class<? extends DataSource> type) {
     this.type = type;
   }
 
@@ -192,7 +192,9 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    */
   public String determineDriverClassName() {
     if (StringUtils.hasText(this.driverClassName)) {
-      Assert.state(driverClassIsLoadable(), () -> "Cannot load driver class: " + this.driverClassName);
+      if (!driverClassIsLoadable()) {
+        throw new IllegalStateException("Cannot load driver class: " + this.driverClassName);
+      }
       return this.driverClassName;
     }
     String driverClassName = null;
@@ -200,6 +202,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
       driverClassName = DatabaseDriver.fromJdbcUrl(this.url).getDriverClassName();
     }
     if (StringUtils.isBlank(driverClassName)) {
+      Assert.state(embeddedDatabaseConnection != null, "No EmbeddedDatabaseConnection.");
       driverClassName = embeddedDatabaseConnection.getDriverClassName();
     }
     if (StringUtils.isBlank(driverClassName)) {
@@ -235,7 +238,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return this.url;
   }
 
-  public void setUrl(String url) {
+  public void setUrl(@Nullable String url) {
     this.url = url;
   }
 
@@ -249,7 +252,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
       return this.url;
     }
     String databaseName = determineDatabaseName();
-    String url = (databaseName != null) ? this.embeddedDatabaseConnection.getUrl(databaseName) : null;
+    String url = (databaseName != null) ? embeddedDatabaseConnection.getUrl(databaseName) : null;
     if (StringUtils.isBlank(url)) {
       throw new DataSourceBeanCreationException("Failed to determine suitable jdbc url", this,
               this.embeddedDatabaseConnection);
@@ -290,7 +293,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return this.username;
   }
 
-  public void setUsername(String username) {
+  public void setUsername(@Nullable String username) {
     this.username = username;
   }
 
@@ -321,7 +324,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return this.password;
   }
 
-  public void setPassword(String password) {
+  public void setPassword(@Nullable String password) {
     this.password = password;
   }
 
@@ -353,7 +356,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
    *
    * @param jndiName the JNDI name
    */
-  public void setJndiName(String jndiName) {
+  public void setJndiName(@Nullable String jndiName) {
     this.jndiName = jndiName;
   }
 
@@ -362,7 +365,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
     return this.embeddedDatabaseConnection;
   }
 
-  public void setEmbeddedDatabaseConnection(EmbeddedDatabaseConnection embeddedDatabaseConnection) {
+  public void setEmbeddedDatabaseConnection(@Nullable EmbeddedDatabaseConnection embeddedDatabaseConnection) {
     this.embeddedDatabaseConnection = embeddedDatabaseConnection;
   }
 
@@ -412,6 +415,7 @@ public class DataSourceProperties implements BeanClassLoaderAware, InitializingB
 
   }
 
+  @SuppressWarnings("serial")
   static class DataSourceBeanCreationException extends BeanCreationException {
 
     public final DataSourceProperties properties;

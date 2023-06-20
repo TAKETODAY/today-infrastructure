@@ -28,7 +28,7 @@ import cn.taketoday.core.env.AbstractEnvironment;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.StandardEnvironment;
-import cn.taketoday.core.testfixture.env.MockPropertySource;
+import cn.taketoday.mock.env.MockPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

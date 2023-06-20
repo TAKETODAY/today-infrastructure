@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,18 +32,18 @@ import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 @Configuration
 public class TransactionManagerConfiguration {
 
-	@Bean
-	@Qualifier("synch")
-	public PlatformTransactionManager transactionManager1() {
-		return new CallCountingTransactionManager();
-	}
+  @Bean
+  @Qualifier("synch")
+  public PlatformTransactionManager transactionManager1() {
+    return new CallCountingTransactionManager();
+  }
 
-	@Bean
-	@NoSynch
-	public PlatformTransactionManager transactionManager2() {
-		CallCountingTransactionManager tm = new CallCountingTransactionManager();
-		tm.setTransactionSynchronization(CallCountingTransactionManager.SYNCHRONIZATION_NEVER);
-		return tm;
-	}
+  @Bean
+  @NoSynch
+  public PlatformTransactionManager transactionManager2() {
+    CallCountingTransactionManager tm = new CallCountingTransactionManager();
+    tm.setTransactionSynchronization(CallCountingTransactionManager.SYNCHRONIZATION_NEVER);
+    return tm;
+  }
 
 }

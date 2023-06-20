@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,17 +34,17 @@ import cn.taketoday.cache.annotation.CachingConfigurer;
 import cn.taketoday.cache.annotation.EnableCaching;
 import cn.taketoday.cache.interceptor.KeyGenerator;
 import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
-import cn.taketoday.cache.jcache.testfixture.cache.AbstractCacheAnnotationTests;
-import cn.taketoday.cache.jcache.testfixture.cache.SomeCustomKeyGenerator;
-import cn.taketoday.cache.jcache.testfixture.cache.beans.AnnotatedClassCacheableService;
-import cn.taketoday.cache.jcache.testfixture.cache.beans.CacheableService;
-import cn.taketoday.cache.jcache.testfixture.cache.beans.DefaultCacheableService;
-import cn.taketoday.cache.jcache.transaction.CallCountingTransactionManager;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.testfixture.cache.AbstractCacheAnnotationTests;
+import cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.context.testfixture.cache.beans.AnnotatedClassCacheableService;
+import cn.taketoday.context.testfixture.cache.beans.CacheableService;
+import cn.taketoday.context.testfixture.cache.beans.DefaultCacheableService;
 import cn.taketoday.transaction.support.TransactionTemplate;
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 
 /**
  * @author Stephane Nicoll

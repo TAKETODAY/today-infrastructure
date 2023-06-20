@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,13 +61,7 @@ public class NestedTestsWithSpringRulesTests extends SpringRuleConfigurer {
 
     @Test
     public void nestedTest() throws Exception {
-      // Note: the following would fail since TestExecutionListeners in
-      // the TestContext Framework are not applied to the enclosing
-      // instance of an inner test class.
-      //
-      // assertEquals("foo", foo);
-
-      assertThat(foo).as("@Autowired field in enclosing instance should be null.").isNull();
+      assertThat(foo).isEqualTo("foo");
       assertThat(bar).isEqualTo("bar");
     }
   }

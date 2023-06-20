@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,9 +39,6 @@ import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
 import cn.taketoday.cache.jcache.interceptor.AnnotatedJCacheableService;
 import cn.taketoday.cache.jcache.interceptor.DefaultJCacheOperationSource;
 import cn.taketoday.cache.jcache.interceptor.JCacheInterceptor;
-import cn.taketoday.cache.jcache.testfixture.cache.SomeKeyGenerator;
-import cn.taketoday.cache.jcache.testfixture.jcache.AbstractJCacheAnnotationTests;
-import cn.taketoday.cache.jcache.testfixture.jcache.JCacheableService;
 import cn.taketoday.cache.support.NoOpCacheManager;
 import cn.taketoday.cache.support.SimpleCacheManager;
 import cn.taketoday.context.ApplicationContext;
@@ -49,6 +46,9 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.testfixture.cache.SomeKeyGenerator;
+import cn.taketoday.contextsupport.testfixture.jcache.AbstractJCacheAnnotationTests;
+import cn.taketoday.contextsupport.testfixture.jcache.JCacheableService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

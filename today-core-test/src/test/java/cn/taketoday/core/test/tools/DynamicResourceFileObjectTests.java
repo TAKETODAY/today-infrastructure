@@ -20,13 +20,13 @@
 
 package cn.taketoday.core.test.tools;
 
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.tools.JavaFileObject.Kind;
-
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
@@ -40,42 +40,42 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
  */
 class DynamicResourceFileObjectTests {
 
-	@Test
-	void getUriReturnsFileUri() {
-		DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
-		assertThat(fileObject.toUri()).hasToString("resource:///META-INF/test.properties");
-	}
+  @Test
+  void getUriReturnsFileUri() {
+    DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
+    assertThat(fileObject.toUri()).hasToString("resource:///META-INF/test.properties");
+  }
 
-	@Test
-	void getKindReturnsOther() {
-		DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
-		assertThat(fileObject.getKind()).isEqualTo(Kind.OTHER);
-	}
+  @Test
+  void getKindReturnsOther() {
+    DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
+    assertThat(fileObject.getKind()).isEqualTo(Kind.OTHER);
+  }
 
-	@Test
-	void openOutputStreamWritesToBytes() throws Exception {
-		DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
-		try(OutputStream outputStream = fileObject.openOutputStream()) {
-			new ByteArrayInputStream("test".getBytes()).transferTo(outputStream);
-		}
-		assertThat(fileObject.getBytes()).isEqualTo("test".getBytes());
-	}
+  @Test
+  void openOutputStreamWritesToBytes() throws Exception {
+    DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
+    try (OutputStream outputStream = fileObject.openOutputStream()) {
+      new ByteArrayInputStream("test".getBytes()).transferTo(outputStream);
+    }
+    assertThat(fileObject.getBytes()).isEqualTo("test".getBytes());
+  }
 
-	@Test
-	void openInputStreamReadsFromBytes() throws Exception {
-		DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
-		try(OutputStream outputStream = fileObject.openOutputStream()) {
-			new ByteArrayInputStream("test".getBytes()).transferTo(outputStream);
-		}
-		try(InputStream inputStream = fileObject.openInputStream()) {
-			assertThat(inputStream.readAllBytes()).isEqualTo("test".getBytes());
-		}
-	}
+  @Test
+  void openInputStreamReadsFromBytes() throws Exception {
+    DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
+    try (OutputStream outputStream = fileObject.openOutputStream()) {
+      new ByteArrayInputStream("test".getBytes()).transferTo(outputStream);
+    }
+    try (InputStream inputStream = fileObject.openInputStream()) {
+      assertThat(inputStream.readAllBytes()).isEqualTo("test".getBytes());
+    }
+  }
 
-	@Test
-	void openInputStreamWhenNothingWrittenThrowsException() {
-		DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
-		assertThatIOException().isThrownBy(fileObject::openInputStream);
-	}
+  @Test
+  void openInputStreamWhenNothingWrittenThrowsException() {
+    DynamicResourceFileObject fileObject = new DynamicResourceFileObject("META-INF/test.properties");
+    assertThatIOException().isThrownBy(fileObject::openInputStream);
+  }
 
 }

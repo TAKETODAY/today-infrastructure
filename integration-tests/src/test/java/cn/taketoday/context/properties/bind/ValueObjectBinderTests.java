@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,17 +24,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,13 +39,14 @@ import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MockConfigurationPropertySource;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.test.tools.SourceFile;
+import cn.taketoday.core.test.tools.TestCompiler;
 import cn.taketoday.format.annotation.DateTimeFormat;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.test.compiler.TestCompiler;
-import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for {@link ValueObjectBinder}.
@@ -375,52 +370,28 @@ class ValueObjectBinderTests {
   }
 
   @Test
-  void bindToRecordWithDefaultValue(@TempDir File tempDir) throws IOException, ClassNotFoundException {
+  void bindToRecordWithDefaultValue(@TempDir File tempDir) {
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("test.record.property1", "value-from-config-1");
     this.sources.add(source);
-    File recordProperties = new File(tempDir, "RecordProperties.java");
-    try (PrintWriter writer = new PrintWriter(new FileWriter(recordProperties))) {
-      writer.println("public record RecordProperties(");
-      writer.println(
-              "@cn.taketoday.context.properties.bind.DefaultValue(\"default-value-1\") String property1,");
-      writer.println(
-              "@cn.taketoday.context.properties.bind.DefaultValue(\"default-value-2\") String property2");
-      writer.println(") {");
-      writer.println("}");
-    }
-    TestCompiler compiler = new TestCompiler(tempDir);
-    compiler.getTask(Arrays.asList(recordProperties)).call();
-    ClassLoader ucl = new URLClassLoader(new URL[] { tempDir.toURI().toURL() });
-    Object bean = this.binder.bind("test.record", Class.forName("RecordProperties", true, ucl)).get();
-    assertThat(ReflectionTestUtils.getField(bean, "property1")).isEqualTo("value-from-config-1");
-    assertThat(ReflectionTestUtils.getField(bean, "property2")).isEqualTo("default-value-2");
+    String recordProperties = """
+            public record RecordProperties(
+            	@cn.taketoday.context.properties.bind.DefaultValue("default-value-1") String property1,
+            	@cn.taketoday.context.properties.bind.DefaultValue("default-value-2") String property2) {
+            }
+            """;
+    TestCompiler.forSystem().withSources(SourceFile.of(recordProperties)).compile((compiled) -> {
+      try {
+        ClassLoader cl = compiled.getClassLoader();
+        Object bean = this.binder.bind("test.record", Class.forName("RecordProperties", true, cl)).get();
+        assertThat(bean).hasFieldOrPropertyWithValue("property1", "value-from-config-1")
+                .hasFieldOrPropertyWithValue("property2", "default-value-2");
+      }
+      catch (ClassNotFoundException ex) {
+        fail("Expected generated class 'RecordProperties' not found", ex);
+      }
+    });
   }
-
-//
-//  @Test
-//  void bindToRecordWithDefaultValue() {
-//    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
-//    source.put("test.record.property1", "value-from-config-1");
-//    this.sources.add(source);
-//    String recordProperties = """
-//            public record RecordProperties(
-//            	@cn.taketoday.context.properties.bind.DefaultValue("default-value-1") String property1,
-//            	@cn.taketoday.context.properties.bind.DefaultValue("default-value-2") String property2) {
-//            }
-//            """;
-//    TestCompiler.forSystem().withSources(SourceFile.of(recordProperties)).compile((compiled) -> {
-//      try {
-//        ClassLoader cl = compiled.getClassLoader();
-//        Object bean = this.binder.bind("test.record", Class.forName("RecordProperties", true, cl)).get();
-//        assertThat(bean).hasFieldOrPropertyWithValue("property1", "value-from-config-1")
-//                .hasFieldOrPropertyWithValue("property2", "default-value-2");
-//      }
-//      catch (ClassNotFoundException ex) {
-//        fail("Expected generated class 'RecordProperties' not found", ex);
-//      }
-//    });
-//  }
 
   private void noConfigurationProperty(BindException ex) {
     assertThat(ex.getProperty()).isNull();

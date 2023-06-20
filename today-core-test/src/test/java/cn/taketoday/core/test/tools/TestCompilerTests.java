@@ -1,20 +1,28 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.test.tools;
+
+import com.example.PublicInterface;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -27,9 +35,6 @@ import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.TypeElement;
-
-import com.example.PublicInterface;
-import org.junit.jupiter.api.Test;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.util.ClassUtils;
@@ -46,271 +51,270 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class TestCompilerTests {
 
-	private static final String HELLO_WORLD = """
-			package com.example;
+  private static final String HELLO_WORLD = """
+          package com.example;
 
-			import java.util.function.Supplier;
+          import java.util.function.Supplier;
 
-			@Deprecated
-			public class Hello implements Supplier<String> {
+          @Deprecated
+          public class Hello implements Supplier<String> {
 
-				public String get() {
-					return "Hello World!";
-				}
+          	public String get() {
+          		return "Hello World!";
+          	}
 
-			}
-			""";
+          }
+          """;
 
-	private static final String HELLO_SPRING = """
-			package com.example;
+  private static final String HELLO_SPRING = """
+          package com.example;
 
-			import java.util.function.Supplier;
+          import java.util.function.Supplier;
 
-			public class Hello implements Supplier<String> {
+          public class Hello implements Supplier<String> {
 
-				public String get() {
-					return "Hello Spring!"; // !!
-				}
+          	public String get() {
+          		return "Hello Spring!"; // !!
+          	}
 
-			}
-			""";
+          }
+          """;
 
-	private static final String HELLO_BAD = """
-			package com.example;
+  private static final String HELLO_BAD = """
+          package com.example;
 
-			public class Hello implements Supplier<String> {
+          public class Hello implements Supplier<String> {
 
-				public String get() {
-					return "Missing Import!";
-				}
+          	public String get() {
+          		return "Missing Import!";
+          	}
 
-			}
-			""";
+          }
+          """;
 
+  @Test
+  @SuppressWarnings("unchecked")
+  void compileWhenHasDifferentClassesWithSameClassNameCompilesBoth() {
+    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_WORLD)).compile(
+            compiled -> {
+              Supplier<String> supplier = compiled.getInstance(Supplier.class,
+                      "com.example.Hello");
+              assertThat(supplier.get()).isEqualTo("Hello World!");
+            });
+    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_SPRING)).compile(
+            compiled -> {
+              Supplier<String> supplier = compiled.getInstance(Supplier.class,
+                      "com.example.Hello");
+              assertThat(supplier.get()).isEqualTo("Hello Spring!");
+            });
+  }
 
-	@Test
-	@SuppressWarnings("unchecked")
-	void compileWhenHasDifferentClassesWithSameClassNameCompilesBoth() {
-		TestCompiler.forSystem().withSources(SourceFile.of(HELLO_WORLD)).compile(
-				compiled -> {
-					Supplier<String> supplier = compiled.getInstance(Supplier.class,
-							"com.example.Hello");
-					assertThat(supplier.get()).isEqualTo("Hello World!");
-				});
-		TestCompiler.forSystem().withSources(SourceFile.of(HELLO_SPRING)).compile(
-				compiled -> {
-					Supplier<String> supplier = compiled.getInstance(Supplier.class,
-							"com.example.Hello");
-					assertThat(supplier.get()).isEqualTo("Hello Spring!");
-				});
-	}
+  @Test
+  void compileAndGetSourceFile() {
+    TestCompiler.forSystem().withSources(SourceFile.of(HELLO_SPRING)).compile(
+            compiled -> assertThat(compiled.getSourceFile()).contains("// !!"));
+  }
 
-	@Test
-	void compileAndGetSourceFile() {
-		TestCompiler.forSystem().withSources(SourceFile.of(HELLO_SPRING)).compile(
-				compiled -> assertThat(compiled.getSourceFile()).contains("// !!"));
-	}
+  @Test
+  void compileWhenSourceHasCompileErrors() {
+    assertThatExceptionOfType(CompilationException.class).isThrownBy(
+            () -> TestCompiler.forSystem().withSources(
+                    SourceFile.of(HELLO_BAD)).compile(compiled -> {
+            }));
+  }
 
-	@Test
-	void compileWhenSourceHasCompileErrors() {
-		assertThatExceptionOfType(CompilationException.class).isThrownBy(
-				() -> TestCompiler.forSystem().withSources(
-						SourceFile.of(HELLO_BAD)).compile(compiled -> {
-				}));
-	}
+  @Test
+  void withSourcesArrayAddsSource() {
+    SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
+    TestCompiler.forSystem().withSources(sourceFile).compile(
+            this::assertSuppliesHelloWorld);
+  }
 
-	@Test
-	void withSourcesArrayAddsSource() {
-		SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
-		TestCompiler.forSystem().withSources(sourceFile).compile(
-				this::assertSuppliesHelloWorld);
-	}
+  @Test
+  void withSourcesAddsSource() {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD));
+    TestCompiler.forSystem().withSources(sourceFiles).compile(
+            this::assertSuppliesHelloWorld);
+  }
 
-	@Test
-	void withSourcesAddsSource() {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD));
-		TestCompiler.forSystem().withSources(sourceFiles).compile(
-				this::assertSuppliesHelloWorld);
-	}
+  @Test
+  void withResourcesArrayAddsResource() {
+    ResourceFile resourceFile = ResourceFile.of("META-INF/myfile", "test");
+    TestCompiler.forSystem().withResources(resourceFile).compile(
+            this::assertHasResource);
+  }
 
-	@Test
-	void withResourcesArrayAddsResource() {
-		ResourceFile resourceFile = ResourceFile.of("META-INF/myfile", "test");
-		TestCompiler.forSystem().withResources(resourceFile).compile(
-				this::assertHasResource);
-	}
+  @Test
+  void withResourcesAddsResource() {
+    ResourceFiles resourceFiles = ResourceFiles.of(
+            ResourceFile.of("META-INF/myfile", "test"));
+    TestCompiler.forSystem().withResources(resourceFiles).compile(
+            this::assertHasResource);
+  }
 
-	@Test
-	void withResourcesAddsResource() {
-		ResourceFiles resourceFiles = ResourceFiles.of(
-				ResourceFile.of("META-INF/myfile", "test"));
-		TestCompiler.forSystem().withResources(resourceFiles).compile(
-				this::assertHasResource);
-	}
+  @Test
+  void withProcessorsArrayAddsProcessors() {
+    SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
+    TestProcessor processor = new TestProcessor();
+    TestCompiler.forSystem().withSources(sourceFile).withProcessors(processor).compile((compiled -> {
+      assertThat(processor.getProcessedAnnotations()).isNotEmpty();
+      assertThat(processor.getProcessedAnnotations()).satisfiesExactly(element ->
+              assertThat(element.getQualifiedName().toString()).isEqualTo("java.lang.Deprecated"));
+    }));
+  }
 
-	@Test
-	void withProcessorsArrayAddsProcessors() {
-		SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
-		TestProcessor processor = new TestProcessor();
-		TestCompiler.forSystem().withSources(sourceFile).withProcessors(processor).compile((compiled -> {
-			assertThat(processor.getProcessedAnnotations()).isNotEmpty();
-			assertThat(processor.getProcessedAnnotations()).satisfiesExactly(element ->
-					assertThat(element.getQualifiedName().toString()).isEqualTo("java.lang.Deprecated"));
-		}));
-	}
+  @Test
+  void withProcessorsAddsProcessors() {
+    SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
+    TestProcessor processor = new TestProcessor();
+    List<Processor> processors = List.of(processor);
+    TestCompiler.forSystem().withSources(sourceFile).withProcessors(processors).compile((compiled -> {
+      assertThat(processor.getProcessedAnnotations()).isNotEmpty();
+      assertThat(processor.getProcessedAnnotations()).satisfiesExactly(element ->
+              assertThat(element.getQualifiedName().toString()).isEqualTo("java.lang.Deprecated"));
+    }));
+  }
 
-	@Test
-	void withProcessorsAddsProcessors() {
-		SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
-		TestProcessor processor = new TestProcessor();
-		List<Processor> processors = List.of(processor);
-		TestCompiler.forSystem().withSources(sourceFile).withProcessors(processors).compile((compiled -> {
-			assertThat(processor.getProcessedAnnotations()).isNotEmpty();
-			assertThat(processor.getProcessedAnnotations()).satisfiesExactly(element ->
-					assertThat(element.getQualifiedName().toString()).isEqualTo("java.lang.Deprecated"));
-		}));
-	}
+  @Test
+  void compileWithWritableContent() {
+    WritableContent content = appendable -> appendable.append(HELLO_WORLD);
+    TestCompiler.forSystem().compile(content, this::assertSuppliesHelloWorld);
+  }
 
-	@Test
-	void compileWithWritableContent() {
-		WritableContent content = appendable -> appendable.append(HELLO_WORLD);
-		TestCompiler.forSystem().compile(content, this::assertSuppliesHelloWorld);
-	}
+  @Test
+  void compileWithSourceFile() {
+    SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
+    TestCompiler.forSystem().compile(sourceFile, this::assertSuppliesHelloWorld);
+  }
 
-	@Test
-	void compileWithSourceFile() {
-		SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
-		TestCompiler.forSystem().compile(sourceFile, this::assertSuppliesHelloWorld);
-	}
+  @Test
+  void compileWithSourceFiles() {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD));
+    TestCompiler.forSystem().compile(sourceFiles, this::assertSuppliesHelloWorld);
+  }
 
-	@Test
-	void compileWithSourceFiles() {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD));
-		TestCompiler.forSystem().compile(sourceFiles, this::assertSuppliesHelloWorld);
-	}
+  @Test
+  void compileWithSourceFilesAndResourceFiles() {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD));
+    ResourceFiles resourceFiles = ResourceFiles.of(
+            ResourceFile.of("META-INF/myfile", "test"));
+    TestCompiler.forSystem().compile(sourceFiles, resourceFiles, compiled -> {
+      assertSuppliesHelloWorld(compiled);
+      assertHasResource(compiled);
+    });
+  }
 
-	@Test
-	void compileWithSourceFilesAndResourceFiles() {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of(HELLO_WORLD));
-		ResourceFiles resourceFiles = ResourceFiles.of(
-				ResourceFile.of("META-INF/myfile", "test"));
-		TestCompiler.forSystem().compile(sourceFiles, resourceFiles, compiled -> {
-			assertSuppliesHelloWorld(compiled);
-			assertHasResource(compiled);
-		});
-	}
+  @Test
+  @CompileWithForkedClassLoader
+  void compiledCodeCanAccessExistingPackagePrivateClassIfAnnotated() throws LinkageError {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
+            package com.example;
 
-	@Test
-	@CompileWithForkedClassLoader
-	void compiledCodeCanAccessExistingPackagePrivateClassIfAnnotated() throws LinkageError {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
-				package com.example;
+            public class Test implements PublicInterface {
 
-				public class Test implements PublicInterface {
+            	public String perform() {
+            		return new PackagePrivate().perform();
+            	}
 
-					public String perform() {
-						return new PackagePrivate().perform();
-					}
+            }
+            """));
+    TestCompiler.forSystem().compile(sourceFiles, compiled -> assertThat(
+            compiled.getInstance(PublicInterface.class, "com.example.Test").perform())
+            .isEqualTo("Hello from PackagePrivate"));
+  }
 
-				}
-				"""));
-		TestCompiler.forSystem().compile(sourceFiles, compiled -> assertThat(
-				compiled.getInstance(PublicInterface.class, "com.example.Test").perform())
-				.isEqualTo("Hello from PackagePrivate"));
-	}
+  @Test
+  void compiledCodeCannotAccessExistingPackagePrivateClassIfNotAnnotated() {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
+            package com.example;
 
-	@Test
-	void compiledCodeCannotAccessExistingPackagePrivateClassIfNotAnnotated() {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
-				package com.example;
+            public class Test implements PublicInterface {
 
-				public class Test implements PublicInterface {
+            	public String perform() {
+            		return new PackagePrivate().perform();
+            	}
 
-					public String perform() {
-						return new PackagePrivate().perform();
-					}
+            }
+            """));
+    assertThatExceptionOfType(IllegalAccessError.class)
+            .isThrownBy(() -> TestCompiler.forSystem().compile(sourceFiles,
+                    compiled -> compiled.getInstance(PublicInterface.class, "com.example.Test").perform()))
+            .withMessageContaining(ClassUtils.getShortName(CompileWithForkedClassLoader.class));
+  }
 
-				}
-				"""));
-		assertThatExceptionOfType(IllegalAccessError.class)
-				.isThrownBy(() -> TestCompiler.forSystem().compile(sourceFiles,
-						compiled -> compiled.getInstance(PublicInterface.class, "com.example.Test").perform()))
-				.withMessageContaining(ClassUtils.getShortName(CompileWithForkedClassLoader.class));
-	}
+  @Test
+  void compiledCodeCanReferenceAdditionalClassInSamePackage() {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
+            package com.example;
 
-	@Test
-	void compiledCodeCanReferenceAdditionalClassInSamePackage() {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
-				package com.example;
+            public class Test implements PublicInterface {
 
-				public class Test implements PublicInterface {
+            	public String perform() {
+            		return Messages.HELLO;
+            	}
 
-					public String perform() {
-						return Messages.HELLO;
-					}
+            }
+            """));
+    ClassFile messagesClass = ClassFile.of("com.example.Messages",
+            new ClassPathResource("com.example.Messages"));
+    TestCompiler.forSystem().withClasses(List.of(messagesClass)).compile(sourceFiles, compiled ->
+            assertThat(compiled.getInstance(PublicInterface.class, "com.example.Test").perform())
+                    .isEqualTo("Hello"));
+  }
 
-				}
-				"""));
-		ClassFile messagesClass = ClassFile.of("com.example.Messages",
-				new ClassPathResource("com.example.Messages"));
-		TestCompiler.forSystem().withClasses(List.of(messagesClass)).compile(sourceFiles, compiled ->
-				assertThat(compiled.getInstance(PublicInterface.class, "com.example.Test").perform())
-						.isEqualTo("Hello"));
-	}
+  @Test
+  void compiledCodeCanReferenceAdditionalClassInDifferentPackage() {
+    SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
+            package com.example;
 
-	@Test
-	void compiledCodeCanReferenceAdditionalClassInDifferentPackage() {
-		SourceFiles sourceFiles = SourceFiles.of(SourceFile.of("""
-				package com.example;
+            import com.example.subpackage.Messages;
 
-				import com.example.subpackage.Messages;
+            public class Test implements PublicInterface {
 
-				public class Test implements PublicInterface {
+            	public String perform() {
+            		return Messages.HELLO;
+            	}
 
-					public String perform() {
-						return Messages.HELLO;
-					}
+            }
+            """));
+    ClassFile messagesClass = ClassFile.of("com.example.subpackage.Messages",
+            new ClassPathResource("com.example.subpackage.Messages"));
+    TestCompiler.forSystem().withClasses(List.of(messagesClass)).compile(sourceFiles, compiled -> assertThat(
+            compiled.getInstance(PublicInterface.class, "com.example.Test").perform()).isEqualTo("Hello from subpackage"));
+  }
 
-				}
-				"""));
-		ClassFile messagesClass = ClassFile.of("com.example.subpackage.Messages",
-				new ClassPathResource("com.example.subpackage.Messages"));
-		TestCompiler.forSystem().withClasses(List.of(messagesClass)).compile(sourceFiles, compiled -> assertThat(
-				compiled.getInstance(PublicInterface.class, "com.example.Test").perform()).isEqualTo("Hello from subpackage"));
-	}
+  @Test
+  void getResourceForCompiledBytecode() {
+    SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
+    TestCompiler.forSystem().compile(sourceFile, compiled -> {
+      InputStream stream = compiled.getClassLoader().getResourceAsStream("com/example/Hello.class");
+      assertThat(stream).isNotNull();
+    });
+  }
 
-	@Test
-	void getResourceForCompiledBytecode() {
-		SourceFile sourceFile = SourceFile.of(HELLO_WORLD);
-		TestCompiler.forSystem().compile(sourceFile, compiled -> {
-			InputStream stream = compiled.getClassLoader().getResourceAsStream("com/example/Hello.class");
-			assertThat(stream).isNotNull();
-		});
-	}
+  private void assertSuppliesHelloWorld(Compiled compiled) {
+    assertThat(compiled.getInstance(Supplier.class).get()).isEqualTo("Hello World!");
+  }
 
-	private void assertSuppliesHelloWorld(Compiled compiled) {
-		assertThat(compiled.getInstance(Supplier.class).get()).isEqualTo("Hello World!");
-	}
+  private void assertHasResource(Compiled compiled) {
+    assertThat(compiled.getClassLoader().getResourceAsStream(
+            "META-INF/myfile")).hasContent("test");
+  }
 
-	private void assertHasResource(Compiled compiled) {
-		assertThat(compiled.getClassLoader().getResourceAsStream(
-				"META-INF/myfile")).hasContent("test");
-	}
+  @SupportedAnnotationTypes("java.lang.Deprecated")
+  static class TestProcessor extends AbstractProcessor {
 
-	@SupportedAnnotationTypes("java.lang.Deprecated")
-	static class TestProcessor extends AbstractProcessor {
+    private final List<TypeElement> processedAnnotations = new ArrayList<>();
 
-		private final List<TypeElement> processedAnnotations = new ArrayList<>();
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+      this.processedAnnotations.addAll(annotations);
+      return true;
+    }
 
-		@Override
-		public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-			this.processedAnnotations.addAll(annotations);
-			return true;
-		}
-
-		public List<TypeElement> getProcessedAnnotations() {
-			return this.processedAnnotations;
-		}
-	}
+    public List<TypeElement> getProcessedAnnotations() {
+      return this.processedAnnotations;
+    }
+  }
 
 }

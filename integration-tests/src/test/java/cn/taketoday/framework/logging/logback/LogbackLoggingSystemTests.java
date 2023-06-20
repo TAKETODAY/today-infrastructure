@@ -128,7 +128,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   void jbossLoggingRoutesThroughLog4j2ByDefault() {
     System.getProperties().remove("org.jboss.logging.provider");
     org.jboss.logging.Logger jbossLogger = org.jboss.logging.Logger.getLogger(getClass());
-    assertThat(jbossLogger.getClass().getName()).isEqualTo("org.jboss.logging.Log4j2Logger");
+    assertThat(jbossLogger.getClass().getName()).isEqualTo("org.jboss.logging.Slf4jLocationAwareLogger");
   }
 
   @Test

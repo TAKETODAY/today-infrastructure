@@ -26,11 +26,11 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
-import cn.taketoday.transaction.ReactiveCallCountingTransactionManager;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
+import cn.taketoday.transaction.testfixture.ReactiveCallCountingTransactionManager;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;

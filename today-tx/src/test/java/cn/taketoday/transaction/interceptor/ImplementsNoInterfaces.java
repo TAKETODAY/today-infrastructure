@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
-import cn.taketoday.transaction.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 /**
  * Test for CGLIB proxying that implements no interfaces
