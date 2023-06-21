@@ -1,0 +1,22 @@
+apply plugin: 'jacoco'
+apply plugin: 'jacoco-report-aggregation'
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'cn.taketoday.build.conventions'
+
+jacoco {
+  toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+  dependsOn test // tests are required to run before generating the report
+
+  reports {
+    xml.required = true
+    csv.required = false
+  }
+
+}
+
+coveralls {
+
+}

@@ -595,7 +595,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   }
 
   @Test
-  @Disabled("Disabled until infra.profiles suppport is dropped")
+//  @Disabled("Disabled until infra.profiles suppport is dropped")
   void runWhenUsingInvalidPropertyThrowsException() {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class).isThrownBy(
             () -> this.application.run("--app.config.location=classpath:invalidproperty.properties"));

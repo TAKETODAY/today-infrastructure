@@ -2,10 +2,9 @@ plugins {
   id 'java-library'
 }
 
-description = "Infra Docs"
+description = "Infrastructure Docs"
 
 apply from: "${rootDir}/gradle/publications.gradle"
-
 
 jar {
   enabled = false
@@ -31,7 +30,7 @@ dependencies {
 }
 
 /**
- * Produce Javadoc for all Spring Framework modules in "build/docs/javadoc"
+ * Produce Javadoc for all Infrastructure modules in "build/docs/javadoc"
  */
 task api(type: Javadoc) {
   group = "Documentation"
@@ -76,10 +75,10 @@ task api(type: Javadoc) {
 task docsZip(type: Zip, dependsOn: ['api']) {
   group = "Distribution"
   description = "Builds -${archiveClassifier} archive containing api and reference " +
-          "for deployment at https://docs.spring.io/today-infrastructure/docs/."
+          "for deployment at https://taketoday.cn/open-source/projects/today-infrastructure/docs."
 
-  archiveBaseName.set("today-infrastructure")
-  archiveClassifier.set("docs")
+  archiveBaseName = "today-infrastructure"
+  archiveClassifier = "docs"
   from("src/dist") {
     include "changelog.txt"
   }
@@ -89,7 +88,7 @@ task docsZip(type: Zip, dependsOn: ['api']) {
 }
 
 /**
- * Zip all Spring Framework schemas into a single archive
+ * Zip all Infrastructure schemas into a single archive
  */
 task schemaZip(type: Zip) {
   group = "Distribution"

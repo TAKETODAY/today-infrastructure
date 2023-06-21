@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,7 +28,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.context.testfixture.TestSocketUtils;
+import cn.taketoday.core.testfixture.net.TestSocketUtils;
 import cn.taketoday.jmx.AbstractMBeanServerTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class MBeanServerConnectionFactoryBeanTests extends AbstractMBeanServerTests {
 
-  @SuppressWarnings("deprecation")
   private final String serviceUrl = "service:jmx:jmxmp://localhost:" + TestSocketUtils.findAvailableTcpPort();
 
   @Test

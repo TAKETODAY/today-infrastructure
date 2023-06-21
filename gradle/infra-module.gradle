@@ -1,3 +1,5 @@
+import java.time.LocalDateTime
+
 apply plugin: 'java-library'
 apply plugin: 'cn.taketoday.build.conventions'
 apply plugin: 'cn.taketoday.build.optional-dependencies'
@@ -40,11 +42,14 @@ jmhJar {
 jar {
   manifest.attributes["Implementation-Title"] = project.name
   manifest.attributes["Implementation-Version"] = project.version
+  manifest.attributes["Implementation-Build"] = LocalDateTime.now()
+  manifest.attributes["Implementation-Vendor"] = 'TODAY Tech'
+  manifest.attributes["Implementation-Vendor-Id"] = project.group
   manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')  // for Jigsaw
   manifest.attributes["Created-By"] =
           "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
 
-  from("${rootDir}/today-infra-docs/src/docs/dist") {
+  from("${rootDir}/infra-docs/src/docs/dist") {
     include "license.txt"
     include "notice.txt"
     into "META-INF"

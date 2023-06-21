@@ -79,6 +79,8 @@ dependencies {
   testImplementation 'org.freemarker:freemarker'
   testImplementation 'org.eclipse:yasson'
   testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation("org.codehaus.janino:janino")
+
   testImplementation 'org.apache.derby:derby'
   testImplementation 'org.apache.derby:derbytools'
   testImplementation("com.squareup.okhttp3:okhttp")
@@ -131,6 +133,12 @@ dependencies {
   testImplementation 'org.testcontainers:testcontainers:1.16.2'
   testImplementation 'com.mchange:c3p0:0.9.5.5'
   testImplementation 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
+
+  testImplementation(testFixtures(project(":today-context")))
+  testImplementation(testFixtures(project(":today-core")))
+  testImplementation(testFixtures(project(":today-beans")))
+  testImplementation(testFixtures(project(":today-tx")))
+  testImplementation(testFixtures(project(":today-jcache")))
 
 }
 

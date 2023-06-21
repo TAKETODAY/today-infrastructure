@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,6 +30,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.context.testfixture.jndi.SimpleNamingContextBuilder;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -37,7 +38,6 @@ import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.datasource.lookup.JndiDataSourceLookup;
 import cn.taketoday.jdbc.datasource.lookup.MapDataSourceLookup;
-import cn.taketoday.orm.jpa.testfixture.jndi.SimpleNamingContextBuilder;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import jakarta.persistence.spi.PersistenceUnitTransactionType;
 

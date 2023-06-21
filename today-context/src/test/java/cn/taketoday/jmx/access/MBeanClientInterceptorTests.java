@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.context.testfixture.TestSocketUtils;
+import cn.taketoday.core.testfixture.net.TestSocketUtils;
 import cn.taketoday.jmx.AbstractMBeanServerTests;
 import cn.taketoday.jmx.IJmxTestBean;
 import cn.taketoday.jmx.JmxTestBean;

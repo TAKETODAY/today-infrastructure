@@ -1,39 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-	<bean id="requestScopedObject" class="cn.taketoday.web.testfixture.beans.TestBean" scope="request">
+	<bean id="requestScopedObject" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="request">
         <property name="name" value="#{request.contextPath}"/>
 	</bean>
 
-	<bean id="requestScopedDisposableObject" class="cn.taketoday.web.testfixture.beans.DerivedTestBean" scope="request"/>
+	<bean id="requestScopedDisposableObject" class="cn.taketoday.beans.testfixture.beans.DerivedTestBean" scope="request"/>
 
-	<bean id="requestScopedFactoryBean" class="cn.taketoday.web.testfixture.beans.DummyFactory" scope="request"/>
+	<bean id="requestScopedFactoryBean" class="cn.taketoday.beans.testfixture.beans.DummyFactory" scope="request"/>
 
-	<bean id="requestScopedUniqueBean" class="cn.taketoday.web.testfixture.beans.CountingTestBean" scope="request"/>
+	<bean id="requestScopedUniqueBean" class="cn.taketoday.beans.testfixture.beans.CountingTestBean" scope="request"/>
 
-	<bean id="requestScopedObjectCircle1" class="cn.taketoday.web.testfixture.beans.TestBean" scope="request">
+	<bean id="requestScopedObjectCircle1" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="request">
 		<property name="spouse" ref="requestScopedObjectCircle2"/>
 	</bean>
 
-	<bean id="requestScopedObjectCircle2" class="cn.taketoday.web.testfixture.beans.TestBean" scope="request">
+	<bean id="requestScopedObjectCircle2" class="cn.taketoday.beans.testfixture.beans.TestBean" scope="request">
 		<property name="spouse" ref="requestScopedObjectCircle1"/>
 	</bean>
 
-	<bean id="requestScopedOuterBean" class="cn.taketoday.web.testfixture.beans.DerivedTestBean" scope="request">
+	<bean id="requestScopedOuterBean" class="cn.taketoday.beans.testfixture.beans.DerivedTestBean" scope="request">
 		<property name="name" value="outer"/>
 		<property name="spouse">
-			<bean class="cn.taketoday.web.testfixture.beans.DerivedTestBean">
+			<bean class="cn.taketoday.beans.testfixture.beans.DerivedTestBean">
 				<property name="name" value="inner"/>
 			</bean>
 		</property>
 	</bean>
 
-	<bean id="singletonOuterBean" class="cn.taketoday.web.testfixture.beans.DerivedTestBean" lazy-init="true">
+	<bean id="singletonOuterBean" class="cn.taketoday.beans.testfixture.beans.DerivedTestBean" lazy-init="true">
 		<property name="name" value="outer"/>
 		<property name="spouse">
-			<bean class="cn.taketoday.web.testfixture.beans.DerivedTestBean" scope="request">
+			<bean class="cn.taketoday.beans.testfixture.beans.DerivedTestBean" scope="request">
 				<property name="name" value="inner"/>
 			</bean>
 		</property>

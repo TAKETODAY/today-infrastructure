@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,6 +28,7 @@ import org.junit.experimental.ParallelComputer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
+import cn.taketoday.core.testfixture.TestGroup;
 import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.junit4.InheritedConfigJUnit4ClassRunnerAppCtxTests;
 import cn.taketoday.test.context.junit4.JUnit4ClassRunnerAppCtxTests;
@@ -39,7 +40,6 @@ import cn.taketoday.test.context.junit4.rules.BaseAppCtxRuleTests;
 import cn.taketoday.test.context.junit4.rules.BasicAnnotationConfigWacSpringRuleTests;
 import cn.taketoday.test.context.junit4.rules.InfraClassRule;
 import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
-import cn.taketoday.testfixture.TestGroup;
 import cn.taketoday.util.ReflectionUtils;
 
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.hasAnnotation;

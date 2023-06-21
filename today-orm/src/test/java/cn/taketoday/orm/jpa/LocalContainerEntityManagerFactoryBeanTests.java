@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.OptimisticLockingFailureException;
+import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
 import cn.taketoday.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
-import cn.taketoday.orm.jpa.testfixture.SerializationTestUtils;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.interceptor.DefaultTransactionAttribute;
 import jakarta.persistence.EntityManager;

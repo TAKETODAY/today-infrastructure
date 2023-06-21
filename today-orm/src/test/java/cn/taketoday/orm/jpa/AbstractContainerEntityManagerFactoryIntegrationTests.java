@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.orm.jpa.domain.DriversLicense;
 import cn.taketoday.orm.jpa.domain.Person;
-import cn.taketoday.orm.jpa.testfixture.SerializationTestUtils;
 import cn.taketoday.transaction.TransactionDefinition;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.FlushModeType;

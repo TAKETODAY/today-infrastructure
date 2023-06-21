@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,9 +47,9 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.DisabledIfInContinuousIntegration;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.Exceptions;
 import reactor.core.publisher.BaseSubscriber;

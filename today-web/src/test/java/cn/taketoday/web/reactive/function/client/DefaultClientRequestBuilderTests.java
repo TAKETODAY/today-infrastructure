@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,8 +21,6 @@
 package cn.taketoday.web.reactive.function.client;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.reactivestreams.Publisher;
 
 import java.net.URI;
@@ -35,10 +33,10 @@ import cn.taketoday.core.codec.CharSequenceEncoder;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
-import cn.taketoday.http.client.reactive.MockClientHttpRequest;
 import cn.taketoday.http.codec.EncoderHttpMessageWriter;
 import cn.taketoday.http.codec.HttpMessageWriter;
 import cn.taketoday.web.reactive.function.BodyInserter;
+import cn.taketoday.web.testfixture.http.client.reactive.MockClientHttpRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 

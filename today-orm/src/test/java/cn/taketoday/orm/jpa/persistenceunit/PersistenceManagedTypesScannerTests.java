@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.orm.jpa.persistenceunit;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.context.testfixture.index.CandidateComponentsTestClassLoader;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.orm.jpa.domain.DriversLicense;
@@ -29,7 +30,6 @@ import cn.taketoday.orm.jpa.domain.Employee;
 import cn.taketoday.orm.jpa.domain.EmployeeLocationConverter;
 import cn.taketoday.orm.jpa.domain.Person;
 import cn.taketoday.orm.jpa.domain2.entity.User;
-import cn.taketoday.orm.jpa.testfixture.CandidateComponentsTestClassLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

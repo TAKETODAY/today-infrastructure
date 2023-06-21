@@ -6,6 +6,9 @@ plugins {
   id 'de.undercouch.download' version '5.4.0'
   id 'me.champeau.jmh' version '0.7.0' apply false
   id 'me.champeau.mrjar' version '0.1.1'
+  id 'jacoco'
+  id 'jacoco-report-aggregation'
+  id "com.github.kt3k.coveralls" version "2.12.2"
 }
 
 ext {
@@ -50,6 +53,7 @@ configure([rootProject] + javaProjects) { project ->
   apply plugin: "java-test-fixtures"
   apply plugin: 'cn.taketoday.build.conventions'
   apply from: "${rootDir}/gradle/toolchains.gradle"
+  apply from: "${rootDir}/gradle/codecoverage.gradle"
 
   configurations {
     dependencyManagement {

@@ -5,7 +5,7 @@ publishing {
     mavenJava(MavenPublication) {
       pom {
         afterEvaluate {
-          name = project.description
+          name = project.name
           description = project.description
         }
         url = "https://github.com/TAKETODAY/today-infrastructure"
@@ -51,8 +51,8 @@ publishing {
 
 configureDeploymentRepository(project)
 
-void configureDeploymentRepository(Project project) {
-  project.plugins.withType(MavenPublishPlugin.class).all {
+static void configureDeploymentRepository(Project project) {
+  project.plugins.withType(MavenPublishPlugin.class).configureEach {
     PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
     if (project.hasProperty("deploymentRepository")) {
       publishing.repositories.maven {

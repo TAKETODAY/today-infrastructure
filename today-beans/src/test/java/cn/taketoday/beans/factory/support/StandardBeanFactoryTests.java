@@ -77,7 +77,6 @@ import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.xml.ConstructorDependenciesBean;
 import cn.taketoday.beans.propertyeditors.CustomNumberEditor;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.DependenciesBean;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -95,6 +94,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.conversion.support.GenericConversionService;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
 import jakarta.annotation.Priority;
 

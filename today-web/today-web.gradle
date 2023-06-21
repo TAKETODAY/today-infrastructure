@@ -101,6 +101,10 @@ dependencies {
     because("needed by Netty's SelfSignedCertificate on JDK 15+")
   }
   testFixturesImplementation("org.eclipse.jetty.websocket:websocket-jetty-server")
+  testFixturesImplementation("org.xmlunit:xmlunit-assertj")
+  testFixturesImplementation("org.xmlunit:xmlunit-matchers")
+  testFixturesImplementation 'org.projectlombok:lombok'
+  testFixturesAnnotationProcessor("org.projectlombok:lombok:1.18.22")
 
   testImplementation(project(":today-core-test"))
 

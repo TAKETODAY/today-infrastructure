@@ -41,6 +41,7 @@ dependencies {
   testImplementation(testFixtures(project(":today-context")))
   testImplementation(testFixtures(project(":today-core")))
   testImplementation(testFixtures(project(":today-tx")))
+  testImplementation(testFixtures(project(":today-jcache")))
   testImplementation("jakarta.mail:jakarta.mail-api")
   testCompileOnly("org.aspectj:aspectjrt")
 }

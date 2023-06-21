@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,8 +55,8 @@ import cn.taketoday.aop.testfixture.DefaultLockable;
 import cn.taketoday.aop.testfixture.Lockable;
 import cn.taketoday.aop.testfixture.PerTargetAspect;
 import cn.taketoday.aop.testfixture.TwoAdviceAspect;
-import cn.taketoday.aop.testfixture.beans.ITestBean;
-import cn.taketoday.aop.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
@@ -580,7 +580,7 @@ class ReflectiveAspectJAdvisorFactoryTests {
     }
   }
 
-  @Aspect("pertypewithin(cn.taketoday.aop.testfixture.beans.IOther+)")
+  @Aspect("pertypewithin(cn.taketoday.beans.testfixture.beans.IOther+)")
   static class PerTypeWithinAspect {
 
     int count;

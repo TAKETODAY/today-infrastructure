@@ -1,6 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import cn.taketoday.build.shadow.ShadowSource
-
 plugins {
   id 'me.champeau.mrjar'
 }
@@ -44,6 +41,8 @@ dependencies {
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("com.fasterxml.jackson.core:jackson-databind")
   testImplementation 'org.codehaus.janino:janino:3.1.6'
+  testImplementation("ch.qos.logback:logback-classic")
+  testImplementation 'org.apache.logging.log4j:log4j-core'
 
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.junit.platform:junit-platform-launcher")

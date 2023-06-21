@@ -4,6 +4,8 @@ plugins {
 }
 
 repositories {
+  mavenLocal()
+  maven { url "https://maven.aliyun.com/repository/public" }
   mavenCentral()
   gradlePluginPortal()
 }
@@ -13,7 +15,7 @@ ext {
 }
 
 dependencies {
-  implementation "me.champeau.gradle:japicmp-gradle-plugin:0.3.0"
+  implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
   implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
 }

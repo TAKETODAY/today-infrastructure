@@ -23,6 +23,8 @@ package cn.taketoday.transaction.aspectj;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

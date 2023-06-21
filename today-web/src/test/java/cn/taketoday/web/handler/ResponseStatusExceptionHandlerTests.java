@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import cn.taketoday.beans.TypeMismatchException;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.context.support.StaticMessageSource;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.i18n.LocaleContextHolder;
@@ -41,7 +42,6 @@ import cn.taketoday.web.MethodNotAllowedException;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.beans.ITestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 

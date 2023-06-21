@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,12 +38,12 @@ import cn.taketoday.context.annotation.AdviceMode;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.testfixture.cache.CacheTestUtils;
-import cn.taketoday.testfixture.cache.SomeCustomKeyGenerator;
-import cn.taketoday.testfixture.cache.SomeKeyGenerator;
-import cn.taketoday.testfixture.cache.beans.AnnotatedClassCacheableService;
-import cn.taketoday.testfixture.cache.beans.CacheableService;
-import cn.taketoday.testfixture.cache.beans.DefaultCacheableService;
+import cn.taketoday.context.testfixture.cache.CacheTestUtils;
+import cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.context.testfixture.cache.SomeKeyGenerator;
+import cn.taketoday.context.testfixture.cache.beans.AnnotatedClassCacheableService;
+import cn.taketoday.context.testfixture.cache.beans.CacheableService;
+import cn.taketoday.context.testfixture.cache.beans.DefaultCacheableService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

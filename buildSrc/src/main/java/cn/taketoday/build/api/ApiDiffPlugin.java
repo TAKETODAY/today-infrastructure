@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.build.api;
 
 import org.gradle.api.GradleException;
@@ -52,6 +53,8 @@ import me.champeau.gradle.japicmp.JapicmpTask;
  * {@code "./gradlew :today-core:apiDiff -PbaselineVersion=5.1.0.RELEASE"}.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class ApiDiffPlugin implements Plugin<Project> {
 
@@ -63,7 +66,7 @@ public class ApiDiffPlugin implements Plugin<Project> {
 
   private static final List<String> PACKAGE_INCLUDES = Collections.singletonList("cn.taketoday.*");
 
-  private static final URI SPRING_MILESTONE_REPOSITORY = URI.create("https://repo.spring.io/milestone");
+  private static final URI INFRA_MILESTONE_REPOSITORY = URI.create("https://repo.spring.io/milestone");
 
   @Override
   public void apply(Project project) {
@@ -85,26 +88,26 @@ public class ApiDiffPlugin implements Plugin<Project> {
 
   private void createApiDiffTask(String baselineVersion, Project project) {
     if (isProjectEligible(project)) {
-      // Add Spring Milestone repository for generating diffs against previous milestones
+      // Add Infra Milestone repository for generating diffs against previous milestones
       project.getRootProject()
               .getRepositories()
-              .maven(mavenArtifactRepository -> mavenArtifactRepository.setUrl(SPRING_MILESTONE_REPOSITORY));
+              .maven(mavenArtifactRepository -> mavenArtifactRepository.setUrl(INFRA_MILESTONE_REPOSITORY));
       JapicmpTask apiDiff = project.getTasks().create(TASK_NAME, JapicmpTask.class);
       apiDiff.setDescription("Generates an API diff report with japicmp");
       apiDiff.setGroup(JavaBasePlugin.DOCUMENTATION_GROUP);
 
-      apiDiff.setOldClasspath(createBaselineConfiguration(baselineVersion, project));
+      apiDiff.getOldClasspath().setFrom(createBaselineConfiguration(baselineVersion, project));
       TaskProvider<Jar> jar = project.getTasks().withType(Jar.class).named("jar");
-      apiDiff.setNewArchives(project.getLayout().files(jar.get().getArchiveFile().get().getAsFile()));
-      apiDiff.setNewClasspath(getRuntimeClassPath(project));
-      apiDiff.setPackageIncludes(PACKAGE_INCLUDES);
-      apiDiff.setOnlyModified(true);
-      apiDiff.setIgnoreMissingClasses(true);
+      apiDiff.getNewArchives().setFrom(project.getLayout().files(jar.get().getArchiveFile().get().getAsFile()));
+      apiDiff.getNewClasspath().setFrom(getRuntimeClassPath(project));
+      apiDiff.getPackageIncludes().set(PACKAGE_INCLUDES);
+      apiDiff.getOnlyModified().set(true);
+      apiDiff.getIgnoreMissingClasses().set(true);
       // Ignore Kotlin metadata annotations since they contain
       // illegal HTML characters and fail the report generation
-      apiDiff.setAnnotationExcludes(Collections.singletonList("@kotlin.Metadata"));
+      apiDiff.getAnnotationExcludes().set(Collections.singletonList("@kotlin.Metadata"));
 
-      apiDiff.setHtmlOutputFile(getOutputFile(baselineVersion, project));
+      apiDiff.getHtmlOutputFile().set(getOutputFile(baselineVersion, project));
 
       apiDiff.dependsOn(project.getTasks().getByName("jar"));
     }
@@ -121,12 +124,12 @@ public class ApiDiffPlugin implements Plugin<Project> {
     Dependency baselineDependency = project.getDependencies().create(baseline + "@jar");
     Configuration baselineConfiguration = project.getRootProject().getConfigurations().detachedConfiguration(baselineDependency);
     try {
-      // eagerly resolve the baseline configuration to check whether this is a new Spring module
+      // eagerly resolve the baseline configuration to check whether this is a new Infra module
       baselineConfiguration.resolve();
       return baselineConfiguration;
     }
     catch (GradleException exception) {
-      logger.warn("Could not resolve {} - assuming this is a new Spring module.", baseline);
+      logger.warn("Could not resolve {} - assuming this is a new Infra module.", baseline);
     }
     return project.getRootProject().getConfigurations().detachedConfiguration();
   }

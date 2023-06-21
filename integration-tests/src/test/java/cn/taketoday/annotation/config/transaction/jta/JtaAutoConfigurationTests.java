@@ -47,8 +47,6 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.test.classpath.ClassPathExclusions;
-import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.jta.UserTransactionAdapter;
@@ -68,7 +66,6 @@ import static org.mockito.Mockito.mock;
  * @author Kazuki Shimizu
  * @author Nishant Raut
  */
-@ClassPathExclusions("jetty-jndi*")
 class JtaAutoConfigurationTests {
 
   private AnnotationConfigApplicationContext context;

@@ -46,14 +46,14 @@ plugins.withType(JavaPlugin).configureEach {
   if (testToolchainConfigured()) {
     def testLanguageVersion = testToolchainLanguageVersion()
     tasks.withType(JavaCompile).matching { it.name.contains("Test") }.configureEach {
-      javaCompiler = javaToolchains.compilerFor {
+      javaCompiler.set(javaToolchains.compilerFor {
         languageVersion = testLanguageVersion
-      }
+      })
     }
     tasks.withType(Test).configureEach {
-      javaLauncher = javaToolchains.launcherFor {
+      javaLauncher.set(javaToolchains.launcherFor {
         languageVersion = testLanguageVersion
-      }
+      })
     }
   }
 }
@@ -63,13 +63,13 @@ pluginManager.withPlugin("me.champeau.jmh") {
   if (testToolchainConfigured()) {
     tasks.matching { it.name.contains('jmh') && it.hasProperty('javaLauncher') }.configureEach {
       javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(testToolchainLanguageVersion())
+        languageVersion = testToolchainLanguageVersion()
       })
     }
     tasks.withType(JavaCompile).matching { it.name.contains("Jmh") }.configureEach {
-      javaCompiler = javaToolchains.compilerFor {
+      javaCompiler.set(javaToolchains.compilerFor {
         languageVersion = testToolchainLanguageVersion()
-      }
+      })
     }
   }
 }

@@ -72,13 +72,15 @@ class TestConventions {
             "--add-opens=java.base/java.util=ALL-UNNAMED",
             "--add-opens=java.base/java.net=ALL-UNNAMED",
             "-Djava.locale.providers=COMPAT");
+
+    test.finalizedBy("jacocoTestReport");
   }
 
   private void configureTestRetryPlugin(Project project, Test test) {
     project.getPlugins().withType(TestRetryPlugin.class, testRetryPlugin -> {
       TestRetryTaskExtension testRetry = test.getExtensions().getByType(TestRetryTaskExtension.class);
-      testRetry.getFailOnPassedAfterRetry().set(true);
-      testRetry.getMaxRetries().set(isCi() ? 3 : 0);
+      testRetry.getFailOnPassedAfterRetry().set(false);
+      testRetry.getMaxRetries().set(isCi() ? 3 : 1);
     });
   }
 

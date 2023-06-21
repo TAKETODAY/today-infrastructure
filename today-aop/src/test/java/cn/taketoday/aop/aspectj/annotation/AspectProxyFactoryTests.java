@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import cn.taketoday.aop.testfixture.PerThisAspect;
-import cn.taketoday.aop.testfixture.SerializationTestUtils;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 

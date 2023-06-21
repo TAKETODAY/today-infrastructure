@@ -29,3 +29,4 @@
 */.flattened-pom.xml
 **/target/**
 /buildSrc/build/pluginUnderTestMetadata/
+**/build/**
