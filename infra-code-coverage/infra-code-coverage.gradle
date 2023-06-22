@@ -1,0 +1,54 @@
+plugins {
+  id 'base'
+  id 'jacoco-report-aggregation'
+}
+
+configurations {
+  jacocoAggregation.extendsFrom(dependencyManagement)
+}
+
+dependencies {
+  dependencyManagement(enforcedPlatform(dependencies.project(path: ":infra-platform")))
+
+  jacocoAggregation project(':today-core')
+  jacocoAggregation project(':today-beans')
+  jacocoAggregation project(':today-aop')
+  jacocoAggregation project(':today-context')
+  jacocoAggregation project(':today-aspects')
+  jacocoAggregation project(':today-context-indexer')
+  jacocoAggregation project(':today-core-test')
+  jacocoAggregation project(':today-framework')
+  jacocoAggregation project(':today-jcache')
+  jacocoAggregation project(':today-jdbc')
+  jacocoAggregation project(':today-mybatis')
+  jacocoAggregation project(':today-orm')
+  jacocoAggregation project(':today-oxm')
+  jacocoAggregation project(':today-redisson')
+  jacocoAggregation project(':today-retry')
+  jacocoAggregation project(':today-test')
+  jacocoAggregation project(':today-test-support')
+  jacocoAggregation project(':today-tx')
+  jacocoAggregation project(':today-web')
+  jacocoAggregation project(':today-websocket')
+  jacocoAggregation project(':integration-tests')
+}
+
+reporting {
+  reports {
+    testCodeCoverageReport(JacocoCoverageReport) {
+      testType = TestSuiteType.UNIT_TEST
+    }
+  }
+}
+
+
+check {
+  dependsOn testCodeCoverageReport
+}
+
+coveralls {
+  service = "GitHub"
+//  jacocoReportPath()
+
+}
+

@@ -66,6 +66,7 @@ task api(type: Javadoc) {
     project.sourceSets.main.allJava
   }
   maxMemory = "1024m"
+  failOnError = false
   destinationDir = file("$buildDir/docs/javadoc")
 }
 

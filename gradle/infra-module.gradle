@@ -44,7 +44,7 @@ jar {
   manifest.attributes["Implementation-Version"] = project.version
   manifest.attributes["Implementation-Build"] = LocalDateTime.now()
   manifest.attributes["Implementation-Vendor"] = 'TODAY Tech'
-  manifest.attributes["Implementation-Vendor-Id"] = project.group
+  manifest.attributes["Implementation-Vendor-Id"] = 'cn.taketoday'
   manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')  // for Jigsaw
   manifest.attributes["Created-By"] =
           "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
@@ -67,7 +67,7 @@ javadoc {
   description = "Generates project-level javadoc for use in -javadoc jar"
 
   options.encoding = "UTF-8"
-  options.memberLevel = JavadocMemberLevel.PROTECTED
+  options.memberLevel = JavadocMemberLevel.PRIVATE
   options.author = true
   options.header = project.name
   options.use = true
@@ -76,6 +76,7 @@ javadoc {
   // all linting warnings all the time (see/link references most notably).
   options.addStringOption("Xdoclint:syntax", "-quiet")
 
+  failOnError = false
   // Suppress warnings due to cross-module @see and @link references.
   // Note that global 'api' task does display all warnings, and
   // checks for 'reference' on top of 'syntax'.
@@ -87,7 +88,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   archiveClassifier.set("sources")
   from sourceSets.main.allSource
-  // Don't include or exclude anything explicitly by default. See SPR-12085.
 }
 
 task javadocJar(type: Jar) {

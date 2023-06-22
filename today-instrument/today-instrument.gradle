@@ -1,4 +1,4 @@
-description = "Today Instrument"
+description = "Infra Instrument"
 
 jar {
   manifest.attributes["Agent-Class"] = "cn.taketoday.instrument.InstrumentationSavingAgent"

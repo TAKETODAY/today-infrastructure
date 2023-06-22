@@ -6,14 +6,12 @@ plugins {
   id 'de.undercouch.download' version '5.4.0'
   id 'me.champeau.jmh' version '0.7.0' apply false
   id 'me.champeau.mrjar' version '0.1.1'
-  id 'jacoco'
-  id 'jacoco-report-aggregation'
   id "com.github.kt3k.coveralls" version "2.12.2"
 }
 
 ext {
   moduleProjects = subprojects.findAll { it.name.startsWith("today-") }
-  javaProjects = subprojects - project(":infra-bom") - project(":infra-platform")
+  javaProjects = subprojects - project(":infra-bom") - project(":infra-platform") - project(":infra-code-coverage")
 }
 
 configure(allprojects) { project ->
@@ -50,10 +48,10 @@ configure([rootProject] + javaProjects) { project ->
   group = "cn.taketoday"
 
   apply plugin: "java"
+  apply plugin: 'jacoco'
   apply plugin: "java-test-fixtures"
   apply plugin: 'cn.taketoday.build.conventions'
   apply from: "${rootDir}/gradle/toolchains.gradle"
-  apply from: "${rootDir}/gradle/codecoverage.gradle"
 
   configurations {
     dependencyManagement {
@@ -64,6 +62,10 @@ configure([rootProject] + javaProjects) { project ->
     matching { it.name.endsWith("Classpath") }.configureEach {
       it.extendsFrom(dependencyManagement)
     }
+  }
+
+  jacocoTestReport {
+    enabled = false
   }
 
   dependencies {
@@ -108,7 +110,7 @@ configure([rootProject] + javaProjects) { project ->
           "https://javadoc.io/static/io.rsocket/rsocket-core/1.1.1/",
           "https://r2dbc.io/spec/1.0.0.RELEASE/api/",
           // Previously there could be a split-package issue between JSR250 and JSR305 javax.annotation packages,
-          // but since 6.0 JSR 250 annotations such as @Resource and @PostConstruct have been replaced by their
+          // JSR 250 annotations such as @Resource and @PostConstruct have been replaced by their
           // JakartaEE equivalents in the jakarta.annotation package.
           "https://www.javadoc.io/doc/com.google.code.findbugs/jsr305/3.0.2/"
   ] as String[]
