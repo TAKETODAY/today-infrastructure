@@ -73,7 +73,6 @@ class TestConventions {
             "--add-opens=java.base/java.net=ALL-UNNAMED",
             "-Djava.locale.providers=COMPAT");
 
-    test.finalizedBy("jacocoTestReport");
   }
 
   private void configureTestRetryPlugin(Project project, Test test) {
