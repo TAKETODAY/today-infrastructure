@@ -9,6 +9,3 @@ dependencies {
 
 description = 'today-starter-netty'
 
-java {
-  withJavadocJar()
-}

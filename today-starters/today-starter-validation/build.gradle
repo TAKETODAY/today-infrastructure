@@ -8,7 +8,3 @@ dependencies {
 }
 
 description = 'today-starter-validation'
-
-java {
-  withJavadocJar()
-}

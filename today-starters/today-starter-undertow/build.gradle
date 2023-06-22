@@ -10,7 +10,3 @@ dependencies {
 }
 
 description = 'today-starter-undertow'
-
-java {
-    withJavadocJar()
-}

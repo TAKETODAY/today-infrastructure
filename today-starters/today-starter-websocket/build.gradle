@@ -3,12 +3,8 @@
  */
 
 dependencies {
-  implementation project(':today-starter-web')
+  implementation project(':today-starters:today-starter-web')
   implementation project(':today-websocket')
 }
 
 description = 'today-starter-websocket'
-
-java {
-  withJavadocJar()
-}

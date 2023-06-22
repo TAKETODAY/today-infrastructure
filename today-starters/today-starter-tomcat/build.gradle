@@ -9,7 +9,3 @@ dependencies {
 }
 
 description = 'today-starter-tomcat'
-
-java {
-    withJavadocJar()
-}

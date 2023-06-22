@@ -41,14 +41,6 @@ reporting {
   }
 }
 
-
 check {
   dependsOn testCodeCoverageReport
 }
-
-coveralls {
-  service = "GitHub"
-//  jacocoReportPath()
-
-}
-

@@ -1,4 +1,4 @@
-description = 'TODAY Framework'
+description = 'A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.'
 
 dependencies {
   implementation project(':today-core')

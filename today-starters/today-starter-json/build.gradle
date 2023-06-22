@@ -11,7 +11,3 @@ dependencies {
 }
 
 description = 'today-starter-json'
-
-java {
-    withJavadocJar()
-}

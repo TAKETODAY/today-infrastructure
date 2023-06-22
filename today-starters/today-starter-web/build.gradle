@@ -4,11 +4,7 @@
 
 dependencies {
   implementation project(':today-web')
-  implementation project(':today-starter-json')
+  implementation project(':today-starters:today-starter-json')
 }
 
 description = 'today-starter-web'
-
-java {
-  withJavadocJar()
-}
