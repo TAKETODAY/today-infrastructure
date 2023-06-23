@@ -529,7 +529,7 @@ final class ReactiveTypeHandler {
     }
 
     public ResolvableType getReturnType() {
-      return ResolvableType.fromClassWithGenerics(List.class, this.elementType);
+      return ResolvableType.forClassWithGenerics(List.class, this.elementType);
     }
   }
 

@@ -361,7 +361,7 @@ public abstract class ReflectionHelper {
     if (varargsPosition == null) {
       for (int i = 0; i < arguments.length; i++) {
         Class<?> argumentClass = methodHandleArgumentTypes.parameterType(i);
-        ResolvableType resolvableType = ResolvableType.fromClass(argumentClass);
+        ResolvableType resolvableType = ResolvableType.forClass(argumentClass);
         TypeDescriptor targetType = new TypeDescriptor(resolvableType, argumentClass, (Annotation[]) null);
 
         Object argument = arguments[i];
@@ -373,7 +373,7 @@ public abstract class ReflectionHelper {
       // Convert everything up to the varargs position
       for (int i = 0; i < varargsPosition; i++) {
         Class<?> argumentClass = methodHandleArgumentTypes.parameterType(i);
-        ResolvableType resolvableType = ResolvableType.fromClass(argumentClass);
+        ResolvableType resolvableType = ResolvableType.forClass(argumentClass);
         TypeDescriptor targetType = new TypeDescriptor(resolvableType, argumentClass, (Annotation[]) null);
 
         Object argument = arguments[i];
@@ -382,7 +382,7 @@ public abstract class ReflectionHelper {
       }
 
       final Class<?> varArgClass = methodHandleArgumentTypes.lastParameterType().getComponentType();
-      ResolvableType varArgResolvableType = ResolvableType.fromClass(varArgClass);
+      ResolvableType varArgResolvableType = ResolvableType.forClass(varArgClass);
       TypeDescriptor varArgContentType = new TypeDescriptor(varArgResolvableType, varArgClass, (Annotation[]) null);
 
       // If the target is varargs and there is just one more argument, then convert it here.

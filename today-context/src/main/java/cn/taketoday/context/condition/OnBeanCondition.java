@@ -257,7 +257,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
           Class<?> type, Set<Class<?>> parameterizedContainers, Set<String> result) {
     result = addAll(result, beanFactory.getBeanNamesForType(type, true, false));
     for (Class<?> container : parameterizedContainers) {
-      ResolvableType generic = ResolvableType.fromClassWithGenerics(container, type);
+      ResolvableType generic = ResolvableType.forClassWithGenerics(container, type);
       result = addAll(result, beanFactory.getBeanNamesForType(generic, true, false));
     }
     if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {

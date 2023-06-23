@@ -42,7 +42,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -64,11 +64,11 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
   void canWrite(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
-    assertThat(this.messageWriter.canWrite(fromClass(Object.class), null)).isTrue();
-    assertThat(this.messageWriter.canWrite(fromClass(Object.class), new MediaType("foo", "bar"))).isFalse();
+    assertThat(this.messageWriter.canWrite(forClass(Object.class), null)).isTrue();
+    assertThat(this.messageWriter.canWrite(forClass(Object.class), new MediaType("foo", "bar"))).isFalse();
 
     assertThat(this.messageWriter.canWrite(null, MediaType.TEXT_EVENT_STREAM)).isTrue();
-    assertThat(this.messageWriter.canWrite(fromClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
+    assertThat(this.messageWriter.canWrite(forClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
 
     // SPR-15464
     assertThat(this.messageWriter.canWrite(ResolvableType.NONE, MediaType.TEXT_EVENT_STREAM)).isTrue();
@@ -219,7 +219,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
           Publisher<T> source, MediaType mediaType, MockServerHttpResponse response, Class<T> clazz) {
 
     Mono<Void> result =
-            this.messageWriter.write(source, fromClass(clazz), mediaType, response, HINTS);
+            this.messageWriter.write(source, forClass(clazz), mediaType, response, HINTS);
 
     StepVerifier.create(result).verifyComplete();
   }

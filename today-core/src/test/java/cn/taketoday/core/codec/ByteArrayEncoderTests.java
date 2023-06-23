@@ -47,11 +47,11 @@ class ByteArrayEncoderTests extends AbstractEncoderTests<ByteArrayEncoder> {
   @Test
   public void canEncode() {
     assertThat(this.encoder.canEncode(
-            ResolvableType.fromClass(byte[].class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            ResolvableType.forClass(byte[].class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.encoder.canEncode(
-            ResolvableType.fromClass(Integer.class), MimeTypeUtils.TEXT_PLAIN)).isFalse();
+            ResolvableType.forClass(Integer.class), MimeTypeUtils.TEXT_PLAIN)).isFalse();
     assertThat(this.encoder.canEncode(
-            ResolvableType.fromClass(byte[].class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            ResolvableType.forClass(byte[].class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // SPR-15464
     assertThat(this.encoder.canEncode(ResolvableType.NONE, null)).isFalse();

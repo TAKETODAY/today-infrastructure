@@ -195,7 +195,7 @@ public abstract class LambdaSafe {
 
     private void logNonMatchingType(C callback, ClassCastException ex) {
       if (log.isDebugEnabled()) {
-        Class<?> expectedType = ResolvableType.fromClass(this.callbackType).resolveGeneric();
+        Class<?> expectedType = ResolvableType.forClass(this.callbackType).resolveGeneric();
         String expectedTypeName = expectedType != null ? ClassUtils.getShortName(expectedType) + " type" : "type";
         log.debug("Non-matching {} for callback {}: {}",
                 expectedTypeName, ClassUtils.getShortName(callbackType), callback, ex);
@@ -340,7 +340,7 @@ public abstract class LambdaSafe {
 
     @Override
     public boolean match(Class<C> callbackType, C callbackInstance, A argument, Object[] additionalArguments) {
-      ResolvableType type = ResolvableType.fromClass(callbackType, callbackInstance.getClass());
+      ResolvableType type = ResolvableType.forClass(callbackType, callbackInstance.getClass());
       if (type.getGenerics().length == 1) {
         Class<?> resolveGeneric = type.resolveGeneric();
         if (resolveGeneric != null) {

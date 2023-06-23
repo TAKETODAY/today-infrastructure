@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ public class GenericEventPojo<T> implements ResolvableTypeProvider {
 
   @Override
   public ResolvableType getResolvableType() {
-    return ResolvableType.fromClassWithGenerics(getClass(), ResolvableType.fromInstance(this.value));
+    return ResolvableType.forClassWithGenerics(getClass(), ResolvableType.forInstance(this.value));
   }
 
   @Override

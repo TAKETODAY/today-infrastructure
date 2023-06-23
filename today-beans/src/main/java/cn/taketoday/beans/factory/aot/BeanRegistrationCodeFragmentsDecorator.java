@@ -42,6 +42,7 @@ import cn.taketoday.lang.Assert;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class BeanRegistrationCodeFragmentsDecorator implements BeanRegistrationCodeFragments {

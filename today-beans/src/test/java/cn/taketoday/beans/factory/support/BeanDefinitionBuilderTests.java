@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -82,7 +82,7 @@ class BeanDefinitionBuilderTests {
 
   @Test
   void builderWithResolvableTypeAndInstanceSupplier() {
-    ResolvableType type = ResolvableType.fromClassWithGenerics(Function.class, Integer.class, String.class);
+    ResolvableType type = ResolvableType.forClassWithGenerics(Function.class, Integer.class, String.class);
     Function<Integer, String> function = i -> "value " + i;
     RootBeanDefinition rbd = (RootBeanDefinition) BeanDefinitionBuilder
             .rootBeanDefinition(type, () -> function).getBeanDefinition();

@@ -73,7 +73,7 @@ import reactor.core.publisher.Mono;
  */
 public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
   private static final Logger logger = HttpLogging.forLogName(ResourceHttpMessageWriter.class);
-  private static final ResolvableType REGION_TYPE = ResolvableType.fromClass(ResourceRegion.class);
+  private static final ResolvableType REGION_TYPE = ResolvableType.forClass(ResourceRegion.class);
 
   private final ResourceEncoder encoder;
   private final List<MediaType> mediaTypes;

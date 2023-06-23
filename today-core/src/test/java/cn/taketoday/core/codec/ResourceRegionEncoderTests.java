@@ -54,12 +54,12 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
 
   @Test
   void canEncode() {
-    ResolvableType resourceRegion = ResolvableType.fromClass(ResourceRegion.class);
+    ResolvableType resourceRegion = ResolvableType.forClass(ResourceRegion.class);
     MimeType allMimeType = MimeType.valueOf("*/*");
 
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Resource.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
             MimeTypeUtils.APPLICATION_OCTET_STREAM)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Resource.class), allMimeType)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class), allMimeType)).isFalse();
     assertThat(this.encoder.canEncode(resourceRegion, MimeTypeUtils.APPLICATION_OCTET_STREAM)).isTrue();
     assertThat(this.encoder.canEncode(resourceRegion, allMimeType)).isTrue();
 
@@ -72,7 +72,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
     ResourceRegion region = new ResourceRegion(
             new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()), 0, 6);
     Flux<DataBuffer> result = this.encoder.encode(
-            Mono.just(region), this.bufferFactory, ResolvableType.fromClass(ResourceRegion.class),
+            Mono.just(region), this.bufferFactory, ResolvableType.forClass(ResourceRegion.class),
             MimeTypeUtils.APPLICATION_OCTET_STREAM, Collections.emptyMap());
 
     StepVerifier.create(result)
@@ -94,7 +94,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
 
     Flux<DataBuffer> result = this.encoder.encode(
             regions, this.bufferFactory,
-            ResolvableType.fromClass(ResourceRegion.class),
+            ResolvableType.forClass(ResourceRegion.class),
             MimeType.valueOf("text/plain"),
             Collections.singletonMap(ResourceRegionEncoder.BOUNDARY_STRING_HINT, boundary)
     );
@@ -135,7 +135,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
 
     Flux<DataBuffer> flux = this.encoder.encode(
             regions, this.bufferFactory,
-            ResolvableType.fromClass(ResourceRegion.class),
+            ResolvableType.forClass(ResourceRegion.class),
             MimeType.valueOf("text/plain"),
             Collections.singletonMap(ResourceRegionEncoder.BOUNDARY_STRING_HINT, boundary)
     );
@@ -154,7 +154,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
 
     Flux<DataBuffer> flux = this.encoder.encode(
             regions, this.bufferFactory,
-            ResolvableType.fromClass(ResourceRegion.class),
+            ResolvableType.forClass(ResourceRegion.class),
             MimeType.valueOf("text/plain"),
             Collections.singletonMap(ResourceRegionEncoder.BOUNDARY_STRING_HINT, boundary)
     );
@@ -176,7 +176,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
 
     Flux<DataBuffer> result = this.encoder.encode(
             regions, this.bufferFactory,
-            ResolvableType.fromClass(ResourceRegion.class),
+            ResolvableType.forClass(ResourceRegion.class),
             MimeType.valueOf("text/plain"),
             Collections.singletonMap(ResourceRegionEncoder.BOUNDARY_STRING_HINT, boundary));
 

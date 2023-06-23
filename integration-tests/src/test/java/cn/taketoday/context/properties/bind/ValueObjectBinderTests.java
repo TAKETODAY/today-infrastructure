@@ -266,12 +266,12 @@ class ValueObjectBinderTests {
   @Test
   void bindToClassShouldBindWithGenerics() {
     // gh-19156
-    ResolvableType type = ResolvableType.fromClassWithGenerics(Map.class, String.class, String.class);
+    ResolvableType type = ResolvableType.forClassWithGenerics(Map.class, String.class, String.class);
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.value.bar", "baz");
     this.sources.add(source);
     var bean = this.binder.bind("foo", Bindable.<GenericValue<Map<String, String>>>of(
-            ResolvableType.fromClassWithGenerics(GenericValue.class, type))).get();
+            ResolvableType.forClassWithGenerics(GenericValue.class, type))).get();
     assertThat(bean.getValue()).containsEntry("bar", "baz");
   }
 

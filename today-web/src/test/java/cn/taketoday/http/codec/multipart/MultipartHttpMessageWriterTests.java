@@ -69,23 +69,23 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @Test
   public void canWrite() {
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.MULTIPART_FORM_DATA)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class),
             MediaType.MULTIPART_FORM_DATA)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.MULTIPART_MIXED)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.MULTIPART_RELATED)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isTrue();
 
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(Map.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(Map.class, String.class, Object.class),
             MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 
@@ -212,7 +212,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @SuppressWarnings("ConstantConditions")
   private String decodeToString(Part part) {
     return StringDecoder.textPlainOnly().decodeToMono(part.content(),
-            ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
+            ResolvableType.forClass(String.class), MediaType.TEXT_PLAIN,
             Collections.emptyMap()).block(Duration.ZERO);
   }
 
@@ -307,7 +307,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
             .contentType(MediaType.parseMediaType(contentType.toString()))
             .body(response.getBody());
 
-    ResolvableType elementType = ResolvableType.fromClassWithGenerics(
+    ResolvableType elementType = ResolvableType.forClassWithGenerics(
             MultiValueMap.class, String.class, Part.class);
 
     MultiValueMap<String, Part> result = reader.readMono(elementType, request, hints)

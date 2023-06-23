@@ -103,7 +103,7 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
       return;
     }
     Object aggregate = convert(value, aggregateType, target.getAnnotations());
-    ResolvableType collectionType = ResolvableType.fromClassWithGenerics(collection.getClass(), elementType);
+    ResolvableType collectionType = ResolvableType.forClassWithGenerics(collection.getClass(), elementType);
     Collection<Object> elements = convert(aggregate, collectionType);
     collection.addAll(elements);
   }

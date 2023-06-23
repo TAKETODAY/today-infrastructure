@@ -92,7 +92,7 @@ public class ListFactoryBean extends AbstractFactoryBean<List<Object>> {
     }
     Class<?> valueType = null;
     if (this.targetListClass != null) {
-      valueType = ResolvableType.fromClass(this.targetListClass).asCollection().resolveGeneric();
+      valueType = ResolvableType.forClass(this.targetListClass).asCollection().resolveGeneric();
     }
     if (valueType != null) {
       TypeConverter converter = getBeanTypeConverter();

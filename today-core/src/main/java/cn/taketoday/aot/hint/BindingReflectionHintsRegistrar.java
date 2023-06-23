@@ -115,7 +115,7 @@ public class BindingReflectionHintsRegistrar {
       });
     }
     Set<Class<?>> referencedTypes = new LinkedHashSet<>();
-    collectReferencedTypes(referencedTypes, ResolvableType.fromType(type));
+    collectReferencedTypes(referencedTypes, ResolvableType.forType(type));
     referencedTypes.forEach(referencedType -> registerReflectionHints(hints, seen, referencedType));
   }
 

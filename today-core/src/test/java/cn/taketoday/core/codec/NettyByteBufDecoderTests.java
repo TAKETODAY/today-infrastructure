@@ -50,11 +50,11 @@ class NettyByteBufDecoderTests extends AbstractDecoderTests<NettyByteBufDecoder>
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(ByteBuf.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuf.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Integer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
             MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(ByteBuf.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuf.class),
             MimeTypeUtils.APPLICATION_JSON)).isTrue();
   }
 

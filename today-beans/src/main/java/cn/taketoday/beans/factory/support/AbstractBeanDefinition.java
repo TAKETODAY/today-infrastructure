@@ -506,7 +506,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public ResolvableType getResolvableType() {
-    return (hasBeanClass() ? ResolvableType.fromClass(getBeanClass()) : ResolvableType.NONE);
+    return (hasBeanClass() ? ResolvableType.forClass(getBeanClass()) : ResolvableType.NONE);
   }
 
   /**

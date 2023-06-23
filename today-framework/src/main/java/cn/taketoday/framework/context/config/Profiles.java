@@ -64,7 +64,7 @@ public class Profiles implements Iterable<String> {
           Profiles.INCLUDE_PROFILES_PROPERTY_NAME);
 
   private static final Bindable<MultiValueMap<String, String>> STRING_STRINGS_MAP = Bindable.of(
-          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class));
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class));
 
   private static final Bindable<Set<String>> STRING_SET = Bindable.setOf(String.class);
 

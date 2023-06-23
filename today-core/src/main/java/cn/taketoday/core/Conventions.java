@@ -112,7 +112,7 @@ public final class Conventions {
       pluralize = true;
     }
     else if (Collection.class.isAssignableFrom(parameter.getType())) {
-      valueClass = ResolvableType.fromParameter(parameter).asCollection().resolveGeneric();
+      valueClass = ResolvableType.forParameter(parameter).asCollection().resolveGeneric();
       if (valueClass == null) {
         throw new IllegalArgumentException(
                 "Cannot generate variable name for non-typed Collection parameter type");
@@ -124,7 +124,7 @@ public final class Conventions {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(valueClass);
       if (adapter != null && !adapter.getDescriptor().isNoValue()) {
         reactiveSuffix = ClassUtils.getShortName(valueClass);
-        valueClass = ResolvableType.fromParameter(parameter).getGeneric().toClass();
+        valueClass = ResolvableType.forParameter(parameter).getGeneric().toClass();
       }
     }
 

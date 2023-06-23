@@ -96,7 +96,7 @@ class BeanDefinitionPropertyValueCodeGenerator {
   }
 
   CodeBlock generateCode(@Nullable Object value) {
-    ResolvableType type = ResolvableType.fromInstance(value);
+    ResolvableType type = ResolvableType.forInstance(value);
     try {
       return generateCode(value, type);
     }

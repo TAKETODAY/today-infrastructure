@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -751,7 +751,7 @@ public class HandlerMethod implements AsyncHandler {
       this.returnValue = returnValue;
       this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list
                         ? list.getReturnType()
-                        : ResolvableType.fromType(super.getGenericParameterType()).getGeneric();
+                        : ResolvableType.forType(super.getGenericParameterType()).getGeneric();
     }
 
     public ConcurrentResultMethodParameter(ConcurrentResultMethodParameter original) {

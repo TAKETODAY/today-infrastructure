@@ -58,7 +58,7 @@ public class CustomizedJackson2JsonEncoderTests extends AbstractEncoderTests<Jac
             new MyCustomizedEncoderBean(MyCustomEncoderEnum.VAL2)
     );
 
-    testEncodeAll(input, ResolvableType.fromClass(MyCustomizedEncoderBean.class), APPLICATION_NDJSON, null, step -> step
+    testEncodeAll(input, ResolvableType.forClass(MyCustomizedEncoderBean.class), APPLICATION_NDJSON, null, step -> step
             .consumeNextWith(expectString("{\"property\":\"Value1\"}\n"))
             .consumeNextWith(expectString("{\"property\":\"Value2\"}\n"))
             .verifyComplete()

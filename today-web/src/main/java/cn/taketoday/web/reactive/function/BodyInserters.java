@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,14 +57,14 @@ import reactor.core.publisher.Mono;
  */
 public abstract class BodyInserters {
 
-  private static final ResolvableType RESOURCE_TYPE = ResolvableType.fromClass(Resource.class);
+  private static final ResolvableType RESOURCE_TYPE = ResolvableType.forClass(Resource.class);
 
-  private static final ResolvableType SSE_TYPE = ResolvableType.fromClass(ServerSentEvent.class);
+  private static final ResolvableType SSE_TYPE = ResolvableType.forClass(ServerSentEvent.class);
 
   private static final ResolvableType FORM_DATA_TYPE =
-          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class);
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
-  private static final ResolvableType MULTIPART_DATA_TYPE = ResolvableType.fromClassWithGenerics(
+  private static final ResolvableType MULTIPART_DATA_TYPE = ResolvableType.forClassWithGenerics(
           MultiValueMap.class, String.class, Object.class);
 
   private static final BodyInserter<Void, ReactiveHttpOutputMessage> EMPTY_INSERTER =
@@ -102,7 +102,7 @@ public abstract class BodyInserters {
     Assert.notNull(body, "'body' must not be null");
     Assert.isNull(registry.getAdapter(body.getClass()), "'body' should be an object, for reactive types use a variant specifying a publisher/producer and its related element type");
     return (message, context) ->
-            writeWithMessageWriters(message, context, Mono.just(body), ResolvableType.fromInstance(body), null);
+            writeWithMessageWriters(message, context, Mono.just(body), ResolvableType.forInstance(body), null);
   }
 
   /**
@@ -124,7 +124,7 @@ public abstract class BodyInserters {
     ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(producer.getClass());
     Assert.notNull(adapter, "'producer' type is unknown to ReactiveAdapterRegistry");
     return (message, context) ->
-            writeWithMessageWriters(message, context, producer, ResolvableType.fromClass(elementClass), adapter);
+            writeWithMessageWriters(message, context, producer, ResolvableType.forClass(elementClass), adapter);
   }
 
   /**
@@ -148,7 +148,7 @@ public abstract class BodyInserters {
     ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(producer.getClass());
     Assert.notNull(adapter, "'producer' type is unknown to ReactiveAdapterRegistry");
     return (message, context) ->
-            writeWithMessageWriters(message, context, producer, ResolvableType.fromType(elementTypeRef), adapter);
+            writeWithMessageWriters(message, context, producer, ResolvableType.forType(elementTypeRef), adapter);
   }
 
   /**
@@ -169,7 +169,7 @@ public abstract class BodyInserters {
     Assert.notNull(publisher, "'publisher' must not be null");
     Assert.notNull(elementClass, "'elementClass' must not be null");
     return (message, context) ->
-            writeWithMessageWriters(message, context, publisher, ResolvableType.fromClass(elementClass), null);
+            writeWithMessageWriters(message, context, publisher, ResolvableType.forClass(elementClass), null);
   }
 
   /**
@@ -190,7 +190,7 @@ public abstract class BodyInserters {
     Assert.notNull(publisher, "'publisher' must not be null");
     Assert.notNull(elementTypeRef, "'elementTypeRef' must not be null");
     return (message, context) ->
-            writeWithMessageWriters(message, context, publisher, ResolvableType.fromType(elementTypeRef.getType()), null);
+            writeWithMessageWriters(message, context, publisher, ResolvableType.forType(elementTypeRef.getType()), null);
   }
 
   /**

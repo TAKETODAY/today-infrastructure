@@ -1603,7 +1603,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     // unique candidate, cache the full type declaration context of the target factory method.
     cachedReturnType = uniqueCandidate != null
                        ? ResolvableType.forReturnType(uniqueCandidate)
-                       : ResolvableType.fromClass(commonType);
+                       : ResolvableType.forClass(commonType);
     merged.factoryMethodReturnType = cachedReturnType;
     return cachedReturnType.resolve();
   }
@@ -1629,7 +1629,7 @@ public abstract class AbstractAutowireCapableBeanFactory
     }
 
     ResolvableType beanType = merged.hasBeanClass()
-                              ? ResolvableType.fromClass(merged.getBeanClass())
+                              ? ResolvableType.forClass(merged.getBeanClass())
                               : ResolvableType.NONE;
 
     // For instance supplied beans try the target type and bean class
@@ -1696,7 +1696,7 @@ public abstract class AbstractAutowireCapableBeanFactory
         // Try to obtain the FactoryBean's object type from this early stage of the instance.
         Class<?> type = getTypeForFactoryBean(factoryBean);
         if (type != null) {
-          return ResolvableType.fromClass(type);
+          return ResolvableType.forClass(type);
         }
         // No type found for shortcut FactoryBean instance:
         // fall back to full creation of the FactoryBean instance.
@@ -2076,7 +2076,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           Class<?> resolvedResult = this.result.resolve();
           Class<?> commonAncestor = ClassUtils.determineCommonAncestor(candidate.resolve(), resolvedResult);
           if (!ObjectUtils.nullSafeEquals(resolvedResult, commonAncestor)) {
-            this.result = ResolvableType.fromClass(commonAncestor);
+            this.result = ResolvableType.forClass(commonAncestor);
           }
         }
       }

@@ -72,7 +72,7 @@ public class Jackson2CborEncoderTests extends AbstractLeakCheckingTests {
 
   @Test
   public void canEncode() {
-    ResolvableType pojoType = ResolvableType.fromClass(Pojo.class);
+    ResolvableType pojoType = ResolvableType.forClass(Pojo.class);
     assertThat(this.encoder.canEncode(pojoType, CBOR_MIME_TYPE)).isTrue();
     assertThat(this.encoder.canEncode(pojoType, null)).isTrue();
 
@@ -82,17 +82,17 @@ public class Jackson2CborEncoderTests extends AbstractLeakCheckingTests {
 
   @Test
   public void canNotEncode() {
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(String.class), null)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Pojo.class), APPLICATION_XML)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class), null)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Pojo.class), APPLICATION_XML)).isFalse();
 
-    ResolvableType sseType = ResolvableType.fromClass(ServerSentEvent.class);
+    ResolvableType sseType = ResolvableType.forClass(ServerSentEvent.class);
     assertThat(this.encoder.canEncode(sseType, CBOR_MIME_TYPE)).isFalse();
   }
 
   @Test
   public void encode() {
     Pojo value = new Pojo("foo", "bar");
-    DataBuffer result = encoder.encodeValue(value, this.bufferFactory, ResolvableType.fromClass(Pojo.class), CBOR_MIME_TYPE, null);
+    DataBuffer result = encoder.encodeValue(value, this.bufferFactory, ResolvableType.forClass(Pojo.class), CBOR_MIME_TYPE, null);
     pojoConsumer(value).accept(result);
   }
 
@@ -102,7 +102,7 @@ public class Jackson2CborEncoderTests extends AbstractLeakCheckingTests {
     Pojo pojo2 = new Pojo("foofoo", "barbar");
     Pojo pojo3 = new Pojo("foofoofoo", "barbarbar");
     Flux<Pojo> input = Flux.just(pojo1, pojo2, pojo3);
-    ResolvableType type = ResolvableType.fromClass(Pojo.class);
+    ResolvableType type = ResolvableType.forClass(Pojo.class);
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
             encoder.encode(input, this.bufferFactory, type, CBOR_MIME_TYPE, null));
   }

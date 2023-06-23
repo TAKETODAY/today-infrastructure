@@ -664,7 +664,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    Object resolved = resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
+    Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
     if (resolved == null) {
       throw new NoSuchBeanDefinitionException(requiredType);
     }
@@ -765,7 +765,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), null, false);
+    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.forClass(requiredType), null, false);
     if (namedBean != null) {
       return namedBean;
     }
@@ -793,7 +793,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
     Assert.notNull(requiredType, "Required type must not be null");
-    return getBeanProvider(ResolvableType.fromRawClass(requiredType), allowEagerInit);
+    return getBeanProvider(ResolvableType.forRawClass(requiredType), allowEagerInit);
   }
 
   @Override
@@ -919,7 +919,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public <T> Map<String, T> getBeansOfType(
           Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeansOfType(ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+    return getBeansOfType(ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
   }
 
   @Override
@@ -969,7 +969,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
       return doGetBeanNamesForType(
-              ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+              ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
     }
 
     Map<Class<?>, String[]> cache =
@@ -980,7 +980,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     Set<String> resolvedBeanNamesSet = doGetBeanNamesForType(
-            ResolvableType.fromRawClass(requiredType), includeNonSingletons, true);
+            ResolvableType.forRawClass(requiredType), includeNonSingletons, true);
     if (ClassUtils.isCacheSafe(requiredType, getBeanClassLoader())) {
       cache.put(requiredType, StringUtils.toStringArray(resolvedBeanNamesSet));
     }

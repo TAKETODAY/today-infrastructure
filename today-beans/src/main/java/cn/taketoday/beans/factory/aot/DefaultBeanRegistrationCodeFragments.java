@@ -107,7 +107,7 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
    * @return the target class to use
    */
   private Class<?> extractTargetClassFromFactoryBean(Class<?> factoryBeanType, ResolvableType beanType) {
-    ResolvableType target = ResolvableType.fromType(factoryBeanType).as(FactoryBean.class).getGeneric(0);
+    ResolvableType target = ResolvableType.forType(factoryBeanType).as(FactoryBean.class).getGeneric(0);
     if (target.getType().equals(Class.class)) {
       return target.toClass();
     }

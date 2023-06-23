@@ -114,7 +114,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
   static ResolvableType resolveDeclaredEventType(Class<?> listenerType) {
     ResolvableType eventType = eventTypeCache.get(listenerType);
     if (eventType == null) {
-      eventType = ResolvableType.fromClass(listenerType)
+      eventType = ResolvableType.forClass(listenerType)
               .as(ApplicationListener.class)
               .getGeneric();
       eventTypeCache.put(listenerType, eventType);

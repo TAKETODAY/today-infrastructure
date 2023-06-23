@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,7 +60,7 @@ public class AvailabilityChangeEvent<S extends AvailabilityState> extends Payloa
 
   @Override
   public ResolvableType getResolvableType() {
-    return ResolvableType.fromClassWithGenerics(getClass(), getStateType());
+    return ResolvableType.forClassWithGenerics(getClass(), getStateType());
   }
 
   private Class<?> getStateType() {

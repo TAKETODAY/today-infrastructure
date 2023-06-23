@@ -319,7 +319,7 @@ public final class ConfigurationPropertiesBean {
     Annotation[] annotations = (validated != null) ? new Annotation[] { annotation, validated }
                                                    : new Annotation[] { annotation };
     ResolvableType bindType = (factory != null) ? ResolvableType.forReturnType(factory)
-                                                : ResolvableType.fromClass(type);
+                                                : ResolvableType.forClass(type);
     Bindable<Object> bindable = Bindable.of(bindType).withAnnotations(annotations);
     bindMethod = (factory != null) ? BindMethod.JAVA_BEAN : bindMethod;
     if (instance != null && bindMethod != BindMethod.VALUE_OBJECT) {

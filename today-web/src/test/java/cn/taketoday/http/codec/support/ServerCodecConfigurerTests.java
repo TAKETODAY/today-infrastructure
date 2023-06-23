@@ -71,7 +71,7 @@ import cn.taketoday.http.codec.protobuf.ProtobufHttpMessageWriter;
 import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -290,23 +290,23 @@ public class ServerCodecConfigurerTests {
   @SuppressWarnings("unchecked")
   private void assertStringDecoder(Decoder<?> decoder, boolean textOnly) {
     assertThat(decoder.getClass()).isEqualTo(StringDecoder.class);
-    assertThat(decoder.canDecode(fromClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(decoder.canDecode(forClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
     Object expected = !textOnly;
-    assertThat(decoder.canDecode(fromClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
+    assertThat(decoder.canDecode(forClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
 
     byte[] bytes = "line1\nline2".getBytes(StandardCharsets.UTF_8);
     Flux<String> flux = (Flux<String>) decoder.decode(
             Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes)),
-            fromClass(String.class), MimeTypeUtils.TEXT_PLAIN, Collections.emptyMap());
+            forClass(String.class), MimeTypeUtils.TEXT_PLAIN, Collections.emptyMap());
 
     assertThat(flux.collectList().block(Duration.ZERO)).isEqualTo(Arrays.asList("line1", "line2"));
   }
 
   private void assertStringEncoder(Encoder<?> encoder, boolean textOnly) {
     assertThat(encoder.getClass()).isEqualTo(CharSequenceEncoder.class);
-    assertThat(encoder.canEncode(fromClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(encoder.canEncode(forClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
     Object expected = !textOnly;
-    assertThat(encoder.canEncode(fromClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
+    assertThat(encoder.canEncode(forClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
   }
 
   private void assertSseWriter(List<HttpMessageWriter<?>> writers) {

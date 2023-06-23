@@ -65,7 +65,7 @@ public class CustomizedJackson2JsonDecoderTests extends AbstractDecoderTests<Jac
   public void decodeToMono() throws Exception {
     Mono<DataBuffer> input = stringBuffer("{\"property\":\"Value2\"}");
 
-    ResolvableType elementType = ResolvableType.fromClass(MyCustomizedDecoderBean.class);
+    ResolvableType elementType = ResolvableType.forClass(MyCustomizedDecoderBean.class);
 
     testDecodeToMono(input, elementType, step -> step
             .expectNextMatches(obj -> ((MyCustomizedDecoderBean) obj).getProperty() == MyCustomDecoderEnum.VAL2)

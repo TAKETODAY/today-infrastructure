@@ -203,7 +203,7 @@ class AccessControlTests {
   @Test
   void forResolvableTypeWhenRecursiveType() {
     ResolvableType resolvableType = ResolvableType
-            .fromClassWithGenerics(SelfReference.class, SelfReference.class);
+            .forClassWithGenerics(SelfReference.class, SelfReference.class);
     AccessControl accessControl = AccessControl.forResolvableType(resolvableType);
     assertThat(accessControl.getVisibility()).isEqualTo(Visibility.PACKAGE_PRIVATE);
   }

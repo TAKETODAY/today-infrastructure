@@ -1900,7 +1900,7 @@ public class StandardDependenciesBeanPostProcessorTests {
     assertThat(bean.repositoryMap.get("repo")).isSameAs(repo);
     assertThat(bean.stringRepositoryMap.get("repo")).isSameAs(repo);
 
-    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))).isEqualTo(new String[] { "repo" });
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))).isEqualTo(new String[] { "repo" });
   }
 
   @Test
@@ -2224,7 +2224,7 @@ public class StandardDependenciesBeanPostProcessorTests {
     GenericInterface1Impl bean1 = (GenericInterface1Impl) bf.getBean("bean1");
     GenericInterface2Impl bean2 = (GenericInterface2Impl) bf.getBean("bean2");
     assertThat(bean1.gi2).isSameAs(bean2);
-    assertThat(bd.getResolvableType()).isEqualTo(ResolvableType.fromClass(GenericInterface1Impl.class));
+    assertThat(bd.getResolvableType()).isEqualTo(ResolvableType.forClass(GenericInterface1Impl.class));
   }
 
   @Test
@@ -2238,7 +2238,7 @@ public class StandardDependenciesBeanPostProcessorTests {
     GenericInterface1Impl bean1 = (GenericInterface1Impl) bf.getBean("bean1");
     GenericInterface2Impl bean2 = (GenericInterface2Impl) bf.getBean("bean2");
     assertThat(bean1.gi2).isSameAs(bean2);
-    assertThat(bd.getResolvableType()).isEqualTo(ResolvableType.fromClass(GenericInterface1Impl.class));
+    assertThat(bd.getResolvableType()).isEqualTo(ResolvableType.forClass(GenericInterface1Impl.class));
   }
 
   @Test
@@ -2254,8 +2254,8 @@ public class StandardDependenciesBeanPostProcessorTests {
     GenericInterface1Impl bean1 = (GenericInterface1Impl) bf.getBean("bean1");
     GenericInterface2Impl bean2 = (GenericInterface2Impl) bf.getBean("bean2");
     assertThat(bean1.gi2).isSameAs(bean2);
-    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(GenericInterface1.class, String.class))).isEqualTo(new String[] { "bean1" });
-    assertThat(bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(GenericInterface2.class, String.class))).isEqualTo(new String[] { "bean2" });
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface1.class, String.class))).isEqualTo(new String[] { "bean1" });
+    assertThat(bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(GenericInterface2.class, String.class))).isEqualTo(new String[] { "bean2" });
   }
 
   @Test
@@ -2277,16 +2277,16 @@ public class StandardDependenciesBeanPostProcessorTests {
   @Test
   public void testGenericsBasedInjectionWithBeanDefinitionTargetResolvableType() {
     RootBeanDefinition bd1 = new RootBeanDefinition(GenericInterface2Bean.class);
-    bd1.setTargetType(ResolvableType.fromClassWithGenerics(GenericInterface2Bean.class, String.class));
+    bd1.setTargetType(ResolvableType.forClassWithGenerics(GenericInterface2Bean.class, String.class));
     bf.registerBeanDefinition("bean1", bd1);
     RootBeanDefinition bd2 = new RootBeanDefinition(GenericInterface2Bean.class);
-    bd2.setTargetType(ResolvableType.fromClassWithGenerics(GenericInterface2Bean.class, Integer.class));
+    bd2.setTargetType(ResolvableType.forClassWithGenerics(GenericInterface2Bean.class, Integer.class));
     bf.registerBeanDefinition("bean2", bd2);
     bf.registerBeanDefinition("bean3", new RootBeanDefinition(MultiGenericFieldInjection.class));
 
     assertThat(bf.getBean("bean3").toString()).isEqualTo("bean1 a bean2 123");
-    assertThat(bd1.getResolvableType()).isEqualTo(ResolvableType.fromClassWithGenerics(GenericInterface2Bean.class, String.class));
-    assertThat(bd2.getResolvableType()).isEqualTo(ResolvableType.fromClassWithGenerics(GenericInterface2Bean.class, Integer.class));
+    assertThat(bd1.getResolvableType()).isEqualTo(ResolvableType.forClassWithGenerics(GenericInterface2Bean.class, String.class));
+    assertThat(bd2.getResolvableType()).isEqualTo(ResolvableType.forClassWithGenerics(GenericInterface2Bean.class, Integer.class));
   }
 
   @Test

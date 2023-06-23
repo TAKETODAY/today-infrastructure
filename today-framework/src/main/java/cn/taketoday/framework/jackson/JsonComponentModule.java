@@ -118,7 +118,7 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
 
   @SuppressWarnings("unchecked")
   private <T> void addJsonSerializerBean(JsonSerializer<T> serializer, Scope scope, Class<?>[] types) {
-    Class<T> baseType = (Class<T>) ResolvableType.fromClass(JsonSerializer.class, serializer.getClass())
+    Class<T> baseType = (Class<T>) ResolvableType.forClass(JsonSerializer.class, serializer.getClass())
             .resolveGeneric();
     addBeanToModule(serializer, baseType, types,
             scope == Scope.VALUES ? this::addSerializer : this::addKeySerializer);
@@ -127,7 +127,7 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
 
   @SuppressWarnings("unchecked")
   private <T> void addJsonDeserializerBean(JsonDeserializer<T> deserializer, Class<?>[] types) {
-    Class<T> baseType = (Class<T>) ResolvableType.fromClass(
+    Class<T> baseType = (Class<T>) ResolvableType.forClass(
             JsonDeserializer.class, deserializer.getClass()).resolveGeneric();
     addBeanToModule(deserializer, baseType, types, this::addDeserializer);
   }

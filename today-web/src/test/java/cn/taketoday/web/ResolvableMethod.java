@@ -244,15 +244,15 @@ public class ResolvableMethod {
   }
 
   private static ResolvableType toResolvableType(Class<?> type, Class<?>... generics) {
-    return (ObjectUtils.isEmpty(generics) ? ResolvableType.fromClass(type) :
-            ResolvableType.fromClassWithGenerics(type, generics));
+    return (ObjectUtils.isEmpty(generics) ? ResolvableType.forClass(type) :
+            ResolvableType.forClassWithGenerics(type, generics));
   }
 
   private static ResolvableType toResolvableType(Class<?> type, ResolvableType generic, ResolvableType... generics) {
     ResolvableType[] genericTypes = new ResolvableType[generics.length + 1];
     genericTypes[0] = generic;
     System.arraycopy(generics, 0, genericTypes, 1, generics.length);
-    return ResolvableType.fromClassWithGenerics(type, genericTypes);
+    return ResolvableType.forClassWithGenerics(type, genericTypes);
   }
 
   /**

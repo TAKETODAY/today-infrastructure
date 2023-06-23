@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -653,11 +653,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
   }
@@ -672,12 +672,12 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanNamesSet.toArray(String[]::new);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class));
     beanNames = beanNamesSet.toArray(String[]::new);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class));
     beanNames = beanNamesSet.toArray(String[]::new);
 
     assertThat(beanNames.length).isEqualTo(1);
@@ -693,14 +693,14 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanNamesSet.toArray(String[]::new);
 
     assertThat(beanNames).contains("stringRepo");
-    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class));
     ;
 
     beanNames = beanNamesSet.toArray(String[]::new);
 
     assertThat(beanNames.length).isEqualTo(0);
 
-    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class));
+    beanNamesSet = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class));
     beanNames = beanNamesSet.toArray(String[]::new);
     assertThat(beanNames.length).isEqualTo(0);
   }
@@ -715,12 +715,12 @@ class ConfigurationClassPostProcessorTests {
             .toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))
             .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))
             .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
@@ -735,12 +735,12 @@ class ConfigurationClassPostProcessorTests {
             .toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))
             .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))
             .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
@@ -756,11 +756,11 @@ class ConfigurationClassPostProcessorTests {
             .toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
   }
@@ -778,12 +778,12 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))
             .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class))
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class))
             .toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
@@ -805,11 +805,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -830,11 +830,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -855,11 +855,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(Repository.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(Repository.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -878,11 +878,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -902,11 +902,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -926,11 +926,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
@@ -950,11 +950,11 @@ class ConfigurationClassPostProcessorTests {
     String[] beanNames = beanFactory.getBeanNamesForType(RepositoryInterface.class).toArray(new String[0]);
     assertThat(beanNames).contains("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 
-    beanNames = beanFactory.getBeanNamesForType(ResolvableType.fromClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
+    beanNames = beanFactory.getBeanNamesForType(ResolvableType.forClassWithGenerics(RepositoryInterface.class, String.class)).toArray(new String[0]);
     assertThat(beanNames.length).isEqualTo(1);
     assertThat(beanNames[0]).isEqualTo("stringRepo");
 

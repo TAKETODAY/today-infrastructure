@@ -164,7 +164,7 @@ public abstract class AbstractMessageConverterMethodProcessor
       body = value;
       valueType = getReturnValueType(body, returnType);
       if (returnType == null) {
-        targetType = ResolvableType.fromInstance(body).getType();
+        targetType = ResolvableType.forInstance(body).getType();
       }
       else {
         targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
@@ -337,7 +337,7 @@ public abstract class AbstractMessageConverterMethodProcessor
    */
   private Type getGenericType(MethodParameter returnType) {
     if (HttpEntity.class.isAssignableFrom(returnType.getParameterType())) {
-      return ResolvableType.fromType(returnType.getGenericParameterType()).getGeneric().getType();
+      return ResolvableType.forType(returnType.getGenericParameterType()).getGeneric().getType();
     }
     else {
       return returnType.getGenericParameterType();

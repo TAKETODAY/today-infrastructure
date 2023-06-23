@@ -50,13 +50,13 @@ public final class FieldBeanProperty extends BeanProperty {
   }
 
   protected TypeDescriptor createDescriptor() {
-    ResolvableType resolvableType = ResolvableType.fromField(field);
+    ResolvableType resolvableType = ResolvableType.forField(field);
     return new TypeDescriptor(resolvableType, resolvableType.resolve(getType()), this);
   }
 
   @Override
   protected ResolvableType createResolvableType() {
-    return ResolvableType.fromField(field);
+    return ResolvableType.forField(field);
   }
 
   @Override

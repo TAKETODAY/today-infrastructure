@@ -598,7 +598,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    */
   default <T> Map<String, T> getBeansOfType(
           @Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
-    return getBeansOfType(ResolvableType.fromClass(type), includeNonSingletons, allowEagerInit);
+    return getBeansOfType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
   }
 
   /**
@@ -699,7 +699,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    */
   default Set<String> getBeanNamesForType(
           @Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeanNamesForType(ResolvableType.fromClass(requiredType), includeNonSingletons, allowEagerInit);
+    return getBeanNamesForType(ResolvableType.forClass(requiredType), includeNonSingletons, allowEagerInit);
   }
 
   /**

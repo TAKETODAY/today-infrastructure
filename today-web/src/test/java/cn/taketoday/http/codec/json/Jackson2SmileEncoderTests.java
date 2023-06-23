@@ -23,7 +23,6 @@ package cn.taketoday.http.codec.json;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -68,7 +67,7 @@ public class Jackson2SmileEncoderTests extends AbstractEncoderTests<Jackson2Smil
   @Override
   @Test
   public void canEncode() {
-    ResolvableType pojoType = ResolvableType.fromClass(Pojo.class);
+    ResolvableType pojoType = ResolvableType.forClass(Pojo.class);
     assertThat(this.encoder.canEncode(pojoType, SMILE_MIME_TYPE)).isTrue();
     assertThat(this.encoder.canEncode(pojoType, STREAM_SMILE_MIME_TYPE)).isTrue();
     assertThat(this.encoder.canEncode(pojoType, null)).isTrue();
@@ -79,10 +78,10 @@ public class Jackson2SmileEncoderTests extends AbstractEncoderTests<Jackson2Smil
 
   @Test
   public void canNotEncode() {
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(String.class), null)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Pojo.class), APPLICATION_XML)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class), null)).isFalse();
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Pojo.class), APPLICATION_XML)).isFalse();
 
-    ResolvableType sseType = ResolvableType.fromClass(ServerSentEvent.class);
+    ResolvableType sseType = ResolvableType.forClass(ServerSentEvent.class);
     assertThat(this.encoder.canEncode(sseType, SMILE_MIME_TYPE)).isFalse();
   }
 
@@ -128,7 +127,7 @@ public class Jackson2SmileEncoderTests extends AbstractEncoderTests<Jackson2Smil
     Pojo pojo2 = new Pojo("foofoo", "barbar");
     Pojo pojo3 = new Pojo("foofoofoo", "barbarbar");
     Flux<Pojo> input = Flux.just(pojo1, pojo2, pojo3);
-    ResolvableType type = ResolvableType.fromClass(Pojo.class);
+    ResolvableType type = ResolvableType.forClass(Pojo.class);
 
     Flux<DataBuffer> result = this.encoder
             .encode(input, bufferFactory, type, STREAM_SMILE_MIME_TYPE, null);

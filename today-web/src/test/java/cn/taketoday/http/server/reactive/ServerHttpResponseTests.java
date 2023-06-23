@@ -214,7 +214,7 @@ public class ServerHttpResponseTests {
 
     HttpMessageWriter<Object> messageWriter = new EncoderHttpMessageWriter<>(new Jackson2JsonEncoder());
     Mono<Void> result = messageWriter.write(Mono.just(Collections.singletonMap("foo", "bar")),
-            ResolvableType.fromClass(Mono.class), ResolvableType.fromClass(Map.class), null,
+            ResolvableType.forClass(Mono.class), ResolvableType.forClass(Map.class), null,
             request, response, Collections.emptyMap());
 
     StepVerifier.create(result).expectError(AbortedException.class).verify();

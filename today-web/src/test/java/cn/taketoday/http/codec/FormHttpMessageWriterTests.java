@@ -51,28 +51,28 @@ public class FormHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @Test
   public void canWrite() {
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isTrue();
 
     // No generic information
     assertThat(this.writer.canWrite(
-            ResolvableType.fromInstance(new DefaultMultiValueMap<String, String>()),
+            ResolvableType.forInstance(new DefaultMultiValueMap<String, String>()),
             MediaType.APPLICATION_FORM_URLENCODED)).isTrue();
 
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             null)).isFalse();
 
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, Object.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, Object.class, String.class),
             null)).isFalse();
 
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(Map.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(Map.class, String.class, String.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isFalse();
 
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class),
             MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 

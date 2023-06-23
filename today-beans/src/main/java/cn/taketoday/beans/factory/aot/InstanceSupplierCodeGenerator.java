@@ -334,7 +334,7 @@ class InstanceSupplierCodeGenerator {
 
   private boolean isThrowingCheckedException(Executable executable) {
     return Arrays.stream(executable.getGenericExceptionTypes())
-            .map(ResolvableType::fromType)
+            .map(ResolvableType::forType)
             .map(ResolvableType::toClass)
             .anyMatch(Exception.class::isAssignableFrom);
   }

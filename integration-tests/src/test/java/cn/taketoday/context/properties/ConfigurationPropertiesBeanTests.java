@@ -230,7 +230,7 @@ class ConfigurationPropertiesBeanTests {
     assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
     assertThat(propertiesBean.getAnnotation()).isNotNull();
     Bindable<?> target = propertiesBean.asBindTarget();
-    assertThat(target.getType()).isEqualTo(ResolvableType.fromClass(ConstructorBindingOnConstructor.class));
+    assertThat(target.getType()).isEqualTo(ResolvableType.forClass(ConstructorBindingOnConstructor.class));
     assertThat(target.getValue()).isNull();
     assertThat(ConfigurationPropertiesBindConstructorProvider.INSTANCE
             .getBindConstructor(ConstructorBindingOnConstructor.class, false)).isNotNull();
@@ -252,7 +252,7 @@ class ConfigurationPropertiesBeanTests {
     assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
     assertThat(propertiesBean.getAnnotation()).isNotNull();
     Bindable<?> target = propertiesBean.asBindTarget();
-    assertThat(target.getType()).isEqualTo(ResolvableType.fromClass(implicitConstructorBinding));
+    assertThat(target.getType()).isEqualTo(ResolvableType.forClass(implicitConstructorBinding));
     assertThat(target.getValue()).isNull();
     Constructor<?> bindConstructor = ConfigurationPropertiesBindConstructorProvider.INSTANCE
             .getBindConstructor(implicitConstructorBinding, false);

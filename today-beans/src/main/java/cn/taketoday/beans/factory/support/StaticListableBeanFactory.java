@@ -196,7 +196,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) throws BeansException {
-    return getBeanProvider(ResolvableType.fromRawClass(requiredType), true);
+    return getBeanProvider(ResolvableType.forRawClass(requiredType), true);
   }
 
   @Override
@@ -297,7 +297,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
-    return getBeanProvider(ResolvableType.fromRawClass(requiredType), allowEagerInit);
+    return getBeanProvider(ResolvableType.forRawClass(requiredType), allowEagerInit);
   }
 
   @SuppressWarnings("unchecked")
@@ -405,7 +405,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public Set<String> getBeanNamesForType(@Nullable Class<?> type) {
-    return getBeanNamesForType(ResolvableType.fromClass(type));
+    return getBeanNamesForType(ResolvableType.forClass(type));
   }
 
   @Override
@@ -415,7 +415,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public Set<String> getBeanNamesForType(@Nullable Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeanNamesForType(ResolvableType.fromClass(type), includeNonSingletons, allowEagerInit);
+    return getBeanNamesForType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
   }
 
   @Override

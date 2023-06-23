@@ -50,11 +50,11 @@ class Netty5BufferDecoderTests extends AbstractDecoderTests<Netty5BufferDecoder>
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Buffer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Buffer.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Integer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
             MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Buffer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Buffer.class),
             MimeTypeUtils.APPLICATION_JSON)).isTrue();
   }
 

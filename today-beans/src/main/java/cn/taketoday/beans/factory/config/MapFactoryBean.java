@@ -93,7 +93,7 @@ public class MapFactoryBean extends AbstractFactoryBean<Map<Object, Object>> {
     Class<?> keyType = null;
     Class<?> valueType = null;
     if (this.targetMapClass != null) {
-      ResolvableType mapType = ResolvableType.fromClass(this.targetMapClass).asMap();
+      ResolvableType mapType = ResolvableType.forClass(this.targetMapClass).asMap();
       keyType = mapType.resolveGeneric(0);
       valueType = mapType.resolveGeneric(1);
     }

@@ -22,7 +22,6 @@ package cn.taketoday.http.codec.protobuf;
 
 import com.google.protobuf.Message;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -41,7 +40,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static cn.taketoday.core.io.buffer.DataBufferUtils.release;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,11 +76,11 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(fromClass(Msg.class), null)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(Msg.class), PROTOBUF_MIME_TYPE)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(Msg.class), MediaType.APPLICATION_OCTET_STREAM)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(Msg.class), MediaType.APPLICATION_JSON)).isFalse();
-    assertThat(this.decoder.canDecode(fromClass(Object.class), PROTOBUF_MIME_TYPE)).isFalse();
+    assertThat(this.decoder.canDecode(forClass(Msg.class), null)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Msg.class), PROTOBUF_MIME_TYPE)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Msg.class), MediaType.APPLICATION_OCTET_STREAM)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Msg.class), MediaType.APPLICATION_JSON)).isFalse();
+    assertThat(this.decoder.canDecode(forClass(Object.class), PROTOBUF_MIME_TYPE)).isFalse();
   }
 
   @Override
@@ -209,7 +208,7 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
     this.testMsg1.writeDelimitedTo(buffer.asOutputStream());
     this.testMsg1.writeDelimitedTo(buffer.asOutputStream());
 
-    ResolvableType elementType = fromClass(Msg.class);
+    ResolvableType elementType = forClass(Msg.class);
     Flux<Message> messages = this.decoder.decode(Mono.just(buffer), elementType, null, emptyMap());
 
     StepVerifier.create(messages)

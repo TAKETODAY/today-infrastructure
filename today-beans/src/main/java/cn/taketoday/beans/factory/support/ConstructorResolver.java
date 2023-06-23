@@ -943,13 +943,13 @@ final class ConstructorResolver {
     Class<?> factoryBeanClass = getFactoryBeanClass(beanName, mbd);
     if (factoryBeanClass != null && !factoryBeanClass.equals(mbd.getResolvableType().toClass())) {
       ResolvableType resolvableType = mbd.getResolvableType();
-      boolean isCompatible = ResolvableType.fromClass(factoryBeanClass)
+      boolean isCompatible = ResolvableType.forClass(factoryBeanClass)
               .as(FactoryBean.class).getGeneric(0).isAssignableFrom(resolvableType);
       Assert.state(isCompatible, () -> String.format(
               "Incompatible target type '%s' for factory bean '%s'",
               resolvableType.toClass().getName(), factoryBeanClass.getName()));
       Executable executable = resolveConstructor(beanName, mbd,
-              () -> ResolvableType.fromClass(factoryBeanClass), valueTypes);
+              () -> ResolvableType.forClass(factoryBeanClass), valueTypes);
       if (executable != null) {
         return executable;
       }
@@ -977,17 +977,17 @@ final class ConstructorResolver {
 
   private ResolvableType determineParameterValueType(RootBeanDefinition mbd, ValueHolder valueHolder) {
     if (valueHolder.getType() != null) {
-      return ResolvableType.fromClass(
+      return ResolvableType.forClass(
               ClassUtils.resolveClassName(valueHolder.getType(), this.beanFactory.getBeanClassLoader()));
     }
     Object value = valueHolder.getValue();
     if (value instanceof BeanReference br) {
       if (value instanceof RuntimeBeanReference rbr) {
         if (rbr.getBeanType() != null) {
-          return ResolvableType.fromClass(rbr.getBeanType());
+          return ResolvableType.forClass(rbr.getBeanType());
         }
       }
-      return ResolvableType.fromClass(this.beanFactory.getType(br.getBeanName(), false));
+      return ResolvableType.forClass(this.beanFactory.getType(br.getBeanName(), false));
     }
     if (value instanceof BeanDefinition innerBd) {
       String nameToUse = "(inner bean)";
@@ -997,9 +997,9 @@ final class ConstructorResolver {
               type.as(FactoryBean.class).getGeneric(0) : type);
     }
     if (value instanceof Class<?> clazz) {
-      return ResolvableType.fromClassWithGenerics(Class.class, clazz);
+      return ResolvableType.forClassWithGenerics(Class.class, clazz);
     }
-    return ResolvableType.fromInstance(value);
+    return ResolvableType.forInstance(value);
   }
 
   @Nullable
@@ -1230,7 +1230,7 @@ final class ConstructorResolver {
     if (resolvableType != ResolvableType.NONE) {
       return resolvableType;
     }
-    return ResolvableType.fromClass(this.beanFactory.resolveBeanClass(beanName, mbd));
+    return ResolvableType.forClass(this.beanFactory.resolveBeanClass(beanName, mbd));
   }
 
   static InjectionPoint setCurrentInjectionPoint(@Nullable InjectionPoint injectionPoint) {

@@ -44,7 +44,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.Map.entry;
@@ -67,8 +67,8 @@ class PartEventHttpMessageReaderTests {
 
   @Test
   public void canRead() {
-    assertThat(this.reader.canRead(fromClass(PartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.reader.canRead(fromClass(PartEvent.class), null)).isTrue();
+    assertThat(this.reader.canRead(forClass(PartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.reader.canRead(forClass(PartEvent.class), null)).isTrue();
   }
 
   @Test
@@ -76,7 +76,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .assertNext(form(headers -> Assertions.assertThat(headers).isEmpty(), "This is implicitly typed plain ASCII text.\r\nIt does NOT end with a linebreak."))
@@ -89,7 +89,7 @@ class PartEventHttpMessageReaderTests {
   public void noHeaders() {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-header.multipart", getClass()), "boundary");
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .assertNext(data(headers -> Assertions.assertThat(headers).isEmpty(), bodyText("a"), true))
@@ -101,7 +101,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-end-boundary.multipart", getClass()), "boundary");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -113,7 +113,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("garbage-1.multipart", getClass()), "boundary");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -124,7 +124,7 @@ class PartEventHttpMessageReaderTests {
   public void noEndHeader() {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-end-header.multipart", getClass()), "boundary");
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -135,7 +135,7 @@ class PartEventHttpMessageReaderTests {
   public void noEndBody() {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-end-body.multipart", getClass()), "boundary");
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -146,7 +146,7 @@ class PartEventHttpMessageReaderTests {
   public void noBody() {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-body.multipart", getClass()), "boundary");
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .assertNext(form(headers -> Assertions.assertThat(headers).contains(entry("Part", List.of("1"))), ""))
@@ -158,7 +158,7 @@ class PartEventHttpMessageReaderTests {
   public void cancel() {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result, 3)
             .assertNext(form(headers -> Assertions.assertThat(headers).isEmpty(),
@@ -173,7 +173,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(new ClassPathResource("firefox.multipart", getClass()),
             "---------------------------18399284482060392383840973206");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
     StepVerifier.create(result)
             .assertNext(data(headersFormField("text1"), bodyText("a"), true))
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
@@ -195,7 +195,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(new ClassPathResource("chrome.multipart", getClass()),
             "----WebKitFormBoundaryEveBLvRT65n21fwU");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
     StepVerifier.create(result)
             .assertNext(data(headersFormField("text1"), bodyText("a"), true))
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
@@ -216,7 +216,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(new ClassPathResource("safari.multipart", getClass()),
             "----WebKitFormBoundaryG8fJ50opQOML0oGD");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
     StepVerifier.create(result)
             .assertNext(data(headersFormField("text1"), bodyText("a"), true))
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
@@ -236,7 +236,7 @@ class PartEventHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("utf8.multipart", getClass()), "\"simple-boundary\"");
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .assertNext(data(headers -> Assertions.assertThat(headers).containsEntry("Føø", List.of("Bår")),
@@ -258,7 +258,7 @@ class PartEventHttpMessageReaderTests {
 
     this.reader.setMaxHeadersSize(230);
 
-    Flux<PartEvent> result = this.reader.read(fromClass(PartEvent.class), request, emptyMap());
+    Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
             .assertNext(data(headersFile("file2", "a.txt"), DataBufferUtils::release, true))

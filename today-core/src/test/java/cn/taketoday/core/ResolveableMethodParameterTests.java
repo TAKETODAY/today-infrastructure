@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.core;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -149,7 +148,7 @@ class ResolveableMethodParameterTests {
 
     methodParameter = MethodParameter.forExecutable(constructor, 2);
     assertThat(methodParameter.getParameterType()).isEqualTo(Callable.class);
-    assertThat(methodParameter.getGenericParameterType()).isEqualTo(ResolvableType.fromClassWithGenerics(Callable.class, Integer.class).getType());
+    assertThat(methodParameter.getGenericParameterType()).isEqualTo(ResolvableType.forClassWithGenerics(Callable.class, Integer.class).getType());
   }
 
   @Test

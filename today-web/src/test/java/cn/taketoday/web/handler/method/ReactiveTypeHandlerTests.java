@@ -152,28 +152,28 @@ class ReactiveTypeHandlerTests {
     // Mono
     Sinks.One<String> sink = Sinks.one();
     testDeferredResultSubscriber(
-            sink.asMono(), Mono.class, ResolvableType.fromClass(String.class),
+            sink.asMono(), Mono.class, ResolvableType.forClass(String.class),
             () -> sink.emitValue("foo", Sinks.EmitFailureHandler.FAIL_FAST),
             "foo");
 
     // Mono empty
     Sinks.One<String> emptySink = Sinks.one();
     testDeferredResultSubscriber(
-            emptySink.asMono(), Mono.class, ResolvableType.fromClass(String.class),
+            emptySink.asMono(), Mono.class, ResolvableType.forClass(String.class),
             () -> emptySink.emitEmpty(Sinks.EmitFailureHandler.FAIL_FAST),
             null);
 
     // RxJava Single
     AtomicReference<SingleEmitter<String>> ref2 = new AtomicReference<>();
     Single<String> single2 = Single.create(ref2::set);
-    testDeferredResultSubscriber(single2, Single.class, ResolvableType.fromClass(String.class),
+    testDeferredResultSubscriber(single2, Single.class, ResolvableType.forClass(String.class),
             () -> ref2.get().onSuccess("foo"), "foo");
   }
 
   @Test
   public void deferredResultSubscriberWithNoValues() throws Exception {
     Sinks.One<String> sink = Sinks.one();
-    testDeferredResultSubscriber(sink.asMono(), Mono.class, ResolvableType.fromClass(String.class),
+    testDeferredResultSubscriber(sink.asMono(), Mono.class, ResolvableType.forClass(String.class),
             () -> sink.emitEmpty(Sinks.EmitFailureHandler.FAIL_FAST),
             null);
   }
@@ -188,7 +188,7 @@ class ReactiveTypeHandlerTests {
     Bar bar2 = new Bar("bar");
 
     Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
-    testDeferredResultSubscriber(sink.asFlux(), Flux.class, ResolvableType.fromClass(Bar.class), () -> {
+    testDeferredResultSubscriber(sink.asFlux(), Flux.class, ResolvableType.forClass(Bar.class), () -> {
       sink.tryEmitNext(bar1);
       sink.tryEmitNext(bar2);
       sink.tryEmitComplete();
@@ -202,13 +202,13 @@ class ReactiveTypeHandlerTests {
 
     // Mono
     Sinks.One<String> sink = Sinks.one();
-    testDeferredResultSubscriber(sink.asMono(), Mono.class, ResolvableType.fromClass(String.class),
+    testDeferredResultSubscriber(sink.asMono(), Mono.class, ResolvableType.forClass(String.class),
             () -> sink.emitError(ex, Sinks.EmitFailureHandler.FAIL_FAST), ex);
 
     // RxJava Single
     AtomicReference<SingleEmitter<String>> ref2 = new AtomicReference<>();
     Single<String> single2 = Single.create(ref2::set);
-    testDeferredResultSubscriber(single2, Single.class, ResolvableType.fromClass(String.class),
+    testDeferredResultSubscriber(single2, Single.class, ResolvableType.forClass(String.class),
             () -> ref2.get().onError(ex), ex);
   }
 
@@ -231,7 +231,7 @@ class ReactiveTypeHandlerTests {
   }
 
   private void testSseResponse(boolean expectSseEmitter) throws Exception {
-    ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.fromClass(String.class));
+    ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.forClass(String.class));
     Object actual = emitter instanceof SseEmitter;
     assertThat(actual).isEqualTo(expectSseEmitter);
     resetRequest();
@@ -242,7 +242,7 @@ class ReactiveTypeHandlerTests {
 
     this.servletRequest.addHeader("Accept", "text/event-stream");
     Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
-    SseEmitter sseEmitter = (SseEmitter) handleValue(sink.asFlux(), Flux.class, ResolvableType.fromClass(String.class));
+    SseEmitter sseEmitter = (SseEmitter) handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(String.class));
 
     EmitterHandler emitterHandler = new EmitterHandler();
     sseEmitter.initialize(emitterHandler);
@@ -258,7 +258,7 @@ class ReactiveTypeHandlerTests {
   @Test
   public void writeServerSentEventsWithBuilder() throws Exception {
 
-    ResolvableType type = ResolvableType.fromClassWithGenerics(ServerSentEvent.class, String.class);
+    ResolvableType type = ResolvableType.forClassWithGenerics(ServerSentEvent.class, String.class);
 
     Sinks.Many<ServerSentEvent<?>> sink = Sinks.many().unicast().onBackpressureBuffer();
     SseEmitter sseEmitter = (SseEmitter) handleValue(sink.asFlux(), Flux.class, type);
@@ -280,7 +280,7 @@ class ReactiveTypeHandlerTests {
     this.servletRequest.addHeader("Accept", "application/x-ndjson");
 
     Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
-    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.fromClass(Bar.class));
+    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(Bar.class));
 
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
@@ -305,7 +305,7 @@ class ReactiveTypeHandlerTests {
     this.servletRequest.addHeader("Accept", "application/vnd.myapp.v1+x-ndjson");
 
     Sinks.Many<Bar> sink = Sinks.many().unicast().onBackpressureBuffer();
-    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.fromClass(Bar.class));
+    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(Bar.class));
 
     assertThat(emitter).as("emitter").isNotNull();
 
@@ -331,7 +331,7 @@ class ReactiveTypeHandlerTests {
   public void writeText() throws Exception {
 
     Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
-    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.fromClass(String.class));
+    ResponseBodyEmitter emitter = handleValue(sink.asFlux(), Flux.class, ResolvableType.forClass(String.class));
 
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
@@ -369,7 +369,7 @@ class ReactiveTypeHandlerTests {
 
   private void testEmitterContentType(String expected) throws Exception {
 //    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
-    ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.fromClass(String.class));
+    ResponseBodyEmitter emitter = handleValue(Flux.empty(), Flux.class, ResolvableType.forClass(String.class));
     emitter.extendResponse(webRequest);
     assertThat(webRequest.responseHeaders().getContentType().toString()).isEqualTo(expected);
     resetRequest();

@@ -62,7 +62,7 @@ public class ResourceHttpMessageReaderTests extends AbstractLeakCheckingTests {
     response.setBody(Mono.just(stringBuffer(body)));
 
     Resource resource = reader.readMono(
-            ResolvableType.fromClass(ByteArrayResource.class), response, Collections.emptyMap()).block();
+            ResolvableType.forClass(ByteArrayResource.class), response, Collections.emptyMap()).block();
 
     assertThat(resource).isNotNull();
     assertThat(resource.getName()).isEqualTo(filename);

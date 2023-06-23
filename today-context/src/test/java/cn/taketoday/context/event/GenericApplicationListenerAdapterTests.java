@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,7 +42,7 @@ public class GenericApplicationListenerAdapterTests extends AbstractApplicationE
   public void supportsEventTypeWithSmartApplicationListener() {
     SmartApplicationListener smartListener = mock(SmartApplicationListener.class);
     GenericApplicationListenerAdapter listener = new GenericApplicationListenerAdapter(smartListener);
-    ResolvableType type = ResolvableType.fromClass(ApplicationEvent.class);
+    ResolvableType type = ResolvableType.forClass(ApplicationEvent.class);
     listener.supportsEventType(type);
     verify(smartListener, times(1)).supportsEventType(ApplicationEvent.class);
   }
@@ -57,20 +57,20 @@ public class GenericApplicationListenerAdapterTests extends AbstractApplicationE
 
   @Test
   public void genericListenerStrictType() {
-    supportsEventType(true, StringEventListener.class, ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class));
+    supportsEventType(true, StringEventListener.class, ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test // Demonstrates we can't inject that event because the generic type is lost
   public void genericListenerStrictTypeTypeErasure() {
     GenericTestEvent<String> stringEvent = createGenericTestEvent("test");
-    ResolvableType eventType = ResolvableType.fromType(stringEvent.getClass());
+    ResolvableType eventType = ResolvableType.forType(stringEvent.getClass());
     supportsEventType(false, StringEventListener.class, eventType);
   }
 
   @Test // But it works if we specify the type properly
   public void genericListenerStrictTypeAndResolvableType() {
     ResolvableType eventType = ResolvableType
-            .fromClassWithGenerics(GenericTestEvent.class, String.class);
+            .forClassWithGenerics(GenericTestEvent.class, String.class);
     supportsEventType(true, StringEventListener.class, eventType);
   }
 
@@ -83,69 +83,69 @@ public class GenericApplicationListenerAdapterTests extends AbstractApplicationE
   @Test // Demonstrates it works if we actually use the subtype
   public void genericListenerStrictTypeEventSubType() {
     StringEvent stringEvent = new StringEvent(this, "test");
-    ResolvableType eventType = ResolvableType.fromType(stringEvent.getClass());
+    ResolvableType eventType = ResolvableType.forType(stringEvent.getClass());
     supportsEventType(true, StringEventListener.class, eventType);
   }
 
   @Test
   public void genericListenerStrictTypeNotMatching() {
-    supportsEventType(false, StringEventListener.class, ResolvableType.fromClassWithGenerics(GenericTestEvent.class, Long.class));
+    supportsEventType(false, StringEventListener.class, ResolvableType.forClassWithGenerics(GenericTestEvent.class, Long.class));
   }
 
   @Test
   public void genericListenerStrictTypeEventSubTypeNotMatching() {
     LongEvent stringEvent = new LongEvent(this, 123L);
-    ResolvableType eventType = ResolvableType.fromType(stringEvent.getClass());
+    ResolvableType eventType = ResolvableType.forType(stringEvent.getClass());
     supportsEventType(false, StringEventListener.class, eventType);
   }
 
   @Test
   public void genericListenerStrictTypeNotMatchTypeErasure() {
     GenericTestEvent<Long> longEvent = createGenericTestEvent(123L);
-    ResolvableType eventType = ResolvableType.fromType(longEvent.getClass());
+    ResolvableType eventType = ResolvableType.forType(longEvent.getClass());
     supportsEventType(false, StringEventListener.class, eventType);
   }
 
   @Test
   public void genericListenerStrictTypeSubClass() {
-    supportsEventType(false, ObjectEventListener.class, ResolvableType.fromClassWithGenerics(GenericTestEvent.class, Long.class));
+    supportsEventType(false, ObjectEventListener.class, ResolvableType.forClassWithGenerics(GenericTestEvent.class, Long.class));
   }
 
   @Test
   public void genericListenerUpperBoundType() {
     supportsEventType(true, UpperBoundEventListener.class,
-            ResolvableType.fromClassWithGenerics(GenericTestEvent.class, IllegalStateException.class));
+            ResolvableType.forClassWithGenerics(GenericTestEvent.class, IllegalStateException.class));
   }
 
   @Test
   public void genericListenerUpperBoundTypeNotMatching() {
     supportsEventType(false, UpperBoundEventListener.class,
-            ResolvableType.fromClassWithGenerics(GenericTestEvent.class, IOException.class));
+            ResolvableType.forClassWithGenerics(GenericTestEvent.class, IOException.class));
   }
 
   @Test
   public void genericListenerWildcardType() {
     supportsEventType(true, GenericEventListener.class,
-            ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class));
+            ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test  // Demonstrates we cant inject that event because the listener has a wildcard
   public void genericListenerWildcardTypeTypeErasure() {
     GenericTestEvent<String> stringEvent = createGenericTestEvent("test");
-    ResolvableType eventType = ResolvableType.fromType(stringEvent.getClass());
+    ResolvableType eventType = ResolvableType.forType(stringEvent.getClass());
     supportsEventType(true, GenericEventListener.class, eventType);
   }
 
   @Test
   public void genericListenerRawType() {
     supportsEventType(true, RawApplicationListener.class,
-            ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class));
+            ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test  // Demonstrates we cant inject that event because the listener has a raw type
   public void genericListenerRawTypeTypeErasure() {
     GenericTestEvent<String> stringEvent = createGenericTestEvent("test");
-    ResolvableType eventType = ResolvableType.fromType(stringEvent.getClass());
+    ResolvableType eventType = ResolvableType.forType(stringEvent.getClass());
     supportsEventType(true, RawApplicationListener.class, eventType);
   }
 

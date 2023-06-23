@@ -159,7 +159,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
             .headers(httpRequest.getHeaders())
             .body(Mono.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes)));
 
-    MULTIPART_READER.read(ResolvableType.fromClass(Part.class), inputMessage, Collections.emptyMap())
+    MULTIPART_READER.read(ResolvableType.forClass(Part.class), inputMessage, Collections.emptyMap())
             .flatMap(part ->
                     DataBufferUtils.join(part.content())
                             .doOnNext(buffer -> {

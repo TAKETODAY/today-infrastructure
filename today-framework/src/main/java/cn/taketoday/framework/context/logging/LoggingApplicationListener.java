@@ -107,7 +107,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
           String.class, LogLevel.class);
 
   private static final Bindable<Map<String, List<String>>> STRING_STRINGS_MAP = Bindable.of(
-          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class).asMap());
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class).asMap());
 
   /**
    * The default order for the LoggingApplicationListener.

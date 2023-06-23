@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class StringDecoderTests extends AbstractDecoderTests<StringDecoder> {
 
-  private static final ResolvableType TYPE = ResolvableType.fromClass(String.class);
+  private static final ResolvableType TYPE = ResolvableType.forClass(String.class);
 
   StringDecoderTests() {
     super(StringDecoder.allMimeTypes());
@@ -63,8 +63,8 @@ class StringDecoderTests extends AbstractDecoderTests<StringDecoder> {
     assertThat(this.decoder.canDecode(TYPE, MimeTypeUtils.TEXT_HTML)).isTrue();
     assertThat(this.decoder.canDecode(TYPE, MimeTypeUtils.APPLICATION_JSON)).isTrue();
     assertThat(this.decoder.canDecode(TYPE, MimeTypeUtils.parseMimeType("text/plain;charset=utf-8"))).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Integer.class), MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Object.class), MimeTypeUtils.APPLICATION_JSON)).isFalse();
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class), MimeTypeUtils.TEXT_PLAIN)).isFalse();
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Object.class), MimeTypeUtils.APPLICATION_JSON)).isFalse();
   }
 
   @Override
@@ -185,7 +185,7 @@ class StringDecoderTests extends AbstractDecoderTests<StringDecoder> {
     Flux<DataBuffer> input = Flux.just(stringBuffer("Line 1\nLine 2\nLine 3\n"));
 
     this.decoder.setMaxInMemorySize(-1);
-    testDecodeCancel(input, ResolvableType.fromClass(String.class), null, Collections.emptyMap());
+    testDecodeCancel(input, ResolvableType.forClass(String.class), null, Collections.emptyMap());
   }
 
   @Test

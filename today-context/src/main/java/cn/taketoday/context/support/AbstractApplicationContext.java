@@ -1436,7 +1436,7 @@ public abstract class AbstractApplicationContext
 
     // Determine event type only once (for multicast and parent publish)
     if (eventType == null) {
-      eventType = ResolvableType.fromInstance(applicationEvent);
+      eventType = ResolvableType.forInstance(applicationEvent);
       if (typeHint == null) {
         typeHint = eventType;
       }

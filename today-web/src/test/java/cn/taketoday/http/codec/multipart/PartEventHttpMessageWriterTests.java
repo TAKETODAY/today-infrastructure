@@ -51,9 +51,9 @@ public class PartEventHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   public void canWrite() {
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(PartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(FilePartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(FormPartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(PartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(FilePartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(FormPartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
   }
 
   @Test
@@ -97,7 +97,7 @@ public class PartEventHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @SuppressWarnings("ConstantConditions")
   private String decodeToString(Part part) {
     return StringDecoder.textPlainOnly().decodeToMono(part.content(),
-            ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
+            ResolvableType.forClass(String.class), MediaType.TEXT_PLAIN,
             Collections.emptyMap()).block(Duration.ZERO);
   }
 

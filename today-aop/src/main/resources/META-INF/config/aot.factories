@@ -1,0 +1,5 @@
+cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
+cn.taketoday.aop.scope.ScopedProxyBeanRegistrationAotProcessor
+
+cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor= \
+cn.taketoday.aop.aspectj.annotation.AspectJBeanFactoryInitializationAotProcessor

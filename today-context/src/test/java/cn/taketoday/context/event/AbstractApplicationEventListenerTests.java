@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ public abstract class AbstractApplicationEventListenerTests {
 
   protected ResolvableType getGenericApplicationEventType(String fieldName) {
     try {
-      return ResolvableType.fromField(TestEvents.class.getField(fieldName));
+      return ResolvableType.forField(TestEvents.class.getField(fieldName));
     }
     catch (NoSuchFieldException ex) {
       throw new IllegalStateException("No such field on Events '" + fieldName + "'");
@@ -60,7 +60,7 @@ public abstract class AbstractApplicationEventListenerTests {
 
     public SmartGenericTestEvent(Object source, T payload) {
       super(source, payload);
-      this.resolvableType = ResolvableType.fromClassWithGenerics(
+      this.resolvableType = ResolvableType.forClassWithGenerics(
               getClass(), payload.getClass());
     }
 

@@ -48,7 +48,7 @@ public interface GenericApplicationListener extends SmartApplicationListener {
    */
   @Override
   default boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
-    return supportsEventType(ResolvableType.fromClass(eventType));
+    return supportsEventType(ResolvableType.forClass(eventType));
   }
 
   /**

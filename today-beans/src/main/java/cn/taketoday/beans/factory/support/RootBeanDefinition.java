@@ -352,7 +352,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * Specify the target type of this bean definition, if known in advance.
    */
   public void setTargetType(@Nullable Class<?> targetType) {
-    this.targetType = (targetType != null ? ResolvableType.fromClass(targetType) : null);
+    this.targetType = (targetType != null ? ResolvableType.forClass(targetType) : null);
   }
 
   /**

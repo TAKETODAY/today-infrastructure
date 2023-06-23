@@ -84,13 +84,13 @@ public class MultipartBodyBuilderTests {
     resultEntity = result.getFirst("publisherClass");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo(publisher);
-    assertThat(((PublisherEntity<?, ?>) resultEntity).getResolvableType()).isEqualTo(ResolvableType.fromClass(String.class));
+    assertThat(((PublisherEntity<?, ?>) resultEntity).getResolvableType()).isEqualTo(ResolvableType.forClass(String.class));
     assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
 
     resultEntity = result.getFirst("publisherPtr");
     assertThat(resultEntity).isNotNull();
     assertThat(resultEntity.getBody()).isEqualTo(publisher);
-    assertThat(((PublisherEntity<?, ?>) resultEntity).getResolvableType()).isEqualTo(ResolvableType.fromClass(String.class));
+    assertThat(((PublisherEntity<?, ?>) resultEntity).getResolvableType()).isEqualTo(ResolvableType.forClass(String.class));
     assertThat(resultEntity.getHeaders().getFirst("baz")).isEqualTo("qux");
   }
 

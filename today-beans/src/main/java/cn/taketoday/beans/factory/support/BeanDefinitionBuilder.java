@@ -395,7 +395,7 @@ public class BeanDefinitionBuilder {
    * @see #rootBeanDefinition(ResolvableType, Supplier)
    */
   public static <T> BeanDefinitionBuilder rootBeanDefinition(Class<T> beanClass, Supplier<T> instanceSupplier) {
-    return rootBeanDefinition(ResolvableType.fromClass(beanClass), instanceSupplier);
+    return rootBeanDefinition(ResolvableType.forClass(beanClass), instanceSupplier);
   }
 
   /**

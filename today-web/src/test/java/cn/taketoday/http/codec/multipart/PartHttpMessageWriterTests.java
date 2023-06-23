@@ -55,11 +55,11 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   public void canWrite() {
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_MIXED)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_RELATED)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(Part.class), MediaType.MULTIPART_MIXED)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(Part.class), MediaType.MULTIPART_RELATED)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 
   @Test
@@ -105,7 +105,7 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @SuppressWarnings("ConstantConditions")
   private String decodeToString(Part part) {
     return StringDecoder.textPlainOnly().decodeToMono(
-            part.content(), ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
+            part.content(), ResolvableType.forClass(String.class), MediaType.TEXT_PLAIN,
             Collections.emptyMap()).block(Duration.ZERO);
   }
 

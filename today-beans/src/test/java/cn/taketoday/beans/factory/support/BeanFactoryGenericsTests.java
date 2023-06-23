@@ -817,9 +817,9 @@ class BeanFactoryGenericsTests {
     assertThat(nb.getDoubleStore()).isSameAs(bf.getBean("doubleStore"));
     assertThat(nb.getFloatStore()).isSameAs(bf.getBean("floatStore"));
 
-    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.fromClass(NumberStore.class)).toArray(new String[0]);
-    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(NumberStore.class, Double.class)).toArray(new String[0]);
-    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(NumberStore.class, Float.class)).toArray(new String[0]);
+    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.forClass(NumberStore.class)).toArray(new String[0]);
+    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class)).toArray(new String[0]);
+    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class)).toArray(new String[0]);
     assertThat(numberStoreNames).hasSize(2);
     assertThat(numberStoreNames[0]).isEqualTo("doubleStore");
     assertThat(numberStoreNames[1]).isEqualTo("floatStore");
@@ -846,9 +846,9 @@ class BeanFactoryGenericsTests {
     assertThat(nb.getDoubleStore()).isSameAs(bf.getBean("store1"));
     assertThat(nb.getFloatStore()).isSameAs(bf.getBean("store2"));
 
-    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.fromClass(NumberStore.class)).toArray(new String[0]);
-    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(NumberStore.class, Double.class)).toArray(new String[0]);
-    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(NumberStore.class, Float.class)).toArray(new String[0]);
+    String[] numberStoreNames = bf.getBeanNamesForType(ResolvableType.forClass(NumberStore.class)).toArray(new String[0]);
+    String[] doubleStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class)).toArray(new String[0]);
+    String[] floatStoreNames = bf.getBeanNamesForType(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class)).toArray(new String[0]);
     assertThat(numberStoreNames).hasSize(2);
     assertThat(numberStoreNames[0]).isEqualTo("store1");
     assertThat(numberStoreNames[1]).isEqualTo("store2");
@@ -856,9 +856,9 @@ class BeanFactoryGenericsTests {
     assertThat(doubleStoreNames[0]).isEqualTo("store1");
     assertThat(floatStoreNames).hasSize(1);
     assertThat(floatStoreNames[0]).isEqualTo("store2");
-    ObjectProvider<NumberStore<?>> numberStoreProvider = bf.getBeanProvider(ResolvableType.fromClass(NumberStore.class));
-    ObjectProvider<NumberStore<Double>> doubleStoreProvider = bf.getBeanProvider(ResolvableType.fromClassWithGenerics(NumberStore.class, Double.class));
-    ObjectProvider<NumberStore<Float>> floatStoreProvider = bf.getBeanProvider(ResolvableType.fromClassWithGenerics(NumberStore.class, Float.class));
+    ObjectProvider<NumberStore<?>> numberStoreProvider = bf.getBeanProvider(ResolvableType.forClass(NumberStore.class));
+    ObjectProvider<NumberStore<Double>> doubleStoreProvider = bf.getBeanProvider(ResolvableType.forClassWithGenerics(NumberStore.class, Double.class));
+    ObjectProvider<NumberStore<Float>> floatStoreProvider = bf.getBeanProvider(ResolvableType.forClassWithGenerics(NumberStore.class, Float.class));
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(numberStoreProvider::get);
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(numberStoreProvider::getIfAvailable);
     assertThat(numberStoreProvider.getIfUnique()).isNull();
@@ -931,7 +931,7 @@ class BeanFactoryGenericsTests {
     bd2.setFactoryMethodName("newFloatStore");
     bf.registerBeanDefinition("store2", bd2);
 
-    ObjectProvider<NumberStore<?>> numberStoreProvider = bf.getBeanProvider(ResolvableType.fromClass(NumberStore.class));
+    ObjectProvider<NumberStore<?>> numberStoreProvider = bf.getBeanProvider(ResolvableType.forClass(NumberStore.class));
     List<NumberStore<?>> resolved = numberStoreProvider.orderedStream().toList();
     assertThat(resolved).hasSize(2);
     assertThat(resolved.get(0)).isSameAs(bf.getBean("store2"));

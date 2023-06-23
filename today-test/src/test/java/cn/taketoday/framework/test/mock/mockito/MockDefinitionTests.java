@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
  */
 class MockDefinitionTests {
 
-  private static final ResolvableType EXAMPLE_SERVICE_TYPE = ResolvableType.fromClass(ExampleService.class);
+  private static final ResolvableType EXAMPLE_SERVICE_TYPE = ResolvableType.forClass(ExampleService.class);
 
   @Test
   void classToMockMustNotBeNull() {

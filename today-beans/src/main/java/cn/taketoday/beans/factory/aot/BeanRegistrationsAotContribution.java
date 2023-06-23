@@ -127,7 +127,7 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
       ReflectionUtils.doWithMethods(beanClass, method -> {
         for (Type type : method.getGenericParameterTypes()) {
           if (type instanceof GenericArrayType) {
-            Class<?> clazz = ResolvableType.fromType(type).resolve();
+            Class<?> clazz = ResolvableType.forType(type).resolve();
             if (clazz != null) {
               hints.registerType(clazz);
             }

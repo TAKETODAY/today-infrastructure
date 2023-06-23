@@ -175,7 +175,7 @@ public final class AccessControl {
       if (visibility != PRIVATE) {
         if (member instanceof Field field) {
           Visibility fieldVisibility = forResolvableType(
-                  ResolvableType.fromField(field));
+                  ResolvableType.forField(field));
           return lowest(visibility, fieldVisibility);
         }
         if (member instanceof Constructor<?> constructor) {

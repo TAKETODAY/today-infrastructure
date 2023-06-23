@@ -105,7 +105,7 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
   protected <T> void testDecodeAll(Publisher<DataBuffer> input, Class<? extends T> outputClass,
           Consumer<StepVerifier.FirstStep<T>> stepConsumer) {
 
-    testDecodeAll(input, ResolvableType.fromClass(outputClass), stepConsumer, null, null);
+    testDecodeAll(input, ResolvableType.forClass(outputClass), stepConsumer, null, null);
   }
 
   /**
@@ -159,7 +159,7 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
   protected <T> void testDecode(Publisher<DataBuffer> input, Class<? extends T> outputClass,
           Consumer<StepVerifier.FirstStep<T>> stepConsumer) {
 
-    testDecode(input, ResolvableType.fromClass(outputClass), stepConsumer, null, null);
+    testDecode(input, ResolvableType.forClass(outputClass), stepConsumer, null, null);
   }
 
   /**
@@ -280,7 +280,7 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
   protected <T> void testDecodeToMonoAll(Publisher<DataBuffer> input,
           Class<? extends T> outputClass, Consumer<StepVerifier.FirstStep<T>> stepConsumer) {
 
-    testDecodeToMonoAll(input, ResolvableType.fromClass(outputClass), stepConsumer, null, null);
+    testDecodeToMonoAll(input, ResolvableType.forClass(outputClass), stepConsumer, null, null);
   }
 
   /**
@@ -334,7 +334,7 @@ public abstract class AbstractDecoderTests<D extends Decoder<?>> extends Abstrac
   protected <T> void testDecodeToMono(Publisher<DataBuffer> input,
           Class<? extends T> outputClass, Consumer<StepVerifier.FirstStep<T>> stepConsumer) {
 
-    testDecodeToMono(input, ResolvableType.fromClass(outputClass), stepConsumer, null, null);
+    testDecodeToMono(input, ResolvableType.forClass(outputClass), stepConsumer, null, null);
   }
 
   /**

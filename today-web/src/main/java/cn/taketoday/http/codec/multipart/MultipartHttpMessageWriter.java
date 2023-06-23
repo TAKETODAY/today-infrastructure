@@ -263,7 +263,7 @@ public class MultipartHttpMessageWriter
       body = value;
     }
     if (resolvableType == null) {
-      resolvableType = ResolvableType.fromClass(body.getClass());
+      resolvableType = ResolvableType.forClass(body.getClass());
     }
 
     if (!headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)) {
