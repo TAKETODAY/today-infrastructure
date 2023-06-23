@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,8 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.scheduling.annotation.Async;
+import cn.taketoday.transaction.annotation.Transactional;
 import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
@@ -73,6 +75,11 @@ public class TransactionalApplicationListenerMethodAdapter
             AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
     if (ann == null) {
       throw new IllegalStateException("No TransactionalEventListener annotation found on method: " + method);
+    }
+    if (AnnotatedElementUtils.hasAnnotation(method, Transactional.class)
+            && !AnnotatedElementUtils.hasAnnotation(method, Async.class)) {
+      throw new IllegalStateException("@TransactionalEventListener method must not be annotated " +
+              "with @Transactional, unless when declared as @Async: " + method);
     }
     this.annotation = ann;
     this.transactionPhase = ann.phase();

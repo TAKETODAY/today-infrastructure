@@ -28,6 +28,8 @@ import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
+import cn.taketoday.scheduling.annotation.Async;
+import cn.taketoday.transaction.annotation.Transactional;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.util.ClassUtils;
@@ -35,6 +37,7 @@ import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Stephane Nicoll
@@ -127,6 +130,19 @@ public class TransactionalApplicationListenerMethodAdapterTests {
     assertThat(adapter.getListenerId()).endsWith("identifier");
   }
 
+  @Test
+  public void withTransactionalAnnotation() {
+    Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalAnnotation", String.class);
+    assertThatIllegalStateException().isThrownBy(() -> createTestInstance(m));
+  }
+
+  @Test
+  public void withAsyncTransactionalAnnotation() {
+    Method m = ReflectionUtils.findMethod(SampleEvents.class, "withAsyncTransactionalAnnotation", String.class);
+    supportsEventType(true, m, createGenericEventType(String.class));
+    supportsEventType(false, m, createGenericEventType(Double.class));
+  }
+
   private static void assertPhase(Method method, TransactionPhase expected) {
     assertThat(method).as("Method must not be null").isNotNull();
     TransactionalEventListener annotation =
@@ -195,6 +211,17 @@ public class TransactionalApplicationListenerMethodAdapterTests {
 
     @TransactionalEventListener(id = "identifier")
     public void identified(String data) {
+    }
+
+    @TransactionalEventListener
+    @Transactional
+    public void withTransactionalAnnotation(String data) {
+    }
+
+    @TransactionalEventListener
+    @Async
+    @Transactional
+    public void withAsyncTransactionalAnnotation(String data) {
     }
   }
 
