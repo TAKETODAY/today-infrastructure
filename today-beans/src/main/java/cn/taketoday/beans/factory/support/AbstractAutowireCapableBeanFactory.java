@@ -498,16 +498,17 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Give a bean a chance to react now all its properties are set,
+   * Give a bean a chance to initialize itself after all its properties are set,
    * and a chance to know about its owning bean factory (this object).
-   * This means checking whether the bean implements InitializingBean or defines
-   * a custom init method, and invoking the necessary callback(s) if it does.
+   * <p>This means checking whether the bean implements {@link InitializingBean}
+   * or defines any custom init methods, and invoking the necessary callback(s)
+   * if it does.
    *
    * @param beanName the bean name in the factory (for debugging purposes)
    * @param bean the new bean instance we may need to initialize
-   * @param def bean merged that the bean was created with
-   * * (can also be {@code null}, if given an existing bean instance)
-   * @throws Exception if thrown by init methods or by the invocation process
+   * @param def the merged bean definition that the bean was created with
+   * (can also be {@code null}, if given an existing bean instance)
+   * @throws Throwable if thrown by init methods or by the invocation process
    * @see cn.taketoday.stereotype.Component
    * @see InitializingBean
    * @see jakarta.annotation.PostConstruct
