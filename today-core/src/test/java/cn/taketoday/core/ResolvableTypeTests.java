@@ -196,7 +196,7 @@ public class ResolvableTypeTests {
   void forConstructorParameterMustNotBeNull() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forParameter(null, 0))
-            .withMessageContaining("Executable must not be null");
+            .withMessageContaining("Executable is required");
   }
 
   @Test
@@ -210,7 +210,7 @@ public class ResolvableTypeTests {
   void forParameterByIndexMustNotBeNull() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forParameter(null, 0))
-            .withMessageContaining("Executable must not be null");
+            .withMessageContaining("Executable is required");
   }
 
   @Test
@@ -225,7 +225,7 @@ public class ResolvableTypeTests {
   void forParameterMustNotBeNull() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forParameter(null))
-            .withMessageContaining("Parameter must not be null");
+            .withMessageContaining("Parameter is required");
   }
 
   @Test
@@ -239,7 +239,7 @@ public class ResolvableTypeTests {
   void forMethodReturnMustNotBeNull() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forReturnType(null))
-            .withMessageContaining("Method must not be null");
+            .withMessageContaining("Method is required");
   }
 
   @Test
@@ -906,7 +906,7 @@ public class ResolvableTypeTests {
   void isAssignableFromMustNotBeNull() throws Exception {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ResolvableType.forClass(Object.class).isAssignableFrom((ResolvableType) null))
-            .withMessageContaining("Type must not be null");
+            .withMessageContaining("Type is required");
   }
 
   @Test

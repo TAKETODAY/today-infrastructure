@@ -150,8 +150,7 @@ class ScopedProxyBeanRegistrationAotProcessor implements BeanRegistrationAotProc
                 method.returns(ScopedProxyFactoryBean.class);
                 method.addParameter(RegisteredBean.class, REGISTERED_BEAN_PARAMETER_NAME);
                 method.addStatement("$T factory = new $T()",
-                        ScopedProxyFactoryBean.class,
-                        ScopedProxyFactoryBean.class);
+                        ScopedProxyFactoryBean.class, ScopedProxyFactoryBean.class);
                 method.addStatement("factory.setTargetBeanName($S)", this.targetBeanName);
                 method.addStatement("factory.setBeanFactory($L.getBeanFactory())", REGISTERED_BEAN_PARAMETER_NAME);
                 method.addStatement("return factory");

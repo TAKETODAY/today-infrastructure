@@ -60,6 +60,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class InstanceSupplierCodeGenerator {
@@ -70,7 +71,8 @@ class InstanceSupplierCodeGenerator {
 
   private static final javax.lang.model.element.Modifier[] PRIVATE_STATIC = {
           javax.lang.model.element.Modifier.PRIVATE,
-          javax.lang.model.element.Modifier.STATIC };
+          javax.lang.model.element.Modifier.STATIC
+  };
 
   private static final CodeBlock NO_ARGS = CodeBlock.of("");
 
@@ -85,9 +87,9 @@ class InstanceSupplierCodeGenerator {
   InstanceSupplierCodeGenerator(GenerationContext generationContext,
           ClassName className, GeneratedMethods generatedMethods, boolean allowDirectSupplierShortcut) {
 
-    this.generationContext = generationContext;
     this.className = className;
     this.generatedMethods = generatedMethods;
+    this.generationContext = generationContext;
     this.allowDirectSupplierShortcut = allowDirectSupplierShortcut;
   }
 

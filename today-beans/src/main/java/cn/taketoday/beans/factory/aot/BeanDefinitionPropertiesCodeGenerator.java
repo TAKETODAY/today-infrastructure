@@ -170,7 +170,7 @@ class BeanDefinitionPropertiesCodeGenerator {
       for (PropertyValue propertyValue : propertyValues) {
         String name = propertyValue.getName();
         CodeBlock valueCode = generateValue(name, propertyValue.getValue());
-        code.addStatement("$L.getPropertyValues().addPropertyValue($S, $L)",
+        code.addStatement("$L.getPropertyValues().add($S, $L)",
                 BEAN_DEFINITION_VARIABLE, propertyValue.getName(), valueCode);
       }
       Class<?> infrastructureType = getInfrastructureType(beanDefinition);

@@ -78,7 +78,7 @@ import cn.taketoday.util.ReflectionUtils;
 class ConfigurationClassEnhancer {
 
   // The callbacks to use. Note that these callbacks must be stateless.
-  private static final Callback[] CALLBACKS = new Callback[] {
+  static final Callback[] CALLBACKS = new Callback[] {
           new ComponentMethodInterceptor(),
           new BeanFactoryAwareMethodInterceptor(),
           NoOp.INSTANCE

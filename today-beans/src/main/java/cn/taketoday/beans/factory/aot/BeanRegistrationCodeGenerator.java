@@ -37,6 +37,7 @@ import cn.taketoday.lang.Assert;
  * {@link BeanRegistrationCode} implementation with code generation support.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class BeanRegistrationCodeGenerator implements BeanRegistrationCode {
