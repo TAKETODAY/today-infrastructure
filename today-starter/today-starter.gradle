@@ -1,0 +1,9 @@
+description = "Infrastructure starters parent"
+
+dependencies {
+  api project(':today-core')
+  api project(':today-framework')
+
+  api 'jakarta.annotation:jakarta.annotation-api'
+  api 'org.yaml:snakeyaml'
+}

@@ -1,5 +1,6 @@
 description = 'Starter for using Netty as the embedded container.'
 
 dependencies {
+  api project(':today-starter')
   api 'io.netty:netty-codec-http'
 }

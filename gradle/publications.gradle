@@ -1,4 +1,10 @@
+apply plugin: "signing"
 apply plugin: "maven-publish"
+
+ext {
+  repoUsername = System.getProperty("repoUsername")
+  repoPassword = System.getProperty("repoPassword")
+}
 
 publishing {
   publications {
@@ -47,17 +53,16 @@ publishing {
       }
     }
   }
-}
 
-configureDeploymentRepository(project)
+  repositories {
+    maven {
+      url = version.endsWith('SNAPSHOT')
+              ? 'https://oss.sonatype.org/content/repositories/snapshots/'
+              : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 
-static void configureDeploymentRepository(Project project) {
-  project.plugins.withType(MavenPublishPlugin.class).configureEach {
-    PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
-    if (project.hasProperty("deploymentRepository")) {
-      publishing.repositories.maven {
-        it.url = project.property("deploymentRepository")
-        it.name = "deployment"
+      credentials {
+        username = project.repoUsername
+        password = project.repoPassword
       }
     }
   }

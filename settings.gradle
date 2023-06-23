@@ -37,13 +37,14 @@ include 'today-test'
 include 'today-beans'
 include 'today-mybatis'
 include 'today-context'
+include 'today-starter'
 include 'today-instrument'
 include 'integration-tests'
 include 'today-test-support'
 include 'today-context-indexer'
 
-file("${rootDir}/today-starters").eachDirMatch(~/today-starter.*/) {
-  include "today-starters:${it.name}"
+file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
+  include "today-starter:${it.name}"
 }
 
 rootProject.name = 'today-infrastructure'

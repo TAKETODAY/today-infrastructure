@@ -1,9 +1,0 @@
-description = "Starter for testing Infra applications with libraries including JUnit Jupiter, Hamcrest and Mockito"
-
-dependencies {
-  api 'org.hamcrest:hamcrest'
-  api 'org.xmlunit:xmlunit-core'
-  api 'org.skyscreamer:jsonassert'
-  api 'com.jayway.jsonpath:json-path'
-  api 'jakarta.xml.bind:jakarta.xml.bind-api'
-}

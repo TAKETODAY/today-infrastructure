@@ -2,5 +2,5 @@ description = 'Starter for building web, including RESTful, applications using W
 
 dependencies {
   api project(':today-web')
-  api project(':today-starters:today-starter-json')
+  api project(':today-starter:today-starter-json')
 }
