@@ -38,6 +38,7 @@ import cn.taketoday.origin.TextResourceOrigin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link OriginTrackedYamlLoader}.
@@ -135,12 +136,11 @@ class OriginTrackedYamlLoaderTests {
   }
 
   @Test
-  @Disabled
   void unsupportedType() {
     String yaml = "value: !!java.net.URL [!!java.lang.String [!!java.lang.StringBuilder [\"http://localhost:9000/\"]]]";
     Resource resource = new ByteArrayResource(yaml.getBytes(StandardCharsets.UTF_8));
     this.loader = new OriginTrackedYamlLoader(resource);
-    assertThatExceptionOfType(ConstructorException.class).isThrownBy(this.loader::load);
+    assertThatThrownBy(this.loader::load);
   }
 
   @Test

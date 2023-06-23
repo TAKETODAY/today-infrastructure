@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import cn.taketoday.web.servlet.support.ServletContextResource;
 import cn.taketoday.web.servlet.support.ServletContextResourceLoader;
 import cn.taketoday.web.servlet.support.ServletContextResourcePatternLoader;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;

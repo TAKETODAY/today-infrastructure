@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -116,12 +116,12 @@ class DefinitionsParser {
   private Set<ResolvableType> getOrDeduceTypes(AnnotatedElement element, Class<?>[] value, Class<?> source) {
     Set<ResolvableType> types = new LinkedHashSet<>();
     for (Class<?> clazz : value) {
-      types.add(ResolvableType.fromClass(clazz));
+      types.add(ResolvableType.forClass(clazz));
     }
     if (types.isEmpty() && element instanceof Field) {
       Field field = (Field) element;
-      types.add((field.getGenericType() instanceof TypeVariable) ? ResolvableType.fromField(field, source)
-                                                                 : ResolvableType.fromField(field));
+      types.add((field.getGenericType() instanceof TypeVariable) ? ResolvableType.forField(field, source)
+                                                                 : ResolvableType.forField(field));
     }
     return types;
   }

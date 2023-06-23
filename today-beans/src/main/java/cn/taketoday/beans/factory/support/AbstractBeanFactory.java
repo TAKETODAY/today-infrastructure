@@ -407,7 +407,7 @@ public abstract class AbstractBeanFactory
 
   @Override
   public boolean isTypeMatch(String name, Class<?> typeToMatch) throws NoSuchBeanDefinitionException {
-    return isTypeMatch(name, ResolvableType.fromRawClass(typeToMatch));
+    return isTypeMatch(name, ResolvableType.forRawClass(typeToMatch));
   }
 
   @Override
@@ -778,7 +778,7 @@ public abstract class AbstractBeanFactory
     }
     if (isFactoryBean(beanName, mbd)) {
       FactoryBean<?> fb = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
-      if (fb instanceof SmartFactoryBean smart) {
+      if (fb instanceof SmartFactoryBean<?> smart) {
         return smart.isPrototype() || !fb.isSingleton();
       }
       return fb != null && !fb.isSingleton();
@@ -887,7 +887,7 @@ public abstract class AbstractBeanFactory
         FactoryBean<?> factoryBean = doGetBean(
                 FACTORY_BEAN_PREFIX + beanName, FactoryBean.class, null, true);
         Class<?> objectType = getTypeForFactoryBean(factoryBean);
-        return objectType != null ? ResolvableType.fromClass(objectType) : ResolvableType.NONE;
+        return objectType != null ? ResolvableType.forClass(objectType) : ResolvableType.NONE;
       }
       catch (BeanCreationException ex) {
         if (ex.contains(BeanCurrentlyInCreationException.class)) {
@@ -1456,7 +1456,7 @@ public abstract class AbstractBeanFactory
       return (ResolvableType) attribute;
     }
     if (attribute instanceof Class) {
-      return ResolvableType.fromClass((Class<?>) attribute);
+      return ResolvableType.forClass((Class<?>) attribute);
     }
     return ResolvableType.NONE;
   }

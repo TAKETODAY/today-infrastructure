@@ -664,6 +664,8 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
    * overriding the dependency type with the specified resource type.
    */
   private static class LookupDependencyDescriptor extends DependencyDescriptor {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final Class<?> lookupType;
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.jmx.support;
 import org.junit.jupiter.api.Test;
 
 import javax.management.DynamicMBean;
+import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
@@ -32,6 +33,7 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanWrapperImpl;
 import cn.taketoday.jmx.IJmxTestBean;
 import cn.taketoday.jmx.JmxTestBean;
+import cn.taketoday.jmx.MBeanTestUtils;
 import cn.taketoday.jmx.export.TestDynamicMBean;
 import cn.taketoday.util.ObjectUtils;
 
@@ -120,11 +122,25 @@ class JmxUtilsTests {
     Object managedResource = new Object();
     ObjectName uniqueName = JmxUtils.appendIdentityToObjectName(objectName, managedResource);
 
-    String typeProperty = "cn/taketoday/core/testfixture/type";
+    String typeProperty = "type";
 
     assertThat(uniqueName.getDomain()).as("Domain of transformed name is incorrect").isEqualTo(objectName.getDomain());
-    assertThat(uniqueName.getKeyProperty("cn/taketoday/core/testfixture/type")).as("Type key is incorrect").isEqualTo(objectName.getKeyProperty(typeProperty));
+    assertThat(uniqueName.getKeyProperty("type")).as("Type key is incorrect").isEqualTo(objectName.getKeyProperty(typeProperty));
     assertThat(uniqueName.getKeyProperty(JmxUtils.IDENTITY_OBJECT_NAME_KEY)).as("Identity key is incorrect").isEqualTo(ObjectUtils.getIdentityHexString(managedResource));
+  }
+
+  @Test
+  void locatePlatformMBeanServer() {
+    MBeanServer server = null;
+    try {
+      server = JmxUtils.locateMBeanServer();
+      assertThat(server).isNotNull();
+    }
+    finally {
+      if (server != null) {
+        MBeanTestUtils.releaseMBeanServer(server);
+      }
+    }
   }
 
   public static class AttributeTestBean {

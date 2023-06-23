@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,8 +42,7 @@ class MockServletWebServerTests {
   @Test
   void servletContextHasSessionCookieConfigConfigured() {
     MockServletWebServer server = TestMockServletWebServer.create();
-    assertThat(server.getServletContext().getSessionCookieConfig()).isNotNull()
-            .isInstanceOf(MockSessionCookieConfig.class);
+    assertThat(server.getServletContext().getSessionCookieConfig()).isInstanceOf(MockSessionCookieConfig.class);
   }
 
   private static final class TestMockServletWebServer extends MockServletWebServer {

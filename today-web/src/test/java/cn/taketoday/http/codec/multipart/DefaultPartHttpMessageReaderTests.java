@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,9 +47,9 @@ import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.DisabledIfInContinuousIntegration;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.Exceptions;
 import reactor.core.publisher.BaseSubscriber;
@@ -57,7 +57,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static cn.taketoday.core.io.buffer.DataBufferUtils.release;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
@@ -79,7 +79,7 @@ public class DefaultPartHttpMessageReaderTests {
 
   @ParameterizedDefaultPartHttpMessageReaderTest
   public void canRead(String displayName, DefaultPartHttpMessageReader reader) {
-    assertThat(reader.canRead(fromClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(reader.canRead(forClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
   }
 
   @ParameterizedDefaultPartHttpMessageReaderTest
@@ -87,7 +87,7 @@ public class DefaultPartHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     CountDownLatch latch = new CountDownLatch(2);
     StepVerifier.create(result)
@@ -104,7 +104,7 @@ public class DefaultPartHttpMessageReaderTests {
   public void noHeaders(String displayName, DefaultPartHttpMessageReader reader) {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-header.multipart", getClass()), "boundary");
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result)
             .consumeNextWith(part -> {
@@ -119,7 +119,7 @@ public class DefaultPartHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-end-boundary.multipart", getClass()), "boundary");
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result)
             .consumeNextWith(part -> {
@@ -135,7 +135,7 @@ public class DefaultPartHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("garbage-1.multipart", getClass()), "boundary");
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -146,7 +146,7 @@ public class DefaultPartHttpMessageReaderTests {
   public void noEndHeader(String displayName, DefaultPartHttpMessageReader reader) {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-end-header.multipart", getClass()), "boundary");
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -157,7 +157,7 @@ public class DefaultPartHttpMessageReaderTests {
   public void noEndBody(String displayName, DefaultPartHttpMessageReader reader) {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("no-end-body.multipart", getClass()), "boundary");
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result)
             .expectError(DecodingException.class)
@@ -168,7 +168,7 @@ public class DefaultPartHttpMessageReaderTests {
   public void cancelPart(String displayName, DefaultPartHttpMessageReader reader) {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result, 1)
             .consumeNextWith(part -> part.content().subscribe(DataBufferUtils::release))
@@ -180,7 +180,7 @@ public class DefaultPartHttpMessageReaderTests {
   public void cancelBody(String displayName, DefaultPartHttpMessageReader reader) throws Exception {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     CountDownLatch latch = new CountDownLatch(1);
     StepVerifier.create(result, 1)
@@ -197,7 +197,7 @@ public class DefaultPartHttpMessageReaderTests {
   public void cancelBodyThenPart(String displayName, DefaultPartHttpMessageReader reader) {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     StepVerifier.create(result, 1)
             .consumeNextWith(part -> part.content().subscribe(new CancelSubscriber()))
@@ -231,7 +231,7 @@ public class DefaultPartHttpMessageReaderTests {
     DefaultPartHttpMessageReader reader = new DefaultPartHttpMessageReader();
     reader.setMaxParts(1);
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     CountDownLatch latch = new CountDownLatch(1);
     StepVerifier.create(result)
@@ -248,7 +248,7 @@ public class DefaultPartHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("simple.multipart", getClass()), "\"simple-boundary\"");
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     CountDownLatch latch = new CountDownLatch(2);
     StepVerifier.create(result)
@@ -266,7 +266,7 @@ public class DefaultPartHttpMessageReaderTests {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("utf8.multipart", getClass()), "\"simple-boundary\"");
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     CountDownLatch latch = new CountDownLatch(1);
     StepVerifier.create(result)
@@ -294,7 +294,7 @@ public class DefaultPartHttpMessageReaderTests {
 
     reader.setMaxHeadersSize(230);
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
     CountDownLatch latch = new CountDownLatch(2);
     StepVerifier.create(result)
@@ -310,7 +310,7 @@ public class DefaultPartHttpMessageReaderTests {
 
     MockServerHttpRequest request = createRequest(resource, boundary);
 
-    Flux<Part> result = reader.read(fromClass(Part.class), request, emptyMap());
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
     CountDownLatch latch = new CountDownLatch(3);
     StepVerifier.create(result)
             .consumeNextWith(part -> testBrowserFormField(part, "text1", "a")).as("text1")

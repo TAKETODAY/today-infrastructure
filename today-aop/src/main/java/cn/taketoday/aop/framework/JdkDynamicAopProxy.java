@@ -110,12 +110,9 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
    */
   public JdkDynamicAopProxy(AdvisedSupport config) {
     Assert.notNull(config, "AdvisedSupport must not be null");
-    if (config.getAdvisors().length == 0 && config.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE) {
-      throw new AopConfigException("No advisors and no TargetSource specified");
-    }
     this.advised = config;
-    this.proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(config, true);
-    findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
+    this.proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
+    findDefinedEqualsAndHashCodeMethods(this.proxiedInterfaces);
   }
 
   @Override
@@ -130,6 +127,12 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
     }
 
     return Proxy.newProxyInstance(determineClassLoader(classLoader), proxiedInterfaces, this);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  public Class<?> getProxyClass(@Nullable ClassLoader classLoader) {
+    return Proxy.getProxyClass(determineClassLoader(classLoader), this.proxiedInterfaces);
   }
 
   /**

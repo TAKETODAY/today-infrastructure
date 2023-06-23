@@ -58,7 +58,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
   public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final ResolvableType MULTIVALUE_STRINGS_TYPE =
-          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class);
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
   private Charset defaultCharset = DEFAULT_CHARSET;
 

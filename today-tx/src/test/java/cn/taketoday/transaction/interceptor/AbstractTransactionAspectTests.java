@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.dao.OptimisticLockingFailureException;
 import cn.taketoday.transaction.CannotCreateTransactionException;
 import cn.taketoday.transaction.MockCallbackPreferringTransactionManager;
@@ -35,8 +37,6 @@ import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.UnexpectedRollbackException;
 import cn.taketoday.transaction.interceptor.TransactionAspectSupport.TransactionInfo;
-import cn.taketoday.transaction.testfixture.beans.ITestBean;
-import cn.taketoday.transaction.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

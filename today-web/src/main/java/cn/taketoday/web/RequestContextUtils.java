@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -1093,6 +1094,9 @@ public class RequestContextUtils {
    */
   final static class WebSessionProvider implements Supplier<WebSession>, Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final SessionManagerDiscover sessionManagerDiscover;
 
     private WebSessionProvider(BeanFactory beanFactory) {
@@ -1117,6 +1121,9 @@ public class RequestContextUtils {
    * Factory that exposes the current request-context object on demand.
    */
   private static class InjectableRequestContext extends DecoratingRequestContext {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Override
     public RequestContext getDelegate() {

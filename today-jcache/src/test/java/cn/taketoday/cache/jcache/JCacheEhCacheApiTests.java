@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,8 +29,8 @@ import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
 
-import cn.taketoday.cache.jcache.testfixture.cache.AbstractCacheTests;
-import cn.taketoday.cache.jcache.testfixture.cache.AbstractValueAdaptingCacheTests;
+import cn.taketoday.context.testfixture.cache.AbstractCacheTests;
+import cn.taketoday.context.testfixture.cache.AbstractValueAdaptingCacheTests;
 
 /**
  * @author Stephane Nicoll

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import cn.taketoday.cache.config.AnnotatedClassCacheableService;
 import cn.taketoday.cache.config.CacheableService;
 import cn.taketoday.cache.config.TestEntity;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.testfixture.cache.SomeCustomKeyGenerator;
+import cn.taketoday.context.testfixture.cache.SomeCustomKeyGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

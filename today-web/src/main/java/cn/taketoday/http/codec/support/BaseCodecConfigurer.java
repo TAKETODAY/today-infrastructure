@@ -173,11 +173,11 @@ abstract class BaseCodecConfigurer implements CodecConfigurer {
       }
 
       if (codec instanceof HttpMessageReader<?> reader) {
-        boolean canReadToObject = reader.canRead(ResolvableType.fromClass(Object.class), null);
+        boolean canReadToObject = reader.canRead(ResolvableType.forClass(Object.class), null);
         (canReadToObject ? this.objectReaders : this.typedReaders).put(reader, applyDefaultConfig);
       }
       else if (codec instanceof HttpMessageWriter<?> writer) {
-        boolean canWriteObject = writer.canWrite(ResolvableType.fromClass(Object.class), null);
+        boolean canWriteObject = writer.canWrite(ResolvableType.forClass(Object.class), null);
         (canWriteObject ? this.objectWriters : this.typedWriters).put(writer, applyDefaultConfig);
       }
       else {

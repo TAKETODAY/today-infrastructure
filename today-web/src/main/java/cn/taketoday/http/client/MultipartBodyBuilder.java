@@ -323,14 +323,14 @@ public final class MultipartBodyBuilder {
 
     public PublisherPartBuilder(String name, @Nullable HttpHeaders headers, P body, Class<S> elementClass) {
       super(name, headers, body);
-      this.resolvableType = ResolvableType.fromClass(elementClass);
+      this.resolvableType = ResolvableType.forClass(elementClass);
     }
 
     public PublisherPartBuilder(
             String name, @Nullable HttpHeaders headers, P body, TypeReference<S> typeRef) {
 
       super(name, headers, body);
-      this.resolvableType = ResolvableType.fromType(typeRef);
+      this.resolvableType = ResolvableType.forType(typeRef);
     }
 
     public PublisherPartBuilder(String name, PublisherEntity<S, P> other) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -100,7 +100,7 @@ class ArrayBinderTests {
     source.put("foo[1][0]", "3");
     source.put("foo[1][1]", "4");
     this.sources.add(source);
-    ResolvableType type = ResolvableType.fromArrayComponent(INTEGER_ARRAY.getType());
+    ResolvableType type = ResolvableType.forArrayComponent(INTEGER_ARRAY.getType());
     Bindable<Integer[][]> target = Bindable.of(type);
     Integer[][] result = this.binder.bind("foo", target).get();
     assertThat(result).hasDimensions(2, 2);
@@ -116,7 +116,7 @@ class ArrayBinderTests {
     source.put("foo[1][0]", "3");
     source.put("foo[1][1]", "4");
     this.sources.add(source);
-    ResolvableType type = ResolvableType.fromArrayComponent(INTEGER_LIST.getType());
+    ResolvableType type = ResolvableType.forArrayComponent(INTEGER_LIST.getType());
     Bindable<List<Integer>[]> target = Bindable.of(type);
     List<Integer>[] result = this.binder.bind("foo", target).get();
     assertThat(result).hasSize(2);

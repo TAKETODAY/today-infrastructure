@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -244,15 +244,15 @@ public class ResolvableMethod {
   }
 
   private static ResolvableType toResolvableType(Class<?> type, Class<?>... generics) {
-    return (ObjectUtils.isEmpty(generics) ? ResolvableType.fromClass(type) :
-            ResolvableType.fromClassWithGenerics(type, generics));
+    return (ObjectUtils.isEmpty(generics) ? ResolvableType.forClass(type) :
+            ResolvableType.forClassWithGenerics(type, generics));
   }
 
   private static ResolvableType toResolvableType(Class<?> type, ResolvableType generic, ResolvableType... generics) {
     ResolvableType[] genericTypes = new ResolvableType[generics.length + 1];
     genericTypes[0] = generic;
     System.arraycopy(generics, 0, genericTypes, 1, generics.length);
-    return ResolvableType.fromClassWithGenerics(type, genericTypes);
+    return ResolvableType.forClassWithGenerics(type, genericTypes);
   }
 
   /**
@@ -675,6 +675,7 @@ public class ResolvableMethod {
     else {
       Enhancer enhancer = new Enhancer();
       enhancer.setSuperclass(type);
+      enhancer.setAttemptLoad(true);
       enhancer.setInterfaces(Supplier.class);
       enhancer.setNamingPolicy(DefaultNamingPolicy.INSTANCE);
       enhancer.setCallbackType(cn.taketoday.bytecode.proxy.MethodInterceptor.class);

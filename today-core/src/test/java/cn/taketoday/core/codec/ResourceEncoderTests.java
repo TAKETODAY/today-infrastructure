@@ -53,13 +53,13 @@ class ResourceEncoderTests extends AbstractEncoderTests<ResourceEncoder> {
   @Override
   @Test
   public void canEncode() {
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(InputStreamResource.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(ByteArrayResource.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(ByteArrayResource.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Resource.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(InputStreamResource.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
             MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // SPR-15464

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,7 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import cn.taketoday.context.testfixture.TestSocketUtils;
+import cn.taketoday.core.testfixture.net.TestSocketUtils;
 
 /**
  * @author Rob Harrop
@@ -41,7 +41,6 @@ import cn.taketoday.context.testfixture.TestSocketUtils;
  */
 class RemoteMBeanClientInterceptorTests extends MBeanClientInterceptorTests {
 
-  @SuppressWarnings("deprecation")
   private final int servicePort = TestSocketUtils.findAvailableTcpPort();
 
   private final String serviceUrl = "service:jmx:jmxmp://localhost:" + servicePort;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.test.web.reactive.server;
 
 import org.reactivestreams.Publisher;
 
+import java.io.Serial;
 import java.net.URI;
 import java.util.function.Function;
 
@@ -59,7 +60,9 @@ import reactor.core.scheduler.Schedulers;
  * {@link MockClientHttpRequest} and {@link MockClientHttpResponse} to<br>
  * {@link MockServerHttpRequest} and {@link MockServerHttpResponse}.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Rossen Stoyanchev
+ * @since 4.0
  */
 public class HttpHandlerConnector implements ClientHttpConnector {
 
@@ -164,6 +167,9 @@ public class HttpHandlerConnector implements ClientHttpConnector {
    * to propagate so the application is alerted.
    */
   public static final class FailureAfterResponseCompletedException extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final ClientHttpResponse completedResponse;
 

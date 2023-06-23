@@ -75,6 +75,7 @@ import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.context.weaving.LoadTimeWeaverAware;
 import cn.taketoday.context.weaving.LoadTimeWeaverAwareProcessor;
+import cn.taketoday.core.NativeDetector;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -655,7 +656,7 @@ public abstract class AbstractApplicationContext
     beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found.
-    if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+    if (!NativeDetector.inNativeImage() && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
       beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
       // Set a temporary ClassLoader for type matching.
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
@@ -714,7 +715,9 @@ public abstract class AbstractApplicationContext
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
     // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
-    if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+    if (!NativeDetector.inNativeImage()
+            && beanFactory.getTempClassLoader() == null
+            && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
       beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
       beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
     }
@@ -1433,7 +1436,7 @@ public abstract class AbstractApplicationContext
 
     // Determine event type only once (for multicast and parent publish)
     if (eventType == null) {
-      eventType = ResolvableType.fromInstance(applicationEvent);
+      eventType = ResolvableType.forInstance(applicationEvent);
       if (typeHint == null) {
         typeHint = eventType;
       }

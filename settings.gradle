@@ -1,0 +1,55 @@
+pluginManagement {
+  repositories {
+    mavenLocal()
+    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url 'https://maven.aliyun.com/repository/spring/' }
+    maven { url 'https://maven.aliyun.com/repository/google/' }
+    maven { url 'https://maven.aliyun.com/repository/gradle-plugin/' }
+    maven { url 'https://maven.aliyun.com/repository/spring-plugin/' }
+    maven { url 'https://maven.aliyun.com/repository/grails-core/' }
+    maven { url 'https://maven.aliyun.com/repository/apache-snapshots/' }
+    maven { url "https://repo.spring.io/release" }
+
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+include 'infra-bom'
+include 'infra-docs'
+include 'infra-platform'
+include 'infra-code-coverage'
+include 'today-retry'
+include 'today-tx'
+include 'today-web'
+include 'today-aspects'
+include 'today-websocket'
+include 'today-jcache'
+include 'today-redisson'
+include 'today-jdbc'
+include 'today-orm'
+include 'today-core'
+include 'today-core-test'
+include 'today-framework'
+include 'today-oxm'
+include 'today-aop'
+include 'today-test'
+include 'today-beans'
+include 'today-mybatis'
+include 'today-context'
+include 'today-starter'
+include 'today-instrument'
+include 'integration-tests'
+include 'today-test-support'
+include 'today-context-indexer'
+
+file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
+  include "today-starter:${it.name}"
+}
+
+rootProject.name = 'today-infrastructure'
+
+rootProject.children.each { project ->
+  project.buildFileName = "${project.name}.gradle"
+}
+

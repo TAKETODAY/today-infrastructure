@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,9 +33,9 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.json.AbstractLeakCheckingTests;
-import cn.taketoday.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -52,27 +52,27 @@ public class FormHttpMessageReaderTests extends AbstractLeakCheckingTests {
   @Test
   public void canRead() {
     assertThat(this.reader.canRead(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isTrue();
 
     assertThat(this.reader.canRead(
-            ResolvableType.fromInstance(new DefaultMultiValueMap<String, String>()),
+            ResolvableType.forInstance(new DefaultMultiValueMap<String, String>()),
             MediaType.APPLICATION_FORM_URLENCODED)).isTrue();
 
     assertThat(this.reader.canRead(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isFalse();
 
     assertThat(this.reader.canRead(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, Object.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, Object.class, String.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isFalse();
 
     assertThat(this.reader.canRead(
-            ResolvableType.fromClassWithGenerics(Map.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(Map.class, String.class, String.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isFalse();
 
     assertThat(this.reader.canRead(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class),
             MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 

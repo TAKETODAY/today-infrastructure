@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.lang.Assert;
@@ -60,6 +61,8 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class RollbackRuleAttribute implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The {@linkplain RollbackRuleAttribute rollback rule} for

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,6 @@ import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
@@ -53,6 +52,7 @@ import cn.taketoday.core.conversion.support.GenericConversionService;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

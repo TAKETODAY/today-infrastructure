@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.view;
 
+import java.io.Serial;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
@@ -43,6 +44,9 @@ import cn.taketoday.validation.BindingResult;
  * @since 4.0 2022/4/28 9:04
  */
 public class BindingAwareModelMap extends ModelMap {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Override
   public Object put(String key, @Nullable Object value) {

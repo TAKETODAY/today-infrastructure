@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,7 @@ import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.interceptor.SimpleKeyGenerator;
 import cn.taketoday.cache.jcache.TestableCacheKeyGenerator;
 import cn.taketoday.cache.jcache.TestableCacheResolverFactory;
-import cn.taketoday.cache.jcache.testfixture.jcache.JCacheableService;
+import cn.taketoday.contextsupport.testfixture.jcache.JCacheableService;
 
 /**
  * Repository sample with a @CacheDefaults annotation

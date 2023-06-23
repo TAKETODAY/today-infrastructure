@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,6 +32,10 @@ import java.io.Serial;
  * 2019-11-03 16:09
  */
 final class Log4j2Logger extends Logger {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   static final LoggerContext loggerContext =
           LogManager.getContext(Log4j2Logger.class.getClassLoader(), false);
 

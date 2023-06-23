@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -357,7 +357,7 @@ public class AnnotationConfigApplicationContextTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd = new RootBeanDefinition();
     bd.setInstanceSupplier(NonInstantiatedFactoryBean::new);
-    bd.setTargetType(ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class));
+    bd.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, String.class));
     bd.setLazyInit(true);
     context.registerBeanDefinition("fb", bd);
     context.refresh();
@@ -373,12 +373,12 @@ public class AnnotationConfigApplicationContextTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd1 = new RootBeanDefinition();
     bd1.setBeanClass(GenericHolderFactoryBean.class);
-    bd1.setTargetType(ResolvableType.fromClassWithGenerics(FactoryBean.class, ResolvableType.fromClassWithGenerics(GenericHolder.class, String.class)));
+    bd1.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, String.class)));
     bd1.setLazyInit(true);
     context.registerBeanDefinition("fb1", bd1);
     RootBeanDefinition bd2 = new RootBeanDefinition();
     bd2.setBeanClass(UntypedFactoryBean.class);
-    bd2.setTargetType(ResolvableType.fromClassWithGenerics(FactoryBean.class, ResolvableType.fromClassWithGenerics(GenericHolder.class, Integer.class)));
+    bd2.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, Integer.class)));
     bd2.setLazyInit(true);
     context.registerBeanDefinition("fb2", bd2);
     context.registerBeanDefinition("ip", new RootBeanDefinition(FactoryBeanInjectionPoints.class));
@@ -397,12 +397,12 @@ public class AnnotationConfigApplicationContextTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd1 = new RootBeanDefinition();
     bd1.setBeanClass(GenericHolderFactoryBean.class);
-    bd1.setTargetType(ResolvableType.fromClassWithGenerics(FactoryBean.class, ResolvableType.fromClassWithGenerics(GenericHolder.class, Object.class)));
+    bd1.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, Object.class)));
     bd1.setLazyInit(true);
     context.registerBeanDefinition("fb1", bd1);
     RootBeanDefinition bd2 = new RootBeanDefinition();
     bd2.setBeanClass(UntypedFactoryBean.class);
-    bd2.setTargetType(ResolvableType.fromClassWithGenerics(FactoryBean.class, ResolvableType.fromClassWithGenerics(GenericHolder.class, Integer.class)));
+    bd2.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, Integer.class)));
     bd2.setLazyInit(true);
     context.registerBeanDefinition("fb2", bd2);
     context.registerBeanDefinition("ip", new RootBeanDefinition(FactoryResultInjectionPoint.class));
@@ -419,11 +419,11 @@ public class AnnotationConfigApplicationContextTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd1 = new RootBeanDefinition();
     bd1.setBeanClass(GenericHolderFactoryBean.class);
-    bd1.setTargetType(ResolvableType.fromClassWithGenerics(GenericHolder.class, String.class));
+    bd1.setTargetType(ResolvableType.forClassWithGenerics(GenericHolder.class, String.class));
     context.registerBeanDefinition("fb1", bd1);
     RootBeanDefinition bd2 = new RootBeanDefinition();
     bd2.setBeanClass(UntypedFactoryBean.class);
-    bd2.setTargetType(ResolvableType.fromClassWithGenerics(GenericHolder.class, Integer.class));
+    bd2.setTargetType(ResolvableType.forClassWithGenerics(GenericHolder.class, Integer.class));
     context.registerBeanDefinition("fb2", bd2);
     context.registerBeanDefinition("ip", new RootBeanDefinition(FactoryResultInjectionPoint.class));
     context.refresh();

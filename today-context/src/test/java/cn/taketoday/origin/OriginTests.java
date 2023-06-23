@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -95,6 +95,7 @@ class OriginTests {
     assertThat(parents).containsExactly(o2, o1);
   }
 
+  @SuppressWarnings("serial")
   static class TestException extends RuntimeException implements OriginProvider {
 
     private final Origin origin;

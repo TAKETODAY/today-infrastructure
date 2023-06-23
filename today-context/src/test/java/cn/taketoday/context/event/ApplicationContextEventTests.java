@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -85,13 +85,13 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   @Test
   public void multicastGenericEvent() {
     multicastEvent(true, StringEventListener.class, createGenericTestEvent("test"),
-            ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class));
+            ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test
   public void multicastGenericEventWrongType() {
     multicastEvent(false, StringEventListener.class, createGenericTestEvent(123L),
-            ResolvableType.fromClassWithGenerics(GenericTestEvent.class, Long.class));
+            ResolvableType.forClassWithGenerics(GenericTestEvent.class, Long.class));
   }
 
   @Test

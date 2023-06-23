@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.config.AopConfigUtils;
 import cn.taketoday.aop.config.AopNamespaceUtils;
-import cn.taketoday.aop.testfixture.beans.CollectingReaderEventListener;
+import cn.taketoday.beans.testfixture.beans.CollectingReaderEventListener;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.parsing.PassThroughSourceExtractor;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -123,7 +123,7 @@ class MapBinderTests {
 
   @Test
   void bindToMapShouldBindToMapValue() {
-    ResolvableType type = ResolvableType.fromClassWithGenerics(Map.class, ResolvableType.fromClass(String.class),
+    ResolvableType type = ResolvableType.forClassWithGenerics(Map.class, ResolvableType.forClass(String.class),
             STRING_INTEGER_MAP.getType());
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.bar.baz", "1");
@@ -141,9 +141,9 @@ class MapBinderTests {
 
   @Test
   void bindToMapShouldBindNestedMapValue() {
-    ResolvableType nestedType = ResolvableType.fromClassWithGenerics(Map.class,
-            ResolvableType.fromClass(String.class), STRING_INTEGER_MAP.getType());
-    ResolvableType type = ResolvableType.fromClassWithGenerics(Map.class, ResolvableType.fromClass(String.class),
+    ResolvableType nestedType = ResolvableType.forClassWithGenerics(Map.class,
+            ResolvableType.forClass(String.class), STRING_INTEGER_MAP.getType());
+    ResolvableType type = ResolvableType.forClassWithGenerics(Map.class, ResolvableType.forClass(String.class),
             nestedType);
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("foo.nested.bar.baz", "1");
@@ -254,7 +254,7 @@ class MapBinderTests {
   @Test
   void bindToMapShouldRespectMapType() {
     this.sources.add(new MockConfigurationPropertySource("foo.bar", "1"));
-    ResolvableType type = ResolvableType.fromClassWithGenerics(HashMap.class, String.class, Integer.class);
+    ResolvableType type = ResolvableType.forClassWithGenerics(HashMap.class, String.class, Integer.class);
     Object defaultMap = this.binder.bind("foo", STRING_INTEGER_MAP).get();
     Object customMap = this.binder.bind("foo", Bindable.of(type)).get();
     assertThat(customMap).isExactlyInstanceOf(HashMap.class).isNotInstanceOf(defaultMap.getClass());
@@ -610,12 +610,12 @@ class MapBinderTests {
   }
 
   private <K, V> Bindable<Map<K, V>> getMapBindable(Class<K> keyGeneric, ResolvableType valueType) {
-    ResolvableType keyType = ResolvableType.fromClass(keyGeneric);
-    return Bindable.of(ResolvableType.fromClassWithGenerics(Map.class, keyType, valueType));
+    ResolvableType keyType = ResolvableType.forClass(keyGeneric);
+    return Bindable.of(ResolvableType.forClassWithGenerics(Map.class, keyType, valueType));
   }
 
   private <T> Bindable<List<T>> getListBindable(ResolvableType type) {
-    return Bindable.of(ResolvableType.fromClassWithGenerics(List.class, type));
+    return Bindable.of(ResolvableType.forClassWithGenerics(List.class, type));
   }
 
   static class Foo {
@@ -683,6 +683,7 @@ class MapBinderTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class MyCustomNoDefaultConstructorMap extends HashMap<String, String> {
 
     MyCustomNoDefaultConstructorMap(Map<String, String> items) {
@@ -706,6 +707,7 @@ class MapBinderTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class MyCustomWithDefaultConstructorMap extends HashMap<String, String> {
 
   }

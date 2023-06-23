@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,11 +20,8 @@
 
 package cn.taketoday.context.annotation;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,13 +54,10 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.io.EncodedResource;
-import cn.taketoday.core.io.PropertySourceFactory;
-import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourcePropertySource;
+import cn.taketoday.core.io.PropertySourceDescriptor;
+import cn.taketoday.core.io.PropertySourceProcessor;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
@@ -76,8 +70,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Parses a {@link Configuration} class definition, populating a collection of
@@ -118,8 +110,6 @@ class ConfigurationClassParser {
 
   private final Map<String, ConfigurationClass> knownSuperclasses = new HashMap<>();
 
-  private final List<String> propertySourceNames = new ArrayList<>();
-
   private final ImportRegistry importStack = new ImportRegistry();
 
   private final DeferredImportSelectorHandler deferredImportSelectorHandler = new DeferredImportSelectorHandler();
@@ -128,6 +118,9 @@ class ConfigurationClassParser {
 
   private final BootstrapContext bootstrapContext;
 
+  @Nullable
+  private final PropertySourceRegistry propertySourceRegistry;
+
   /**
    * Create a new {@link ConfigurationClassParser} instance that will be used
    * to populate the set of configuration classes.
@@ -135,6 +128,9 @@ class ConfigurationClassParser {
   public ConfigurationClassParser(BootstrapContext bootstrapContext) {
     this.bootstrapContext = bootstrapContext;
     this.componentScanParser = new ComponentScanAnnotationParser(bootstrapContext);
+    this.propertySourceRegistry =
+            bootstrapContext.getEnvironment() instanceof ConfigurableEnvironment ce ?
+            new PropertySourceRegistry(new PropertySourceProcessor(ce, bootstrapContext.getResourceLoader())) : null;
   }
 
   public void parse(Set<BeanDefinitionHolder> configCandidates) {
@@ -193,6 +189,11 @@ class ConfigurationClassParser {
     return configurationClasses.keySet();
   }
 
+  List<PropertySourceDescriptor> getPropertySourceDescriptors() {
+    return (this.propertySourceRegistry != null ? this.propertySourceRegistry.getDescriptors()
+                                                : Collections.emptyList());
+  }
+
   protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
     if (bootstrapContext.passCondition(
             configClass.metadata, ConfigurationPhase.PARSE_CONFIGURATION)) {
@@ -247,12 +248,11 @@ class ConfigurationClassParser {
     Environment environment = bootstrapContext.getEnvironment();
     MergedAnnotations annotations = sourceClass.metadata.getAnnotations();
     for (var propertySource : repeatable(annotations, PropertySource.class, PropertySources.class)) {
-      if (environment instanceof ConfigurableEnvironment) {
-        processPropertySource(propertySource);
+      if (this.propertySourceRegistry != null) {
+        this.propertySourceRegistry.processPropertySource(propertySource);
       }
       else {
-        logger.info("Ignoring @PropertySource annotation on [{}]." +
-                        " Reason: Environment must implement ConfigurableEnvironment",
+        logger.info("Ignoring @PropertySource annotation on [{}]. Reason: Environment must implement ConfigurableEnvironment",
                 sourceClass.metadata.getClassName());
       }
     }
@@ -406,92 +406,6 @@ class ConfigurationClassParser {
       }
     }
     return componentMethods;
-  }
-
-  /**
-   * Process the given <code>@PropertySource</code> annotation metadata.
-   *
-   * @param propertySource metadata for the <code>@PropertySource</code> annotation found
-   */
-  private void processPropertySource(MergedAnnotation<PropertySource> propertySource) {
-    String name = propertySource.getString("name");
-    if (StringUtils.isBlank(name)) {
-      name = null;
-    }
-    String encoding = propertySource.getString("encoding");
-    if (StringUtils.isBlank(encoding)) {
-      encoding = null;
-    }
-    String[] locations = propertySource.getStringArray("value");
-    Assert.isTrue(locations.length > 0, "At least one @PropertySource(value) location is required");
-
-    Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
-    PropertySourceFactory factory =
-            factoryClass == PropertySourceFactory.class
-            ? bootstrapContext.getPropertySourceFactory() : bootstrapContext.instantiate(factoryClass);
-
-    Environment environment = bootstrapContext.getEnvironment();
-    for (String location : locations) {
-      try {
-        String resolvedLocation = environment.resolveRequiredPlaceholders(location);
-        Resource resource = bootstrapContext.getResource(resolvedLocation);
-        addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
-      }
-      catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
-        // Placeholders not resolvable or resource not found when trying to open it
-        if (propertySource.getBoolean("ignoreResourceNotFound")) {
-          if (logger.isInfoEnabled()) {
-            logger.info("Properties location [{}] not resolvable: {}", location, ex.getMessage());
-          }
-        }
-        else {
-          throw ExceptionUtils.sneakyThrow(ex);
-        }
-      }
-      catch (IOException e) {
-        throw ExceptionUtils.sneakyThrow(e);
-      }
-    }
-  }
-
-  private void addPropertySource(cn.taketoday.core.env.PropertySource<?> propertySource) {
-    String name = propertySource.getName();
-    Environment environment = bootstrapContext.getEnvironment();
-    cn.taketoday.core.env.PropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
-
-    if (propertySourceNames.contains(name)) {
-      // We've already added a version, we need to extend it
-      cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
-      if (existing != null) {
-        cn.taketoday.core.env.PropertySource<?> newSource
-                = propertySource instanceof ResourcePropertySource
-                  ? ((ResourcePropertySource) propertySource).withResourceName()
-                  : propertySource;
-
-        if (existing instanceof CompositePropertySource) {
-          ((CompositePropertySource) existing).addFirstPropertySource(newSource);
-        }
-        else {
-          if (existing instanceof ResourcePropertySource) {
-            existing = ((ResourcePropertySource) existing).withResourceName();
-          }
-          CompositePropertySource composite = new CompositePropertySource(name);
-          composite.addPropertySource(newSource);
-          composite.addPropertySource(existing);
-          propertySources.replace(name, composite);
-        }
-        return;
-      }
-    }
-
-    if (propertySourceNames.isEmpty()) {
-      propertySources.addLast(propertySource);
-    }
-    else {
-      String firstProcessed = propertySourceNames.get(propertySourceNames.size() - 1);
-      propertySources.addBefore(firstProcessed, propertySource);
-    }
-    propertySourceNames.add(name);
   }
 
   static <A extends Annotation, C extends Annotation> Set<MergedAnnotation<A>> repeatable(

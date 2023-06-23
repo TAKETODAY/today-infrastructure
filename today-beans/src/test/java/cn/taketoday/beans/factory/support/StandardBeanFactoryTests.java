@@ -77,7 +77,6 @@ import cn.taketoday.beans.factory.config.RuntimeBeanReference;
 import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.xml.ConstructorDependenciesBean;
 import cn.taketoday.beans.propertyeditors.CustomNumberEditor;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.DependenciesBean;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -95,6 +94,7 @@ import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.conversion.support.GenericConversionService;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
 import jakarta.annotation.Priority;
 
@@ -200,9 +200,9 @@ class StandardBeanFactoryTests {
     assertThat(lbf.isTypeMatch("x1", TestBean.class)).isTrue();
     assertThat(lbf.isTypeMatch("&x1", TestBean.class)).isFalse();
     assertThat(lbf.isTypeMatch("&x1", DummyFactory.class)).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClass(DummyFactory.class))).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClassWithGenerics(FactoryBean.class, Object.class))).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class))).isFalse();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClass(DummyFactory.class))).isTrue();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClassWithGenerics(FactoryBean.class, Object.class))).isTrue();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClassWithGenerics(FactoryBean.class, String.class))).isFalse();
     assertThat(lbf.getType("x1")).isEqualTo(TestBean.class);
     assertThat(lbf.getType("&x1")).isEqualTo(DummyFactory.class);
     assertThat(!DummyFactory.wasPrototypeCreated()).as("prototype not instantiated").isTrue();
@@ -232,9 +232,9 @@ class StandardBeanFactoryTests {
     assertThat(lbf.isTypeMatch("x1", TestBean.class)).isTrue();
     assertThat(lbf.isTypeMatch("&x1", TestBean.class)).isFalse();
     assertThat(lbf.isTypeMatch("&x1", DummyFactory.class)).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClass(DummyFactory.class))).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClassWithGenerics(FactoryBean.class, Object.class))).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class))).isFalse();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClass(DummyFactory.class))).isTrue();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClassWithGenerics(FactoryBean.class, Object.class))).isTrue();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClassWithGenerics(FactoryBean.class, String.class))).isFalse();
     assertThat(lbf.getType("x1")).isEqualTo(TestBean.class);
     assertThat(lbf.getType("&x1")).isEqualTo(DummyFactory.class);
     assertThat(!DummyFactory.wasPrototypeCreated()).as("prototype not instantiated").isTrue();
@@ -263,9 +263,9 @@ class StandardBeanFactoryTests {
     assertThat(lbf.isTypeMatch("x1", TestBean.class)).isTrue();
     assertThat(lbf.isTypeMatch("&x1", TestBean.class)).isFalse();
     assertThat(lbf.isTypeMatch("&x1", DummyFactory.class)).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClass(DummyFactory.class))).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClassWithGenerics(FactoryBean.class, Object.class))).isTrue();
-    assertThat(lbf.isTypeMatch("&x1", ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class))).isFalse();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClass(DummyFactory.class))).isTrue();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClassWithGenerics(FactoryBean.class, Object.class))).isTrue();
+    assertThat(lbf.isTypeMatch("&x1", ResolvableType.forClassWithGenerics(FactoryBean.class, String.class))).isFalse();
     assertThat(lbf.getType("x1")).isEqualTo(TestBean.class);
     assertThat(lbf.getType("&x1")).isEqualTo(DummyFactory.class);
     assertThat(!DummyFactory.wasPrototypeCreated()).as("prototype not instantiated").isTrue();
@@ -1822,10 +1822,10 @@ class StandardBeanFactoryTests {
 
     assertThat(lbf.getBeanNamesForType(ConstructorDependency.class)).hasSize(1);
     assertThat(lbf.getBeanNamesForType(ConstructorDependencyFactoryBean.class)).hasSize(1);
-    assertThat(lbf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(FactoryBean.class, Object.class))).hasSize(1);
-    assertThat(lbf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class))).isEmpty();
-    assertThat(lbf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(FactoryBean.class, Object.class), true, true)).hasSize(1);
-    assertThat(lbf.getBeanNamesForType(ResolvableType.fromClassWithGenerics(FactoryBean.class, String.class), true, true)).isEmpty();
+    assertThat(lbf.getBeanNamesForType(ResolvableType.forClassWithGenerics(FactoryBean.class, Object.class))).hasSize(1);
+    assertThat(lbf.getBeanNamesForType(ResolvableType.forClassWithGenerics(FactoryBean.class, String.class))).isEmpty();
+    assertThat(lbf.getBeanNamesForType(ResolvableType.forClassWithGenerics(FactoryBean.class, Object.class), true, true)).hasSize(1);
+    assertThat(lbf.getBeanNamesForType(ResolvableType.forClassWithGenerics(FactoryBean.class, String.class), true, true)).isEmpty();
   }
 
   private RootBeanDefinition createConstructorDependencyBeanDefinition(int age) {

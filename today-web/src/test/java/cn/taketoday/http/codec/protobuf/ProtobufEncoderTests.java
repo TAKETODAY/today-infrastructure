@@ -22,7 +22,6 @@ package cn.taketoday.http.codec.protobuf;
 
 import com.google.protobuf.Message;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -39,7 +38,7 @@ import cn.taketoday.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -64,11 +63,11 @@ public class ProtobufEncoderTests extends AbstractEncoderTests<ProtobufEncoder> 
   @Override
   @Test
   public void canEncode() {
-    assertThat(this.encoder.canEncode(fromClass(Msg.class), null)).isTrue();
-    assertThat(this.encoder.canEncode(fromClass(Msg.class), PROTOBUF_MIME_TYPE)).isTrue();
-    assertThat(this.encoder.canEncode(fromClass(Msg.class), MediaType.APPLICATION_OCTET_STREAM)).isTrue();
-    assertThat(this.encoder.canEncode(fromClass(Msg.class), MediaType.APPLICATION_JSON)).isFalse();
-    assertThat(this.encoder.canEncode(fromClass(Object.class), PROTOBUF_MIME_TYPE)).isFalse();
+    assertThat(this.encoder.canEncode(forClass(Msg.class), null)).isTrue();
+    assertThat(this.encoder.canEncode(forClass(Msg.class), PROTOBUF_MIME_TYPE)).isTrue();
+    assertThat(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_OCTET_STREAM)).isTrue();
+    assertThat(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_JSON)).isFalse();
+    assertThat(this.encoder.canEncode(forClass(Object.class), PROTOBUF_MIME_TYPE)).isFalse();
   }
 
   @Override

@@ -32,7 +32,7 @@ public class PublicFactoryBean<T> {
   }
 
   public static ResolvableType resolveToProtectedGenericParameter() {
-    return ResolvableType.fromClassWithGenerics(PublicFactoryBean.class, ProtectedType.class);
+    return ResolvableType.forClassWithGenerics(PublicFactoryBean.class, ProtectedType.class);
   }
 
 }

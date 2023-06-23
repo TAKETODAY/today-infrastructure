@@ -51,15 +51,15 @@ class CharSequenceEncoderTests extends AbstractEncoderTests<CharSequenceEncoder>
   @Override
   @Test
   public void canEncode() throws Exception {
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(String.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(StringBuilder.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(StringBuilder.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(StringBuffer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(StringBuffer.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
             MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(String.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(String.class),
             MimeTypeUtils.APPLICATION_JSON)).isFalse();
 
     // SPR-15464

@@ -48,11 +48,11 @@ class DataBufferEncoderTests extends AbstractEncoderTests<DataBufferEncoder> {
   @Override
   @Test
   public void canEncode() {
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(DataBuffer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(DataBuffer.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
             MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(DataBuffer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(DataBuffer.class),
             MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // SPR-15464

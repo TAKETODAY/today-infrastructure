@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,11 +22,11 @@ package cn.taketoday.aop.interceptor;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.testfixture.beans.ITestBean;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 
-import static cn.taketoday.aop.testfixture.ResourceTestUtils.qualifiedResource;
+import static cn.taketoday.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

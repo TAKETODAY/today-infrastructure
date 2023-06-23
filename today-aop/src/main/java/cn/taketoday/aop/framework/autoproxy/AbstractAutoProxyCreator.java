@@ -42,6 +42,7 @@ import cn.taketoday.aop.framework.ProxyFactoryBean;
 import cn.taketoday.aop.framework.ProxyProcessorSupport;
 import cn.taketoday.aop.framework.adapter.AdvisorAdapterRegistry;
 import cn.taketoday.aop.framework.adapter.DefaultAdvisorAdapterRegistry;
+import cn.taketoday.aop.target.EmptyTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -290,6 +291,30 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   }
 
   @Override
+  public Class<?> determineBeanType(Class<?> beanClass, String beanName) {
+    Object cacheKey = getCacheKey(beanClass, beanName);
+    Class<?> proxyType = this.proxyTypes.get(cacheKey);
+    if (proxyType == null) {
+      TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
+      if (targetSource != null) {
+        if (StringUtils.isNotEmpty(beanName)) {
+          this.targetSourcedBeans.add(beanName);
+        }
+      }
+      else {
+        targetSource = EmptyTargetSource.forClass(beanClass);
+      }
+      Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+      if (specificInterceptors != DO_NOT_PROXY) {
+        this.advisedBeans.put(cacheKey, Boolean.TRUE);
+        proxyType = createProxyClass(beanClass, beanName, specificInterceptors, targetSource);
+        this.proxyTypes.put(cacheKey, proxyType);
+      }
+    }
+    return (proxyType != null ? proxyType : beanClass);
+  }
+
+  @Override
   @Nullable
   public Constructor<?>[] determineCandidateConstructors(Class<?> beanClass, String beanName) {
     return null;
@@ -401,6 +426,18 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   protected Object createProxy(Class<?> beanClass, @Nullable String beanName,
           @Nullable Object[] specificInterceptors, TargetSource targetSource) {
 
+    return buildProxy(beanClass, beanName, specificInterceptors, targetSource, false);
+  }
+
+  private Class<?> createProxyClass(Class<?> beanClass, @Nullable String beanName,
+          @Nullable Object[] specificInterceptors, TargetSource targetSource) {
+
+    return (Class<?>) buildProxy(beanClass, beanName, specificInterceptors, targetSource, true);
+  }
+
+  private Object buildProxy(Class<?> beanClass, @Nullable String beanName,
+          @Nullable Object[] specificInterceptors, TargetSource targetSource, boolean classOnly) {
+
     if (beanFactory instanceof ConfigurableBeanFactory cbf) {
       AutoProxyUtils.exposeTargetClass(cbf, beanName, beanClass);
     }
@@ -442,7 +479,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
     if (classLoader instanceof SmartClassLoader && classLoader != beanClass.getClassLoader()) {
       classLoader = ((SmartClassLoader) classLoader).getOriginalClassLoader();
     }
-    return proxyFactory.getProxy(classLoader);
+    return (classOnly ? proxyFactory.getProxyClass(classLoader) : proxyFactory.getProxy(classLoader));
   }
 
   protected boolean shouldSkip(Class<?> beanClass, String beanName) {

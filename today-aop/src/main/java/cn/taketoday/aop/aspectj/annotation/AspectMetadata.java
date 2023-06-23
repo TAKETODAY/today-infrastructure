@@ -51,6 +51,9 @@ import cn.taketoday.aop.support.ComposablePointcut;
  */
 public class AspectMetadata implements Serializable {
 
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   /**
    * The name of this aspect as defined to Framework (the bean name) -
    * allows us to determine if two pieces of advice come from the

@@ -96,7 +96,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
   protected <T> void testEncodeAll(Publisher<? extends T> input, Class<? extends T> inputClass,
           Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
 
-    testEncodeAll(input, ResolvableType.fromClass(inputClass), null, null, stepConsumer);
+    testEncodeAll(input, ResolvableType.forClass(inputClass), null, null, stepConsumer);
   }
 
   /**
@@ -137,7 +137,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
   protected <T> void testEncode(Publisher<? extends T> input, Class<? extends T> inputClass,
           Consumer<StepVerifier.FirstStep<DataBuffer>> stepConsumer) {
 
-    testEncode(input, ResolvableType.fromClass(inputClass), null, null, stepConsumer);
+    testEncode(input, ResolvableType.forClass(inputClass), null, null, stepConsumer);
   }
 
   /**

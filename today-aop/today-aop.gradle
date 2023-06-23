@@ -1,0 +1,16 @@
+description = "Infra AOP"
+
+dependencies {
+  api(project(":today-beans"))
+  api(project(":today-core"))
+  optional("org.aspectj:aspectjweaver")
+  optional("org.apache.commons:commons-pool2")
+  optional 'com.jamonapi:jamon:2.82'
+  optional 'jakarta.inject:jakarta.inject-api'
+
+  testImplementation(project(":today-core-test"))
+  testImplementation(testFixtures(project(":today-beans")))
+  testImplementation(testFixtures(project(":today-core")))
+  testFixturesImplementation(testFixtures(project(":today-beans")))
+  testFixturesImplementation(testFixtures(project(":today-core")))
+}

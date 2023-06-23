@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.annotation.config;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -210,6 +211,9 @@ public abstract class AutoConfigurationPackages {
   }
 
   static final class BasePackagesBeanDefinition extends GenericBeanDefinition {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final LinkedHashSet<String> basePackages = new LinkedHashSet<>();
 
     BasePackagesBeanDefinition(String... basePackages) {

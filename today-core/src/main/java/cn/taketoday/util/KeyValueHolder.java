@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,8 @@ package cn.taketoday.util;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * An immutable container for a key and a value, suitable for use
  * in creating and populating {@code Map} instances.
@@ -35,9 +37,10 @@ import java.util.Objects;
 public final class KeyValueHolder<K, V> implements Map.Entry<K, V> {
   private final K key;
 
+  @Nullable
   private V value;
 
-  public KeyValueHolder(K k, V v) {
+  public KeyValueHolder(K k, @Nullable V v) {
     key = k;
     value = v;
   }
@@ -57,6 +60,7 @@ public final class KeyValueHolder<K, V> implements Map.Entry<K, V> {
    *
    * @return the value
    */
+  @Nullable
   @Override
   public V getValue() {
     return value;
@@ -74,6 +78,7 @@ public final class KeyValueHolder<K, V> implements Map.Entry<K, V> {
    * prevents it from being stored in the backing map
    */
   @Override
+  @Nullable
   public V setValue(V value) {
     V old = this.value;
     this.value = value;

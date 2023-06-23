@@ -386,7 +386,7 @@ public abstract class AbstractApplicationContextRunner<
 
   @SuppressWarnings("unchecked")
   private A createAssertableContext() {
-    ResolvableType resolvableType = ResolvableType.fromClass(AbstractApplicationContextRunner.class, getClass());
+    ResolvableType resolvableType = ResolvableType.forClass(AbstractApplicationContextRunner.class, getClass());
     Class<A> assertType = (Class<A>) resolvableType.resolveGeneric(1);
     Class<C> contextType = (Class<C>) resolvableType.resolveGeneric(2);
     return ApplicationContextAssertProvider.get(assertType, contextType, this::createAndLoadContext);

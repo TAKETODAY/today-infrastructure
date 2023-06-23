@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.http.codec.cbor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -63,11 +62,11 @@ public class Jackson2CborDecoderTests extends AbstractDecoderTests<Jackson2CborD
   @Override
   @Test
   public void canDecode() {
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), CBOR_MIME_TYPE)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), null)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), CBOR_MIME_TYPE)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), null)).isTrue();
 
-    assertThat(decoder.canDecode(ResolvableType.fromClass(String.class), null)).isFalse();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), APPLICATION_JSON)).isFalse();
+    assertThat(decoder.canDecode(ResolvableType.forClass(String.class), null)).isFalse();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), APPLICATION_JSON)).isFalse();
   }
 
   @Override
@@ -103,7 +102,7 @@ public class Jackson2CborDecoderTests extends AbstractDecoderTests<Jackson2CborD
             .map(this::writeObject)
             .flatMap(this::dataBuffer);
 
-    ResolvableType elementType = ResolvableType.fromClassWithGenerics(List.class, Pojo.class);
+    ResolvableType elementType = ResolvableType.forClassWithGenerics(List.class, Pojo.class);
     testDecodeToMono(input, elementType, step -> step
             .expectNext(expected)
             .expectComplete()

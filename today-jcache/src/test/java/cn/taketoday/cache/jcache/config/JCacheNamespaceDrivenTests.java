@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.cache.interceptor.CacheErrorHandler;
 import cn.taketoday.cache.jcache.interceptor.DefaultJCacheOperationSource;
 import cn.taketoday.cache.jcache.interceptor.JCacheInterceptor;
-import cn.taketoday.cache.jcache.testfixture.jcache.AbstractJCacheAnnotationTests;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.support.GenericXmlApplicationContext;
+import cn.taketoday.contextsupport.testfixture.jcache.AbstractJCacheAnnotationTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

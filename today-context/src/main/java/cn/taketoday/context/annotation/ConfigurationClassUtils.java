@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.bytecode.proxy.Enhancer;
 import cn.taketoday.context.event.EventListenerFactory;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.Ordered;
@@ -78,6 +79,18 @@ abstract class ConfigurationClassUtils {
           Import.class.getName(), Component.class.getName(),
           ComponentScan.class.getName(), ImportResource.class.getName()
   );
+
+  /**
+   * Initialize a configuration class proxy for the specified class.
+   *
+   * @param userClass the configuration class to initialize
+   */
+  @SuppressWarnings("unused") // Used by AOT-optimized generated code
+  public static Class<?> initializeConfigurationClass(Class<?> userClass) {
+    Class<?> configurationClass = new ConfigurationClassEnhancer().enhance(userClass, null);
+    Enhancer.registerStaticCallbacks(configurationClass, ConfigurationClassEnhancer.CALLBACKS);
+    return configurationClass;
+  }
 
   /**
    * Check whether the given bean definition is a candidate for a configuration class

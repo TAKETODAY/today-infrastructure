@@ -23,11 +23,11 @@ package cn.taketoday.transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.context.testfixture.jndi.ExpectedLookupTemplate;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.jta.UserTransactionAdapter;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
-import cn.taketoday.transaction.testfixture.jndi.ExpectedLookupTemplate;
 import jakarta.transaction.Status;
 import jakarta.transaction.TransactionManager;
 import jakarta.transaction.UserTransaction;

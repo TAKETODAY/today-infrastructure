@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,15 +34,15 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.orm.jpa.AbstractEntityManagerFactoryBeanTests;
+import cn.taketoday.context.testfixture.SimpleMapScope;
+import cn.taketoday.context.testfixture.jndi.ExpectedLookupTemplate;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.orm.jpa.testfixture.SerializationTestUtils;
-import cn.taketoday.orm.jpa.testfixture.SimpleMapScope;
-import cn.taketoday.orm.jpa.testfixture.jndi.ExpectedLookupTemplate;
-import cn.taketoday.stereotype.Repository;
+import cn.taketoday.orm.jpa.AbstractEntityManagerFactoryBeanTests;
 import cn.taketoday.orm.jpa.DefaultJpaDialect;
 import cn.taketoday.orm.jpa.EntityManagerFactoryInfo;
 import cn.taketoday.orm.jpa.EntityManagerHolder;
+import cn.taketoday.stereotype.Repository;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;

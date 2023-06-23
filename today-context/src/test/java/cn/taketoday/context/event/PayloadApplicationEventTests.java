@@ -59,7 +59,7 @@ class PayloadApplicationEventTests {
   @Test
   void payloadApplicationEventWithType() {
     NumberHolder<Integer> payload = new NumberHolder<>(42);
-    ResolvableType payloadType = ResolvableType.fromClassWithGenerics(NumberHolder.class, Integer.class);
+    ResolvableType payloadType = ResolvableType.forClassWithGenerics(NumberHolder.class, Integer.class);
     PayloadApplicationEvent<NumberHolder<Integer>> event = new PayloadApplicationEvent<>(this, payload, payloadType);
     assertThat(event.getResolvableType()).satisfies(eventType -> {
       assertThat(eventType.toClass()).isEqualTo(PayloadApplicationEvent.class);
@@ -78,7 +78,7 @@ class PayloadApplicationEventTests {
     ConfigurableApplicationContext ac = new AnnotationConfigApplicationContext(NumberHolderListener.class);
 
     PayloadApplicationEvent<NumberHolder<Integer>> event = new PayloadApplicationEvent<>(this,
-            new NumberHolder<>(42), ResolvableType.fromClassWithGenerics(NumberHolder.class, Integer.class));
+            new NumberHolder<>(42), ResolvableType.forClassWithGenerics(NumberHolder.class, Integer.class));
     ac.publishEvent(event);
     assertThat(ac.getBean(NumberHolderListener.class).events.contains(event.getPayload())).isTrue();
     ac.close();
@@ -91,7 +91,7 @@ class PayloadApplicationEventTests {
     ac.refresh();
 
     PayloadApplicationEvent<NumberHolder<Integer>> event = new PayloadApplicationEvent<>(this,
-            new NumberHolder<>(42), ResolvableType.fromClassWithGenerics(NumberHolder.class, Integer.class));
+            new NumberHolder<>(42), ResolvableType.forClassWithGenerics(NumberHolder.class, Integer.class));
     ac.publishEvent(event);
     assertThat(parent.getBean(NumberHolderListener.class).events.contains(event.getPayload())).isTrue();
     ac.close();
@@ -107,7 +107,7 @@ class PayloadApplicationEventTests {
       protected void finishRefresh() throws BeansException {
         super.finishRefresh();
         // This is not recommended: use publishEvent(new PayloadApplicationEvent(...)) instead
-        publishEvent(payload, ResolvableType.fromClassWithGenerics(NumberHolder.class, Integer.class));
+        publishEvent(payload, ResolvableType.forClassWithGenerics(NumberHolder.class, Integer.class));
       }
     };
 
@@ -125,7 +125,7 @@ class PayloadApplicationEventTests {
       protected void finishRefresh() throws BeansException {
         super.finishRefresh();
         // This is not recommended: use publishEvent(new PayloadApplicationEvent(...)) instead
-        publishEvent(payload, ResolvableType.fromClassWithGenerics(NumberHolder.class, Integer.class));
+        publishEvent(payload, ResolvableType.forClassWithGenerics(NumberHolder.class, Integer.class));
       }
     };
     ac.refresh();
@@ -275,6 +275,7 @@ class PayloadApplicationEventTests {
   public interface Auditable {
   }
 
+  @SuppressWarnings("serial")
   public static class AuditablePayloadEvent<T> extends PayloadApplicationEvent<T> implements Auditable {
 
     public AuditablePayloadEvent(Object source, T payload) {

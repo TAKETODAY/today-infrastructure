@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.env;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -80,7 +79,6 @@ class YamlPropertySourceLoaderTests {
   }
 
   @Test
-  @Disabled
   void timestampLikeItemsDoNotBecomeDates() throws Exception {
     ByteArrayResource resource = new ByteArrayResource("foo: 2015-01-28".getBytes());
     PropertySource<?> source = this.loader.load("resource", resource).get(0);

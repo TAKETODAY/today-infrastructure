@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -299,7 +299,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
       resolvableType = (this.field != null ?
-                        ResolvableType.fromField(this.field, this.nestingLevel, this.containingClass) :
+                        ResolvableType.forField(this.field, this.nestingLevel, this.containingClass) :
                         ResolvableType.forMethodParameter(obtainMethodParameter()));
       this.resolvableType = resolvableType;
     }

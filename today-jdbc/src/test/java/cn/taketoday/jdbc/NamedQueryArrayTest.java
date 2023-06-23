@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -63,7 +63,7 @@ public class NamedQueryArrayTest {
     try (final JdbcConnection connection = database.open();
             final NamedQuery query = connection.createNamedQuery("SELECT * FROM FOO WHERE BAR IN (:bars)")) {
 
-      final List<Foo> noFoos = query.addParameters("bars", new Integer[] {})
+      final List<Foo> noFoos = query.addParameters("bars")
               .fetch(Foo.class);
       assertThat(noFoos.size()).isZero();
     }

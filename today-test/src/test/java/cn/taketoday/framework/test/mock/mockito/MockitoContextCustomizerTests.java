@@ -55,7 +55,7 @@ class MockitoContextCustomizerTests {
   }
 
   private MockDefinition createTestMockDefinition(Class<?> typeToMock) {
-    return new MockDefinition(null, ResolvableType.fromClass(typeToMock), null, null, false, null, null);
+    return new MockDefinition(null, ResolvableType.forClass(typeToMock), null, null, false, null, null);
   }
 
 }

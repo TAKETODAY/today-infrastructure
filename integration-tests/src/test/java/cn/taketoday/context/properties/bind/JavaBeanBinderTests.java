@@ -510,7 +510,7 @@ class JavaBeanBinderTests {
   @Test
   void beanPropertiesPreferMatchingType() {
     // gh-16206
-    ResolvableType type = ResolvableType.fromClass(PropertyWithOverloadedSetter.class);
+    ResolvableType type = ResolvableType.forClass(PropertyWithOverloadedSetter.class);
     Bean<PropertyWithOverloadedSetter> bean = new Bean<PropertyWithOverloadedSetter>(type, type.resolve()) {
 
       @Override

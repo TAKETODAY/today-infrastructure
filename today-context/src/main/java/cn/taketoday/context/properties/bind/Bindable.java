@@ -250,7 +250,7 @@ public final class Bindable<T> {
    */
   public static <T> Bindable<T> of(Class<T> type) {
     Assert.notNull(type, "Type must not be null");
-    return of(ResolvableType.fromClass(type));
+    return of(ResolvableType.forClass(type));
   }
 
   /**
@@ -261,7 +261,7 @@ public final class Bindable<T> {
    * @return a {@link Bindable} instance
    */
   public static <E> Bindable<List<E>> listOf(Class<E> elementType) {
-    return of(ResolvableType.fromClassWithGenerics(List.class, elementType));
+    return of(ResolvableType.forClassWithGenerics(List.class, elementType));
   }
 
   /**
@@ -272,7 +272,7 @@ public final class Bindable<T> {
    * @return a {@link Bindable} instance
    */
   public static <E> Bindable<Set<E>> setOf(Class<E> elementType) {
-    return of(ResolvableType.fromClassWithGenerics(Set.class, elementType));
+    return of(ResolvableType.forClassWithGenerics(Set.class, elementType));
   }
 
   /**
@@ -285,7 +285,7 @@ public final class Bindable<T> {
    * @return a {@link Bindable} instance
    */
   public static <K, V> Bindable<Map<K, V>> mapOf(Class<K> keyType, Class<V> valueType) {
-    return of(ResolvableType.fromClassWithGenerics(Map.class, keyType, valueType));
+    return of(ResolvableType.forClassWithGenerics(Map.class, keyType, valueType));
   }
 
   /**
@@ -307,10 +307,10 @@ public final class Bindable<T> {
     if (resolved != null && resolved.isPrimitive()) {
       Object array = Array.newInstance(resolved, 1);
       Class<?> wrapperType = Array.get(array, 0).getClass();
-      return ResolvableType.fromClass(wrapperType);
+      return ResolvableType.forClass(wrapperType);
     }
     if (resolved != null && resolved.isArray()) {
-      return ResolvableType.fromArrayComponent(box(type.getComponentType()));
+      return ResolvableType.forArrayComponent(box(type.getComponentType()));
     }
     return type;
   }

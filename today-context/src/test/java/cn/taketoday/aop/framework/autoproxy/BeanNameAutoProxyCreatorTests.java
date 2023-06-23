@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,16 +24,16 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.support.AopUtils;
-import cn.taketoday.aop.testfixture.Lockable;
-import cn.taketoday.aop.testfixture.TimeStamped;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
 import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
-import cn.taketoday.aop.testfixture.mixin.LockedException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
+import cn.taketoday.core.testfixture.TimeStamped;
+import test.mixin.Lockable;
+import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.aop.target;
 
+import java.io.Serial;
+
 /**
  * {@link cn.taketoday.aop.TargetSource} implementation that
  * creates a new instance of the target bean for each request,
@@ -36,6 +38,9 @@ package cn.taketoday.aop.target;
  * @since 3.0
  */
 public class PrototypeTargetSource extends AbstractPrototypeTargetSource {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * Obtain a new prototype instance for every call.

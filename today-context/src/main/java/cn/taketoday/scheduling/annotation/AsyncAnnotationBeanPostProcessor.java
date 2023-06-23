@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.scheduling.annotation;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -64,6 +65,9 @@ import cn.taketoday.util.function.SingletonSupplier;
  * @since 4.0
  */
 public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAdvisingPostProcessor {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The default name of the {@link TaskExecutor} bean to pick up: "taskExecutor".

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -134,7 +134,7 @@ public class TestKeyFactory {
 
   @Test
   public void testCharArray() throws Exception {
-    CharArrayKey f = (CharArrayKey) KeyFactory.create(CharArrayKey.class);
+    CharArrayKey f = KeyFactory.create(CharArrayKey.class);
     Object key1 = f.newInstance(new char[] { 'a', 'b' });
     Object key2 = f.newInstance(new char[] { 'a', '_' });
     assertFalse(key1.equals(key2));
@@ -142,7 +142,7 @@ public class TestKeyFactory {
 
   @Test
   public void testBooleanArray() throws Exception {
-    BooleanArrayKey f = (BooleanArrayKey) KeyFactory.create(BooleanArrayKey.class);
+    BooleanArrayKey f = KeyFactory.create(BooleanArrayKey.class);
     Object key1 = f.newInstance(new boolean[] { true, false, true });
     Object key2 = f.newInstance(new boolean[] { true, false, true });
     assertEquals(key1, key2);
@@ -159,7 +159,7 @@ public class TestKeyFactory {
 
   @Test
   public void testEqualOtherClass() throws Exception {
-    MyKey mykey = (MyKey) KeyFactory.create(MyKey.class);
+    MyKey mykey = KeyFactory.create(MyKey.class);
     assertNotEquals(mykey.newInstance(5, new int[] { 6, 7 }, false), new Object());
   }
 

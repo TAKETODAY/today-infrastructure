@@ -336,7 +336,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   @SuppressWarnings({ "unchecked", "cast" })
-  public static <E> Collection<E> createCollection(Class<?> collectionType, Class<?> elementType, int capacity) {
+  public static <E> Collection<E> createCollection(Class<?> collectionType, @Nullable Class<?> elementType, int capacity) {
     Assert.notNull(collectionType, "Collection type must not be null");
     if (LinkedHashSet.class == collectionType
             || HashSet.class == collectionType
@@ -511,7 +511,7 @@ public abstract class CollectionUtils {
    * @since 3.0
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static <K, V> Map<K, V> createMap(Class<?> mapType, Class<?> keyType, int capacity) {
+  public static <K, V> Map<K, V> createMap(Class<?> mapType, @Nullable Class<?> keyType, int capacity) {
     Assert.notNull(mapType, "Map type must not be null");
     if (HashMap.class == mapType) {
       return new HashMap<>(capacity);
@@ -726,7 +726,7 @@ public abstract class CollectionUtils {
    * @see Collection#add(Object)
    * @since 4.0
    */
-  @SuppressWarnings("all")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(Collection c, @Nullable Object[] elements) {
     if (elements != null) {
       for (Object element : elements) {
@@ -752,7 +752,7 @@ public abstract class CollectionUtils {
    * @see Collection#add(Object)
    * @since 4.0
    */
-  @SuppressWarnings("all")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(Collection c, @Nullable Enumeration values) {
     if (values != null) {
       while (values.hasMoreElements()) {
@@ -788,7 +788,7 @@ public abstract class CollectionUtils {
    * @see Collection#addAll(Collection)
    * @since 4.0
    */
-  @SuppressWarnings("all")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(Collection c, @Nullable Collection elements) {
     if (elements != null) {
       c.addAll(elements);
@@ -798,7 +798,7 @@ public abstract class CollectionUtils {
   /**
    * @since 4.0
    */
-  @SuppressWarnings("all")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(ArrayHolder c, @Nullable Object[] elements) {
     if (elements != null) {
       c.add(elements);
@@ -808,7 +808,7 @@ public abstract class CollectionUtils {
   /**
    * @since 4.0
    */
-  @SuppressWarnings("all")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void addAll(ArrayHolder c, @Nullable Collection elements) {
     if (elements != null) {
       c.addAll(elements);
@@ -834,7 +834,7 @@ public abstract class CollectionUtils {
    * @throws IllegalArgumentException if some property of a key or value in
    * the specified map prevents it from being stored in this map
    */
-  @SuppressWarnings("all")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public static void putAll(Map target, @Nullable Map mappings) {
     if (mappings != null) {
       target.putAll(mappings);
@@ -1016,6 +1016,7 @@ public abstract class CollectionUtils {
    * @return the last element, or {@code null} if none
    * @since 4.0
    */
+  @Nullable
   public static <T> T lastElement(@Nullable final T[] array) {
     if (array == null || array.length == 0) {
       return null;

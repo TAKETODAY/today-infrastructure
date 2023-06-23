@@ -57,19 +57,19 @@ class BindableTests {
 
   @Test
   void ofClassShouldSetType() {
-    assertThat(Bindable.of(String.class).getType()).isEqualTo(ResolvableType.fromClass(String.class));
+    assertThat(Bindable.of(String.class).getType()).isEqualTo(ResolvableType.forClass(String.class));
   }
 
   @Test
   void ofTypeShouldSetType() {
-    ResolvableType type = ResolvableType.fromClass(String.class);
+    ResolvableType type = ResolvableType.forClass(String.class);
     assertThat(Bindable.of(type).getType()).isEqualTo(type);
   }
 
   @Test
   void ofInstanceShouldSetTypeAndExistingValue() {
     String instance = "foo";
-    ResolvableType type = ResolvableType.fromClass(String.class);
+    ResolvableType type = ResolvableType.forClass(String.class);
     assertThat(Bindable.ofInstance(instance).getType()).isEqualTo(type);
     assertThat(Bindable.ofInstance(instance).getValue().get()).isEqualTo("foo");
   }
@@ -81,20 +81,20 @@ class BindableTests {
 
   @Test
   void ofTypeWithExistingValueShouldSetTypeAndExistingValue() {
-    assertThat(Bindable.of(ResolvableType.fromClass(String.class)).withExistingValue("foo").getValue().get())
+    assertThat(Bindable.of(ResolvableType.forClass(String.class)).withExistingValue("foo").getValue().get())
             .isEqualTo("foo");
   }
 
   @Test
   void ofTypeWhenExistingValueIsNotInstanceOfTypeShouldThrowException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> Bindable.of(ResolvableType.fromClass(String.class)).withExistingValue(123))
+            .isThrownBy(() -> Bindable.of(ResolvableType.forClass(String.class)).withExistingValue(123))
             .withMessageContaining("ExistingValue must be an instance of " + String.class.getName());
   }
 
   @Test
   void ofTypeWhenPrimitiveWithExistingValueWrapperShouldNotThrowException() {
-    Bindable<Integer> bindable = Bindable.<Integer>of(ResolvableType.fromClass(int.class)).withExistingValue(123);
+    Bindable<Integer> bindable = Bindable.<Integer>of(ResolvableType.forClass(int.class)).withExistingValue(123);
     assertThat(bindable.getType().resolve()).isEqualTo(int.class);
     assertThat(bindable.getValue().get()).isEqualTo(123);
   }
@@ -102,22 +102,22 @@ class BindableTests {
   @Test
   void getBoxedTypeWhenNotBoxedShouldReturnType() {
     Bindable<String> bindable = Bindable.of(String.class);
-    assertThat(bindable.getBoxedType()).isEqualTo(ResolvableType.fromClass(String.class));
+    assertThat(bindable.getBoxedType()).isEqualTo(ResolvableType.forClass(String.class));
   }
 
   @Test
   void getBoxedTypeWhenPrimitiveShouldReturnBoxedType() {
     Bindable<Integer> bindable = Bindable.of(int.class);
-    assertThat(bindable.getType()).isEqualTo(ResolvableType.fromClass(int.class));
-    assertThat(bindable.getBoxedType()).isEqualTo(ResolvableType.fromClass(Integer.class));
+    assertThat(bindable.getType()).isEqualTo(ResolvableType.forClass(int.class));
+    assertThat(bindable.getBoxedType()).isEqualTo(ResolvableType.forClass(Integer.class));
   }
 
   @Test
   void getBoxedTypeWhenPrimitiveArrayShouldReturnBoxedType() {
     Bindable<int[]> bindable = Bindable.of(int[].class);
-    assertThat(bindable.getType().getComponentType()).isEqualTo(ResolvableType.fromClass(int.class));
+    assertThat(bindable.getType().getComponentType()).isEqualTo(ResolvableType.forClass(int.class));
     assertThat(bindable.getBoxedType().isArray()).isTrue();
-    assertThat(bindable.getBoxedType().getComponentType()).isEqualTo(ResolvableType.fromClass(Integer.class));
+    assertThat(bindable.getBoxedType().getComponentType()).isEqualTo(ResolvableType.forClass(Integer.class));
   }
 
   @Test

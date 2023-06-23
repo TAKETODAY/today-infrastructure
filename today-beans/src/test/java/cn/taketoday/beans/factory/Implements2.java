@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,7 +19,7 @@
  */
 package cn.taketoday.beans.factory;
 
-import cn.taketoday.beans.testfixture.stereotype.Singleton;
+import cn.taketoday.core.testfixture.stereotype.Component;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -27,7 +27,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Today <br>
  * 2019-01-22 19:42
  */
-@Singleton
+@Component
 public class Implements2 implements Interface {
   private static final Logger log = LoggerFactory.getLogger(Implements2.class);
 

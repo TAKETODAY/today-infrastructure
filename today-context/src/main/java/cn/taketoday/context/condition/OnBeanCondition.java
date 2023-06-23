@@ -20,6 +20,7 @@
 
 package cn.taketoday.context.condition;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -256,7 +257,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
           Class<?> type, Set<Class<?>> parameterizedContainers, Set<String> result) {
     result = addAll(result, beanFactory.getBeanNamesForType(type, true, false));
     for (Class<?> container : parameterizedContainers) {
-      ResolvableType generic = ResolvableType.fromClassWithGenerics(container, type);
+      ResolvableType generic = ResolvableType.forClassWithGenerics(container, type);
       result = addAll(result, beanFactory.getBeanNamesForType(generic, true, false));
     }
     if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {
@@ -750,6 +751,9 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
    * Exception thrown when the bean type cannot be deduced.
    */
   static final class BeanTypeDeductionException extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private BeanTypeDeductionException(String className, String beanMethodName, Throwable cause) {
       super("Failed to deduce bean type for " + className + "." + beanMethodName, cause);

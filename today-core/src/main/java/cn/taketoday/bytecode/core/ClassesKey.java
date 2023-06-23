@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,11 +35,12 @@ public class ClassesKey {
     return new Key(classNames(array));
   }
 
+  @SuppressWarnings("varargs")
   private static List<Object> classNames(Object[] objects) {
     if (objects == null) {
       return null;
     }
-    String[] classNames = new String[objects.length];
+    Object[] classNames = new String[objects.length];
     for (int i = 0; i < objects.length; i++) {
       Object object = objects[i];
       if (object != null) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.transaction.interceptor;
 
+import java.io.Serial;
 import java.util.Properties;
 
 import cn.taketoday.aop.Pointcut;
@@ -105,6 +106,9 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  */
 public class TransactionProxyFactoryBean
         extends AbstractSingletonProxyFactoryBean implements BeanFactoryAware {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
 

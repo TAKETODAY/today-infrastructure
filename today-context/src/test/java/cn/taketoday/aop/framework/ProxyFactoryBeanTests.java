@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.aop.framework;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,14 +39,10 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultIntroductionAdvisor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.DynamicMethodMatcherPointcut;
-import cn.taketoday.aop.testfixture.IEcho;
-import cn.taketoday.aop.testfixture.Lockable;
-import cn.taketoday.aop.testfixture.TimeStamped;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
 import cn.taketoday.aop.testfixture.advice.MyThrowsHandler;
 import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
 import cn.taketoday.aop.testfixture.interceptor.TimestampIntroductionInterceptor;
-import cn.taketoday.aop.testfixture.mixin.LockedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -55,7 +50,6 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.Person;
 import cn.taketoday.beans.testfixture.beans.SideEffectBean;
@@ -63,6 +57,10 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.testfixture.beans.TestApplicationListener;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.testfixture.TimeStamped;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
+import test.mixin.Lockable;
+import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -476,8 +474,8 @@ public class ProxyFactoryBeanTests {
   public void testEmptyInterceptorNames() {
     StandardBeanFactory bf = new StandardBeanFactory();
     new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new ClassPathResource(INVALID_CONTEXT, CLASS));
-    assertThatExceptionOfType(BeanCreationException.class).as("Interceptor names cannot be empty").isThrownBy(() ->
-            bf.getBean("emptyInterceptorNames"));
+    assertThat(bf.getBean("emptyInterceptorNames")).isInstanceOf(ITestBean.class);
+    assertThat(Proxy.isProxyClass(bf.getBean("emptyInterceptorNames").getClass())).isTrue();
   }
 
   /**

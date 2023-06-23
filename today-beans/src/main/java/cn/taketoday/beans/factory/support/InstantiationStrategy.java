@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,15 @@ public class InstantiationStrategy {
   @Nullable
   public static Method getCurrentlyInvokedFactoryMethod() {
     return currentlyInvokedFactoryMethod.get();
+  }
+
+  /**
+   * Set the factory method currently being invoked or {@code null} to reset.
+   *
+   * @param method the factory method currently being invoked or {@code null}
+   */
+  public static void setCurrentlyInvokedFactoryMethod(@Nullable Method method) {
+    currentlyInvokedFactoryMethod.set(method);
   }
 
   /**
@@ -200,6 +209,13 @@ public class InstantiationStrategy {
       }
       throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
     }
+  }
+
+  /**
+   * Determine the actual class for the given bean definition, as instantiated at runtime.
+   */
+  public Class<?> getActualBeanClass(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+    return bd.getBeanClass();
   }
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,7 +40,6 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.annotation.Resource;
 import javax.annotation.meta.When;
 
 import cn.taketoday.core.annotation.AnnotationUtilsTests.ExtendsBaseClassWithGenericAnnotatedMethod;
@@ -52,6 +51,7 @@ import cn.taketoday.core.testfixture.stereotype.Indexed;
 import cn.taketoday.lang.NonNullApi;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
+import jakarta.annotation.Resource;
 
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.findAllMergedAnnotations;
 import static cn.taketoday.core.annotation.AnnotatedElementUtils.findMergedAnnotation;

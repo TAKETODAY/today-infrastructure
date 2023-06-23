@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -46,6 +46,8 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
    * Predict the type of the bean to be eventually returned from this
    * processor's {@link #postProcessBeforeInstantiation} callback.
    * <p>The default implementation returns {@code null}.
+   * Specific implementations should try to predict the bean type as
+   * far as known/cached already, without extra processing steps.
    *
    * @param beanClass the raw class of the bean
    * @param beanName the name of the bean
@@ -55,6 +57,22 @@ public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationA
   @Nullable
   default Class<?> predictBeanType(Class<?> beanClass, String beanName) throws BeansException {
     return null;
+  }
+
+  /**
+   * Determine the type of the bean to be eventually returned from this
+   * processor's {@link #postProcessBeforeInstantiation} callback.
+   * <p>The default implementation returns the given bean class as-is.
+   * Specific implementations should fully evaluate their processing steps
+   * in order to create/initialize a potential proxy class upfront.
+   *
+   * @param beanClass the raw class of the bean
+   * @param beanName the name of the bean
+   * @return the type of the bean (never {@code null})
+   * @throws cn.taketoday.beans.BeansException in case of errors
+   */
+  default Class<?> determineBeanType(Class<?> beanClass, String beanName) throws BeansException {
+    return beanClass;
   }
 
   /**

@@ -1,0 +1,37 @@
+description = 'Infra Mybatis Integration'
+
+dependencies {
+  api 'org.mybatis:mybatis:3.5.9'
+
+  optional project(':today-jdbc')
+  optional project(':today-beans')
+  optional project(':today-context')
+  optional project(':today-framework')
+
+  testImplementation project(':today-test')
+  testImplementation 'org.apache.derby:derby'
+  testImplementation 'org.glassfish:jakarta.el'
+  testImplementation 'jakarta.servlet:jakarta.servlet-api'
+  testImplementation 'com.fasterxml.woodstox:woodstox-core'
+  testImplementation 'jakarta.transaction:jakarta.transaction-api'
+
+  testImplementation 'com.h2database:h2:1.4.199'
+  testImplementation 'com.mockrunner:mockrunner-jdbc:2.0.6'
+  testImplementation 'com.atomikos:transactions-jdbc:5.0.9'
+  testImplementation 'org.jboss.byteman:byteman-bmunit:4.0.18'
+
+  testImplementation('com.mockrunner:mockrunner-ejb:2.0.6') {
+    exclude group: 'commons-beanutils', module: 'commons-beanutils'
+    exclude group: 'org.mockejb', module: 'mockejb'
+  }
+
+  testImplementation('com.mockrunner:mockrunner-core:2.0.6') {
+    exclude group: 'commons-logging', module: 'commons-logging'
+    exclude group: 'com.kirkk', module: 'jaranalyzer'
+    exclude group: 'jdom', module: 'jdom'
+    exclude group: 'nekohtml', module: 'nekohtml'
+    exclude group: 'junit', module: 'junit'
+  }
+
+}
+

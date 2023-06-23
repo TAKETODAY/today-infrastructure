@@ -21,6 +21,7 @@
 package cn.taketoday.validation;
 
 import java.beans.PropertyEditor;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,9 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public abstract class AbstractBindingResult extends AbstractErrors implements BindingResult, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String objectName;
 

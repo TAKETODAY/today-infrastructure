@@ -370,7 +370,7 @@ public final class DataSourceBuilder<T extends DataSource> {
 
     @SuppressWarnings("unchecked")
     MappedDataSourceProperties() {
-      this.dataSourceType = (Class<T>) ResolvableType.fromClass(MappedDataSourceProperties.class, getClass())
+      this.dataSourceType = (Class<T>) ResolvableType.forClass(MappedDataSourceProperties.class, getClass())
               .resolveGeneric();
     }
 

@@ -49,11 +49,11 @@ class ByteArrayDecoderTests extends AbstractDecoderTests<ByteArrayDecoder> {
   @Test
   public void canDecode() {
     assertThat(this.decoder.canDecode(
-            ResolvableType.fromClass(byte[].class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+            ResolvableType.forClass(byte[].class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
     assertThat(this.decoder.canDecode(
-            ResolvableType.fromClass(Integer.class), MimeTypeUtils.TEXT_PLAIN)).isFalse();
+            ResolvableType.forClass(Integer.class), MimeTypeUtils.TEXT_PLAIN)).isFalse();
     assertThat(this.decoder.canDecode(
-            ResolvableType.fromClass(byte[].class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
+            ResolvableType.forClass(byte[].class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
   }
 
   @Override

@@ -54,7 +54,7 @@ public class EnumerableEnumTypeHandler<V> implements TypeHandler<Enumerable<V>> 
 
   @SuppressWarnings("unchecked")
   static <V> Class<V> getValueType(Class<?> type) {
-    ResolvableType resolvableType = ResolvableType.fromClass(Enumerable.class, type);
+    ResolvableType resolvableType = ResolvableType.forClass(Enumerable.class, type);
     Class<?> valueType = resolvableType.resolveGeneric();
     if (valueType == null || valueType == Object.class) {
       Method getValue = ReflectionUtils.getMethod(type, "getValue");

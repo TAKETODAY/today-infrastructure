@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -92,7 +92,7 @@ class CollectionBinderTests {
     source.put("foo[1][1]", "4");
     this.sources.add(source);
     Bindable<List<List<Integer>>> target = Bindable
-            .of(ResolvableType.fromClassWithGenerics(List.class, INTEGER_LIST.getType()));
+            .of(ResolvableType.forClassWithGenerics(List.class, INTEGER_LIST.getType()));
     List<List<Integer>> result = this.binder.bind("foo", target).get();
     assertThat(result).hasSize(2);
     assertThat(result.get(0)).containsExactly(1, 2);
@@ -199,7 +199,7 @@ class CollectionBinderTests {
   @Test
   void bindToCollectionShouldRespectCollectionType() {
     this.sources.add(new MockConfigurationPropertySource("foo[0]", "1"));
-    ResolvableType type = ResolvableType.fromClassWithGenerics(LinkedList.class, Integer.class);
+    ResolvableType type = ResolvableType.forClassWithGenerics(LinkedList.class, Integer.class);
     Object defaultList = this.binder.bind("foo", INTEGER_LIST).get();
     Object customList = this.binder.bind("foo", Bindable.of(type)).get();
     assertThat(customList).isExactlyInstanceOf(LinkedList.class).isNotInstanceOf(defaultList.getClass());
@@ -472,6 +472,7 @@ class CollectionBinderTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class MyCustomNoDefaultConstructorList extends ArrayList<String> {
 
     MyCustomNoDefaultConstructorList(List<String> items) {
@@ -495,6 +496,7 @@ class CollectionBinderTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class MyCustomWithDefaultConstructorList extends ArrayList<String> {
 
   }

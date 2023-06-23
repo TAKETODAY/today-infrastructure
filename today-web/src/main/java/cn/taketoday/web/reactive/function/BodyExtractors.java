@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -53,14 +53,14 @@ import reactor.core.publisher.Mono;
 public abstract class BodyExtractors {
 
   private static final ResolvableType FORM_DATA_TYPE =
-          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class);
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
-  private static final ResolvableType MULTIPART_DATA_TYPE = ResolvableType.fromClassWithGenerics(
+  private static final ResolvableType MULTIPART_DATA_TYPE = ResolvableType.forClassWithGenerics(
           MultiValueMap.class, String.class, Part.class);
 
-  private static final ResolvableType PART_TYPE = ResolvableType.fromClass(Part.class);
+  private static final ResolvableType PART_TYPE = ResolvableType.forClass(Part.class);
 
-  private static final ResolvableType VOID_TYPE = ResolvableType.fromClass(Void.class);
+  private static final ResolvableType VOID_TYPE = ResolvableType.forClass(Void.class);
 
   /**
    * Extractor to decode the input content into {@code Mono<T>}.
@@ -70,7 +70,7 @@ public abstract class BodyExtractors {
    * @return {@code BodyExtractor} for {@code Mono<T>}
    */
   public static <T> BodyExtractor<Mono<T>, ReactiveHttpInputMessage> toMono(Class<? extends T> elementClass) {
-    return toMono(ResolvableType.fromClass(elementClass));
+    return toMono(ResolvableType.forClass(elementClass));
   }
 
   /**
@@ -81,7 +81,7 @@ public abstract class BodyExtractors {
    * @return {@code BodyExtractor} for {@code Mono<T>}
    */
   public static <T> BodyExtractor<Mono<T>, ReactiveHttpInputMessage> toMono(TypeReference<T> elementTypeRef) {
-    return toMono(ResolvableType.fromType(elementTypeRef.getType()));
+    return toMono(ResolvableType.forType(elementTypeRef.getType()));
   }
 
   private static <T> BodyExtractor<Mono<T>, ReactiveHttpInputMessage> toMono(ResolvableType elementType) {
@@ -100,7 +100,7 @@ public abstract class BodyExtractors {
    * @return {@code BodyExtractor} for {@code Flux<T>}
    */
   public static <T> BodyExtractor<Flux<T>, ReactiveHttpInputMessage> toFlux(Class<? extends T> elementClass) {
-    return toFlux(ResolvableType.fromClass(elementClass));
+    return toFlux(ResolvableType.forClass(elementClass));
   }
 
   /**
@@ -111,7 +111,7 @@ public abstract class BodyExtractors {
    * @return {@code BodyExtractor} for {@code Flux<T>}
    */
   public static <T> BodyExtractor<Flux<T>, ReactiveHttpInputMessage> toFlux(TypeReference<T> typeRef) {
-    return toFlux(ResolvableType.fromType(typeRef.getType()));
+    return toFlux(ResolvableType.forType(typeRef.getType()));
   }
 
   private static <T> BodyExtractor<Flux<T>, ReactiveHttpInputMessage> toFlux(ResolvableType elementType) {

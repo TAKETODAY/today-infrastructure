@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,8 +32,8 @@ import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.json.AbstractLeakCheckingTests;
-import cn.taketoday.http.server.reactive.MockServerHttpResponse;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
 
 import static cn.taketoday.http.codec.multipart.MultipartHttpMessageWriterTests.parse;
@@ -55,11 +55,11 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   public void canWrite() {
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_MIXED)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(Part.class), MediaType.MULTIPART_RELATED)).isTrue();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
-    assertThat(this.writer.canWrite(ResolvableType.fromClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(Part.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(Part.class), MediaType.MULTIPART_MIXED)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(Part.class), MediaType.MULTIPART_RELATED)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(MultiValueMap.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 
   @Test
@@ -105,7 +105,7 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @SuppressWarnings("ConstantConditions")
   private String decodeToString(Part part) {
     return StringDecoder.textPlainOnly().decodeToMono(
-            part.content(), ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
+            part.content(), ResolvableType.forClass(String.class), MediaType.TEXT_PLAIN,
             Collections.emptyMap()).block(Duration.ZERO);
   }
 

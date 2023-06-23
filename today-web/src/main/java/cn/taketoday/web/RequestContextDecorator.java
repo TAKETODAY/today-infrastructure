@@ -20,6 +20,7 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
@@ -34,6 +35,10 @@ import cn.taketoday.lang.Assert;
  * @since 4.0 2022/2/5 13:53
  */
 public class RequestContextDecorator extends DecoratingRequestContext {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private final RequestContext delegate;
 
   public RequestContextDecorator(RequestContext delegate) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -80,7 +80,7 @@ final class ObjectToOptionalConverter implements ConditionalGenericConverter {
       Object target = conversionService.convert(source, sourceType, new GenericTypeDescriptor(targetType));
       if (target == null
               || (target.getClass().isArray() && Array.getLength(target) == 0)
-              || (target instanceof Collection collection && collection.isEmpty())) {
+              || (target instanceof Collection<?> collection && collection.isEmpty())) {
         return Optional.empty();
       }
       return Optional.of(target);

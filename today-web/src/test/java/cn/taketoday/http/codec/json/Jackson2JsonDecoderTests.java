@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,18 +81,18 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @Test
   @SuppressWarnings("deprecation")
   public void canDecode() {
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), APPLICATION_JSON)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), APPLICATION_NDJSON)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), APPLICATION_STREAM_JSON)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), null)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), APPLICATION_JSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), APPLICATION_NDJSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), APPLICATION_STREAM_JSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), null)).isTrue();
 
-    assertThat(decoder.canDecode(ResolvableType.fromClass(String.class), null)).isFalse();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), APPLICATION_XML)).isFalse();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Pojo.class),
+    assertThat(decoder.canDecode(ResolvableType.forClass(String.class), null)).isFalse();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), APPLICATION_XML)).isFalse();
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Pojo.class),
             new MediaType("application", "json", StandardCharsets.UTF_8))).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Pojo.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Pojo.class),
             new MediaType("application", "json", StandardCharsets.US_ASCII))).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Pojo.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Pojo.class),
             new MediaType("application", "json", StandardCharsets.ISO_8859_1))).isTrue();
   }
 
@@ -101,20 +101,20 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     MediaType halJsonMediaType = MediaType.parseMediaType("application/hal+json");
     MediaType halFormsJsonMediaType = MediaType.parseMediaType("application/prs.hal-forms+json");
 
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), halJsonMediaType)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), MediaType.APPLICATION_JSON)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), halFormsJsonMediaType)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Map.class), MediaType.APPLICATION_JSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), halJsonMediaType)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), MediaType.APPLICATION_JSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), halFormsJsonMediaType)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Map.class), MediaType.APPLICATION_JSON)).isTrue();
 
     decoder.registerObjectMappersForType(Pojo.class, map -> {
       map.put(halJsonMediaType, new ObjectMapper());
       map.put(MediaType.APPLICATION_JSON, new ObjectMapper());
     });
 
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), halJsonMediaType)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), MediaType.APPLICATION_JSON)).isTrue();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Pojo.class), halFormsJsonMediaType)).isFalse();
-    assertThat(decoder.canDecode(ResolvableType.fromClass(Map.class), MediaType.APPLICATION_JSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), halJsonMediaType)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), MediaType.APPLICATION_JSON)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Pojo.class), halFormsJsonMediaType)).isFalse();
+    assertThat(decoder.canDecode(ResolvableType.forClass(Map.class), MediaType.APPLICATION_JSON)).isTrue();
 
   }
 
@@ -143,7 +143,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     Jackson2JsonDecoder decoder = new Jackson2JsonDecoder(new ObjectMapper(), mimeType2);
     decoder.registerObjectMappersForType(Pojo.class, map -> map.put(mimeType1, new ObjectMapper()));
 
-    assertThat(decoder.getDecodableMimeTypes(ResolvableType.fromClass(Pojo.class)))
+    assertThat(decoder.getDecodableMimeTypes(ResolvableType.forClass(Pojo.class)))
             .containsExactly(mimeType1);
   }
 
@@ -167,7 +167,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
             stringBuffer("[{\"bar\":\"b1\",\"foo\":\"f1\"},"),
             stringBuffer("{\"bar\":\"b2\",\"foo\":\"f2\"}]"));
 
-    ResolvableType elementType = ResolvableType.fromClassWithGenerics(List.class, Pojo.class);
+    ResolvableType elementType = ResolvableType.forClassWithGenerics(List.class, Pojo.class);
 
     testDecodeToMonoAll(input, elementType, step -> step
             .expectNext(Arrays.asList(new Pojo("f1", "b1"), new Pojo("f2", "b2")))
@@ -187,7 +187,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     Flux<DataBuffer> input = Flux.from(stringBuffer(
             "{\"withView1\" : \"with\", \"withView2\" : \"with\", \"withoutView\" : \"without\"}"));
 
-    ResolvableType elementType = ResolvableType.fromClass(JacksonViewBean.class);
+    ResolvableType elementType = ResolvableType.forClass(JacksonViewBean.class);
     Map<String, Object> hints = Collections.singletonMap(JSON_VIEW_HINT, MyJacksonView1.class);
 
     testDecode(input, elementType, step -> step
@@ -204,7 +204,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     Flux<DataBuffer> input = Flux.from(stringBuffer(
             "{\"withView1\" : \"with\", \"withView2\" : \"with\", \"withoutView\" : \"without\"}"));
 
-    ResolvableType elementType = ResolvableType.fromClass(JacksonViewBean.class);
+    ResolvableType elementType = ResolvableType.forClass(JacksonViewBean.class);
     Map<String, Object> hints = Collections.singletonMap(JSON_VIEW_HINT, MyJacksonView3.class);
 
     testDecode(input, elementType, step -> step
@@ -226,7 +226,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @Test // gh-22042
   public void decodeWithNullLiteral() {
     Flux<Object> result = this.decoder.decode(Flux.concat(stringBuffer("null")),
-            ResolvableType.fromType(Pojo.class), MediaType.APPLICATION_JSON, Collections.emptyMap());
+            ResolvableType.forType(Pojo.class), MediaType.APPLICATION_JSON, Collections.emptyMap());
 
     StepVerifier.create(result).expectComplete().verify();
   }
@@ -234,7 +234,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @Test
   public void noDefaultConstructor() {
     Flux<DataBuffer> input = Flux.from(stringBuffer("{\"property1\":\"foo\",\"property2\":\"bar\"}"));
-    ResolvableType elementType = ResolvableType.fromClass(BeanWithNoDefaultConstructor.class);
+    ResolvableType elementType = ResolvableType.forClass(BeanWithNoDefaultConstructor.class);
     Flux<Object> flux = new Jackson2JsonDecoder().decode(input, elementType, null, Collections.emptyMap());
     StepVerifier.create(flux).verifyError(CodecException.class);
   }
@@ -263,7 +263,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeNonUtf8Encoding() {
     Mono<DataBuffer> input = stringBuffer("{\"foo\":\"bar\"}", StandardCharsets.UTF_16);
-    ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
                     .assertNext(value -> Assertions.assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
@@ -276,7 +276,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeNonUnicode() {
     Flux<DataBuffer> input = Flux.concat(stringBuffer("{\"føø\":\"bår\"}", StandardCharsets.ISO_8859_1));
-    ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
                     .assertNext(o -> Assertions.assertThat((Map<String, String>) o).containsEntry("føø", "bår"))
@@ -289,7 +289,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeMonoNonUtf8Encoding() {
     Mono<DataBuffer> input = stringBuffer("{\"foo\":\"bar\"}", StandardCharsets.UTF_16);
-    ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
 
     testDecodeToMono(input, type, step -> step
                     .assertNext(value -> Assertions.assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
@@ -302,7 +302,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeAscii() {
     Flux<DataBuffer> input = Flux.concat(stringBuffer("{\"foo\":\"bar\"}", StandardCharsets.US_ASCII));
-    ResolvableType type = ResolvableType.fromType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
                     .assertNext(value -> Assertions.assertThat((Map<String, String>) value).containsEntry("foo", "bar"))

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -100,10 +100,17 @@ final class SerializableTypeWrapper {
    * <p>If type artifacts are generally not serializable in the current runtime
    * environment, this delegate will simply return the original {@code Type} as-is.
    */
+  @Nullable
   static Type fromTypeProvider(TypeProvider provider) {
     Type providedType = provider.getType();
     if (providedType == null || providedType instanceof Serializable) {
       // No serializable type wrapping necessary (e.g. for java.lang.Class)
+      return providedType;
+    }
+
+    if (NativeDetector.inNativeImage() || !Serializable.class.isAssignableFrom(Class.class)) {
+      // Let's skip any wrapping attempts if types are generally not serializable in
+      // the current runtime environment (even java.lang.Class itself, e.g. on GraalVM native images)
       return providedType;
     }
 
@@ -208,6 +215,9 @@ final class SerializableTypeWrapper {
    * {@link TypeProvider} for {@link Type Types} obtained from a {@link Field}.
    */
   static class FieldTypeProvider implements TypeProvider {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final String fieldName;
     private final Class<?> declaringClass;
     private transient Field field;
@@ -244,6 +254,8 @@ final class SerializableTypeWrapper {
    * {@link TypeProvider} for {@link Type Types} obtained from a {@link Parameter}.
    */
   static class ParameterTypeProvider implements TypeProvider {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Nullable
     private final String methodName;
@@ -300,6 +312,8 @@ final class SerializableTypeWrapper {
    * @since 4.0
    */
   static class MethodParameterTypeProvider implements TypeProvider {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Nullable
     private final String methodName;
@@ -353,6 +367,8 @@ final class SerializableTypeWrapper {
    * {@link TypeProvider} for {@link Type Types} obtained by invoking a no-arg method.
    */
   static class MethodInvokeTypeProvider implements TypeProvider {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final TypeProvider provider;
     private final String methodName;

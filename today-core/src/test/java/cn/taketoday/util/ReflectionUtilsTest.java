@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,6 +39,7 @@ import cn.taketoday.reflect.ReflectionException;
 import cn.taketoday.reflect.SetterMethod;
 import cn.taketoday.tests.sample.objects.TestObject;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -189,6 +190,13 @@ public class ReflectionUtilsTest {
           return false;
 
         return Objects.equals(_obj, pojo1._obj);
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hash(_boolean, _byte, _short, _int, _long, _float, _double, _char, _obj, _volatileBoolean, _volatileByte, _volatileShort, _volatileInt, _volatileLong, _volatileFloat,
+                _volatileDouble,
+                _volatileChar, _volatileObj);
       }
     }
 
@@ -385,6 +393,13 @@ public class ReflectionUtilsTest {
           return false;
 
         return Objects.equals(_obj, pojo1._obj);
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hash(_boolean, _byte, _short, _int, _long, _float, _double, _char, _obj, _volatileBoolean, _volatileByte, _volatileShort, _volatileInt, _volatileLong, _volatileFloat,
+                _volatileDouble,
+                _volatileChar, _volatileObj);
       }
     }
 

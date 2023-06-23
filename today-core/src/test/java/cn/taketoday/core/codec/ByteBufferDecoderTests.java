@@ -49,11 +49,11 @@ class ByteBufferDecoderTests extends AbstractDecoderTests<ByteBufferDecoder> {
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(ByteBuffer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuffer.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(Integer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
             MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.decoder.canDecode(ResolvableType.fromClass(ByteBuffer.class),
+    assertThat(this.decoder.canDecode(ResolvableType.forClass(ByteBuffer.class),
             MimeTypeUtils.APPLICATION_JSON)).isTrue();
   }
 

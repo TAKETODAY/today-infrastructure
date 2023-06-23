@@ -1607,6 +1607,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
+  @SuppressWarnings("serial")
   public static class FailingServlet extends HttpServlet {
 
     @Override
@@ -1616,6 +1617,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
+  @SuppressWarnings("serial")
   public static class FailingServletContextListener implements ServletContextListener {
 
     @Override
@@ -1625,6 +1627,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class FailingServletException extends RuntimeException {
 
     FailingServletException() {
@@ -1633,6 +1636,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
+  @SuppressWarnings("serial")
   protected static class BlockingServlet extends HttpServlet {
 
     private final BlockingQueue<Blocker> blockers = new ArrayBlockingQueue<>(10);
@@ -1666,6 +1670,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class BlockingAsyncServlet extends HttpServlet {
 
     private final BlockingQueue<Blocker> blockers = new ArrayBlockingQueue<>(10);
@@ -1722,6 +1727,7 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
+  @SuppressWarnings("serial")
   static final class CookieServlet extends HttpServlet {
 
     private final boolean addSupplierTestCookies;

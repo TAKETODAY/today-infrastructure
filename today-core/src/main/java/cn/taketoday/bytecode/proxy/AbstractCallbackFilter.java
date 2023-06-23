@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY <br>
  * 2018-11-08 15:09
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class AbstractCallbackFilter implements CallbackFilter {
 
   private final ArrayList<Object> callbacks = new ArrayList<>();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -172,19 +172,11 @@ public class CodeEmitter extends GeneratorAdapter {
   public void zero_or_null(Type type) {
     if (type.isPrimitive()) {
       switch (type.getSort()) {
-        case Type.DOUBLE:
-          push(0d);
-          break;
-        case Type.LONG:
-          push(0L);
-          break;
-        case Type.FLOAT:
-          push(0f);
-          break;
-        case Type.VOID:
-          aconst_null();
-        default:
-          push(0);
+        case Type.DOUBLE -> push(0d);
+        case Type.LONG -> push(0L);
+        case Type.FLOAT -> push(0f);
+        case Type.VOID -> aconst_null();
+        default -> push(0);
       }
     }
     else {

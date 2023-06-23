@@ -80,7 +80,6 @@ abstract class AbstractStreamingClientHttpRequest
    * @param headers the HTTP headers
    * @param body the HTTP body, may be {@code null} if no body was {@linkplain #setBody(Body) set}
    * @return the response object for the executed request
-   * @since 6.1
    */
   protected abstract ClientHttpResponse executeInternal(HttpHeaders headers, @Nullable Body body) throws IOException;
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,7 @@ package cn.taketoday.web.view.freemarker;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Locale;
 import java.util.Map;
 
@@ -342,6 +343,9 @@ public class FreeMarkerView extends AbstractTemplateView {
    * just limited to common request attribute exposure.
    */
   private static class RequestHashModel extends SimpleHash {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final RequestContext request;
 

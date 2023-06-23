@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -76,7 +76,7 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
           Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED);
 
   private static final ResolvableType MULTIVALUE_TYPE =
-          ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class);
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
   private Charset defaultCharset = DEFAULT_CHARSET;
 

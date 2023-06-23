@@ -19,6 +19,7 @@
 *.DS_Store
 *.class
 /tomcat.8080
+*/build/*
 
 .gradle
 /build/
@@ -27,3 +28,5 @@
 .flattened-pom.xml
 */.flattened-pom.xml
 **/target/**
+/buildSrc/build/pluginUnderTestMetadata/
+**/build/**

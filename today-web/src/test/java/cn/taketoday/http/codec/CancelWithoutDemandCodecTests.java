@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -72,7 +72,7 @@ public class CancelWithoutDemandCodecTests {
     HttpMessageWriter<CharSequence> writer = new EncoderHttpMessageWriter<>(encoder);
     CancellingOutputMessage outputMessage = new CancellingOutputMessage(this.bufferFactory);
 
-    writer.write(Mono.just("foo"), ResolvableType.fromType(String.class), MediaType.TEXT_PLAIN,
+    writer.write(Mono.just("foo"), ResolvableType.forType(String.class), MediaType.TEXT_PLAIN,
             outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
   }
 
@@ -81,7 +81,7 @@ public class CancelWithoutDemandCodecTests {
     Jackson2JsonEncoder encoder = new Jackson2JsonEncoder();
 
     Flux<DataBuffer> flux = encoder.encode(Flux.just(new Pojo("foofoo", "barbar"), new Pojo("bar", "baz")),
-            this.bufferFactory, ResolvableType.fromClass(Pojo.class),
+            this.bufferFactory, ResolvableType.forClass(Pojo.class),
             MediaType.APPLICATION_JSON, Collections.emptyMap());
 
     BaseSubscriber<DataBuffer> subscriber = new ZeroDemandSubscriber();
@@ -95,7 +95,7 @@ public class CancelWithoutDemandCodecTests {
     Msg msg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
 
     Flux<DataBuffer> flux = encoder.encode(Mono.just(msg),
-            this.bufferFactory, ResolvableType.fromClass(Msg.class),
+            this.bufferFactory, ResolvableType.forClass(Msg.class),
             new MimeType("application", "x-protobuf"), Collections.emptyMap());
 
     BaseSubscriber<DataBuffer> subscriber = new ZeroDemandSubscriber();
@@ -115,7 +115,7 @@ public class CancelWithoutDemandCodecTests {
       return buffer;
     });
 
-    Flux<Message> messages = decoder.decode(input, ResolvableType.fromType(Msg.class),
+    Flux<Message> messages = decoder.decode(input, ResolvableType.forType(Msg.class),
             new MimeType("application", "x-protobuf"), Collections.emptyMap());
     ZeroDemandMessageSubscriber subscriber = new ZeroDemandMessageSubscriber();
     messages.subscribe(subscriber);
@@ -142,7 +142,7 @@ public class CancelWithoutDemandCodecTests {
     ServerSentEventHttpMessageWriter writer = new ServerSentEventHttpMessageWriter(new Jackson2JsonEncoder());
     CancellingOutputMessage outputMessage = new CancellingOutputMessage(this.bufferFactory);
 
-    writer.write(Mono.just(event), ResolvableType.fromClass(ServerSentEvent.class), MediaType.TEXT_EVENT_STREAM,
+    writer.write(Mono.just(event), ResolvableType.forClass(ServerSentEvent.class), MediaType.TEXT_EVENT_STREAM,
             outputMessage, Collections.emptyMap()).block(Duration.ofSeconds(5));
   }
 

@@ -1,0 +1,7 @@
+description = 'Infra Redisson Integration'
+
+dependencies {
+  api project(':today-context')
+  optional project(':today-web')
+  api 'org.redisson:redisson:3.16.8'
+}

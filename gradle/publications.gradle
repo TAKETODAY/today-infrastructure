@@ -1,0 +1,69 @@
+apply plugin: "signing"
+apply plugin: "maven-publish"
+
+ext {
+  repoUsername = System.getProperty("repoUsername")
+  repoPassword = System.getProperty("repoPassword")
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      pom {
+        afterEvaluate {
+          name = project.name
+          description = project.description
+        }
+        url = "https://github.com/TAKETODAY/today-infrastructure"
+        organization {
+          name = "TODAY Tech"
+          url = "https://taketoday.cn"
+        }
+        licenses {
+          license {
+            name = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
+            url = "https://www.gnu.org/licenses/gpl.txt"
+            distribution = "repo"
+          }
+        }
+        scm {
+          url = "https://github.com/TAKETODAY/today-infrastructure.git"
+          connection = "scm:git:git://github.com/TAKETODAY/today-infrastructure"
+          developerConnection = "scm:git:git://github.com/TAKETODAY/today-infrastructure"
+        }
+        developers {
+          developer {
+            id = "taketoday"
+            name = "Harry Yang"
+            email = "taketoday@foxmail.com"
+          }
+        }
+        issueManagement {
+          system = "GitHub"
+          url = "https://github.com/TAKETODAY/today-infrastructure/issues"
+        }
+      }
+      versionMapping {
+        usage('java-api') {
+          fromResolutionResult()
+        }
+        usage('java-runtime') {
+          fromResolutionResult()
+        }
+      }
+    }
+  }
+
+  repositories {
+    maven {
+      url = version.endsWith('SNAPSHOT')
+              ? 'https://oss.sonatype.org/content/repositories/snapshots/'
+              : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+
+      credentials {
+        username = project.repoUsername
+        password = project.repoPassword
+      }
+    }
+  }
+}

@@ -20,6 +20,7 @@
 
 package cn.taketoday.logging;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.lang.Nullable;
@@ -32,6 +33,9 @@ import cn.taketoday.util.CollectionUtils;
  * 2019-11-03 13:15
  */
 public abstract class Logger implements Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   protected static final String FQCN = Logger.class.getName();
 
   protected final boolean debugEnabled;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -171,7 +171,7 @@ public class RestClientResponseException extends RestClientException {
    */
   @Nullable
   public <E> E getResponseBodyAs(Class<E> targetType) {
-    return getResponseBodyAs(ResolvableType.fromClass(targetType));
+    return getResponseBodyAs(ResolvableType.forClass(targetType));
   }
 
   /**
@@ -180,7 +180,7 @@ public class RestClientResponseException extends RestClientException {
    */
   @Nullable
   public <E> E getResponseBodyAs(TypeReference<E> targetType) {
-    return getResponseBodyAs(ResolvableType.fromType(targetType.getType()));
+    return getResponseBodyAs(ResolvableType.forType(targetType.getType()));
   }
 
   @SuppressWarnings("unchecked")

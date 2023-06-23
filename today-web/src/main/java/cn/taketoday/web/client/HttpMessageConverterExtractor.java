@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -97,7 +97,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
         if (messageConverter instanceof GenericHttpMessageConverter<?> genericConverter) {
           if (genericConverter.canRead(responseType, null, contentType)) {
             if (logger.isDebugEnabled()) {
-              logger.debug("Reading to [{}]", ResolvableType.fromType(responseType));
+              logger.debug("Reading to [{}]", ResolvableType.forType(responseType));
             }
             return (T) genericConverter.read(responseType, null, responseWrapper);
           }

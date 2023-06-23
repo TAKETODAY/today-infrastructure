@@ -1,4 +1,4 @@
 # Tooling related information for the jdbc namespace
 http\://www.springframework.org/schema/jdbc@name=jdbc Namespace
 http\://www.springframework.org/schema/jdbc@prefix=jdbc
-http\://www.springframework.org/schema/jdbc@icon=org/springframework/jdbc/config/spring-jdbc.gif
+http\://www.springframework.org/schema/jdbc@icon=cn/taketoday/jdbc/config/spring-jdbc.gif

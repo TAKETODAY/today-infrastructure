@@ -57,13 +57,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.dao.CannotAcquireLockException;
 import cn.taketoday.dao.DataAccessResourceFailureException;
 import cn.taketoday.dao.DataIntegrityViolationException;
 import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.dao.InvalidDataAccessResourceUsageException;
-import cn.taketoday.orm.jpa.testfixture.beans.TestBean;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 import static org.assertj.core.api.Assertions.fail;

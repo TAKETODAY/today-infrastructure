@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -462,6 +462,7 @@ class JacksonAutoConfigurationTests {
     });
   }
 
+  @SuppressWarnings("serial")
   static class MyDateFormat extends SimpleDateFormat {
 
     MyDateFormat() {
@@ -609,6 +610,7 @@ class JacksonAutoConfigurationTests {
 
   }
 
+  @SuppressWarnings("serial")
   static class CustomModule extends SimpleModule {
 
     private Set<ObjectCodec> owners = new HashSet<>();

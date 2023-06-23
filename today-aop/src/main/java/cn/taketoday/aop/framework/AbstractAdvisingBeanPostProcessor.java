@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.framework;
 
+import java.io.Serial;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.Advisor;
@@ -27,6 +28,7 @@ import cn.taketoday.aop.AopInfrastructureBean;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Nullable;
 
@@ -35,11 +37,14 @@ import cn.taketoday.lang.Nullable;
  * AOP {@link Advisor} to specific beans.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
-public abstract class AbstractAdvisingBeanPostProcessor
-        extends ProxyProcessorSupport implements InitializationBeanPostProcessor {
+public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSupport
+        implements InitializationBeanPostProcessor, SmartInstantiationAwareBeanPostProcessor {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   protected Advisor advisor;
@@ -62,8 +67,28 @@ public abstract class AbstractAdvisingBeanPostProcessor
   }
 
   @Override
-  public Object postProcessBeforeInitialization(Object bean, String beanName) {
-    return bean;
+  public Class<?> determineBeanType(Class<?> beanClass, String beanName) {
+    if (this.advisor != null && isEligible(beanClass)) {
+      ProxyFactory proxyFactory = new ProxyFactory();
+      proxyFactory.copyFrom(this);
+      proxyFactory.setTargetClass(beanClass);
+
+      if (!proxyFactory.isProxyTargetClass()) {
+        evaluateProxyInterfaces(beanClass, proxyFactory);
+      }
+      proxyFactory.addAdvisor(this.advisor);
+      customizeProxyFactory(proxyFactory);
+
+      // Use original ClassLoader if bean class not locally loaded in overriding class loader
+      ClassLoader classLoader = getProxyClassLoader();
+      if (classLoader instanceof SmartClassLoader smartClassLoader &&
+              classLoader != beanClass.getClassLoader()) {
+        classLoader = smartClassLoader.getOriginalClassLoader();
+      }
+      return proxyFactory.getProxyClass(classLoader);
+    }
+
+    return beanClass;
   }
 
   @Override

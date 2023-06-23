@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework.test.context;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -38,6 +39,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Phillip Webb
  * @author Artsiom Yudovin
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class AnnotatedClassFinder {
@@ -114,6 +116,9 @@ public final class AnnotatedClassFinder {
    * Cache implementation based on {@link LinkedHashMap}.
    */
   private static class Cache extends LinkedHashMap<String, Class<?>> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final int maxSize;
 

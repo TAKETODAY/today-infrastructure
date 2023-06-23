@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,9 +37,9 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.testfixture.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.NoTransactionException;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,6 @@ import cn.taketoday.aop.target.CommonsPool2TargetSource;
 import cn.taketoday.aop.target.LazyInitTargetSource;
 import cn.taketoday.aop.target.PrototypeTargetSource;
 import cn.taketoday.aop.target.ThreadLocalTargetSource;
-import cn.taketoday.aop.testfixture.Lockable;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
 import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
 import cn.taketoday.beans.factory.BeanFactory;
@@ -41,6 +40,7 @@ import cn.taketoday.beans.testfixture.beans.CountingTestBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.lang.Nullable;
+import test.mixin.Lockable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

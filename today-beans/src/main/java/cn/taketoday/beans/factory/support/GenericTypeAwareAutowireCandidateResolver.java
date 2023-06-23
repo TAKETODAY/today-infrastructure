@@ -117,7 +117,7 @@ public class GenericTypeAwareAutowireCandidateResolver
             if (descriptor.fallbackMatchAllowed()) {
               // Matching the Class-based type determination for FactoryBean
               // objects in the lazy-determination getType code path below.
-              targetType = ResolvableType.fromClass(targetType.resolve());
+              targetType = ResolvableType.forClass(targetType.resolve());
             }
           }
         }
@@ -129,7 +129,7 @@ public class GenericTypeAwareAutowireCandidateResolver
       if (beanFactory != null) {
         Class<?> beanType = beanFactory.getType(bdHolder.getBeanName());
         if (beanType != null) {
-          targetType = ResolvableType.fromClass(ClassUtils.getUserClass(beanType));
+          targetType = ResolvableType.forClass(ClassUtils.getUserClass(beanType));
         }
       }
       // Fallback: no BeanFactory set, or no type resolvable through it
@@ -137,7 +137,7 @@ public class GenericTypeAwareAutowireCandidateResolver
       if (targetType == null && rbd != null && rbd.hasBeanClass() && rbd.getFactoryMethodName() == null) {
         Class<?> beanClass = rbd.getBeanClass();
         if (!FactoryBean.class.isAssignableFrom(beanClass)) {
-          targetType = ResolvableType.fromClass(ClassUtils.getUserClass(beanClass));
+          targetType = ResolvableType.forClass(ClassUtils.getUserClass(beanClass));
         }
       }
     }

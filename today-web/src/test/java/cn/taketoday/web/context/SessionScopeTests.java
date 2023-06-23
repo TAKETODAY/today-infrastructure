@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -56,8 +56,8 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.beans.DerivedTestBean;
-import cn.taketoday.web.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
@@ -241,6 +241,7 @@ public class SessionScopeTests {
     }
   }
 
+  @SuppressWarnings("serial")
   private static class CustomSerializableDestructionAwareBeanPostProcessor
           implements DestructionAwareBeanPostProcessor, Serializable {
 

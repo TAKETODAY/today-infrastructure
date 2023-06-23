@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.core.conversion;
 
+import java.io.Serial;
+
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -33,6 +35,8 @@ import cn.taketoday.util.ObjectUtils;
  * @since 3.0
  */
 public class ConversionFailedException extends ConversionException {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private final TypeDescriptor sourceType;

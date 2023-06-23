@@ -63,6 +63,10 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.propertyeditors.CustomDateEditor;
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.GenericBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
@@ -135,10 +139,6 @@ import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
-import cn.taketoday.web.testfixture.beans.DerivedTestBean;
-import cn.taketoday.web.testfixture.beans.GenericBean;
-import cn.taketoday.web.testfixture.beans.ITestBean;
-import cn.taketoday.web.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.security.TestPrincipal;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -306,7 +306,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     request.addParameter("testBeanSet", "1", "2");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("[1, 2]-cn.taketoday.web.testfixture.beans.TestBean");
+    assertThat(response.getContentAsString()).isEqualTo("[1, 2]-cn.taketoday.beans.testfixture.beans.TestBean");
   }
 
   @Test

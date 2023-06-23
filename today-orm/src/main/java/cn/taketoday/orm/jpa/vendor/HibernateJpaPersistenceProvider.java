@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,9 @@
 
 package cn.taketoday.orm.jpa.vendor;
 
+import org.hibernate.bytecode.enhance.spi.EnhancementContext;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.PersistenceUnitInfoDescriptor;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.NativeDetector;
 import cn.taketoday.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitInfo;
@@ -45,23 +48,34 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
  */
 class HibernateJpaPersistenceProvider extends HibernatePersistenceProvider {
 
-  @Override
-  public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map properties) {
-    if (info instanceof SmartPersistenceUnitInfo unitInfo) {
-      List<String> managedPackages = unitInfo.getManagedPackages();
-      if (!managedPackages.isEmpty()) {
-        var mergedClassesAndPackages = new ArrayList<>(info.getManagedClassNames());
-        mergedClassesAndPackages.addAll(managedPackages);
-        return new EntityManagerFactoryBuilderImpl(
-                new PersistenceUnitInfoDescriptor(info) {
-                  @Override
-                  public List<String> getManagedClassNames() {
-                    return mergedClassesAndPackages;
-                  }
-                }, properties).build();
-      }
+  static {
+    if (NativeDetector.inNativeImage()) {
+      System.setProperty(Environment.BYTECODE_PROVIDER, Environment.BYTECODE_PROVIDER_NAME_NONE);
+      System.setProperty(Environment.USE_REFLECTION_OPTIMIZER, Boolean.FALSE.toString());
     }
-
-    return super.createContainerEntityManagerFactory(info, properties);
   }
+
+  @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })  // on Hibernate 6
+  public EntityManagerFactory createContainerEntityManagerFactory(PersistenceUnitInfo info, Map properties) {
+    final List<String> mergedClassesAndPackages = new ArrayList<>(info.getManagedClassNames());
+    if (info instanceof SmartPersistenceUnitInfo smartInfo) {
+      mergedClassesAndPackages.addAll(smartInfo.getManagedPackages());
+    }
+    return new EntityManagerFactoryBuilderImpl(
+            new PersistenceUnitInfoDescriptor(info) {
+              @Override
+              public List<String> getManagedClassNames() {
+                return mergedClassesAndPackages;
+              }
+
+              @Override
+              public void pushClassTransformer(EnhancementContext enhancementContext) {
+                if (!NativeDetector.inNativeImage()) {
+                  super.pushClassTransformer(enhancementContext);
+                }
+              }
+            }, properties).build();
+  }
+
 }

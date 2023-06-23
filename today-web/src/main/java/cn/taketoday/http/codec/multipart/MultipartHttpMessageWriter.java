@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -251,7 +251,7 @@ public class MultipartHttpMessageWriter
 
     Object body;
     ResolvableType resolvableType = null;
-    if (value instanceof HttpEntity httpEntity) {
+    if (value instanceof HttpEntity<?> httpEntity) {
       headers.putAll(httpEntity.getHeaders());
       body = httpEntity.getBody();
       Assert.state(body != null, "MultipartHttpMessageWriter only supports HttpEntity with body");
@@ -263,7 +263,7 @@ public class MultipartHttpMessageWriter
       body = value;
     }
     if (resolvableType == null) {
-      resolvableType = ResolvableType.fromClass(body.getClass());
+      resolvableType = ResolvableType.forClass(body.getClass());
     }
 
     if (!headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)) {

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -62,5 +62,15 @@ public interface AopProxy {
    * @return the new proxy object (never {@code null})
    */
   Object getProxy(@Nullable ClassLoader classLoader);
+
+  /**
+   * Determine the proxy class.
+   *
+   * @param classLoader the class loader to create the proxy class with
+   * (or {@code null} for the low-level proxy facility's default)
+   * @return the proxy class
+   * @since 4.0
+   */
+  Class<?> getProxyClass(@Nullable ClassLoader classLoader);
 
 }

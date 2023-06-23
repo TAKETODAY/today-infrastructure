@@ -20,6 +20,7 @@
 
 package cn.taketoday.http;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -81,6 +82,9 @@ import static java.util.Locale.US;
  */
 public abstract class HttpHeaders
         implements /*Iterable<String>,*/ MultiValueMap<String, String>, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The HTTP {@code Accept} header field name.

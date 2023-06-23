@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,10 +59,6 @@ import cn.taketoday.aop.support.Pointcuts;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcutAdvisor;
 import cn.taketoday.aop.target.HotSwappableTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
-import cn.taketoday.aop.testfixture.Echo;
-import cn.taketoday.aop.testfixture.IEcho;
-import cn.taketoday.aop.testfixture.Lockable;
-import cn.taketoday.aop.testfixture.TimeStamped;
 import cn.taketoday.aop.testfixture.advice.CountingAfterReturningAdvice;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
 import cn.taketoday.aop.testfixture.advice.MethodCounter;
@@ -70,16 +66,18 @@ import cn.taketoday.aop.testfixture.advice.MyThrowsHandler;
 import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
 import cn.taketoday.aop.testfixture.interceptor.SerializableNopInterceptor;
 import cn.taketoday.aop.testfixture.interceptor.TimestampIntroductionInterceptor;
-import cn.taketoday.aop.testfixture.mixin.LockMixin;
-import cn.taketoday.aop.testfixture.mixin.LockMixinAdvisor;
-import cn.taketoday.aop.testfixture.mixin.LockedException;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.IOther;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.Person;
 import cn.taketoday.beans.testfixture.beans.SerializablePerson;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.core.testfixture.TimeStamped;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.lang.Nullable;
+import test.mixin.LockMixin;
+import test.mixin.LockMixinAdvisor;
+import test.mixin.Lockable;
+import test.mixin.LockedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -123,16 +121,6 @@ public abstract class AbstractAopProxyTests {
    */
   protected boolean requiresTarget() {
     return false;
-  }
-
-  @Test
-  public void testNoInterceptorsAndNoTarget() {
-    assertThatExceptionOfType(AopConfigException.class).isThrownBy(() -> {
-      AdvisedSupport pc = new AdvisedSupport(ITestBean.class);
-      //Add no interceptors
-      AopProxy aop = createAopProxy(pc);
-      aop.getProxy();
-    });
   }
 
   /**

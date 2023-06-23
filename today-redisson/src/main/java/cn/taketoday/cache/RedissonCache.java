@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -91,6 +91,7 @@ public class RedissonCache implements Cache {
     return toValueWrapper(value);
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T get(Object key, Class<T> type) {
     Object value;
     if (mapCache != null && config.getMaxIdleTime() == 0 && config.getMaxSize() == 0) {

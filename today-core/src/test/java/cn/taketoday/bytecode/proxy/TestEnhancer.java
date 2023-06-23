@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.bytecode.ClassWriter;
 import cn.taketoday.bytecode.MethodVisitor;
@@ -47,6 +48,7 @@ import cn.taketoday.bytecode.reflect.MethodAccess;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StreamUtils;
+import lombok.Data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -850,6 +852,11 @@ public class TestEnhancer {
     public boolean equals(Object other) {
       called = true;
       return super.equals(other);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(called);
     }
   }
 

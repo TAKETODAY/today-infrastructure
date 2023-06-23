@@ -49,7 +49,7 @@ import reactor.core.publisher.Flux;
  * @since 4.0
  */
 public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
-  private static final ResolvableType STRING_TYPE = ResolvableType.fromClass(String.class);
+  private static final ResolvableType STRING_TYPE = ResolvableType.forClass(String.class);
   private static final StringDecoder STRING_DECODER = StringDecoder.textPlainOnly(Arrays.asList(",", "\n"), false);
 
   public Jackson2JsonDecoder() {

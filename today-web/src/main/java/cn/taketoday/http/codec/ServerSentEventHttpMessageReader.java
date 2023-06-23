@@ -48,7 +48,7 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public class ServerSentEventHttpMessageReader implements HttpMessageReader<Object> {
-  private static final ResolvableType STRING_TYPE = ResolvableType.fromClass(String.class);
+  private static final ResolvableType STRING_TYPE = ResolvableType.forClass(String.class);
 
   @Nullable
   private final Decoder<?> decoder;

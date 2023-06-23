@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,6 +22,8 @@ package cn.taketoday.aop.interceptor;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+
+import java.io.Serial;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.ProxyMethodInvocation;
@@ -125,6 +127,9 @@ public abstract class ExposeBeanNameAdvisors {
    * Introduction that exposes the specified bean name as invocation attribute.
    */
   private static class ExposeBeanNameIntroduction extends DelegatingIntroductionInterceptor implements NamedBean {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private final String beanName;
 

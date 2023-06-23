@@ -20,7 +20,6 @@
 
 package cn.taketoday.framework.context.config;
 
-import org.apache.logging.log4j.util.Strings;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +32,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -440,19 +438,19 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void loadWhenHasConfigLocationAsFile() {
     String location = "file:src/test/resources/specificlocation.properties";
+
     ConfigurableApplicationContext context = this.application.run("--app.config.location=" + location);
     assertThat(context.getEnvironment())
-            .has(matchingPropertySource("Config resource 'file [" + Strings
-                    .join(Arrays.asList("src", "test", "resources", "specificlocation.properties"), File.separatorChar)
-                    + "]' via location '" + location + "'"));
+            .has(matchingPropertySource("Config resource 'file [" +
+                    String.join(File.separator, "src", "test", "resources", "specificlocation.properties") + "]' via location '" + location + "'"));
   }
 
   @Test
   void loadWhenHasRelativeConfigLocationUsesFileLocation() {
     String location = "src/test/resources/specificlocation.properties";
     ConfigurableApplicationContext context = this.application.run("--app.config.location=" + location);
-    assertThat(context.getEnvironment()).has(matchingPropertySource("Config resource 'file [" + Strings
-            .join(Arrays.asList("src", "test", "resources", "specificlocation.properties"), File.separatorChar)
+    assertThat(context.getEnvironment()).has(matchingPropertySource("Config resource 'file [" +
+            String.join(File.separator, "src", "test", "resources", "specificlocation.properties")
             + "]' via location '" + location + "'"));
   }
 
@@ -597,7 +595,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   }
 
   @Test
-  @Disabled("Disabled until infra.profiles suppport is dropped")
+//  @Disabled("Disabled until infra.profiles suppport is dropped")
   void runWhenUsingInvalidPropertyThrowsException() {
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class).isThrownBy(
             () -> this.application.run("--app.config.location=classpath:invalidproperty.properties"));

@@ -72,7 +72,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
   public NoSuchBeanDefinitionException(String name, Class<?> targetClass) {
     super("No qualifying bean of type '" + targetClass + "' and named '" + name + "' available");
     this.beanName = name;
-    this.resolvableType = ResolvableType.fromClass(targetClass);
+    this.resolvableType = ResolvableType.forClass(targetClass);
   }
 
   /**
@@ -95,7 +95,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @since 4.0
    */
   public NoSuchBeanDefinitionException(Class<?> type) {
-    this(ResolvableType.fromClass(type));
+    this(ResolvableType.forClass(type));
   }
 
   /**
@@ -106,7 +106,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @since 4.0
    */
   public NoSuchBeanDefinitionException(Class<?> type, String message) {
-    this(ResolvableType.fromClass(type), message);
+    this(ResolvableType.forClass(type), message);
   }
 
   /**

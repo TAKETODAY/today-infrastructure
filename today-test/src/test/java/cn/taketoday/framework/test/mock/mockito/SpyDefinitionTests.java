@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
  */
 class SpyDefinitionTests {
 
-  private static final ResolvableType REAL_SERVICE_TYPE = ResolvableType.fromClass(RealExampleService.class);
+  private static final ResolvableType REAL_SERVICE_TYPE = ResolvableType.forClass(RealExampleService.class);
 
   @Test
   void classToSpyMustNotBeNull() {

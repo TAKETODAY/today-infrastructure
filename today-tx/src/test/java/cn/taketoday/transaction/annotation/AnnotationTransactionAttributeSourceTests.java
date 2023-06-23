@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,14 +31,14 @@ import java.lang.reflect.Method;
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.core.annotation.AnnotationUtils;
-import cn.taketoday.transaction.CallCountingTransactionManager;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;
-import cn.taketoday.transaction.testfixture.SerializationTestUtils;
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 import jakarta.ejb.TransactionAttributeType;
 
 import static org.assertj.core.api.Assertions.assertThat;

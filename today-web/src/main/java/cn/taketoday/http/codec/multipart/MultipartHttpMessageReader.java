@@ -53,7 +53,7 @@ import reactor.core.publisher.Mono;
 public class MultipartHttpMessageReader
         extends LoggingCodecSupport implements HttpMessageReader<MultiValueMap<String, Part>> {
 
-  private static final ResolvableType MULTIPART_VALUE_TYPE = ResolvableType.fromClassWithGenerics(
+  private static final ResolvableType MULTIPART_VALUE_TYPE = ResolvableType.forClassWithGenerics(
           MultiValueMap.class, String.class, Part.class);
 
   static final List<MediaType> MIME_TYPES = List.of(

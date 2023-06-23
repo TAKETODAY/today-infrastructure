@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
  * @author TODAY 2021/5/24 21:03
  * @since 1.0.1
  */
+@SuppressWarnings("serial")
 public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandlerContext> {
   private final Channel channel;
   private final boolean secure;

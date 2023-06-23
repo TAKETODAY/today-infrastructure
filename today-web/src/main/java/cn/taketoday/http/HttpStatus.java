@@ -76,6 +76,7 @@ public enum HttpStatus implements HttpStatusCode {
    * resumable POST/PUT HTTP requests in HTTP/1.0</a>
    * @deprecated in favor of {@link #EARLY_HINTS} which will be returned from {@code HttpStatus.valueOf(103)}
    */
+  @Deprecated
   CHECKPOINT(103, Series.INFORMATIONAL, "Checkpoint"),
 
   // 2xx Success

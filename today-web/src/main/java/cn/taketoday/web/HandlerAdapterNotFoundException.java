@@ -20,6 +20,8 @@
 
 package cn.taketoday.web;
 
+import java.io.Serial;
+
 /**
  * For {@link HandlerAdapter} not found
  *
@@ -27,6 +29,10 @@ package cn.taketoday.web;
  * @since 3.0
  */
 public class HandlerAdapterNotFoundException extends InfraConfigurationException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private final Object handler;
 
   public HandlerAdapterNotFoundException(Object handler) {

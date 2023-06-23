@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,8 +42,8 @@ import java.util.Set;
 
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.BeanWrapperImpl;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.context.support.StaticMessageSource;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.validation.BeanPropertyBindingResult;
 import cn.taketoday.validation.FieldError;

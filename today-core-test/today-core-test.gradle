@@ -1,0 +1,21 @@
+description = "Infra Core Test"
+
+dependencies {
+  api(project(":today-core"))
+
+  api("org.junit.jupiter:junit-jupiter-api")
+  api("org.assertj:assertj-core")
+  compileOnly("org.junit.jupiter:junit-jupiter")
+  compileOnly("org.junit.platform:junit-platform-engine")
+  compileOnly("org.junit.platform:junit-platform-launcher")
+  implementation("com.thoughtworks.qdox:qdox")
+}
+
+jar {
+  manifest {
+    attributes(
+            'Premain-Class': 'cn.taketoday.aot.agent.RuntimeHintsAgent',
+            'Can-Redefine-Classes': 'true'
+    )
+  }
+}

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -78,7 +78,7 @@ import cn.taketoday.util.ReflectionUtils;
 class ConfigurationClassEnhancer {
 
   // The callbacks to use. Note that these callbacks must be stateless.
-  private static final Callback[] CALLBACKS = new Callback[] {
+  static final Callback[] CALLBACKS = new Callback[] {
           new ComponentMethodInterceptor(),
           new BeanFactoryAwareMethodInterceptor(),
           NoOp.INSTANCE
@@ -123,6 +123,7 @@ class ConfigurationClassEnhancer {
     enhancer.setSuperclass(configSuperClass);
     enhancer.setInterfaces(EnhancedConfiguration.class);
     enhancer.setUseFactory(false);
+    enhancer.setAttemptLoad(true);
     enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy(classLoader));
     enhancer.setCallbackFilter(CALLBACK_FILTER);
     enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());

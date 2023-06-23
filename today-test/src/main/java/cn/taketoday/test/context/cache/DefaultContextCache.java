@@ -20,6 +20,7 @@
 
 package cn.taketoday.test.context.cache;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -343,6 +344,9 @@ public class DefaultContextCache implements ContextCache {
    * properly closes application contexts.
    */
   private class LruCache extends LinkedHashMap<MergedContextConfiguration, ApplicationContext> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * Create a new {@code LruCache} with the supplied initial capacity

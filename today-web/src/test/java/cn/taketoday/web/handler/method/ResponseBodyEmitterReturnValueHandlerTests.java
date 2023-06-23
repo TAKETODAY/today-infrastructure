@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,7 +44,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import static cn.taketoday.core.ResolvableType.fromClassWithGenerics;
+import static cn.taketoday.core.ResolvableType.forClassWithGenerics;
 import static cn.taketoday.web.ResolvableMethod.on;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -98,7 +98,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     assertThat(this.handler.supportsHandler(
             on(TestController.class).resolveHandlerMethod(
-                    fromClassWithGenerics(ResponseEntity.class, fromClassWithGenerics(Flux.class, String.class))))).isTrue();
+                    ResolvableType.forClassWithGenerics(ResponseEntity.class, forClassWithGenerics(Flux.class, String.class))))).isTrue();
   }
 
   @Test
@@ -108,8 +108,8 @@ class ResponseBodyEmitterReturnValueHandlerTests {
             on(TestController.class).resolveHandlerMethod(ResponseEntity.class, String.class))).isFalse();
 
     assertThat(this.handler.supportsHandler(
-            on(TestController.class).resolveHandlerMethod(fromClassWithGenerics(ResponseEntity.class,
-                    fromClassWithGenerics(AtomicReference.class, String.class))))).isFalse();
+            on(TestController.class).resolveHandlerMethod(ResolvableType.forClassWithGenerics(ResponseEntity.class,
+                    forClassWithGenerics(AtomicReference.class, String.class))))).isFalse();
 
     assertThat(this.handler.supportsHandler(
             on(TestController.class).resolveHandlerMethod(ResponseEntity.class))).isFalse();
@@ -282,7 +282,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     Sinks.Many<String> sink = Sinks.many().unicast().onBackpressureBuffer();
     ResponseEntity<Flux<String>> entity = ResponseEntity.ok().body(sink.asFlux());
-    ResolvableType bodyType = fromClassWithGenerics(Flux.class, String.class);
+    ResolvableType bodyType = forClassWithGenerics(Flux.class, String.class);
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, bodyType);
     this.handler.handleReturnValue(webRequest, type, entity);
 
@@ -303,7 +303,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     Sinks.Many<SimpleBean> sink = Sinks.many().unicast().onBackpressureBuffer();
     ResponseEntity<Flux<SimpleBean>> entity = ResponseEntity.ok().header("x-foo", "bar").body(sink.asFlux());
-    ResolvableType bodyType = fromClassWithGenerics(Flux.class, SimpleBean.class);
+    ResolvableType bodyType = forClassWithGenerics(Flux.class, SimpleBean.class);
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseEntity.class, bodyType);
     this.handler.handleReturnValue(webRequest, type, entity);
     webRequest.flush();

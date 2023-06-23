@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.web.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.session.WebSession;
@@ -66,6 +67,9 @@ public class WebSessionMutexListener implements WebSessionListener {
    * Should be serializable to allow for WebSession persistence.
    */
   private static class Mutex implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
   }
 

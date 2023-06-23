@@ -1,0 +1,28 @@
+description = 'Infra Test Support'
+
+dependencies {
+  api project(':today-test')
+  optional project(':today-web')
+  optional project(':today-context')
+
+  optional "org.hamcrest:hamcrest"
+  optional "org.mockito:mockito-core"
+  optional "org.mockito:mockito-junit-jupiter"
+  optional "org.junit.jupiter:junit-jupiter-api"
+  optional 'jakarta.servlet:jakarta.servlet-api'
+
+  implementation 'org.testcontainers:cassandra:1.16.2'
+  implementation 'org.testcontainers:testcontainers:1.16.2'
+  implementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
+  implementation 'org.apache.maven.resolver:maven-resolver-impl:1.6.3'
+  implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.8.2'
+  implementation 'org.apache.maven:maven-resolver-provider:3.8.5'
+  implementation 'org.junit.platform:junit-platform-launcher:1.8.2'
+
+  testImplementation 'commons-logging:commons-logging:1.2'
+  testImplementation 'org.hibernate:hibernate-validator'
+
+  compileOnly 'com.datastax.oss:java-driver-core:4.14.0'
+  compileOnly 'org.elasticsearch:elasticsearch:7.15.2'
+}
+

@@ -134,14 +134,14 @@ class CodecConfigurerTests {
     Decoder<?> customDecoder1 = mock(Decoder.class);
     Decoder<?> customDecoder2 = mock(Decoder.class);
 
-    given(customDecoder1.canDecode(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customDecoder2.canDecode(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customDecoder1.canDecode(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customDecoder2.canDecode(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     HttpMessageReader<?> customReader1 = mock(HttpMessageReader.class);
     HttpMessageReader<?> customReader2 = mock(HttpMessageReader.class);
 
-    given(customReader1.canRead(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customReader2.canRead(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customReader1.canRead(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customReader2.canRead(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     this.configurer.customCodecs().register(customDecoder1);
     this.configurer.customCodecs().register(customDecoder2);
@@ -180,14 +180,14 @@ class CodecConfigurerTests {
     Encoder<?> customEncoder1 = mock(Encoder.class);
     Encoder<?> customEncoder2 = mock(Encoder.class);
 
-    given(customEncoder1.canEncode(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customEncoder2.canEncode(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customEncoder1.canEncode(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customEncoder2.canEncode(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     HttpMessageWriter<?> customWriter1 = mock(HttpMessageWriter.class);
     HttpMessageWriter<?> customWriter2 = mock(HttpMessageWriter.class);
 
-    given(customWriter1.canWrite(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customWriter2.canWrite(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customWriter1.canWrite(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customWriter2.canWrite(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     this.configurer.customCodecs().register(customEncoder1);
     this.configurer.customCodecs().register(customEncoder2);
@@ -224,14 +224,14 @@ class CodecConfigurerTests {
     Decoder<?> customDecoder1 = mock(Decoder.class);
     Decoder<?> customDecoder2 = mock(Decoder.class);
 
-    given(customDecoder1.canDecode(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customDecoder2.canDecode(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customDecoder1.canDecode(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customDecoder2.canDecode(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     HttpMessageReader<?> customReader1 = mock(HttpMessageReader.class);
     HttpMessageReader<?> customReader2 = mock(HttpMessageReader.class);
 
-    given(customReader1.canRead(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customReader2.canRead(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customReader1.canRead(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customReader2.canRead(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     this.configurer.customCodecs().register(customDecoder1);
     this.configurer.customCodecs().register(customDecoder2);
@@ -255,14 +255,14 @@ class CodecConfigurerTests {
     Encoder<?> customEncoder1 = mock(Encoder.class);
     Encoder<?> customEncoder2 = mock(Encoder.class);
 
-    given(customEncoder1.canEncode(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customEncoder2.canEncode(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customEncoder1.canEncode(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customEncoder2.canEncode(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     HttpMessageWriter<?> customWriter1 = mock(HttpMessageWriter.class);
     HttpMessageWriter<?> customWriter2 = mock(HttpMessageWriter.class);
 
-    given(customWriter1.canWrite(ResolvableType.fromClass(Object.class), null)).willReturn(false);
-    given(customWriter2.canWrite(ResolvableType.fromClass(Object.class), null)).willReturn(true);
+    given(customWriter1.canWrite(ResolvableType.forClass(Object.class), null)).willReturn(false);
+    given(customWriter2.canWrite(ResolvableType.forClass(Object.class), null)).willReturn(true);
 
     this.configurer.customCodecs().register(customEncoder1);
     this.configurer.customCodecs().register(customEncoder2);
@@ -410,16 +410,16 @@ class CodecConfigurerTests {
 
   private void assertStringDecoder(Decoder<?> decoder, boolean textOnly) {
     assertThat(decoder.getClass()).isEqualTo(StringDecoder.class);
-    assertThat(decoder.canDecode(ResolvableType.fromClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(decoder.canDecode(ResolvableType.forClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
     Object expected = !textOnly;
-    assertThat(decoder.canDecode(ResolvableType.fromClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
+    assertThat(decoder.canDecode(ResolvableType.forClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
   }
 
   private void assertStringEncoder(Encoder<?> encoder, boolean textOnly) {
     assertThat(encoder.getClass()).isEqualTo(CharSequenceEncoder.class);
-    assertThat(encoder.canEncode(ResolvableType.fromClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(encoder.canEncode(ResolvableType.forClass(String.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
     Object expected = !textOnly;
-    assertThat(encoder.canEncode(ResolvableType.fromClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
+    assertThat(encoder.canEncode(ResolvableType.forClass(String.class), MediaType.TEXT_EVENT_STREAM)).isEqualTo(expected);
   }
 
   private void assertDecoderInstance(Decoder<?> decoder) {

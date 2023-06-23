@@ -1,0 +1,9 @@
+description = "Infra Instrument"
+
+jar {
+  manifest.attributes["Agent-Class"] = "cn.taketoday.instrument.InstrumentationSavingAgent"
+  manifest.attributes["Premain-Class"] = "cn.taketoday.instrument.InstrumentationSavingAgent"
+  manifest.attributes["Can-Redefine-Classes"] = "true"
+  manifest.attributes["Can-Retransform-Classes"] = "true"
+  manifest.attributes["Can-Set-Native-Method-Prefix"] = "false"
+}

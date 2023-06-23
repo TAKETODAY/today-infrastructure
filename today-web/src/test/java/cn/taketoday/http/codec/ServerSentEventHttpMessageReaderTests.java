@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.json.AbstractLeakCheckingTests;
 import cn.taketoday.http.codec.json.Jackson2JsonDecoder;
-import cn.taketoday.http.server.reactive.MockServerHttpRequest;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -53,14 +53,14 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
 
   @Test
   public void cantRead() {
-    assertThat(reader.canRead(ResolvableType.fromClass(Object.class), new MediaType("foo", "bar"))).isFalse();
-    assertThat(reader.canRead(ResolvableType.fromClass(Object.class), null)).isFalse();
+    assertThat(reader.canRead(ResolvableType.forClass(Object.class), new MediaType("foo", "bar"))).isFalse();
+    assertThat(reader.canRead(ResolvableType.forClass(Object.class), null)).isFalse();
   }
 
   @Test
   public void canRead() {
-    assertThat(reader.canRead(ResolvableType.fromClass(Object.class), new MediaType("text", "event-stream"))).isTrue();
-    assertThat(reader.canRead(ResolvableType.fromClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
+    assertThat(reader.canRead(ResolvableType.forClass(Object.class), new MediaType("text", "event-stream"))).isTrue();
+    assertThat(reader.canRead(ResolvableType.forClass(ServerSentEvent.class), new MediaType("foo", "bar"))).isTrue();
   }
 
   @Test
@@ -72,7 +72,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
                             "id:c43\nevent:bar\nretry:456\ndata:baz\n\ndata:\n\ndata: \n\n")));
 
     Flux<ServerSentEvent> events = this.reader
-            .read(ResolvableType.fromClassWithGenerics(ServerSentEvent.class, String.class),
+            .read(ResolvableType.forClassWithGenerics(ServerSentEvent.class, String.class),
                     request, Collections.emptyMap()).cast(ServerSentEvent.class);
 
     StepVerifier.create(events)
@@ -106,7 +106,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
                     stringBuffer("bar\n\nid:c43\nevent:bar\nretry:456\ndata:baz\n\n")));
 
     Flux<ServerSentEvent> events = reader
-            .read(ResolvableType.fromClassWithGenerics(ServerSentEvent.class, String.class),
+            .read(ResolvableType.forClassWithGenerics(ServerSentEvent.class, String.class),
                     request, Collections.emptyMap()).cast(ServerSentEvent.class);
 
     StepVerifier.create(events)
@@ -133,7 +133,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer("data:foo\ndata:bar\n\ndata:baz\n\n")));
 
-    Flux<String> data = reader.read(ResolvableType.fromClass(String.class),
+    Flux<String> data = reader.read(ResolvableType.forClass(String.class),
             request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
@@ -148,7 +148,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer("data: \tfoo \ndata:bar\t\n\n")));
 
-    Flux<String> data = reader.read(ResolvableType.fromClass(String.class),
+    Flux<String> data = reader.read(ResolvableType.forClass(String.class),
             request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
@@ -164,7 +164,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
                     "data:{\"foo\": \"foofoo\", \"bar\": \"barbar\"}\n\n" +
                             "data:{\"foo\": \"foofoofoo\", \"bar\": \"barbarbar\"}\n\n")));
 
-    Flux<Pojo> data = reader.read(ResolvableType.fromClass(Pojo.class), request,
+    Flux<Pojo> data = reader.read(ResolvableType.forClass(Pojo.class), request,
             Collections.emptyMap()).cast(Pojo.class);
 
     StepVerifier.create(data)
@@ -187,7 +187,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .body(Flux.just(stringBuffer(":ping\n"), stringBuffer("\n")));
 
     Flux<Object> data = this.reader.read(
-            ResolvableType.fromType(String.class), request, Collections.emptyMap());
+            ResolvableType.forType(String.class), request, Collections.emptyMap());
 
     StepVerifier.create(data).expectComplete().verify();
   }
@@ -199,7 +199,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
             .body(Mono.just(stringBuffer(body)));
 
     String actual = reader
-            .readMono(ResolvableType.fromClass(String.class), request, Collections.emptyMap())
+            .readMono(ResolvableType.forClass(String.class), request, Collections.emptyMap())
             .cast(String.class)
             .block(Duration.ZERO);
 
@@ -215,7 +215,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(body);
 
-    Flux<String> data = reader.read(ResolvableType.fromClass(String.class),
+    Flux<String> data = reader.read(ResolvableType.forClass(String.class),
             request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
@@ -233,7 +233,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Flux.just(stringBuffer("data:\"TOO MUCH DATA\"\ndata:bar\n\ndata:baz\n\n")));
 
-    Flux<String> data = this.reader.read(ResolvableType.fromClass(String.class),
+    Flux<String> data = this.reader.read(ResolvableType.forClass(String.class),
             request, Collections.emptyMap()).cast(String.class);
 
     StepVerifier.create(data)
@@ -256,7 +256,7 @@ public class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingT
     jacksonDecoder.setMaxInMemorySize(limit + 1024);
     messageReader.setMaxInMemorySize(limit + 1024);
 
-    Flux<Pojo> data = messageReader.read(ResolvableType.fromClass(Pojo.class), request,
+    Flux<Pojo> data = messageReader.read(ResolvableType.forClass(Pojo.class), request,
             Collections.emptyMap()).cast(Pojo.class);
 
     StepVerifier.create(data)

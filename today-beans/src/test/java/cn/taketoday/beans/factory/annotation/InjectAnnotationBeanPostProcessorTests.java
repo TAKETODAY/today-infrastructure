@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,11 +43,11 @@ import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
-import cn.taketoday.beans.testfixture.SerializationTestUtils;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
@@ -967,6 +967,7 @@ public class InjectAnnotationBeanPostProcessorTests {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class ObjectFactoryFieldInjectionBean implements Serializable {
 
     @Inject
@@ -977,6 +978,7 @@ public class InjectAnnotationBeanPostProcessorTests {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class ObjectFactoryMethodInjectionBean implements Serializable {
 
     private Provider<TestBean> testBeanFactory;
@@ -1017,6 +1019,7 @@ public class InjectAnnotationBeanPostProcessorTests {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class ObjectFactoryListFieldInjectionBean implements Serializable {
 
     @Inject
@@ -1031,6 +1034,7 @@ public class InjectAnnotationBeanPostProcessorTests {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class ObjectFactoryListMethodInjectionBean implements Serializable {
 
     private Provider<List<TestBean>> testBeanFactory;
@@ -1045,6 +1049,7 @@ public class InjectAnnotationBeanPostProcessorTests {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class ObjectFactoryMapFieldInjectionBean implements Serializable {
 
     @Inject
@@ -1059,6 +1064,7 @@ public class InjectAnnotationBeanPostProcessorTests {
     }
   }
 
+  @SuppressWarnings("serial")
   public static class ObjectFactoryMapMethodInjectionBean implements Serializable {
 
     private Provider<Map<String, TestBean>> testBeanFactory;

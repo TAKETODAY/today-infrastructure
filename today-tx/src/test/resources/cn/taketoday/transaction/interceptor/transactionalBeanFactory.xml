@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
+  ~
+  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "https://www.springframework.org/dtd/spring-beans-2.0.dtd">
 
 <beans>
 
-  <bean id="targetDependency" class="cn.taketoday.transaction.testfixture.beans.TestBean">
+  <bean id="targetDependency" class="cn.taketoday.beans.testfixture.beans.TestBean">
     <property name="name">
       <value>dependency</value>
     </property>
   </bean>
 
   <!-- Simple target -->
-  <bean id="target" class="cn.taketoday.transaction.testfixture.beans.DerivedTestBean" lazy-init="true">
+  <bean id="target" class="cn.taketoday.beans.testfixture.beans.DerivedTestBean" lazy-init="true">
     <property name="name">
       <value>custom</value>
     </property>
@@ -32,16 +52,16 @@
     </property>
     <property name="transactionAttributeSource">
       <value>
-        cn.taketoday.transaction.testfixture.beans.ITestBean.s*=PROPAGATION_MANDATORY
-        cn.taketoday.transaction.testfixture.beans.AgeHolder.setAg*=PROPAGATION_REQUIRED
-        cn.taketoday.transaction.testfixture.beans.ITestBean.set*= PROPAGATION_SUPPORTS , readOnly
+        cn.taketoday.beans.testfixture.beans.ITestBean.s*=PROPAGATION_MANDATORY
+        cn.taketoday.beans.testfixture.beans.AgeHolder.setAg*=PROPAGATION_REQUIRED
+        cn.taketoday.beans.testfixture.beans.ITestBean.set*= PROPAGATION_SUPPORTS , readOnly
       </value>
     </property>
   </bean>
 
   <bean id="proxyFactory1" class="cn.taketoday.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces">
-      <value>cn.taketoday.transaction.testfixture.beans.ITestBean</value>
+      <value>cn.taketoday.beans.testfixture.beans.ITestBean</value>
     </property>
     <property name="interceptorNames">
       <list>

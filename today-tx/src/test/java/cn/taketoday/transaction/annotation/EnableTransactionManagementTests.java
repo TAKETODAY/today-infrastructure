@@ -41,11 +41,11 @@ import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Service;
-import cn.taketoday.transaction.CallCountingTransactionManager;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
+import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

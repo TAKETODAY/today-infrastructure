@@ -61,27 +61,27 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
   @Test
   public void rawListener() {
     Method method = ReflectionUtils.findMethod(SampleEvents.class, "handleRaw", ApplicationEvent.class);
-    supportsEventType(true, method, ResolvableType.fromClass(ApplicationEvent.class));
+    supportsEventType(true, method, ResolvableType.forClass(ApplicationEvent.class));
   }
 
   @Test
   public void rawListenerWithGenericEvent() {
     Method method = ReflectionUtils.findMethod(SampleEvents.class, "handleRaw", ApplicationEvent.class);
-    supportsEventType(true, method, ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class));
+    supportsEventType(true, method, ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test
   public void genericListener() {
     Method method = ReflectionUtils.findMethod(
             SampleEvents.class, "handleGenericString", GenericTestEvent.class);
-    supportsEventType(true, method, ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class));
+    supportsEventType(true, method, ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class));
   }
 
   @Test
   public void genericListenerWrongParameterizedType() {
     Method method = ReflectionUtils.findMethod(
             SampleEvents.class, "handleGenericString", GenericTestEvent.class);
-    supportsEventType(false, method, ResolvableType.fromClassWithGenerics(GenericTestEvent.class, Long.class));
+    supportsEventType(false, method, ResolvableType.forClassWithGenerics(GenericTestEvent.class, Long.class));
   }
 
   @Test
@@ -99,19 +99,19 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
   @Test
   public void listenerWithPayloadTypeErasure() {  // Always accept such event when the type is unknown
     Method method = ReflectionUtils.findMethod(SampleEvents.class, "handleString", String.class);
-    supportsEventType(true, method, ResolvableType.fromClass(PayloadApplicationEvent.class));
+    supportsEventType(true, method, ResolvableType.forClass(PayloadApplicationEvent.class));
   }
 
   @Test
   public void listenerWithSubTypeSeveralGenerics() {
     Method method = ReflectionUtils.findMethod(SampleEvents.class, "handleString", String.class);
-    supportsEventType(true, method, ResolvableType.fromClass(PayloadTestEvent.class));
+    supportsEventType(true, method, ResolvableType.forClass(PayloadTestEvent.class));
   }
 
   @Test
   public void listenerWithSubTypeSeveralGenericsResolved() {
     Method method = ReflectionUtils.findMethod(SampleEvents.class, "handleString", String.class);
-    supportsEventType(true, method, ResolvableType.fromClass(PayloadStringTestEvent.class));
+    supportsEventType(true, method, ResolvableType.forClass(PayloadStringTestEvent.class));
   }
 
   @Test
@@ -334,11 +334,11 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
     var method = SampleEvents.class.getDeclaredMethod("handleString", String.class);
     var adapter = new ApplicationListenerMethodAdapter(null, ApplicationListenerMethodAdapterTests.class, method);
 
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(EntityWrapper.class, Integer.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(EntityWrapper.class, Integer.class)))
             .as("handleString(String) with EntityWrapper<Integer>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(EntityWrapper.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(EntityWrapper.class)))
             .as("handleString(String) with EntityWrapper<?>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(String.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(String.class)))
             .as("handleString(String) with String").isTrue();
   }
 
@@ -348,11 +348,11 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
     var method = SampleEvents.class.getDeclaredMethod("handleGenericStringPayload", EntityWrapper.class);
     var adapter = new ApplicationListenerMethodAdapter(null, ApplicationListenerMethodAdapterTests.class, method);
 
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(EntityWrapper.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(EntityWrapper.class)))
             .as("handleGenericStringPayload(EntityWrapper<String>) with EntityWrapper<?>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(EntityWrapper.class, Integer.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(EntityWrapper.class, Integer.class)))
             .as("handleGenericStringPayload(EntityWrapper<String>) with EntityWrapper<Integer>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(EntityWrapper.class, String.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(EntityWrapper.class, String.class)))
             .as("handleGenericStringPayload(EntityWrapper<String>) with EntityWrapper<String>").isTrue();
   }
 
@@ -362,15 +362,15 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
     var method = SampleEvents.class.getDeclaredMethod("handleGenericAnyPayload", EntityWrapper.class);
     var adapter = new ApplicationListenerMethodAdapter(null, ApplicationListenerMethodAdapterTests.class, method);
 
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(EntityWrapper.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(EntityWrapper.class)))
             .as("handleGenericAnyPayload(EntityWrapper<?>) with EntityWrapper<?>").isTrue();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(EntityWrapper.class, Integer.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(EntityWrapper.class, Integer.class)))
             .as("handleGenericAnyPayload(EntityWrapper<?>) with EntityWrapper<Integer>").isTrue();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(EntityWrapper.class, String.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(EntityWrapper.class, String.class)))
             .as("handleGenericAnyPayload(EntityWrapper<?>) with EntityWrapper<String>").isTrue();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(List.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(List.class)))
             .as("handleGenericAnyPayload(EntityWrapper<?>) with List<?>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(List.class, String.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(List.class, String.class)))
             .as("handleGenericAnyPayload(EntityWrapper<?>) with List<String>").isFalse();
   }
 
@@ -379,11 +379,11 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
     var method = SampleEvents.class.getDeclaredMethod("handleGenericString", GenericTestEvent.class);
     var adapter = new ApplicationListenerMethodAdapter(null, ApplicationListenerMethodAdapterTests.class, method);
 
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(GenericTestEvent.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(GenericTestEvent.class)))
             .as("handleGenericString(GenericTestEvent<String>) with GenericTestEvent<?>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(GenericTestEvent.class, Integer.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(GenericTestEvent.class, Integer.class)))
             .as("handleGenericString(GenericTestEvent<String>) with GenericTestEvent<Integer>").isFalse();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class)))
             .as("handleGenericString(GenericTestEvent<String>) with GenericTestEvent<String>").isTrue();
   }
 
@@ -392,11 +392,11 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
     var method = SampleEvents.class.getDeclaredMethod("handleGenericRaw", GenericTestEvent.class);
     var adapter = new ApplicationListenerMethodAdapter(null, ApplicationListenerMethodAdapterTests.class, method);
 
-    assertThat(adapter.supportsEventType(ResolvableType.fromClass(GenericTestEvent.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClass(GenericTestEvent.class)))
             .as("handleGenericRaw(GenericTestEvent<?>) with GenericTestEvent<?>").isTrue();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(GenericTestEvent.class, String.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(GenericTestEvent.class, String.class)))
             .as("handleGenericRaw(GenericTestEvent<?>) with GenericTestEvent<String>").isTrue();
-    assertThat(adapter.supportsEventType(ResolvableType.fromClassWithGenerics(GenericTestEvent.class, Integer.class)))
+    assertThat(adapter.supportsEventType(ResolvableType.forClassWithGenerics(GenericTestEvent.class, Integer.class)))
             .as("handleGenericRaw(GenericTestEvent<?>) with GenericTestEvent<Integer>").isTrue();
   }
 
@@ -416,7 +416,7 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
   }
 
   private ResolvableType createGenericEventType(Class<?> payloadType) {
-    return ResolvableType.fromClassWithGenerics(PayloadApplicationEvent.class, payloadType);
+    return ResolvableType.forClassWithGenerics(PayloadApplicationEvent.class, payloadType);
   }
 
   private static class StaticApplicationListenerMethodAdapter extends ApplicationListenerMethodAdapter {
@@ -523,7 +523,7 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
 
     @Override
     public ResolvableType getResolvableType() {
-      return ResolvableType.fromClassWithGenerics(getClass(), this.entity.getClass());
+      return ResolvableType.forClassWithGenerics(getClass(), this.entity.getClass());
     }
   }
 

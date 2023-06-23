@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import cn.taketoday.testfixture.jndi.SimpleNamingContext;
+import cn.taketoday.context.testfixture.jndi.SimpleNamingContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

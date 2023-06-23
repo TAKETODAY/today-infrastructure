@@ -31,7 +31,7 @@ import java.util.Collections;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.framework.MockEnvironment;
+import cn.taketoday.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

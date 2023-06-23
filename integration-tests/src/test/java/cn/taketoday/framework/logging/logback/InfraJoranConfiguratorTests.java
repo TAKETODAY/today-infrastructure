@@ -194,7 +194,6 @@ class InfraJoranConfiguratorTests {
   }
 
   @Test
-  @Disabled("暂时不知道啥原因会失败")
   void infraPropertyInIfWhenTrue() throws Exception {
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
             environment, "my.example-property=true");

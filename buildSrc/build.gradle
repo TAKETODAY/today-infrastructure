@@ -1,0 +1,42 @@
+plugins {
+  id 'java-gradle-plugin'
+  id 'io.spring.javaformat' version "${javaFormatVersion}"
+}
+
+repositories {
+  mavenLocal()
+  maven { url "https://maven.aliyun.com/repository/public" }
+  mavenCentral()
+  gradlePluginPortal()
+}
+
+ext {
+
+}
+
+dependencies {
+  implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
+  implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
+  implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
+}
+
+gradlePlugin {
+  plugins {
+    apiDiffPlugin {
+      id = "cn.taketoday.build.api-diff"
+      implementationClass = "cn.taketoday.build.api.ApiDiffPlugin"
+    }
+    conventionsPlugin {
+      id = "cn.taketoday.build.conventions"
+      implementationClass = "cn.taketoday.build.ConventionsPlugin"
+    }
+    optionalDependenciesPlugin {
+      id = "cn.taketoday.build.optional-dependencies"
+      implementationClass = "cn.taketoday.build.optional.OptionalDependenciesPlugin"
+    }
+    runtimeHintsAgentPlugin {
+      id = "cn.taketoday.build.runtimehints-agent"
+      implementationClass = "cn.taketoday.build.hint.RuntimeHintsAgentPlugin"
+    }
+  }
+}

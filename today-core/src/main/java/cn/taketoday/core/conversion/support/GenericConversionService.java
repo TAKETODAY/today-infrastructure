@@ -102,7 +102,7 @@ public class GenericConversionService implements ConfigurableConversionService {
           Class<S> sourceType, Class<T> targetType,
           Converter<? super S, ? extends T> converter) {
     addConverter(new ConverterAdapter(
-            converter, ResolvableType.fromClass(sourceType), ResolvableType.fromClass(targetType)));
+            converter, ResolvableType.forClass(sourceType), ResolvableType.forClass(targetType)));
   }
 
   @Override
@@ -297,7 +297,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
   @Nullable
   private ResolvableType[] getRequiredTypeInfo(Class<?> converterClass, Class<?> genericIfc) {
-    ResolvableType resolvableType = ResolvableType.fromClass(converterClass).as(genericIfc);
+    ResolvableType resolvableType = ResolvableType.forClass(converterClass).as(genericIfc);
     ResolvableType[] generics = resolvableType.getGenerics();
     if (generics.length < 2) {
       return null;

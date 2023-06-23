@@ -34,7 +34,6 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
 import cn.taketoday.aop.testfixture.advice.CountingBeforeAdvice;
 import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
-import cn.taketoday.aop.testfixture.mixin.LockMixinAdvisor;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationContext;
@@ -42,6 +41,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import test.mixin.LockMixinAdvisor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

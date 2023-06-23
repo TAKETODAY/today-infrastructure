@@ -1,0 +1,8 @@
+description = 'Starter for using JDBC with the HikariCP connection pool'
+
+dependencies {
+  api 'com.zaxxer:HikariCP'
+  api project(':today-jdbc')
+  api project(':today-starter')
+}
+

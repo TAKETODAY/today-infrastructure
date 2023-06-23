@@ -63,7 +63,7 @@ public abstract class AbstractFailureAnalyzer<T extends Throwable> implements Fa
    */
   @SuppressWarnings("unchecked")
   protected Class<? extends T> getCauseType() {
-    Class<?> generic = ResolvableType.fromClass(AbstractFailureAnalyzer.class, getClass()).resolveGeneric();
+    Class<?> generic = ResolvableType.forClass(AbstractFailureAnalyzer.class, getClass()).resolveGeneric();
     Assert.state(generic != null, "Generic type is required");
     return (Class<? extends T>) generic;
   }

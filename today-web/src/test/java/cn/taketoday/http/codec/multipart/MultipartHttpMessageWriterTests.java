@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -42,9 +42,9 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.MultipartBodyBuilder;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
 import cn.taketoday.http.codec.json.AbstractLeakCheckingTests;
-import cn.taketoday.http.server.reactive.MockServerHttpRequest;
-import cn.taketoday.http.server.reactive.MockServerHttpResponse;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
+import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
@@ -69,23 +69,23 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @Test
   public void canWrite() {
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.MULTIPART_FORM_DATA)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, String.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class),
             MediaType.MULTIPART_FORM_DATA)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.MULTIPART_MIXED)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.MULTIPART_RELATED)).isTrue();
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(MultiValueMap.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Object.class),
             MediaType.APPLICATION_FORM_URLENCODED)).isTrue();
 
     assertThat(this.writer.canWrite(
-            ResolvableType.fromClassWithGenerics(Map.class, String.class, Object.class),
+            ResolvableType.forClassWithGenerics(Map.class, String.class, Object.class),
             MediaType.MULTIPART_FORM_DATA)).isFalse();
   }
 
@@ -212,7 +212,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
   @SuppressWarnings("ConstantConditions")
   private String decodeToString(Part part) {
     return StringDecoder.textPlainOnly().decodeToMono(part.content(),
-            ResolvableType.fromClass(String.class), MediaType.TEXT_PLAIN,
+            ResolvableType.forClass(String.class), MediaType.TEXT_PLAIN,
             Collections.emptyMap()).block(Duration.ZERO);
   }
 
@@ -307,7 +307,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
             .contentType(MediaType.parseMediaType(contentType.toString()))
             .body(response.getBody());
 
-    ResolvableType elementType = ResolvableType.fromClassWithGenerics(
+    ResolvableType elementType = ResolvableType.forClassWithGenerics(
             MultiValueMap.class, String.class, Part.class);
 
     MultiValueMap<String, Part> result = reader.readMono(elementType, request, hints)

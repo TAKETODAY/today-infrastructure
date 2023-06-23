@@ -50,6 +50,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@SuppressWarnings("rawtypes")
 public class CatchAllConverter implements Converter {
 
   @Override

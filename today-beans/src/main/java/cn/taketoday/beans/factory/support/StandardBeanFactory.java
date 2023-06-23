@@ -123,6 +123,9 @@ import jakarta.inject.Provider;
 public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         implements ConfigurableBeanFactory, BeanDefinitionRegistry, Serializable {
 
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   @Nullable
   private static final Class<?> injectProviderClass =
           // JSR-330 API not available - Provider interface simply not supported then.
@@ -661,7 +664,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    Object resolved = resolveBean(ResolvableType.fromRawClass(requiredType), args, false);
+    Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
     if (resolved == null) {
       throw new NoSuchBeanDefinitionException(requiredType);
     }
@@ -762,7 +765,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
     Assert.notNull(requiredType, "Required type must not be null");
-    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.fromClass(requiredType), null, false);
+    NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.forClass(requiredType), null, false);
     if (namedBean != null) {
       return namedBean;
     }
@@ -790,7 +793,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
     Assert.notNull(requiredType, "Required type must not be null");
-    return getBeanProvider(ResolvableType.fromRawClass(requiredType), allowEagerInit);
+    return getBeanProvider(ResolvableType.forRawClass(requiredType), allowEagerInit);
   }
 
   @Override
@@ -916,7 +919,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public <T> Map<String, T> getBeansOfType(
           Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    return getBeansOfType(ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+    return getBeansOfType(ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
   }
 
   @Override
@@ -966,7 +969,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
       return doGetBeanNamesForType(
-              ResolvableType.fromRawClass(requiredType), includeNonSingletons, allowEagerInit);
+              ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
     }
 
     Map<Class<?>, String[]> cache =
@@ -977,7 +980,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
 
     Set<String> resolvedBeanNamesSet = doGetBeanNamesForType(
-            ResolvableType.fromRawClass(requiredType), includeNonSingletons, true);
+            ResolvableType.forRawClass(requiredType), includeNonSingletons, true);
     if (ClassUtils.isCacheSafe(requiredType, getBeanClassLoader())) {
       cache.put(requiredType, StringUtils.toStringArray(resolvedBeanNamesSet));
     }
@@ -1978,6 +1981,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private static class SerializedBeanFactoryReference implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final String id;
 
     public SerializedBeanFactoryReference(String id) {
@@ -2007,6 +2013,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private static class NestedDependencyDescriptor extends DependencyDescriptor {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     public NestedDependencyDescriptor(DependencyDescriptor original) {
       super(original);
       increaseNestingLevel();
@@ -2018,6 +2027,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private static class MultiElementDescriptor extends NestedDependencyDescriptor {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     public MultiElementDescriptor(DependencyDescriptor original) {
       super(original);
     }
@@ -2027,6 +2039,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * A dependency descriptor marker for stream access to multiple elements.
    */
   private static class StreamDependencyDescriptor extends DependencyDescriptor {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final boolean ordered;
 
     public StreamDependencyDescriptor(DependencyDescriptor original, boolean ordered) {
@@ -2043,6 +2059,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Serializable ObjectFactory/ObjectProvider for lazy resolution of a dependency.
    */
   private class DependencyObjectProvider implements BeanObjectProvider<Object> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Nullable
     private final String beanName;
@@ -2208,11 +2227,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   private class Jsr330Factory implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     public Object createDependencyProvider(DependencyDescriptor descriptor, @Nullable String beanName) {
       return new Jsr330Provider(descriptor, beanName);
     }
 
     private class Jsr330Provider extends DependencyObjectProvider implements Provider<Object> {
+
+      @Serial
+      private static final long serialVersionUID = 1L;
 
       public Jsr330Provider(DependencyDescriptor descriptor, @Nullable String beanName) {
         super(descriptor, beanName);

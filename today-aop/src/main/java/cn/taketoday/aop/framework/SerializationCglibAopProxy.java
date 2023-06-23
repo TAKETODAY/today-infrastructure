@@ -20,6 +20,7 @@
 
 package cn.taketoday.aop.framework;
 
+import java.io.Serial;
 import java.lang.reflect.Constructor;
 
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -36,6 +37,9 @@ import cn.taketoday.util.ReflectionUtils;
  */
 class SerializationCglibAopProxy extends CglibAopProxy {
 
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   /**
    * Create a new SerializationCglibAopProxy for the given AOP configuration.
    *
@@ -46,6 +50,11 @@ class SerializationCglibAopProxy extends CglibAopProxy {
    */
   public SerializationCglibAopProxy(AdvisedSupport config) {
     super(config);
+  }
+
+  @Override
+  protected Class<?> createProxyClass(Enhancer enhancer) {
+    return enhancer.createClass();
   }
 
   @Override

@@ -88,7 +88,7 @@ class ConfigDataLoaders {
   }
 
   private Class<?> getResourceType(ConfigDataLoader<?> loader) {
-    ResolvableType resolvableType = ResolvableType.fromClass(loader.getClass());
+    ResolvableType resolvableType = ResolvableType.forClass(loader.getClass());
     Class<?> resourceType = resolvableType.as(ConfigDataLoader.class).resolveGeneric();
     if (resourceType == null) {
       throw new IllegalStateException("Cannot determine resource type for " + loader.getClass());

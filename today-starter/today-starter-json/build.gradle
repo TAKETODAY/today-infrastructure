@@ -1,0 +1,13 @@
+description = 'Starter for reading and writing json'
+
+dependencies {
+  api project(':today-web')
+  api project(':today-starter')
+
+  api 'com.fasterxml.jackson.core:jackson-databind'
+  api 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+  api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+  api 'com.fasterxml.jackson.module:jackson-module-parameter-names'
+}
+
+

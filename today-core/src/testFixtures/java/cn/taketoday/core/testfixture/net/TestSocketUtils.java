@@ -49,7 +49,7 @@ import javax.net.ServerSocketFactory;
  * @author Arjen Poutsma
  * @author Gunnar Hillert
  * @author Gary Russell
- * @since 6.0
+ * @since 4.0
  */
 public abstract class TestSocketUtils {
 

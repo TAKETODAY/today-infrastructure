@@ -20,6 +20,7 @@
 
 package cn.taketoday.framework.web;
 
+import java.io.Serial;
 import java.security.Provider;
 
 /**
@@ -28,6 +29,9 @@ import java.security.Provider;
  * @author Cyril Dangerville
  */
 public class MockPkcs11SecurityProvider extends Provider {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * The name of the mock provider.

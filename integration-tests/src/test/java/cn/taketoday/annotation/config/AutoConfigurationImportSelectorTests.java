@@ -192,7 +192,6 @@ class AutoConfigurationImportSelectorTests {
   }
 
   @Test
-  @Disabled
   void filterShouldFilterImports() {
     String[] defaultImports = selectImports(BasicEnableAutoConfiguration.class);
     this.filters.add(new TestAutoConfigurationImportFilter(defaultImports, 1));

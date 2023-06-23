@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import cn.taketoday.aop.testfixture.PerThisAspect;
-import cn.taketoday.aop.testfixture.SerializationTestUtils;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 
@@ -199,6 +199,7 @@ public class AspectProxyFactoryTests {
   }
 
   @Aspect
+  @SuppressWarnings("serial")
   public static class LoggingAspectOnVarargs implements Serializable {
 
     @Around("execution(* doWithVarargs(*))")
@@ -220,6 +221,7 @@ public class AspectProxyFactoryTests {
 }
 
 @Aspect
+@SuppressWarnings("serial")
 class MultiplyReturnValue implements Serializable {
 
   private int multiple = 2;

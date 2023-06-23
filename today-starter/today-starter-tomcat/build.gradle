@@ -1,0 +1,10 @@
+description = 'Starter for using Tomcat as the embedded servlet container.'
+
+
+dependencies {
+  api project(':today-starter')
+
+  api 'org.apache.tomcat.embed:tomcat-embed-core'
+  api 'org.apache.tomcat.embed:tomcat-embed-websocket'
+  api 'org.apache.tomcat.embed:tomcat-embed-el'
+}

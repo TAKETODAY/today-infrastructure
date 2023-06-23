@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,8 +52,7 @@ class NoSuchMethodFailureAnalyzerTests {
     List<ClassDescriptor> typeHierarchy = descriptor.typeHierarchy;
     assertThat(typeHierarchy).hasSize(1);
     URL location = typeHierarchy.get(0).location;
-//    assertThat(location).asString().contains("today-infrastructure/today-core/target/classes");
-    assertThat(location).asString().contains("today-infrastructure/today-core/target/");
+    assertThat(location).asString().contains("today-core");
   }
 
 //  @Test

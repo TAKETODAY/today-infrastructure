@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,19 +31,29 @@ import javax.management.MBeanServerFactory;
 public class MBeanTestUtils {
 
   /**
-   * Resets MBeanServerFactory and ManagementFactory to a known consistent state.
-   * <p>This involves releasing all currently registered MBeanServers and resetting
-   * the platformMBeanServer to null.
+   * Reset the {@link MBeanServerFactory} to a known consistent state. This involves
+   * {@linkplain #releaseMBeanServer(MBeanServer) releasing} all currently registered
+   * MBeanServers.
    */
   public static synchronized void resetMBeanServers() throws Exception {
     for (MBeanServer server : MBeanServerFactory.findMBeanServer(null)) {
-      try {
-        MBeanServerFactory.releaseMBeanServer(server);
-      }
-      catch (IllegalArgumentException ex) {
-        if (!ex.getMessage().contains("not in list")) {
-          throw ex;
-        }
+      releaseMBeanServer(server);
+    }
+  }
+
+  /**
+   * Attempt to release the supplied {@link MBeanServer}.
+   * <p>Ignores any {@link IllegalArgumentException} thrown by
+   * {@link MBeanServerFactory#releaseMBeanServer(MBeanServer)} whose error
+   * message contains the text "not in list".
+   */
+  public static void releaseMBeanServer(MBeanServer server) {
+    try {
+      MBeanServerFactory.releaseMBeanServer(server);
+    }
+    catch (IllegalArgumentException ex) {
+      if (!ex.getMessage().contains("not in list")) {
+        throw ex;
       }
     }
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,7 @@
 
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -479,6 +480,9 @@ public final class ConcurrentLruCache<K, V> {
   }
 
   private static final class Node<K, V> extends AtomicReference<CacheEntry<V>> {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     final K key;
 
     @Nullable

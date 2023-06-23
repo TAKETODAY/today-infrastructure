@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,7 @@
  */
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -30,6 +31,10 @@ import java.util.NoSuchElementException;
  * @author TODAY 2021/10/21 14:32
  */
 public class ArrayIterator<E> implements Iterator<E>, Enumeration<E>, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private int ndx;
   private final E[] array;
   private final int endNdx;

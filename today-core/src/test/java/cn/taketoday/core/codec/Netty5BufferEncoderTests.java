@@ -48,11 +48,11 @@ class Netty5BufferEncoderTests extends AbstractEncoderTests<Netty5BufferEncoder>
   @Test
   @Override
   public void canEncode() {
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Buffer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Buffer.class),
             MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Integer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
             MimeTypeUtils.TEXT_PLAIN)).isFalse();
-    assertThat(this.encoder.canEncode(ResolvableType.fromClass(Buffer.class),
+    assertThat(this.encoder.canEncode(ResolvableType.forClass(Buffer.class),
             MimeTypeUtils.APPLICATION_JSON)).isTrue();
 
     // gh-20024

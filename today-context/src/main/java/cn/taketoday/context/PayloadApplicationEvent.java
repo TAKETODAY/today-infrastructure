@@ -69,12 +69,12 @@ public class PayloadApplicationEvent<T> extends ApplicationEvent implements Reso
     super(source);
     Assert.notNull(payload, "Payload is required");
     this.payload = payload;
-    this.payloadType = payloadType != null ? payloadType : ResolvableType.fromInstance(payload);
+    this.payloadType = payloadType != null ? payloadType : ResolvableType.forInstance(payload);
   }
 
   @Override
   public ResolvableType getResolvableType() {
-    return ResolvableType.fromClassWithGenerics(getClass(), this.payloadType);
+    return ResolvableType.forClassWithGenerics(getClass(), this.payloadType);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,25 +21,22 @@
 package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.io.Serializable;
 
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInterceptor;
 import cn.taketoday.aop.framework.ProxyFactory;
-import cn.taketoday.aop.testfixture.SerializationTestUtils;
-import cn.taketoday.aop.testfixture.TimeStamped;
-import cn.taketoday.aop.testfixture.beans.INestedTestBean;
-import cn.taketoday.aop.testfixture.beans.ITestBean;
-import cn.taketoday.aop.testfixture.beans.NestedTestBean;
-import cn.taketoday.aop.testfixture.beans.Person;
-import cn.taketoday.aop.testfixture.beans.SerializablePerson;
-import cn.taketoday.aop.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.INestedTestBean;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
+import cn.taketoday.beans.testfixture.beans.NestedTestBean;
+import cn.taketoday.beans.testfixture.beans.Person;
+import cn.taketoday.beans.testfixture.beans.SerializablePerson;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.aop.testfixture.interceptor.SerializableNopInterceptor;
+import cn.taketoday.core.testfixture.TimeStamped;
+import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

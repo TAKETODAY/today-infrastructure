@@ -35,7 +35,7 @@ import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 import reactor.core.publisher.Flux;
 
-import static cn.taketoday.core.ResolvableType.fromClass;
+import static cn.taketoday.core.ResolvableType.forClass;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -54,11 +54,11 @@ class ResourceDecoderTests extends AbstractDecoderTests<ResourceDecoder> {
   @Override
   @Test
   public void canDecode() {
-    assertThat(this.decoder.canDecode(fromClass(InputStreamResource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(ByteArrayResource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(Resource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(InputStreamResource.class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
-    assertThat(this.decoder.canDecode(fromClass(Object.class), MimeTypeUtils.APPLICATION_JSON)).isFalse();
+    assertThat(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(ByteArrayResource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Resource.class), MimeTypeUtils.TEXT_PLAIN)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.APPLICATION_JSON)).isTrue();
+    assertThat(this.decoder.canDecode(forClass(Object.class), MimeTypeUtils.APPLICATION_JSON)).isFalse();
   }
 
   @Override
@@ -85,7 +85,7 @@ class ResourceDecoderTests extends AbstractDecoderTests<ResourceDecoder> {
   public void decodeToMono() {
     Flux<DataBuffer> input = Flux.concat(dataBuffer(this.fooBytes), dataBuffer(this.barBytes));
     testDecodeToMonoAll(
-            input, ResolvableType.fromClass(Resource.class), step -> step.consumeNextWith(value -> {
+            input, ResolvableType.forClass(Resource.class), step -> step.consumeNextWith(value -> {
                       Resource resource = (Resource) value;
                       try {
                         byte[] bytes = StreamUtils.copyToByteArray(resource.getInputStream());

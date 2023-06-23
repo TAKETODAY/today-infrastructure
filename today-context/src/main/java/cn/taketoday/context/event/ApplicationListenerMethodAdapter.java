@@ -151,7 +151,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       if (classes.length > 0) {
         ArrayList<ResolvableType> types = new ArrayList<>(classes.length);
         for (Class<?> eventType : classes) {
-          types.add(ResolvableType.fromClass(eventType));
+          types.add(ResolvableType.forClass(eventType));
         }
         return types;
       }

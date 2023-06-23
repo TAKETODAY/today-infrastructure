@@ -92,7 +92,7 @@ public class SetFactoryBean extends AbstractFactoryBean<Set<Object>> {
     }
     Class<?> valueType = null;
     if (this.targetSetClass != null) {
-      valueType = ResolvableType.fromClass(this.targetSetClass).asCollection().resolveGeneric();
+      valueType = ResolvableType.forClass(this.targetSetClass).asCollection().resolveGeneric();
     }
     if (valueType != null) {
       TypeConverter converter = getBeanTypeConverter();

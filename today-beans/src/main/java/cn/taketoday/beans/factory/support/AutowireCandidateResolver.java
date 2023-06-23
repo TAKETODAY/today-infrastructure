@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -107,6 +107,20 @@ public interface AutowireCandidateResolver {
    */
   @Nullable
   default Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
+    return null;
+  }
+
+  /**
+   * Determine the proxy class for lazy resolution of the dependency target,
+   * if demanded by the injection point.
+   * <p>The default implementation simply returns {@code null}.
+   *
+   * @param descriptor the descriptor for the target method parameter or field
+   * @param beanName the name of the bean that contains the injection point
+   * @return the lazy resolution proxy class for the dependency target, if any
+   */
+  @Nullable
+  default Class<?> getLazyResolutionProxyClass(DependencyDescriptor descriptor, @Nullable String beanName) {
     return null;
   }
 

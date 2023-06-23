@@ -1,0 +1,42 @@
+description = 'Infra JDBC'
+
+dependencies {
+
+  api(project(":today-beans"))
+  api(project(":today-core"))
+  api(project(":today-tx"))
+  optional(project(":today-context"))  // for JndiDataSourceLookup
+  optional("org.hsqldb:hsqldb")
+  optional("com.h2database:h2")
+  optional("org.apache.derby:derby")
+  optional("org.apache.derby:derbyclient")
+  optional("org.apache.derby:derbytools")
+  optional 'com.zaxxer:HikariCP'
+
+  testImplementation 'jakarta.transaction:jakarta.transaction-api:2.0.0'
+  testImplementation 'com.google.guava:guava:31.0.1-jre'
+  testImplementation 'org.zapodot:embedded-db-junit:1.0.0'
+  testImplementation 'org.projectlombok:lombok:1.18.22'
+  testImplementation 'commons-dbutils:commons-dbutils:1.7'
+  testImplementation 'org.hibernate:hibernate-core-jakarta:5.6.10.Final'
+  testImplementation 'org.jooq:jooq:3.3.0'
+  testImplementation 'org.jdbi:jdbi:2.78'
+  testImplementation 'org.sql2o:sql2o:1.6.0'
+  testImplementation 'org.teasoft:bee:1.9.5'
+  testImplementation 'org.teasoft:honey:1.9.5'
+  testImplementation 'org.mybatis:mybatis:3.5.9'
+  testImplementation 'ch.qos.logback:logback-classic:1.4.7'
+
+  compileOnly 'org.apache.tomcat:tomcat-jdbc:10.0.16'
+  compileOnly 'com.oracle.database.jdbc:ucp:21.7.0.0'
+  compileOnly 'org.postgresql:postgresql:42.4.1'
+  compileOnly 'com.mchange:c3p0:0.9.5.5'
+  compileOnly 'com.h2database:h2:1.4.199'
+  compileOnly 'org.apache.commons:commons-dbcp2:2.9.0'
+  compileOnly 'com.zaxxer:HikariCP:5.0.0'
+  compileOnly 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
+  compileOnly 'org.apache.derby:derby:10.14.2.0'
+
+  testImplementation(testFixtures(project(":today-beans")))
+  testImplementation(testFixtures(project(":today-core")))
+}

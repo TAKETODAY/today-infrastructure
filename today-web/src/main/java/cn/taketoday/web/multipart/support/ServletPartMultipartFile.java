@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.web.multipart.support;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -39,6 +40,9 @@ import jakarta.servlet.http.Part;
  * @since 2018-06-28 22:40:32
  */
 final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final Part part;
   private final String filename;
