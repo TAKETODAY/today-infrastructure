@@ -18,17 +18,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package test.aspect;
-
-import org.aspectj.lang.annotation.Pointcut;
+package cn.taketoday.beans.testfixture.beans.factory.aot;
 
 /**
- * @author Sam Brannen
- * @since 4.0
+ * A hierarchy where the exposed type of a bean is a partial signature.
+ *
+ * @author Stephane Nicoll
  */
-public class CommonPointcuts {
+public class TestHierarchy {
 
-  @Pointcut("execution(* getAge())")
-  public void getAgeExecution() { }
+  public interface One {
+  }
+
+  public interface Two {
+  }
+
+  public static class Implementation implements One, Two {
+  }
+
+  public static One oneBean() {
+    return new Implementation();
+  }
 
 }

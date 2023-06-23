@@ -18,17 +18,38 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package test.aspect;
+package cn.taketoday.http;
 
-import org.aspectj.lang.annotation.Pointcut;
+import java.beans.PropertyEditorSupport;
+
+import cn.taketoday.util.StringUtils;
 
 /**
- * @author Sam Brannen
+ * {@link java.beans.PropertyEditor Editor} for {@link MediaType}
+ * descriptors, to automatically convert {@code String} specifications
+ * (e.g. {@code "text/html"}) to {@code MediaType} properties.
+ *
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see MediaType
  * @since 4.0
  */
-public class CommonPointcuts {
+public class MediaTypeEditor extends PropertyEditorSupport {
 
-  @Pointcut("execution(* getAge())")
-  public void getAgeExecution() { }
+  @Override
+  public void setAsText(String text) {
+    if (StringUtils.hasText(text)) {
+      setValue(MediaType.parseMediaType(text));
+    }
+    else {
+      setValue(null);
+    }
+  }
+
+  @Override
+  public String getAsText() {
+    MediaType mediaType = (MediaType) getValue();
+    return (mediaType != null ? mediaType.toString() : "");
+  }
 
 }

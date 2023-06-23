@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -89,6 +89,10 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
 
   private final transient LifecycleMetadata emptyLifecycleMetadata =
           new LifecycleMetadata(Object.class, Collections.emptyList(), Collections.emptyList()) {
+
+            public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) {
+
+            }
 
             @Override
             public void invokeInitMethods(Object target, String beanName) { }

@@ -18,17 +18,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package test.aspect;
+package cn.taketoday.beans.factory.aot;
 
-import org.aspectj.lang.annotation.Pointcut;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 /**
- * @author Sam Brannen
- * @since 4.0
+ * Test {@code @Configuration} style class to create {@link TestBean}.
+ *
+ * @author Phillip Webb
  */
-public class CommonPointcuts {
+public class TestBeanConfiguration {
 
-  @Pointcut("execution(* getAge())")
-  public void getAgeExecution() { }
+  public TestBean testBean() {
+    return new TestBean();
+  }
 
 }

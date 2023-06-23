@@ -18,17 +18,29 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package test.aspect;
-
-import org.aspectj.lang.annotation.Pointcut;
+package cn.taketoday.beans.factory.aot;
 
 /**
- * @author Sam Brannen
- * @since 4.0
+ * Test enum that include a class body.
+ *
+ * @author Phillip Webb
  */
-public class CommonPointcuts {
+public enum EnumWithClassBody {
 
-  @Pointcut("execution(* getAge())")
-  public void getAgeExecution() { }
+  /**
+   * No class body.
+   */
+  ONE,
+
+  /**
+   * With class body.
+   */
+  TWO {
+    @Override
+    public String toString() {
+      return "2";
+    }
+
+  }
 
 }

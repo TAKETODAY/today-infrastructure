@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
@@ -482,6 +483,21 @@ class RequestParamMethodArgumentResolverTests {
     ResolvableMethodParameter param = this.testMethod.annot(requestParam().notRequired()).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
     assertThat(arg).isNull();
+  }
+
+  @Test
+  public void missingRequestParamEmptyValueNotRequiredWithDefaultValue() throws Throwable {
+    WebDataBinder binder = new WebDataBinder(null);
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+
+    BindingContext context = mock(BindingContext.class);
+    given(context.createBinder(webRequest, null, "name")).willReturn(binder);
+
+    request.addParameter("name", "    ");
+
+    ResolvableMethodParameter param = this.testMethod.annot(requestParam().notRequired("bar")).arg(String.class);
+    Object arg = resolver.resolveArgument(webRequest, param);
+    assertThat(arg).isEqualTo("bar");
   }
 
   @Test

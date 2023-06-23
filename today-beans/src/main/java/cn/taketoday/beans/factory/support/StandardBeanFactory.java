@@ -103,9 +103,6 @@ import jakarta.inject.Provider;
  * implemented separately rather than as bean factory subclasses: see for example
  * {@link cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader}.
  *
- * <p>
- * like spring's DefaultListableBeanFactory
- *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen

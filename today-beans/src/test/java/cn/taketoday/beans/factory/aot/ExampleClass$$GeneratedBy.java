@@ -18,17 +18,13 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package test.aspect;
-
-import org.aspectj.lang.annotation.Pointcut;
+package cn.taketoday.beans.factory.aot;
 
 /**
- * @author Sam Brannen
- * @since 4.0
+ * Fake CGLIB generated class.
+ *
+ * @author Phillip Webb
  */
-public class CommonPointcuts {
-
-  @Pointcut("execution(* getAge())")
-  public void getAgeExecution() { }
+class ExampleClass$$GeneratedBy extends ExampleClass {
 
 }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -136,9 +136,13 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
                 namedValueInfo.name, methodParameter, ex.getCause());
       }
       // Check for null value after conversion of incoming argument value
-      if (arg == null && namedValueInfo.defaultValue == null
-              && namedValueInfo.required && !nestedParameter.isOptional()) {
-        handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
+      if (arg == null) {
+        if (namedValueInfo.defaultValue != null) {
+          arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
+        }
+        else if (namedValueInfo.required && !nestedParameter.isOptional()) {
+          handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
+        }
       }
     }
 

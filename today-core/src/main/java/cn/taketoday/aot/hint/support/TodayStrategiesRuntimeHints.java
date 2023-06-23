@@ -58,7 +58,7 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
   private void registerHints(RuntimeHints hints, ClassLoader classLoader, String resourceLocation) {
     hints.resources().registerPattern(resourceLocation);
     Map<String, List<String>> factories =
-            ExtendedSpringFactoriesLoader.accessLoadFactoriesResource(classLoader, resourceLocation);
+            ExtendedTodayStrategies.accessLoadFactoriesResource(classLoader, resourceLocation);
     factories.forEach((factoryClassName, implementationClassNames) ->
             registerHints(hints, classLoader, factoryClassName, implementationClassNames));
   }
@@ -102,9 +102,9 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
     }
   }
 
-  private static class ExtendedSpringFactoriesLoader extends TodayStrategies {
+  private static class ExtendedTodayStrategies extends TodayStrategies {
 
-    ExtendedSpringFactoriesLoader(@Nullable ClassLoader classLoader, Map<String, List<String>> factories) {
+    ExtendedTodayStrategies(@Nullable ClassLoader classLoader, Map<String, List<String>> factories) {
       super(classLoader, factories);
     }
 
