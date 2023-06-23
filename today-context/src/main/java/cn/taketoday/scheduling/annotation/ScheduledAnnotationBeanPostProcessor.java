@@ -79,6 +79,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskHolder;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 import cn.taketoday.scheduling.support.CronTrigger;
 import cn.taketoday.scheduling.support.ScheduledMethodRunnable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -124,6 +125,12 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    * in case of multiple scheduler beans found in the context.
    */
   public static final String DEFAULT_TASK_SCHEDULER_BEAN_NAME = "taskScheduler";
+
+  /**
+   * Reactive Streams API present on the classpath?
+   */
+  private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
+          "org.reactivestreams.Publisher", ScheduledAnnotationBeanPostProcessor.class.getClassLoader());
 
   private static final Logger log = LoggerFactory.getLogger(ScheduledAnnotationBeanPostProcessor.class);
 
@@ -409,7 +416,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   protected void processScheduled(Scheduled scheduled, Method method, Object bean) {
     // Is the method a Kotlin suspending function? Throws if true and the reactor bridge isn't on the classpath.
     // Does the method return a reactive type? Throws if true and it isn't a deferred Publisher type.
-    if (ScheduledAnnotationReactiveSupport.isReactive(method)) {
+    if (reactiveStreamsPresent && ScheduledAnnotationReactiveSupport.isReactive(method)) {
       processScheduledAsync(scheduled, method, bean);
       return;
     }
