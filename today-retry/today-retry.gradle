@@ -1,13 +1,20 @@
+description = """This project provides an abstraction around retrying failed operations, with an\
+emphasis on declarative control of the process and policy-based behaviour that is\
+easy to extend and customize. For instance, you can configure a plain POJO\
+operation to retry if it fails, based on the type of exception, and with a fixed\
+or exponential backoff.
+"""
 
 dependencies {
-  implementation project(':today-core')
-  implementation project(':today-context')
-  testImplementation 'org.aspectj:aspectjrt:1.9.9.1'
-  testImplementation 'org.aspectj:aspectjweaver:1.9.9.1'
-  testImplementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-  testImplementation 'org.aspectj:aspectjtools:1.9.9.1'
+  optional project(':today-core')
+  optional project(':today-context')
+
+  testImplementation 'org.aspectj:aspectjrt'
+  testImplementation 'org.aspectj:aspectjtools'
+  testImplementation 'org.aspectj:aspectjweaver'
+  testImplementation 'jakarta.servlet:jakarta.servlet-api'
+
   testImplementation project(':today-test')
   testImplementation project(':today-tx')
 }
 
-description = 'today-retry'

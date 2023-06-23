@@ -56,7 +56,7 @@ dependencies {
   compileOnly 'io.undertow:undertow-servlet'
   compileOnly 'org.eclipse.jetty.http2:http2-server'
   compileOnly 'org.eclipse.jetty:jetty-alpn-server'
-  compileOnly 'org.hibernate.validator:hibernate-validator:7.0.1.Final'
+  compileOnly 'org.hibernate:hibernate-validator'
   compileOnly 'org.apache.tomcat.embed:tomcat-embed-websocket'
   compileOnly 'io.undertow:undertow-websockets-jsr'
   compileOnly 'org.eclipse.jetty.websocket:websocket-jetty-server'
