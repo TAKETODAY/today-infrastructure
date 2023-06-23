@@ -75,6 +75,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class BeanDefinitionPropertiesCodeGenerator {
@@ -126,9 +127,9 @@ class BeanDefinitionPropertiesCodeGenerator {
     return code.build();
   }
 
-  private void addInitDestroyMethods(Builder code,
-          AbstractBeanDefinition beanDefinition, @Nullable String[] methodNames, String format) {
-    if (!ObjectUtils.isEmpty(methodNames)) {
+  private void addInitDestroyMethods(Builder code, AbstractBeanDefinition beanDefinition,
+          @Nullable String[] methodNames, String format) {
+    if (ObjectUtils.isNotEmpty(methodNames)) {
       Class<?> beanType = ClassUtils.getUserClass(beanDefinition.getResolvableType().toClass());
       Arrays.stream(methodNames).forEach(methodName -> addInitDestroyHint(beanType, methodName));
       CodeBlock arguments = Arrays.stream(methodNames)
@@ -145,11 +146,9 @@ class BeanDefinitionPropertiesCodeGenerator {
     }
   }
 
-  private void addConstructorArgumentValues(CodeBlock.Builder code,
-          BeanDefinition beanDefinition) {
-
-    Map<Integer, ValueHolder> argumentValues = beanDefinition
-            .getConstructorArgumentValues().getIndexedArgumentValues();
+  private void addConstructorArgumentValues(CodeBlock.Builder code, BeanDefinition beanDefinition) {
+    Map<Integer, ValueHolder> argumentValues =
+            beanDefinition.getConstructorArgumentValues().getIndexedArgumentValues();
     if (!argumentValues.isEmpty()) {
       argumentValues.forEach((index, valueHolder) -> {
         CodeBlock valueCode = generateValue(valueHolder.getName(), valueHolder.getValue());
@@ -160,9 +159,7 @@ class BeanDefinitionPropertiesCodeGenerator {
     }
   }
 
-  private void addPropertyValues(CodeBlock.Builder code,
-          RootBeanDefinition beanDefinition) {
-
+  private void addPropertyValues(CodeBlock.Builder code, RootBeanDefinition beanDefinition) {
     PropertyValues propertyValues = beanDefinition.getPropertyValues();
     if (!propertyValues.isEmpty()) {
       for (PropertyValue propertyValue : propertyValues) {
@@ -184,9 +181,7 @@ class BeanDefinitionPropertiesCodeGenerator {
     }
   }
 
-  private void addQualifiers(CodeBlock.Builder code,
-          RootBeanDefinition beanDefinition) {
-
+  private void addQualifiers(CodeBlock.Builder code, RootBeanDefinition beanDefinition) {
     Set<AutowireCandidateQualifier> qualifiers = beanDefinition.getQualifiers();
     if (!qualifiers.isEmpty()) {
       for (AutowireCandidateQualifier qualifier : qualifiers) {
@@ -257,7 +252,8 @@ class BeanDefinitionPropertiesCodeGenerator {
   }
 
   private CodeBlock toStringVarArgs(String[] strings) {
-    return Arrays.stream(strings).map(string -> CodeBlock.of("$S", string))
+    return Arrays.stream(strings)
+            .map(string -> CodeBlock.of("$S", string))
             .collect(CodeBlock.joining(","));
   }
 
@@ -293,8 +289,7 @@ class BeanDefinitionPropertiesCodeGenerator {
     T defaultValue = getter.apply((B) DEFAULT_BEAN_DEFINITION);
     T actualValue = getter.apply((B) beanDefinition);
     if (filter.test(defaultValue, actualValue)) {
-      code.addStatement(format, BEAN_DEFINITION_VARIABLE,
-              formatter.apply(actualValue));
+      code.addStatement(format, BEAN_DEFINITION_VARIABLE, formatter.apply(actualValue));
     }
   }
 
