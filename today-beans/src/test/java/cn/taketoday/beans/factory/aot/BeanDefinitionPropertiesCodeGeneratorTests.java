@@ -238,8 +238,8 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 		this.beanDefinition.getPropertyValues().add("test", String.class);
 		this.beanDefinition.getPropertyValues().add("spring", "framework");
 		compile((actual, compiled) -> {
-			assertThat(actual.getPropertyValues().get("test")).isEqualTo(String.class);
-			assertThat(actual.getPropertyValues().get("spring")).isEqualTo("framework");
+			assertThat(actual.getPropertyValues().getPropertyValue("test")).isEqualTo(String.class);
+			assertThat(actual.getPropertyValues().getPropertyValue("spring")).isEqualTo("framework");
 		});
 		assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
 	}
@@ -249,7 +249,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 		this.beanDefinition.getPropertyValues().add("myService", new RuntimeBeanNameReference("test"));
 		compile((actual, compiled) -> {
 			assertThat(actual.getPropertyValues().contains("myService")).isTrue();
-			assertThat(actual.getPropertyValues().get("myService"))
+			assertThat(actual.getPropertyValues().getPropertyValue("myService"))
 					.isInstanceOfSatisfying(RuntimeBeanReference.class,
 						beanReference -> assertThat(beanReference.getBeanName()).isEqualTo("test"));
 		});
@@ -261,7 +261,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 		managedList.add(new RuntimeBeanNameReference("test"));
 		this.beanDefinition.getPropertyValues().add("value", managedList);
 		compile((actual, compiled) -> {
-			Object value = actual.getPropertyValues().get("value");
+			Object value = actual.getPropertyValues().getPropertyValue("value");
 			assertThat(value).isInstanceOf(ManagedList.class);
 			assertThat(((List<?>) value).get(0)).isInstanceOf(BeanReference.class);
 		});
@@ -273,7 +273,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 		managedSet.add(new RuntimeBeanNameReference("test"));
 		this.beanDefinition.getPropertyValues().add("value", managedSet);
 		compile((actual, compiled) -> {
-			Object value = actual.getPropertyValues().get("value");
+			Object value = actual.getPropertyValues().getPropertyValue("value");
 			assertThat(value).isInstanceOf(ManagedSet.class);
 			assertThat(((Set<?>) value).iterator().next()).isInstanceOf(BeanReference.class);
 		});
@@ -285,7 +285,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 		managedMap.put("test", new RuntimeBeanNameReference("test"));
 		this.beanDefinition.getPropertyValues().add("value", managedMap);
 		compile((actual, compiled) -> {
-			Object value = actual.getPropertyValues().get("value");
+			Object value = actual.getPropertyValues().getPropertyValue("value");
 			assertThat(value).isInstanceOf(ManagedMap.class);
 			assertThat(((Map<?, ?>) value).get("test")).isInstanceOf(BeanReference.class);
 		});
@@ -298,8 +298,8 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
 		this.beanDefinition.getPropertyValues().add("prefix", "Hello");
 		this.beanDefinition.getPropertyValues().add("name", "World");
 		compile((actual, compiled) -> {
-			assertThat(actual.getPropertyValues().get("prefix")).isEqualTo("Hello");
-			assertThat(actual.getPropertyValues().get("name")).isEqualTo("World");
+			assertThat(actual.getPropertyValues().getPropertyValue("prefix")).isEqualTo("Hello");
+			assertThat(actual.getPropertyValues().getPropertyValue("name")).isEqualTo("World");
 		});
 		assertHasMethodInvokeHints(PropertyValuesFactoryBean.class, "setPrefix", "setName" );
 	}
