@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.test.context.NestedTestConfiguration;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
 
 /**
@@ -56,6 +57,14 @@ import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
  *
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em> with attribute overrides.
+ *
+ * <p>this annotation will be inherited from an
+ * enclosing test class by default. See
+ * {@link NestedTestConfiguration @NestedTestConfiguration}
+ * for details.
+ *
+ * <p>Use of this annotation requires the {@code today-jdbc} and {@code today-tx}
+ * modules as well as their transitive dependencies to be present on the classpath.
  *
  * @author Sam Brannen
  * @see SqlConfig
