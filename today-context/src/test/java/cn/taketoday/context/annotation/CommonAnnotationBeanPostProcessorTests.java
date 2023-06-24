@@ -219,8 +219,8 @@ class CommonAnnotationBeanPostProcessorTests {
     tbd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     bf.registerBeanDefinition("testBean4", tbd);
 
-    bf.registerDependency(BeanFactory.class, bf);
-    bf.registerDependency(INestedTestBean.class, (Supplier<NestedTestBean>) NestedTestBean::new);
+    bf.registerResolvableDependency(BeanFactory.class, bf);
+    bf.registerResolvableDependency(INestedTestBean.class, (Supplier<NestedTestBean>) NestedTestBean::new);
 
     PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
     Properties props = new Properties();
@@ -317,7 +317,7 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    bf.registerDependency(BeanFactory.class, bf);
+    bf.registerResolvableDependency(BeanFactory.class, bf);
 
     PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
     Properties props = new Properties();
@@ -369,7 +369,7 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    bf.registerDependency(BeanFactory.class, bf);
+    bf.registerResolvableDependency(BeanFactory.class, bf);
 
     PropertyPlaceholderConfigurer ppc = new PropertyPlaceholderConfigurer();
     Properties props = new Properties();
@@ -425,7 +425,7 @@ class CommonAnnotationBeanPostProcessorTests {
     CommonAnnotationBeanPostProcessor bpp = new CommonAnnotationBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);
-    bf.registerDependency(BeanFactory.class, bf);
+    bf.registerResolvableDependency(BeanFactory.class, bf);
 
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(ExtendedEjbInjectionBean.class));
     TestBean tb = new TestBean();

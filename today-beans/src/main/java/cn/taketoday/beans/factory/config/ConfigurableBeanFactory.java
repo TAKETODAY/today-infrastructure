@@ -177,7 +177,7 @@ public interface ConfigurableBeanFactory
    * which allows for lazy resolution of the actual target value.
    * @since 4.0
    */
-  void registerDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
+  void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue);
 
   /**
    * Destroy all singleton beans in this factory, including inner beans that have

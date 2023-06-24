@@ -388,14 +388,14 @@ public class RequestContextUtils {
   public static void registerScopes(ConfigurableBeanFactory beanFactory) {
 
     // @Autowired WebSession currentSession;
-    beanFactory.registerDependency(WebSession.class, new WebSessionProvider(beanFactory));
+    beanFactory.registerResolvableDependency(WebSession.class, new WebSessionProvider(beanFactory));
 
     beanFactory.registerScope(RequestContext.SCOPE_REQUEST, RequestScope.instance);
     beanFactory.registerScope(RequestContext.SCOPE_SESSION, new SessionScope(beanFactory));
 
     // register RequestContext
     // @Autowired RequestContext currentRequest;
-    beanFactory.registerDependency(RequestContext.class, new InjectableRequestContext());
+    beanFactory.registerResolvableDependency(RequestContext.class, new InjectableRequestContext());
   }
 
   //---------------------------------------------------------------------

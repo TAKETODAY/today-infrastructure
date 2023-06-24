@@ -429,7 +429,7 @@ class BeanInstanceSupplierTests {
   void resolveArgumentsWithMultiArgsConstructor(Source source) {
     ResourceLoader resourceLoader = new DefaultResourceLoader();
     Environment environment = mock();
-    this.beanFactory.registerDependency(ResourceLoader.class,
+    this.beanFactory.registerResolvableDependency(ResourceLoader.class,
             resourceLoader);
     this.beanFactory.registerSingleton("environment", environment);
     this.beanFactory.registerSingleton("one", "1");
@@ -446,7 +446,7 @@ class BeanInstanceSupplierTests {
   void resolveArgumentsWithMixedArgsConstructorWithUserValue(Source source) {
     ResourceLoader resourceLoader = new DefaultResourceLoader();
     Environment environment = mock();
-    this.beanFactory.registerDependency(ResourceLoader.class,
+    this.beanFactory.registerResolvableDependency(ResourceLoader.class,
             resourceLoader);
     this.beanFactory.registerSingleton("environment", environment);
     RegisteredBean registerBean = source.registerBean(this.beanFactory,
@@ -467,7 +467,7 @@ class BeanInstanceSupplierTests {
   void resolveArgumentsWithMixedArgsConstructorWithUserBeanReference(Source source) {
     ResourceLoader resourceLoader = new DefaultResourceLoader();
     Environment environment = mock();
-    this.beanFactory.registerDependency(ResourceLoader.class,
+    this.beanFactory.registerResolvableDependency(ResourceLoader.class,
             resourceLoader);
     this.beanFactory.registerSingleton("environment", environment);
     this.beanFactory.registerSingleton("one", "1");

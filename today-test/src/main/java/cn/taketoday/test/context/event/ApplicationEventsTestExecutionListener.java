@@ -116,7 +116,7 @@ public class ApplicationEventsTestExecutionListener extends AbstractTestExecutio
 
         // Register ApplicationEvents as a resolvable dependency for @Autowired support in test classes.
         ConfigurableBeanFactory beanFactory = aac.getBeanFactory();
-        beanFactory.registerDependency(ApplicationEvents.class, new ApplicationEventsObjectFactory());
+        beanFactory.registerResolvableDependency(ApplicationEvents.class, new ApplicationEventsObjectFactory());
       }
     }
   }

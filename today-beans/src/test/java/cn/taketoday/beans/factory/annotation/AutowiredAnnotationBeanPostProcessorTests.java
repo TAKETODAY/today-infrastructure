@@ -95,7 +95,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   @BeforeEach
   public void setup() {
     bf = new StandardBeanFactory();
-    bf.registerDependency(BeanFactory.class, bf);
+    bf.registerResolvableDependency(BeanFactory.class, bf);
     bpp = new AutowiredAnnotationBeanPostProcessor();
     bpp.setBeanFactory(bf);
     bf.addBeanPostProcessor(bpp);

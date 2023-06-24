@@ -702,7 +702,7 @@ public abstract class AbstractBeanFactory
   protected abstract void registerBeanDefinition(String beanName, BeanDefinition def);
 
   @Override
-  public void registerDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
+  public void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
     Assert.notNull(dependencyType, "Dependency type must not be null");
     if (autowiredValue != null) {
       if (!(autowiredValue instanceof Supplier<?> || dependencyType.isInstance(autowiredValue))) {

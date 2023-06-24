@@ -673,10 +673,10 @@ public abstract class AbstractApplicationContext
 
     // BeanFactory interface not registered as resolvable type in a plain factory.
     // MessageSource registered (and found for autowiring) as a bean.
-    beanFactory.registerDependency(BeanFactory.class, beanFactory);
-    beanFactory.registerDependency(ResourceLoader.class, this);
-    beanFactory.registerDependency(ApplicationEventPublisher.class, this);
-    beanFactory.registerDependency(ApplicationContext.class, this);
+    beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+    beanFactory.registerResolvableDependency(ResourceLoader.class, this);
+    beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+    beanFactory.registerResolvableDependency(ApplicationContext.class, this);
 
     // loading some outside beans
     var strategies = TodayStrategies.find(
