@@ -441,6 +441,16 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   }
 
   /**
+   * Mark this bean definition as post-processed,
+   * i.e. processed by {@link MergedBeanDefinitionPostProcessor}.
+   */
+  public void markAsPostProcessed() {
+    synchronized(this.postProcessingLock) {
+      this.postProcessed = true;
+    }
+  }
+
+  /**
    * Register an externally managed configuration method or field.
    */
   public void registerExternallyManagedConfigMember(Member configMember) {
@@ -517,22 +527,11 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * using a qualified method name instead of a simple method name.
    */
   boolean hasAnyExternallyManagedInitMethod(String initMethod) {
-    synchronized(this.postProcessingLock) {
+    synchronized(postProcessingLock) {
       if (isExternallyManagedInitMethod(initMethod)) {
         return true;
       }
-      if (this.externallyManagedInitMethods != null) {
-        for (String candidate : this.externallyManagedInitMethods) {
-          int indexOfDot = candidate.lastIndexOf('.');
-          if (indexOfDot >= 0) {
-            String methodName = candidate.substring(indexOfDot + 1);
-            if (methodName.equals(initMethod)) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
+      return hasAnyExternallyManagedMethod(externallyManagedInitMethods, initMethod);
     }
   }
 
@@ -547,6 +546,14 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
               Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedInitMethods)) :
               Collections.emptySet());
     }
+  }
+
+  /**
+   * Resolve the inferred destroy method if necessary.
+   */
+  public void resolveDestroyMethodIfNecessary() {
+    setDestroyMethodNames(DisposableBeanAdapter
+            .inferDestroyMethodsIfNecessary(getResolvableType().toClass(), this));
   }
 
   /**
@@ -592,23 +599,27 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * using a qualified method name instead of a simple method name.
    */
   boolean hasAnyExternallyManagedDestroyMethod(String destroyMethod) {
-    synchronized(this.postProcessingLock) {
+    synchronized(postProcessingLock) {
       if (isExternallyManagedDestroyMethod(destroyMethod)) {
         return true;
       }
-      if (this.externallyManagedDestroyMethods != null) {
-        for (String candidate : this.externallyManagedDestroyMethods) {
-          int indexOfDot = candidate.lastIndexOf('.');
-          if (indexOfDot >= 0) {
-            String methodName = candidate.substring(indexOfDot + 1);
-            if (methodName.equals(destroyMethod)) {
-              return true;
-            }
+      return hasAnyExternallyManagedMethod(externallyManagedDestroyMethods, destroyMethod);
+    }
+  }
+
+  private static boolean hasAnyExternallyManagedMethod(@Nullable Set<String> candidates, String methodName) {
+    if (candidates != null) {
+      for (String candidate : candidates) {
+        int indexOfDot = candidate.lastIndexOf('.');
+        if (indexOfDot > 0) {
+          String candidateMethodName = candidate.substring(indexOfDot + 1);
+          if (candidateMethodName.equals(methodName)) {
+            return true;
           }
         }
       }
-      return false;
     }
+    return false;
   }
 
   /**

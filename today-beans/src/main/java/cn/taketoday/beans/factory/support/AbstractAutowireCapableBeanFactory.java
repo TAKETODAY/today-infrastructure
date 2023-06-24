@@ -322,7 +322,7 @@ public abstract class AbstractAutowireCapableBeanFactory
           throw new BeanCreationException(merged.getResourceDescription(), beanName,
                   "Post-processing of bean merged failed", ex);
         }
-        merged.postProcessed = true;
+        merged.markAsPostProcessed();
       }
     }
 

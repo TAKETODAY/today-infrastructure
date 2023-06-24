@@ -34,18 +34,22 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
-import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.aot.BeanRegistrationAotContribution;
+import cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.OrderedSupport;
@@ -56,6 +60,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -82,17 +87,16 @@ import cn.taketoday.util.ReflectionUtils;
  */
 @SuppressWarnings("serial")
 public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
-        implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor,
-        BeanFactoryAware, InitializationBeanPostProcessor, PriorityOrdered, Serializable {
+        implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, BeanFactoryAware,
+        InitializationBeanPostProcessor, BeanRegistrationAotProcessor, PriorityOrdered, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
 
   private final transient LifecycleMetadata emptyLifecycleMetadata =
           new LifecycleMetadata(Object.class, Collections.emptyList(), Collections.emptyList()) {
 
-            public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) {
-
-            }
+            @Override
+            public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) { }
 
             @Override
             public void invokeInitMethods(Object target, String beanName) { }
@@ -156,8 +160,37 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
 
   @Override
   public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
-    LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
-    metadata.checkConfigMembers(beanDefinition);
+    findLifecycleMetadata(beanDefinition, bean.getClass());
+  }
+
+  @Override
+  @Nullable
+  public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
+    RootBeanDefinition beanDefinition = registeredBean.getMergedBeanDefinition();
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    LifecycleMetadata metadata = findLifecycleMetadata(beanDefinition, registeredBean.getBeanClass());
+    if (CollectionUtils.isNotEmpty(metadata.initMethods)) {
+      String[] initMethodNames = safeMerge(beanDefinition.getInitMethodNames(), metadata.initMethods);
+      beanDefinition.setInitMethodNames(initMethodNames);
+    }
+    if (CollectionUtils.isNotEmpty(metadata.destroyMethods)) {
+      String[] destroyMethodNames = safeMerge(beanDefinition.getDestroyMethodNames(), metadata.destroyMethods);
+      beanDefinition.setDestroyMethodNames(destroyMethodNames);
+    }
+    return null;
+  }
+
+  private LifecycleMetadata findLifecycleMetadata(RootBeanDefinition beanDefinition, Class<?> beanClass) {
+    LifecycleMetadata metadata = findLifecycleMetadata(beanClass);
+    metadata.checkInitDestroyMethods(beanDefinition);
+    return metadata;
+  }
+
+  private static String[] safeMerge(@Nullable String[] existingNames, Collection<LifecycleMethod> detectedMethods) {
+    Stream<String> detectedNames = detectedMethods.stream().map(LifecycleMethod::getIdentifier);
+    Stream<String> mergedNames =
+            existingNames != null ? Stream.concat(Stream.of(existingNames), detectedNames) : detectedNames;
+    return mergedNames.distinct().toArray(String[]::new);
   }
 
   @Override
@@ -172,11 +205,6 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     catch (Throwable ex) {
       throw new BeanCreationException(beanName, "Failed to invoke init method", ex);
     }
-    return bean;
-  }
-
-  @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
     return bean;
   }
 
@@ -225,31 +253,31 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     return metadata;
   }
 
-  private LifecycleMetadata buildLifecycleMetadata(Class<?> clazz) {
-    if (!AnnotationUtils.isCandidateClass(clazz, Arrays.asList(initAnnotationType, destroyAnnotationType))) {
+  private LifecycleMetadata buildLifecycleMetadata(Class<?> beanClass) {
+    if (!AnnotationUtils.isCandidateClass(beanClass, Arrays.asList(initAnnotationType, destroyAnnotationType))) {
       return this.emptyLifecycleMetadata;
     }
 
-    ArrayList<LifecycleElement> initMethods = new ArrayList<>();
-    ArrayList<LifecycleElement> destroyMethods = new ArrayList<>();
-    Class<?> targetClass = clazz;
+    ArrayList<LifecycleMethod> initMethods = new ArrayList<>();
+    ArrayList<LifecycleMethod> destroyMethods = new ArrayList<>();
+    Class<?> targetClass = beanClass;
 
     do {
-      ArrayList<LifecycleElement> currInitMethods = new ArrayList<>();
-      ArrayList<LifecycleElement> currDestroyMethods = new ArrayList<>();
+      ArrayList<LifecycleMethod> currInitMethods = new ArrayList<>();
+      ArrayList<LifecycleMethod> currDestroyMethods = new ArrayList<>();
 
       ReflectionUtils.doWithLocalMethods(targetClass, method -> {
         if (initAnnotationType != null && method.isAnnotationPresent(initAnnotationType)) {
-          LifecycleElement element = new LifecycleElement(method);
+          LifecycleMethod element = new LifecycleMethod(method, beanClass);
           currInitMethods.add(element);
           if (log.isTraceEnabled()) {
-            log.trace("Found init method on class [{}]: {}", clazz.getName(), method);
+            log.trace("Found init method on class [{}]: {}", beanClass.getName(), method);
           }
         }
         if (destroyAnnotationType != null && method.isAnnotationPresent(destroyAnnotationType)) {
-          currDestroyMethods.add(new LifecycleElement(method));
+          currDestroyMethods.add(new LifecycleMethod(method, beanClass));
           if (log.isTraceEnabled()) {
-            log.trace("Found destroy method on class [{}]: {}", clazz.getName(), method);
+            log.trace("Found destroy method on class [{}]: {}", beanClass.getName(), method);
           }
         }
       });
@@ -261,7 +289,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     while (targetClass != null && targetClass != Object.class);
     return initMethods.isEmpty() && destroyMethods.isEmpty()
            ? this.emptyLifecycleMetadata
-           : new LifecycleMetadata(clazz, initMethods, destroyMethods);
+           : new LifecycleMetadata(beanClass, initMethods, destroyMethods);
   }
 
   //---------------------------------------------------------------------
@@ -281,45 +309,47 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
 
     private final Class<?> targetClass;
 
-    private final Collection<LifecycleElement> initMethods;
+    private final Collection<LifecycleMethod> initMethods;
 
-    private final Collection<LifecycleElement> destroyMethods;
-
-    @Nullable
-    private volatile Set<LifecycleElement> checkedInitMethods;
+    private final Collection<LifecycleMethod> destroyMethods;
 
     @Nullable
-    private volatile Set<LifecycleElement> checkedDestroyMethods;
+    private volatile Set<LifecycleMethod> checkedInitMethods;
+
+    @Nullable
+    private volatile Set<LifecycleMethod> checkedDestroyMethods;
 
     public LifecycleMetadata(Class<?> targetClass,
-            Collection<LifecycleElement> initMethods,
-            Collection<LifecycleElement> destroyMethods) {
+            Collection<LifecycleMethod> initMethods,
+            Collection<LifecycleMethod> destroyMethods) {
 
       this.targetClass = targetClass;
       this.initMethods = initMethods;
       this.destroyMethods = destroyMethods;
     }
 
-    public void checkConfigMembers(RootBeanDefinition beanDefinition) {
-      Set<LifecycleElement> checkedInitMethods = new LinkedHashSet<>(this.initMethods.size());
-      for (LifecycleElement element : this.initMethods) {
+    public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) {
+      var checkedInitMethods = new LinkedHashSet<LifecycleMethod>(initMethods.size());
+      for (LifecycleMethod element : initMethods) {
         String methodIdentifier = element.getIdentifier();
         if (!beanDefinition.isExternallyManagedInitMethod(methodIdentifier)) {
           beanDefinition.registerExternallyManagedInitMethod(methodIdentifier);
           checkedInitMethods.add(element);
           if (log.isTraceEnabled()) {
-            log.trace("Registered init method on class [{}]: {}", targetClass.getName(), methodIdentifier);
+            log.trace("Registered init method on class [{}]: {}",
+                    targetClass.getName(), methodIdentifier);
           }
         }
       }
-      Set<LifecycleElement> checkedDestroyMethods = new LinkedHashSet<>(this.destroyMethods.size());
-      for (LifecycleElement element : this.destroyMethods) {
+      var checkedDestroyMethods = new LinkedHashSet<LifecycleMethod>(destroyMethods.size());
+      for (LifecycleMethod element : destroyMethods) {
         String methodIdentifier = element.getIdentifier();
         if (!beanDefinition.isExternallyManagedDestroyMethod(methodIdentifier)) {
           beanDefinition.registerExternallyManagedDestroyMethod(methodIdentifier);
           checkedDestroyMethods.add(element);
           if (log.isTraceEnabled()) {
-            log.trace("Registered destroy method on class [{}]: {}", targetClass.getName(), methodIdentifier);
+            log.trace("Registered destroy method on class [{}]: {}",
+                    targetClass.getName(), methodIdentifier);
           }
         }
       }
@@ -328,11 +358,11 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     }
 
     public void invokeInitMethods(Object target, String beanName) throws Throwable {
-      Collection<LifecycleElement> checkedInitMethods = this.checkedInitMethods;
-      Collection<LifecycleElement> initMethodsToIterate =
-              (checkedInitMethods != null ? checkedInitMethods : this.initMethods);
+      Collection<LifecycleMethod> checkedInitMethods = this.checkedInitMethods;
+      Collection<LifecycleMethod> initMethodsToIterate =
+              checkedInitMethods != null ? checkedInitMethods : this.initMethods;
       if (!initMethodsToIterate.isEmpty()) {
-        for (LifecycleElement element : initMethodsToIterate) {
+        for (LifecycleMethod element : initMethodsToIterate) {
           if (log.isTraceEnabled()) {
             log.trace("Invoking init method on bean '{}': {}", beanName, element.getMethod());
           }
@@ -342,11 +372,11 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     }
 
     public void invokeDestroyMethods(Object target, String beanName) throws Throwable {
-      Collection<LifecycleElement> checkedDestroyMethods = this.checkedDestroyMethods;
-      Collection<LifecycleElement> destroyMethodsToUse =
+      Collection<LifecycleMethod> checkedDestroyMethods = this.checkedDestroyMethods;
+      Collection<LifecycleMethod> destroyMethodsToUse =
               (checkedDestroyMethods != null ? checkedDestroyMethods : this.destroyMethods);
       if (!destroyMethodsToUse.isEmpty()) {
-        for (LifecycleElement element : destroyMethodsToUse) {
+        for (LifecycleMethod element : destroyMethodsToUse) {
           if (log.isTraceEnabled()) {
             log.trace("Invoking destroy method on bean '{}': {}", beanName, element.getMethod());
           }
@@ -356,26 +386,28 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     }
 
     public boolean hasDestroyMethods() {
-      Collection<LifecycleElement> checkedDestroyMethods = this.checkedDestroyMethods;
-      Collection<LifecycleElement> destroyMethodsToUse =
+      Collection<LifecycleMethod> checkedDestroyMethods = this.checkedDestroyMethods;
+      Collection<LifecycleMethod> destroyMethodsToUse =
               checkedDestroyMethods != null ? checkedDestroyMethods : this.destroyMethods;
       return !destroyMethodsToUse.isEmpty();
     }
   }
 
   /**
-   * Class representing injection information about an annotated method.
+   * Class representing an annotated init or destroy method.
    */
-  private static class LifecycleElement implements OrderSourceProvider {
+  private static class LifecycleMethod implements OrderSourceProvider {
 
     private final Method method;
     private final String identifier;
 
-    public LifecycleElement(Method method) {
+    public LifecycleMethod(Method method, Class<?> beanClass) {
+      if (method.getParameterCount() != 0) {
+        throw new IllegalStateException("Lifecycle annotation requires a no-arg method: " + method);
+      }
       this.method = method;
-      this.identifier = Modifier.isPrivate(method.getModifiers())
-                        ? ClassUtils.getQualifiedMethodName(method)
-                        : method.getName();
+      this.identifier = isPrivateOrNotVisible(method, beanClass) ?
+                        ClassUtils.getQualifiedMethodName(method) : method.getName();
     }
 
     public Method getMethod() {
@@ -402,7 +434,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       if (this == other) {
         return true;
       }
-      if (!(other instanceof LifecycleElement otherElement)) {
+      if (!(other instanceof LifecycleMethod otherElement)) {
         return false;
       }
       return this.identifier.equals(otherElement.identifier);
@@ -418,6 +450,22 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     public Object getOrderSource(Object obj) {
       return method;
     }
+
+    /**
+     * Determine if the supplied lifecycle {@link Method} is private or not
+     * visible to the supplied bean {@link Class}.
+     */
+    private static boolean isPrivateOrNotVisible(Method method, Class<?> beanClass) {
+      int modifiers = method.getModifiers();
+      if (Modifier.isPrivate(modifiers)) {
+        return true;
+      }
+      // Method is declared in a class that resides in a different package
+      // than the bean class and the method is neither public nor protected?
+      return !method.getDeclaringClass().getPackageName().equals(beanClass.getPackageName())
+              && !(Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers));
+    }
+
   }
 
 }
