@@ -147,10 +147,11 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
      */
     private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
       Enhancer enhancer = new Enhancer();
+      enhancer.setAttemptLoad(true);
       enhancer.setSuperclass(beanDefinition.getBeanClass());
       enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
-      if (this.owner instanceof ConfigurableBeanFactory owner) {
-        ClassLoader cl = owner.getBeanClassLoader();
+      if (this.owner instanceof ConfigurableBeanFactory cbf) {
+        ClassLoader cl = cbf.getBeanClassLoader();
         enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(cl));
       }
       enhancer.setCallbackFilter(new MethodOverrideCallbackFilter(beanDefinition));
