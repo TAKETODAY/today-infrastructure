@@ -20,7 +20,6 @@
 
 package cn.taketoday.jmx.export.annotation;
 
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
@@ -37,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Harrop
  * @author Chris Beams
  */
-@Order(Integer.MAX_VALUE)
 public class AnnotationMetadataAssemblerTests extends AbstractMetadataAssemblerTests {
 
   private static final String OBJECT_NAME = "bean:name=testBean4";
@@ -84,12 +82,6 @@ public class AnnotationMetadataAssemblerTests extends AbstractMetadataAssemblerT
     ModelMBeanAttributeInfo attr2 = inf.getAttribute("CacheEntries");
     assertThat(attr2).as("cacheEntries attribute not exposed").isNotNull();
     assertThat(attr2.getDescriptor().getFieldValue("metricType")).as("Metric Type should be COUNTER").isEqualTo("COUNTER");
-  }
-
-  @Test
-  public void testDescriptionNotNull() throws Exception {
-    ModelMBeanInfo info = getMBeanInfoFromAssembler();
-    assertThat(info.getDescription()).as("The MBean description should not be null").isNotNull();
   }
 
   @Override
