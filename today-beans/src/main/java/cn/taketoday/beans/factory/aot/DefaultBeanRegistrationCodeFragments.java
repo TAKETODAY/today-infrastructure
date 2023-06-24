@@ -119,15 +119,14 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
 
     CodeBlock.Builder code = CodeBlock.builder();
     RootBeanDefinition mergedBeanDefinition = this.registeredBean.getMergedBeanDefinition();
-    Class<?> beanClass = (mergedBeanDefinition.hasBeanClass()
-                          ? ClassUtils.getUserClass(mergedBeanDefinition.getBeanClass()) : null);
+    Class<?> beanClass = mergedBeanDefinition.hasBeanClass()
+                         ? ClassUtils.getUserClass(mergedBeanDefinition.getBeanClass()) : null;
     CodeBlock beanClassCode = generateBeanClassCode(
             beanRegistrationCode.getClassName().packageName(), beanClass);
     code.addStatement("$T $L = new $T($L)", RootBeanDefinition.class,
             BEAN_DEFINITION_VARIABLE, RootBeanDefinition.class, beanClassCode);
     if (targetTypeNecessary(beanType, beanClass)) {
-      code.addStatement("$L.setTargetType($L)", BEAN_DEFINITION_VARIABLE,
-              generateBeanTypeCode(beanType));
+      code.addStatement("$L.setTargetType($L)", BEAN_DEFINITION_VARIABLE, generateBeanTypeCode(beanType));
     }
     return code.build();
   }

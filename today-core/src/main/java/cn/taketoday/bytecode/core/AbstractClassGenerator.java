@@ -77,7 +77,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     this.source = source;
   }
 
-  protected static class ClassLoaderData {
+  protected static class ClassLoaderData implements Predicate<String> {
 
     private final HashSet<String> reservedClassNames = new HashSet<>();
 
@@ -108,7 +108,6 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     private final WeakReference<ClassLoader> classLoader;
 
     private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
-    private final Predicate<String> uniqueNamePredicate = reservedClassNames::contains;
 
     public ClassLoaderData(ClassLoader classLoader) {
       Assert.notNull(classLoader, "classLoader == null is not yet supported");
@@ -124,8 +123,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       reservedClassNames.add(name);
     }
 
-    public Predicate<String> getUniqueNamePredicate() {
-      return uniqueNamePredicate;
+    @Override
+    public boolean test(String name) {
+      return reservedClassNames.contains(name);
     }
 
     public Object get(AbstractClassGenerator gen, boolean useCache) {
@@ -191,7 +191,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * @param namingPolicy the custom policy, or null to use the default
    * @see DefaultNamingPolicy
    */
-  public AbstractClassGenerator setNamingPolicy(NamingPolicy namingPolicy) {
+  public AbstractClassGenerator setNamingPolicy(@Nullable NamingPolicy namingPolicy) {
     this.namingPolicy = namingPolicy == null ? DefaultNamingPolicy.INSTANCE : namingPolicy;
     return this;
   }
@@ -336,7 +336,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
     try {
       synchronized(classLoader) {
-        String name = generateClassName(data.getUniqueNamePredicate());
+        String name = generateClassName(data);
         data.reserveName(name);
         this.setClassName(name);
       }

@@ -55,19 +55,16 @@ class BeanFactoryInitializationAotContributions {
 
   private static List<BeanFactoryInitializationAotProcessor> getProcessors(
           AotServices.Loader loader) {
-    List<BeanFactoryInitializationAotProcessor> processors = new ArrayList<>(
-            loader.load(BeanFactoryInitializationAotProcessor.class).asList());
+    var processors = new ArrayList<>(loader.load(BeanFactoryInitializationAotProcessor.class).asList());
     processors.add(new RuntimeHintsBeanFactoryInitializationAotProcessor());
     return Collections.unmodifiableList(processors);
   }
 
   private List<BeanFactoryInitializationAotContribution> getContributions(
-          StandardBeanFactory beanFactory,
-          List<BeanFactoryInitializationAotProcessor> processors) {
-    List<BeanFactoryInitializationAotContribution> contributions = new ArrayList<>();
+          StandardBeanFactory beanFactory, List<BeanFactoryInitializationAotProcessor> processors) {
+    var contributions = new ArrayList<BeanFactoryInitializationAotContribution>();
     for (BeanFactoryInitializationAotProcessor processor : processors) {
-      BeanFactoryInitializationAotContribution contribution = processor
-              .processAheadOfTime(beanFactory);
+      var contribution = processor.processAheadOfTime(beanFactory);
       if (contribution != null) {
         contributions.add(contribution);
       }

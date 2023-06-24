@@ -104,8 +104,7 @@ class BeanDefinitionMethodGenerator {
           BeanRegistrationsCode beanRegistrationsCode) {
 
     registerRuntimeHintsIfNecessary(generationContext.getRuntimeHints());
-    BeanRegistrationCodeFragments codeFragments = getCodeFragments(generationContext,
-            beanRegistrationsCode);
+    var codeFragments = getCodeFragments(generationContext, beanRegistrationsCode);
     ClassName target = codeFragments.getTarget(this.registeredBean, this.constructorOrFactoryMethod);
     if (isWritablePackageName(target)) {
       GeneratedClass generatedClass = lookupGeneratedClass(generationContext, target);

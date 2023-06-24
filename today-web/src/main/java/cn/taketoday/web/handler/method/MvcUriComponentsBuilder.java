@@ -34,6 +34,7 @@ import java.util.Set;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.support.BeanInstantiator;
+import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.Enhancer;
 import cn.taketoday.bytecode.proxy.Factory;
@@ -799,6 +800,7 @@ public class MvcUriComponentsBuilder {
         enhancer.setAttemptLoad(true);
         enhancer.setSuperclass(controllerType);
         enhancer.setInterfaces(MethodInvocationInfo.class);
+        enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
         enhancer.setCallbackType(cn.taketoday.bytecode.proxy.MethodInterceptor.class);
 
         Class<?> proxyClass = enhancer.createClass();

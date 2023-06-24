@@ -29,6 +29,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.bytecode.core.DefaultNamingPolicy;
+import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.CallbackFilter;
 import cn.taketoday.bytecode.proxy.Enhancer;
@@ -147,7 +148,7 @@ public class CglibSubclassingInstantiationStrategy extends InstantiationStrategy
     private Class<?> createEnhancedSubclass(RootBeanDefinition beanDefinition) {
       Enhancer enhancer = new Enhancer();
       enhancer.setSuperclass(beanDefinition.getBeanClass());
-      enhancer.setNamingPolicy(DefaultNamingPolicy.INSTANCE);
+      enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
       if (this.owner instanceof ConfigurableBeanFactory owner) {
         ClassLoader cl = owner.getBeanClassLoader();
         enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(cl));

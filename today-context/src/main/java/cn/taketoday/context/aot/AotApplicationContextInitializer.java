@@ -26,7 +26,6 @@ import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -68,7 +67,7 @@ public interface AotApplicationContextInitializer extends ApplicationContextInit
     ClassLoader classLoader = applicationContext.getClassLoader();
     logger.debug("Initializing ApplicationContext with AOT");
     for (String initializerClassName : initializerClassNames) {
-      logger.trace(LogMessage.format("Applying %s", initializerClassName));
+      logger.trace("Applying {}", initializerClassName);
       instantiateInitializer(initializerClassName, classLoader)
               .initialize(applicationContext);
     }

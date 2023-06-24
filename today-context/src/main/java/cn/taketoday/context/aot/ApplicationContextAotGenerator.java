@@ -58,11 +58,10 @@ public class ApplicationContextAotGenerator {
           GenerationContext generationContext) {
     return withCglibClassHandler(new CglibClassHandler(generationContext), () -> {
       applicationContext.refreshForAotProcessing(generationContext.getRuntimeHints());
-      ApplicationContextInitializationCodeGenerator codeGenerator =
-              new ApplicationContextInitializationCodeGenerator(applicationContext, generationContext);
+      var codeGenerator = new ApplicationContextInitializationCodeGenerator(applicationContext, generationContext);
       StandardBeanFactory beanFactory = applicationContext.getBeanFactory();
       new BeanFactoryInitializationAotContributions(beanFactory).applyTo(generationContext, codeGenerator);
-      return codeGenerator.getGeneratedClass().getName();
+      return codeGenerator.generatedClass.getName();
     });
   }
 

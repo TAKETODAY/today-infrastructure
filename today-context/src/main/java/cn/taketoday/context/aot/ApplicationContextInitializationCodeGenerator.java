@@ -36,6 +36,7 @@ import cn.taketoday.beans.factory.aot.BeanFactoryInitializationCode;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.ContextAnnotationAutowireCandidateResolver;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -45,7 +46,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
-import cn.taketoday.javapoet.ParameterizedTypeName;
 import cn.taketoday.javapoet.TypeName;
 import cn.taketoday.javapoet.TypeSpec;
 import cn.taketoday.lang.Nullable;
@@ -66,7 +66,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
 
   private final GenericApplicationContext applicationContext;
 
-  private final GeneratedClass generatedClass;
+  public final GeneratedClass generatedClass;
 
   private final List<MethodReference> initializers = new ArrayList<>();
 
@@ -81,8 +81,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     type.addJavadoc("{@link $T} to restore an application context based on previous AOT processing.",
             ApplicationContextInitializer.class);
     type.addModifiers(Modifier.PUBLIC);
-    type.addSuperinterface(ParameterizedTypeName.get(
-            ApplicationContextInitializer.class, GenericApplicationContext.class));
+    type.addSuperinterface(ApplicationContextInitializer.class);
     type.addMethod(generateInitializeMethod());
   }
 
@@ -90,16 +89,15 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     MethodSpec.Builder method = MethodSpec.methodBuilder(INITIALIZE_METHOD);
     method.addAnnotation(Override.class);
     method.addModifiers(Modifier.PUBLIC);
-    method.addParameter(GenericApplicationContext.class, APPLICATION_CONTEXT_VARIABLE);
+    method.addParameter(ConfigurableApplicationContext.class, APPLICATION_CONTEXT_VARIABLE);
     method.addCode(generateInitializeCode());
     return method.build();
   }
 
   private CodeBlock generateInitializeCode() {
     CodeBlock.Builder code = CodeBlock.builder();
-    code.addStatement("$T $L = $L.getBeanFactory()",
-            StandardBeanFactory.class, BEAN_FACTORY_VARIABLE,
-            APPLICATION_CONTEXT_VARIABLE);
+    code.addStatement("$T $L = $L.unwrapFactory(StandardBeanFactory.class)",
+            StandardBeanFactory.class, BEAN_FACTORY_VARIABLE, APPLICATION_CONTEXT_VARIABLE);
     code.addStatement("$L.setAutowireCandidateResolver(new $T())",
             BEAN_FACTORY_VARIABLE, ContextAnnotationAutowireCandidateResolver.class);
     code.addStatement("$L.setDependencyComparator($T.INSTANCE)",
@@ -127,10 +125,6 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     return ArgumentCodeGenerator.from(new InitializerMethodArgumentCodeGenerator());
   }
 
-  GeneratedClass getGeneratedClass() {
-    return this.generatedClass;
-  }
-
   @Override
   public GeneratedMethods getMethods() {
     return this.generatedClass.getMethods();
@@ -146,7 +140,7 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     @Override
     @Nullable
     public CodeBlock apply(TypeName typeName) {
-      return (typeName instanceof ClassName className ? apply(className) : null);
+      return typeName instanceof ClassName className ? apply(className) : null;
     }
 
     @Nullable

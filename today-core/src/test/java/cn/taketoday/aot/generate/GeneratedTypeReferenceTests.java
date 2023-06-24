@@ -80,16 +80,16 @@ class GeneratedTypeReferenceTests {
   @Test
   void nameOfCglibProxy() {
     TypeReference reference = GeneratedTypeReference.of(
-            ClassName.get("com.example", "Test$$SpringCGLIB$$0"));
-    assertThat(reference.getSimpleName()).isEqualTo("Test$$SpringCGLIB$$0");
+            ClassName.get("com.example", "Test$$Infra$$0"));
+    assertThat(reference.getSimpleName()).isEqualTo("Test$$Infra$$0");
     assertThat(reference.getEnclosingType()).isNull();
   }
 
   @Test
   void nameOfNestedCglibProxy() {
     TypeReference reference = GeneratedTypeReference.of(
-            ClassName.get("com.example", "Test").nestedClass("Another$$SpringCGLIB$$0"));
-    assertThat(reference.getSimpleName()).isEqualTo("Another$$SpringCGLIB$$0");
+            ClassName.get("com.example", "Test").nestedClass("Another$$Infra$$0"));
+    assertThat(reference.getSimpleName()).isEqualTo("Another$$Infra$$0");
     assertThat(reference.getEnclosingType()).isNotNull();
     assertThat(reference.getEnclosingType().getSimpleName()).isEqualTo("Test");
   }

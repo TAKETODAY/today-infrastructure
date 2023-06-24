@@ -41,6 +41,7 @@ import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
 import cn.taketoday.bytecode.core.ClassGenerator;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
+import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.CallbackFilter;
 import cn.taketoday.bytecode.proxy.Enhancer;
@@ -120,10 +121,11 @@ class ConfigurationClassEnhancer {
    */
   private Enhancer newEnhancer(Class<?> configSuperClass, @Nullable ClassLoader classLoader) {
     Enhancer enhancer = new Enhancer();
-    enhancer.setSuperclass(configSuperClass);
-    enhancer.setInterfaces(EnhancedConfiguration.class);
     enhancer.setUseFactory(false);
     enhancer.setAttemptLoad(true);
+    enhancer.setSuperclass(configSuperClass);
+    enhancer.setInterfaces(EnhancedConfiguration.class);
+    enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
     enhancer.setStrategy(new BeanFactoryAwareGeneratorStrategy(classLoader));
     enhancer.setCallbackFilter(CALLBACK_FILTER);
     enhancer.setCallbackTypes(CALLBACK_FILTER.getCallbackTypes());
@@ -502,8 +504,10 @@ class ConfigurationClassEnhancer {
             Object factoryBean, ConfigurableBeanFactory beanFactory, String beanName) {
 
       Enhancer enhancer = new Enhancer();
+      enhancer.setAttemptLoad(true);
       enhancer.setSuperclass(factoryBean.getClass());
       enhancer.setCallbackType(MethodInterceptor.class);
+      enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
 
       // Ideally create enhanced FactoryBean proxy without constructor side effects,
       // analogous to AOP proxy creation in ObjenesisCglibAopProxy...

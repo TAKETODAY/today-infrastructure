@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,4 +52,42 @@ public interface NamingPolicy {
    * generating too many classes.
    */
   boolean equals(Object o);
+
+  static InfraNamingPolicy forInfrastructure() {
+    return InfraNamingPolicy.INSTANCE;
+  }
+
+  class InfraNamingPolicy implements NamingPolicy {
+
+    public static final InfraNamingPolicy INSTANCE = new InfraNamingPolicy();
+
+    private static final String LABEL = "$$Infra$$";
+
+    @Override
+    public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
+      if (prefix == null) {
+        prefix = "cn.taketoday.bytecode.Object";
+      }
+      else if (prefix.startsWith("java.") || prefix.startsWith("javax.")) {
+        prefix = "_" + prefix;
+      }
+
+      String base;
+      int existingLabel = prefix.indexOf(LABEL);
+      if (existingLabel >= 0) {
+        base = prefix.substring(0, existingLabel + LABEL.length());
+      }
+      else {
+        base = prefix + LABEL;
+      }
+
+      int index = 0;
+      String attempt = base + index;
+      while (names.test(attempt)) {
+        attempt = base + index++;
+      }
+      return attempt;
+    }
+
+  }
 }
