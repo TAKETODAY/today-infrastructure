@@ -536,6 +536,7 @@ public abstract class AbstractApplicationContext
         throw ex;
       }
       finally {
+        // Reset common introspection caches in core infrastructure.
         resetCommonCaches();
       }
     }

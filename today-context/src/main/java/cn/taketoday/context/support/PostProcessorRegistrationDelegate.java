@@ -431,12 +431,14 @@ final class PostProcessorRegistrationDelegate {
         postProcessor.postProcessMergedBeanDefinition(bd, beanType, beanName);
       }
 
-      for (PropertyValue propertyValue : bd.getPropertyValues().asList()) {
-        Object value = propertyValue.getValue();
-        if (value instanceof AbstractBeanDefinition innerBd) {
-          Class<?> innerBeanType = resolveBeanType(innerBd);
-          resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
-                  -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+      if (bd.hasPropertyValues()) {
+        for (PropertyValue propertyValue : bd.getPropertyValues().asList()) {
+          Object value = propertyValue.getValue();
+          if (value instanceof AbstractBeanDefinition innerBd) {
+            Class<?> innerBeanType = resolveBeanType(innerBd);
+            resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
+                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+          }
         }
       }
 
