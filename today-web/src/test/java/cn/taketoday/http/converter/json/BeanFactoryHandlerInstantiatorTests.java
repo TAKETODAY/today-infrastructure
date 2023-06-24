@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,9 +55,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,7 +75,8 @@ public class BeanFactoryHandlerInstantiatorTests {
   @BeforeEach
   public void setup() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
-    StandardDependenciesBeanPostProcessor bpp = new StandardDependenciesBeanPostProcessor(beanFactory);
+    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    bpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(bpp);
     beanFactory.registerBeanDefinition("capitalizer", new RootBeanDefinition(Capitalizer.class));
     instantiator = new BeanFactoryHandlerInstantiator(beanFactory);

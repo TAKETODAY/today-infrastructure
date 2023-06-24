@@ -416,6 +416,9 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    */
   public void setResolvedFactoryMethod(@Nullable Method method) {
     this.factoryMethodToIntrospect = method;
+    if (method != null) {
+      setUniqueFactoryMethodName(method.getName());
+    }
   }
 
   /**

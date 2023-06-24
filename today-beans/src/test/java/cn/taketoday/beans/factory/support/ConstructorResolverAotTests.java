@@ -112,7 +112,8 @@ class ConstructorResolverAotTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("config", new RootBeanDefinition(ExtendedSampleFactory.class));
     BeanDefinition beanDefinition = BeanDefinitionBuilder
-            .rootBeanDefinition(String.class).setFactoryMethodOnBean("resolve", "config")
+            .rootBeanDefinition(String.class)
+            .setFactoryMethodOnBean("resolve", "config")
             .addConstructorArgValue("test").getBeanDefinition();
     Executable executable = resolve(beanFactory, beanDefinition);
     assertThat(executable).isNotNull().isEqualTo(ReflectionUtils

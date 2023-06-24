@@ -125,7 +125,7 @@ import jakarta.ejb.EJB;
  * @see #setAlwaysUseJndiLookup
  * @see #setResourceFactory
  * @see cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor
- * @see cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor
+ * @see cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
  * @since 4.0 2022/3/5 12:09
  */
 public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBeanPostProcessor

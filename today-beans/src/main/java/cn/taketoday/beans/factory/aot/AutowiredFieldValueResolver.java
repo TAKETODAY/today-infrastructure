@@ -29,12 +29,11 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.RegisteredBean;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.function.ThrowingConsumer;
 
@@ -53,6 +52,7 @@ import cn.taketoday.util.function.ThrowingConsumer;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class AutowiredFieldValueResolver extends AutowiredElementResolver {
@@ -194,8 +194,7 @@ public final class AutowiredFieldValueResolver extends AutowiredElementResolver 
     Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
     TypeConverter typeConverter = beanFactory.getTypeConverter();
     try {
-      Assert.isInstanceOf(AutowireCapableBeanFactory.class, beanFactory);
-      Object value = ((AutowireCapableBeanFactory) beanFactory).resolveDependency(
+      Object value = beanFactory.resolveDependency(
               descriptor, beanName, autowiredBeanNames, typeConverter);
       registerDependentBeans(beanFactory, beanName, autowiredBeanNames);
       return value;

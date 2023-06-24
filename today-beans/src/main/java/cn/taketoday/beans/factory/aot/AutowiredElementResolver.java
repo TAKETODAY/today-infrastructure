@@ -37,6 +37,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class AutowiredElementResolver {
@@ -50,9 +51,8 @@ abstract class AutowiredElementResolver {
       if (beanFactory.containsBean(autowiredBeanName)) {
         beanFactory.registerDependentBean(autowiredBeanName, beanName);
       }
-      logger.trace(LogMessage.format(
-              "Autowiring by type from bean name %s' to bean named '%s'", beanName,
-              autowiredBeanName));
+      logger.trace("Autowiring by type from bean name {}' to bean named '{}'",
+              beanName, autowiredBeanName);
     }
   }
 

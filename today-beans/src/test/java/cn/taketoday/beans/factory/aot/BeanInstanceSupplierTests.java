@@ -28,29 +28,6 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.support.AnnotationConsumer;
 
-import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
-import cn.taketoday.beans.factory.config.DependencyDescriptor;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.InstanceSupplier;
-import cn.taketoday.beans.factory.support.RegisteredBean;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.io.DefaultResourceLoader;
-import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.function.ThrowingBiFunction;
-import cn.taketoday.util.function.ThrowingFunction;
-import cn.taketoday.util.function.ThrowingSupplier;
-
 import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -62,6 +39,29 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
+import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
+import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.InstanceSupplier;
+import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.function.ThrowingBiFunction;
+import cn.taketoday.util.function.ThrowingFunction;
+import cn.taketoday.util.function.ThrowingSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -777,12 +777,12 @@ class BeanInstanceSupplierTests {
     }
 
     Executable lookupExecutable(RegisteredBean registeredBean) {
-      return this.resolver.getLookup().get(registeredBean);
+      return this.resolver.lookup.get(registeredBean);
     }
 
     @Override
     public String toString() {
-      return this.resolver.getLookup() + " with bean class "
+      return this.resolver.lookup + " with bean class "
               + ClassUtils.getShortName(this.beanClass);
     }
 

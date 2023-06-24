@@ -491,8 +491,8 @@ class BeanDefinitionMethodGeneratorTests {
       ManagedList<RootBeanDefinition> actualPropertyValue = (ManagedList<RootBeanDefinition>) actual
               .getPropertyValues().getPropertyValue("someList");
       assertThat(actualPropertyValue).hasSize(2);
-      assertThat(actualPropertyValue.get(0).getPropertyValues().get("name")).isEqualTo("one");
-      assertThat(actualPropertyValue.get(1).getPropertyValues().get("name")).isEqualTo("two");
+      assertThat(actualPropertyValue.get(0).getPropertyValues().getPropertyValue("name")).isEqualTo("one");
+      assertThat(actualPropertyValue.get(1).getPropertyValues().getPropertyValue("name")).isEqualTo("two");
       assertThat(compiled.getSourceFileFromPackage(TestBean.class.getPackageName()))
               .contains("getSomeListBeanDefinition()", "getSomeListBeanDefinition1()");
     });

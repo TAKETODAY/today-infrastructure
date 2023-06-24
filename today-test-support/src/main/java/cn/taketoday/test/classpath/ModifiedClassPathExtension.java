@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -120,7 +120,7 @@ class ModifiedClassPathExtension implements InvocationInterceptor {
     launcher.registerTestExecutionListeners(listener);
     launcher.execute(testPlan);
     TestExecutionSummary summary = listener.getSummary();
-    if (!CollectionUtils.isEmpty(summary.getFailures())) {
+    if (CollectionUtils.isNotEmpty(summary.getFailures())) {
       throw summary.getFailures().get(0).getException();
     }
   }

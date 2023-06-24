@@ -70,7 +70,7 @@ public class Car {
 
 == 使用 `ArgumentsResolvingStrategy` 注入参数
 
-`StandardDependenciesBeanPostProcessor`
+`AutowiredAnnotationBeanPostProcessor`
 
 `ArgumentsResolvingStrategy` 这个接口用于处理构造器或方法的参数， 内置 的 解析器放在包 `cn.taketoday.context.autowire` 下.
 分别支持:

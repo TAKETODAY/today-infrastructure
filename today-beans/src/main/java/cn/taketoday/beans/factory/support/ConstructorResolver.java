@@ -89,8 +89,11 @@ import cn.taketoday.util.StringUtils;
  * @author Sebastien Deleuze
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Stephane Nicoll
+ * @author Phil Webb
  * @see #autowireConstructor
  * @see #instantiateUsingFactoryMethod
+ * @see #resolveConstructorOrFactoryMethod
  * @see AbstractAutowireCapableBeanFactory
  * @since 4.0 2022/1/6 21:16
  */
@@ -108,7 +111,7 @@ final class ConstructorResolver {
           new NamedThreadLocal<>("Current injection point");
 
   private final Logger log;
-  private final DependencyInjector injector;
+
   private final AbstractAutowireCapableBeanFactory beanFactory;
 
   /**
@@ -119,8 +122,9 @@ final class ConstructorResolver {
   public ConstructorResolver(AbstractAutowireCapableBeanFactory beanFactory) {
     this.beanFactory = beanFactory;
     this.log = beanFactory.getLogger();
-    this.injector = beanFactory.getInjector();
   }
+
+  // BeanWrapper-based construction
 
   /**
    * "autowire constructor" (with constructor arguments by type) behavior.
@@ -313,7 +317,6 @@ final class ConstructorResolver {
     }
 
     Assert.state(argsToUse != null, "Unresolved constructor arguments");
-
     wrapper.setBeanInstance(instantiate(beanName, merged, constructorToUse, argsToUse));
     return wrapper;
   }
@@ -352,7 +355,7 @@ final class ConstructorResolver {
     Method[] candidates = getCandidateMethods(factoryClass, merged);
     Method uniqueCandidate = null;
     for (Method candidate : candidates) {
-      if (Modifier.isStatic(candidate.getModifiers()) == isStatic && merged.isFactoryMethod(candidate)) {
+      if ((!isStatic || isStaticCandidate(candidate, factoryClass)) && merged.isFactoryMethod(candidate)) {
         if (uniqueCandidate == null) {
           uniqueCandidate = candidate;
         }
@@ -379,7 +382,7 @@ final class ConstructorResolver {
    */
   private Method[] getCandidateMethods(Class<?> factoryClass, RootBeanDefinition merged) {
     return merged.isNonPublicAccessAllowed()
-           ? ReflectionUtils.getAllDeclaredMethods(factoryClass)
+           ? ReflectionUtils.getUniqueDeclaredMethods(factoryClass)
            : factoryClass.getMethods();
   }
 
@@ -414,7 +417,7 @@ final class ConstructorResolver {
     String factoryBeanName = merged.getFactoryBeanName();
     if (factoryBeanName != null) {
       if (factoryBeanName.equals(beanName)) {
-        throw new BeanDefinitionStoreException(merged.getResourceDescription(),
+        throw new BeanDefinitionStoreException(merged.getResourceDescription(), beanName,
                 "factory-bean reference points back to the same bean definition");
       }
       factoryBean = beanFactory.getBean(factoryBeanName);
@@ -428,7 +431,7 @@ final class ConstructorResolver {
     else {
       // It's a static factory method on the bean class.
       if (!merged.hasBeanClass()) {
-        throw new BeanDefinitionStoreException(merged.getResourceDescription(),
+        throw new BeanDefinitionStoreException(merged.getResourceDescription(), beanName,
                 "bean definition declares neither a bean class nor a factory-bean reference");
       }
       factoryBean = null;
@@ -478,7 +481,7 @@ final class ConstructorResolver {
         candidates = new ArrayList<>();
         Method[] rawCandidates = getCandidateMethods(factoryClass, merged);
         for (Method candidate : rawCandidates) {
-          if (Modifier.isStatic(candidate.getModifiers()) == isStatic && merged.isFactoryMethod(candidate)) {
+          if ((!isStatic || isStaticCandidate(candidate, factoryClass)) && merged.isFactoryMethod(candidate)) {
             candidates.add(candidate);
           }
         }
@@ -495,7 +498,6 @@ final class ConstructorResolver {
           }
 
           wrapper.setBeanInstance(instantiate(beanName, merged, factoryBean, uniqueCandidate, EMPTY_ARGS));
-
           return wrapper;
         }
       }
@@ -552,8 +554,8 @@ final class ConstructorResolver {
                   paramNames = pnd.getParameterNames(candidate);
                 }
               }
-              argsHolder = createArgumentArray(beanName, merged, resolvedValues,
-                      paramTypes, paramNames, candidate, wrapper, autowiring, candidates.size() == 1);
+              argsHolder = createArgumentArray(beanName, merged, resolvedValues, paramTypes,
+                      paramNames, candidate, wrapper, autowiring, candidates.size() == 1);
             }
             catch (UnsatisfiedDependencyException ex) {
               if (log.isTraceEnabled()) {
@@ -612,7 +614,7 @@ final class ConstructorResolver {
           }
         }
         else if (resolvedValues != null) {
-          LinkedHashSet<ValueHolder> valueHolders = new LinkedHashSet<>(resolvedValues.getArgumentCount());
+          var valueHolders = new LinkedHashSet<ValueHolder>(resolvedValues.getArgumentCount());
           valueHolders.addAll(resolvedValues.getIndexedArgumentValues().values());
           valueHolders.addAll(resolvedValues.getGenericArgumentValues());
           for (ValueHolder value : valueHolders) {
@@ -686,8 +688,8 @@ final class ConstructorResolver {
     for (Map.Entry<Integer, ValueHolder> entry : cargs.getIndexedArgumentValues().entrySet()) {
       int index = entry.getKey();
       if (index < 0) {
-        throw new BeanCreationException(
-                merged.getResourceDescription(), beanName, "Invalid constructor argument index: " + index);
+        throw new BeanCreationException(merged.getResourceDescription(), beanName,
+                "Invalid constructor argument index: " + index);
       }
       if (index + 1 > minNrOfArgs) {
         minNrOfArgs = index + 1;
@@ -796,8 +798,8 @@ final class ConstructorResolver {
                           "] - did you specify the correct bean references as arguments?");
         }
         try {
-          Object autowiredArgument = resolveAutowiredArgument(
-                  methodParam, beanName, autowiredBeanNames, converter, fallback);
+          Object autowiredArgument = resolveAutowiredArgument(new DependencyDescriptor(methodParam, true),
+                  beanName, autowiredBeanNames, converter, fallback);
 
           args.resolveNecessary = true;
           args.arguments[paramIndex] = autowiredArgument;
@@ -840,7 +842,8 @@ final class ConstructorResolver {
       Object argValue = argsToResolve[argIndex];
       MethodParameter methodParam = MethodParameter.forExecutable(executable, argIndex);
       if (argValue == autowiredArgumentMarker) {
-        argValue = resolveAutowiredArgument(methodParam, beanName, null, converter, true);
+        argValue = resolveAutowiredArgument(new DependencyDescriptor(methodParam, true),
+                beanName, null, converter, true);
       }
       else if (argValue instanceof BeanMetadataElement) {
         argValue = valueResolver.resolveValueIfNecessary("constructor argument", argValue);
@@ -883,30 +886,18 @@ final class ConstructorResolver {
   @Nullable
   protected Object resolveAutowiredArgument(DependencyDescriptor descriptor, String beanName,
           @Nullable Set<String> autowiredBeanNames, TypeConverter typeConverter, boolean fallback) {
-    return resolveAutowiredArgument(descriptor.getMethodParameter(),
-            beanName, autowiredBeanNames, typeConverter, fallback);
-  }
 
-  /**
-   * Template method for resolving the specified argument which is supposed to be autowired.
-   */
-  @Nullable
-  private Object resolveAutowiredArgument(MethodParameter param, String beanName,
-          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter, boolean fallback) {
-
-    Class<?> paramType = param.getParameterType();
+    Class<?> paramType = descriptor.getMethodParameter().getParameterType();
     if (InjectionPoint.class.isAssignableFrom(paramType)) {
       InjectionPoint injectionPoint = currentInjectionPoint.get();
       if (injectionPoint == null) {
-        throw new IllegalStateException("No current InjectionPoint available for " + param);
+        throw new IllegalStateException("No current InjectionPoint available for " + descriptor);
       }
       return injectionPoint;
     }
     try {
-      var context = new DependencyResolvingContext(param.getExecutable(), beanFactory, beanName);
-      context.setTypeConverter(typeConverter);
-      context.setDependentBeans(autowiredBeanNames);
-      return injector.resolveValue(new DependencyDescriptor(param, true), context);
+      return beanFactory.resolveDependency(
+              descriptor, beanName, autowiredBeanNames, typeConverter);
     }
     catch (NoUniqueBeanDefinitionException ex) {
       throw ex;
@@ -1007,7 +998,7 @@ final class ConstructorResolver {
           Supplier<ResolvableType> beanType, List<ResolvableType> valueTypes) {
 
     Class<?> type = ClassUtils.getUserClass(beanType.get().toClass());
-    Constructor<?>[] ctors = this.beanFactory.determineConstructorsFromPostProcessors(type, beanName);
+    Constructor<?>[] ctors = beanFactory.determineConstructorsFromPostProcessors(type, beanName);
     if (ctors == null) {
       if (!mbd.hasConstructorArgumentValues()) {
         ctors = new Constructor<?>[] { BeanUtils.getConstructor(type) };

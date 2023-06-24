@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +44,7 @@ public class LookupAnnotationTests {
   @BeforeEach
   public void setup() {
     beanFactory = new StandardBeanFactory();
-    StandardDependenciesBeanPostProcessor aabpp = new StandardDependenciesBeanPostProcessor();
+    AutowiredAnnotationBeanPostProcessor aabpp = new AutowiredAnnotationBeanPostProcessor();
     aabpp.setBeanFactory(beanFactory);
     beanFactory.addBeanPostProcessor(aabpp);
     beanFactory.registerBeanDefinition("abstractBean", new RootBeanDefinition(AbstractBean.class));
