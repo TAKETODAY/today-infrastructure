@@ -1,0 +1,3 @@
+cn.taketoday.aot.hint.RuntimeHintsRegistrar= \
+cn.taketoday.context.aot.RuntimeHintsBeanFactoryInitializationAotProcessorTests.IncrementalRuntimeHintsRegistrar, \
+cn.taketoday.context.aot.RuntimeHintsBeanFactoryInitializationAotProcessorTests.SampleRuntimeHintsRegistrar

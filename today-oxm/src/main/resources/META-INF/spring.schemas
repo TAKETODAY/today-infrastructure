@@ -1,16 +1,36 @@
-http\://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm-3.1.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm-3.2.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm-4.1.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm-4.2.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm-4.3.xsd=org/springframework/oxm/config/spring-oxm.xsd
-http\://www.springframework.org/schema/oxm/spring-oxm.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-3.1.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-3.2.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-4.1.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-4.2.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm-4.3.xsd=org/springframework/oxm/config/spring-oxm.xsd
-https\://www.springframework.org/schema/oxm/spring-oxm.xsd=org/springframework/oxm/config/spring-oxm.xsd
+#
+# Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
+# Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see [http://www.gnu.org/licenses/]
+#
+
+http\://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm-3.1.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm-3.2.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm-4.1.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm-4.2.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm-4.3.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+http\://www.springframework.org/schema/oxm/spring-oxm.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-3.1.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-3.2.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-4.1.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-4.2.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm-4.3.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
+https\://www.springframework.org/schema/oxm/spring-oxm.xsd=cn/taketoday/oxm/config/spring-oxm.xsd
