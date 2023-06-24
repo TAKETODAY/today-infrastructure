@@ -372,7 +372,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
           handleAsyncError(ex);
         }
         else if (event != null) {
-          publishEvent(event);
+          publishEvents(event);
         }
       });
     }
@@ -460,6 +460,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     return sb.toString();
   }
 
+  /**
+   * Inner class to avoid a hard dependency on the Reactive Streams API at runtime.
+   */
   private static class ReactiveDelegate {
 
     public static boolean subscribeToPublisher(ApplicationListenerMethodAdapter listener, Object result) {
@@ -472,6 +475,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
   }
 
+  /**
+   * Reactive Streams Subscriber for publishing follow-up events.
+   */
   private record EventPublicationSubscriber(ApplicationListenerMethodAdapter listener)
           implements Subscriber<Object> {
 
