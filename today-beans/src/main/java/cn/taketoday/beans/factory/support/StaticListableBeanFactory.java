@@ -21,6 +21,7 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -510,6 +511,20 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     return (beanType != null
             ? MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
                     .get(annotationType) : null);
+  }
+
+  @Override
+  public <A extends Annotation> Set<A> findAllAnnotationsOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+
+    var annotations = new LinkedHashSet<A>();
+    Class<?> beanType = getType(beanName, allowFactoryBeanInit);
+    if (beanType != null) {
+      MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+              .stream(annotationType)
+              .filter(MergedAnnotation::isPresent)
+              .forEach(mergedAnnotation -> annotations.add(mergedAnnotation.synthesize()));
+    }
+    return annotations;
   }
 
   @Nullable

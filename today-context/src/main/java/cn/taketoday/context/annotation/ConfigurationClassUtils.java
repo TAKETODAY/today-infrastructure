@@ -52,7 +52,7 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-abstract class ConfigurationClassUtils {
+public abstract class ConfigurationClassUtils {
 
   public static final String CONFIGURATION_CLASS_FULL = "full";
   public static final String CONFIGURATION_CLASS_LITE = "lite";
@@ -101,7 +101,7 @@ abstract class ConfigurationClassUtils {
    * @param metadataReaderFactory the current factory in use by the caller
    * @return whether the candidate qualifies as (any kind of) configuration class
    */
-  public static boolean checkConfigurationClassCandidate(
+  static boolean checkConfigurationClassCandidate(
           BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 
     String className = beanDef.getBeanClassName();
@@ -171,7 +171,7 @@ abstract class ConfigurationClassUtils {
    * @return {@code true} if the given class is to be registered for
    * configuration class processing; {@code false} otherwise
    */
-  public static boolean isConfigurationCandidate(AnnotationMetadata metadata) {
+  static boolean isConfigurationCandidate(AnnotationMetadata metadata) {
     // Do not consider an interface or an annotation...
     if (metadata.isInterface()) {
       return false;

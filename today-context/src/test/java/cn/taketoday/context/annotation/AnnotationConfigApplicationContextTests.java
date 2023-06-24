@@ -25,6 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import cn.taketoday.aot.hint.MemberCategory;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.TypeReference;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -34,6 +38,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation6.ComponentForScanning;
 import cn.taketoday.context.annotation6.ConfigForScanning;
 import cn.taketoday.context.annotation6.Jsr330NamedForScanning;
+import cn.taketoday.context.testfixture.context.annotation.CglibConfiguration;
+import cn.taketoday.context.testfixture.context.annotation.LambdaBeanConfiguration;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -454,14 +460,68 @@ public class AnnotationConfigApplicationContextTests {
     assertThat(context.getBeanNamesForType(TypedFactoryBean.class)).hasSize(1);
   }
 
-//  @Test
-//  void refreshForAotProcessingWithConfiguration() {
-//    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-//    context.register(Config.class);
-//    context.refreshForAotProcessing();
-//    assertThat(context.getBeanFactory().getBeanDefinitionNames()).contains(
-//            "annotationConfigApplicationContextTests.Config", "testBean");
-//  }
+  @Test
+  void refreshForAotProcessingWithConfiguration() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(Config.class);
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(context.getBeanFactory().getBeanDefinitionNames()).contains(
+            "annotationConfigApplicationContextTests.Config", "testBean");
+  }
+
+  @Test
+  void refreshForAotCanInstantiateBeanWithAutowiredApplicationContext() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(BeanD.class);
+    context.refreshForAotProcessing(new RuntimeHints());
+    BeanD bean = context.getBean(BeanD.class);
+    assertThat(bean.applicationContext).isSameAs(context);
+  }
+
+  @Test
+  void refreshForAotCanInstantiateBeanWithFieldAutowiredApplicationContext() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(BeanB.class);
+    context.refreshForAotProcessing(new RuntimeHints());
+    BeanB bean = context.getBean(BeanB.class);
+    assertThat(bean.applicationContext).isSameAs(context);
+  }
+
+  @Test
+  void refreshForAotRegisterHintsForCglibProxy() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(CglibConfiguration.class);
+    RuntimeHints runtimeHints = new RuntimeHints();
+    context.refreshForAotProcessing(runtimeHints);
+    TypeReference cglibType = TypeReference.of(CglibConfiguration.class.getName() + "$$SpringCGLIB$$0");
+    assertThat(RuntimeHintsPredicates.reflection().onType(cglibType)
+            .withMemberCategories(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                    MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS))
+            .accepts(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection().onType(CglibConfiguration.class)
+            .withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS))
+            .accepts(runtimeHints);
+  }
+
+  @Test
+  void refreshForAotRegisterHintsForTargetOfCglibProxy() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(CglibConfiguration.class);
+    RuntimeHints runtimeHints = new RuntimeHints();
+    context.refreshForAotProcessing(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection().onType(TypeReference.of(CglibConfiguration.class))
+            .withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS))
+            .accepts(runtimeHints);
+  }
+
+  @Test
+  void refreshForAotRegisterDoesNotConsiderLambdaBeanAsCglibProxy() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(LambdaBeanConfiguration.class);
+    RuntimeHints runtimeHints = new RuntimeHints();
+    context.refreshForAotProcessing(runtimeHints);
+    assertThat(runtimeHints.reflection().typeHints()).isEmpty();
+  }
 
   static class GenericHolder<T> { }
 
@@ -573,6 +633,16 @@ public class AnnotationConfigApplicationContextTests {
   }
 
   static class BeanC { }
+
+  static class BeanD {
+
+    private final ApplicationContext applicationContext;
+
+    public BeanD(ApplicationContext applicationContext) {
+      this.applicationContext = applicationContext;
+    }
+
+  }
 
   static class NonInstantiatedFactoryBean implements FactoryBean<String> {
 

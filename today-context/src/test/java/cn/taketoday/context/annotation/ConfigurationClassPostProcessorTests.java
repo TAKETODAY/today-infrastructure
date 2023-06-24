@@ -1641,7 +1641,7 @@ class ConfigurationClassPostProcessorTests {
   }
 
   @Configuration
-  @ComponentScan(basePackages = "org.springframework.context.annotation.componentscan.simple")
+  @ComponentScan(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
   public @interface ComposedConfiguration {
@@ -1664,20 +1664,20 @@ class ConfigurationClassPostProcessorTests {
     ComponentScan.Filter[] excludeFilters() default {};
   }
 
-  @ComposedConfigurationWithAttributeOverrides(basePackages = "org.springframework.context.annotation.componentscan.simple")
+  @ComposedConfigurationWithAttributeOverrides(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
   public static class ComposedConfigurationWithAttributeOverrideForBasePackage {
   }
 
-  @ComposedConfigurationWithAttributeOverrides(basePackages = "org.springframework.context.annotation.componentscan.simple",
+  @ComposedConfigurationWithAttributeOverrides(basePackages = "cn.taketoday.context.annotation.componentscan.simple",
                                                excludeFilters = @ComponentScan.Filter(Component.class))
   public static class ComposedConfigurationWithAttributeOverrideForExcludeFilter {
   }
 
-  @ComponentScan(basePackages = "org.springframework.context.annotation.componentscan.base", excludeFilters = {})
+  @ComponentScan(basePackages = "cn.taketoday.context.annotation.componentscan.base", excludeFilters = {})
   public static class BaseConfigurationWithEmptyExcludeFilters {
   }
 
-  @ComponentScan(basePackages = "org.springframework.context.annotation.componentscan.simple",
+  @ComponentScan(basePackages = "cn.taketoday.context.annotation.componentscan.simple",
                  excludeFilters = @ComponentScan.Filter(Component.class))
   public static class ExtendedConfigurationWithAttributeOverrideForExcludeFilter extends BaseConfigurationWithEmptyExcludeFilters {
   }
@@ -1691,7 +1691,7 @@ class ConfigurationClassPostProcessorTests {
     String[] basePackages() default {};
   }
 
-  @ComposedComposedConfigurationWithAttributeOverrides(basePackages = "org.springframework.context.annotation.componentscan.simple")
+  @ComposedComposedConfigurationWithAttributeOverrides(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
   public static class ComposedComposedConfigurationWithAttributeOverridesClass {
   }
 
@@ -1711,7 +1711,7 @@ class ConfigurationClassPostProcessorTests {
     String[] basePackages() default {};
   }
 
-  @MetaComponentScanConfigurationWithAttributeOverrides(basePackages = "org.springframework.context.annotation.componentscan.simple")
+  @MetaComponentScanConfigurationWithAttributeOverrides(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
   public static class MetaComponentScanConfigurationWithAttributeOverridesClass {
   }
 

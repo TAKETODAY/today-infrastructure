@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -47,6 +47,13 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
   private static volatile WeakHashMap<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
+
+  private static final boolean inNativeImage;
+
+  static {
+    String imageCode = System.getProperty("org.graalvm.nativeimage.imagecode");
+    inNativeImage = "buildtime".equals(imageCode) || "runtime".equals(imageCode);
+  }
 
   private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
   private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;
@@ -335,10 +342,18 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       }
       if (isAttemptLoad()) {
         try {
-          return classLoader.loadClass(getClassName());
+          synchronized(classLoader) { // just in case
+            return DefineClassHelper.loadClass(getClassName(), classLoader);
+          }
         }
         catch (ClassNotFoundException ignored) { }
       }
+
+      if (inNativeImage) {
+        throw new UnsupportedOperationException("CGLIB runtime enhancement not supported on native image. " +
+                "Make sure to include a pre-generated class on the classpath instead: " + getClassName());
+      }
+
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) {
         DefineClassStrategy defineClassStrategy = getDefineClassStrategy();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,14 +27,20 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.support.ClassHintUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -95,8 +101,7 @@ import cn.taketoday.util.CollectionUtils;
  * @see #refresh()
  * @since 4.0
  */
-public class GenericApplicationContext
-        extends AbstractApplicationContext implements BeanDefinitionRegistry {
+public class GenericApplicationContext extends AbstractApplicationContext implements BeanDefinitionRegistry {
 
   protected final StandardBeanFactory beanFactory;
 
@@ -201,6 +206,15 @@ public class GenericApplicationContext
     this.beanFactory.setSerializationId(null);
   }
 
+  /**
+   * Return the underlying bean factory of this context,
+   * available for registering bean definitions.
+   * <p><b>NOTE:</b> You need to call {@link #refresh()} to initialize the
+   * bean factory and its contained beans with application context semantics
+   * (autodetecting BeanFactoryPostProcessors, etc).
+   *
+   * @return the internal bean factory (as StandardBeanFactory)
+   */
   @Override
   public StandardBeanFactory getBeanFactory() {
     return beanFactory;
@@ -274,8 +288,8 @@ public class GenericApplicationContext
    */
   @Override
   public Set<Resource> getResources(String locationPattern) throws IOException {
-    if (this.resourceLoader instanceof PatternResourceLoader) {
-      return ((PatternResourceLoader) this.resourceLoader).getResources(locationPattern);
+    if (resourceLoader instanceof PatternResourceLoader loader) {
+      return loader.getResources(locationPattern);
     }
     return super.getResources(locationPattern);
   }
@@ -289,8 +303,8 @@ public class GenericApplicationContext
    */
   @Override
   public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
-    if (this.resourceLoader instanceof PatternResourceLoader) {
-      ((PatternResourceLoader) this.resourceLoader).scan(locationPattern, consumer);
+    if (resourceLoader instanceof PatternResourceLoader loader) {
+      loader.scan(locationPattern, consumer);
     }
     else {
       super.scan(locationPattern, consumer);
@@ -369,6 +383,65 @@ public class GenericApplicationContext
   @Override
   public BeanDefinition getBeanDefinition(String beanName) {
     return beanFactory.getBeanDefinition(beanName);
+  }
+
+  //---------------------------------------------------------------------
+  // AOT processing
+  //---------------------------------------------------------------------
+
+  /**
+   * Load or refresh the persistent representation of the configuration up to
+   * a point where the underlying bean factory is ready to create bean
+   * instances.
+   * <p>This variant of {@link #refresh()} is used by Ahead of Time (AOT)
+   * processing that optimizes the application context, typically at build time.
+   * <p>In this mode, only {@link BeanDefinitionRegistryPostProcessor} and
+   * {@link MergedBeanDefinitionPostProcessor} are invoked.
+   *
+   * @param runtimeHints the runtime hints
+   * @throws BeansException if the bean factory could not be initialized
+   * @throws IllegalStateException if already initialized and multiple refresh
+   * attempts are not supported
+   */
+  public void refreshForAotProcessing(RuntimeHints runtimeHints) {
+    if (log.isDebugEnabled()) {
+      log.debug("Preparing bean factory for AOT processing");
+    }
+    prepareRefresh();
+    obtainFreshBeanFactory();
+    registerFrameworkComponents(beanFactory);
+    prepareBeanFactory(beanFactory);
+    postProcessBeanFactory(beanFactory);
+    invokeBeanFactoryPostProcessors(beanFactory);
+    beanFactory.freezeConfiguration();
+    PostProcessorRegistrationDelegate.invokeMergedBeanDefinitionPostProcessors(beanFactory);
+    preDetermineBeanTypes(runtimeHints);
+  }
+
+  /**
+   * Pre-determine bean types in order to trigger early proxy class creation.
+   *
+   * @see BeanFactory#getType
+   * @see SmartInstantiationAwareBeanPostProcessor#determineBeanType
+   */
+  private void preDetermineBeanTypes(RuntimeHints runtimeHints) {
+    List<SmartInstantiationAwareBeanPostProcessor> bpps =
+            PostProcessorRegistrationDelegate.loadBeanPostProcessors(
+                    beanFactory, SmartInstantiationAwareBeanPostProcessor.class);
+
+    for (String beanName : beanFactory.getBeanDefinitionNames()) {
+      Class<?> beanType = beanFactory.getType(beanName);
+      if (beanType != null) {
+        ClassHintUtils.registerProxyIfNecessary(beanType, runtimeHints);
+        for (SmartInstantiationAwareBeanPostProcessor bpp : bpps) {
+          Class<?> newBeanType = bpp.determineBeanType(beanType, beanName);
+          if (newBeanType != beanType) {
+            ClassHintUtils.registerProxyIfNecessary(newBeanType, runtimeHints);
+            beanType = newBeanType;
+          }
+        }
+      }
+    }
   }
 
   //---------------------------------------------------------------------

@@ -287,7 +287,7 @@ public final class RegisteredBean {
 
     private <T> T resolveInnerBean(BiFunction<String, RootBeanDefinition, T> resolver) {
       // Always use a fresh BeanDefinitionValueResolver in case the parent merged bean definition has changed.
-      BeanDefinitionValueResolver beanDefinitionValueResolver = new BeanDefinitionValueResolver(
+      var beanDefinitionValueResolver = new BeanDefinitionValueResolver(
               (AbstractAutowireCapableBeanFactory) this.parent.getBeanFactory(),
               this.parent.getBeanName(), this.parent.getMergedBeanDefinition());
       return beanDefinitionValueResolver.resolveInnerBean(this.innerBeanName, this.innerBeanDefinition, resolver);

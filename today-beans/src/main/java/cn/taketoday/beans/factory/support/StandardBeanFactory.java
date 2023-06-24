@@ -1218,6 +1218,41 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return MergedAnnotation.missing();
   }
 
+  @Override
+  public <A extends Annotation> Set<A> findAllAnnotationsOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+
+    var annotations = new LinkedHashSet<A>();
+    Class<?> beanType = getType(beanName, allowFactoryBeanInit);
+    if (beanType != null) {
+      MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+              .stream(annotationType)
+              .filter(MergedAnnotation::isPresent)
+              .forEach(mergedAnnotation -> annotations.add(mergedAnnotation.synthesize()));
+    }
+    if (containsBeanDefinition(beanName)) {
+      RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+      // Check raw bean class, e.g. in case of a proxy.
+      if (bd.hasBeanClass() && bd.getFactoryMethodName() == null) {
+        Class<?> beanClass = bd.getBeanClass();
+        if (beanClass != beanType) {
+          MergedAnnotations.from(beanClass, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+                  .stream(annotationType)
+                  .filter(MergedAnnotation::isPresent)
+                  .forEach(mergedAnnotation -> annotations.add(mergedAnnotation.synthesize()));
+        }
+      }
+      // Check annotations declared on factory method, if any.
+      Method factoryMethod = bd.getResolvedFactoryMethod();
+      if (factoryMethod != null) {
+        MergedAnnotations.from(factoryMethod, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
+                .stream(annotationType)
+                .filter(MergedAnnotation::isPresent)
+                .forEach(mergedAnnotation -> annotations.add(mergedAnnotation.synthesize()));
+      }
+    }
+    return annotations;
+  }
+
   //---------------------------------------------------------------------
   // Implementation of ConfigurableBeanFactory interface @since 4.0
   //---------------------------------------------------------------------

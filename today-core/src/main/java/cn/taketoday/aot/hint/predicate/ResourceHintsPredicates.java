@@ -45,8 +45,7 @@ public class ResourceHintsPredicates {
 
   private static final ConcurrentLruCache<ResourcePatternHint, Pattern> CACHED_RESOURCE_PATTERNS = new ConcurrentLruCache<>(32, ResourcePatternHint::toRegex);
 
-  ResourceHintsPredicates() {
-  }
+  ResourceHintsPredicates() { }
 
   /**
    * Return a predicate that checks whether a resource hint is registered for the given bundle name.
@@ -105,8 +104,7 @@ public class ResourceHintsPredicates {
   public Predicate<RuntimeHints> forResource(String resourceName) {
     String resourceNameToUse = (resourceName.startsWith("/") ? resourceName.substring(1) : resourceName);
     return hints -> {
-      AggregatedResourcePatternHints aggregatedResourcePatternHints = AggregatedResourcePatternHints.of(
-              hints.resources());
+      var aggregatedResourcePatternHints = AggregatedResourcePatternHints.of(hints.resources());
       boolean isExcluded = aggregatedResourcePatternHints.excludes().stream().anyMatch(excluded ->
               CACHED_RESOURCE_PATTERNS.get(excluded).matcher(resourceNameToUse).matches());
       if (isExcluded) {

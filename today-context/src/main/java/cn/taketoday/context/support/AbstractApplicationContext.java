@@ -1073,6 +1073,13 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
+  public <A extends Annotation> Set<A> findAllAnnotationsOnBean(
+          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+    assertBeanFactoryActive();
+    return getBeanFactory().findAllAnnotationsOnBean(beanName, annotationType, allowFactoryBeanInit);
+  }
+
+  @Override
   public <T> List<T> getAnnotatedBeans(Class<? extends Annotation> annotationType) {
     assertBeanFactoryActive();
     return getBeanFactory().getAnnotatedBeans(annotationType);

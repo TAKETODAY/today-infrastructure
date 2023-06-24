@@ -470,9 +470,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     return beanNameGenerator;
   }
 
-  public void setProblemReporter(ProblemReporter problemReporter) {
-    Assert.notNull(problemReporter, "problemReporter is required");
-    this.problemReporter = problemReporter;
+  public void setProblemReporter(@Nullable ProblemReporter problemReporter) {
+    this.problemReporter = problemReporter != null ? problemReporter : new FailFastProblemReporter();
   }
 
   public ProblemReporter getProblemReporter() {
