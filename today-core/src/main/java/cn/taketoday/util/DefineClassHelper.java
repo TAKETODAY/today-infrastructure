@@ -246,18 +246,18 @@ public class DefineClassHelper {
     }
 
     // Force static initializers to run.
-//    try {
-//      Class.forName(className, true, loader);
-//    }
-//    catch (ClassNotFoundException e) {
-//      throw newException(className, e);
-//    }
+    try {
+      Class.forName(className, true, loader);
+    }
+    catch (ClassNotFoundException e) {
+      throw newException(className, e);
+    }
     return c;
   }
 
   public static Class<?> loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
     // Force static initializers to run.
-    Class<?> clazz = Class.forName(className, false, classLoader);
+    Class<?> clazz = Class.forName(className, true, classLoader);
     Consumer<Class<?>> handlerToUse = loadedClassHandler;
     if (handlerToUse != null) {
       handlerToUse.accept(clazz);
