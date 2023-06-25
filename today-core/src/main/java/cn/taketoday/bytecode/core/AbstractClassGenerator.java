@@ -28,8 +28,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import cn.taketoday.bytecode.proxy.Enhancer;
+import cn.taketoday.core.NativeDetector;
+import cn.taketoday.core.NativeDetector.Context;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DefineClassHelper;
 
@@ -48,12 +51,10 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private static volatile WeakHashMap<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
-  private static final boolean inNativeImage;
+  private static final boolean DEFAULT_USE_CACHE =
+          TodayStrategies.getFlag("bytecode.useCache", true);
 
-  static {
-    String imageCode = System.getProperty("org.graalvm.nativeimage.imagecode");
-    inNativeImage = "buildtime".equals(imageCode) || "runtime".equals(imageCode);
-  }
+  private static final boolean inNativeImage = NativeDetector.inNativeImage(Context.RUN, Context.BUILD);
 
   private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
   private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;
@@ -62,7 +63,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private ClassLoader classLoader;
   private String namePrefix;
   private Object key;
-  private boolean useCache = true;
+  private boolean useCache = DEFAULT_USE_CACHE;
   private String className;
   private boolean attemptLoad;
 
@@ -326,15 +327,14 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
     AbstractClassGenerator save = CURRENT.get();
     CURRENT.set(this);
-    ClassLoader classLoader = data.getClassLoader();
-    if (classLoader == null) {
-      throw new IllegalStateException(
-              "ClassLoader is null while trying to define class " + getClassName()
-                      + ". It seems that the loader has been expired from a weak reference somehow. "
-                      + "Please file an issue at cglib's issue tracker.");
-    }
-
     try {
+      ClassLoader classLoader = data.getClassLoader();
+      if (classLoader == null) {
+        throw new IllegalStateException(
+                "ClassLoader is null while trying to define class " + getClassName()
+                        + ". It seems that the loader has been expired from a weak reference somehow. "
+                        + "Please file an issue at cglib's issue tracker.");
+      }
       synchronized(classLoader) {
         String name = generateClassName(data);
         data.reserveName(name);

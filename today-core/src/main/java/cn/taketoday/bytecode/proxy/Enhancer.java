@@ -179,7 +179,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   private boolean interceptDuringConstruction = true;
 
   private record EnhancerKey(
-          @Nullable String type, @Nullable List<String> interfaces,
+          @Nullable String type,
+          @Nullable List<String> interfaces,
           @Nullable WeakCacheKey<CallbackFilter> filter,
           List<Type> callbackTypes, boolean useFactory,
           boolean interceptDuringConstruction, Long serialVersionUID) {

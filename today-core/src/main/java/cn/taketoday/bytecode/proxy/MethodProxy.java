@@ -188,12 +188,22 @@ public class MethodProxy {
    * For internal use by {@link Enhancer} only; see the {@link cn.taketoday.bytecode.reflect.MethodAccess} class
    * for similar functionality.
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "rawtypes" })
   public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {
     MethodProxy proxy = new MethodProxy();
     proxy.sig1 = new MethodSignature(name1, desc);
     proxy.sig2 = new MethodSignature(name2, desc);
     proxy.createInfo = new CreateInfo(c1, c2);
+
+    if (!c1.isInterface() && c1 != Object.class && !Factory.class.isAssignableFrom(c2)) {
+      // Try early initialization for overridden methods on specifically purposed subclasses
+      try {
+        proxy.init();
+      }
+      catch (CodeGenerationException ex) {
+        // Ignore - to be retried when actually needed later on (possibly not at all)
+      }
+    }
     return proxy;
   }
 

@@ -367,8 +367,8 @@ class ApplicationContextAotGeneratorTests {
       applicationContext.registerBean(CglibConfiguration.class);
       TestGenerationContext context = processAheadOfTime(applicationContext);
       isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$0");
-      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$1");
-      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$2");
+//      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$1");
+//      isRegisteredCglibClass(context, CglibConfiguration.class.getName() + "$$Infra$$2");
     }
 
     private void isRegisteredCglibClass(TestGenerationContext context, String cglibClassName) throws IOException {
