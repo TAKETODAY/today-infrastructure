@@ -305,7 +305,7 @@ public abstract class StringUtils {
    * @see String#trim()
    * @see #delimitedListToStringArray
    */
-  public static String[] tokenizeToStringArray(final String str, final String delimiters) {
+  public static String[] tokenizeToStringArray(@Nullable final String str, final String delimiters) {
     return tokenizeToStringArray(str, delimiters, true, true);
   }
 

@@ -21,30 +21,34 @@
 package cn.taketoday.context;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.util.Set;
 
+import cn.taketoday.beans.BeanInstantiationException;
+import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.beans.factory.Aware;
+import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizer;
 import cn.taketoday.beans.factory.config.BeanDefinitionCustomizers;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ExpressionEvaluator;
-import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.factory.parsing.FailFastProblemReporter;
 import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ConditionEvaluator;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.ScopeMetadata;
 import cn.taketoday.context.annotation.ScopeMetadataResolver;
+import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultPropertySourceFactory;
@@ -61,16 +65,40 @@ import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
 
 /**
  * Startup(Refresh) Context
  *
+ * <p>
+ * BootstrapContext is can instantiate the class may implement any of the following
+ * {@link Aware Aware} interfaces
+ * <ul>
+ * <li>{@link EnvironmentAware}</li>
+ * <li>{@link BeanFactoryAware}</li>
+ * <li>{@link BeanClassLoaderAware}</li>
+ * <li>{@link ResourceLoaderAware}</li>
+ * <li>{@link BootstrapContextAware}</li>
+ * <li>{@link ApplicationContextAware}</li>
+ * </ul>
+ * and it's {@link Constructor#getParameters()} can be following types
+ * <ul>
+ * <li>{@link Environment}</li>
+ * <li>{@link BeanFactory}</li>
+ * <li>{@link ClassLoader}</li>
+ * <li>{@link ResourceLoader}</li>
+ * <li>{@link BootstrapContext}</li>
+ * <li>{@link ApplicationContext}</li>
+ * <li>{@link BeanDefinitionRegistry}</li>
+ * <li>{@link ExpressionEvaluator}</li>
+ * </ul>
+ *
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
  */
 @Experimental
-public class BootstrapContext extends BeanDefinitionCustomizers {
+public class BootstrapContext extends BeanDefinitionCustomizers implements TodayStrategies.Instantiator {
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
   private final BeanDefinitionRegistry registry;
@@ -81,9 +109,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   @Nullable
   private ConditionEvaluator conditionEvaluator;
-
-  @Nullable
-  private BeanFactoryAwareInstantiator instantiator;
 
   @Nullable
   private MetadataReaderFactory metadataReaderFactory;
@@ -105,39 +130,24 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   @Nullable
   private Environment environment;
 
+  @Nullable
+  private ExpressionEvaluator expressionEvaluator;
+
   public BootstrapContext(ApplicationContext context) {
-    this(new SimpleBeanDefinitionRegistry(), context);
+    this(context.unwrapFactory(ConfigurableBeanFactory.class), context);
   }
 
-  public BootstrapContext(BeanDefinitionRegistry registry, @Nullable ApplicationContext context) {
-    this(registry, null, context);
-  }
-
-  public BootstrapContext(BeanDefinitionRegistry registry,
-          @Nullable ConditionEvaluator conditionEvaluator, @Nullable ApplicationContext context) {
-    Assert.notNull(registry, "registry is required");
-    this.registry = registry;
+  public BootstrapContext(ConfigurableBeanFactory beanFactory, @Nullable ApplicationContext context) {
+    Assert.notNull(beanFactory, "beanFactory is required");
+    this.registry = beanFactory.unwrap(BeanDefinitionRegistry.class);
+    this.beanFactory = beanFactory;
     this.resourceLoader = context;
     this.applicationContext = context;
-    this.conditionEvaluator = conditionEvaluator;
-    if (context == null) {
-      // context is null detect beanFactory
-      if (registry instanceof ConfigurableBeanFactory factory) {
-        this.beanFactory = factory;
-      }
-      else {
-        throw new IllegalArgumentException("'registry' expect a BeanFactory when No ApplicationContext available");
-      }
-    }
-    else {
-      if (context.getBeanFactory() instanceof ConfigurableBeanFactory factory) {
-        this.beanFactory = factory;
-      }
-      else {
-        throw new IllegalArgumentException(
-                "ApplicationContext#getBeanFactory() expect a ConfigurableBeanFactory not available");
-      }
-    }
+  }
+
+  public BootstrapContext(ConfigurableBeanFactory beanFactory, Environment environment) {
+    this(beanFactory, (ApplicationContext) null);
+    setEnvironment(environment);
   }
 
   public BeanDefinitionRegistry getRegistry() {
@@ -150,13 +160,17 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   }
 
   public Environment getEnvironment() {
-    if (applicationContext == null) {
+    Environment environment = this.environment;
+    if (environment == null) {
+      if (applicationContext != null) {
+        environment = applicationContext.getEnvironment();
+      }
       if (environment == null) {
         environment = new StandardEnvironment();
       }
-      return environment;
+      this.environment = environment;
     }
-    return applicationContext.getEnvironment();
+    return environment;
   }
 
   /**
@@ -269,24 +283,146 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   }
 
   //---------------------------------------------------------------------
-  // BeanFactoryAwareBeanInstantiator
+  // Instantiator
   //---------------------------------------------------------------------
 
-  public BeanFactoryAwareInstantiator getInstantiator() {
-    if (instantiator == null) {
-      this.instantiator = BeanFactoryAwareInstantiator.from(applicationContext);
+  /**
+   * Convenience method to instantiate a class using the given class.
+   * <p>
+   * Note that this method tries to set the constructor accessible if given a
+   * non-accessible (that is, non-public) constructor,
+   * with optional parameters and default values.
+   *
+   * <p>
+   * This method instantiate the class may implement any of the following
+   * {@link Aware Aware} interfaces
+   * <ul>
+   * <li>{@link EnvironmentAware}</li>
+   * <li>{@link BeanFactoryAware}</li>
+   * <li>{@link BeanClassLoaderAware}</li>
+   * <li>{@link ResourceLoaderAware}</li>
+   * <li>{@link BootstrapContextAware}</li>
+   * <li>{@link ApplicationContextAware}</li>
+   * </ul>
+   * And it's {@link Constructor#getParameters()} can be following types
+   * <ul>
+   * <li>{@link Environment}</li>
+   * <li>{@link BeanFactory}</li>
+   * <li>{@link ClassLoader}</li>
+   * <li>{@link ResourceLoader}</li>
+   * <li>{@link BootstrapContext}</li>
+   * <li>{@link ApplicationContext}</li>
+   * <li>{@link BeanDefinitionRegistry}</li>
+   * <li>{@link ExpressionEvaluator}</li>
+   * <li>{@link MetadataReaderFactory}</li>
+   * </ul>
+   *
+   * @see BeanInstantiationException If the bean cannot be instantiated
+   * @see ConstructorNotFoundException If there is no suitable constructor
+   */
+  @Override
+  public <T> T instantiate(Class<T> clazz) {
+    Assert.notNull(clazz, "Class is required");
+    if (clazz.isInterface()) {
+      throw new BeanInstantiationException(clazz, "Specified class is an interface");
     }
-    return instantiator;
+    Constructor<T> constructor = BeanUtils.obtainConstructor(clazz);
+
+    try {
+      int i = 0;
+      Parameter[] parameters = constructor.getParameters();
+      Object[] args = new Object[parameters.length];
+      for (Parameter parameter : parameters) {
+        Object arg = findProvided(parameter);
+        args[i++] = arg;
+      }
+
+      T instance = BeanUtils.newInstance(constructor, args);
+      invokeAwareMethods(instance);
+      return instance;
+    }
+    catch (IllegalStateException ex) {
+      throw new BeanInstantiationException(clazz, "No suitable constructor found", ex);
+    }
   }
 
-  public <T> T instantiate(Class<T> beanClass) {
-    return getInstantiator().instantiate(beanClass);
+  /**
+   * Instantiate a class using an appropriate constructor and return the new
+   * instance as the specified assignable type. The returned instance will
+   * have {@link BeanClassLoaderAware}, {@link BeanFactoryAware},
+   * {@link EnvironmentAware}, and {@link ResourceLoaderAware} contracts
+   * invoked if they are implemented by the given object.
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T instantiate(Class<?> clazz, Class<T> assignableTo) {
+    Assert.notNull(clazz, "Class is required");
+    Assert.isAssignable(assignableTo, clazz);
+    if (clazz.isInterface()) {
+      throw new BeanInstantiationException(clazz, "Specified class is an interface");
+    }
+    return (T) instantiate(clazz);
   }
 
-  public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
-    return getInstantiator().instantiate(beanClass, providedArgs);
+  @Nullable
+  private Object findProvided(Parameter parameter) {
+    Class<?> parameterType = parameter.getType();
+    if (Environment.class.isAssignableFrom(parameterType)
+            && parameterType.isInstance(getEnvironment())) {
+      return getEnvironment();
+    }
+    if (ResourceLoader.class.isAssignableFrom(parameterType)
+            && parameterType.isInstance(getResourceLoader())) {
+      return getResourceLoader();
+    }
+    if (parameterType.isInstance(beanFactory)) {
+      return beanFactory;
+    }
+    if (parameterType == ClassLoader.class) {
+      return getClassLoader();
+    }
+    if (parameterType == BeanDefinitionRegistry.class) {
+      return registry;
+    }
+    if (parameterType == BootstrapContext.class) {
+      return this;
+    }
+    if (parameterType.isInstance(applicationContext)) {
+      return applicationContext;
+    }
+    if (parameterType == ExpressionEvaluator.class) {
+      return getExpressionEvaluator();
+    }
+    if (parameterType == MetadataReaderFactory.class) {
+      return getMetadataReaderFactory();
+    }
+
+    throw new IllegalStateException("Illegal method parameter type: " + parameterType.getName());
   }
 
+  private void invokeAwareMethods(Object bean) {
+    if (bean instanceof Aware) {
+      if (bean instanceof BeanClassLoaderAware aware) {
+        aware.setBeanClassLoader(getClassLoader());
+      }
+      if (bean instanceof BeanFactoryAware aware) {
+        aware.setBeanFactory(beanFactory);
+      }
+      if (bean instanceof EnvironmentAware aware) {
+        aware.setEnvironment(getEnvironment());
+      }
+      if (bean instanceof ResourceLoaderAware aware) {
+        aware.setResourceLoader(getResourceLoader());
+      }
+
+      if (bean instanceof BootstrapContextAware aware) {
+        aware.setBootstrapContext(this);
+      }
+
+      if (bean instanceof ApplicationContextAware aware && applicationContext != null) {
+        aware.setApplicationContext(applicationContext);
+      }
+    }
+  }
   //---------------------------------------------------------------------
   // MetadataReaderFactory
   //---------------------------------------------------------------------
@@ -319,6 +455,14 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
       }
     }
     return this.resourceLoader;
+  }
+
+  public Resource getResource(String location) {
+    return getResourceLoader().getResource(location);
+  }
+
+  public Set<Resource> getResources(String locationPattern) throws IOException {
+    return getResourceLoader().getResources(locationPattern);
   }
 
   /**
@@ -375,31 +519,41 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     }
   }
 
+  //---------------------------------------------------------------------
   // ExpressionEvaluator
+  //---------------------------------------------------------------------
 
+  /**
+   * evaluate expression
+   */
+  @Nullable
   public String evaluateExpression(String expression) {
     return evaluateExpression(expression, String.class);
   }
 
+  /**
+   * evaluate expression
+   */
+  @Nullable
   public <T> T evaluateExpression(String expression, Class<T> requiredType) {
-    ExpressionEvaluator expressionEvaluator;
-    if (applicationContext != null) {
-      expressionEvaluator = applicationContext.getExpressionEvaluator();
-    }
-    else {
-      expressionEvaluator = ExpressionEvaluator.from(getBeanFactory());
-    }
-    return expressionEvaluator.evaluate(expression, requiredType);
+    return getExpressionEvaluator().evaluate(expression, requiredType);
   }
 
-  // PatternResourceLoader
-
-  public Resource getResource(String location) {
-    return getResourceLoader().getResource(location);
-  }
-
-  public Set<Resource> getResources(String locationPattern) throws IOException {
-    return getResourceLoader().getResources(locationPattern);
+  /**
+   * Get ExpressionEvaluator
+   */
+  public ExpressionEvaluator getExpressionEvaluator() {
+    ExpressionEvaluator expressionEvaluator = this.expressionEvaluator;
+    if (expressionEvaluator == null) {
+      if (applicationContext != null) {
+        expressionEvaluator = applicationContext.getExpressionEvaluator();
+      }
+      else {
+        expressionEvaluator = ExpressionEvaluator.from(getBeanFactory());
+      }
+      this.expressionEvaluator = expressionEvaluator;
+    }
+    return expressionEvaluator;
   }
 
   // ScopeMetadataResolver
@@ -492,9 +646,9 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
 
   @Nullable
   public ClassLoader getClassLoader() {
-    ClassLoader classLoader = getResourceLoader().getClassLoader();
+    ClassLoader classLoader = beanFactory.getBeanClassLoader();
     if (classLoader == null) {
-      classLoader = getBeanFactory().getBeanClassLoader();
+      classLoader = getResourceLoader().getClassLoader();
     }
     return classLoader;
   }
@@ -509,20 +663,13 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
       synchronized(beanFactory) {
         context = findContext(beanFactory);
         if (context == null) {
-          context = new BootstrapContext(deduceRegistry(beanFactory), deduceContext(beanFactory));
-          beanFactory.unwrap(SingletonBeanRegistry.class)
-                  .registerSingleton(BEAN_NAME, context);
+          ConfigurableBeanFactory factory = beanFactory.unwrap(ConfigurableBeanFactory.class);
+          context = new BootstrapContext(factory, deduceContext(beanFactory));
+          factory.registerSingleton(BEAN_NAME, context);
         }
       }
     }
     return context;
-  }
-
-  static BeanDefinitionRegistry deduceRegistry(BeanFactory beanFactory) {
-    if (beanFactory instanceof BeanDefinitionRegistry registry) {
-      return registry;
-    }
-    throw new IllegalArgumentException("Expect a BeanDefinitionRegistry");
   }
 
   @Nullable
@@ -530,10 +677,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
     if (beanFactory instanceof ApplicationContext context) {
       return context;
     }
-    try {
-      return beanFactory.getBean(ApplicationContext.class);
-    }
-    catch (NoSuchBeanDefinitionException ignored) { }
     return null;
   }
 
@@ -541,4 +684,5 @@ public class BootstrapContext extends BeanDefinitionCustomizers {
   private static BootstrapContext findContext(BeanFactory beanFactory) {
     return BeanFactoryUtils.findLocal(beanFactory, BEAN_NAME, BootstrapContext.class);
   }
+
 }

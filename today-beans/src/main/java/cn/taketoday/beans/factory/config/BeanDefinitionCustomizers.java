@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,10 +23,7 @@ package cn.taketoday.beans.factory.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
@@ -87,17 +84,6 @@ public class BeanDefinitionCustomizers {
       customizers = new ArrayList<>();
     }
     return customizers;
-  }
-
-  public void loadDefaultCustomizers() {
-    loadDefaultCustomizers(null);
-  }
-
-  public void loadDefaultCustomizers(@Nullable BeanFactory beanFactory) {
-    addCustomizers(
-            TodayStrategies.find(
-                    BeanDefinitionCustomizer.class, BeanFactoryAwareInstantiator.from(beanFactory))
-    );
   }
 
 }

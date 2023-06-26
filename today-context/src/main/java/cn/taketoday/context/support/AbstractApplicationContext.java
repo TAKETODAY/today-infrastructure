@@ -122,6 +122,7 @@ import cn.taketoday.util.ReflectionUtils;
 @SuppressWarnings({ "unchecked" })
 public abstract class AbstractApplicationContext
         extends DefaultResourceLoader implements ConfigurableApplicationContext {
+
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
@@ -152,6 +153,7 @@ public abstract class AbstractApplicationContext
 
   private long startupDate;
 
+  @Nullable
   private ConfigurableEnvironment environment;
 
   // @since 2.1.5
@@ -974,8 +976,10 @@ public abstract class AbstractApplicationContext
 
   @Override
   public ConfigurableEnvironment getEnvironment() {
+    ConfigurableEnvironment environment = this.environment;
     if (environment == null) {
       environment = createEnvironment();
+      this.environment = environment;
     }
     return environment;
   }
@@ -990,7 +994,7 @@ public abstract class AbstractApplicationContext
   }
 
   @Override
-  public void setEnvironment(ConfigurableEnvironment environment) {
+  public void setEnvironment(@Nullable ConfigurableEnvironment environment) {
     this.environment = environment;
   }
 

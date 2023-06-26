@@ -496,8 +496,7 @@ class ConfigurationClassParser {
           if (candidate.isAssignable(ImportSelector.class)) {
             // Candidate class is an ImportSelector -> delegate to it to determine imports
             Class<?> candidateClass = candidate.loadClass();
-            var selector = ParserStrategyUtils.newInstance(
-                    candidateClass, ImportSelector.class, bootstrapContext);
+            var selector = bootstrapContext.instantiate(candidateClass, ImportSelector.class);
             Predicate<String> selectorFilter = selector.getExclusionFilter();
             if (selectorFilter != null) {
               exclusionFilter = exclusionFilter.or(selectorFilter);
@@ -515,8 +514,7 @@ class ConfigurationClassParser {
             // Candidate class is an ImportBeanDefinitionRegistrar ->
             // delegate to it to register additional bean definitions
             Class<?> candidateClass = candidate.loadClass();
-            var registrar = ParserStrategyUtils.newInstance(
-                    candidateClass, ImportBeanDefinitionRegistrar.class, bootstrapContext);
+            var registrar = bootstrapContext.instantiate(candidateClass, ImportBeanDefinitionRegistrar.class);
             configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.metadata);
           }
           else {
@@ -709,7 +707,7 @@ class ConfigurationClassParser {
 
     private Group createGroup(@Nullable Class<? extends Group> type) {
       Class<? extends Group> effectiveType = type != null ? type : DefaultDeferredImportSelectorGroup.class;
-      return ParserStrategyUtils.newInstance(effectiveType, Group.class, bootstrapContext);
+      return bootstrapContext.instantiate(effectiveType, Group.class);
     }
   }
 

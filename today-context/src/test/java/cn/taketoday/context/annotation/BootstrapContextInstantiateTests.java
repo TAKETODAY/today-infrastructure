@@ -32,11 +32,11 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
@@ -46,20 +46,17 @@ import cn.taketoday.core.io.ResourceLoader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.reset;
 
 /**
- * Tests for {@link ParserStrategyUtils}.
- *
  * @author Phillip Webb
  */
-public class ParserStrategyUtilsTests {
+public class BootstrapContextInstantiateTests {
+  final GenericApplicationContext context = new GenericApplicationContext();
 
   @Mock
-  private Environment environment;
+  private ConfigurableEnvironment environment;
 
-  @Mock(extraInterfaces = ConfigurableBeanFactory.class)
-  private BeanDefinitionRegistry registry;
+  private final StandardBeanFactory beanFactory = context.getBeanFactory();
 
   @Mock
   private ClassLoader beanClassLoader;
@@ -73,22 +70,20 @@ public class ParserStrategyUtilsTests {
   @BeforeEach
   void setup() {
     MockitoAnnotations.openMocks(this);
-    given(this.loadingContext.getRegistry()).willReturn(this.registry);
-    given(this.loadingContext.getEnvironment()).willReturn(this.environment);
-    given(this.loadingContext.getResourceLoader()).willReturn(resourceLoader);
-    given(this.loadingContext.getBeanFactory()).willReturn((ConfigurableBeanFactory) this.registry);
-    given(this.loadingContext.getClassLoader()).willReturn(beanClassLoader);
-    given(this.resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
+    given(resourceLoader.getClassLoader()).willReturn(this.beanClassLoader);
 
-    ConfigurableBeanFactory beanFactory = (ConfigurableBeanFactory) registry;
-    given(beanFactory.getBeanClassLoader()).willReturn(beanClassLoader);
+    beanFactory.setBeanClassLoader(beanClassLoader);
+
+    loadingContext = new BootstrapContext(beanFactory, context);
+    loadingContext.setResourceLoader(resourceLoader);
+    loadingContext.setEnvironment(environment);
   }
 
   @Test
   public void instantiateClassWhenHasNoArgsConstructorCallsAware() {
     NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
     assertThat(instance.setEnvironment).isSameAs(this.environment);
-    assertThat(instance.setBeanFactory).isSameAs(this.registry);
+    assertThat(instance.setBeanFactory).isSameAs(this.beanFactory);
     assertThat(instance.setBeanClassLoader).isSameAs(this.beanClassLoader);
     assertThat(instance.setResourceLoader).isSameAs(this.resourceLoader);
   }
@@ -97,7 +92,7 @@ public class ParserStrategyUtilsTests {
   public void instantiateClassWhenHasSingleContructorInjectsParams() {
     ArgsConstructor instance = instantiateClass(ArgsConstructor.class);
     assertThat(instance.environment).isSameAs(this.environment);
-    assertThat(instance.beanFactory).isSameAs(this.registry);
+    assertThat(instance.beanFactory).isSameAs(this.beanFactory);
     assertThat(instance.beanClassLoader).isSameAs(this.beanClassLoader);
     assertThat(instance.resourceLoader).isSameAs(this.resourceLoader);
   }
@@ -105,10 +100,11 @@ public class ParserStrategyUtilsTests {
   @Test
   public void instantiateClassWhenHasSingleContructorAndAwareInjectsParamsAndCallsAware() {
     ArgsConstructorAndAware instance = instantiateClass(ArgsConstructorAndAware.class);
+
     assertThat(instance.environment).isSameAs(this.environment);
     assertThat(instance.setEnvironment).isSameAs(this.environment);
-    assertThat(instance.beanFactory).isSameAs(this.registry);
-    assertThat(instance.setBeanFactory).isSameAs(this.registry);
+    assertThat(instance.beanFactory).isSameAs(this.beanFactory);
+    assertThat(instance.setBeanFactory).isSameAs(this.beanFactory);
     assertThat(instance.beanClassLoader).isSameAs(this.beanClassLoader);
     assertThat(instance.setBeanClassLoader).isSameAs(this.beanClassLoader);
     assertThat(instance.resourceLoader).isSameAs(this.resourceLoader);
@@ -137,25 +133,13 @@ public class ParserStrategyUtilsTests {
   }
 
   @Test
-  public void instantiateClassHasSubclassParameterThrowsException() {
-    // To keep the algorithm simple we don't support subtypes
-    assertThatExceptionOfType(BeanInstantiationException.class).isThrownBy(() ->
-                    instantiateClass(InvalidConstructorParameterSubType.class))
-            .withCauseInstanceOf(IllegalStateException.class)
-            .withMessageContaining("No suitable constructor found");
-  }
-
-  @Test
-  public void instantiateClassWhenHasNoBeanClassLoaderDoesNotCallAware() {
-    reset(this.resourceLoader);
-    reset(registry);
-    NoArgsConstructor instance = instantiateClass(NoArgsConstructor.class);
-    assertThat(instance.setBeanClassLoader).isNull();
-    assertThat(instance.setBeanClassLoaderCalled).isFalse();
+  public void instantiateClassHasSubclassParameter() {
+    var instantiated = instantiateClass(InvalidConstructorParameterSubType.class);
+    assertThat(instantiated.environment).isSameAs(environment);
   }
 
   private <T> T instantiateClass(Class<T> clazz) {
-    return ParserStrategyUtils.newInstance(clazz, clazz, loadingContext);
+    return loadingContext.instantiate(clazz, clazz);
   }
 
   static class NoArgsConstructor
@@ -264,7 +248,10 @@ public class ParserStrategyUtilsTests {
 
   static class InvalidConstructorParameterSubType {
 
+    private final ConfigurableEnvironment environment;
+
     InvalidConstructorParameterSubType(ConfigurableEnvironment environment) {
+      this.environment = environment;
     }
 
   }

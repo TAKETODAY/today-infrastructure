@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -75,7 +75,7 @@ public abstract class TypeFilterUtils {
    */
   @SuppressWarnings("unchecked")
   public static List<TypeFilter> createTypeFiltersFor(
-          MergedAnnotation<Filter> filterAnnotation, BootstrapContext loadingContext) {
+          MergedAnnotation<Filter> filterAnnotation, BootstrapContext context) {
 
     ArrayList<TypeFilter> typeFilters = new ArrayList<>();
     FilterType filterType = filterAnnotation.getEnum("type", FilterType.class);
@@ -92,7 +92,7 @@ public abstract class TypeFilterUtils {
         case CUSTOM -> {
           Assert.isAssignable(TypeFilter.class, filterClass,
                   "@ComponentScan CUSTOM type filter requires a TypeFilter implementation");
-          TypeFilter filter = ParserStrategyUtils.newInstance(filterClass, TypeFilter.class, loadingContext);
+          TypeFilter filter = context.instantiate(filterClass, TypeFilter.class);
           typeFilters.add(filter);
         }
         default -> throw new IllegalArgumentException("Filter type not supported with Class value: " + filterType);
@@ -103,7 +103,7 @@ public abstract class TypeFilterUtils {
 
     for (String expression : filterAnnotation.getStringArray("pattern")) {
       switch (filterType) {
-        case ASPECTJ -> typeFilters.add(new AspectJTypeFilter(expression, loadingContext.getClassLoader()));
+        case ASPECTJ -> typeFilters.add(new AspectJTypeFilter(expression, context.getClassLoader()));
         case REGEX -> typeFilters.add(new RegexPatternTypeFilter(Pattern.compile(expression)));
         default -> throw new IllegalArgumentException(
                 "Filter type not supported with String pattern: " + filterType);

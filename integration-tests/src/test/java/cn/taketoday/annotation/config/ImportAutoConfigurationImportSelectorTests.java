@@ -20,7 +20,6 @@
 
 package cn.taketoday.annotation.config;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,12 +31,12 @@ import java.util.Set;
 
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
 import cn.taketoday.context.annotation.config.ImportAutoConfigurationImportSelector;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.core.io.DefaultResourceLoader;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import cn.taketoday.mock.env.MockEnvironment;
@@ -51,18 +50,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ImportAutoConfigurationImportSelectorTests {
 
-  private final ImportAutoConfigurationImportSelector importSelector = new TestImportAutoConfigurationImportSelector();
-
-  private final ConfigurableBeanFactory beanFactory = new StandardBeanFactory();
+  private final StandardBeanFactory beanFactory = new StandardBeanFactory();
 
   private final MockEnvironment environment = new MockEnvironment();
 
-  @BeforeEach
-  void setup() {
-    this.importSelector.setBeanFactory(this.beanFactory);
-    this.importSelector.setEnvironment(this.environment);
-    this.importSelector.setResourceLoader(new DefaultResourceLoader());
-  }
+  private final ImportAutoConfigurationImportSelector importSelector
+          = new TestImportAutoConfigurationImportSelector(new BootstrapContext(beanFactory, environment));
 
   @Test
   void importsAreSelected() throws Exception {
@@ -317,6 +310,11 @@ class ImportAutoConfigurationImportSelectorTests {
   }
 
   static class TestImportAutoConfigurationImportSelector extends ImportAutoConfigurationImportSelector {
+
+    public TestImportAutoConfigurationImportSelector(BootstrapContext bootstrapContext) {
+      super(bootstrapContext);
+    }
+
     @Override
     protected Collection<String> getStrategiesNames(Class<?> source) {
       if (source == MetaImportAutoConfiguration.class) {

@@ -260,7 +260,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
   @Nullable
   @Override
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
-    Object configClassAttr = registeredBean.getMergedBeanDefinition()
+    RootBeanDefinition mergedBeanDefinition = registeredBean.getMergedBeanDefinition();
+    Object configClassAttr = mergedBeanDefinition
             .getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);
     if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
       Class<?> proxyClass = registeredBean.getBeanType().toClass();
