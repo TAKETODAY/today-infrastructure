@@ -116,6 +116,8 @@ class BeanDefinitionPropertiesCodeGenerator {
             "$L.setLazyInit($L)");
     addStatementForValue(code, beanDefinition, AbstractBeanDefinition::isSynthetic,
             "$L.setSynthetic($L)");
+    addStatementForValue(code, beanDefinition, BeanDefinition::isEnableDependencyInjection,
+            "$L.setEnableDependencyInjection($L)");
     addInitDestroyMethods(code, beanDefinition, beanDefinition.getInitMethodNames(),
             "$L.setInitMethodNames($L)");
     addInitDestroyMethods(code, beanDefinition, beanDefinition.getDestroyMethodNames(),

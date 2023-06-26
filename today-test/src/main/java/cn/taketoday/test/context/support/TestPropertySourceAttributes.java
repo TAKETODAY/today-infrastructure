@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,6 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestPropertySource;
@@ -90,8 +89,8 @@ class TestPropertySourceAttributes {
             () -> "Detected @TestPropertySource declarations within an aggregate index "
                     + "with different sources: " + this.declaringClass.getName() + " and "
                     + attributes.declaringClass.getName());
-    logger.trace(LogMessage.format("Retrieved {} for declaring class [{}].",
-            attributes, this.declaringClass.getName()));
+    logger.trace("Retrieved {} for declaring class [{}].",
+            attributes, this.declaringClass.getName());
     assertSameBooleanAttribute(this.inheritLocations, attributes.inheritLocations,
             "inheritLocations", attributes);
     assertSameBooleanAttribute(this.inheritProperties, attributes.inheritProperties,

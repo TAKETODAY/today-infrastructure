@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -94,6 +94,7 @@ public class BoundConfigurationProperties {
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
       BeanDefinition definition = BeanDefinitionBuilder.genericBeanDefinition(
               BoundConfigurationProperties.class, BoundConfigurationProperties::new).getBeanDefinition();
+      definition.setEnableDependencyInjection(false);
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(BEAN_NAME, definition);
     }

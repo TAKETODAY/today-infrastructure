@@ -28,7 +28,6 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ObjectUtils;
@@ -39,6 +38,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanDefinitionMethodGenerator
  * @see #getBeanDefinitionMethodGenerator(RegisteredBean)
  * @since 4.0
@@ -125,11 +125,10 @@ class BeanDefinitionMethodGeneratorFactory {
     }
     for (BeanRegistrationExcludeFilter excludeFilter : this.excludeFilters) {
       if (excludeFilter.isExcludedFromAotProcessing(registeredBean)) {
-        logger.trace(LogMessage.format(
-                "Excluding registered bean '%s' from bean factory %s due to %s",
+        logger.trace("Excluding registered bean '{}' from bean factory {} due to {}",
                 registeredBean.getBeanName(),
                 ObjectUtils.identityToString(registeredBean.getBeanFactory()),
-                excludeFilter.getClass().getName()));
+                excludeFilter.getClass().getName());
         return true;
       }
     }
@@ -154,10 +153,9 @@ class BeanDefinitionMethodGeneratorFactory {
     for (BeanRegistrationAotProcessor aotProcessor : this.aotProcessors) {
       BeanRegistrationAotContribution contribution = aotProcessor.processAheadOfTime(registeredBean);
       if (contribution != null) {
-        logger.trace(LogMessage.format(
-                "Adding bean registration AOT contribution %S from %S to '%S'",
+        logger.trace("Adding bean registration AOT contribution {} from {} to '{}'",
                 contribution.getClass().getName(),
-                aotProcessor.getClass().getName(), beanName));
+                aotProcessor.getClass().getName(), beanName);
         contributions.add(contribution);
       }
     }

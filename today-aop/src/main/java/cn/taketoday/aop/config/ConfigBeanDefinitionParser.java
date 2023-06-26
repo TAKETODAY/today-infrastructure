@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -325,12 +325,14 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
       methodDefinition.getPropertyValues().add("targetBeanName", aspectName);
       methodDefinition.getPropertyValues().add("methodName", adviceElement.getAttribute("method"));
       methodDefinition.setSynthetic(true);
+      methodDefinition.setEnableDependencyInjection(false);
 
       // create instance factory definition
       RootBeanDefinition aspectFactoryDef =
               new RootBeanDefinition(SimpleBeanFactoryAwareAspectInstanceFactory.class);
       aspectFactoryDef.getPropertyValues().add("aspectBeanName", aspectName);
       aspectFactoryDef.setSynthetic(true);
+      aspectFactoryDef.setEnableDependencyInjection(false);
 
       // register the pointcut
       AbstractBeanDefinition adviceDef = createAdviceDefinition(
@@ -402,6 +404,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 
     cav.addIndexedArgumentValue(ASPECT_INSTANCE_FACTORY_INDEX, aspectFactoryDef);
 
+    adviceDefinition.setEnableDependencyInjection(false);
     return adviceDefinition;
   }
 
@@ -499,6 +502,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
     RootBeanDefinition beanDefinition = new RootBeanDefinition(AspectJExpressionPointcut.class);
     beanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     beanDefinition.setSynthetic(true);
+    beanDefinition.setEnableDependencyInjection(false);
     beanDefinition.getPropertyValues().add(EXPRESSION, expression);
     return beanDefinition;
   }

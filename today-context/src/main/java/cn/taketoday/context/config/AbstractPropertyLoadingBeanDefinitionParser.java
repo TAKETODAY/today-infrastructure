@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -73,6 +73,7 @@ abstract class AbstractPropertyLoadingBeanDefinitionParser extends AbstractSingl
     builder.addPropertyValue("localOverride",
             Boolean.valueOf(element.getAttribute("local-override")));
 
+    builder.setEnableDependencyInjection(false);
     builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
   }
 

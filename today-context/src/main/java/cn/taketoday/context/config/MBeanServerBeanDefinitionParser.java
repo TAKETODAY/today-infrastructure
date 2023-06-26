@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,6 +40,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationMBeanExporter
  * @since 4.0
  */
@@ -60,6 +61,7 @@ class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
     String agentId = element.getAttribute(AGENT_ID_ATTRIBUTE);
     if (StringUtils.hasText(agentId)) {
       RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);
+      bd.setEnableDependencyInjection(false);
       bd.getPropertyValues().add("agentId", agentId);
       return bd;
     }
@@ -67,6 +69,7 @@ class MBeanServerBeanDefinitionParser extends AbstractBeanDefinitionParser {
     RootBeanDefinition bd = new RootBeanDefinition(MBeanServerFactoryBean.class);
     bd.getPropertyValues().add("locateExistingServerIfPossible", Boolean.TRUE);
 
+    bd.setEnableDependencyInjection(false);
     // Mark as infrastructure bean and attach source location.
     bd.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
     bd.setSource(parserContext.extractSource(element));

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -60,6 +60,7 @@ public class ScheduledTasksBeanDefinitionParser extends AbstractSingleBeanDefini
   @Override
   protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
     builder.setLazyInit(false); // lazy scheduled tasks are a contradiction in terms -> force to false
+    builder.setEnableDependencyInjection(false);
     ManagedList<RuntimeBeanReference> cronTaskList = new ManagedList<>();
     ManagedList<RuntimeBeanReference> fixedDelayTaskList = new ManagedList<>();
     ManagedList<RuntimeBeanReference> fixedRateTaskList = new ManagedList<>();

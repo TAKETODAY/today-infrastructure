@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -77,13 +77,14 @@ class CacheAdviceParser extends AbstractSingleBeanDefinitionParser {
     List<Element> cacheDefs = DomUtils.getChildElementsByTagName(element, DEFS_ELEMENT);
     if (!cacheDefs.isEmpty()) {
       // Using attributes source.
-      List<RootBeanDefinition> attributeSourceDefinitions = parseDefinitionsSources(cacheDefs, parserContext);
+      var attributeSourceDefinitions = parseDefinitionsSources(cacheDefs, parserContext);
       builder.addPropertyValue("cacheOperationSources", attributeSourceDefinitions);
     }
     else {
       // Assume annotations source.
-      builder.addPropertyValue("cacheOperationSources",
-              new RootBeanDefinition("cn.taketoday.cache.annotation.AnnotationCacheOperationSource"));
+      RootBeanDefinition definition = new RootBeanDefinition("cn.taketoday.cache.annotation.AnnotationCacheOperationSource");
+      definition.setEnableDependencyInjection(false);
+      builder.addPropertyValue("cacheOperationSources", definition);
     }
   }
 
@@ -160,6 +161,7 @@ class CacheAdviceParser extends AbstractSingleBeanDefinitionParser {
     RootBeanDefinition attributeSourceDefinition = new RootBeanDefinition(NameMatchCacheOperationSource.class);
     attributeSourceDefinition.setSource(parserContext.extractSource(definition));
     attributeSourceDefinition.getPropertyValues().add("nameMap", cacheOpMap);
+    attributeSourceDefinition.setEnableDependencyInjection(false);
     return attributeSourceDefinition;
   }
 

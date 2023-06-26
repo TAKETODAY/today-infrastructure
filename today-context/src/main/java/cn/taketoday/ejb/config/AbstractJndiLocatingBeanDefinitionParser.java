@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,8 +22,8 @@ package cn.taketoday.ejb.config;
 
 import org.w3c.dom.Element;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.xml.DomUtils;
@@ -40,6 +40,7 @@ import static cn.taketoday.beans.factory.xml.BeanDefinitionParserDelegate.TRUE_V
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Oliver Gierke
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class AbstractJndiLocatingBeanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
@@ -76,5 +77,7 @@ abstract class AbstractJndiLocatingBeanDefinitionParser extends AbstractSimpleBe
     if (StringUtils.hasText(lazyInit) && !DEFAULT_VALUE.equals(lazyInit)) {
       definitionBuilder.setLazyInit(TRUE_VALUE.equals(lazyInit));
     }
+
+    definitionBuilder.setEnableDependencyInjection(false);
   }
 }

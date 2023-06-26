@@ -98,6 +98,7 @@ public class ReactiveWebServerFactoryAutoConfiguration {
               WebServerFactoryCustomizerBeanPostProcessor.class, true, false))) {
         RootBeanDefinition beanDefinition = new RootBeanDefinition(WebServerFactoryCustomizerBeanPostProcessor.class);
         beanDefinition.setSynthetic(true);
+        beanDefinition.setEnableDependencyInjection(false);
         context.registerBeanDefinition("webServerFactoryCustomizerBeanPostProcessor", beanDefinition);
       }
     }

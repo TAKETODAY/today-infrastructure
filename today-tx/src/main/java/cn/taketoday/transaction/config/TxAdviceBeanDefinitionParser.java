@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -94,6 +94,7 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
       builder.addPropertyValue("transactionAttributeSource",
               new RootBeanDefinition("cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource"));
     }
+    builder.setEnableDependencyInjection(false);
   }
 
   private RootBeanDefinition parseAttributeSource(Element attrEle, ParserContext parserContext) {
@@ -142,6 +143,7 @@ class TxAdviceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     RootBeanDefinition attributeSourceDefinition = new RootBeanDefinition(NameMatchTransactionAttributeSource.class);
     attributeSourceDefinition.setSource(parserContext.extractSource(attrEle));
     attributeSourceDefinition.getPropertyValues().add("nameMap", transactionAttributeMap);
+    attributeSourceDefinition.setEnableDependencyInjection(false);
     return attributeSourceDefinition;
   }
 

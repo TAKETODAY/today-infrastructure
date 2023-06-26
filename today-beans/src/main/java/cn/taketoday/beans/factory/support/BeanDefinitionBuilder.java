@@ -267,6 +267,14 @@ public class BeanDefinitionBuilder {
   }
 
   /**
+   * Set whether this bean is 'enableDependencyInjection'
+   */
+  public BeanDefinitionBuilder setEnableDependencyInjection(boolean enabled) {
+    this.beanDefinition.setEnableDependencyInjection(enabled);
+    return this;
+  }
+
+  /**
    * Apply the given customizers to the underlying bean definition.
    */
   public BeanDefinitionBuilder applyCustomizers(BeanDefinitionCustomizer... customizers) {

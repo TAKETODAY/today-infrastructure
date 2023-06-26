@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -121,6 +121,7 @@ public class ConfigurationPropertiesBindingPostProcessor
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
       BeanDefinition definition = new RootBeanDefinition(ConfigurationPropertiesBindingPostProcessor.class);
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      definition.setEnableDependencyInjection(false);
       registry.registerBeanDefinition(BEAN_NAME, definition);
     }
     ConfigurationPropertiesBinder.register(registry);

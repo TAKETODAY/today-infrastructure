@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -99,6 +99,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       String propertyPath = path.substring(dotIndex + 1);
       builder.addPropertyValue("targetBeanName", beanName);
       builder.addPropertyValue("propertyPath", propertyPath);
+      builder.setEnableDependencyInjection(false);
     }
 
     @Override
@@ -132,6 +133,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
+      builder.setEnableDependencyInjection(false);
     }
   }
 
@@ -156,6 +158,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
+      builder.setEnableDependencyInjection(false);
     }
   }
 
@@ -180,6 +183,8 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
+
+      builder.setEnableDependencyInjection(false);
     }
   }
 
@@ -212,6 +217,7 @@ public class UtilNamespaceHandler extends NamespaceHandlerSupport {
       if (StringUtils.isNotEmpty(scope)) {
         builder.setScope(scope);
       }
+      builder.setEnableDependencyInjection(false);
     }
   }
 

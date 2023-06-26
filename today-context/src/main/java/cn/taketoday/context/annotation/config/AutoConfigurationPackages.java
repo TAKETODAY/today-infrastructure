@@ -219,6 +219,7 @@ public abstract class AutoConfigurationPackages {
     BasePackagesBeanDefinition(String... basePackages) {
       setBeanClass(BasePackages.class);
       setRole(ROLE_INFRASTRUCTURE);
+      setEnableDependencyInjection(false);
       addBasePackages(basePackages);
       setInstanceSupplier(() -> new BasePackages(this.basePackages));
     }

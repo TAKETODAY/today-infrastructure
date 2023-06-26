@@ -190,7 +190,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     this.autowiredAnnotationTypes.add(Value.class);
 
     try {
-      this.autowiredAnnotationTypes.add(ClassUtils.forName("jakarta.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
+      this.autowiredAnnotationTypes.add(ClassUtils.forName(
+              "jakarta.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
       log.trace("'jakarta.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
@@ -198,7 +199,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
 
     try {
-      this.autowiredAnnotationTypes.add(ClassUtils.forName("javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
+      this.autowiredAnnotationTypes.add(ClassUtils.forName(
+              "javax.inject.Inject", AutowiredAnnotationBeanPostProcessor.class.getClassLoader()));
       log.trace("'javax.inject.Inject' annotation found and supported for autowiring");
     }
     catch (ClassNotFoundException ex) {
@@ -287,11 +289,10 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   @Override
   @Nullable
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
-    Class<?> beanClass = registeredBean.getBeanClass();
-    String beanName = registeredBean.getBeanName();
     RootBeanDefinition beanDefinition = registeredBean.getMergedBeanDefinition();
-
     if (beanDefinition.isEnableDependencyInjection()) {
+      String beanName = registeredBean.getBeanName();
+      Class<?> beanClass = registeredBean.getBeanClass();
       InjectionMetadata metadata = findInjectionMetadata(beanName, beanClass, beanDefinition);
       Collection<AutowiredElement> autowiredElements = getAutowiredElements(metadata,
               beanDefinition.getPropertyValues());
