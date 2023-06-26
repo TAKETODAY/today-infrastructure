@@ -430,7 +430,7 @@ public class GenericApplicationContextTests {
     class PostProcessor implements MergedBeanDefinitionPostProcessor, InitializationBeanPostProcessor {
 
       @Override
-      public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
+      public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> bean, String beanName) {
         beanDefinition.setAttribute("mbdppCalled", true);
       }
 

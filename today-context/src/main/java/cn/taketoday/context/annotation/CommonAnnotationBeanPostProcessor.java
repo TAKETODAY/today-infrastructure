@@ -277,9 +277,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
-  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
-    super.postProcessMergedBeanDefinition(beanDefinition, bean, beanName);
-    InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), null);
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+    super.postProcessMergedBeanDefinition(beanDefinition, beanType, beanName);
+    InjectionMetadata metadata = findResourceMetadata(beanName, beanType, null);
     metadata.checkConfigMembers(beanDefinition);
   }
 
@@ -289,7 +289,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   }
 
   @Override
-  public PropertyValues processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
+  public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
     InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), propertyValues);
     try {
       metadata.inject(bean, beanName, propertyValues);

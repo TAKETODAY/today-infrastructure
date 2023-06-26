@@ -277,12 +277,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
     this.beanFactory = (ConfigurableBeanFactory) beanFactory;
   }
-
+ 
   @Override
-  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
     if (beanDefinition.isEnableDependencyInjection()) {
-      // prepare InjectionMetadata
-      findInjectionMetadata(beanName, bean.getClass(), beanDefinition);
+      findInjectionMetadata(beanName, beanType, beanDefinition);
     }
   }
 

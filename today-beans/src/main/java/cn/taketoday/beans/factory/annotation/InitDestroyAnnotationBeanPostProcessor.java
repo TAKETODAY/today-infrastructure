@@ -159,8 +159,8 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   }
 
   @Override
-  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
-    findLifecycleMetadata(beanDefinition, bean.getClass());
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+    findLifecycleMetadata(beanDefinition, beanType);
   }
 
   @Override

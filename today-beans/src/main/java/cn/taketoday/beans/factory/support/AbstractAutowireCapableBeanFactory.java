@@ -310,13 +310,14 @@ public abstract class AbstractAutowireCapableBeanFactory
       return null;
     }
 
-    merged.resolvedTargetType = instanceWrapper.getWrappedClass();
+    Class<?> beanType = bean.getClass();
+    merged.resolvedTargetType = beanType;
 
     // Allow post-processors to modify the merged bean merged.
     synchronized(merged.postProcessingLock) {
       if (!merged.postProcessed) {
         try {
-          applyBeanDefinitionPostProcessors(merged, bean, beanName);
+          applyMergedBeanDefinitionPostProcessors(merged, beanType, beanName);
         }
         catch (Throwable ex) {
           throw new BeanCreationException(merged.getResourceDescription(), beanName,
@@ -664,16 +665,17 @@ public abstract class AbstractAutowireCapableBeanFactory
   }
 
   /**
-   * Apply BeanDefinitionPostProcessors to the specified bean merged,
-   * invoking their {@code postProcessBeanDefinition} methods.
+   * Apply MergedBeanDefinitionPostProcessors to the specified bean definition,
+   * invoking their {@code postProcessMergedBeanDefinition} methods.
    *
-   * @param mbd the merged bean merged for the bean
-   * @param bean the actual bean instance
+   * @param mbd the merged bean definition for the bean
+   * @param beanType the actual type of the managed bean instance
    * @param beanName the name of the bean
+   * @see MergedBeanDefinitionPostProcessor#postProcessMergedBeanDefinition
    */
-  protected void applyBeanDefinitionPostProcessors(RootBeanDefinition mbd, Object bean, String beanName) {
+  protected void applyMergedBeanDefinitionPostProcessors(RootBeanDefinition mbd, Class<?> beanType, String beanName) {
     for (MergedBeanDefinitionPostProcessor processor : postProcessors().definitions) {
-      processor.postProcessMergedBeanDefinition(mbd, bean, beanName);
+      processor.postProcessMergedBeanDefinition(mbd, beanType, beanName);
     }
   }
 
@@ -690,7 +692,6 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #autowireConstructor
    * @see #instantiateBean
    */
-  @SuppressWarnings("rawtypes")
   protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition merged, @Nullable Object[] args) {
     // Make sure bean class is actually resolved at this point.
     Class<?> beanClass = resolveBeanClass(beanName, merged);
