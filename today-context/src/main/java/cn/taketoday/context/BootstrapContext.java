@@ -145,8 +145,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Today
     this.applicationContext = context;
   }
 
-  public BootstrapContext(ConfigurableBeanFactory beanFactory, Environment environment) {
-    this(beanFactory, (ApplicationContext) null);
+  public BootstrapContext(@Nullable Environment environment, ConfigurableBeanFactory beanFactory) {
+    this(beanFactory, null);
     setEnvironment(environment);
   }
 
