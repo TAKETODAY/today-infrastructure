@@ -55,7 +55,7 @@ class ImportAutoConfigurationImportSelectorTests {
   private final MockEnvironment environment = new MockEnvironment();
 
   private final ImportAutoConfigurationImportSelector importSelector
-          = new TestImportAutoConfigurationImportSelector(new BootstrapContext(beanFactory, environment));
+          = new TestImportAutoConfigurationImportSelector(new BootstrapContext(environment, beanFactory));
 
   @Test
   void importsAreSelected() throws Exception {
