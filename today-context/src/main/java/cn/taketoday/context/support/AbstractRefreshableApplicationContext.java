@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.context.support;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -90,7 +89,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
   @Override
   protected BootstrapContext createBootstrapContext() {
-    return new BootstrapContext(Objects.requireNonNullElse(beanFactory, this), this);
+    return new BootstrapContext(getBeanFactory(), this);
   }
 
   /**

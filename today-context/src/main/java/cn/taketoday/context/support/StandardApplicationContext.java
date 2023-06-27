@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -169,7 +169,7 @@ public class StandardApplicationContext
 
     reader.setBeanNameGenerator(beanNameGenerator);
     scanner.setBeanNameGenerator(beanNameGenerator);
-    obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
+    getBootstrapContext().setBeanNameGenerator(beanNameGenerator);
 
     getBeanFactory().registerSingleton(
             AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
@@ -184,7 +184,7 @@ public class StandardApplicationContext
   public void setScopeMetadataResolver(ScopeMetadataResolver scopeMetadataResolver) {
     reader.setScopeMetadataResolver(scopeMetadataResolver);
     scanner.setScopeMetadataResolver(scopeMetadataResolver);
-    obtainBootstrapContext().setScopeMetadataResolver(scopeMetadataResolver);
+    getBootstrapContext().setScopeMetadataResolver(scopeMetadataResolver);
   }
 
   /**

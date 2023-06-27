@@ -51,7 +51,7 @@ public final class AotServices<T> implements Iterable<T> {
   /**
    * The location to look for AOT factories.
    */
-  public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring/aot.factories";
+  public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/config/aot.factories";
 
   private final List<T> services;
 
@@ -75,7 +75,7 @@ public final class AotServices<T> implements Iterable<T> {
 
   private Map<T, Source> collectSources(Collection<T> loaded, Collection<T> beans) {
     Map<T, Source> sources = new IdentityHashMap<>();
-    loaded.forEach(service -> sources.put(service, Source.SPRING_FACTORIES_LOADER));
+    loaded.forEach(service -> sources.put(service, Source.INFRA_SPI));
     beans.forEach(service -> sources.put(service, Source.BEAN_FACTORY));
     return Collections.unmodifiableMap(sources);
   }
@@ -235,7 +235,7 @@ public final class AotServices<T> implements Iterable<T> {
     /**
      * An AOT service loaded from {@link TodayStrategies}.
      */
-    SPRING_FACTORIES_LOADER,
+    INFRA_SPI,
 
     /**
      * An AOT service loaded from a {@link BeanFactory}.

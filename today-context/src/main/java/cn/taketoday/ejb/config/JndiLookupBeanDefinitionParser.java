@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,8 +22,8 @@ package cn.taketoday.ejb.config;
 
 import org.w3c.dom.Element;
 
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.xml.ParserContext;
 import cn.taketoday.jndi.JndiObjectFactoryBean;
 import cn.taketoday.util.StringUtils;
@@ -72,6 +72,7 @@ class JndiLookupBeanDefinitionParser extends AbstractJndiLocatingBeanDefinitionP
     else if (StringUtils.isNotEmpty(defaultRef)) {
       builder.addPropertyValue(DEFAULT_OBJECT, new RuntimeBeanReference(defaultRef));
     }
+    builder.setEnableDependencyInjection(false);
   }
 
 }

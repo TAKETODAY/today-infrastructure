@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,7 @@ public abstract class LangNamespaceUtils {
     }
     else {
       beanDefinition = new RootBeanDefinition(ScriptFactoryPostProcessor.class);
+      beanDefinition.setEnableDependencyInjection(false);
       registry.registerBeanDefinition(SCRIPT_FACTORY_POST_PROCESSOR_BEAN_NAME, beanDefinition);
     }
     return beanDefinition;

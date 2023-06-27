@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -303,6 +303,11 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   @Override
   public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
     throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support findAnnotationOnBean");
+  }
+
+  @Override
+  public <A extends Annotation> Set<A> findAllAnnotationsOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+    throw new UnsupportedOperationException("SimpleJndiBeanFactory does not support findAllAnnotationsOnBean");
   }
 
   @Override

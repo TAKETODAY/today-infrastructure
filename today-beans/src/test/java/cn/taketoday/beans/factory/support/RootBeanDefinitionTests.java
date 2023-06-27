@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,7 +41,7 @@ class RootBeanDefinitionTests {
 
   @Test
   void setInstanceSetResolvedFactoryMethod() {
-    InstanceSupplier<?> instanceSupplier = mock(InstanceSupplier.class);
+    InstanceSupplier<?> instanceSupplier = mock();
     Method method = ReflectionUtils.findMethod(String.class, "toString");
     given(instanceSupplier.getFactoryMethod()).willReturn(method);
     RootBeanDefinition beanDefinition = new RootBeanDefinition(String.class);
@@ -52,7 +52,7 @@ class RootBeanDefinitionTests {
 
   @Test
   void setInstanceDoesNotOverrideResolvedFactoryMethodWithNull() {
-    InstanceSupplier<?> instanceSupplier = mock(InstanceSupplier.class);
+    InstanceSupplier<?> instanceSupplier = mock();
     given(instanceSupplier.getFactoryMethod()).willReturn(null);
     Method method = ReflectionUtils.findMethod(String.class, "toString");
     RootBeanDefinition beanDefinition = new RootBeanDefinition(String.class);
@@ -60,6 +60,41 @@ class RootBeanDefinitionTests {
     beanDefinition.setInstanceSupplier(instanceSupplier);
     assertThat(beanDefinition.getResolvedFactoryMethod()).isEqualTo(method);
     verify(instanceSupplier).getFactoryMethod();
+  }
+
+  @Test
+  void resolveDestroyMethodWithMatchingCandidateReplacedInferredVaue() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanWithCloseMethod.class);
+    beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    assertThat(beanDefinition.getDestroyMethodNames()).containsExactly("close");
+  }
+
+  @Test
+  void resolveDestroyMethodWithNoCandidateSetDestroyMethodNameToNull() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanWithNoDestroyMethod.class);
+    beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    assertThat(beanDefinition.getDestroyMethodNames()).isNull();
+  }
+
+  @Test
+  void resolveDestroyMethodWithNoResolvableType() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition();
+    beanDefinition.setDestroyMethodName(AbstractBeanDefinition.INFER_METHOD);
+    beanDefinition.resolveDestroyMethodIfNecessary();
+    assertThat(beanDefinition.getDestroyMethodNames()).isNull();
+  }
+
+  static class BeanWithCloseMethod {
+
+    public void close() {
+    }
+
+  }
+
+  static class BeanWithNoDestroyMethod {
+
   }
 
 }

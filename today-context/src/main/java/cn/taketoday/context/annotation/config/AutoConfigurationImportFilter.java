@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.context.annotation.config;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
 
@@ -39,6 +40,7 @@ import cn.taketoday.context.ResourceLoaderAware;
  * <li>{@link BeanFactoryAware}</li>
  * <li>{@link BeanClassLoaderAware}</li>
  * <li>{@link ResourceLoaderAware}</li>
+ * <li>{@link BootstrapContextAware}</li>
  * </ul>
  *
  * @author Phillip Webb

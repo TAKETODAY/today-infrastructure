@@ -25,6 +25,7 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ProtocolResolver;
+import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -221,5 +222,14 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
    * @since 4.0
    */
   boolean isActive();
+
+  /**
+   * Returns BootstrapContext
+   *
+   * @return Returns BootstrapContext
+   * @since 4.0
+   */
+  @Experimental
+  BootstrapContext getBootstrapContext();
 
 }

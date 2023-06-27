@@ -208,7 +208,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
 
       if (wac instanceof ConfigurableApplicationContext configurableApplicationContext) {
         ConfigurableBeanFactory bf = configurableApplicationContext.getBeanFactory();
-        bf.registerDependency(MockHttpServletResponse.class, response);
+        bf.registerResolvableDependency(MockHttpServletResponse.class, response);
       }
     }
   }

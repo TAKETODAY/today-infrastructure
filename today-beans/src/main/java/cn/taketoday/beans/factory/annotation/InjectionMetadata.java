@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,6 @@ import java.util.Set;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.beans.factory.support.StandardDependenciesBeanPostProcessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -40,8 +39,9 @@ import cn.taketoday.util.ReflectionUtils;
  * Internal class for managing injection metadata.
  * Not intended for direct use in applications.
  *
- * <p>Used by {@link StandardDependenciesBeanPostProcessor}
+ * <p>Used by {@link AutowiredAnnotationBeanPostProcessor}
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Juergen Hoeller
  * @since 4.0
  */
@@ -97,13 +97,25 @@ public class InjectionMetadata {
   }
 
   /**
+   * Return the {@link InjectedElement elements} to inject based on the
+   * specified {@link PropertyValues}. If a property is already defined
+   * for an {@link InjectedElement}, it is excluded.
+   *
+   * @param pvs the property values to consider
+   * @return the elements to inject
+   */
+  public Collection<InjectedElement> getInjectedElements(@Nullable PropertyValues pvs) {
+    return injectedElements.stream().filter(candidate -> candidate.shouldInject(pvs)).toList();
+  }
+
+  /**
    * Determine whether this metadata instance needs to be refreshed.
    *
    * @param clazz the current target class
    * @return {@code true} indicating a refresh, {@code false} otherwise
    */
   protected boolean needsRefresh(Class<?> clazz) {
-    return this.targetClass != clazz;
+    return targetClass != clazz;
   }
 
   public void checkConfigMembers(RootBeanDefinition beanDefinition) {
@@ -154,7 +166,6 @@ public class InjectionMetadata {
    * @param elements the elements to inject (possibly empty)
    * @param clazz the target class
    * @return a new {@link #InjectionMetadata(Class, Collection)} instance
-   * @since 4.0
    */
   public static InjectionMetadata forElements(Collection<InjectedElement> elements, Class<?> clazz) {
     return (elements.isEmpty() ? new InjectionMetadata(clazz, Collections.emptyList()) :
@@ -180,6 +191,7 @@ public class InjectionMetadata {
     protected final Member member;
 
     protected final boolean isField;
+
     @Nullable
     protected final PropertyDescriptor pd;
 
@@ -227,27 +239,39 @@ public class InjectionMetadata {
     }
 
     /**
+     * Whether the property values should be injected.
+     *
+     * @param pvs property values to check
+     * @return whether the property values should be injected
+     */
+    protected boolean shouldInject(@Nullable PropertyValues pvs) {
+      if (this.isField) {
+        return true;
+      }
+      return !checkPropertySkipping(pvs);
+    }
+
+    /**
      * Either this or {@link #getResourceToInject} needs to be overridden.
      */
     protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)
-            throws Throwable {
-
-      if (this.isField) {
-        Field field = (Field) this.member;
-        ReflectionUtils.makeAccessible(field);
-        field.set(target, getResourceToInject(target, requestingBeanName));
-      }
-      else {
-        if (checkPropertySkipping(pvs)) {
-          return;
+            throws Throwable //
+    {
+      if (shouldInject(pvs)) {
+        if (this.isField) {
+          Field field = (Field) this.member;
+          ReflectionUtils.makeAccessible(field);
+          field.set(target, getResourceToInject(target, requestingBeanName));
         }
-        try {
-          Method method = (Method) this.member;
-          ReflectionUtils.makeAccessible(method);
-          method.invoke(target, getResourceToInject(target, requestingBeanName));
-        }
-        catch (InvocationTargetException ex) {
-          throw ex.getTargetException();
+        else {
+          try {
+            Method method = (Method) this.member;
+            ReflectionUtils.makeAccessible(method);
+            method.invoke(target, getResourceToInject(target, requestingBeanName));
+          }
+          catch (InvocationTargetException ex) {
+            throw ex.getTargetException();
+          }
         }
       }
     }

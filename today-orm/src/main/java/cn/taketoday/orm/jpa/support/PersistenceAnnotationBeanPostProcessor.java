@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,13 +39,13 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
-import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.InjectionMetadata;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.InstantiationAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.config.NamedBeanHolder;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
@@ -331,8 +331,8 @@ public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwar
   }
 
   @Override
-  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
-    InjectionMetadata metadata = findPersistenceMetadata(beanName, bean.getClass(), null);
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+    InjectionMetadata metadata = findPersistenceMetadata(beanName, beanType, null);
     metadata.checkConfigMembers(beanDefinition);
   }
 

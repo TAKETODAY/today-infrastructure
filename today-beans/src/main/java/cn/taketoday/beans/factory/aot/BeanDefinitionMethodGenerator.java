@@ -34,7 +34,6 @@ import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference;
 import cn.taketoday.aot.hint.RuntimeHints;
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
@@ -52,6 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanDefinitionMethodGeneratorFactory
  * @since 4.0
  */
@@ -104,8 +104,7 @@ class BeanDefinitionMethodGenerator {
           BeanRegistrationsCode beanRegistrationsCode) {
 
     registerRuntimeHintsIfNecessary(generationContext.getRuntimeHints());
-    BeanRegistrationCodeFragments codeFragments = getCodeFragments(generationContext,
-            beanRegistrationsCode);
+    var codeFragments = getCodeFragments(generationContext, beanRegistrationsCode);
     ClassName target = codeFragments.getTarget(this.registeredBean, this.constructorOrFactoryMethod);
     if (isWritablePackageName(target)) {
       GeneratedClass generatedClass = lookupGeneratedClass(generationContext, target);

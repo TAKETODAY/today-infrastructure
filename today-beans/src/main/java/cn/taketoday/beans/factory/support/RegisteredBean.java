@@ -37,7 +37,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * A {@code RegisteredBean} represents a bean that has been registered with a
@@ -80,11 +79,9 @@ public final class RegisteredBean {
    * @param beanName the bean name
    * @return a new {@link RegisteredBean} instance
    */
-  public static RegisteredBean of(ConfigurableBeanFactory beanFactory,
-          String beanName) {
-
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
-    Assert.hasLength(beanName, "BeanName must not be empty");
+  public static RegisteredBean of(ConfigurableBeanFactory beanFactory, String beanName) {
+    Assert.notNull(beanFactory, "'beanFactory' must not be null");
+    Assert.hasLength(beanName, "'beanName' must not be empty");
     return new RegisteredBean(beanFactory, () -> beanName, false,
             () -> (RootBeanDefinition) beanFactory.getMergedBeanDefinition(beanName),
             null);
@@ -98,7 +95,7 @@ public final class RegisteredBean {
    * @param mbd the pre-determined merged bean definition
    * @return a new {@link RegisteredBean} instance
    */
-  public static RegisteredBean of(ConfigurableBeanFactory beanFactory, String beanName, RootBeanDefinition mbd) {
+  static RegisteredBean of(ConfigurableBeanFactory beanFactory, String beanName, RootBeanDefinition mbd) {
     return new RegisteredBean(beanFactory, () -> beanName, false, () -> mbd, null);
   }
 
@@ -109,12 +106,9 @@ public final class RegisteredBean {
    * @param innerBean a {@link BeanDefinitionHolder} for the inner bean
    * @return a new {@link RegisteredBean} instance
    */
-  public static RegisteredBean ofInnerBean(RegisteredBean parent,
-          BeanDefinitionHolder innerBean) {
-
-    Assert.notNull(innerBean, "InnerBean must not be null");
-    return ofInnerBean(parent, innerBean.getBeanName(),
-            innerBean.getBeanDefinition());
+  public static RegisteredBean ofInnerBean(RegisteredBean parent, BeanDefinitionHolder innerBean) {
+    Assert.notNull(innerBean, "'innerBean' must not be null");
+    return ofInnerBean(parent, innerBean.getBeanName(), innerBean.getBeanDefinition());
   }
 
   /**
@@ -124,9 +118,7 @@ public final class RegisteredBean {
    * @param innerBeanDefinition the inner-bean definition
    * @return a new {@link RegisteredBean} instance
    */
-  public static RegisteredBean ofInnerBean(RegisteredBean parent,
-          BeanDefinition innerBeanDefinition) {
-
+  public static RegisteredBean ofInnerBean(RegisteredBean parent, BeanDefinition innerBeanDefinition) {
     return ofInnerBean(parent, null, innerBeanDefinition);
   }
 
@@ -142,12 +134,11 @@ public final class RegisteredBean {
   public static RegisteredBean ofInnerBean(RegisteredBean parent,
           @Nullable String innerBeanName, BeanDefinition innerBeanDefinition) {
 
-    Assert.notNull(parent, "Parent must not be null");
-    Assert.notNull(innerBeanDefinition, "InnerBeanDefinition must not be null");
+    Assert.notNull(parent, "'parent' must not be null");
+    Assert.notNull(innerBeanDefinition, "'innerBeanDefinition' must not be null");
     InnerBeanResolver resolver = new InnerBeanResolver(parent, innerBeanName, innerBeanDefinition);
-    Supplier<String> beanName = StringUtils.isNotEmpty(innerBeanName)
-                                ? SingletonSupplier.valueOf(innerBeanName)
-                                : resolver::resolveBeanName;
+    Supplier<String> beanName = (StringUtils.isNotEmpty(innerBeanName) ?
+                                 () -> innerBeanName : resolver::resolveBeanName);
     return new RegisteredBean(parent.getBeanFactory(), beanName,
             innerBeanName == null, resolver::resolveMergedBeanDefinition, parent);
   }
@@ -246,8 +237,8 @@ public final class RegisteredBean {
    * @return the resolved object, or {@code null} if none found
    */
   @Nullable
-  public Object resolveAutowiredArgument(DependencyDescriptor descriptor,
-          TypeConverter typeConverter, Set<String> autowiredBeans) {
+  public Object resolveAutowiredArgument(DependencyDescriptor descriptor, TypeConverter typeConverter,
+          Set<String> autowiredBeans) {
     return new ConstructorResolver((AbstractAutowireCapableBeanFactory) getBeanFactory())
             .resolveAutowiredArgument(descriptor, getBeanName(), autowiredBeans, typeConverter, true);
   }
@@ -273,11 +264,8 @@ public final class RegisteredBean {
     @Nullable
     private volatile String resolvedBeanName;
 
-    InnerBeanResolver(RegisteredBean parent, @Nullable String innerBeanName,
-            BeanDefinition innerBeanDefinition) {
-
-      Assert.isInstanceOf(AbstractAutowireCapableBeanFactory.class,
-              parent.getBeanFactory());
+    InnerBeanResolver(RegisteredBean parent, @Nullable String innerBeanName, BeanDefinition innerBeanDefinition) {
+      Assert.isInstanceOf(AbstractAutowireCapableBeanFactory.class, parent.getBeanFactory());
       this.parent = parent;
       this.innerBeanName = innerBeanName;
       this.innerBeanDefinition = innerBeanDefinition;
@@ -294,20 +282,16 @@ public final class RegisteredBean {
     }
 
     RootBeanDefinition resolveMergedBeanDefinition() {
-      return resolveInnerBean(
-              (beanName, mergedBeanDefinition) -> mergedBeanDefinition);
+      return resolveInnerBean((beanName, mergedBeanDefinition) -> mergedBeanDefinition);
     }
 
-    private <T> T resolveInnerBean(
-            BiFunction<String, RootBeanDefinition, T> resolver) {
-
+    private <T> T resolveInnerBean(BiFunction<String, RootBeanDefinition, T> resolver) {
       // Always use a fresh BeanDefinitionValueResolver in case the parent merged bean definition has changed.
-      BeanDefinitionValueResolver beanDefinitionValueResolver = new BeanDefinitionValueResolver(
-              parent.getBeanFactory().unwrap(AbstractAutowireCapableBeanFactory.class),
-              parent.getBeanName(), parent.getMergedBeanDefinition());
-      return beanDefinitionValueResolver.resolveInnerBean(innerBeanName, innerBeanDefinition, resolver);
+      var beanDefinitionValueResolver = new BeanDefinitionValueResolver(
+              (AbstractAutowireCapableBeanFactory) this.parent.getBeanFactory(),
+              this.parent.getBeanName(), this.parent.getMergedBeanDefinition());
+      return beanDefinitionValueResolver.resolveInnerBean(this.innerBeanName, this.innerBeanDefinition, resolver);
     }
-
   }
 
 }

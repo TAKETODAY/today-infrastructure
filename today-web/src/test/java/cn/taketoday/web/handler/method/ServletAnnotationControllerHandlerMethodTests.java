@@ -713,7 +713,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
             initDispatcherServlet(MyParameterDispatchingController.class, wac -> {
               wac.setServletContext(servletContext);
               AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
-              wac.getBeanFactory().registerDependency(ServletConfig.class, servletConfig);
+              wac.getBeanFactory().registerResolvableDependency(ServletConfig.class, servletConfig);
             });
 
     MockHttpServletRequest request = new MockHttpServletRequest(servletContext, "GET", "/myPath.do");

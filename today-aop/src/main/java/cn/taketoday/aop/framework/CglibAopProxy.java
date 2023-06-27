@@ -37,6 +37,7 @@ import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
 import cn.taketoday.bytecode.core.CodeGenerationException;
+import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.CallbackFilter;
 import cn.taketoday.bytecode.proxy.Dispatcher;
@@ -193,6 +194,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 
       enhancer.setAttemptLoad(true);
       enhancer.setSuperclass(proxySuperClass);
+      enhancer.setNamingPolicy(NamingPolicy.forInfrastructure());
       enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(config));
       enhancer.setStrategy(new ClassLoaderAwareGeneratorStrategy(classLoader));
 

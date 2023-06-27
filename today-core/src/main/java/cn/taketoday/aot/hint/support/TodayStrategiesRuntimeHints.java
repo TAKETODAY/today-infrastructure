@@ -28,7 +28,6 @@ import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -58,7 +57,7 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
   private void registerHints(RuntimeHints hints, ClassLoader classLoader, String resourceLocation) {
     hints.resources().registerPattern(resourceLocation);
     Map<String, List<String>> factories =
-            ExtendedSpringFactoriesLoader.accessLoadFactoriesResource(classLoader, resourceLocation);
+            ExtendedTodayStrategies.accessLoadFactoriesResource(classLoader, resourceLocation);
     factories.forEach((factoryClassName, implementationClassNames) ->
             registerHints(hints, classLoader, factoryClassName, implementationClassNames));
   }
@@ -68,20 +67,20 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
     Class<?> factoryClass = resolveClassName(classLoader, factoryClassName);
     if (factoryClass == null) {
       if (logger.isTraceEnabled()) {
-        logger.trace(LogMessage.format("Skipping factories for [%s]", factoryClassName));
+        logger.trace("Skipping factories for [{}]", factoryClassName);
       }
       return;
     }
     if (logger.isTraceEnabled()) {
-      logger.trace(LogMessage.format("Processing factories for [%s]", factoryClassName));
+      logger.trace("Processing factories for [{}]", factoryClassName);
     }
     hints.reflection().registerType(factoryClass, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
     for (String implementationClassName : implementationClassNames) {
       Class<?> implementationType = resolveClassName(classLoader, implementationClassName);
       if (logger.isTraceEnabled()) {
-        logger.trace(LogMessage.format("%s factory type [%s] and implementation [%s]",
+        logger.trace("{} factory type [{}] and implementation [{}]",
                 (implementationType != null ? "Processing" : "Skipping"), factoryClassName,
-                implementationClassName));
+                implementationClassName);
       }
       if (implementationType != null) {
         hints.reflection().registerType(implementationType, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
@@ -102,9 +101,9 @@ class TodayStrategiesRuntimeHints implements RuntimeHintsRegistrar {
     }
   }
 
-  private static class ExtendedSpringFactoriesLoader extends TodayStrategies {
+  private static class ExtendedTodayStrategies extends TodayStrategies {
 
-    ExtendedSpringFactoriesLoader(@Nullable ClassLoader classLoader, Map<String, List<String>> factories) {
+    ExtendedTodayStrategies(@Nullable ClassLoader classLoader, Map<String, List<String>> factories) {
       super(classLoader, factories);
     }
 

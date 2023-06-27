@@ -214,7 +214,7 @@ public abstract class AbstractApplicationContextRunner<
    * Customize the {@link ClassLoader} that the {@link ApplicationContext} should use
    * for resource loading and bean class loading.
    *
-   * @param classLoader the classloader to use (can be null to use the default)
+   * @param classLoader the classloader to use (or {@code null} to use the default)
    * @return a new instance with the updated class loader
    * @see FilteredClassLoader
    */
@@ -242,7 +242,7 @@ public abstract class AbstractApplicationContextRunner<
    * user configurations} in the order of registration.
    *
    * @param type the type of the bean
-   * @param constructorArgs custom argument values to be fed into Infra constructor
+   * @param constructorArgs custom argument values to be fed into Spring's constructor
    * resolution algorithm, resolving either all arguments or just specific ones, with
    * the rest to be resolved through regular autowiring (may be {@code null} or empty)
    * @param <T> the type of the bean
@@ -260,7 +260,7 @@ public abstract class AbstractApplicationContextRunner<
    *
    * @param name the bean name or {@code null} to use a generated name
    * @param type the type of the bean
-   * @param constructorArgs custom argument values to be fed into Infra constructor
+   * @param constructorArgs custom argument values to be fed into Spring's constructor
    * resolution algorithm, resolving either all arguments or just specific ones, with
    * the rest to be resolved through regular autowiring (may be {@code null} or empty)
    * @param <T> the type of the bean
@@ -357,14 +357,31 @@ public abstract class AbstractApplicationContextRunner<
    */
   @SuppressWarnings("unchecked")
   public SELF run(ContextConsumer<? super A> consumer) {
-    withContextClassLoader(this.runnerConfiguration.classLoader,
-            () -> this.runnerConfiguration.systemProperties.applyToSystemProperties(() -> {
-              try (A context = createAssertableContext()) {
-                accept(consumer, context);
-              }
-              return null;
-            }));
+    withContextClassLoader(this.runnerConfiguration.classLoader, () -> this.runnerConfiguration.systemProperties
+            .applyToSystemProperties(() -> consumeAssertableContext(true, consumer)));
     return (SELF) this;
+  }
+
+  /**
+   * Prepare a new {@link ApplicationContext} based on the current state of this loader.
+   * The context is consumed by the specified {@code consumer} and closed upon
+   * completion. Unlike {@link #run(ContextConsumer)}, this method does not refresh the
+   * consumed context.
+   *
+   * @param consumer the consumer of the created {@link ApplicationContext}
+   * @return this instance
+   */
+  @SuppressWarnings("unchecked")
+  public SELF prepare(ContextConsumer<? super A> consumer) {
+    withContextClassLoader(this.runnerConfiguration.classLoader, () -> this.runnerConfiguration.systemProperties
+            .applyToSystemProperties(() -> consumeAssertableContext(false, consumer)));
+    return (SELF) this;
+  }
+
+  private void consumeAssertableContext(boolean refresh, ContextConsumer<? super A> consumer) {
+    try (A context = createAssertableContext(refresh)) {
+      accept(consumer, context);
+    }
   }
 
   private void withContextClassLoader(ClassLoader classLoader, Runnable action) {
@@ -385,26 +402,25 @@ public abstract class AbstractApplicationContextRunner<
   }
 
   @SuppressWarnings("unchecked")
-  private A createAssertableContext() {
+  private A createAssertableContext(boolean refresh) {
     ResolvableType resolvableType = ResolvableType.forClass(AbstractApplicationContextRunner.class, getClass());
     Class<A> assertType = (Class<A>) resolvableType.resolveGeneric(1);
     Class<C> contextType = (Class<C>) resolvableType.resolveGeneric(2);
-    return ApplicationContextAssertProvider.get(assertType, contextType, this::createAndLoadContext);
+    return ApplicationContextAssertProvider.get(assertType, contextType, () -> createAndLoadContext(refresh));
   }
 
-  private C createAndLoadContext() {
+  private C createAndLoadContext(boolean refresh) {
     C context = this.runnerConfiguration.contextFactory.get();
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
-    if (beanFactory instanceof AbstractAutowireCapableBeanFactory) {
-      ((AbstractAutowireCapableBeanFactory) beanFactory)
-              .setAllowCircularReferences(this.runnerConfiguration.allowCircularReferences);
-      if (beanFactory instanceof StandardBeanFactory) {
-        ((StandardBeanFactory) beanFactory)
-                .setAllowBeanDefinitionOverriding(this.runnerConfiguration.allowBeanDefinitionOverriding);
+    if (beanFactory instanceof AbstractAutowireCapableBeanFactory autowireCapableBeanFactory) {
+      autowireCapableBeanFactory.setAllowCircularReferences(this.runnerConfiguration.allowCircularReferences);
+      if (beanFactory instanceof StandardBeanFactory stdBeanFactory) {
+        stdBeanFactory.setAllowBeanDefinitionOverriding(
+                this.runnerConfiguration.allowBeanDefinitionOverriding);
       }
     }
     try {
-      configureContext(context);
+      configureContext(context, refresh);
       return context;
     }
     catch (RuntimeException ex) {
@@ -413,7 +429,7 @@ public abstract class AbstractApplicationContextRunner<
     }
   }
 
-  private void configureContext(C context) {
+  private void configureContext(C context, boolean refresh) {
     if (this.runnerConfiguration.parent != null) {
       context.setParent(this.runnerConfiguration.parent);
     }
@@ -422,13 +438,15 @@ public abstract class AbstractApplicationContextRunner<
       ((DefaultResourceLoader) context).setClassLoader(this.runnerConfiguration.classLoader);
     }
     this.runnerConfiguration.environmentProperties.applyTo(context);
+    this.runnerConfiguration.beanRegistrations.forEach((registration) -> registration.apply(context));
+    this.runnerConfiguration.initializers.forEach((initializer) -> initializer.initialize(context));
     Class<?>[] classes = Configurations.getClasses(this.runnerConfiguration.configurations);
     if (classes.length > 0) {
       ((AnnotationConfigRegistry) context).register(classes);
     }
-    this.runnerConfiguration.beanRegistrations.forEach((registration) -> registration.apply(context));
-    this.runnerConfiguration.initializers.forEach((initializer) -> initializer.initialize(context));
-    context.refresh();
+    if (refresh) {
+      context.refresh();
+    }
   }
 
   private void accept(ContextConsumer<? super A> consumer, A context) {

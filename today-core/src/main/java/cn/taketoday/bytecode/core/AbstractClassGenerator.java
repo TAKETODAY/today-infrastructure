@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -28,8 +28,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import cn.taketoday.bytecode.proxy.Enhancer;
+import cn.taketoday.core.NativeDetector;
+import cn.taketoday.core.NativeDetector.Context;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.DefineClassHelper;
 
@@ -48,6 +51,11 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private static volatile WeakHashMap<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
+  private static final boolean DEFAULT_USE_CACHE =
+          TodayStrategies.getFlag("bytecode.useCache", true);
+
+  private static final boolean inNativeImage = NativeDetector.inNativeImage(Context.RUN, Context.BUILD);
+
   private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
   private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;
 
@@ -55,7 +63,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private ClassLoader classLoader;
   private String namePrefix;
   private Object key;
-  private boolean useCache = true;
+  private boolean useCache = DEFAULT_USE_CACHE;
   private String className;
   private boolean attemptLoad;
 
@@ -70,7 +78,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     this.source = source;
   }
 
-  protected static class ClassLoaderData {
+  protected static class ClassLoaderData implements Predicate<String> {
 
     private final HashSet<String> reservedClassNames = new HashSet<>();
 
@@ -101,7 +109,6 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     private final WeakReference<ClassLoader> classLoader;
 
     private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
-    private final Predicate<String> uniqueNamePredicate = reservedClassNames::contains;
 
     public ClassLoaderData(ClassLoader classLoader) {
       Assert.notNull(classLoader, "classLoader == null is not yet supported");
@@ -117,8 +124,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       reservedClassNames.add(name);
     }
 
-    public Predicate<String> getUniqueNamePredicate() {
-      return uniqueNamePredicate;
+    @Override
+    public boolean test(String name) {
+      return reservedClassNames.contains(name);
     }
 
     public Object get(AbstractClassGenerator gen, boolean useCache) {
@@ -184,7 +192,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
    * @param namingPolicy the custom policy, or null to use the default
    * @see DefaultNamingPolicy
    */
-  public AbstractClassGenerator setNamingPolicy(NamingPolicy namingPolicy) {
+  public AbstractClassGenerator setNamingPolicy(@Nullable NamingPolicy namingPolicy) {
     this.namingPolicy = namingPolicy == null ? DefaultNamingPolicy.INSTANCE : namingPolicy;
     return this;
   }
@@ -319,26 +327,33 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
     AbstractClassGenerator save = CURRENT.get();
     CURRENT.set(this);
-    ClassLoader classLoader = data.getClassLoader();
-    if (classLoader == null) {
-      throw new IllegalStateException(
-              "ClassLoader is null while trying to define class " + getClassName()
-                      + ". It seems that the loader has been expired from a weak reference somehow. "
-                      + "Please file an issue at cglib's issue tracker.");
-    }
-
     try {
+      ClassLoader classLoader = data.getClassLoader();
+      if (classLoader == null) {
+        throw new IllegalStateException(
+                "ClassLoader is null while trying to define class " + getClassName()
+                        + ". It seems that the loader has been expired from a weak reference somehow. "
+                        + "Please file an issue at cglib's issue tracker.");
+      }
       synchronized(classLoader) {
-        String name = generateClassName(data.getUniqueNamePredicate());
+        String name = generateClassName(data);
         data.reserveName(name);
         this.setClassName(name);
       }
       if (isAttemptLoad()) {
         try {
-          return classLoader.loadClass(getClassName());
+          synchronized(classLoader) { // just in case
+            return DefineClassHelper.loadClass(getClassName(), classLoader);
+          }
         }
         catch (ClassNotFoundException ignored) { }
       }
+
+      if (inNativeImage) {
+        throw new UnsupportedOperationException("CGLIB runtime enhancement not supported on native image. " +
+                "Make sure to include a pre-generated class on the classpath instead: " + getClassName());
+      }
+
       final byte[] bytes = getStrategy().generate(this);
       synchronized(classLoader) {
         DefineClassStrategy defineClassStrategy = getDefineClassStrategy();

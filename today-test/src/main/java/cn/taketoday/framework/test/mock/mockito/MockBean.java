@@ -46,7 +46,7 @@ import cn.taketoday.test.context.junit4.InfraRunner;
  * specifically targeted for replacement by a mock. In either case, if no existing bean is
  * defined a new one will be added. Dependencies that are known to the application context
  * but are not beans (such as those
- * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerDependency(Class, Object)
+ * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerResolvableDependency(Class, Object)
  * registered directly}) will not be found and a mocked bean will be added to the context
  * alongside the existing dependency.
  * <p>

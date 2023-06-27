@@ -178,12 +178,12 @@ public class WebApplicationContextUtils {
     RequestContextUtils.registerScopes(beanFactory);
 
     if (sc != null) {
-      beanFactory.registerDependency(ServletContext.class, sc);
+      beanFactory.registerResolvableDependency(ServletContext.class, sc);
     }
 
-    beanFactory.registerDependency(HttpSession.class, new SessionObjectSupplier());
-    beanFactory.registerDependency(ServletRequest.class, new RequestObjectSupplier());
-    beanFactory.registerDependency(ServletResponse.class, new ResponseObjectSupplier());
+    beanFactory.registerResolvableDependency(HttpSession.class, new SessionObjectSupplier());
+    beanFactory.registerResolvableDependency(ServletRequest.class, new RequestObjectSupplier());
+    beanFactory.registerResolvableDependency(ServletResponse.class, new ResponseObjectSupplier());
 
   }
 

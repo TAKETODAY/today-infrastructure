@@ -423,7 +423,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   @Nullable
   public String getBeanClassName() {
-    return (this.beanClass instanceof Class<?> clazz ? clazz.getName() : (String) this.beanClass);
+    return beanClass instanceof Class<?> clazz ? clazz.getName() : (String) beanClass;
   }
 
   /**
@@ -506,7 +506,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public ResolvableType getResolvableType() {
-    return (hasBeanClass() ? ResolvableType.forClass(getBeanClass()) : ResolvableType.NONE);
+    return hasBeanClass() ? ResolvableType.forClass(getBeanClass()) : ResolvableType.NONE;
   }
 
   /**
@@ -791,8 +791,10 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   }
 
   private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers() {
+    LinkedHashMap<String, AutowireCandidateQualifier> qualifiers = this.qualifiers;
     if (qualifiers == null) {
       qualifiers = new LinkedHashMap<>();
+      this.qualifiers = qualifiers;
     }
     return qualifiers;
   }
@@ -941,10 +943,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public PropertyValues getPropertyValues() {
-    if (this.propertyValues == null) {
-      this.propertyValues = new PropertyValues();
+    PropertyValues propertyValues = this.propertyValues;
+    if (propertyValues == null) {
+      propertyValues = new PropertyValues();
+      this.propertyValues = propertyValues;
     }
-    return this.propertyValues;
+    return propertyValues;
   }
 
   /**
@@ -952,7 +956,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   @Override
   public boolean hasPropertyValues() {
-    return (this.propertyValues != null && !this.propertyValues.isEmpty());
+    return propertyValues != null && !propertyValues.isEmpty();
   }
 
   /**
@@ -968,8 +972,10 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * <p>Never returns {@code null}.
    */
   public MethodOverrides getMethodOverrides() {
+    MethodOverrides methodOverrides = this.methodOverrides;
     if (methodOverrides == null) {
       methodOverrides = new MethodOverrides();
+      this.methodOverrides = methodOverrides;
     }
     return methodOverrides;
   }
@@ -1016,7 +1022,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   @Nullable
   public String getInitMethodName() {
-    return (ObjectUtils.isNotEmpty(this.initMethodNames) ? this.initMethodNames[0] : null);
+    return ObjectUtils.isNotEmpty(this.initMethodNames) ? this.initMethodNames[0] : null;
   }
 
   /**

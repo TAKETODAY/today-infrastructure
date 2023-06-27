@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,19 +20,36 @@
 
 package cn.taketoday.context.support;
 
-import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.OS;
+import org.mockito.ArgumentCaptor;
 
+import java.lang.reflect.Proxy;
 import java.nio.file.InvalidPathException;
+import java.util.HashMap;
+import java.util.Map;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
+import cn.taketoday.core.DecoratingProxy;
+import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
@@ -46,6 +63,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
@@ -267,9 +289,236 @@ public class GenericApplicationContextTests {
     resource = context.getResource(fileLocation);
     assertThat(resource).isInstanceOf(FileUrlResource.class);
     resource = context.getResource(pingLocation);
-    assertThat(resource).asInstanceOf(InstanceOfAssertFactories.type(ByteArrayResource.class))
+    assertThat(resource).asInstanceOf(type(ByteArrayResource.class))
             .extracting(bar -> new String(bar.getByteArray(), UTF_8))
             .isEqualTo("pong:foo");
+  }
+
+  @Test
+  void refreshForAotSetsContextActive() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    assertThat(context.isActive()).isFalse();
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(context.isActive()).isTrue();
+    context.close();
+  }
+
+  @Test
+  void refreshForAotRegistersEnvironment() {
+    ConfigurableEnvironment environment = new StandardEnvironment();
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.setEnvironment(environment);
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(context.getBean(Environment.class)).isEqualTo(environment);
+    context.close();
+  }
+
+  @Test
+  void refreshForAotLoadsBeanClassName() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("number", new RootBeanDefinition("java.lang.Integer"));
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(getBeanDefinition(context, "number").getBeanClass()).isEqualTo(Integer.class);
+    context.close();
+  }
+
+  @Test
+  void refreshForAotLoadsBeanClassNameOfConstructorArgumentInnerBeanDefinition() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+    GenericBeanDefinition innerBeanDefinition = new GenericBeanDefinition();
+    innerBeanDefinition.setBeanClassName("java.lang.Integer");
+    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, innerBeanDefinition);
+    context.registerBeanDefinition("test", beanDefinition);
+    context.refreshForAotProcessing(new RuntimeHints());
+    RootBeanDefinition bd = getBeanDefinition(context, "test");
+    GenericBeanDefinition value = (GenericBeanDefinition) bd.getConstructorArgumentValues()
+            .getIndexedArgumentValue(0, GenericBeanDefinition.class).getValue();
+    assertThat(value.hasBeanClass()).isTrue();
+    assertThat(value.getBeanClass()).isEqualTo(Integer.class);
+    context.close();
+  }
+
+  @Test
+  void refreshForAotLoadsBeanClassNameOfPropertyValueInnerBeanDefinition() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(String.class);
+    GenericBeanDefinition innerBeanDefinition = new GenericBeanDefinition();
+    innerBeanDefinition.setBeanClassName("java.lang.Integer");
+    beanDefinition.getPropertyValues().add("inner", innerBeanDefinition);
+    context.registerBeanDefinition("test", beanDefinition);
+    context.refreshForAotProcessing(new RuntimeHints());
+    RootBeanDefinition bd = getBeanDefinition(context, "test");
+    GenericBeanDefinition value = (GenericBeanDefinition) bd.getPropertyValues()
+            .getPropertyValue("inner");
+    assertThat(value.hasBeanClass()).isTrue();
+    assertThat(value.getBeanClass()).isEqualTo(Integer.class);
+    context.close();
+  }
+
+  @Test
+  void refreshForAotInvokesBeanFactoryPostProcessors() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    BeanFactoryPostProcessor bfpp = mock();
+    context.addBeanFactoryPostProcessor(bfpp);
+    context.refreshForAotProcessing(new RuntimeHints());
+    verify(bfpp).postProcessBeanFactory(context.getBeanFactory());
+    context.close();
+  }
+
+  @Test
+  void refreshForAotInvokesMergedBeanDefinitionPostProcessors() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("test", new RootBeanDefinition(String.class));
+    context.registerBeanDefinition("number", new RootBeanDefinition("java.lang.Integer"));
+    MergedBeanDefinitionPostProcessor bpp = registerMockMergedBeanDefinitionPostProcessor(context);
+    context.refreshForAotProcessing(new RuntimeHints());
+    verify(bpp).postProcessMergedBeanDefinition(getBeanDefinition(context, "test"), String.class, "test");
+    verify(bpp).postProcessMergedBeanDefinition(getBeanDefinition(context, "number"), Integer.class, "number");
+    context.close();
+  }
+
+  @Test
+  void refreshForAotInvokesMergedBeanDefinitionPostProcessorsOnConstructorArgument() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanD.class);
+    GenericBeanDefinition innerBeanDefinition = new GenericBeanDefinition();
+    innerBeanDefinition.setBeanClassName("java.lang.Integer");
+    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, innerBeanDefinition);
+    context.registerBeanDefinition("test", beanDefinition);
+    MergedBeanDefinitionPostProcessor bpp = registerMockMergedBeanDefinitionPostProcessor(context);
+    context.refreshForAotProcessing(new RuntimeHints());
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    verify(bpp).postProcessMergedBeanDefinition(getBeanDefinition(context, "test"), BeanD.class, "test");
+    verify(bpp).postProcessMergedBeanDefinition(any(RootBeanDefinition.class), eq(Integer.class), captor.capture());
+    assertThat(captor.getValue()).startsWith("(inner bean)");
+    context.close();
+  }
+
+  @Test
+  void refreshForAotInvokesMergedBeanDefinitionPostProcessorsOnPropertyValue() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(BeanD.class);
+    GenericBeanDefinition innerBeanDefinition = new GenericBeanDefinition();
+    innerBeanDefinition.setBeanClassName("java.lang.Integer");
+    beanDefinition.getPropertyValues().add("counter", innerBeanDefinition);
+    context.registerBeanDefinition("test", beanDefinition);
+    MergedBeanDefinitionPostProcessor bpp = registerMockMergedBeanDefinitionPostProcessor(context);
+    context.refreshForAotProcessing(new RuntimeHints());
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    verify(bpp).postProcessMergedBeanDefinition(getBeanDefinition(context, "test"), BeanD.class, "test");
+    verify(bpp).postProcessMergedBeanDefinition(any(RootBeanDefinition.class), eq(Integer.class), captor.capture());
+    assertThat(captor.getValue()).startsWith("(inner bean)");
+    context.close();
+  }
+
+  @Test
+  void refreshForAotFreezeConfiguration() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("test", new RootBeanDefinition(String.class));
+    MergedBeanDefinitionPostProcessor bpp = registerMockMergedBeanDefinitionPostProcessor(context);
+    context.refreshForAotProcessing(new RuntimeHints());
+    RootBeanDefinition mergedBeanDefinition = getBeanDefinition(context, "test");
+    verify(bpp).postProcessMergedBeanDefinition(mergedBeanDefinition, String.class, "test");
+    context.getBeanFactory().clearMetadataCache();
+    assertThat(context.getBeanFactory().getMergedBeanDefinition("test")).isSameAs(mergedBeanDefinition);
+    context.close();
+  }
+
+  @Test
+  void refreshForAotInvokesBeanPostProcessorContractOnMergedBeanDefinitionPostProcessors() {
+    class PostProcessor implements MergedBeanDefinitionPostProcessor, InitializationBeanPostProcessor {
+
+      @Override
+      public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> bean, String beanName) {
+        beanDefinition.setAttribute("mbdppCalled", true);
+      }
+
+      @Override
+      public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return (beanName.equals("test") ? "42" : bean);
+      }
+    }
+
+    PostProcessor bpp = new PostProcessor();
+
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("bpp", BeanDefinitionBuilder.rootBeanDefinition(
+                    MergedBeanDefinitionPostProcessor.class, () -> bpp)
+            .setRole(BeanDefinition.ROLE_INFRASTRUCTURE).getBeanDefinition());
+    AbstractBeanDefinition bd = BeanDefinitionBuilder.rootBeanDefinition(String.class)
+            .addConstructorArgValue("value").getBeanDefinition();
+    context.registerBeanDefinition("test", bd);
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(context.getBeanFactory().getMergedBeanDefinition("test")
+            .hasAttribute("mbdppCalled")).isTrue();
+    assertThat(context.getBean("test")).isEqualTo("42");
+    context.close();
+  }
+
+  @Test
+  void refreshForAotFailsOnAnActiveContext() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.refresh();
+    assertThatIllegalStateException().isThrownBy(() -> context.refreshForAotProcessing(new RuntimeHints()))
+            .withMessageContaining("does not support multiple refresh attempts");
+    context.close();
+  }
+
+  @Test
+  void refreshForAotDoesNotInitializeFactoryBeansEarly() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("genericFactoryBean",
+            new RootBeanDefinition(TestAotFactoryBean.class));
+    context.refreshForAotProcessing(new RuntimeHints());
+    context.close();
+  }
+
+  @Test
+  void refreshForAotDoesNotInstantiateBean() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("test", BeanDefinitionBuilder.rootBeanDefinition(String.class, () -> {
+      throw new IllegalStateException("Should not be invoked");
+    }).getBeanDefinition());
+    context.refreshForAotProcessing(new RuntimeHints());
+    context.close();
+  }
+
+  @Test
+  void refreshForAotRegisterProxyHint() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("bpp", BeanDefinitionBuilder.rootBeanDefinition(
+                    SmartInstantiationAwareBeanPostProcessor.class, () -> new SmartInstantiationAwareBeanPostProcessor() {
+                      @Override
+                      public Class<?> determineBeanType(Class<?> beanClass, String beanName) throws BeansException {
+                        if (beanClass.isInterface()) {
+                          return Proxy.newProxyInstance(GenericApplicationContextTests.class.getClassLoader(),
+                                  new Class[] { Map.class, DecoratingProxy.class }, (proxy, method, args) -> null).getClass();
+                        }
+                        else {
+                          return beanClass;
+                        }
+                      }
+                    })
+            .setRole(BeanDefinition.ROLE_INFRASTRUCTURE).getBeanDefinition());
+    context.registerBeanDefinition("map", BeanDefinitionBuilder.rootBeanDefinition(Map.class,
+            HashMap::new).getBeanDefinition());
+    RuntimeHints runtimeHints = new RuntimeHints();
+    context.refreshForAotProcessing(runtimeHints);
+    assertThat(RuntimeHintsPredicates.proxies().forInterfaces(Map.class, DecoratingProxy.class)).accepts(runtimeHints);
+    context.close();
+  }
+
+  private MergedBeanDefinitionPostProcessor registerMockMergedBeanDefinitionPostProcessor(GenericApplicationContext context) {
+    MergedBeanDefinitionPostProcessor bpp = mock();
+    context.registerBeanDefinition("bpp", BeanDefinitionBuilder.rootBeanDefinition(
+                    MergedBeanDefinitionPostProcessor.class, () -> bpp)
+            .setRole(BeanDefinition.ROLE_INFRASTRUCTURE).getBeanDefinition());
+    return bpp;
+  }
+
+  private RootBeanDefinition getBeanDefinition(GenericApplicationContext context, String name) {
+    return (RootBeanDefinition) context.getBeanFactory().getMergedBeanDefinition(name);
   }
 
   static class BeanA {
@@ -313,7 +562,6 @@ public class GenericApplicationContextTests {
     public void setCounter(Integer counter) {
       this.counter = counter;
     }
-
   }
 
   static class TestAotFactoryBean<T> extends AbstractFactoryBean<T> {

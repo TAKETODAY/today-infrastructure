@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -218,8 +218,8 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static Method getMethod(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(methodName, "Method name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
       try {
         return clazz.getMethod(methodName, paramTypes);
@@ -260,8 +260,8 @@ public abstract class ReflectionUtils {
   @Nullable
   public static Method getMethodIfAvailable(
           Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(methodName, "Method name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
       return getMethodOrNull(clazz, methodName, paramTypes);
     }
@@ -284,8 +284,8 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static int getMethodCountForName(Class<?> clazz, String methodName) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(methodName, "Method name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(methodName, "Method name is required");
     int count = 0;
     Method[] declaredMethods = clazz.getDeclaredMethods();
     for (Method method : declaredMethods) {
@@ -314,8 +314,8 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method getStaticMethod(Class<?> clazz, String methodName, Class<?>... args) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(methodName, "Method name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(methodName, "Method name is required");
     try {
       Method method = clazz.getMethod(methodName, args);
       return Modifier.isStatic(method.getModifiers()) ? method : null;
@@ -358,8 +358,8 @@ public abstract class ReflectionUtils {
    * @since 3.0
    */
   public static boolean hasMethod(Class<?> clazz, Method method) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(method, "Method is required");
     if (clazz == method.getDeclaringClass()) {
       return true;
     }
@@ -515,8 +515,8 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method findMethod(Class<?> clazz, String name, Class<?>... paramTypes) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(name, "Method name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(name, "Method name is required");
     Class<?> searchType = clazz;
     while (searchType != null) {
       Method[] methods = searchType.isInterface() ? searchType.getMethods() : getDeclaredMethods(searchType, false);
@@ -610,7 +610,7 @@ public abstract class ReflectionUtils {
    * it needs to be wrapped
    */
   public static boolean declaresException(Method method, Class<?> exceptionType) {
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method is required");
     Class<?>[] declaredExceptions = method.getExceptionTypes();
     for (Class<?> declaredException : declaredExceptions) {
       if (declaredException.isAssignableFrom(exceptionType)) {
@@ -729,7 +729,7 @@ public abstract class ReflectionUtils {
   }
 
   private static Method[] getDeclaredMethods(Class<?> targetClass, boolean defensive) {
-    Assert.notNull(targetClass, "targetClass must not be null");
+    Assert.notNull(targetClass, "targetClass is required");
     Method[] result = DECLARED_METHODS_CACHE.get(targetClass);
     if (result == null) {
       try {
@@ -914,7 +914,7 @@ public abstract class ReflectionUtils {
    */
   @SuppressWarnings("deprecation") // on JDK 9
   public static Method makeAccessible(Method method) {
-    Assert.notNull(method, "method must not be null");
+    Assert.notNull(method, "method is required");
     if ((!Modifier.isPublic(method.getModifiers()) ||
             !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
       method.setAccessible(true);
@@ -965,7 +965,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Field findField(Class<?> clazz, String name, Class<?> type) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     Assert.isTrue(name != null || type != null, "Either name or type of the field must be specified");
     Class<?> searchType = clazz;
     while (Object.class != searchType && searchType != null) {
@@ -1102,7 +1102,7 @@ public abstract class ReflectionUtils {
    * @see Class#getDeclaredFields()
    */
   public static Field[] getDeclaredFields(Class<?> clazz) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     Field[] result = DECLARED_FIELDS_CACHE.get(clazz);
     if (result == null) {
       try {
@@ -1158,7 +1158,7 @@ public abstract class ReflectionUtils {
    */
   @SuppressWarnings("deprecation") // on JDK 9
   public static Field makeAccessible(Field field) {
-    Assert.notNull(field, "field must not be null");
+    Assert.notNull(field, "field is required");
 
     if ((!Modifier.isPublic(field.getModifiers())
             || !Modifier.isPublic(field.getDeclaringClass().getModifiers())
@@ -1201,7 +1201,7 @@ public abstract class ReflectionUtils {
 
   @SuppressWarnings("deprecation")
   public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
-    Assert.notNull(constructor, "constructor must not be null");
+    Assert.notNull(constructor, "constructor is required");
 
     if ((!Modifier.isPublic(constructor.getModifiers())
             || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers()))
@@ -1239,7 +1239,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static <T> Constructor<T> getConstructorIfAvailable(Class<T> clazz, Class<?>... paramTypes) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     try {
       return clazz.getDeclaredConstructor(paramTypes);
     }
@@ -1256,7 +1256,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static <T> Constructor<T> getConstructor(Class<T> type, Class<?>... parameterTypes) {
-    Assert.notNull(type, "Class must not be null");
+    Assert.notNull(type, "Class is required");
     try {
       return type.getDeclaredConstructor(parameterTypes);
     }
@@ -1412,7 +1412,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method getReadMethod(Field field) {
-    Assert.notNull(field, "field must not be null");
+    Assert.notNull(field, "field is required");
     Class<?> type = field.getType();
     String propertyName = field.getName();
     return getReadMethod(field.getDeclaringClass(), type, propertyName);
@@ -1436,7 +1436,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method getWriteMethod(Field field) {
-    Assert.notNull(field, "field must not be null");
+    Assert.notNull(field, "field is required");
     Class<?> type = field.getType();
     String propertyName = field.getName();
     return getWriteMethod(field.getDeclaringClass(), type, propertyName);
@@ -1559,7 +1559,7 @@ public abstract class ReflectionUtils {
      * @since 4.0
      */
     default MethodFilter and(MethodFilter next) {
-      Assert.notNull(next, "Next MethodFilter must not be null");
+      Assert.notNull(next, "Next MethodFilter is required");
       return method -> matches(method) && next.matches(method);
     }
   }
@@ -1602,7 +1602,7 @@ public abstract class ReflectionUtils {
      * @since 4.0
      */
     default FieldFilter and(FieldFilter next) {
-      Assert.notNull(next, "Next FieldFilter must not be null");
+      Assert.notNull(next, "Next FieldFilter is required");
       return field -> matches(field) && next.matches(field);
     }
 
@@ -1644,7 +1644,7 @@ public abstract class ReflectionUtils {
    * @since 3.0
    */
   public static Parameter getParameter(Executable executable, int parameterIndex) {
-    Assert.notNull(executable, "Executable must not be null");
+    Assert.notNull(executable, "Executable is required");
     Parameter[] parameters = executable.getParameters();
     if (parameterIndex < 0 || parameterIndex >= parameters.length) {
       throw new IllegalArgumentException("parameter index is illegal");

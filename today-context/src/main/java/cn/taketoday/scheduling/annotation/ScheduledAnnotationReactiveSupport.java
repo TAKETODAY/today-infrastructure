@@ -69,7 +69,7 @@ abstract class ScheduledAnnotationReactiveSupport {
    * @throws IllegalStateException if the method is reactive but Reactor and/or the
    * Kotlin coroutines bridge are not present at runtime
    */
-  static boolean isReactive(Method method) {
+  public static boolean isReactive(Method method) {
     ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
     if (!registry.hasAdapters()) {
       return false;

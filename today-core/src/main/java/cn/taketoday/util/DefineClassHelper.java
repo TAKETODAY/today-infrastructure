@@ -26,6 +26,8 @@ import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.lang.Nullable;
@@ -34,13 +36,39 @@ import cn.taketoday.reflect.ReflectionException;
 /**
  * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
  *
+ * <p>This first tries to use {@code java.lang.invoke.MethodHandle} to load a class.
+ * Otherwise, or if {@code neighbor} is null,
+ * this tries to use {@code sun.misc.Unsafe} to load a class.
+ * Then it tries to use a {@code protected} method in {@code java.lang.ClassLoader}
+ * via {@code PrivilegedAction}.  Since the latter approach is not available
+ * any longer by default in Java 9 or later, the JVM argument
+ * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
+ * </p>
+ * <pre>
+ * --add-opens java.base/java.lang=ALL-UNNAMED
+ * --add-opens java.base/java.util=ALL-UNNAMED
+ * --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+ * </pre>
+ *
  * @author TODAY 2021/11/8 9:44
  * @since 4.0
  */
 public class DefineClassHelper {
-  private static final Method defineClass;
+
+  @Nullable
+  private static final Method classLoaderDefineClassMethod;
+
+  @Nullable
   private static final Throwable THROWABLE;
+
+  @Nullable
   private static final ProtectionDomain PROTECTION_DOMAIN;
+
+  @Nullable
+  private static Consumer<Class<?>> loadedClassHandler;
+
+  @Nullable
+  private static BiConsumer<String, byte[]> generatedClassHandler;
 
   static {
     // Resolve protected ClassLoader.defineClass method for fallback use
@@ -50,6 +78,7 @@ public class DefineClassHelper {
     try {
       classLoaderDefineClass = ClassLoader.class.getDeclaredMethod(
               "defineClass", String.class, byte[].class, int.class, int.class, ProtectionDomain.class);
+      ReflectionUtils.makeAccessible(classLoaderDefineClass);
     }
     catch (Throwable t) {
       classLoaderDefineClass = null;
@@ -57,8 +86,16 @@ public class DefineClassHelper {
     }
 
     THROWABLE = throwable;
-    defineClass = classLoaderDefineClass;
+    classLoaderDefineClassMethod = classLoaderDefineClass;
     PROTECTION_DOMAIN = ReflectionUtils.getProtectionDomain(DefineClassHelper.class);
+  }
+
+  public static void setGeneratedClassHandler(@Nullable BiConsumer<String, byte[]> handler) {
+    generatedClassHandler = handler;
+  }
+
+  public static void setLoadedClassHandler(@Nullable Consumer<Class<?>> handler) {
+    loadedClassHandler = handler;
   }
 
   /**
@@ -116,13 +153,16 @@ public class DefineClassHelper {
    * @param domain if it is null, a default domain is used.
    * @param classFile the bytecode for the loaded class.
    */
-  public static Class<?> defineClass(
-          String className, @Nullable Class<?> neighbor,
+  public static Class<?> defineClass(String className, @Nullable Class<?> neighbor,
           ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws CodeGenerationException {
 
     Class<?> c = null;
     Throwable t = THROWABLE;
 
+    BiConsumer<String, byte[]> handlerToUse = generatedClassHandler;
+    if (handlerToUse != null) {
+      handlerToUse.accept(className, classFile);
+    }
     // Preferred option: JDK 9+ Lookup.defineClass API if ClassLoader matches
     if (neighbor != null && neighbor.getClassLoader() == loader) {
       try {
@@ -147,10 +187,9 @@ public class DefineClassHelper {
       }
 
       // Classic option: protected ClassLoader.defineClass method
-      if (defineClass != null) {
+      if (classLoaderDefineClassMethod != null) {
         try {
-          ReflectionUtils.makeAccessible(defineClass);
-          c = (Class<?>) defineClass.invoke(loader, new Object[] { className, classFile, 0, classFile.length, domain });
+          c = (Class<?>) classLoaderDefineClassMethod.invoke(loader, new Object[] { className, classFile, 0, classFile.length, domain });
         }
         catch (InvocationTargetException ex) {
           throw new CodeGenerationException(ex.getTargetException());
@@ -207,13 +246,23 @@ public class DefineClassHelper {
     }
 
     // Force static initializers to run.
-//    try {
-//      Class.forName(className, true, loader);
-//    }
-//    catch (ClassNotFoundException e) {
-//      throw newException(className, e);
-//    }
+    try {
+      Class.forName(className, true, loader);
+    }
+    catch (ClassNotFoundException e) {
+      throw newException(className, e);
+    }
     return c;
+  }
+
+  public static Class<?> loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
+    // Force static initializers to run.
+    Class<?> clazz = Class.forName(className, true, classLoader);
+    Consumer<Class<?>> handlerToUse = loadedClassHandler;
+    if (handlerToUse != null) {
+      handlerToUse.accept(clazz);
+    }
+    return clazz;
   }
 
   private static CodeGenerationException newException(String className, Throwable ex) {

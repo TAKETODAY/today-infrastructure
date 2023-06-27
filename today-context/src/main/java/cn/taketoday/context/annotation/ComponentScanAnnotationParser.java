@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,6 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ClassPathBeanDefinitionScanner#scan(String...)
  * @since 4.0
  */
@@ -72,7 +73,7 @@ class ComponentScanAnnotationParser {
       scanner.setScopedProxyMode(scopedProxyMode);
     }
     else {
-      Class<? extends ScopeMetadataResolver> resolverClass = componentScan.getClass("scopeResolver");
+      var resolverClass = componentScan.<ScopeMetadataResolver>getClass("scopeResolver");
       if (resolverClass != ScopeMetadataResolver.class) {
         scanner.setScopeMetadataResolver(BeanUtils.newInstance(resolverClass));
       }
@@ -102,9 +103,7 @@ class ComponentScanAnnotationParser {
     String[] basePackagesArray = componentScan.getStringArray("basePackages");
     for (String pkg : basePackagesArray) {
       String[] tokenized = StringUtils.tokenizeToStringArray(
-              context.evaluateExpression(pkg),
-              ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS
-      );
+              context.evaluateExpression(pkg), ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
       Collections.addAll(basePackages, tokenized);
     }
     for (Class<?> clazz : componentScan.getClassArray("basePackageClasses")) {

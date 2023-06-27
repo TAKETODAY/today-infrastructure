@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,12 +23,12 @@ package cn.taketoday.context.support;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -61,8 +61,8 @@ final class ApplicationListenerDetector
   }
 
   @Override
-  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Object bean, String beanName) {
-    if (bean instanceof ApplicationListener) {
+  public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+    if (ApplicationListener.class.isAssignableFrom(beanType)) {
       this.singletonNames.put(beanName, beanDefinition.isSingleton());
     }
   }

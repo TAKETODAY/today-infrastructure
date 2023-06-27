@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,8 +86,13 @@ import cn.taketoday.util.StringUtils;
  * on permissible configuration constellations and on the algorithms used to
  * locate these beans.
  *
+ * <h3>Required Dependencies</h3>
+ * <p>Use of this listener requires the {@code today-jdbc} and {@code today-tx}
+ * modules as well as their transitive dependencies to be present on the classpath.
+ *
  * @author Sam Brannen
  * @author Dmitry Semukhin
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Sql
  * @see SqlConfig
  * @see SqlGroup

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,8 @@ package cn.taketoday.context.annotation;
 
 import java.util.function.Predicate;
 
+import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -40,6 +42,7 @@ import cn.taketoday.lang.Nullable;
  * <li>{@link cn.taketoday.beans.factory.BeanFactoryAware BeanFactoryAware}</li>
  * <li>{@link cn.taketoday.beans.factory.BeanClassLoaderAware BeanClassLoaderAware}</li>
  * <li>{@link ResourceLoaderAware ResourceLoaderAware}</li>
+ * <li>{@link BootstrapContextAware BootstrapContextAware}</li>
  * </ul>
  *
  * <p>Alternatively, the class may provide a single constructor with one or more of
@@ -49,6 +52,7 @@ import cn.taketoday.lang.Nullable;
  * <li>{@link cn.taketoday.beans.factory.BeanFactory BeanFactory}</li>
  * <li>{@link java.lang.ClassLoader ClassLoader}</li>
  * <li>{@link cn.taketoday.core.io.ResourceLoader ResourceLoader}</li>
+ * <li>{@link cn.taketoday.context.BootstrapContext BootstrapContext}</li>
  * </ul>
  *
  * @author Chris Beams

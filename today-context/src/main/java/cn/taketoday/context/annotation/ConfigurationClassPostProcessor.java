@@ -122,6 +122,7 @@ import static cn.taketoday.context.annotation.ConfigurationClassUtils.CONFIGURAT
 public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor,
         PriorityOrdered, BeanClassLoaderAware, BootstrapContextAware,
         BeanRegistrationAotProcessor, BeanFactoryInitializationAotProcessor {
+
   private static final Logger log = LoggerFactory.getLogger(ConfigurationClassPostProcessor.class);
 
   private static final String IMPORT_REGISTRY_BEAN_NAME =
@@ -259,7 +260,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
   @Nullable
   @Override
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
-    Object configClassAttr = registeredBean.getMergedBeanDefinition()
+    RootBeanDefinition mergedBeanDefinition = registeredBean.getMergedBeanDefinition();
+    Object configClassAttr = mergedBeanDefinition
             .getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);
     if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
       Class<?> proxyClass = registeredBean.getBeanType().toClass();
@@ -487,9 +489,11 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
     }
 
     @Override
-    public PropertyValues processDependencies(PropertyValues propertyValues, Object bean, String beanName) {
+    public PropertyValues processDependencies(
+            @Nullable PropertyValues propertyValues, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
+        // FIXME
         enhancedConfiguration.setBeanFactory(this.beanFactory);
       }
       return propertyValues;

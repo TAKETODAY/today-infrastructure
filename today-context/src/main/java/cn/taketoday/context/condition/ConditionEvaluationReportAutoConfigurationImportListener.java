@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,9 +20,6 @@
 
 package cn.taketoday.context.condition;
 
-import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportEvent;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportListener;
@@ -36,22 +33,19 @@ import cn.taketoday.context.annotation.config.AutoConfigurationImportListener;
  * @since 4.0 2022/3/5 23:24
  */
 class ConditionEvaluationReportAutoConfigurationImportListener
-        implements AutoConfigurationImportListener, BeanFactoryAware {
+        implements AutoConfigurationImportListener {
 
-  private ConfigurableBeanFactory beanFactory;
+  private final ConfigurableBeanFactory beanFactory;
 
-  @Override
-  public void onAutoConfigurationImportEvent(AutoConfigurationImportEvent event) {
-    if (this.beanFactory != null) {
-      ConditionEvaluationReport report = ConditionEvaluationReport.get(this.beanFactory);
-      report.recordEvaluationCandidates(event.getCandidateConfigurations());
-      report.recordExclusions(event.getExclusions());
-    }
+  ConditionEvaluationReportAutoConfigurationImportListener(ConfigurableBeanFactory beanFactory) {
+    this.beanFactory = beanFactory;
   }
 
   @Override
-  public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    this.beanFactory = beanFactory instanceof ConfigurableBeanFactory cbf ? cbf : null;
+  public void onAutoConfigurationImportEvent(AutoConfigurationImportEvent event) {
+    ConditionEvaluationReport report = ConditionEvaluationReport.get(this.beanFactory);
+    report.recordEvaluationCandidates(event.getCandidateConfigurations());
+    report.recordExclusions(event.getExclusions());
   }
 
 }

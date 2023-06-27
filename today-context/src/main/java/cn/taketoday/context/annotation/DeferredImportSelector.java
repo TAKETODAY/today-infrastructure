@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface DeferredImportSelector extends ImportSelector {
@@ -73,40 +74,12 @@ public interface DeferredImportSelector extends ImportSelector {
     /**
      * An entry that holds the {@link AnnotationMetadata} of the importing
      * {@link Configuration} class and the class name to import.
+     *
+     * @param metadata Return the {@link AnnotationMetadata} of the importing
+     * {@link Configuration} class.
+     * @param importClassName Return the fully qualified name of the class to import.
      */
     record Entry(AnnotationMetadata metadata, String importClassName) {
-
-      /**
-       * Return the {@link AnnotationMetadata} of the importing
-       * {@link Configuration} class.
-       */
-      public AnnotationMetadata getMetadata() {
-        return this.metadata;
-      }
-
-      /**
-       * Return the fully qualified name of the class to import.
-       */
-      public String getImportClassName() {
-        return this.importClassName;
-      }
-
-      @Override
-      public boolean equals(@Nullable Object other) {
-        if (this == other) {
-          return true;
-        }
-        if (other == null || getClass() != other.getClass()) {
-          return false;
-        }
-        Entry entry = (Entry) other;
-        return (this.metadata.equals(entry.metadata) && this.importClassName.equals(entry.importClassName));
-      }
-
-      @Override
-      public int hashCode() {
-        return (this.metadata.hashCode() * 31 + this.importClassName.hashCode());
-      }
 
       @Override
       public String toString() {

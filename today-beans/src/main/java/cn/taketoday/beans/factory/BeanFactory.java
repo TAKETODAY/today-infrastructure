@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -327,6 +327,27 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @since 4.0
    */
   <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
+          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
+          throws NoSuchBeanDefinitionException;
+
+  /**
+   * Find all {@link Annotation} instances of {@code annotationType} on the specified
+   * bean, traversing its interfaces and superclasses if no annotation can be found on
+   * the given class itself, as well as checking the bean's factory method (if any).
+   *
+   * @param beanName the name of the bean to look for annotations on
+   * @param annotationType the type of annotation to look for
+   * (at class, interface or factory method level of the specified bean)
+   * @param allowFactoryBeanInit whether a {@code FactoryBean} may get initialized
+   * just for the purpose of determining its object type
+   * @return the set of annotations of the given type found (potentially empty)
+   * @throws NoSuchBeanDefinitionException if there is no bean with the given name
+   * @see #getBeanNamesForAnnotation(Class)
+   * @see #findAnnotationOnBean(String, Class, boolean)
+   * @see #getType(String, boolean)
+   * @since 4.0
+   */
+  <A extends Annotation> Set<A> findAllAnnotationsOnBean(
           String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
           throws NoSuchBeanDefinitionException;
 

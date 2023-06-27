@@ -105,7 +105,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     TestContext context = super.buildTestContext();
     verifyConfiguration(context.getTestClass());
     WebEnvironment webEnvironment = getWebEnvironment(context.getTestClass());
-    if (webEnvironment == WebEnvironment.MOCK && deduceWebApplicationType() == ApplicationType.SERVLET_WEB) {
+    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forClasspath() == ApplicationType.SERVLET_WEB) {
       context.setAttribute(ACTIVATE_SERVLET_LISTENER, true);
     }
     else if (webEnvironment != null && webEnvironment.isEmbedded()) {
@@ -175,20 +175,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
             TestPropertySourceUtils.convertInlinedPropertiesToMap(configuration.getPropertySourceProperties()));
     Binder binder = new Binder(source);
     return binder.bind("app.main.application-type", Bindable.of(ApplicationType.class))
-            .orElseGet(this::deduceWebApplicationType);
-  }
-
-  private ApplicationType deduceWebApplicationType() {
-    if (ClassUtils.isPresent(REACTIVE_WEB_ENVIRONMENT_CLASS, null)
-            && !ClassUtils.isPresent(MVC_WEB_ENVIRONMENT_CLASS, null)) {
-      return ApplicationType.REACTIVE_WEB;
-    }
-    for (String className : WEB_ENVIRONMENT_CLASSES) {
-      if (!ClassUtils.isPresent(className, null)) {
-        return ApplicationType.NORMAL;
-      }
-    }
-    return ApplicationType.SERVLET_WEB;
+            .orElseGet(ApplicationType::forClasspath);
   }
 
   /**

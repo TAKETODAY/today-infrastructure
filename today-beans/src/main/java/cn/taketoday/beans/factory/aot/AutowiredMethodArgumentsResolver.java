@@ -31,13 +31,12 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.function.ThrowingConsumer;
 
@@ -56,6 +55,7 @@ import cn.taketoday.util.function.ThrowingConsumer;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class AutowiredMethodArgumentsResolver extends AutowiredElementResolver {
@@ -178,8 +178,6 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
     String beanName = registeredBean.getBeanName();
     Class<?> beanClass = registeredBean.getBeanClass();
     ConfigurableBeanFactory beanFactory = registeredBean.getBeanFactory();
-    Assert.isInstanceOf(AutowireCapableBeanFactory.class, beanFactory);
-    AutowireCapableBeanFactory autowireCapableBeanFactory = (AutowireCapableBeanFactory) beanFactory;
     int argumentCount = method.getParameterCount();
     Object[] arguments = new Object[argumentCount];
     Set<String> autowiredBeanNames = new LinkedHashSet<>(argumentCount);
@@ -195,8 +193,8 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
                 parameter.getParameterType());
       }
       try {
-        Object argument = autowireCapableBeanFactory.resolveDependency(descriptor,
-                beanName, autowiredBeanNames, typeConverter);
+        Object argument = beanFactory.resolveDependency(
+                descriptor, beanName, autowiredBeanNames, typeConverter);
         if (argument == null && !this.required) {
           return null;
         }

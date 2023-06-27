@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
@@ -110,7 +109,7 @@ final class GracefulShutdown {
       callback.shutdownComplete(GracefulShutdownResult.IDLE);
     }
     else {
-      logger.info(LogMessage.format("Graceful shutdown aborted with {} request(s) still active", activeRequests));
+      logger.info("Graceful shutdown aborted with {} request(s) still active", activeRequests);
       callback.shutdownComplete(GracefulShutdownResult.REQUESTS_ACTIVE);
     }
   }

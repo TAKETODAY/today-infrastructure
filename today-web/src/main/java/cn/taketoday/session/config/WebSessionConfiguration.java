@@ -78,7 +78,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
    */
   @Override
   public synchronized void postProcessMergedBeanDefinition(
-          RootBeanDefinition beanDefinition, Object bean, String beanName) {
+          RootBeanDefinition beanDefinition, Class<?> bean, String beanName) {
 
     // register SessionScope automatically
     if (!destructionCallbackRegistered

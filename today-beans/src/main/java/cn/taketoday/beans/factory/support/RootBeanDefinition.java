@@ -170,16 +170,6 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
   }
 
   /**
-   * Create a new RootBeanDefinition for a singleton.
-   *
-   * @param beanType the type of bean to instantiate
-   * @see #setTargetType(ResolvableType)
-   */
-  public RootBeanDefinition(@Nullable ResolvableType beanType) {
-    setTargetType(beanType);
-  }
-
-  /**
    * Create a new RootBeanDefinition for a singleton bean, constructing each instance
    * through calling the given supplier (possibly a lambda or method reference).
    *
@@ -426,6 +416,9 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    */
   public void setResolvedFactoryMethod(@Nullable Method method) {
     this.factoryMethodToIntrospect = method;
+    if (method != null) {
+      setUniqueFactoryMethodName(method.getName());
+    }
   }
 
   /**
@@ -447,6 +440,16 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
     }
     if (factoryMethod != null) {
       setResolvedFactoryMethod(factoryMethod);
+    }
+  }
+
+  /**
+   * Mark this bean definition as post-processed,
+   * i.e. processed by {@link MergedBeanDefinitionPostProcessor}.
+   */
+  public void markAsPostProcessed() {
+    synchronized(this.postProcessingLock) {
+      this.postProcessed = true;
     }
   }
 
@@ -485,14 +488,15 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 
   /**
    * Register an externally managed configuration initialization method &mdash;
-   * for example, a method annotated with JSR-250's
-   * {@link jakarta.annotation.PostConstruct} annotation.
-   * <p>The supplied {@code initMethod} may be the
-   * {@linkplain Method#getName() simple method name} for non-private methods or the
+   * for example, a method annotated with JSR-250's {@code javax.annotation.PostConstruct}
+   * or Jakarta's {@link jakarta.annotation.PostConstruct} annotation.
+   * <p>The supplied {@code initMethod} may be a
+   * {@linkplain Method#getName() simple method name} or a
    * {@linkplain cn.taketoday.util.ClassUtils#getQualifiedMethodName(Method)
-   * qualified method name} for {@code private} methods. A qualified name is
-   * necessary for {@code private} methods in order to disambiguate between
-   * multiple private methods with the same name within a class hierarchy.
+   * qualified method name} for package-private and {@code private} methods.
+   * A qualified name is necessary for package-private and {@code private} methods
+   * in order to disambiguate between multiple such methods with the same name
+   * within a type hierarchy.
    */
   public void registerExternallyManagedInitMethod(String initMethod) {
     synchronized(this.postProcessingLock) {
@@ -526,22 +530,11 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * using a qualified method name instead of a simple method name.
    */
   boolean hasAnyExternallyManagedInitMethod(String initMethod) {
-    synchronized(this.postProcessingLock) {
+    synchronized(postProcessingLock) {
       if (isExternallyManagedInitMethod(initMethod)) {
         return true;
       }
-      if (this.externallyManagedInitMethods != null) {
-        for (String candidate : this.externallyManagedInitMethods) {
-          int indexOfDot = candidate.lastIndexOf('.');
-          if (indexOfDot >= 0) {
-            String methodName = candidate.substring(indexOfDot + 1);
-            if (methodName.equals(initMethod)) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
+      return hasAnyExternallyManagedMethod(externallyManagedInitMethods, initMethod);
     }
   }
 
@@ -556,6 +549,14 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
               Collections.unmodifiableSet(new LinkedHashSet<>(this.externallyManagedInitMethods)) :
               Collections.emptySet());
     }
+  }
+
+  /**
+   * Resolve the inferred destroy method if necessary.
+   */
+  public void resolveDestroyMethodIfNecessary() {
+    setDestroyMethodNames(DisposableBeanAdapter
+            .inferDestroyMethodsIfNecessary(getResolvableType().toClass(), this));
   }
 
   /**
@@ -601,23 +602,27 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
    * using a qualified method name instead of a simple method name.
    */
   boolean hasAnyExternallyManagedDestroyMethod(String destroyMethod) {
-    synchronized(this.postProcessingLock) {
+    synchronized(postProcessingLock) {
       if (isExternallyManagedDestroyMethod(destroyMethod)) {
         return true;
       }
-      if (this.externallyManagedDestroyMethods != null) {
-        for (String candidate : this.externallyManagedDestroyMethods) {
-          int indexOfDot = candidate.lastIndexOf('.');
-          if (indexOfDot >= 0) {
-            String methodName = candidate.substring(indexOfDot + 1);
-            if (methodName.equals(destroyMethod)) {
-              return true;
-            }
+      return hasAnyExternallyManagedMethod(externallyManagedDestroyMethods, destroyMethod);
+    }
+  }
+
+  private static boolean hasAnyExternallyManagedMethod(@Nullable Set<String> candidates, String methodName) {
+    if (candidates != null) {
+      for (String candidate : candidates) {
+        int indexOfDot = candidate.lastIndexOf('.');
+        if (indexOfDot > 0) {
+          String candidateMethodName = candidate.substring(indexOfDot + 1);
+          if (candidateMethodName.equals(methodName)) {
+            return true;
           }
         }
       }
-      return false;
     }
+    return false;
   }
 
   /**

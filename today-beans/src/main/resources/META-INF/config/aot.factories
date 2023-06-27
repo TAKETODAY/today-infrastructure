@@ -1,0 +1,6 @@
+cn.taketoday.aot.hint.RuntimeHintsRegistrar=\
+cn.taketoday.beans.factory.annotation.JakartaAnnotationsRuntimeHints,\
+cn.taketoday.beans.BeanUtilsRuntimeHints
+
+cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+cn.taketoday.beans.factory.aot.BeanRegistrationsAotProcessor

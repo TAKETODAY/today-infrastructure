@@ -31,6 +31,7 @@ dependencies {
   optional("com.github.ben-manes.caffeine:caffeine")
   optional("org.freemarker:freemarker")
 
+  testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation(project(":today-core-test"))
   testImplementation(testFixtures(project(":today-aop")))

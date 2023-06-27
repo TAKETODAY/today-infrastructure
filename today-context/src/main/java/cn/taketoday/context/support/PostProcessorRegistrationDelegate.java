@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,16 +26,22 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
+import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import cn.taketoday.beans.factory.support.BeanDefinitionValueResolver;
 import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.Ordered;
@@ -269,6 +275,38 @@ final class PostProcessorRegistrationDelegate {
     beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));
   }
 
+  /**
+   * Load and sort the post-processors of the specified type.
+   *
+   * @param beanFactory the bean factory to use
+   * @param beanPostProcessorType the post-processor type
+   * @param <T> the post-processor type
+   * @return a list of sorted post-processors for the specified type
+   */
+  static <T extends BeanPostProcessor> List<T> loadBeanPostProcessors(
+          ConfigurableBeanFactory beanFactory, Class<T> beanPostProcessorType) {
+
+    Set<String> postProcessorNames = beanFactory.getBeanNamesForType(beanPostProcessorType, true, false);
+    List<T> postProcessors = new ArrayList<>();
+    for (String ppName : postProcessorNames) {
+      postProcessors.add(beanFactory.getBean(ppName, beanPostProcessorType));
+    }
+    sortPostProcessors(postProcessors, beanFactory);
+    return postProcessors;
+
+  }
+
+  /**
+   * Selectively invoke {@link MergedBeanDefinitionPostProcessor} instances
+   * registered in the specified bean factory, resolving bean definitions as
+   * well as any inner bean definitions that they may contain.
+   *
+   * @param beanFactory the bean factory to use
+   */
+  static void invokeMergedBeanDefinitionPostProcessors(StandardBeanFactory beanFactory) {
+    new MergedBeanDefinitionPostProcessorInvoker(beanFactory).invokeMergedBeanDefinitionPostProcessors();
+  }
+
   private static void sortPostProcessors(List<?> postProcessors, ConfigurableBeanFactory beanFactory) {
     // Nothing to sort?
     if (postProcessors.size() <= 1) {
@@ -310,7 +348,7 @@ final class PostProcessorRegistrationDelegate {
    * Register the given BeanPostProcessor beans.
    */
   private static void registerBeanPostProcessors(
-          ConfigurableBeanFactory beanFactory, List<BeanPostProcessor> postProcessors) {
+          ConfigurableBeanFactory beanFactory, List<? extends BeanPostProcessor> postProcessors) {
 
     if (beanFactory instanceof AbstractBeanFactory abstractBeanFactory) {
       // Bulk addition is more efficient against our list there
@@ -362,6 +400,79 @@ final class PostProcessorRegistrationDelegate {
         return bd.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE;
       }
       return false;
+    }
+  }
+
+  private static final class MergedBeanDefinitionPostProcessorInvoker {
+
+    private final StandardBeanFactory beanFactory;
+
+    private MergedBeanDefinitionPostProcessorInvoker(StandardBeanFactory beanFactory) {
+      this.beanFactory = beanFactory;
+    }
+
+    private void invokeMergedBeanDefinitionPostProcessors() {
+      var postProcessors = PostProcessorRegistrationDelegate.loadBeanPostProcessors(
+              this.beanFactory, MergedBeanDefinitionPostProcessor.class);
+      for (String beanName : this.beanFactory.getBeanDefinitionNames()) {
+        RootBeanDefinition bd = (RootBeanDefinition) this.beanFactory.getMergedBeanDefinition(beanName);
+        Class<?> beanType = resolveBeanType(bd);
+        postProcessRootBeanDefinition(postProcessors, beanName, beanType, bd);
+        bd.markAsPostProcessed();
+      }
+      registerBeanPostProcessors(beanFactory, postProcessors);
+    }
+
+    private void postProcessRootBeanDefinition(List<MergedBeanDefinitionPostProcessor> postProcessors,
+            String beanName, Class<?> beanType, RootBeanDefinition bd) {
+      BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, beanName, bd);
+
+      for (MergedBeanDefinitionPostProcessor postProcessor : postProcessors) {
+        postProcessor.postProcessMergedBeanDefinition(bd, beanType, beanName);
+      }
+
+      if (bd.hasPropertyValues()) {
+        for (PropertyValue propertyValue : bd.getPropertyValues().asList()) {
+          Object value = propertyValue.getValue();
+          if (value instanceof AbstractBeanDefinition innerBd) {
+            Class<?> innerBeanType = resolveBeanType(innerBd);
+            resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
+                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+          }
+        }
+      }
+
+      if (bd.hasConstructorArgumentValues()) {
+        for (ValueHolder valueHolder : bd.getConstructorArgumentValues().getIndexedArgumentValues().values()) {
+          Object value = valueHolder.getValue();
+          if (value instanceof AbstractBeanDefinition innerBd) {
+            Class<?> innerBeanType = resolveBeanType(innerBd);
+            resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
+                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+          }
+        }
+      }
+    }
+
+    private void resolveInnerBeanDefinition(BeanDefinitionValueResolver valueResolver,
+            BeanDefinition innerBeanDefinition, BiConsumer<String, RootBeanDefinition> resolver) {
+
+      valueResolver.resolveInnerBean(null, innerBeanDefinition, (name, rbd) -> {
+        resolver.accept(name, rbd);
+        return Void.class;
+      });
+    }
+
+    private Class<?> resolveBeanType(AbstractBeanDefinition bd) {
+      if (!bd.hasBeanClass()) {
+        try {
+          bd.resolveBeanClass(this.beanFactory.getBeanClassLoader());
+        }
+        catch (ClassNotFoundException ex) {
+          // ignore
+        }
+      }
+      return bd.getResolvableType().toClass();
     }
   }
 

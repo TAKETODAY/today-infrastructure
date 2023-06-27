@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -139,6 +139,7 @@ public abstract class AopConfigUtils {
     beanDefinition.setSource(source);
     beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
     beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+    beanDefinition.setEnableDependencyInjection(false);
     registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
     return beanDefinition;
   }

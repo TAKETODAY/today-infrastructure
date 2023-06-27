@@ -86,7 +86,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
  */
 public final class BeanInstanceSupplier<T> extends AutowiredElementResolver implements InstanceSupplier<T> {
 
-  private final ExecutableLookup lookup;
+  final ExecutableLookup lookup;
 
   @Nullable
   private final ThrowingBiFunction<RegisteredBean, AutowiredArguments, T> generator;
@@ -137,10 +137,6 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     return new BeanInstanceSupplier<>(
             new FactoryMethodLookup(declaringClass, methodName, parameterTypes),
             null, null);
-  }
-
-  ExecutableLookup getLookup() {
-    return this.lookup;
   }
 
   /**

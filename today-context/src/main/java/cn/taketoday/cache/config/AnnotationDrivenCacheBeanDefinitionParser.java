@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -148,12 +148,14 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
         // Create the CacheOperationSource definition.
         RootBeanDefinition sourceDef = new RootBeanDefinition("cn.taketoday.cache.annotation.AnnotationCacheOperationSource");
         sourceDef.setSource(eleSource);
+        sourceDef.setEnableDependencyInjection(false);
         sourceDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         String sourceName = parserContext.getReaderContext().registerWithGeneratedName(sourceDef);
 
         // Create the CacheInterceptor definition.
         RootBeanDefinition interceptorDef = new RootBeanDefinition(CacheInterceptor.class);
         interceptorDef.setSource(eleSource);
+        interceptorDef.setEnableDependencyInjection(false);
         interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         parseCacheResolution(element, interceptorDef, false);
         parseErrorHandler(element, interceptorDef);
@@ -164,6 +166,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
         // Create the CacheAdvisor definition.
         RootBeanDefinition advisorDef = new RootBeanDefinition(BeanFactoryCacheOperationSourceAdvisor.class);
         advisorDef.setSource(eleSource);
+        advisorDef.setEnableDependencyInjection(false);
         advisorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisorDef.getPropertyValues().add("cacheOperationSource", new RuntimeBeanReference(sourceName));
         advisorDef.getPropertyValues().add("adviceBeanName", interceptorName);
@@ -194,6 +197,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
         RootBeanDefinition def = new RootBeanDefinition();
         def.setBeanClassName(CACHE_ASPECT_CLASS_NAME);
         def.setFactoryMethodName("aspectOf");
+        def.setEnableDependencyInjection(false);
         parseCacheResolution(element, def, false);
         CacheNamespaceHandler.parseKeyGenerator(element, def);
         parserContext.registerBeanComponent(new BeanComponentDefinition(def, CacheManagementConfigUtils.CACHE_ASPECT_BEAN_NAME));
@@ -218,6 +222,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
         RootBeanDefinition interceptorDef =
                 new RootBeanDefinition("cn.taketoday.cache.jcache.interceptor.JCacheInterceptor");
         interceptorDef.setSource(source);
+        interceptorDef.setEnableDependencyInjection(false);
         interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         interceptorDef.getPropertyValues().add("cacheOperationSource", new RuntimeBeanReference(sourceName));
         parseErrorHandler(element, interceptorDef);
@@ -227,6 +232,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
         RootBeanDefinition advisorDef = new RootBeanDefinition(
                 "cn.taketoday.cache.jcache.interceptor.BeanFactoryJCacheOperationSourceAdvisor");
         advisorDef.setSource(source);
+        advisorDef.setEnableDependencyInjection(false);
         advisorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisorDef.getPropertyValues().add("cacheOperationSource", new RuntimeBeanReference(sourceName));
         advisorDef.getPropertyValues().add("adviceBeanName", interceptorName);
@@ -253,6 +259,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
         RootBeanDefinition jcacheAspectDef = new RootBeanDefinition();
         jcacheAspectDef.setBeanClassName(JCACHE_ASPECT_CLASS_NAME);
         jcacheAspectDef.setFactoryMethodName("aspectOf");
+        jcacheAspectDef.setEnableDependencyInjection(false);
         jcacheAspectDef.getPropertyValues().add("cacheOperationSource", new RuntimeBeanReference(cacheOperationSourceName));
         parserContext.getRegistry().registerBeanDefinition(CacheManagementConfigUtils.JCACHE_ASPECT_BEAN_NAME, jcacheAspectDef);
 
@@ -267,6 +274,7 @@ class AnnotationDrivenCacheBeanDefinitionParser implements BeanDefinitionParser 
       RootBeanDefinition sourceDef =
               new RootBeanDefinition("cn.taketoday.cache.jcache.interceptor.DefaultJCacheOperationSource");
       sourceDef.setSource(eleSource);
+      sourceDef.setEnableDependencyInjection(false);
       sourceDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       // JSR-107 support should create an exception cache resolver with the cache manager
       // and there is no way to set that exception cache resolver from the namespace

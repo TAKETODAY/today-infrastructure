@@ -135,6 +135,7 @@ public class ServletWebServerFactoryAutoConfiguration {
       if (ObjectUtils.isEmpty(context.getBeanFactory().getBeanNamesForType(beanClass, true, false))) {
         RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
         beanDefinition.setSynthetic(true);
+        beanDefinition.setEnableDependencyInjection(false);
         context.registerBeanDefinition(name, beanDefinition);
       }
     }

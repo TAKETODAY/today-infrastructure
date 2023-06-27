@@ -22,6 +22,7 @@ package cn.taketoday.beans.factory.aot;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -52,11 +53,6 @@ import cn.taketoday.util.ClassUtils;
  * @since 4.0
  */
 class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragments {
-
-  /**
-   * The variable name used to hold the bean type.
-   */
-  private static final String BEAN_TYPE_VARIABLE = "beanType";
 
   private final BeanRegistrationsCode beanRegistrationsCode;
 
@@ -122,19 +118,44 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
           ResolvableType beanType, BeanRegistrationCode beanRegistrationCode) {
 
     CodeBlock.Builder code = CodeBlock.builder();
-    code.addStatement(generateBeanTypeCode(beanType));
+    RootBeanDefinition mergedBeanDefinition = this.registeredBean.getMergedBeanDefinition();
+    Class<?> beanClass = mergedBeanDefinition.hasBeanClass()
+                         ? ClassUtils.getUserClass(mergedBeanDefinition.getBeanClass()) : null;
+    CodeBlock beanClassCode = generateBeanClassCode(
+            beanRegistrationCode.getClassName().packageName(), beanClass);
     code.addStatement("$T $L = new $T($L)", RootBeanDefinition.class,
-            BEAN_DEFINITION_VARIABLE, RootBeanDefinition.class, BEAN_TYPE_VARIABLE);
+            BEAN_DEFINITION_VARIABLE, RootBeanDefinition.class, beanClassCode);
+    if (targetTypeNecessary(beanType, beanClass)) {
+      code.addStatement("$L.setTargetType($L)", BEAN_DEFINITION_VARIABLE, generateBeanTypeCode(beanType));
+    }
     return code.build();
+  }
+
+  private CodeBlock generateBeanClassCode(String targetPackage, @Nullable Class<?> beanClass) {
+    if (beanClass != null) {
+      if (Modifier.isPublic(beanClass.getModifiers()) || targetPackage.equals(beanClass.getPackageName())) {
+        return CodeBlock.of("$T.class", beanClass);
+      }
+      else {
+        return CodeBlock.of("$S", beanClass.getName());
+      }
+    }
+    return CodeBlock.of("");
   }
 
   private CodeBlock generateBeanTypeCode(ResolvableType beanType) {
     if (!beanType.hasGenerics()) {
-      return CodeBlock.of("$T<?> $L = $T.class", Class.class, BEAN_TYPE_VARIABLE,
-              ClassUtils.getUserClass(beanType.toClass()));
+      return CodeBlock.of("$T.class", ClassUtils.getUserClass(beanType.toClass()));
     }
-    return CodeBlock.of("$T $L = $L", ResolvableType.class, BEAN_TYPE_VARIABLE,
-            ResolvableTypeCodeGenerator.generateCode(beanType));
+    return ResolvableTypeCodeGenerator.generateCode(beanType);
+  }
+
+  private boolean targetTypeNecessary(ResolvableType beanType, @Nullable Class<?> beanClass) {
+    if (beanType.hasGenerics() || beanClass == null) {
+      return true;
+    }
+    return (!beanType.toClass().equals(beanClass)
+            || this.registeredBean.getMergedBeanDefinition().getFactoryMethodName() != null);
   }
 
   @Override

@@ -1,0 +1,5 @@
+cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor= \
+cn.taketoday.context.aot.ReflectiveProcessorBeanFactoryInitializationAotProcessor
+
+cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
+cn.taketoday.validation.beanvalidation.BeanValidationBeanRegistrationAotProcessor

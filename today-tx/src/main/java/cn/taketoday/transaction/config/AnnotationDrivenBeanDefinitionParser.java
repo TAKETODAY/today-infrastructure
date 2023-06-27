@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -52,6 +52,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Rob Harrop
  * @author Chris Beams
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
@@ -87,6 +88,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
       RootBeanDefinition def = new RootBeanDefinition();
       def.setBeanClassName(txAspectClassName);
       def.setFactoryMethodName("aspectOf");
+      def.setEnableDependencyInjection(false);
       registerTransactionManager(element, def);
       parserContext.registerBeanComponent(new BeanComponentDefinition(def, txAspectBeanName));
     }
@@ -99,6 +101,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
       RootBeanDefinition def = new RootBeanDefinition();
       def.setBeanClassName(txAspectClassName);
       def.setFactoryMethodName("aspectOf");
+      def.setEnableDependencyInjection(false);
       registerTransactionManager(element, def);
       parserContext.registerBeanComponent(new BeanComponentDefinition(def, txAspectBeanName));
     }
@@ -112,6 +115,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
   private void registerTransactionalEventListenerFactory(ParserContext parserContext) {
     RootBeanDefinition def = new RootBeanDefinition();
     def.setBeanClass(TransactionalEventListenerFactory.class);
+    def.setEnableDependencyInjection(false);
     parserContext.registerBeanComponent(new BeanComponentDefinition(def,
             TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME));
   }
@@ -133,11 +137,13 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
                 "cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource");
         sourceDef.setSource(eleSource);
         sourceDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+        sourceDef.setEnableDependencyInjection(false);
         String sourceName = parserContext.getReaderContext().registerWithGeneratedName(sourceDef);
 
         // Create the TransactionInterceptor definition.
         RootBeanDefinition interceptorDef = new RootBeanDefinition(TransactionInterceptor.class);
         interceptorDef.setSource(eleSource);
+        interceptorDef.setEnableDependencyInjection(false);
         interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         registerTransactionManager(element, interceptorDef);
         interceptorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
@@ -146,6 +152,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
         // Create the TransactionAttributeSourceAdvisor definition.
         RootBeanDefinition advisorDef = new RootBeanDefinition(BeanFactoryTransactionAttributeSourceAdvisor.class);
         advisorDef.setSource(eleSource);
+        advisorDef.setEnableDependencyInjection(false);
         advisorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         advisorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
         advisorDef.getPropertyValues().add("adviceBeanName", interceptorName);

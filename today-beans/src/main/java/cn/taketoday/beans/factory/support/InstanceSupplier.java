@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,7 +48,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
   }
 
   /**
-   * Gets the supplied instance.
+   * Get the supplied instance.
    *
    * @param registeredBean the registered bean requesting the instance
    * @return the supplied instance
@@ -59,7 +59,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
   /**
    * Return the factory method that this supplier uses to create the
    * instance, or {@code null} if it is not known or this supplier uses
-   * another mean.
+   * another means.
    *
    * @return the factory method used to create the instance, or {@code null}
    */
@@ -70,7 +70,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
 
   /**
    * Return a composed instance supplier that first obtains the instance from
-   * this supplier, and then applied the {@code after} function to obtain the
+   * this supplier and then applies the {@code after} function to obtain the
    * result.
    *
    * @param <V> the type of output of the {@code after} function, and of the
@@ -80,9 +80,9 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    */
   default <V> InstanceSupplier<V> andThen(
           ThrowingBiFunction<RegisteredBean, ? super T, ? extends V> after) {
-    Assert.notNull(after, "After must not be null");
-    return new InstanceSupplier<V>() {
 
+    Assert.notNull(after, "'after' function must not be null");
+    return new InstanceSupplier<>() {
       @Override
       public V get(RegisteredBean registeredBean) throws Exception {
         return after.applyWithException(registeredBean, InstanceSupplier.this.get(registeredBean));
@@ -92,7 +92,6 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
       public Method getFactoryMethod() {
         return InstanceSupplier.this.getFactoryMethod();
       }
-
     };
   }
 
@@ -123,12 +122,13 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    */
   static <T> InstanceSupplier<T> using(@Nullable Method factoryMethod, ThrowingSupplier<T> supplier) {
     Assert.notNull(supplier, "Supplier must not be null");
-    if (supplier instanceof InstanceSupplier<T> instanceSupplier
-            && instanceSupplier.getFactoryMethod() == factoryMethod) {
+
+    if (supplier instanceof InstanceSupplier<T> instanceSupplier &&
+            instanceSupplier.getFactoryMethod() == factoryMethod) {
       return instanceSupplier;
     }
-    return new InstanceSupplier<T>() {
 
+    return new InstanceSupplier<>() {
       @Override
       public T get(RegisteredBean registeredBean) throws Exception {
         return supplier.getWithException();
@@ -138,15 +138,13 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
       public Method getFactoryMethod() {
         return factoryMethod;
       }
-
     };
   }
 
   /**
-   * Lambda friendly method that can be used to create a
+   * Lambda friendly method that can be used to create an
    * {@link InstanceSupplier} and add post processors in a single call. For
-   * example: {@code
-   * InstanceSupplier.of(registeredBean -> ...).withPostProcessor(...)}.
+   * example: {@code InstanceSupplier.of(registeredBean -> ...).andThen(...)}.
    *
    * @param <T> the type of instance supplied by this supplier
    * @param instanceSupplier the source instance supplier

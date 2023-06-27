@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -267,6 +267,14 @@ public class BeanDefinitionBuilder {
   }
 
   /**
+   * Set whether this bean is 'enableDependencyInjection'
+   */
+  public BeanDefinitionBuilder setEnableDependencyInjection(boolean enabled) {
+    this.beanDefinition.setEnableDependencyInjection(enabled);
+    return this;
+  }
+
+  /**
    * Apply the given customizers to the underlying bean definition.
    */
   public BeanDefinitionBuilder applyCustomizers(BeanDefinitionCustomizer... customizers) {
@@ -382,7 +390,8 @@ public class BeanDefinitionBuilder {
    * @param instanceSupplier a callback for creating an instance of the bean
    */
   public static <T> BeanDefinitionBuilder rootBeanDefinition(ResolvableType beanType, Supplier<T> instanceSupplier) {
-    RootBeanDefinition beanDefinition = new RootBeanDefinition(beanType);
+    RootBeanDefinition beanDefinition = new RootBeanDefinition();
+    beanDefinition.setTargetType(beanType);
     beanDefinition.setInstanceSupplier(instanceSupplier);
     return new BeanDefinitionBuilder(beanDefinition);
   }

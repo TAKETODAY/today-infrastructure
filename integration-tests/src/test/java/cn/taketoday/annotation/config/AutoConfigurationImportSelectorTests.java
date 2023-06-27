@@ -21,8 +21,6 @@
 package cn.taketoday.annotation.config;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -36,8 +34,8 @@ import cn.taketoday.annotation.config.context.MessageSourceAutoConfiguration;
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurationImportEvent;
@@ -47,7 +45,6 @@ import cn.taketoday.context.annotation.config.AutoConfigurationImportSelector;
 import cn.taketoday.context.annotation.config.AutoConfigurationMetadata;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.annotation.config.ImportCandidates;
-import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.mock.env.MockEnvironment;
 
@@ -60,20 +57,13 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class AutoConfigurationImportSelectorTests {
 
-  private final TestAutoConfigurationImportSelector importSelector = new TestAutoConfigurationImportSelector();
-
-  private final ConfigurableBeanFactory beanFactory = new StandardBeanFactory();
+  private final StandardBeanFactory beanFactory = new StandardBeanFactory();
 
   private final MockEnvironment environment = new MockEnvironment();
 
   private List<AutoConfigurationImportFilter> filters = new ArrayList<>();
 
-  @BeforeEach
-  void setup() {
-    this.importSelector.setBeanFactory(this.beanFactory);
-    this.importSelector.setEnvironment(this.environment);
-    this.importSelector.setResourceLoader(new DefaultResourceLoader());
-  }
+  private final TestAutoConfigurationImportSelector importSelector = new TestAutoConfigurationImportSelector();
 
   @Test
   void importsAreSelectedWhenUsingEnableAutoConfiguration() {
@@ -202,14 +192,6 @@ class AutoConfigurationImportSelectorTests {
   }
 
   @Test
-  void filterShouldSupportAware() {
-    TestAutoConfigurationImportFilter filter = new TestAutoConfigurationImportFilter(new String[] {});
-    this.filters.add(filter);
-    selectImports(BasicEnableAutoConfiguration.class);
-    assertThat(filter.getBeanFactory()).isEqualTo(this.beanFactory);
-  }
-
-  @Test
   void getExclusionFilterReuseFilters() {
     String[] allImports = new String[] { "com.example.A", "com.example.B", "com.example.C" };
     this.filters.add(new TestAutoConfigurationImportFilter(allImports, 0));
@@ -233,6 +215,10 @@ class AutoConfigurationImportSelectorTests {
   private class TestAutoConfigurationImportSelector extends AutoConfigurationImportSelector {
 
     private AutoConfigurationImportEvent lastEvent;
+
+    private TestAutoConfigurationImportSelector() {
+      super(new BootstrapContext(environment, beanFactory));
+    }
 
     @Override
     protected List<AutoConfigurationImportFilter> getAutoConfigurationImportFilters() {
@@ -263,10 +249,10 @@ class AutoConfigurationImportSelectorTests {
     }
 
     @Override
-    public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
-      boolean[] result = new boolean[autoConfigurationClasses.length];
+    public boolean[] match(String[] autoConfigClasses, AutoConfigurationMetadata autoConfigMetadata) {
+      boolean[] result = new boolean[autoConfigClasses.length];
       for (int i = 0; i < result.length; i++) {
-        result[i] = !this.nonMatching.contains(autoConfigurationClasses[i]);
+        result[i] = !this.nonMatching.contains(autoConfigClasses[i]);
       }
       return result;
     }
@@ -274,10 +260,6 @@ class AutoConfigurationImportSelectorTests {
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
       this.beanFactory = beanFactory;
-    }
-
-    BeanFactory getBeanFactory() {
-      return this.beanFactory;
     }
 
   }

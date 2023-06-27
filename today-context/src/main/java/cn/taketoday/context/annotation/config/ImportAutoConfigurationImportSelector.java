@@ -31,10 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -54,6 +56,10 @@ import cn.taketoday.util.ObjectUtils;
  */
 public class ImportAutoConfigurationImportSelector
         extends AutoConfigurationImportSelector implements DeterminableImports {
+
+  public ImportAutoConfigurationImportSelector(BootstrapContext bootstrapContext) {
+    super(bootstrapContext);
+  }
 
   @Override
   public Set<Object> determineImports(AnnotationMetadata metadata) {

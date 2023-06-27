@@ -82,15 +82,15 @@ class SimpleTypeReferenceTests {
 
 	@Test
 	void nameOfCglibProxy() {
-		TypeReference reference = TypeReference.of("com.example.Test$$SpringCGLIB$$0");
-		assertThat(reference.getSimpleName()).isEqualTo("Test$$SpringCGLIB$$0");
+		TypeReference reference = TypeReference.of("com.example.Test$$Infra$$0");
+		assertThat(reference.getSimpleName()).isEqualTo("Test$$Infra$$0");
 		assertThat(reference.getEnclosingType()).isNull();
 	}
 
 	@Test
 	void nameOfNestedCglibProxy() {
-		TypeReference reference = TypeReference.of("com.example.Test$Another$$SpringCGLIB$$0");
-		assertThat(reference.getSimpleName()).isEqualTo("Another$$SpringCGLIB$$0");
+		TypeReference reference = TypeReference.of("com.example.Test$Another$$Infra$$0");
+		assertThat(reference.getSimpleName()).isEqualTo("Another$$Infra$$0");
 		assertThat(reference.getEnclosingType()).isNotNull();
 		assertThat(reference.getEnclosingType().getSimpleName()).isEqualTo("Test");
 	}

@@ -24,7 +24,7 @@ import org.aspectj.lang.annotation.Pointcut;
 
 /**
  * @author Sam Brannen
- * @since 6.0.6
+ * @since 4.0
  */
 public class CommonPointcuts {
 

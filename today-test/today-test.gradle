@@ -62,9 +62,11 @@ dependencies {
   optional 'com.google.code.gson:gson'
   optional 'com.fasterxml.jackson.core:jackson-databind'
   optional 'jakarta.json.bind:jakarta.json.bind-api'
+  optional 'org.spockframework:spock-core:2.2-M1-groovy-4.0'
 
   testImplementation(project(":today-core-test"))
   testImplementation(project(":today-oxm"))
+  testImplementation(project(":today-test-support"))
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-context")))
   testImplementation(testFixtures(project(":today-core")))
@@ -83,7 +85,8 @@ dependencies {
   testImplementation("com.thoughtworks.xstream:xstream")
   testImplementation("com.rometools:rome")
   testImplementation("org.hsqldb:hsqldb")
-
+  testImplementation 'org.eclipse:yasson'
+  testImplementation("ch.qos.logback:logback-classic")
   testImplementation("io.projectreactor.netty:reactor-netty-http")
   testImplementation("de.bechte.junit:junit-hierarchicalcontextrunner")
   testImplementation("org.awaitility:awaitility")

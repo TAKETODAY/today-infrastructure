@@ -143,6 +143,9 @@ public class ResolvableType implements Serializable {
   @Nullable
   private ResolvableType[] generics;
 
+  @Nullable
+  private volatile Boolean unresolvableGenerics;
+
   /**
    * Private constructor used to create a new {@link ResolvableType} for cache key purposes,
    * with no upfront resolution.
@@ -568,6 +571,15 @@ public class ResolvableType implements Serializable {
     if (this == NONE) {
       return false;
     }
+    Boolean unresolvableGenerics = this.unresolvableGenerics;
+    if (unresolvableGenerics == null) {
+      unresolvableGenerics = determineUnresolvableGenerics();
+      this.unresolvableGenerics = unresolvableGenerics;
+    }
+    return unresolvableGenerics;
+  }
+
+  private boolean determineUnresolvableGenerics() {
     ResolvableType[] generics = getGenerics();
     for (ResolvableType generic : generics) {
       if (generic.isUnresolvableTypeVariable() || generic.isWildcardWithoutBounds()) {
@@ -578,16 +590,20 @@ public class ResolvableType implements Serializable {
     if (resolved != null) {
       try {
         for (Type genericInterface : resolved.getGenericInterfaces()) {
-          if (genericInterface instanceof Class
-                  && forClass((Class<?>) genericInterface).hasGenerics()) {
-            return true;
+          if (genericInterface instanceof Class<?> clazz) {
+            if (clazz.getTypeParameters().length > 0) {
+              return true;
+            }
           }
         }
       }
       catch (TypeNotPresentException ex) {
         // Ignore non-present types in generic signature
       }
-      return getSuperType().hasUnresolvableGenerics();
+      Class<?> superclass = resolved.getSuperclass();
+      if (superclass != null && superclass != Object.class) {
+        return getSuperType().hasUnresolvableGenerics();
+      }
     }
     return false;
   }
