@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -36,7 +36,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Configuration;
@@ -44,7 +44,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.context.annotation.config.DeterminableImports;
-import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.Order;
@@ -60,7 +59,9 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ImportsContextCustomizerFactory
+ * @since 4.0
  */
 class ImportsContextCustomizer implements ContextCustomizer {
 
@@ -78,37 +79,29 @@ class ImportsContextCustomizer implements ContextCustomizer {
   @Override
   public void customizeContext(ConfigurableApplicationContext context,
           MergedContextConfiguration mergedContextConfiguration) {
-    BeanDefinitionRegistry registry = getBeanDefinitionRegistry(context);
+    BootstrapContext bootstrapContext = context.getBootstrapContext();
+    BeanDefinitionRegistry registry = bootstrapContext.getRegistry();
     AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(registry);
     registerCleanupPostProcessor(registry, reader);
     registerImportsConfiguration(registry, reader);
   }
 
   private void registerCleanupPostProcessor(BeanDefinitionRegistry registry, AnnotatedBeanDefinitionReader reader) {
-    BeanDefinition definition = registerBean(registry, reader, ImportsCleanupPostProcessor.BEAN_NAME,
-            ImportsCleanupPostProcessor.class);
+    BeanDefinition definition = registerBean(registry, reader,
+            ImportsCleanupPostProcessor.BEAN_NAME, ImportsCleanupPostProcessor.class);
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+    definition.setEnableDependencyInjection(false);
     definition.getConstructorArgumentValues().addIndexedArgumentValue(0, this.testClassName);
   }
 
   private void registerImportsConfiguration(BeanDefinitionRegistry registry, AnnotatedBeanDefinitionReader reader) {
-    BeanDefinition definition = registerBean(registry, reader, ImportsConfiguration.BEAN_NAME,
-            ImportsConfiguration.class);
+    BeanDefinition definition = registerBean(registry, reader,
+            ImportsConfiguration.BEAN_NAME, ImportsConfiguration.class);
     definition.setAttribute(TEST_CLASS_NAME_ATTRIBUTE, this.testClassName);
   }
 
-  private BeanDefinitionRegistry getBeanDefinitionRegistry(ApplicationContext context) {
-    if (context instanceof BeanDefinitionRegistry beanDefinitionRegistry) {
-      return beanDefinitionRegistry;
-    }
-    if (context instanceof AbstractApplicationContext abstractContext) {
-      return (BeanDefinitionRegistry) abstractContext.getBeanFactory();
-    }
-    throw new IllegalStateException("Could not locate BeanDefinitionRegistry");
-  }
-
-  private BeanDefinition registerBean(BeanDefinitionRegistry registry, AnnotatedBeanDefinitionReader reader,
-          String beanName, Class<?> type) {
+  private BeanDefinition registerBean(BeanDefinitionRegistry registry,
+          AnnotatedBeanDefinitionReader reader, String beanName, Class<?> type) {
     reader.registerBean(type, beanName);
     return registry.getBeanDefinition(beanName);
   }
@@ -220,16 +213,12 @@ class ImportsContextCustomizer implements ContextCustomizer {
 
     private static final Class<?>[] NO_IMPORTS = {};
 
-    private static final Set<AnnotationFilter> ANNOTATION_FILTERS;
-
-    static {
-      Set<AnnotationFilter> filters = new HashSet<>();
-      filters.add(new JavaLangAnnotationFilter());
-      filters.add(new KotlinAnnotationFilter());
-      filters.add(new SpockAnnotationFilter());
-      filters.add(new JUnitAnnotationFilter());
-      ANNOTATION_FILTERS = Collections.unmodifiableSet(filters);
-    }
+    private static final Set<AnnotationFilter> ANNOTATION_FILTERS = Set.of(
+            new JavaLangAnnotationFilter(),
+            new KotlinAnnotationFilter(),
+            new SpockAnnotationFilter(),
+            new JUnitAnnotationFilter()
+    );
 
     private final Set<Object> key;
 
@@ -253,8 +242,8 @@ class ImportsContextCustomizer implements ContextCustomizer {
       }
     }
 
-    private void collectElementAnnotations(AnnotatedElement element, Set<Annotation> annotations,
-            Set<Class<?>> seen) {
+    private void collectElementAnnotations(AnnotatedElement element,
+            Set<Annotation> annotations, Set<Class<?>> seen) {
       for (Annotation annotation : element.getDeclaredAnnotations()) {
         if (!isIgnoredAnnotation(annotation)) {
           annotations.add(annotation);
@@ -309,16 +298,15 @@ class ImportsContextCustomizer implements ContextCustomizer {
       return Collections.singleton(source.getName());
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T instantiate(Class<T> source) {
       try {
-        Constructor<?> constructor = source.getDeclaredConstructor();
+        Constructor<T> constructor = source.getDeclaredConstructor();
         ReflectionUtils.makeAccessible(constructor);
-        return (T) constructor.newInstance();
+        return constructor.newInstance();
       }
       catch (Throwable ex) {
-        throw new IllegalStateException("Unable to instantiate DeterminableImportSelector " + source.getName(),
-                ex);
+        throw new IllegalStateException(
+                "Unable to instantiate DeterminableImportSelector " + source.getName(), ex);
       }
     }
 

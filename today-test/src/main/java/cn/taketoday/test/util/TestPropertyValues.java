@@ -45,6 +45,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
+ * Test utilities for adding properties. Properties can be applied to a Spring
+ * {@link Environment} or to the {@link System#getProperties() system environment}.
+ *
+ * @author Madhura Bhave
+ * @author Phillip Webb
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/5 23:10
  */
@@ -169,7 +175,20 @@ public class TestPropertyValues {
 
   /**
    * Add the properties to the {@link System#getProperties() system properties} for the
-   * duration of the {@code call}, restoring previous values when the call completes.
+   * duration of the {@code action}, restoring previous values when it completes.
+   *
+   * @param action the action to take
+   */
+  public void applyToSystemProperties(Runnable action) {
+    applyToSystemProperties(() -> {
+      action.run();
+      return null;
+    });
+  }
+
+  /**
+   * Add the properties to the {@link System#getProperties() system properties} for the
+   * duration of the {@code call}, restoring previous values when it completes.
    *
    * @param <T> the result type
    * @param call the call to make

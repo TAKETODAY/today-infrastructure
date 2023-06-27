@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,10 +23,13 @@ package cn.taketoday.framework.test.web.client;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.http.client.BufferingClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.test.web.client.MockRestServiceServer;
+import cn.taketoday.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import cn.taketoday.test.web.client.RequestExpectationManager;
 import cn.taketoday.test.web.client.SimpleRequestExpectationManager;
 import cn.taketoday.web.client.RestTemplate;
@@ -51,6 +54,7 @@ import cn.taketoday.web.client.config.RestTemplateCustomizer;
  * the related server.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getServer()
  * @see #getServer(RestTemplate)
  * @since 4.0
@@ -61,17 +65,35 @@ public class MockServerRestTemplateCustomizer implements RestTemplateCustomizer 
 
   private final Map<RestTemplate, MockRestServiceServer> servers = new ConcurrentHashMap<>();
 
-  private final Class<? extends RequestExpectationManager> expectationManager;
+  private final Supplier<? extends RequestExpectationManager> expectationManagerSupplier;
 
   private boolean detectRootUri = true;
 
+  private boolean bufferContent = false;
+
   public MockServerRestTemplateCustomizer() {
-    this.expectationManager = SimpleRequestExpectationManager.class;
+    this(SimpleRequestExpectationManager::new);
   }
 
+  /**
+   * Crate a new {@link MockServerRestTemplateCustomizer} instance.
+   *
+   * @param expectationManager the expectation manager class to use
+   */
   public MockServerRestTemplateCustomizer(Class<? extends RequestExpectationManager> expectationManager) {
+    this(() -> BeanUtils.newInstance(expectationManager));
     Assert.notNull(expectationManager, "ExpectationManager must not be null");
-    this.expectationManager = expectationManager;
+  }
+
+  /**
+   * Crate a new {@link MockServerRestTemplateCustomizer} instance.
+   *
+   * @param expectationManagerSupplier a supplier that provides the
+   * {@link RequestExpectationManager} to use
+   */
+  public MockServerRestTemplateCustomizer(Supplier<? extends RequestExpectationManager> expectationManagerSupplier) {
+    Assert.notNull(expectationManagerSupplier, "ExpectationManagerSupplier must not be null");
+    this.expectationManagerSupplier = expectationManagerSupplier;
   }
 
   /**
@@ -84,19 +106,34 @@ public class MockServerRestTemplateCustomizer implements RestTemplateCustomizer 
     this.detectRootUri = detectRootUri;
   }
 
+  /**
+   * Set if the {@link BufferingClientHttpRequestFactory} wrapper should be used to
+   * buffer the input and output streams, and for example, allow multiple reads of the
+   * response body.
+   *
+   * @param bufferContent if request and response content should be buffered
+   */
+  public void setBufferContent(boolean bufferContent) {
+    this.bufferContent = bufferContent;
+  }
+
   @Override
   public void customize(RestTemplate restTemplate) {
     RequestExpectationManager expectationManager = createExpectationManager();
     if (this.detectRootUri) {
       expectationManager = RootUriRequestExpectationManager.forRestTemplate(restTemplate, expectationManager);
     }
-    MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build(expectationManager);
+    MockRestServiceServerBuilder serverBuilder = MockRestServiceServer.bindTo(restTemplate);
+    if (this.bufferContent) {
+      serverBuilder.bufferContent();
+    }
+    MockRestServiceServer server = serverBuilder.build(expectationManager);
     this.expectationManagers.put(restTemplate, expectationManager);
     this.servers.put(restTemplate, server);
   }
 
   protected RequestExpectationManager createExpectationManager() {
-    return BeanUtils.newInstance(this.expectationManager);
+    return this.expectationManagerSupplier.get();
   }
 
   public MockRestServiceServer getServer() {
