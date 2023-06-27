@@ -50,6 +50,7 @@ import cn.taketoday.context.annotation.ScopeMetadata;
 import cn.taketoday.context.annotation.ScopeMetadataResolver;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DefaultPropertySourceFactory;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
@@ -98,7 +99,9 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0
  */
 @Experimental
-public class BootstrapContext extends BeanDefinitionCustomizers implements TodayStrategies.Instantiator {
+public class BootstrapContext extends BeanDefinitionCustomizers
+        implements TodayStrategies.Instantiator, EnvironmentCapable {
+
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
   private final BeanDefinitionRegistry registry;
@@ -159,6 +162,7 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Today
     return applicationContext;
   }
 
+  @Override
   public Environment getEnvironment() {
     Environment environment = this.environment;
     if (environment == null) {

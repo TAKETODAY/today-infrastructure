@@ -40,7 +40,6 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ExpressionEvaluator;
 import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
@@ -100,7 +99,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * Abstract implementation of the {@link ApplicationContext}
+ * Abstract implementation of the {@link cn.taketoday.context.ApplicationContext}
  * interface. Doesn't mandate the type of storage used for configuration; simply
  * implements common context functionality. Uses the Template Method design pattern,
  * requiring concrete subclasses to implement abstract methods.
@@ -108,16 +107,42 @@ import cn.taketoday.util.ReflectionUtils;
  * <p>In contrast to a plain BeanFactory, an ApplicationContext is supposed
  * to detect special beans defined in its internal bean factory:
  * Therefore, this class automatically registers
- * {@link BeanFactoryPostProcessor BeanFactoryPostProcessors},
- * {@link BeanPostProcessor BeanPostProcessors}, and
- * {@link ApplicationListener ApplicationListeners} which are defined as beans in the context.
+ * {@link cn.taketoday.beans.factory.config.BeanFactoryPostProcessor BeanFactoryPostProcessors},
+ * {@link cn.taketoday.beans.factory.config.BeanPostProcessor BeanPostProcessors},
+ * and {@link cn.taketoday.context.ApplicationListener ApplicationListeners}
+ * which are defined as beans in the context.
  *
- * <p>Implements resource loading by extending {@link PathMatchingPatternResourceLoader}.
- * Consequently, treats non-URL resource paths as class path resources
+ * <p>A {@link cn.taketoday.context.MessageSource} may also be supplied
+ * as a bean in the context, with the name "messageSource"; otherwise, message
+ * resolution is delegated to the parent context. Furthermore, a multicaster
+ * for application events can be supplied as an "applicationEventMulticaster" bean
+ * of type {@link cn.taketoday.context.event.ApplicationEventMulticaster}
+ * in the context; otherwise, a default multicaster of type
+ * {@link cn.taketoday.context.event.SimpleApplicationEventMulticaster} will be used.
+ *
+ * <p>Implements resource loading by extending
+ * {@link cn.taketoday.core.io.DefaultResourceLoader}.
+ * Consequently treats non-URL resource paths as class path resources
  * (supporting full class path resource names that include the package path,
- * e.g. "mypackage/myresource.dat")
+ * e.g. "mypackage/myresource.dat"), unless the {@link #getResourceByPath}
+ * method is overridden in a subclass.
  *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Mark Fisher
+ * @author Stephane Nicoll
+ * @author Sam Brannen
+ * @author Sebastien Deleuze
+ * @author Brian Clozel
  * @author TODAY 2018-09-09 22:02
+ * @see #refreshBeanFactory
+ * @see #getBeanFactory
+ * @see cn.taketoday.beans.factory.config.BeanFactoryPostProcessor
+ * @see cn.taketoday.beans.factory.config.BeanPostProcessor
+ * @see cn.taketoday.context.event.ApplicationEventMulticaster
+ * @see cn.taketoday.context.ApplicationListener
+ * @see cn.taketoday.context.MessageSource
+ * @since January 21, 2001
  */
 @SuppressWarnings({ "unchecked" })
 public abstract class AbstractApplicationContext
@@ -175,6 +200,8 @@ public abstract class AbstractApplicationContext
   private final PatternResourceLoader patternResourceLoader = getPatternResourceLoader();
 
   /** @since 4.0 */
+
+  @Nullable
   private ExpressionEvaluator expressionEvaluator;
 
   /** Reference to the JVM shutdown hook, if registered. */
@@ -241,7 +268,9 @@ public abstract class AbstractApplicationContext
    * @return the DefinitionLoadingContext for this context
    * @since 4.0
    */
-  protected abstract BootstrapContext createBootstrapContext();
+  protected BootstrapContext createBootstrapContext() {
+    return new BootstrapContext(getBeanFactory(), this);
+  }
 
   /**
    * set BootstrapContext
@@ -259,17 +288,12 @@ public abstract class AbstractApplicationContext
    * @return Returns BootstrapContext
    * @since 4.0
    */
-  @Nullable
+  @Override
   public BootstrapContext getBootstrapContext() {
-    return bootstrapContext;
-  }
-
-  // @since 4.0
-  protected final BootstrapContext obtainBootstrapContext() {
-    BootstrapContext bootstrapContext = getBootstrapContext();
+    BootstrapContext bootstrapContext = this.bootstrapContext;
     if (bootstrapContext == null) {
       bootstrapContext = createBootstrapContext();
-      setBootstrapContext(bootstrapContext);
+      this.bootstrapContext = bootstrapContext;
     }
     return bootstrapContext;
   }
@@ -601,7 +625,7 @@ public abstract class AbstractApplicationContext
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
     log.debug("Registering framework components");
 
-    BootstrapContext bootstrapContext = obtainBootstrapContext();
+    BootstrapContext bootstrapContext = getBootstrapContext();
 
     beanFactory.registerSingleton(getInjector());
     if (!beanFactory.containsLocalBean(BootstrapContext.BEAN_NAME)) {
@@ -654,7 +678,7 @@ public abstract class AbstractApplicationContext
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
     // Configure the bean factory with context callbacks.
-    beanFactory.addBeanPostProcessor(new ContextAwareProcessor(this, obtainBootstrapContext()));
+    beanFactory.addBeanPostProcessor(new ContextAwareProcessor(this, getBootstrapContext()));
     // Register early post-processor for detecting inner beans as ApplicationListeners.
     beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
 
@@ -686,7 +710,7 @@ public abstract class AbstractApplicationContext
             BeanDefinitionLoader.class, classLoader, BeanFactoryAwareInstantiator.from(beanFactory));
 
     if (!strategies.isEmpty()) {
-      BootstrapContext bootstrapContext = obtainBootstrapContext();
+      BootstrapContext bootstrapContext = getBootstrapContext();
       for (BeanDefinitionLoader loader : strategies) {
         loader.loadBeanDefinitions(bootstrapContext);
       }
