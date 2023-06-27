@@ -20,10 +20,8 @@
 
 package cn.taketoday.core.testfixture.io.buffer;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -58,6 +56,9 @@ import io.netty5.buffer.BufferAllocator;
 import reactor.core.publisher.Mono;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Named.named;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
  * Base class for tests that read or write data buffers with an extension to check
@@ -120,7 +121,7 @@ public abstract class AbstractDataBufferAllocatingTests {
     return dataBuffer -> {
       String value = dataBuffer.toString(charset);
       DataBufferUtils.release(dataBuffer);
-      Assertions.assertThat(value).isEqualTo(expected);
+      assertThat(value).isEqualTo(expected);
     };
   }
 
@@ -163,7 +164,7 @@ public abstract class AbstractDataBufferAllocatingTests {
             }
             continue;
           }
-          Assertions.assertThat(total).as("ByteBuf Leak: " + total + " unreleased allocations").isEqualTo(0);
+          assertThat(total).as("ByteBuf Leak: " + total + " unreleased allocations").isEqualTo(0);
         }
       }
     }
@@ -205,27 +206,27 @@ public abstract class AbstractDataBufferAllocatingTests {
   public static Stream<Arguments> dataBufferFactories() {
     return Stream.of(
             // Netty 4
-            Arguments.arguments(Named.named("NettyDataBufferFactory - UnpooledByteBufAllocator - preferDirect = true",
+            arguments(named("NettyDataBufferFactory - UnpooledByteBufAllocator - preferDirect = true",
                     new NettyDataBufferFactory(netty4OffHeapUnpooled))),
-            Arguments.arguments(Named.named("NettyDataBufferFactory - UnpooledByteBufAllocator - preferDirect = false",
+            arguments(named("NettyDataBufferFactory - UnpooledByteBufAllocator - preferDirect = false",
                     new NettyDataBufferFactory(netty4OnHeapUnpooled))),
-            Arguments.arguments(Named.named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = true",
+            arguments(named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = true",
                     new NettyDataBufferFactory(netty4OffHeapPooled))),
-            Arguments.arguments(Named.named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = false",
+            arguments(named("NettyDataBufferFactory - PooledByteBufAllocator - preferDirect = false",
                     new NettyDataBufferFactory(netty4OnHeapPooled))),
             // Netty 5
-            Arguments.arguments(Named.named("Netty5DataBufferFactory - BufferAllocator.onHeapUnpooled()",
+            arguments(named("Netty5DataBufferFactory - BufferAllocator.onHeapUnpooled()",
                     new Netty5DataBufferFactory(netty5OnHeapUnpooled))),
-            Arguments.arguments(Named.named("Netty5DataBufferFactory - BufferAllocator.offHeapUnpooled()",
+            arguments(named("Netty5DataBufferFactory - BufferAllocator.offHeapUnpooled()",
                     new Netty5DataBufferFactory(netty5OffHeapUnpooled))),
-            Arguments.arguments(Named.named("Netty5DataBufferFactory - BufferAllocator.onHeapPooled()",
+            arguments(named("Netty5DataBufferFactory - BufferAllocator.onHeapPooled()",
                     new Netty5DataBufferFactory(netty5OnHeapPooled))),
-            Arguments.arguments(Named.named("Netty5DataBufferFactory - BufferAllocator.offHeapPooled()",
+            arguments(named("Netty5DataBufferFactory - BufferAllocator.offHeapPooled()",
                     new Netty5DataBufferFactory(netty5OffHeapPooled))),
             // Default
-            Arguments.arguments(Named.named("DefaultDataBufferFactory - preferDirect = true",
+            arguments(named("DefaultDataBufferFactory - preferDirect = true",
                     new DefaultDataBufferFactory(true))),
-            Arguments.arguments(Named.named("DefaultDataBufferFactory - preferDirect = false",
+            arguments(named("DefaultDataBufferFactory - preferDirect = false",
                     new DefaultDataBufferFactory(false)))
     );
   }

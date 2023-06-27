@@ -492,10 +492,13 @@ class RequestParamMethodArgumentResolverTests {
 
     BindingContext context = mock(BindingContext.class);
     given(context.createBinder(webRequest, null, "name")).willReturn(binder);
+    given(context.createBinder(webRequest, "name")).willReturn(binder);
 
     request.addParameter("name", "    ");
 
-    ResolvableMethodParameter param = this.testMethod.annot(requestParam().notRequired("bar")).arg(String.class);
+    webRequest.setBinding(context);
+
+    ResolvableMethodParameter param = testMethod.annot(requestParam().notRequired("bar")).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
     assertThat(arg).isEqualTo("bar");
   }
