@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -86,9 +86,9 @@ public class CircuitBreakerStatisticsTests {
     assertThat(result).isEqualTo(RECOVERED);
     result = this.retryTemplate.execute(this.callback, this.recovery, this.state);
     assertThat(result).isEqualTo(RECOVERED);
-    assertThat(stats.getRecoveryCount()).describedAs("There should be two recoveries", null).isEqualTo(2);
+    assertThat(stats.getRecoveryCount()).describedAs("There should be two recoveries").isEqualTo(2);
     assertThat(stats.getErrorCount())
-            .describedAs("There should only be one error because the circuit is now open", null).isEqualTo(1);
+            .describedAs("There should only be one error because the circuit is now open").isEqualTo(1);
     assertThat(stats.getAttribute(CircuitBreakerRetryPolicy.CIRCUIT_OPEN)).isEqualTo(Boolean.TRUE);
     // Both recoveries are through a short circuit because we used NeverRetryPolicy
     assertThat(stats.getAttribute(CircuitBreakerRetryPolicy.CIRCUIT_SHORT_COUNT)).isEqualTo(2);
@@ -126,7 +126,7 @@ public class CircuitBreakerStatisticsTests {
     MutableRetryStatistics stats = (MutableRetryStatistics) repository.findOne("test");
     assertThat(stats.getAbortCount()).describedAs("There should be two aborts").isEqualTo(2);
     assertThat(stats.getErrorCount())
-            .describedAs("There should only be one error because the circuit is now open", null).isEqualTo(1);
+            .describedAs("There should only be one error because the circuit is now open").isEqualTo(1);
     assertThat(stats.getAttribute(CircuitBreakerRetryPolicy.CIRCUIT_OPEN)).isEqualTo(true);
     resetAndAssert(this.cache, stats);
   }

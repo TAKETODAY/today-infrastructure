@@ -156,5 +156,10 @@ dependencies {
     api 'com.zaxxer:HikariCP:5.0.0'
     api 'mysql:mysql-connector-java:8.0.28'
     api 'org.postgresql:postgresql:42.4.1'
+
+    api("org.apache.maven.resolver:maven-resolver-connector-basic:1.6.3")
+    api("org.apache.maven.resolver:maven-resolver-impl:1.6.3")
+    api("org.apache.maven:maven-resolver-provider:3.6.3")
+    api("org.apache.maven.resolver:maven-resolver-transport-http:1.6.3")
   }
 }

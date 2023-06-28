@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -254,7 +254,7 @@ class MapperScannerConfigurerTest {
     }
     {
       AnnotatedMapper mapper = applicationContext.getBean(AnnotatedMapper.class);
-      assertThat(mapper.test()).isEqualTo("main");
+      assertThat(mapper.test()).isEqualTo(Thread.currentThread().getName());
     }
 
     SqlSessionFactory sqlSessionFactory = applicationContext.getBean(SqlSessionFactory.class);
