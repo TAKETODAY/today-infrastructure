@@ -21,7 +21,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;

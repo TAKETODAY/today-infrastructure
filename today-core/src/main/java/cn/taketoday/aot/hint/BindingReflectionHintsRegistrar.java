@@ -46,11 +46,10 @@ import cn.taketoday.util.ReflectionUtils;
  * on properties and record components, and generic types are registered as well.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class BindingReflectionHintsRegistrar {
-
-  private static final String KOTLIN_COMPANION_SUFFIX = "$Companion";
 
   private static final String JACKSON_ANNOTATION = "com.fasterxml.jackson.annotation.JacksonAnnotation";
 
@@ -95,8 +94,7 @@ public class BindingReflectionHintsRegistrar {
               registerRecordHints(hints, seen, recordComponent.getAccessor());
             }
           }
-          typeHint.withMembers(
-                  MemberCategory.DECLARED_FIELDS,
+          typeHint.withMembers(MemberCategory.DECLARED_FIELDS,
                   MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
           for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
@@ -136,17 +134,6 @@ public class BindingReflectionHintsRegistrar {
     }
   }
 
-  private void registerKotlinSerializationHints(ReflectionHints hints, Class<?> clazz) {
-    String companionClassName = clazz.getCanonicalName() + KOTLIN_COMPANION_SUFFIX;
-    if (ClassUtils.isPresent(companionClassName, null)) {
-      Class<?> companionClass = ClassUtils.resolveClassName(companionClassName, null);
-      Method serializerMethod = ReflectionUtils.getMethodIfAvailable(companionClass, "serializer");
-      if (serializerMethod != null) {
-        hints.registerMethod(serializerMethod, ExecutableMode.INVOKE);
-      }
-    }
-  }
-
   private void collectReferencedTypes(Set<Class<?>> types, ResolvableType resolvableType) {
     Class<?> clazz = resolvableType.resolve();
     if (clazz != null && !types.contains(clazz)) {
@@ -182,7 +169,7 @@ public class BindingReflectionHintsRegistrar {
             .from(element, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY)
             .stream(JACKSON_ANNOTATION)
             .filter(MergedAnnotation::isMetaPresent)
-            .forEach(action::accept);
+            .forEach(action);
   }
 
   private void registerHintsForClassAttributes(ReflectionHints hints, MergedAnnotation<Annotation> annotation) {

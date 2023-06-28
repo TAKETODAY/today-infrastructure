@@ -22,7 +22,6 @@ package cn.taketoday.context.testfixture.context.annotation;
 
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;

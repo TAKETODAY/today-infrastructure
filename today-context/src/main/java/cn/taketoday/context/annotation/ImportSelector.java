@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.annotation;
 
 import java.util.function.Predicate;
 
-import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;

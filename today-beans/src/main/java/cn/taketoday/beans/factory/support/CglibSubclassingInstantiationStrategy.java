@@ -28,7 +28,6 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.bytecode.core.ClassLoaderAwareGeneratorStrategy;
-import cn.taketoday.bytecode.core.DefaultNamingPolicy;
 import cn.taketoday.bytecode.core.NamingPolicy;
 import cn.taketoday.bytecode.proxy.Callback;
 import cn.taketoday.bytecode.proxy.CallbackFilter;
