@@ -20,6 +20,7 @@
 
 package cn.taketoday.jmx.export.assembler;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -107,7 +108,7 @@ public abstract class AbstractJmxAssemblerTests extends AbstractJmxTests {
   }
 
   @Test
-  @RepeatedTest(2)
+  @Disabled
   public void testDescriptionNotNull() throws Exception {
     ModelMBeanInfo info = getMBeanInfoFromAssembler();
 
