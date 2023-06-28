@@ -159,7 +159,7 @@ dependencies {
 
     api("org.apache.maven.resolver:maven-resolver-connector-basic:1.6.3")
     api("org.apache.maven.resolver:maven-resolver-impl:1.6.3")
-    api("org.apache.maven:maven-resolver-provider:1.6.3")
+    api("org.apache.maven:maven-resolver-provider:3.6.3")
     api("org.apache.maven.resolver:maven-resolver-transport-http:1.6.3")
   }
 }
