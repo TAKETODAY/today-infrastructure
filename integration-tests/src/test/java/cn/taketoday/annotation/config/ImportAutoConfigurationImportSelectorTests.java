@@ -312,7 +312,7 @@ class ImportAutoConfigurationImportSelectorTests {
   static class TestImportAutoConfigurationImportSelector extends ImportAutoConfigurationImportSelector {
 
     public TestImportAutoConfigurationImportSelector(BootstrapContext bootstrapContext) {
-      super(bootstrapContext);
+      setBootstrapContext(bootstrapContext);
     }
 
     @Override

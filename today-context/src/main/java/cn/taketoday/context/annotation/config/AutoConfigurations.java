@@ -41,7 +41,7 @@ public class AutoConfigurations extends Configurations implements Ordered {
   private static final AutoConfigurationSorter SORTER =
           new AutoConfigurationSorter(new SimpleMetadataReaderFactory(), null);
 
-  private static final Ordered ORDER = new AutoConfigurationImportSelector(null);
+  private static final Ordered ORDER = new AutoConfigurationImportSelector();
 
   protected AutoConfigurations(Collection<Class<?>> classes) {
     super(classes);

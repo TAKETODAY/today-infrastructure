@@ -34,6 +34,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DeferredImportSelector;
 import cn.taketoday.context.properties.bind.Binder;
@@ -64,7 +65,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/1 02:37
  */
 public class AutoConfigurationImportSelector implements DeferredImportSelector,
-        BeanClassLoaderAware, Ordered, Predicate<String> {
+        BeanClassLoaderAware, BootstrapContextAware, Ordered, Predicate<String> {
 
   private static final Logger log = LoggerFactory.getLogger(AutoConfigurationImportSelector.class);
 
@@ -72,13 +73,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   private ClassLoader beanClassLoader;
 
-  private final BootstrapContext bootstrapContext;
+  private BootstrapContext bootstrapContext;
 
   private ConfigurationClassFilter configurationClassFilter;
-
-  public AutoConfigurationImportSelector(BootstrapContext bootstrapContext) {
-    this.bootstrapContext = bootstrapContext;
-  }
 
   @Override
   public String[] selectImports(AnnotationMetadata annotationMetadata) {
@@ -134,7 +131,8 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
   protected boolean isEnabled(AnnotationMetadata metadata) {
     if (getClass() == AutoConfigurationImportSelector.class) {
-      return getEnvironment().getFlag(
+      Environment environment = getEnvironment();
+      return environment != null && environment.getFlag(
               EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, true);
     }
     return true;
@@ -309,11 +307,19 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     this.beanClassLoader = classLoader;
   }
 
+  @Override
+  public void setBootstrapContext(BootstrapContext bootstrapContext) {
+    this.bootstrapContext = bootstrapContext;
+  }
+
   protected ClassLoader getBeanClassLoader() {
     return this.beanClassLoader;
   }
 
   protected final Environment getEnvironment() {
+    if (bootstrapContext == null) {
+      return null;
+    }
     return bootstrapContext.getEnvironment();
   }
 

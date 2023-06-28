@@ -217,7 +217,7 @@ class AutoConfigurationImportSelectorTests {
     private AutoConfigurationImportEvent lastEvent;
 
     private TestAutoConfigurationImportSelector() {
-      super(new BootstrapContext(environment, beanFactory));
+      setBootstrapContext(new BootstrapContext(environment, beanFactory));
     }
 
     @Override
