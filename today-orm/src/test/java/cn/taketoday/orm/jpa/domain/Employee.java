@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.orm.jpa.domain;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -28,6 +29,7 @@ import jakarta.persistence.PreRemove;
 
 @Entity
 @IdClass(EmployeeId.class)
+@Convert(converter = EmployeeKindConverter.class, attributeName = "kind")
 public class Employee {
 
   @Id
@@ -39,6 +41,11 @@ public class Employee {
   private String department;
 
   private EmployeeLocation location;
+
+  @Convert(converter = EmployeeCategoryConverter.class)
+  private EmployeeCategory category;
+
+  private EmployeeKind kind;
 
   public String getName() {
     return name;
@@ -62,6 +69,22 @@ public class Employee {
 
   public void setLocation(EmployeeLocation location) {
     this.location = location;
+  }
+
+  public EmployeeCategory getCategory() {
+    return category;
+  }
+
+  public void setCategory(EmployeeCategory category) {
+    this.category = category;
+  }
+
+  public EmployeeKind getKind() {
+    return kind;
+  }
+
+  public void setKind(EmployeeKind kind) {
+    this.kind = kind;
   }
 
   @PreRemove
