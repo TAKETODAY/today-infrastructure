@@ -29,9 +29,9 @@ dependencies {
 
   compileOnly 'org.apache.tomcat:tomcat-jdbc:10.0.16'
   compileOnly 'com.oracle.database.jdbc:ucp:21.7.0.0'
-  compileOnly 'org.postgresql:postgresql:42.4.1'
+  compileOnly 'org.postgresql:postgresql'
   compileOnly 'com.mchange:c3p0:0.9.5.5'
-  compileOnly 'com.h2database:h2:1.4.199'
+  compileOnly 'com.h2database:h2'
   compileOnly 'org.apache.commons:commons-dbcp2:2.9.0'
   compileOnly 'com.zaxxer:HikariCP:5.0.0'
   compileOnly 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'

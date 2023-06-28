@@ -31,7 +31,7 @@ dependencies {
     api("com.google.code.gson:gson:2.10.1")
     api("com.google.protobuf:protobuf-java-util:3.23.2")
     api("com.googlecode.protobuf-java-format:protobuf-java-format:1.4")
-    api("com.h2database:h2:2.1.214")
+    api("com.h2database:h2:1.4.199")
     api("com.jayway.jsonpath:json-path:2.8.0")
     api("com.rometools:rome:1.19.0")
     api("com.squareup.okhttp3:mockwebserver:4.10.0")
@@ -155,5 +155,6 @@ dependencies {
     api("org.seleniumhq.selenium:selenium-bom:4.8.3")
     api 'com.zaxxer:HikariCP:5.0.0'
     api 'mysql:mysql-connector-java:8.0.28'
+    api 'org.postgresql:postgresql:42.4.1'
   }
 }

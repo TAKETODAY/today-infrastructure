@@ -15,7 +15,7 @@ dependencies {
   testImplementation 'com.fasterxml.woodstox:woodstox-core'
   testImplementation 'jakarta.transaction:jakarta.transaction-api'
 
-  testImplementation 'com.h2database:h2:1.4.199'
+  testImplementation 'com.h2database:h2'
   testImplementation 'com.mockrunner:mockrunner-jdbc:2.0.6'
   testImplementation 'com.atomikos:transactions-jdbc:5.0.9'
   testImplementation 'org.jboss.byteman:byteman-bmunit:4.0.18'
