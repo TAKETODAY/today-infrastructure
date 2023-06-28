@@ -16,13 +16,18 @@ dependencies {
   testImplementation 'jakarta.transaction:jakarta.transaction-api'
 
   testImplementation 'com.h2database:h2'
-  testImplementation 'com.mockrunner:mockrunner-jdbc:2.0.6'
   testImplementation 'com.atomikos:transactions-jdbc:5.0.9'
   testImplementation 'org.jboss.byteman:byteman-bmunit:4.0.18'
 
   testImplementation('com.mockrunner:mockrunner-ejb:2.0.6') {
     exclude group: 'commons-beanutils', module: 'commons-beanutils'
     exclude group: 'org.mockejb', module: 'mockejb'
+    exclude group: 'nekohtml', module: 'nekohtml'
+  }
+
+  testImplementation('com.mockrunner:mockrunner-jdbc:2.0.6') {
+    exclude group: 'nekohtml', module: 'nekohtml'
+    exclude group: 'junit', module: 'junit'
   }
 
   testImplementation('com.mockrunner:mockrunner-core:2.0.6') {

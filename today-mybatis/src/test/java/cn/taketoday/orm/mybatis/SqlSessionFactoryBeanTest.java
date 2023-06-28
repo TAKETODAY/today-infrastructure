@@ -267,7 +267,7 @@ class SqlSessionFactoryBeanTest {
     setupFactoryBean();
 
     factoryBean
-            .setConfigLocation(new cn.taketoday.core.io.ClassPathResource("cn/taketoday/orm/mybatis/mybatis-config.xml"));
+            .setConfigLocation(new ClassPathResource("cn/taketoday/orm/mybatis/mybatis-config.xml"));
 
     SqlSessionFactory factory = factoryBean.getObject();
 
