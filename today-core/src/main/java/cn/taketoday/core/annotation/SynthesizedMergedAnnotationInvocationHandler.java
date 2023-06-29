@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -57,6 +57,9 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
 
   @Nullable
   private volatile Integer hash;
+
+  @Nullable
+  private volatile String string;
 
   SynthesizedMergedAnnotationInvocationHandler(AbstractMergedAnnotation<A> annotation, Class<A> type) {
     this.type = type;
@@ -169,24 +172,66 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
   }
 
   private String annotationToString() {
-    StringBuilder builder = new StringBuilder("@").append(this.type.getName()).append('(');
-    Method[] attributes = attributeMethods.attributes;
-    for (int i = 0; i < attributes.length; i++) {
-      Method attribute = attributes[i];
-      if (i > 0) {
-        builder.append(", ");
+    String string = this.string;
+    if (string == null) {
+      synchronized(this) {
+        string = this.string;
+        if (string == null) {
+          StringBuilder builder = new StringBuilder("@").append(getName(type)).append('(');
+          Method[] attributes = attributeMethods.attributes;
+          for (int i = 0; i < attributes.length; i++) {
+            Method attribute = attributes[i];
+            if (i > 0) {
+              builder.append(", ");
+            }
+            builder.append(attribute.getName());
+            builder.append('=');
+            builder.append(toString(getAttributeValue(attribute, false)));
+          }
+          builder.append(')');
+          string = builder.toString();
+          this.string = string;
+        }
       }
-      builder.append(attribute.getName());
-      builder.append('=');
-      builder.append(toString(getAttributeValue(attribute, false)));
     }
-    builder.append(')');
-    return builder.toString();
+    return string;
   }
 
+  /**
+   * This method currently does not address the following issues which we may
+   * choose to address at a later point in time.
+   *
+   * <ul>
+   * <li>non-ASCII, non-visible, and non-printable characters within a character
+   * or String literal are not escaped.</li>
+   * <li>formatting for float and double values does not take into account whether
+   * a value is not a number (NaN) or infinite.</li>
+   * </ul>
+   *
+   * @param value the attribute value to format
+   * @return the formatted string representation
+   */
   private String toString(Object value) {
-    if (value instanceof Class) {
-      return ((Class<?>) value).getName();
+    if (value instanceof Character) {
+      return '\'' + value.toString() + '\'';
+    }
+    if (value instanceof Byte) {
+      return String.format("(byte) 0x%02X", value);
+    }
+    if (value instanceof Long longValue) {
+      return Long.toString(longValue) + 'L';
+    }
+    if (value instanceof Float floatValue) {
+      return Float.toString(floatValue) + 'f';
+    }
+    if (value instanceof Double doubleValue) {
+      return Double.toString(doubleValue) + 'd';
+    }
+    if (value instanceof Enum<?> e) {
+      return e.name();
+    }
+    if (value instanceof Class<?> clazz) {
+      return getName(clazz) + ".class";
     }
     if (value.getClass().isArray()) {
       StringBuilder builder = new StringBuilder("[");
@@ -270,4 +315,8 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     return (A) Proxy.newProxyInstance(classLoader, new Class<?>[] { type }, handler);
   }
 
+  private static String getName(Class<?> clazz) {
+    String canonicalName = clazz.getCanonicalName();
+    return (canonicalName != null ? canonicalName : clazz.getName());
+  }
 }

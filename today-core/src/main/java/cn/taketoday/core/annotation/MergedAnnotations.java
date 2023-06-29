@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -379,11 +379,21 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    */
   static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+
+    return from(element, searchStrategy, Search.never, repeatableContainers, annotationFilter);
+  }
+
+  private static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
+          Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers,
+          AnnotationFilter annotationFilter) {
+
     Assert.notNull(element, "AnnotatedElement must not be null");
     Assert.notNull(searchStrategy, "SearchStrategy must not be null");
+    Assert.notNull(searchEnclosingClass, "Predicate must not be null");
     Assert.notNull(repeatableContainers, "RepeatableContainers must not be null");
     Assert.notNull(annotationFilter, "AnnotationFilter must not be null");
-    return TypeMappedAnnotations.from(element, searchStrategy, repeatableContainers, annotationFilter);
+    return TypeMappedAnnotations.from(element, searchStrategy, searchEnclosingClass,
+            repeatableContainers, annotationFilter);
   }
 
   /**
@@ -529,9 +539,15 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * // do something with the MergedAnnotations for AnotherClass
    * </pre>
    */
-  static final class Search {
+  final class Search {
+
+    static final Predicate<Class<?>> always = clazz -> true;
+
+    static final Predicate<Class<?>> never = clazz -> false;
 
     private final SearchStrategy searchStrategy;
+
+    private Predicate<Class<?>> searchEnclosingClass = never;
 
     private RepeatableContainers repeatableContainers = RepeatableContainers.standard();
 
@@ -539,6 +555,49 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 
     private Search(SearchStrategy searchStrategy) {
       this.searchStrategy = searchStrategy;
+    }
+
+    /**
+     * Configure whether the search algorithm should search on
+     * {@linkplain Class#getEnclosingClass() enclosing classes}.
+     * <p>This feature is disabled by default and is only supported when using
+     * {@link SearchStrategy#TYPE_HIERARCHY}.
+     * <p>Enclosing classes will be recursively searched if the supplied
+     * {@link Predicate} evaluates to {@code true}. Typically, the predicate
+     * will be used to differentiate between <em>inner classes</em> and
+     * {@code static} nested classes.
+     * <ul>
+     * <li>To limit the enclosing class search to inner classes, provide
+     * {@link cn.taketoday.util.ClassUtils#isInnerClass(Class) ClassUtils::isInnerClass}
+     * as the predicate.</li>
+     * <li>To limit the enclosing class search to static nested classes, provide
+     * {@link cn.taketoday.util.ClassUtils#isStaticClass(Class) ClassUtils::isStaticClass}
+     * as the predicate.</li>
+     * <li>To force the algorithm to always search enclosing classes, provide
+     * {@code clazz -> true} as the predicate.</li>
+     * <li>For any other use case, provide a custom predicate.</li>
+     * </ul>
+     * <p><strong>WARNING:</strong> if the supplied predicate always evaluates
+     * to {@code true}, the algorithm will search recursively for annotations
+     * on an enclosing class for any source type, regardless whether the source
+     * type is an <em>inner class</em>, a {@code static} nested class, or a
+     * nested interface. Thus, it may find more annotations than you would expect.
+     *
+     * @param searchEnclosingClass a predicate which evaluates to {@code true}
+     * if a search should be performed on the enclosing class of the class
+     * supplied to the predicate
+     * @return this {@code Search} instance for chained method invocations
+     * @see SearchStrategy#TYPE_HIERARCHY
+     * @see #withRepeatableContainers(RepeatableContainers)
+     * @see #withAnnotationFilter(AnnotationFilter)
+     * @see #from(AnnotatedElement)
+     */
+    public Search withEnclosingClasses(Predicate<Class<?>> searchEnclosingClass) {
+      Assert.notNull(searchEnclosingClass, "Predicate must not be null");
+      Assert.state(this.searchStrategy == SearchStrategy.TYPE_HIERARCHY,
+              "A custom 'searchEnclosingClass' predicate can only be combined with SearchStrategy.TYPE_HIERARCHY");
+      this.searchEnclosingClass = searchEnclosingClass;
+      return this;
     }
 
     /**
@@ -582,12 +641,14 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
      * @return a new {@link MergedAnnotations} instance containing all
      * annotations and meta-annotations from the specified element and,
      * depending on the {@link SearchStrategy}, related inherited elements
+     * @see #withEnclosingClasses(Predicate)
      * @see #withRepeatableContainers(RepeatableContainers)
      * @see #withAnnotationFilter(AnnotationFilter)
      * @see MergedAnnotations#from(AnnotatedElement, SearchStrategy, RepeatableContainers, AnnotationFilter)
      */
     public MergedAnnotations from(AnnotatedElement element) {
-      return MergedAnnotations.from(element, searchStrategy, repeatableContainers, annotationFilter);
+      return MergedAnnotations.from(element, this.searchStrategy, this.searchEnclosingClass,
+              this.repeatableContainers, this.annotationFilter);
     }
 
   }
@@ -611,39 +672,35 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
 
     /**
      * Find all directly declared annotations as well as any
-     * {@link Inherited @Inherited} superclass annotations. This strategy
-     * is only really useful when used with {@link Class} types since the
-     * {@link Inherited @Inherited} annotation is ignored for all other
-     * {@linkplain AnnotatedElement annotated elements}. This strategy does
-     * not search implemented interfaces.
+     * {@link Inherited @Inherited} superclass annotations.
+     * <p>This strategy is only really useful when used with {@link Class}
+     * types since the {@link Inherited @Inherited} annotation is ignored for
+     * all other {@linkplain AnnotatedElement annotated elements}.
+     * <p>This strategy does not search implemented interfaces.
      */
     INHERITED_ANNOTATIONS,
 
     /**
-     * Find all directly declared and superclass annotations. This strategy
-     * is similar to {@link #INHERITED_ANNOTATIONS} except the annotations
-     * do not need to be meta-annotated with {@link Inherited @Inherited}.
-     * This strategy does not search implemented interfaces.
+     * Find all directly declared and superclass annotations.
+     * <p>This strategy is similar to {@link #INHERITED_ANNOTATIONS} except
+     * the annotations do not need to be meta-annotated with
+     * {@link Inherited @Inherited}.
+     * <p>This strategy does not search implemented interfaces.
      */
     SUPERCLASS,
 
     /**
      * Perform a full search of the entire type hierarchy, including
-     * superclasses and implemented interfaces. Superclass annotations do
-     * not need to be meta-annotated with {@link Inherited @Inherited}.
+     * superclasses and implemented interfaces.
+     * <p>When combined with {@link Search#withEnclosingClasses(Predicate)},
+     * {@linkplain Class#getEnclosingClass() enclosing classes} will also be
+     * recursively searched if the supplied {@link Predicate} evaluates to
+     * {@code true}.
+     * <p>Superclass and enclosing class annotations do not need to be
+     * meta-annotated with {@link Inherited @Inherited}.
      */
-    TYPE_HIERARCHY,
+    TYPE_HIERARCHY
 
-    /**
-     * Perform a full search of the entire type hierarchy on the source
-     * <em>and</em> any enclosing classes. This strategy is similar to
-     * {@link #TYPE_HIERARCHY} except that {@linkplain Class#getEnclosingClass()
-     * enclosing classes} are also searched. Superclass annotations do not
-     * need to be meta-annotated with {@link Inherited @Inherited}. When
-     * searching a {@link Method} source, this strategy is identical to
-     * {@link #TYPE_HIERARCHY}.
-     */
-    TYPE_HIERARCHY_AND_ENCLOSING_CLASSES
   }
 
 }

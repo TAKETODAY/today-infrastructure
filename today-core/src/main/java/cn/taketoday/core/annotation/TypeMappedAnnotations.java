@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,6 +59,8 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   @Nullable
   private final SearchStrategy searchStrategy;
 
+  private final Predicate<Class<?>> searchEnclosingClass;
+
   @Nullable
   private final Annotation[] annotations;
 
@@ -69,24 +71,26 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   @Nullable
   private volatile List<Aggregate> aggregates;
 
-  private TypeMappedAnnotations(
-          @Nullable AnnotatedElement element, @Nullable SearchStrategy searchStrategy,
-          RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  private TypeMappedAnnotations(@Nullable AnnotatedElement element, @Nullable SearchStrategy searchStrategy,
+          Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers,
+          AnnotationFilter annotationFilter) {
 
     this.source = element;
     this.element = element;
     this.searchStrategy = searchStrategy;
+    this.searchEnclosingClass = searchEnclosingClass;
     this.annotations = null;
     this.repeatableContainers = repeatableContainers;
     this.annotationFilter = annotationFilter;
   }
 
-  private TypeMappedAnnotations(
-          @Nullable Object source, @Nullable Annotation[] annotations,
+  private TypeMappedAnnotations(@Nullable Object source, @Nullable Annotation[] annotations,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+
     this.source = source;
     this.element = null;
     this.searchStrategy = null;
+    this.searchEnclosingClass = Search.never;
     this.annotations = annotations;
     this.repeatableContainers = repeatableContainers;
     this.annotationFilter = annotationFilter;
@@ -247,24 +251,25 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
   @Nullable
   private <C, R> R scan(C criteria, AnnotationsProcessor<C, R> processor) {
-    if (annotations != null) {
-      R result = processor.doWithAnnotations(criteria, 0, source, annotations);
+    if (this.annotations != null) {
+      R result = processor.doWithAnnotations(criteria, 0, this.source, this.annotations);
       return processor.finish(result);
     }
-    if (element != null && searchStrategy != null) {
-      return AnnotationsScanner.scan(criteria, element, this.searchStrategy, processor);
+    if (this.element != null && this.searchStrategy != null) {
+      return AnnotationsScanner.scan(criteria, this.element, this.searchStrategy,
+              this.searchEnclosingClass, processor);
     }
     return null;
   }
 
-  static MergedAnnotations from(
-          AnnotatedElement element, SearchStrategy searchStrategy,
-          RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
+  static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
+          Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers,
+          AnnotationFilter annotationFilter) {
 
-    if (AnnotationsScanner.isKnownEmpty(element, searchStrategy)) {
+    if (AnnotationsScanner.isKnownEmpty(element, searchStrategy, searchEnclosingClass)) {
       return NONE;
     }
-    return new TypeMappedAnnotations(element, searchStrategy, repeatableContainers, annotationFilter);
+    return new TypeMappedAnnotations(element, searchStrategy, searchEnclosingClass, repeatableContainers, annotationFilter);
   }
 
   static MergedAnnotations from(

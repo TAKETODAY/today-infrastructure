@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -166,7 +166,7 @@ class AnnotationTypeMappingsTests {
   void forAnnotationTypeWhenAliasForWithIncompatibleReturnTypes() {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
                     AnnotationTypeMappings.forAnnotationType(AliasForWithIncompatibleReturnTypes.class))
-            .withMessage("Mis-configured aliases: attribute 'test' in annotation ["
+            .withMessage("Misconfigured aliases: attribute 'test' in annotation ["
                     + AliasForWithIncompatibleReturnTypes.class.getName()
                     + "] and attribute 'test' in annotation ["
                     + AliasForWithIncompatibleReturnTypesTarget.class.getName()

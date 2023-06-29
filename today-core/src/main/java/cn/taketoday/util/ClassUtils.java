@@ -523,6 +523,18 @@ public abstract class ClassUtils {
   }
 
   /**
+   * Determine if the supplied class is a static class.
+   *
+   * @return {@code true} if the supplied class is a static class
+   * @see Modifier#isStatic(int)
+   * @see #isInnerClass(Class)
+   * @since 4.0
+   */
+  public static boolean isStaticClass(Class<?> clazz) {
+    return Modifier.isStatic(clazz.getModifiers());
+  }
+
+  /**
    * Determine if the supplied {@link Class} is a JVM-generated implementation
    * class for a lambda expression or method reference.
    * <p>This method makes a best-effort attempt at determining this, based on
