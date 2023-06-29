@@ -56,7 +56,7 @@ jobs:
           distribution: adopt
 
       - name: Test Coverage
-        run: ./gradlew testCodeCoverageReport -DCI=true
+        run: ./gradlew -DCI=true --no-daemon -q check
 
       - name: Report Coverage to Coveralls
         uses: coverallsapp/github-action@v2

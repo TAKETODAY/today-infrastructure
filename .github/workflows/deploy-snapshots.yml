@@ -40,7 +40,7 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
 
       - name: Deploy snapshots
-        run: ./gradlew publish -DCI=true -DrepoUsername=$SNAPSHOTS_USERNAME -DrepoPassword=$SNAPSHOTS_TOKEN
+        run: ./gradlew --no-daemon publish -DCI=true -DrepoUsername=$SNAPSHOTS_USERNAME -DrepoPassword=$SNAPSHOTS_TOKEN
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
