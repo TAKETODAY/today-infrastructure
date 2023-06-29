@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.CacheResolver;
@@ -51,6 +52,7 @@ import cn.taketoday.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
+@Reflective
 public @interface CacheEvict {
 
   /**

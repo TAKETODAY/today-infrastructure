@@ -28,6 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 
 /**
@@ -75,6 +76,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Repeatable(Schedules.class)
+@Reflective
 public @interface Scheduled {
 
   /**

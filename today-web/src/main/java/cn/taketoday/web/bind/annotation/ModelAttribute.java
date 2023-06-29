@@ -26,6 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.annotation.ExceptionHandler;
@@ -72,6 +73,7 @@ import cn.taketoday.web.annotation.RequestMapping;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Reflective
 public @interface ModelAttribute {
 
   /**

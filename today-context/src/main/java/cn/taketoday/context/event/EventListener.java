@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 import java.util.function.Predicate;
 
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
+import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.core.annotation.AliasFor;
@@ -82,6 +83,7 @@ import cn.taketoday.core.annotation.Order;
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
+@Reflective
 public @interface EventListener {
 
   /**
