@@ -49,7 +49,7 @@ file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
 
 rootProject.name = 'today-infrastructure'
 
-rootProject.children.each { project ->
+rootProject.children.findAll { !it.name.startsWith("today-starter-") }.each { project ->
   project.buildFileName = "${project.name}.gradle"
 }
 
