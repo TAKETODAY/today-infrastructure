@@ -83,7 +83,7 @@ class MergedAnnotationsTests {
    * Subset (and duplication) of other tests in {@link MergedAnnotationsTests}
    * that verify behavior of the fluent {@link Search} API.
    *
-   * @since 6.0
+   * @since 4.0
    */
   @Nested
   class FluentSearchApiTests {
@@ -152,7 +152,7 @@ class MergedAnnotationsTests {
     }
 
     /**
-     * @since 6.0
+     * @since 4.0
      */
     @Test
     void searchFromNonAnnotatedInnerClassWithAnnotatedEnclosingClassWithEnclosingClassPredicates() {
@@ -185,7 +185,7 @@ class MergedAnnotationsTests {
     }
 
     /**
-     * @since 6.0
+     * @since 4.0
      */
     @Test
     void searchFromNonAnnotatedStaticNestedClassWithAnnotatedEnclosingClassWithEnclosingClassPredicates() {
@@ -1508,7 +1508,7 @@ class MergedAnnotationsTests {
   }
 
   /**
-   * @since 6.0
+   * @since 4.0
    */
   @Test
   void synthesizedAnnotationShouldReuseJdkProxyClass() throws Exception {
