@@ -189,7 +189,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   private static String[] safeMerge(@Nullable String[] existingNames, Collection<LifecycleMethod> detectedMethods) {
     Stream<String> detectedNames = detectedMethods.stream().map(LifecycleMethod::getIdentifier);
     Stream<String> mergedNames =
-            existingNames != null ? Stream.concat(Stream.of(existingNames), detectedNames) : detectedNames;
+            existingNames != null ? Stream.concat(detectedNames, Stream.of(existingNames)) : detectedNames;
     return mergedNames.distinct().toArray(String[]::new);
   }
 

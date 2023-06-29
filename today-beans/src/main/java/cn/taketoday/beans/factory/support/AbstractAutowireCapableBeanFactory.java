@@ -551,9 +551,13 @@ public abstract class AbstractAutowireCapableBeanFactory
                   && !(isInitializingBean && "afterPropertiesSet".equals(initMethodName))
                   && !def.hasAnyExternallyManagedInitMethod(initMethodName)) {
 
+            Class<?> beanClass = bean.getClass();
+            MethodDescriptor descriptor = MethodDescriptor.create(beanName, beanClass, initMethodName);
+            String methodName = descriptor.methodName();
+
             Method initMethod = def.isNonPublicAccessAllowed() ?
-                                BeanUtils.findMethod(bean.getClass(), initMethodName) :
-                                ReflectionUtils.getMethodIfAvailable(bean.getClass(), initMethodName);
+                                BeanUtils.findMethod(descriptor.declaringClass(), methodName) :
+                                ReflectionUtils.getMethodIfAvailable(beanClass, methodName);
 
             if (initMethod == null) {
               if (def.isEnforceInitMethod()) {

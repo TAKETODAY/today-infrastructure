@@ -24,14 +24,22 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
+import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.context.ApplicationContextInitializer;
+import cn.taketoday.context.aot.ApplicationContextAotGenerator;
 import cn.taketoday.context.lifecyclemethods.InitDestroyBean;
 import cn.taketoday.context.lifecyclemethods.PackagePrivateInitDestroyBean;
+import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.test.tools.CompileWithForkedClassLoader;
+import cn.taketoday.core.test.tools.Compiled;
+import cn.taketoday.core.test.tools.TestCompiler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -161,6 +169,79 @@ class InitDestroyMethodLifecycleTests {
     );
   }
 
+  /**
+   * @see cn.taketoday.context.aot.ApplicationContextAotGeneratorTests#processAheadOfTimeWhenHasMultipleInitDestroyMethods
+   */
+  @Test
+  @CompileWithForkedClassLoader
+  void jakartaAnnotationsWithCustomSameMethodNamesWithAotProcessingAndAotRuntime() {
+    Class<CustomAnnotatedPrivateSameNameInitDestroyBean> beanClass = CustomAnnotatedPrivateSameNameInitDestroyBean.class;
+    GenericApplicationContext applicationContext = new GenericApplicationContext();
+
+    StandardBeanFactory beanFactory = applicationContext.getBeanFactory();
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
+
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+    beanDefinition.setInitMethodName("customInit");
+    beanDefinition.setDestroyMethodName("customDestroy");
+    beanFactory.registerBeanDefinition("lifecycleTestBean", beanDefinition);
+
+    testCompiledResult(applicationContext, (initializer, compiled) -> {
+      GenericApplicationContext aotApplicationContext = createApplicationContext(initializer);
+      CustomAnnotatedPrivateSameNameInitDestroyBean bean = aotApplicationContext.getBean("lifecycleTestBean", beanClass);
+
+      assertThat(bean.initMethods).as("init-methods").containsExactly(
+              "afterPropertiesSet",
+              "@PostConstruct.privateCustomInit1",
+              "@PostConstruct.sameNameCustomInit1",
+              "customInit"
+      );
+
+      aotApplicationContext.close();
+      assertThat(bean.destroyMethods).as("destroy-methods").containsExactly(
+              "destroy",
+              "@PreDestroy.sameNameCustomDestroy1",
+              "@PreDestroy.privateCustomDestroy1",
+              "customDestroy"
+      );
+    });
+  }
+
+  @Test
+  @CompileWithForkedClassLoader
+  void jakartaAnnotationsWithPackagePrivateInitDestroyMethodsWithAotProcessingAndAotRuntime() {
+    Class<SubPackagePrivateInitDestroyBean> beanClass = SubPackagePrivateInitDestroyBean.class;
+    GenericApplicationContext applicationContext = new GenericApplicationContext();
+
+    StandardBeanFactory beanFactory = applicationContext.getBeanFactory();
+    AnnotationConfigUtils.registerAnnotationConfigProcessors(beanFactory);
+
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
+    beanDefinition.setInitMethodName("initMethod");
+    beanDefinition.setDestroyMethodName("destroyMethod");
+    beanFactory.registerBeanDefinition("lifecycleTestBean", beanDefinition);
+
+    testCompiledResult(applicationContext, (initializer, compiled) -> {
+      GenericApplicationContext aotApplicationContext = createApplicationContext(initializer);
+      SubPackagePrivateInitDestroyBean bean = aotApplicationContext.getBean("lifecycleTestBean", beanClass);
+
+      assertThat(bean.initMethods).as("init-methods").containsExactly(
+              "InitializingBean.afterPropertiesSet",
+              "PackagePrivateInitDestroyBean.postConstruct",
+              "SubPackagePrivateInitDestroyBean.postConstruct",
+              "initMethod"
+      );
+
+      aotApplicationContext.close();
+      assertThat(bean.destroyMethods).as("destroy-methods").containsExactly(
+              "DisposableBean.destroy",
+              "SubPackagePrivateInitDestroyBean.preDestroy",
+              "PackagePrivateInitDestroyBean.preDestroy",
+              "destroyMethod"
+      );
+    });
+  }
+
   @Test
   void allLifecycleMechanismsAtOnce() {
     Class<?> beanClass = AllInOneBean.class;
@@ -192,8 +273,32 @@ class InitDestroyMethodLifecycleTests {
     return beanFactory;
   }
 
-  static class InitializingDisposableWithShadowedMethodsBean
-          extends InitDestroyBean implements InitializingBean, DisposableBean {
+  private static GenericApplicationContext createApplicationContext(
+          ApplicationContextInitializer initializer) {
+
+    GenericApplicationContext context = new GenericApplicationContext();
+    initializer.initialize(context);
+    context.refresh();
+    return context;
+  }
+
+  private static void testCompiledResult(GenericApplicationContext applicationContext,
+          BiConsumer<ApplicationContextInitializer, Compiled> result) {
+
+    TestCompiler.forSystem().with(processAheadOfTime(applicationContext)).compile(compiled ->
+            result.accept(compiled.getInstance(ApplicationContextInitializer.class), compiled));
+  }
+
+  private static TestGenerationContext processAheadOfTime(GenericApplicationContext applicationContext) {
+    ApplicationContextAotGenerator generator = new ApplicationContextAotGenerator();
+    TestGenerationContext generationContext = new TestGenerationContext();
+    generator.processAheadOfTime(applicationContext, generationContext);
+    generationContext.writeGeneratedContent();
+    return generationContext;
+  }
+
+  static class InitializingDisposableWithShadowedMethodsBean extends InitDestroyBean implements
+          InitializingBean, DisposableBean {
 
     @Override
     public void afterPropertiesSet() {

@@ -259,15 +259,18 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   }
 
   @Nullable
-  private Method determineDestroyMethod(String name) {
+  private Method determineDestroyMethod(String destroyMethodName) {
     try {
       Class<?> beanClass = this.bean.getClass();
-      Method destroyMethod = findDestroyMethod(beanClass, name);
+      MethodDescriptor descriptor = MethodDescriptor.create(this.beanName, beanClass, destroyMethodName);
+      String methodName = descriptor.methodName();
+
+      Method destroyMethod = findDestroyMethod(descriptor.declaringClass(), methodName);
       if (destroyMethod != null) {
         return destroyMethod;
       }
       for (Class<?> beanInterface : beanClass.getInterfaces()) {
-        destroyMethod = findDestroyMethod(beanInterface, name);
+        destroyMethod = findDestroyMethod(beanInterface, methodName);
         if (destroyMethod != null) {
           return destroyMethod;
         }
