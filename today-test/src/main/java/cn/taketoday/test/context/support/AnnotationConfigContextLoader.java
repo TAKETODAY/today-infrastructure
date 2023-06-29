@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,9 @@
 
 package cn.taketoday.test.context.support;
 
+import java.util.Arrays;
+import java.util.List;
+
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.support.GenericApplicationContext;
@@ -30,7 +33,6 @@ import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Concrete implementation of {@link AbstractGenericContextLoader} that loads
@@ -52,6 +54,7 @@ import cn.taketoday.util.ObjectUtils;
  * rather than a {@link ContextLoader ContextLoader}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #processContextConfiguration(ContextConfigurationAttributes)
  * @see #detectDefaultConfigurationClasses(Class)
  * @see #loadBeanDefinitions(GenericApplicationContext, MergedContextConfiguration)
@@ -76,7 +79,7 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
    * configuration attributes will not be modified.
    *
    * @param configAttributes the context configuration attributes to process
-   * @see SmartContextLoader#processContextConfiguration(ContextConfigurationAttributes)
+   * @see cn.taketoday.test.context.SmartContextLoader#processContextConfiguration(ContextConfigurationAttributes)
    * @see #isGenerateDefaultLocations()
    * @see #detectDefaultConfigurationClasses(Class)
    */
@@ -107,8 +110,8 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
 
   /**
    * {@code AnnotationConfigContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation
@@ -122,8 +125,8 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
 
   /**
    * {@code AnnotationConfigContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation
@@ -137,8 +140,8 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
 
   /**
    * {@code AnnotationConfigContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation
@@ -161,10 +164,11 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
   @Override
   protected void validateMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
     if (mergedConfig.hasLocations()) {
-      String msg = String.format("Test class [%s] has been configured with @ContextConfiguration's 'locations' " +
-                      "(or 'value') attribute %s, but %s does not support resource locations.",
-              mergedConfig.getTestClass().getName(), ObjectUtils.nullSafeToString(mergedConfig.getLocations()),
-              getClass().getSimpleName());
+      String msg = """
+              Test class [%s] has been configured with @ContextConfiguration's 'locations' \
+              (or 'value') attribute %s, but %s does not support resource locations."""
+              .formatted(mergedConfig.getTestClass().getName(),
+                      Arrays.toString(mergedConfig.getLocations()), getClass().getSimpleName());
       logger.error(msg);
       throw new IllegalStateException(msg);
     }
@@ -187,14 +191,20 @@ public class AnnotationConfigContextLoader extends AbstractGenericContextLoader 
   @Override
   protected void loadBeanDefinitions(GenericApplicationContext context, MergedContextConfiguration mergedConfig) {
     Class<?>[] componentClasses = mergedConfig.getClasses();
-    logger.debug("Registering component classes: {}", ObjectUtils.nullSafeToString(componentClasses));
+    if (logger.isDebugEnabled()) {
+      logger.debug("Registering component classes: {}", classNames(componentClasses));
+    }
     new AnnotatedBeanDefinitionReader(context).register(componentClasses);
+  }
+
+  private static List<String> classNames(Class<?>... classes) {
+    return Arrays.stream(classes).map(Class::getName).toList();
   }
 
   /**
    * {@code AnnotationConfigContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation

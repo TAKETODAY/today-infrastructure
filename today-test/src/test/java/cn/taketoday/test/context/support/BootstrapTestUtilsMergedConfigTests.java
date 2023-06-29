@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -78,7 +78,7 @@ class BootstrapTestUtilsMergedConfigTests extends AbstractContextConfigurationUt
     assertMergedConfig(
             mergedConfig,
             testClass,
-            array("classpath:cn/taketoday/test/context/support/AbstractContextConfigurationUtilsTests$BareAnnotations-context.xml"),
+            array("classpath:/cn/taketoday/test/context/support/AbstractContextConfigurationUtilsTests$BareAnnotations-context.xml"),
             EMPTY_CLASS_ARRAY, DelegatingSmartContextLoader.class);
   }
 

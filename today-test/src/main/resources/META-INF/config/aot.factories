@@ -1,0 +1,5 @@
+cn.taketoday.aot.hint.RuntimeHintsRegistrar=\
+cn.taketoday.test.context.hint.TestContextRuntimeHints
+
+cn.taketoday.test.context.aot.TestRuntimeHintsRegistrar=\
+cn.taketoday.test.context.hint.StandardTestRuntimeHints

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.test.context.web;
 
+import java.util.Arrays;
+
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.util.ObjectUtils;
@@ -33,6 +35,7 @@ import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
  * {@code "-context.xml"}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationConfigWebContextLoader
  * @since 4.0
  */
@@ -69,10 +72,11 @@ public class GenericXmlWebContextLoader extends AbstractGenericWebContextLoader 
   @Override
   protected void validateMergedContextConfiguration(WebMergedContextConfiguration webMergedConfig) {
     if (webMergedConfig.hasClasses()) {
-      String msg = String.format(
-              "Test class [%s] has been configured with @ContextConfiguration's 'classes' attribute %s, "
-                      + "but %s does not support annotated classes.", webMergedConfig.getTestClass().getName(),
-              ObjectUtils.nullSafeToString(webMergedConfig.getClasses()), getClass().getSimpleName());
+      String msg = """
+              Test class [%s] has been configured with @ContextConfiguration's 'classes' \
+              attribute %s, but %s does not support annotated classes."""
+              .formatted(webMergedConfig.getTestClass().getName(),
+                      Arrays.toString(webMergedConfig.getClasses()), getClass().getSimpleName());
       logger.error(msg);
       throw new IllegalStateException(msg);
     }

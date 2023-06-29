@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,6 +48,7 @@ import cn.taketoday.test.context.support.GenericXmlContextLoader;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SmartContextLoader
  * @see AnnotationConfigContextLoader
  * @since 4.0
@@ -68,23 +69,23 @@ public interface ContextLoader {
   String[] processLocations(Class<?> clazz, String... locations);
 
   /**
-   * Loads a new {@link ApplicationContext context} based on the supplied
+   * Loads a new {@link ApplicationContext} based on the supplied
    * {@code locations}, configures the context, and finally returns
    * the context in fully <em>refreshed</em> state.
    * <p>Configuration locations are generally considered to be classpath
    * resources by default.
    * <p>Concrete implementations should register annotation configuration
-   * processors with bean factories of {@link ApplicationContext application
-   * contexts} loaded by this ContextLoader. Beans will therefore automatically
-   * be candidates for annotation-based dependency injection using
+   * processors with bean factories of application contexts loaded by this
+   * {@code ContextLoader}. Beans will therefore automatically be candidates
+   * for annotation-based dependency injection using
    * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired},
    * {@link jakarta.annotation.Resource @Resource}, and
    * {@link jakarta.inject.Inject @Inject}.
-   * <p>Any ApplicationContext loaded by a ContextLoader <strong>must</strong>
-   * register a JVM shutdown hook for itself. Unless the context gets closed
-   * early, all context instances will be automatically closed on JVM
-   * shutdown. This allows for freeing external resources held by beans within
-   * the context, e.g. temporary files.
+   * <p>Any {@code ApplicationContext} loaded by a {@code ContextLoader}
+   * <strong>must</strong> register a JVM shutdown hook for itself. Unless the
+   * context gets closed early, all context instances will be automatically
+   * closed on JVM shutdown. This allows for freeing external resources held by
+   * beans within the context, e.g. temporary files.
    *
    * @param locations the resource locations to use to load the application context
    * @return a new application context

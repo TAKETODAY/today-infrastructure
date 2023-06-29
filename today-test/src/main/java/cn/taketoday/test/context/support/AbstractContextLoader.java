@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,9 +32,7 @@ import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
@@ -45,6 +43,7 @@ import cn.taketoday.test.context.SmartContextLoader;
 import cn.taketoday.test.context.util.TestContextResourceUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ResourceUtils;
 
 /**
  * Abstract application context loader that provides a basis for all concrete
@@ -72,28 +71,31 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractContextLoader.class);
 
+  private static final String SLASH = "/";
+
+  private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
   // SmartContextLoader
 
   /**
-   * For backwards compatibility with the {@link ContextLoader} SPI, the
-   * default implementation simply delegates to {@link #processLocations(Class, String...)},
-   * passing it the {@link ContextConfigurationAttributes#getDeclaringClass()
-   * declaring class} and {@link ContextConfigurationAttributes#getLocations()
+   * The default implementation processes locations analogous to
+   * {@link #processLocations(Class, String...)}, using the
+   * {@link ContextConfigurationAttributes#getDeclaringClass() declaring class}
+   * as the test class and the {@link ContextConfigurationAttributes#getLocations()
    * resource locations} retrieved from the supplied
-   * {@link ContextConfigurationAttributes configuration attributes}. The
-   * processed locations are then
+   * {@link ContextConfigurationAttributes configuration attributes} as the
+   * locations to process. The processed locations are then
    * {@link ContextConfigurationAttributes#setLocations(String[]) set} in
    * the supplied configuration attributes.
    * <p>Can be overridden in subclasses &mdash; for example, to process
    * annotated classes instead of resource locations.
    *
    * @see #processLocations(Class, String...)
-   * @since 4.0
    */
   @Override
   public void processContextConfiguration(ContextConfigurationAttributes configAttributes) {
     String[] processedLocations =
-            processLocations(configAttributes.getDeclaringClass(), configAttributes.getLocations());
+            processLocationsInternal(configAttributes.getDeclaringClass(), configAttributes.getLocations());
     configAttributes.setLocations(processedLocations);
   }
 
@@ -131,7 +133,6 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @see ApplicationContextInitializer#initialize(ConfigurableApplicationContext)
    * @see #loadContext(MergedContextConfiguration)
    * @see ConfigurableApplicationContext#setId
-   * @since 4.0
    */
   protected void prepareContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
     context.getEnvironment().setActiveProfiles(mergedConfig.getActiveProfiles());
@@ -181,10 +182,8 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    *
    * @param context the newly created application context
    * @param mergedConfig the merged context configuration
-   * @since 4.0
    */
-  protected void customizeContext(
-          ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
+  protected void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
     for (ContextCustomizer contextCustomizer : mergedConfig.getContextCustomizers()) {
       contextCustomizer.customizeContext(context, mergedConfig);
     }
@@ -209,12 +208,15 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @see #isGenerateDefaultLocations()
    * @see #generateDefaultLocations(Class)
    * @see #modifyLocations(Class, String...)
-   * @see ContextLoader#processLocations(Class, String...)
+   * @see cn.taketoday.test.context.ContextLoader#processLocations(Class, String...)
    * @see #processContextConfiguration(ContextConfigurationAttributes)
-   * @since 4.0
    */
   @Override
   public final String[] processLocations(Class<?> clazz, String... locations) {
+    return processLocationsInternal(clazz, locations);
+  }
+
+  private String[] processLocationsInternal(Class<?> clazz, String... locations) {
     return (ObjectUtils.isEmpty(locations) && isGenerateDefaultLocations()) ?
            generateDefaultLocations(clazz) : modifyLocations(clazz, locations);
   }
@@ -228,18 +230,17 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * is the value of the first configured
    * {@linkplain #getResourceSuffixes() resource suffix} for which the
    * generated location actually exists in the classpath.
-   * <p>the implementation of this method adheres to the
-   * contract defined in the {@link SmartContextLoader} SPI. Specifically,
-   * this method will <em>preemptively</em> verify that the generated default
-   * location actually exists. If it does not exist, this method will log a
-   * warning and return an empty array.
+   * <p>The implementation of this method adheres to the contract defined in the
+   * {@link SmartContextLoader} SPI. Specifically, this method will
+   * <em>preemptively</em> verify that the generated default location actually
+   * exists. If it does not exist, this method will log a warning and return an
+   * empty array.
    * <p>Subclasses can override this method to implement a different
    * <em>default location generation</em> strategy.
    *
    * @param clazz the class for which the default locations are to be generated
    * @return an array of default application context resource locations
    * @see #getResourceSuffixes()
-   * @since 4.0
    */
   protected String[] generateDefaultLocations(Class<?> clazz) {
     Assert.notNull(clazz, "Class must not be null");
@@ -250,21 +251,25 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
       String resourcePath = ClassUtils.convertClassNameToResourcePath(clazz.getName()) + suffix;
       ClassPathResource classPathResource = new ClassPathResource(resourcePath);
       if (classPathResource.exists()) {
-        String prefixedResourcePath = ResourceLoader.CLASSPATH_URL_PREFIX + resourcePath;
-        log.info("Detected default resource location \"{}\" for test class [{}]",
-                prefixedResourcePath, clazz.getName());
+        String prefixedResourcePath = ResourceUtils.CLASSPATH_URL_PREFIX + SLASH + resourcePath;
+        if (log.isDebugEnabled()) {
+          log.debug(String.format("Detected default resource location \"%s\" for test class [%s]",
+                  prefixedResourcePath, clazz.getName()));
+        }
         return new String[] { prefixedResourcePath };
       }
-      else if (log.isDebugEnabled()) {
-        log.debug("Did not detect default resource location for test class [{}]: {} does not exist",
-                clazz.getName(), classPathResource);
+      else if (log.isTraceEnabled()) {
+        log.trace(String.format("Did not detect default resource location for test class [%s]: " +
+                "%s does not exist", clazz.getName(), classPathResource));
       }
     }
 
-    log.info("Could not detect default resource locations for test class [{}]: " +
-            "no resource found for suffixes {}.", clazz.getName(), ObjectUtils.nullSafeToString(suffixes));
+    if (log.isDebugEnabled()) {
+      log.debug(String.format("Could not detect default resource locations for test class [%s]: " +
+              "no resource found for suffixes %s.", clazz.getName(), ObjectUtils.nullSafeToString(suffixes)));
+    }
 
-    return Constant.EMPTY_STRING_ARRAY;
+    return EMPTY_STRING_ARRAY;
   }
 
   /**
@@ -277,28 +282,26 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @param clazz the class with which the locations are associated
    * @param locations the resource locations to be modified
    * @return an array of modified application context resource locations
-   * @since 4.0
    */
   protected String[] modifyLocations(Class<?> clazz, String... locations) {
     return TestContextResourceUtils.convertToClasspathResourcePaths(clazz, locations);
   }
 
   /**
-   * Determine whether or not <em>default</em> resource locations should be
+   * Determine whether <em>default</em> resource locations should be
    * generated if the {@code locations} provided to
    * {@link #processLocations(Class, String...)} are {@code null} or empty.
-   * <p>the semantics of this method have been overloaded
-   * to include detection of either default resource locations or default
-   * configuration classes. Consequently, this method can also be used to
-   * determine whether or not <em>default</em> configuration classes should be
-   * detected if the {@code classes} present in the
-   * {@link ContextConfigurationAttributes configuration attributes} supplied
-   * to {@link #processContextConfiguration(ContextConfigurationAttributes)}
+   * <p>The semantics of this method have been overloaded to include detection
+   * of either default resource locations or default configuration classes.
+   * Consequently, this method can also be used to determine whether
+   * <em>default</em> configuration classes should be detected if the
+   * {@code classes} present in the {@linkplain ContextConfigurationAttributes
+   * configuration attributes} supplied to
+   * {@link #processContextConfiguration(ContextConfigurationAttributes)}
    * are {@code null} or empty.
    * <p>Can be overridden by subclasses to change the default behavior.
    *
    * @return always {@code true} by default
-   * @since 4.0
    */
   protected boolean isGenerateDefaultLocations() {
     return true;
@@ -313,7 +316,6 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    *
    * @return the resource suffixes; never {@code null} or empty
    * @see #generateDefaultLocations(Class)
-   * @since 4.0
    */
   protected String[] getResourceSuffixes() {
     return new String[] { getResourceSuffix() };
@@ -323,14 +325,13 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * Get the suffix to append to {@link ApplicationContext} resource locations
    * when detecting default locations.
    * <p>Subclasses must provide an implementation of this method that returns
-   * a single suffix. Alternatively subclasses may provide a  <em>no-op</em>
+   * a single suffix. Alternatively subclasses may provide a <em>no-op</em>
    * implementation of this method and override {@link #getResourceSuffixes()}
    * in order to provide multiple custom suffixes.
    *
    * @return the resource suffix; never {@code null} or empty
    * @see #generateDefaultLocations(Class)
    * @see #getResourceSuffixes()
-   * @since 4.0
    */
   protected abstract String getResourceSuffix();
 

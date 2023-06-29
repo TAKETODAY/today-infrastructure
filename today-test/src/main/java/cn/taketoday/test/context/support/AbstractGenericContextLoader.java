@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,18 +20,23 @@
 
 package cn.taketoday.test.context.support;
 
+import java.util.Arrays;
+
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.test.context.ContextLoadException;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.test.context.aot.AotContextLoader;
 
 /**
  * Abstract, generic extension of {@link AbstractContextLoader} that loads a
@@ -45,9 +50,9 @@ import cn.taketoday.util.StringUtils;
  * <li>If instances of concrete subclasses are invoked via the
  * {@link SmartContextLoader SmartContextLoader}
  * SPI, the context will be loaded from the {@link MergedContextConfiguration}
- * provided to {@link #loadContext(MergedContextConfiguration)}. In such cases, a
- * {@code SmartContextLoader} will decide whether to load the context from
- * <em>locations</em> or <em>annotated classes</em>.</li>
+ * provided to {@link #loadContext(MergedContextConfiguration)}. In such
+ * cases, a {@code SmartContextLoader} will decide whether to load the context
+ * from <em>locations</em> or <em>annotated classes</em>.</li>
  * </ul>
  *
  * <p>Concrete subclasses must provide an appropriate implementation of
@@ -58,16 +63,18 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #loadContext(MergedContextConfiguration)
  * @see #loadContext(String...)
  * @since 4.0
  */
-public abstract class AbstractGenericContextLoader extends AbstractContextLoader {
+public abstract class AbstractGenericContextLoader extends AbstractContextLoader implements AotContextLoader {
 
   protected static final Logger log = LoggerFactory.getLogger(AbstractGenericContextLoader.class);
 
   /**
-   * Load a  ApplicationContext from the supplied {@link MergedContextConfiguration}.
+   * Load a {@link GenericApplicationContext} for the supplied
+   * {@link MergedContextConfiguration}.
    * <p>Implementation details:
    * <ul>
    * <li>Calls {@link #validateMergedContextConfiguration(MergedContextConfiguration)}
@@ -81,12 +88,12 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * {@linkplain GenericApplicationContext#setParent(ApplicationContext) set as the parent}
    * for the context created by this method.</li>
    * <li>Calls {@link #prepareContext(GenericApplicationContext)} for backwards
-   * compatibility with the {@link ContextLoader
+   * compatibility with the {@link cn.taketoday.test.context.ContextLoader
    * ContextLoader} SPI.</li>
    * <li>Calls {@link #prepareContext(ConfigurableApplicationContext, MergedContextConfiguration)}
    * to allow for customizing the context before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory(StandardBeanFactory)} to allow for customizing the
-   * context's {@code StandardBeanFactory}.</li>
+   * context's {@code DefaultListableBeanFactory}.</li>
    * <li>Delegates to {@link #loadBeanDefinitions(GenericApplicationContext, MergedContextConfiguration)}
    * to populate the context from the locations or classes in the supplied
    * {@code MergedContextConfiguration}.</li>
@@ -101,34 +108,134 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * context and registers a JVM shutdown hook for it.</li>
    * </ul>
    *
+   * @param mergedConfig the merged context configuration to use to load the
+   * application context
    * @return a new application context
-   * @see SmartContextLoader#loadContext(MergedContextConfiguration)
-   * @see GenericApplicationContext
+   * @see cn.taketoday.test.context.SmartContextLoader#loadContext(MergedContextConfiguration)
    */
   @Override
-  public final ConfigurableApplicationContext loadContext(MergedContextConfiguration mergedConfig) throws Exception {
-    log.debug("Loading ApplicationContext for merged context configuration [{}].", mergedConfig);
+  public final ApplicationContext loadContext(MergedContextConfiguration mergedConfig) throws Exception {
+    return loadContext(mergedConfig, false);
+  }
+
+  /**
+   * Load a {@link GenericApplicationContext} for AOT build-time processing based
+   * on the supplied {@link MergedContextConfiguration}.
+   * <p>In contrast to {@link #loadContext(MergedContextConfiguration)}, this
+   * method does not
+   * {@linkplain cn.taketoday.context.ConfigurableApplicationContext#refresh()
+   * refresh} the {@code ApplicationContext} or
+   * {@linkplain cn.taketoday.context.ConfigurableApplicationContext#registerShutdownHook()
+   * register a JVM shutdown hook} for it. Otherwise, this method implements
+   * behavior identical to {@link #loadContext(MergedContextConfiguration)}.
+   *
+   * @param mergedConfig the merged context configuration to use to load the
+   * application context
+   * @return a new application context
+   * @throws Exception if context loading failed
+   * @see AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration)
+   */
+  @Override
+  public final GenericApplicationContext loadContextForAotProcessing(MergedContextConfiguration mergedConfig)
+          throws Exception {
+    return loadContext(mergedConfig, true);
+  }
+
+  /**
+   * Load a {@link GenericApplicationContext} for AOT run-time execution based on
+   * the supplied {@link MergedContextConfiguration} and
+   * {@link ApplicationContextInitializer}.
+   *
+   * @param mergedConfig the merged context configuration to use to load the
+   * application context
+   * @param initializer the {@code ApplicationContextInitializer} that should
+   * be applied to the context in order to recreate bean definitions
+   * @return a new application context
+   * @throws Exception if context loading failed
+   * @see AotContextLoader#loadContextForAotRuntime(MergedContextConfiguration, ApplicationContextInitializer)
+   */
+  @Override
+  public final GenericApplicationContext loadContextForAotRuntime(MergedContextConfiguration mergedConfig,
+          ApplicationContextInitializer initializer) throws Exception {
+
+    Assert.notNull(mergedConfig, "MergedContextConfiguration must not be null");
+    Assert.notNull(initializer, "ApplicationContextInitializer must not be null");
+
+    if (log.isTraceEnabled()) {
+      log.trace("Loading ApplicationContext for AOT runtime for " + mergedConfig);
+    }
+    else if (log.isDebugEnabled()) {
+      log.debug("Loading ApplicationContext for AOT runtime for test class " +
+              mergedConfig.getTestClass().getName());
+    }
 
     validateMergedContextConfiguration(mergedConfig);
 
     GenericApplicationContext context = createContext();
-    ApplicationContext parent = mergedConfig.getParentApplicationContext();
-    if (parent != null) {
-      context.setParent(parent);
+    try {
+      prepareContext(context);
+      prepareContext(context, mergedConfig);
+      initializer.initialize(context);
+      customizeContext(context);
+      customizeContext(context, mergedConfig);
+      context.refresh();
+      return context;
+    }
+    catch (Exception ex) {
+      throw new ContextLoadException(context, ex);
+    }
+  }
+
+  /**
+   * Load a {@link GenericApplicationContext} for the supplied
+   * {@link MergedContextConfiguration}.
+   *
+   * @param mergedConfig the merged context configuration to use to load the
+   * application context
+   * @param forAotProcessing {@code true} if the context is being loaded for
+   * AOT processing, meaning not to refresh the {@code ApplicationContext} or
+   * register a JVM shutdown hook for it
+   * @return a new application context
+   */
+  private GenericApplicationContext loadContext(
+          MergedContextConfiguration mergedConfig, boolean forAotProcessing) throws Exception {
+
+    if (log.isTraceEnabled()) {
+      log.trace("Loading ApplicationContext %sfor %s".formatted(
+              (forAotProcessing ? "for AOT processing " : ""), mergedConfig));
+    }
+    else if (log.isDebugEnabled()) {
+      log.debug("Loading ApplicationContext %sfor test class %s".formatted(
+              (forAotProcessing ? "for AOT processing " : ""), mergedConfig.getTestClass().getName()));
     }
 
-    prepareContext(context);
-    prepareContext(context, mergedConfig);
-    customizeBeanFactory(context.getBeanFactory());
-    loadBeanDefinitions(context, mergedConfig);
-    AnnotationConfigUtils.registerAnnotationConfigProcessors(context);
-    customizeContext(context);
-    customizeContext(context, mergedConfig);
+    validateMergedContextConfiguration(mergedConfig);
 
-    context.refresh();
-    context.registerShutdownHook();
+    GenericApplicationContext context = createContext();
+    try {
+      ApplicationContext parent = mergedConfig.getParentApplicationContext();
+      if (parent != null) {
+        context.setParent(parent);
+      }
 
-    return context;
+      prepareContext(context);
+      prepareContext(context, mergedConfig);
+      customizeBeanFactory(context.getBeanFactory());
+      loadBeanDefinitions(context, mergedConfig);
+      AnnotationConfigUtils.registerAnnotationConfigProcessors(context);
+      customizeContext(context);
+      customizeContext(context, mergedConfig);
+
+      if (!forAotProcessing) {
+        context.refresh();
+        context.registerShutdownHook();
+      }
+
+      return context;
+    }
+    catch (Exception ex) {
+      throw new ContextLoadException(context, ex);
+    }
   }
 
   /**
@@ -146,7 +253,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
   }
 
   /**
-   * Load a ApplicationContext from the supplied {@code locations}.
+   * Load a Infra ApplicationContext from the supplied {@code locations}.
    * <p>Implementation details:
    * <ul>
    * <li>Calls {@link #createContext()} to create a {@link GenericApplicationContext}
@@ -154,7 +261,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * <li>Calls {@link #prepareContext(GenericApplicationContext)} to allow for customizing the context
    * before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory(StandardBeanFactory)} to allow for customizing the
-   * context's {@code StandardBeanFactory}.</li>
+   * context's {@code DefaultListableBeanFactory}.</li>
    * <li>Delegates to {@link #createBeanDefinitionReader(GenericApplicationContext)} to create a
    * {@link BeanDefinitionReader} which is then used to populate the context
    * from the specified locations.</li>
@@ -172,14 +279,15 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * for an alternative.
    *
    * @return a new application context
-   * @see ContextLoader#loadContext
+   * @see cn.taketoday.test.context.ContextLoader#loadContext
    * @see GenericApplicationContext
    * @see #loadContext(MergedContextConfiguration)
    */
   @Override
   public final ConfigurableApplicationContext loadContext(String... locations) throws Exception {
-    log.debug("Loading ApplicationContext for locations [{}].",
-            StringUtils.arrayToCommaDelimitedString(locations));
+    if (log.isDebugEnabled()) {
+      log.debug("Loading ApplicationContext for locations {}", Arrays.toString(locations));
+    }
 
     GenericApplicationContext context = createContext();
 
@@ -199,9 +307,10 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * Factory method for creating the {@link GenericApplicationContext} used by
    * this {@code ContextLoader}.
    * <p>The default implementation creates a {@code GenericApplicationContext}
-   * using the default constructor. This method may get overridden e.g. to use
-   * a custom context subclass or to create a {@code GenericApplicationContext}
-   * with a custom {@link StandardBeanFactory} implementation.
+   * using the default constructor. This method may be overridden &mdash; for
+   * example, to use a custom context subclass or to create a
+   * {@code GenericApplicationContext} with a custom
+   * {@link StandardBeanFactory} implementation.
    *
    * @return a newly instantiated {@code GenericApplicationContext}
    */
@@ -217,7 +326,6 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    *
    * @param context the context that should be prepared
    * @see #loadContext(MergedContextConfiguration)
-   * @see #loadContext(String...)
    * @see GenericApplicationContext#setAllowBeanDefinitionOverriding
    * @see GenericApplicationContext#setResourceLoader
    * @see GenericApplicationContext#setId
@@ -231,11 +339,10 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * Customize the internal bean factory of the ApplicationContext created by
    * this {@code ContextLoader}.
    * <p>The default implementation is empty but can be overridden in subclasses
-   * to customize {@code StandardBeanFactory}'s standard settings.
+   * to customize {@code DefaultListableBeanFactory}'s standard settings.
    *
    * @param beanFactory the bean factory created by this {@code ContextLoader}
    * @see #loadContext(MergedContextConfiguration)
-   * @see #loadContext(String...)
    * @see StandardBeanFactory#setAllowBeanDefinitionOverriding
    * @see StandardBeanFactory#setAllowEagerClassLoading
    * @see StandardBeanFactory#setAllowCircularReferences
@@ -273,7 +380,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * @param context the context for which the {@code BeanDefinitionReader}
    * should be created
    * @return a {@code BeanDefinitionReader} for the supplied context
-   * @see #loadContext(String...)
+   * @see #loadContext(MergedContextConfiguration)
    * @see #loadBeanDefinitions
    * @see BeanDefinitionReader
    */
@@ -288,7 +395,6 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    *
    * @param context the newly created application context
    * @see #loadContext(MergedContextConfiguration)
-   * @see #loadContext(String...)
    * @see #customizeContext(ConfigurableApplicationContext, MergedContextConfiguration)
    */
   protected void customizeContext(GenericApplicationContext context) {

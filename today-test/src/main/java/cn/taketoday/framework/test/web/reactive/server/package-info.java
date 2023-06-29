@@ -19,7 +19,7 @@
  */
 
 /**
- * Spring Boot support for testing Spring WebFlux server endpoints via
+ * Infra support for testing Spring WebFlux server endpoints via
  * {@link cn.taketoday.test.web.reactive.server.WebTestClient}.
  */
 package cn.taketoday.framework.test.web.reactive.server;

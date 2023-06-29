@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,6 +20,8 @@
 
 package cn.taketoday.test.context.web;
 
+import java.util.Arrays;
+
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -28,6 +30,7 @@ import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
+import cn.taketoday.test.context.aot.AotContextLoader;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -54,6 +57,7 @@ import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
  * rather than a {@link ContextLoader ContextLoader}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #processContextConfiguration(ContextConfigurationAttributes)
  * @see #detectDefaultConfigurationClasses(Class)
  * @see #loadBeanDefinitions(GenericWebApplicationContext, WebMergedContextConfiguration)
@@ -78,7 +82,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
    * configuration attributes will not be modified.
    *
    * @param configAttributes the context configuration attributes to process
-   * @see SmartContextLoader#processContextConfiguration(ContextConfigurationAttributes)
+   * @see cn.taketoday.test.context.SmartContextLoader#processContextConfiguration(ContextConfigurationAttributes)
    * @see #isGenerateDefaultLocations()
    * @see #detectDefaultConfigurationClasses(Class)
    */
@@ -106,12 +110,12 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
 
   /**
    * {@code AnnotationConfigWebContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation
-   * @see AbstractContextLoader#modifyLocations
+   * @see cn.taketoday.test.context.support.AbstractContextLoader#modifyLocations
    */
   @Override
   protected String[] modifyLocations(Class<?> clazz, String... locations) {
@@ -121,12 +125,12 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
 
   /**
    * {@code AnnotationConfigWebContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation
-   * @see AbstractContextLoader#generateDefaultLocations
+   * @see cn.taketoday.test.context.support.AbstractContextLoader#generateDefaultLocations
    */
   @Override
   protected String[] generateDefaultLocations(Class<?> clazz) {
@@ -136,12 +140,12 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
 
   /**
    * {@code AnnotationConfigWebContextLoader} should be used as a
-   * {@link SmartContextLoader SmartContextLoader},
-   * not as a legacy {@link ContextLoader ContextLoader}.
+   * {@link cn.taketoday.test.context.SmartContextLoader SmartContextLoader},
+   * not as a legacy {@link cn.taketoday.test.context.ContextLoader ContextLoader}.
    * Consequently, this method is not supported.
    *
    * @throws UnsupportedOperationException in this implementation
-   * @see AbstractContextLoader#getResourceSuffix
+   * @see cn.taketoday.test.context.support.AbstractContextLoader#getResourceSuffix
    */
   @Override
   protected String getResourceSuffix() {
@@ -168,7 +172,7 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
 
     Class<?>[] annotatedClasses = webMergedConfig.getClasses();
     if (logger.isDebugEnabled()) {
-      logger.debug("Registering annotated classes: " + ObjectUtils.nullSafeToString(annotatedClasses));
+      logger.debug("Registering annotated classes: {}", Arrays.toString(annotatedClasses));
     }
     new AnnotatedBeanDefinitionReader(context).register(annotatedClasses);
   }
@@ -178,15 +182,15 @@ public class AnnotationConfigWebContextLoader extends AbstractGenericWebContextL
    * contain {@link MergedContextConfiguration#getLocations() locations}.
    *
    * @see AbstractGenericWebContextLoader#validateMergedContextConfiguration
-   * @since 4.0
    */
   @Override
   protected void validateMergedContextConfiguration(WebMergedContextConfiguration webMergedConfig) {
     if (webMergedConfig.hasLocations()) {
-      String msg = String.format("Test class [%s] has been configured with @ContextConfiguration's 'locations' " +
-                      "(or 'value') attribute %s, but %s does not support resource locations.",
-              webMergedConfig.getTestClass().getName(),
-              ObjectUtils.nullSafeToString(webMergedConfig.getLocations()), getClass().getSimpleName());
+      String msg = """
+              Test class [%s] has been configured with @ContextConfiguration's 'locations' \
+              (or 'value') attribute %s, but %s does not support resource locations."""
+              .formatted(webMergedConfig.getTestClass().getName(),
+                      Arrays.toString(webMergedConfig.getLocations()), getClass().getSimpleName());
       logger.error(msg);
       throw new IllegalStateException(msg);
     }

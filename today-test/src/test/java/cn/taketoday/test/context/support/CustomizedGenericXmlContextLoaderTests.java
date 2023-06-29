@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,10 @@ package cn.taketoday.test.context.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.test.context.MergedContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,19 +45,21 @@ class CustomizedGenericXmlContextLoaderTests {
 
   @Test
   void customizeContext() throws Exception {
-    StringBuilder builder = new StringBuilder();
-    String expectedContents = "customizeContext() was called";
+    AtomicBoolean customizeInvoked = new AtomicBoolean(false);
 
-    new GenericXmlContextLoader() {
-
+    GenericXmlContextLoader customLoader = new GenericXmlContextLoader() {
       @Override
       protected void customizeContext(GenericApplicationContext context) {
         assertThat(context.isActive()).as("The context should not yet have been refreshed.").isFalse();
-        builder.append(expectedContents);
+        customizeInvoked.set(true);
       }
-    }.loadContext("classpath:/cn/taketoday/test/context/support/CustomizedGenericXmlContextLoaderTests-context.xml");
+    };
 
-    assertThat(builder.toString()).as("customizeContext() should have been called.").isEqualTo(expectedContents);
+    MergedContextConfiguration mergedConfig =
+            new MergedContextConfiguration(getClass(), null, null, null, null);
+    customLoader.loadContext(mergedConfig);
+
+    assertThat(customizeInvoked).as("customizeContext() should have been invoked").isTrue();
   }
 
 }

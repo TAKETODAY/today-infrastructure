@@ -95,7 +95,10 @@ public abstract class TestContextAnnotationUtils {
    * @see #findMergedAnnotation(Class, Class)
    */
   public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotationType) {
-    return findMergedAnnotation(clazz, annotationType) != null;
+    return MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
+            .withEnclosingClasses(TestContextAnnotationUtils::searchEnclosingClass)
+            .from(clazz)
+            .isPresent(annotationType);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,6 +34,7 @@ import cn.taketoday.util.ObjectUtils;
  * {@code "-context.xml"}.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see XmlBeanDefinitionReader
  * @see AnnotationConfigContextLoader
  * @since 4.0
@@ -64,7 +65,6 @@ public class GenericXmlContextLoader extends AbstractGenericContextLoader {
    * contain {@link MergedContextConfiguration#getClasses() classes}.
    *
    * @see AbstractGenericContextLoader#validateMergedContextConfiguration
-   * @since 4.0
    */
   @Override
   protected void validateMergedContextConfiguration(MergedContextConfiguration mergedConfig) {
