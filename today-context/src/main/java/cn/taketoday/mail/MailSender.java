@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,9 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail;
+package cn.taketoday.mail;
+
+import cn.taketoday.mail.javamail.JavaMailSender;
 
 /**
  * This interface defines a strategy for sending simple mails. Can be
@@ -31,7 +33,7 @@ package cn.taketoday.context.support.mail;
  * @author Dmitriy Kopylenko
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.context.support.mail.javamail.JavaMailSender
+ * @see JavaMailSender
  * @since 4.0
  */
 public interface MailSender {

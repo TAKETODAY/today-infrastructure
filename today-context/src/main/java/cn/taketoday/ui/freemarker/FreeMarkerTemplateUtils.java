@@ -23,6 +23,7 @@ package cn.taketoday.ui.freemarker;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import cn.taketoday.mail.MailPreparationException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -47,7 +48,7 @@ public abstract class FreeMarkerTemplateUtils {
    * @return the result as String
    * @throws IOException if the template wasn't found or couldn't be read
    * @throws freemarker.template.TemplateException if rendering failed
-   * @see cn.taketoday.context.support.mail.MailPreparationException
+   * @see MailPreparationException
    */
   public static String processTemplateIntoString(Template template, Object model)
           throws IOException, TemplateException {

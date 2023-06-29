@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail.javamail;
+package cn.taketoday.mail.javamail;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 
-import cn.taketoday.context.support.mail.MailParseException;
-import cn.taketoday.context.support.mail.MailSendException;
-import cn.taketoday.context.support.mail.SimpleMailMessage;
+import cn.taketoday.mail.MailParseException;
+import cn.taketoday.mail.MailSendException;
+import cn.taketoday.mail.SimpleMailMessage;
 import cn.taketoday.util.ObjectUtils;
 import jakarta.activation.FileTypeMap;
 import jakarta.mail.Address;

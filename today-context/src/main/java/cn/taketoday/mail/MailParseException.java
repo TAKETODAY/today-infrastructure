@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,40 +18,45 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail;
+package cn.taketoday.mail;
 
 /**
- * Exception to be thrown by user code if a mail cannot be prepared properly,
- * for example when a FreeMarker template cannot be rendered for the mail text.
+ * Exception thrown if illegal message properties are encountered.
  *
+ * @author Dmitriy Kopylenko
  * @author Juergen Hoeller
- * @see cn.taketoday.web.view.freemarker.FreeMarkerTemplateUtils#processTemplateIntoString
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class MailPreparationException extends MailException {
+public class MailParseException extends MailException {
 
   /**
-   * Constructor for MailPreparationException.
+   * Constructor for MailParseException.
    *
    * @param msg the detail message
    */
-  public MailPreparationException(String msg) {
+  public MailParseException(String msg) {
     super(msg);
   }
 
   /**
-   * Constructor for MailPreparationException.
+   * Constructor for MailParseException.
    *
    * @param msg the detail message
    * @param cause the root cause from the mail API in use
    */
-  public MailPreparationException(String msg, Throwable cause) {
+  public MailParseException(String msg, Throwable cause) {
     super(msg, cause);
   }
 
-  public MailPreparationException(Throwable cause) {
-    super("Could not prepare mail", cause);
+  /**
+   * Constructor for MailParseException.
+   *
+   * @param cause the root cause from the mail API in use
+   */
+  public MailParseException(Throwable cause) {
+    super("Could not parse mail", cause);
   }
 
 }

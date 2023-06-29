@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,9 +18,11 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail;
+package cn.taketoday.mail;
 
 import java.util.Date;
+
+import cn.taketoday.mail.javamail.MimeMessageHelper;
 
 /**
  * This is a common interface for mail messages, allowing a user to set key
@@ -35,7 +37,7 @@ import java.util.Date;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SimpleMailMessage
- * @see cn.taketoday.context.support.mail.javamail.MimeMessageHelper
+ * @see MimeMessageHelper
  * @since 4.0
  */
 public interface MailMessage {

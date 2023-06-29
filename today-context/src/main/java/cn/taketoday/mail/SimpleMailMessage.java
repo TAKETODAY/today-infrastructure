@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,13 +18,17 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail;
+package cn.taketoday.mail;
 
 import java.io.Serializable;
 import java.util.Date;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mail.javamail.JavaMailSender;
+import cn.taketoday.mail.javamail.MimeMailMessage;
+import cn.taketoday.mail.javamail.MimeMessageHelper;
+import cn.taketoday.mail.javamail.MimeMessagePreparator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -39,10 +43,10 @@ import cn.taketoday.util.StringUtils;
  * @author Dmitriy Kopylenko
  * @author Juergen Hoeller
  * @see MailSender
- * @see cn.taketoday.context.support.mail.javamail.JavaMailSender
- * @see cn.taketoday.context.support.mail.javamail.MimeMessagePreparator
- * @see cn.taketoday.context.support.mail.javamail.MimeMessageHelper
- * @see cn.taketoday.context.support.mail.javamail.MimeMailMessage
+ * @see JavaMailSender
+ * @see MimeMessagePreparator
+ * @see MimeMessageHelper
+ * @see MimeMailMessage
  * @since 4.0
  */
 @SuppressWarnings("serial")

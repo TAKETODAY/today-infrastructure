@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail.javamail;
+package cn.taketoday.mail.javamail;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +31,8 @@ import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mail.MailMessage;
+import cn.taketoday.mail.SimpleMailMessage;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
@@ -50,7 +52,7 @@ import jakarta.mail.internet.MimeUtility;
 /**
  * Helper class for populating a {@link MimeMessage}.
  *
- * <p>Mirrors the simple setters of {@link cn.taketoday.context.support.mail.SimpleMailMessage},
+ * <p>Mirrors the simple setters of {@link SimpleMailMessage},
  * directly applying the values to the underlying MimeMessage. Allows for defining
  * a character encoding for the entire message, automatically applied by all methods
  * of this helper class.
@@ -80,8 +82,8 @@ import jakarta.mail.internet.MimeUtility;
  * });</pre>
  *
  * Consider using {@link MimeMailMessage} (which implements the common
- * {@link cn.taketoday.context.support.mail.MailMessage} interface, just like
- * {@link cn.taketoday.context.support.mail.SimpleMailMessage}) on top of this helper,
+ * {@link MailMessage} interface, just like
+ * {@link SimpleMailMessage}) on top of this helper,
  * in order to let message population code interact with a simple message
  * or a MIME message through a common interface.
  *

@@ -3,3 +3,6 @@ cn.taketoday.context.aot.ReflectiveProcessorBeanFactoryInitializationAotProcesso
 
 cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
 cn.taketoday.validation.beanvalidation.BeanValidationBeanRegistrationAotProcessor
+
+cn.taketoday.aot.hint.RuntimeHintsRegistrar= \
+cn.taketoday.mail.javamail.JavaMailMimeTypesRuntimeHints

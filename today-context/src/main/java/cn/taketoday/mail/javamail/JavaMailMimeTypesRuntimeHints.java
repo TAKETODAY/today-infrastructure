@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,38 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail;
+package cn.taketoday.mail.javamail;
 
-import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Base class for all mail exceptions.
+ * {@link RuntimeHintsRegistrar} implementation that makes sure mime types
+ * are available in constrained environments.
  *
- * @author Dmitriy Kopylenko
+ * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/6/29 12:48
  */
-@SuppressWarnings("serial")
-public abstract class MailException extends NestedRuntimeException {
+class JavaMailMimeTypesRuntimeHints implements RuntimeHintsRegistrar {
 
-  /**
-   * Constructor for MailException.
-   *
-   * @param msg the detail message
-   */
-  public MailException(String msg) {
-    super(msg);
-  }
-
-  /**
-   * Constructor for MailException.
-   *
-   * @param msg the detail message
-   * @param cause the root cause from the mail API in use
-   */
-  public MailException(@Nullable String msg, @Nullable Throwable cause) {
-    super(msg, cause);
+  @Override
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+    hints.resources().registerPattern("cn/taketoday/mail/javamail/mime.types");
   }
 
 }

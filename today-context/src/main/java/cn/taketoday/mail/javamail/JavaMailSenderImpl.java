@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.support.mail.javamail;
+package cn.taketoday.mail.javamail;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,14 +28,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.context.support.mail.MailAuthenticationException;
-import cn.taketoday.context.support.mail.MailException;
-import cn.taketoday.context.support.mail.MailParseException;
-import cn.taketoday.context.support.mail.MailPreparationException;
-import cn.taketoday.context.support.mail.MailSendException;
-import cn.taketoday.context.support.mail.SimpleMailMessage;
+import cn.taketoday.mail.MailAuthenticationException;
+import cn.taketoday.mail.MailException;
+import cn.taketoday.mail.MailParseException;
+import cn.taketoday.mail.MailPreparationException;
+import cn.taketoday.mail.MailSendException;
+import cn.taketoday.mail.SimpleMailMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mail.MailSender;
 import jakarta.activation.FileTypeMap;
 import jakarta.mail.Address;
 import jakarta.mail.AuthenticationFailedException;
@@ -49,7 +50,7 @@ import jakarta.mail.internet.MimeMessage;
  * Production implementation of the {@link JavaMailSender} interface,
  * supporting both JavaMail {@link MimeMessage MimeMessages} and Framework
  * {@link SimpleMailMessage SimpleMailMessages}. Can also be used as a
- * plain {@link cn.taketoday.context.support.mail.MailSender} implementation.
+ * plain {@link MailSender} implementation.
  *
  * <p>Allows for defining all settings locally as bean properties.
  * Alternatively, a pre-configured JavaMail {@link Session} can be
@@ -416,7 +417,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * that the MimeMessages have been created from (with same array
    * length and indices as the "mimeMessages" array), if any
    * @throws MailAuthenticationException in case of authentication failure
-   * @throws cn.taketoday.context.support.mail.MailSendException in case of failure when sending a message
+   * @throws MailSendException in case of failure when sending a message
    */
   protected void doSend(MimeMessage[] mimeMessages, @Nullable Object[] originalMessages) throws MailException {
     Map<Object, Exception> failedMessages = new LinkedHashMap<>();
