@@ -20,8 +20,6 @@
 
 package cn.taketoday.jmx.export.assembler;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import javax.management.Attribute;
@@ -108,7 +106,6 @@ public abstract class AbstractJmxAssemblerTests extends AbstractJmxTests {
   }
 
   @Test
-  @Disabled
   public void testDescriptionNotNull() throws Exception {
     ModelMBeanInfo info = getMBeanInfoFromAssembler();
 
@@ -182,8 +179,7 @@ public abstract class AbstractJmxAssemblerTests extends AbstractJmxTests {
 
   protected ModelMBeanInfo getMBeanInfoFromAssembler() throws Exception {
     IJmxTestBean bean = getBean();
-    ModelMBeanInfo info = getAssembler().getMBeanInfo(bean, getObjectName());
-    return info;
+    return getAssembler().getMBeanInfo(bean, getObjectName());
   }
 
   protected IJmxTestBean getBean() {
