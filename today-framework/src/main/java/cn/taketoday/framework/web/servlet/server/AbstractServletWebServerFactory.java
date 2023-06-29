@@ -349,6 +349,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
       configureSessionCookie(servletContext.getSessionCookieConfig());
     }
 
+    @SuppressWarnings("removal")
     private void configureSessionCookie(SessionCookieConfig config) {
       CookieProperties cookie = session.getCookie();
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();

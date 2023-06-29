@@ -595,6 +595,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
       }
     }
 
+    @SuppressWarnings("removal")
     private jakarta.servlet.http.Cookie asServletCookie(Cookie cookie) {
       var map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       var result = new jakarta.servlet.http.Cookie(cookie.getName(), cookie.getValue());
