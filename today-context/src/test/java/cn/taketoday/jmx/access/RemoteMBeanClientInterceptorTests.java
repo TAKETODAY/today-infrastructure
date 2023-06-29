@@ -21,6 +21,7 @@
 package cn.taketoday.jmx.access;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 
 import java.net.BindException;
 import java.net.MalformedURLException;
@@ -57,9 +58,9 @@ class RemoteMBeanClientInterceptorTests extends MBeanClientInterceptorTests {
       this.connectorServer.start();
     }
     catch (BindException ex) {
-      System.out.println("Skipping remote JMX tests because binding to local port ["
-              + this.servicePort + "] failed: " + ex.getMessage());
       runTests = false;
+      Assumptions.abort("Skipping remote JMX tests because binding to local port [" +
+              this.servicePort + "] failed: " + ex.getMessage());
     }
   }
 

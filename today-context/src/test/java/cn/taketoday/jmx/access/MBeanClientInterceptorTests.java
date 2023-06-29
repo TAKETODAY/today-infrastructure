@@ -20,6 +20,7 @@
 
 package cn.taketoday.jmx.access;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.beans.PropertyDescriptor;
@@ -181,7 +182,7 @@ class MBeanClientInterceptorTests extends AbstractMBeanServerTests {
   void lazyConnectionToRemote() throws Exception {
     assumeTrue(runTests);
 
-    @SuppressWarnings("deprecation") final int port = TestSocketUtils.findAvailableTcpPort();
+    final int port = TestSocketUtils.findAvailableTcpPort();
 
     JMXServiceURL url = new JMXServiceURL("service:jmx:jmxmp://localhost:" + port);
     JMXConnectorServer connector = JMXConnectorServerFactory.newJMXConnectorServer(url, null, getServer());
@@ -201,9 +202,8 @@ class MBeanClientInterceptorTests extends AbstractMBeanServerTests {
       connector.start();
     }
     catch (BindException ex) {
-      System.out.println("Skipping remainder of JMX LazyConnectionToRemote test because binding to local port ["
-              + port + "] failed: " + ex.getMessage());
-      return;
+      Assumptions.abort("Skipping remainder of JMX LazyConnectionToRemote test because binding to local port [" +
+              port + "] failed: " + ex.getMessage());
     }
 
     // should now be able to access data via the lazy proxy
