@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,6 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.web.service.invoker.RequestPartArgumentResolver;
@@ -117,9 +118,10 @@ import cn.taketoday.web.service.invoker.RequestPartArgumentResolver;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Reflective(HttpExchangeReflectiveProcessor.class)
 public @interface HttpExchange {
 
   /**

@@ -1,0 +1,9 @@
+cn.taketoday.aot.hint.RuntimeHintsRegistrar= \
+cn.taketoday.http.HttpMimeTypesRuntimeHints,\
+cn.taketoday.http.codec.CodecConfigurerRuntimeHints,\
+cn.taketoday.http.converter.json.JacksonModulesRuntimeHints,\
+cn.taketoday.http.converter.json.ProblemDetailRuntimeHints,\
+cn.taketoday.web.util.WebUtilRuntimeHints
+
+cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
+cn.taketoday.web.service.annotation.HttpExchangeBeanRegistrationAotProcessor

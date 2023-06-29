@@ -18,32 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aot.hint.annotation;
+package cn.taketoday.http;
 
-import java.lang.reflect.AnnotatedElement;
-
-import cn.taketoday.aot.hint.ReflectionHints;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Process an {@link AnnotatedElement} and register the necessary reflection
- * hints for it.
- *
- * <p>{@code ReflectiveProcessor} implementations are registered via
- * {@link Reflective#processors() @Reflective(processors = ...)}.
+ * {@link RuntimeHintsRegistrar} implementation that makes sure mime types
+ * are available in constrained environments.
  *
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see Reflective @Reflective
  * @since 4.0
  */
-public interface ReflectiveProcessor {
+class HttpMimeTypesRuntimeHints implements RuntimeHintsRegistrar {
 
-  /**
-   * Register {@link ReflectionHints} against the specified {@link AnnotatedElement}.
-   *
-   * @param hints the reflection hints instance to use
-   * @param element the element to process
-   */
-  void registerReflectionHints(ReflectionHints hints, AnnotatedElement element);
+  @Override
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+    hints.resources().registerPattern("cn/taketoday/http/mime.types");
+  }
 
 }

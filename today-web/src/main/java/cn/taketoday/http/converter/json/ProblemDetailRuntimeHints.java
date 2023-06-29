@@ -18,32 +18,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.aot.hint.annotation;
+package cn.taketoday.http.converter.json;
 
-import java.lang.reflect.AnnotatedElement;
-
-import cn.taketoday.aot.hint.ReflectionHints;
+import cn.taketoday.aot.hint.BindingReflectionHintsRegistrar;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
+import cn.taketoday.http.ProblemDetail;
 
 /**
- * Process an {@link AnnotatedElement} and register the necessary reflection
- * hints for it.
+ * {@link RuntimeHintsRegistrar} implementation that registers binding reflection entries
+ * for {@link ProblemDetail} serialization support with Jackson.
  *
- * <p>{@code ReflectiveProcessor} implementations are registered via
- * {@link Reflective#processors() @Reflective(processors = ...)}.
- *
- * @author Stephane Nicoll
+ * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see Reflective @Reflective
  * @since 4.0
  */
-public interface ReflectiveProcessor {
+class ProblemDetailRuntimeHints implements RuntimeHintsRegistrar {
 
-  /**
-   * Register {@link ReflectionHints} against the specified {@link AnnotatedElement}.
-   *
-   * @param hints the reflection hints instance to use
-   * @param element the element to process
-   */
-  void registerReflectionHints(ReflectionHints hints, AnnotatedElement element);
+  @Override
+  public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+    BindingReflectionHintsRegistrar bindingRegistrar = new BindingReflectionHintsRegistrar();
+    bindingRegistrar.registerReflectionHints(hints.reflection(), ProblemDetail.class);
+  }
 
 }
