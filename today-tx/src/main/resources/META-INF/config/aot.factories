@@ -1,0 +1,2 @@
+cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
+cn.taketoday.transaction.annotation.TransactionBeanRegistrationAotProcessor

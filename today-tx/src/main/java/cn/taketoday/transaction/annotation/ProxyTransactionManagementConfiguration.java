@@ -22,6 +22,7 @@ package cn.taketoday.transaction.annotation;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.ImportRuntimeHints;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.transaction.config.TransactionManagementConfigUtils;
@@ -41,6 +42,7 @@ import cn.taketoday.transaction.interceptor.TransactionInterceptor;
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+@ImportRuntimeHints(TransactionRuntimeHints.class)
 public class ProxyTransactionManagementConfiguration extends AbstractTransactionManagementConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

@@ -1,0 +1,2 @@
+cn.taketoday.aot.hint.RuntimeHintsRegistrar=\
+cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseFactoryRuntimeHints
