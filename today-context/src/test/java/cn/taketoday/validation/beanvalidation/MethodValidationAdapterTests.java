@@ -20,10 +20,13 @@
 
 package cn.taketoday.validation.beanvalidation;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.MessageSourceResolvable;
@@ -48,6 +51,18 @@ class MethodValidationAdapterTests {
   private static final Person cayetana6789 = new Person("Cayetana6789");
 
   private final MethodValidationAdapter validationAdapter = new MethodValidationAdapter();
+
+  private final Locale originalLocale = Locale.getDefault();
+
+  @BeforeEach
+  void setDefaultLocaleToEnglish() {
+    Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @AfterEach
+  void resetDefaultLocale() {
+    Locale.setDefault(this.originalLocale);
+  }
 
   @Test
   void validateArguments() {
