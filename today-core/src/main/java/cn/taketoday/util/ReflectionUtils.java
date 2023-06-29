@@ -572,7 +572,7 @@ public abstract class ReflectionUtils {
    * @return the invocation result, if any
    * @see #invokeMethod(java.lang.reflect.Method, Object, Object[])
    */
-  public static Object invokeMethod(Method method, Object target) {
+  public static Object invokeMethod(Method method, @Nullable Object target) {
     return invokeMethod(method, target, EMPTY_OBJECT_ARRAY);
   }
 
@@ -589,7 +589,7 @@ public abstract class ReflectionUtils {
    * @param args the invocation arguments (may be {@code null})
    * @return the invocation result, if any
    */
-  public static Object invokeMethod(Method method, Object target, Object... args) {
+  public static Object invokeMethod(Method method, @Nullable Object target, Object... args) {
     try {
       return method.invoke(target, args);
     }
