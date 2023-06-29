@@ -306,7 +306,8 @@ public abstract class ClassUtils {
     }
   }
 
-  public static Class<?> resolvePrimitiveClassName(String name) {
+  @Nullable
+  public static Class<?> resolvePrimitiveClassName(@Nullable String name) {
     // Most class names will be quite long, considering that they
     // SHOULD sit in a package, so a length check is worthwhile.
     if (name != null && name.length() <= 8) {
@@ -468,7 +469,7 @@ public abstract class ClassUtils {
    * @return null if cannot load
    */
   @Nullable
-  public static <T> Class<T> load(String name, ClassLoader classLoader) {
+  public static <T> Class<T> load(String name, @Nullable ClassLoader classLoader) {
     try {
       return forName(name, classLoader);
     }
@@ -578,6 +579,7 @@ public abstract class ClassUtils {
    * @return The user class
    * @since 2.1.7
    */
+  @Nullable
   public static <T> Class<T> getUserClass(String name) {
     Assert.notNull(name, "synthetic-name must not be null");
     int i = name.indexOf(CGLIB_CLASS_SEPARATOR);
@@ -614,47 +616,6 @@ public abstract class ClassUtils {
   // --------------------------------- Field
 
   // Generics
-
-  /**
-   * @param type source type
-   * @since 2.1.7
-   */
-  public static java.lang.reflect.Type[] getGenerics(Class<?> type) {
-    if (type != null) {
-      java.lang.reflect.Type genericSuperclass = type.getGenericSuperclass();
-
-      Class<?> superclass = type.getSuperclass();
-      if (genericSuperclass == superclass && genericSuperclass != Object.class) {
-        return getGenerics(superclass);
-      }
-      if (genericSuperclass instanceof ParameterizedType) {
-        return getActualTypeArguments(genericSuperclass);
-      }
-      java.lang.reflect.Type[] genericInterfaces = type.getGenericInterfaces();
-      if (ObjectUtils.isNotEmpty(genericInterfaces)) {
-        return getActualTypeArguments(genericInterfaces[0]);
-      }
-    }
-    return null;
-  }
-
-  @Nullable
-  public static java.lang.reflect.Type[] getGenericTypes(Field property) {
-    return property != null ? getActualTypeArguments(property.getGenericType()) : null;
-  }
-
-  @Nullable
-  public static java.lang.reflect.Type[] getGenericTypes(Parameter parameter) {
-    return parameter != null ? getActualTypeArguments(parameter.getParameterizedType()) : null;
-  }
-
-  @Nullable
-  static java.lang.reflect.Type[] getActualTypeArguments(java.lang.reflect.Type pType) {
-    if (pType instanceof ParameterizedType) {
-      return ((ParameterizedType) pType).getActualTypeArguments();
-    }
-    return null;
-  }
 
   /**
    * Find generics in target class
@@ -749,7 +710,7 @@ public abstract class ClassUtils {
    * @return all interfaces that the given object implements as an array
    * @since 3.0
    */
-  public static Class<?>[] getAllInterfacesForClass(Class<?> clazz, ClassLoader classLoader) {
+  public static Class<?>[] getAllInterfacesForClass(Class<?> clazz, @Nullable ClassLoader classLoader) {
     return toClassArray(getAllInterfacesForClassAsSet(clazz, classLoader));
   }
 
@@ -805,7 +766,7 @@ public abstract class ClassUtils {
    * @return all interfaces that the given object implements as a Set
    * @since 3.0
    */
-  public static Set<Class<?>> getAllInterfacesForClassAsSet(Class<?> clazz, ClassLoader classLoader) {
+  public static Set<Class<?>> getAllInterfacesForClassAsSet(Class<?> clazz, @Nullable ClassLoader classLoader) {
     Assert.notNull(clazz, "Class must not be null");
     if (clazz.isInterface() && isVisible(clazz, classLoader)) {
       return Collections.singleton(clazz);

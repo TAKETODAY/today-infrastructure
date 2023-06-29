@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,10 +23,10 @@ package cn.taketoday.context;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeReference;
-import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,32 +37,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TypeReferenceTests {
 
   @Test
-  public void testTypeReference() {
-    TypeReference<Integer> reference = new TypeReference<Integer>() { };
-    final Type[] generics = ClassUtils.getGenerics(reference.getClass(), TypeReference.class);
-
-    assertThat(generics[0])
-            .isEqualTo(Integer.class);
-
-    assertThat(generics)
-            .hasSize(1);
-
-    assertThat(ResolvableType.forClass(Integer.class))
-            .isEqualTo(new IntegerTypeReference().getResolvableType())
-            .isEqualTo(new IntegerTypeReference1().getResolvableType())
-            .isEqualTo(new IntegerTypeReference2().getResolvableType())
-    ;
+  void stringTypeReference() {
+    TypeReference<String> typeReference = new TypeReference<>() { };
+    assertThat(typeReference.getType()).isEqualTo(String.class);
   }
 
-  static class IntegerTypeReference extends TypeReference<Integer> {
-
+  @Test
+  void mapTypeReference() throws Exception {
+    Type mapType = getClass().getMethod("mapMethod").getGenericReturnType();
+    TypeReference<Map<Object, String>> typeReference = new TypeReference<>() { };
+    assertThat(typeReference.getType()).isEqualTo(mapType);
   }
 
-  static class IntegerTypeReference1 extends IntegerTypeReference {
-
+  @Test
+  void listTypeReference() throws Exception {
+    Type listType = getClass().getMethod("listMethod").getGenericReturnType();
+    TypeReference<List<String>> typeReference = new TypeReference<>() { };
+    assertThat(typeReference.getType()).isEqualTo(listType);
   }
 
-  static class IntegerTypeReference2 extends IntegerTypeReference1 {
-
+  @Test
+  void reflectiveTypeReferenceWithSpecificDeclaration() throws Exception {
+    Type listType = getClass().getMethod("listMethod").getGenericReturnType();
+    TypeReference<List<String>> typeReference = TypeReference.fromType(listType);
+    assertThat(typeReference.getType()).isEqualTo(listType);
   }
+
+  @Test
+  void reflectiveTypeReferenceWithGenericDeclaration() throws Exception {
+    Type listType = getClass().getMethod("listMethod").getGenericReturnType();
+    TypeReference<?> typeReference = TypeReference.fromType(listType);
+    assertThat(typeReference.getType()).isEqualTo(listType);
+  }
+
+  public static Map<Object, String> mapMethod() {
+    return null;
+  }
+
+  public static List<String> listMethod() {
+    return null;
+  }
+
 }
