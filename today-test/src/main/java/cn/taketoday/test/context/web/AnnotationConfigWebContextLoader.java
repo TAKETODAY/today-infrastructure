@@ -30,10 +30,8 @@ import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;
-import cn.taketoday.test.context.aot.AotContextLoader;
 import cn.taketoday.test.context.support.AbstractContextLoader;
 import cn.taketoday.test.context.support.AnnotationConfigContextLoaderUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**

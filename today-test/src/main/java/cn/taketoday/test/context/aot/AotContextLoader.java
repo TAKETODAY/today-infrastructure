@@ -22,7 +22,6 @@ package cn.taketoday.test.context.aot;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.test.context.ContextLoadException;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.SmartContextLoader;

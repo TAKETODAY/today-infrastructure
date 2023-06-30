@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.context.ApplicationContextInitializer;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
 
 /**
