@@ -55,6 +55,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  *
  * @author Juergen Hoeller
  * @author Mark Fisher
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setPoolSize
  * @see #setRemoveOnCancelPolicy
  * @see #setContinueExistingPeriodicTasksAfterShutdownPolicy
@@ -67,6 +68,8 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
 public class ThreadPoolTaskScheduler
         extends ExecutorConfigurationSupport
         implements AsyncListenableTaskExecutor, SchedulingTaskExecutor, TaskScheduler {
+
+  private static final TimeUnit NANO = TimeUnit.NANOSECONDS;
 
   private volatile int poolSize = 1;
 
@@ -95,8 +98,8 @@ public class ThreadPoolTaskScheduler
    */
   public void setPoolSize(int poolSize) {
     Assert.isTrue(poolSize > 0, "'poolSize' must be 1 or higher");
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor) {
-      ((ScheduledThreadPoolExecutor) this.scheduledExecutor).setCorePoolSize(poolSize);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
+      threadPoolExecutor.setCorePoolSize(poolSize);
     }
     this.poolSize = poolSize;
   }
@@ -110,8 +113,8 @@ public class ThreadPoolTaskScheduler
    * @see ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy
    */
   public void setRemoveOnCancelPolicy(boolean flag) {
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor) {
-      ((ScheduledThreadPoolExecutor) this.scheduledExecutor).setRemoveOnCancelPolicy(flag);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
+      threadPoolExecutor.setRemoveOnCancelPolicy(flag);
     }
     this.removeOnCancelPolicy = flag;
   }
@@ -125,8 +128,8 @@ public class ThreadPoolTaskScheduler
    * @see ScheduledThreadPoolExecutor#setContinueExistingPeriodicTasksAfterShutdownPolicy
    */
   public void setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean flag) {
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor) {
-      ((ScheduledThreadPoolExecutor) this.scheduledExecutor).setContinueExistingPeriodicTasksAfterShutdownPolicy(flag);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
+      threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(flag);
     }
     this.continueExistingPeriodicTasksAfterShutdownPolicy = flag;
   }
@@ -140,8 +143,8 @@ public class ThreadPoolTaskScheduler
    * @see ScheduledThreadPoolExecutor#setExecuteExistingDelayedTasksAfterShutdownPolicy
    */
   public void setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean flag) {
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor) {
-      ((ScheduledThreadPoolExecutor) this.scheduledExecutor).setExecuteExistingDelayedTasksAfterShutdownPolicy(flag);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
+      threadPoolExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(flag);
     }
     this.executeExistingDelayedTasksAfterShutdownPolicy = flag;
   }
@@ -172,21 +175,21 @@ public class ThreadPoolTaskScheduler
   protected ExecutorService initializeExecutor(
           ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
 
-    this.scheduledExecutor = createExecutor(this.poolSize, threadFactory, rejectedExecutionHandler);
+    this.scheduledExecutor = createExecutor(poolSize, threadFactory, rejectedExecutionHandler);
 
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor scheduledPoolExecutor) {
-      if (this.removeOnCancelPolicy) {
-        scheduledPoolExecutor.setRemoveOnCancelPolicy(true);
+    if (scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
+      if (removeOnCancelPolicy) {
+        threadPoolExecutor.setRemoveOnCancelPolicy(true);
       }
-      if (this.continueExistingPeriodicTasksAfterShutdownPolicy) {
-        scheduledPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
+      if (continueExistingPeriodicTasksAfterShutdownPolicy) {
+        threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(true);
       }
-      if (!this.executeExistingDelayedTasksAfterShutdownPolicy) {
-        scheduledPoolExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+      if (!executeExistingDelayedTasksAfterShutdownPolicy) {
+        threadPoolExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
       }
     }
 
-    return this.scheduledExecutor;
+    return scheduledExecutor;
   }
 
   /**
@@ -199,7 +202,7 @@ public class ThreadPoolTaskScheduler
    * @param rejectedExecutionHandler the RejectedExecutionHandler to use
    * @return a new ScheduledExecutorService instance
    * @see #afterPropertiesSet()
-   * @see ScheduledThreadPoolExecutor
+   * @see java.util.concurrent.ScheduledThreadPoolExecutor
    */
   protected ScheduledExecutorService createExecutor(
           int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
@@ -214,8 +217,8 @@ public class ThreadPoolTaskScheduler
    * @throws IllegalStateException if the ThreadPoolTaskScheduler hasn't been initialized yet
    */
   public ScheduledExecutorService getScheduledExecutor() throws IllegalStateException {
-    Assert.state(this.scheduledExecutor != null, "ThreadPoolTaskScheduler not initialized");
-    return this.scheduledExecutor;
+    Assert.state(scheduledExecutor != null, "ThreadPoolTaskScheduler not initialized");
+    return scheduledExecutor;
   }
 
   /**
@@ -227,9 +230,9 @@ public class ThreadPoolTaskScheduler
    * @see #getScheduledExecutor()
    */
   public ScheduledThreadPoolExecutor getScheduledThreadPoolExecutor() throws IllegalStateException {
-    Assert.state(this.scheduledExecutor instanceof ScheduledThreadPoolExecutor,
+    Assert.state(scheduledExecutor instanceof ScheduledThreadPoolExecutor,
             "No ScheduledThreadPoolExecutor available");
-    return (ScheduledThreadPoolExecutor) this.scheduledExecutor;
+    return (ScheduledThreadPoolExecutor) scheduledExecutor;
   }
 
   /**
@@ -237,12 +240,12 @@ public class ThreadPoolTaskScheduler
    * <p>Requires an underlying {@link ScheduledThreadPoolExecutor}.
    *
    * @see #getScheduledThreadPoolExecutor()
-   * @see ScheduledThreadPoolExecutor#getPoolSize()
+   * @see java.util.concurrent.ScheduledThreadPoolExecutor#getPoolSize()
    */
   public int getPoolSize() {
-    if (this.scheduledExecutor == null) {
+    if (scheduledExecutor == null) {
       // Not initialized yet: assume initial pool size.
-      return this.poolSize;
+      return poolSize;
     }
     return getScheduledThreadPoolExecutor().getPoolSize();
   }
@@ -252,14 +255,26 @@ public class ThreadPoolTaskScheduler
    * <p>Requires an underlying {@link ScheduledThreadPoolExecutor}.
    *
    * @see #getScheduledThreadPoolExecutor()
-   * @see ScheduledThreadPoolExecutor#getActiveCount()
+   * @see java.util.concurrent.ScheduledThreadPoolExecutor#getActiveCount()
    */
   public int getActiveCount() {
-    if (this.scheduledExecutor == null) {
+    if (scheduledExecutor == null) {
       // Not initialized yet: assume no active threads.
       return 0;
     }
     return getScheduledThreadPoolExecutor().getActiveCount();
+  }
+
+  /**
+   * Return the current setting for the remove-on-cancel mode.
+   * <p>Requires an underlying {@link ScheduledThreadPoolExecutor}.
+   */
+  public boolean isRemoveOnCancelPolicy() {
+    if (scheduledExecutor == null) {
+      // Not initialized yet: return our setting for the time being.
+      return removeOnCancelPolicy;
+    }
+    return getScheduledThreadPoolExecutor().getRemoveOnCancelPolicy();
   }
 
   // SchedulingTaskExecutor implementation
@@ -329,8 +344,7 @@ public class ThreadPoolTaskScheduler
       return listenableFuture;
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -365,8 +379,7 @@ public class ThreadPoolTaskScheduler
       return new ReschedulingRunnable(task, trigger, this.clock, executor, errorHandler).schedule();
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -375,11 +388,11 @@ public class ThreadPoolTaskScheduler
     ScheduledExecutorService executor = getScheduledExecutor();
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
-      return executor.schedule(errorHandlingTask(task, false), initialDelay.toNanos(), TimeUnit.NANOSECONDS);
+      return executor.schedule(errorHandlingTask(task, false),
+              NANO.convert(initialDelay), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -389,11 +402,10 @@ public class ThreadPoolTaskScheduler
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       return executor.scheduleAtFixedRate(errorHandlingTask(task, true),
-              initialDelay.toNanos(), period.toNanos(), TimeUnit.NANOSECONDS);
+              NANO.convert(initialDelay), NANO.convert(period), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -401,11 +413,11 @@ public class ThreadPoolTaskScheduler
   public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Duration period) {
     ScheduledExecutorService executor = getScheduledExecutor();
     try {
-      return executor.scheduleAtFixedRate(errorHandlingTask(task, true), 0, period.toNanos(), TimeUnit.NANOSECONDS);
+      return executor.scheduleAtFixedRate(errorHandlingTask(task, true),
+              0, NANO.convert(period), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -415,11 +427,10 @@ public class ThreadPoolTaskScheduler
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       return executor.scheduleWithFixedDelay(errorHandlingTask(task, true),
-              initialDelay.toNanos(), delay.toNanos(), TimeUnit.NANOSECONDS);
+              NANO.convert(initialDelay), NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -428,11 +439,10 @@ public class ThreadPoolTaskScheduler
     ScheduledExecutorService executor = getScheduledExecutor();
     try {
       return executor.scheduleWithFixedDelay(errorHandlingTask(task, true),
-              0, delay.toNanos(), TimeUnit.NANOSECONDS);
+              0, NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
     }
   }
 
@@ -440,8 +450,16 @@ public class ThreadPoolTaskScheduler
     return TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, isRepeatingTask);
   }
 
-  private record DelegatingErrorHandlingCallable<V>(
-          Callable<V> delegate, ErrorHandler errorHandler) implements Callable<V> {
+  private static class DelegatingErrorHandlingCallable<V> implements Callable<V> {
+
+    private final Callable<V> delegate;
+
+    private final ErrorHandler errorHandler;
+
+    public DelegatingErrorHandlingCallable(Callable<V> delegate, ErrorHandler errorHandler) {
+      this.delegate = delegate;
+      this.errorHandler = errorHandler;
+    }
 
     @Override
     @Nullable
