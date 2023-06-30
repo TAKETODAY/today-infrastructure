@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -293,6 +293,14 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
+  public void fromMethodCallOnSubclass() {
+    UriComponents uriComponents = fromMethodCall(on(ExtendedController.class).myMethod(null)).build();
+
+    assertThat(uriComponents.toUriString()).startsWith("http://localhost");
+    assertThat(uriComponents.toUriString()).endsWith("/extended/else");
+  }
+
+  @Test
   public void fromMethodCallPlain() {
     UriComponents uriComponents = fromMethodCall(on(ControllerWithMethods.class).myMethod(null)).build();
 
@@ -301,12 +309,27 @@ class MvcUriComponentsBuilderTests {
   }
 
   @Test
-  public void fromMethodCallOnSubclass() {
-    UriComponents uriComponents = fromMethodCall(on(ExtendedController.class).myMethod(null))
-            .build();
+  public void fromMethodCallPlainWithNoArguments() {
+    UriComponents uriComponents = fromMethodCall(on(ControllerWithMethods.class).myMethod()).build();
 
     assertThat(uriComponents.toUriString()).startsWith("http://localhost");
-    assertThat(uriComponents.toUriString()).endsWith("/extended/else");
+    assertThat(uriComponents.toUriString()).endsWith("/something/noarg");
+  }
+
+  @Test
+  public void fromMethodCallPlainOnInterface() {
+    UriComponents uriComponents = fromMethodCall(on(ControllerInterface.class).myMethod(null)).build();
+
+    assertThat(uriComponents.toUriString()).startsWith("http://localhost");
+    assertThat(uriComponents.toUriString()).endsWith("/something/else");
+  }
+
+  @Test
+  public void fromMethodCallPlainWithNoArgumentsOnInterface() {
+    UriComponents uriComponents = fromMethodCall(on(ControllerInterface.class).myMethod()).build();
+
+    assertThat(uriComponents.toUriString()).startsWith("http://localhost");
+    assertThat(uriComponents.toUriString()).endsWith("/something/noarg");
   }
 
   @Test
@@ -340,9 +363,8 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromMethodCallWithPathVariableAndMultiValueRequestParams() {
-    UriComponents uriComponents = fromMethodCall(on(ControllerWithMethods.class)
-            .methodWithMultiValueRequestParams("1", Arrays.asList(3, 7), 5))
-            .build();
+    UriComponents uriComponents = fromMethodCall(
+            on(ControllerWithMethods.class).methodWithMultiValueRequestParams("1", Arrays.asList(3, 7), 5)).build();
 
     assertThat(uriComponents.getPath()).isEqualTo("/something/1/foo");
 
@@ -478,8 +500,7 @@ class MvcUriComponentsBuilderTests {
     this.request.setServerPort(9999);
     this.request.setContextPath("/base");
 
-    assertThat(fromController(PersonsAddressesController.class)
-            .buildAndExpand("123").toString())
+    assertThat(fromController(PersonsAddressesController.class).buildAndExpand("123").toString())
             .isEqualTo("https://example.org:9999/base/api/people/123/addresses");
   }
 
@@ -571,6 +592,11 @@ class MvcUriComponentsBuilderTests {
       return null;
     }
 
+    @RequestMapping("/noarg")
+    HttpEntity<Void> myMethod() {
+      return null;
+    }
+
     @RequestMapping("/{id}/foo")
     HttpEntity<Void> methodWithPathVariable(@PathVariable String id) {
       return null;
@@ -608,6 +634,16 @@ class MvcUriComponentsBuilderTests {
   @RequestMapping("/extended")
   @SuppressWarnings("WeakerAccess")
   static class ExtendedController extends ControllerWithMethods {
+  }
+
+  @RequestMapping("/something")
+  public interface ControllerInterface {
+
+    @RequestMapping("/else")
+    HttpEntity<Void> myMethod(@RequestBody Object payload);
+
+    @RequestMapping("/noarg")
+    HttpEntity<Void> myMethod();
   }
 
   @RequestMapping("/user/{userId}/contacts")
