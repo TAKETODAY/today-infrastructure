@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,14 +31,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestAttribute;
+import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.annotation.RequestPart;
+import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import cn.taketoday.web.service.annotation.GetExchange;
+import cn.taketoday.web.service.annotation.PostExchange;
 import cn.taketoday.web.service.invoker.HttpServiceProxyFactory;
+import cn.taketoday.web.testfixture.servlet.MockMultipartFile;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -114,6 +123,40 @@ public class WebClientHttpServiceProxyTests {
     assertThat(this.server.takeRequest().getRequestUrl().uri()).isEqualTo(dynamicUri);
   }
 
+  @Test
+  void formData() throws Exception {
+    prepareResponse(response -> response.setResponseCode(201));
+
+    MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add("param1", "value 1");
+    map.add("param2", "value 2");
+
+    initHttpService().postForm(map);
+
+    RecordedRequest request = this.server.takeRequest();
+    assertThat(request.getHeaders().get("Content-Type")).isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
+    assertThat(request.getBody().readUtf8()).isEqualTo("param1=value+1&param2=value+2");
+  }
+
+  @Test
+  void multipart() throws InterruptedException {
+    prepareResponse(response -> response.setResponseCode(201));
+    String fileName = "testFileName";
+    String originalFileName = "originalTestFileName";
+    MultipartFile file = new MockMultipartFile(fileName, originalFileName,
+            MediaType.APPLICATION_JSON_VALUE, "test".getBytes());
+
+    initHttpService().postMultipart(file, "test2");
+
+    RecordedRequest request = this.server.takeRequest();
+    assertThat(request.getHeaders().get("Content-Type")).startsWith("multipart/form-data;boundary=");
+    assertThat(request.getBody().readUtf8())
+            .containsSubsequence("Content-Disposition: form-data; name=\"file\"; filename=\"originalTestFileName\"",
+                    "Content-Type: application/json", "Content-Length: 4", "test",
+                    "Content-Disposition: form-data; name=\"anotherPart\"",
+                    "Content-Type: text/plain;charset=UTF-8", "Content-Length: 5", "test2");
+  }
+
   private TestHttpService initHttpService() {
     WebClient webClient = WebClient.builder().baseUrl(this.server.url("/").toString()).build();
     return initHttpService(webClient);
@@ -141,6 +184,12 @@ public class WebClientHttpServiceProxyTests {
 
     @GetExchange("/greetings/{id}")
     String getGreetingById(@Nullable URI uri, @PathVariable String id);
+
+    @PostExchange(contentType = "application/x-www-form-urlencoded")
+    void postForm(@RequestParam MultiValueMap<String, String> params);
+
+    @PostExchange
+    void postMultipart(MultipartFile file, @RequestPart String anotherPart);
 
   }
 

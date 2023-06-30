@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.multipart;
 
@@ -27,6 +27,7 @@ import java.nio.file.Path;
 
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 
 /**
@@ -49,6 +50,7 @@ public interface MultipartFile extends Multipart, Serializable, InputStreamSourc
    * @return the content type, or {@code null} if not defined
    * (or no file has been chosen in the multipart form)
    */
+  @Nullable
   String getContentType();
 
   /**
@@ -74,13 +76,14 @@ public interface MultipartFile extends Multipart, Serializable, InputStreamSourc
    * the directory portion, the file name could also contain characters such
    * as ".." and others that can be used maliciously. It is recommended to not
    * use this filename directly. Preferably generate a unique one and save
-   * this one one somewhere for reference, if necessary.
+   * this one somewhere for reference, if necessary.
    *
    * @return the original filename, or the empty String if no file has been chosen
    * in the multipart form, or {@code null} if not defined or not available
    * @see <a href="https://tools.ietf.org/html/rfc7578#section-4.2">RFC 7578, Section 4.2</a>
    * @see <a href="https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload">Unrestricted File Upload</a>
    */
+  @Nullable
   String getOriginalFilename();
 
   /**
