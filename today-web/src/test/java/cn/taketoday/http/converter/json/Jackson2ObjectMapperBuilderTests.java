@@ -88,6 +88,7 @@ import java.util.stream.StreamSupport;
 
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.util.StringUtils;
+import kotlin.ranges.IntRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -107,8 +108,8 @@ class Jackson2ObjectMapperBuilderTests {
 
   @Test
   void unknownFeature() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> Jackson2ObjectMapperBuilder.json().featuresToEnable(Boolean.TRUE).build());
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            Jackson2ObjectMapperBuilder.json().featuresToEnable(Boolean.TRUE).build());
   }
 
   @Test
@@ -233,26 +234,6 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-  void modules() {
-    NumberSerializer serializer1 = new NumberSerializer(Integer.class);
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(Integer.class, serializer1);
-    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().modules(module).build();
-    Serializers serializers = getSerializerFactoryConfig(objectMapper).serializers().iterator().next();
-    assertThat(serializers.findSerializer(null, SimpleType.construct(Integer.class), null)).isSameAs(serializer1);
-  }
-
-  @Test
-  void modulesWithConsumer() {
-    NumberSerializer serializer1 = new NumberSerializer(Integer.class);
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(Integer.class, serializer1);
-    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().modules(list -> list.add(module)).build();
-    Serializers serializers = getSerializerFactoryConfig(objectMapper).serializers().iterator().next();
-    assertThat(serializers.findSerializer(null, SimpleType.construct(Integer.class), null)).isSameAs(serializer1);
-  }
-
-  @Test
   void modulesToInstallByClass() {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
             .modulesToInstall(CustomIntegerModule.class)
@@ -284,7 +265,7 @@ class Jackson2ObjectMapperBuilderTests {
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
 
     Path file = Paths.get("foo");
-    assertThat(new String(objectMapper.writeValueAsBytes(file), StandardCharsets.UTF_8).endsWith("foo\"")).isTrue();
+    assertThat(new String(objectMapper.writeValueAsBytes(file), StandardCharsets.UTF_8)).endsWith("foo\"");
 
     Optional<String> optional = Optional.of("test");
     assertThat(new String(objectMapper.writeValueAsBytes(optional), StandardCharsets.UTF_8)).isEqualTo("\"test\"");
@@ -313,6 +294,7 @@ class Jackson2ObjectMapperBuilderTests {
     barModule.addSerializer(new BarSerializer());
     builder.modulesToInstall(fooModule, barModule);
     ObjectMapper objectMapper = builder.build();
+
     assertThat(StreamSupport
             .stream(getSerializerFactoryConfig(objectMapper).serializers().spliterator(), false)
             .filter(s -> s.findSerializer(null, SimpleType.construct(Foo.class), null) != null)
@@ -332,6 +314,38 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
+  void modules() {
+    NumberSerializer serializer1 = new NumberSerializer(Integer.class);
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(Integer.class, serializer1);
+    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().modules(module).build();
+    Serializers serializers = getSerializerFactoryConfig(objectMapper).serializers().iterator().next();
+    assertThat(serializers.findSerializer(null, SimpleType.construct(Integer.class), null)).isSameAs(serializer1);
+  }
+
+  @Test
+  void modulesWithConsumer() {
+    NumberSerializer serializer1 = new NumberSerializer(Integer.class);
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(Integer.class, serializer1);
+    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().modules(list -> list.add(module)).build();
+    Serializers serializers = getSerializerFactoryConfig(objectMapper).serializers().iterator().next();
+    assertThat(serializers.findSerializer(null, SimpleType.construct(Integer.class), null)).isSameAs(serializer1);
+  }
+
+  @Test
+  void modulesWithConsumerAfterModulesToInstall() {
+    NumberSerializer serializer1 = new NumberSerializer(Integer.class);
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(Integer.class, serializer1);
+    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
+            .modulesToInstall(new JavaTimeModule())
+            .modules(list -> list.add(module)).build();
+    Serializers serializers = getSerializerFactoryConfig(objectMapper).serializers().iterator().next();
+    assertThat(serializers.findSerializer(null, SimpleType.construct(Integer.class), null)).isSameAs(serializer1);
+  }
+
+  @Test
   void propertyNamingStrategy() {
     PropertyNamingStrategy strategy = new PropertyNamingStrategy.SnakeCaseStrategy();
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().propertyNamingStrategy(strategy).build();
@@ -343,7 +357,7 @@ class Jackson2ObjectMapperBuilderTests {
   void serializerByType() {
     JsonSerializer<Number> serializer = new NumberSerializer(Integer.class);
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
-            .modules(new ArrayList<>())  // Disable well-known modules detection
+            .modules(new ArrayList<>())  // disable well-known modules detection
             .serializerByType(Boolean.class, serializer)
             .build();
     assertThat(getSerializerFactoryConfig(objectMapper).hasSerializers()).isTrue();
@@ -355,7 +369,7 @@ class Jackson2ObjectMapperBuilderTests {
   void deserializerByType() throws JsonMappingException {
     JsonDeserializer<Date> deserializer = new DateDeserializers.DateDeserializer();
     ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json()
-            .modules(new ArrayList<>())  // Disable well-known modules detection
+            .modules(new ArrayList<>())  // disable well-known modules detection
             .deserializerByType(Date.class, deserializer)
             .build();
     assertThat(getDeserializerFactoryConfig(objectMapper).hasDeserializers()).isTrue();
@@ -437,7 +451,7 @@ class Jackson2ObjectMapperBuilderTests {
     JsonSerializer<Number> serializer2 = new NumberSerializer(Integer.class);
 
     Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.json()
-            .modules(new ArrayList<>())  // Disable well-known modules detection
+            .modules(new ArrayList<>())  // disable well-known modules detection
             .serializers(serializer1)
             .serializersByType(Collections.singletonMap(Boolean.class, serializer2))
             .deserializersByType(deserializerMap)

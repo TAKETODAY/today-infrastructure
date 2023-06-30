@@ -586,7 +586,7 @@ public class Jackson2ObjectMapperBuilder {
    * @see Module
    */
   public Jackson2ObjectMapperBuilder modulesToInstall(Module... modules) {
-    this.modules = Arrays.asList(modules);
+    this.modules = new ArrayList<>(Arrays.asList(modules));
     this.findWellKnownModules = true;
     return this;
   }
