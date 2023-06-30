@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,11 +27,7 @@ import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Handy class for wrapping runtime {@code Exceptions} with a root cause.
- *
- * <p>This class is {@code abstract} to force the programmer to extend
- * the class. {@code getNestedMessage} will include nested exception
- * information; {@code printStackTrace} and other like methods will
- * delegate to the wrapped exception, if any.
+ * This class is {@code abstract} to force the programmer to extend the class.
  *
  * <p>The similarity between this class and the {@link NestedCheckedException}
  * class is unavoidable, as Java forces these two classes to have different
