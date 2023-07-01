@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import cn.taketoday.framework.web.server.ConfigurableWebServerFactory;
  * {@link ConfigurableWebServerFactory} for Jetty-specific features.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JettyServletWebServerFactory
  * @see JettyReactiveWebServerFactory
  * @since 4.0
@@ -71,5 +72,12 @@ public interface ConfigurableJettyWebServerFactory extends ConfigurableWebServer
    * @param customizers the customizers to add
    */
   void addServerCustomizers(JettyServerCustomizer... customizers);
+
+  /**
+   * Sets the maximum number of concurrent connections.
+   *
+   * @param maxConnections the maximum number of concurrent connections
+   */
+  void setMaxConnections(int maxConnections);
 
 }

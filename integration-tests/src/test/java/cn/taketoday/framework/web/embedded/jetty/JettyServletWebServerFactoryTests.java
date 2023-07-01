@@ -27,6 +27,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.jasper.servlet.JspServlet;
 import org.awaitility.Awaitility;
+import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -524,6 +525,22 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     JettyWebServer jettyWebServer = (JettyWebServer) factory.getWebServer();
     WebAppContext context = findWebAppContext(jettyWebServer);
     assertThat(context.getErrorHandler()).isInstanceOf(CustomErrorHandler.class);
+  }
+
+  @Test
+  void shouldApplyMaxConnections() {
+    JettyServletWebServerFactory factory = getFactory();
+    factory.setMaxConnections(1);
+    this.webServer = factory.getWebServer();
+    Server server = ((JettyWebServer) this.webServer).getServer();
+    ConnectionLimit connectionLimit = server.getBean(ConnectionLimit.class);
+    assertThat(connectionLimit).isNotNull();
+    assertThat(connectionLimit.getMaxConnections()).isOne();
+  }
+
+//  @Override
+  protected String startedLogMessage() {
+    return ((JettyWebServer) this.webServer).getStartedLogMessage();
   }
 
   private WebAppContext findWebAppContext(JettyWebServer webServer) {

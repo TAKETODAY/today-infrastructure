@@ -25,6 +25,7 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.server.AbstractConnector;
 import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -133,6 +134,8 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   @Nullable
   private ThreadPool threadPool;
 
+  private int maxConnections = -1;
+
   /**
    * Create a new {@link JettyServletWebServerFactory} instance.
    */
@@ -169,6 +172,11 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     configureWebAppContext(context, initializers);
     server.setHandler(addHandlerWrappers(context));
     this.logger.info("Server initialized with port: {}", port);
+
+    if (this.maxConnections > -1) {
+      server.addBean(new ConnectionLimit(this.maxConnections, server));
+    }
+
     if (Ssl.isEnabled(getSsl())) {
       customizeSsl(getSsl(), server, address);
     }
@@ -471,6 +479,11 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   @Override
   public void setSelectors(int selectors) {
     this.selectors = selectors;
+  }
+
+  @Override
+  public void setMaxConnections(int maxConnections) {
+    this.maxConnections = maxConnections;
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -192,15 +192,25 @@ public class JettyWebServer implements WebServer {
     }
   }
 
+  String getStartedLogMessage() {
+    return "Jetty started on " + getActualPortsDescription() + " with context path '" + getContextPath() + "'";
+  }
+
   private String getActualPortsDescription() {
-    StringBuilder ports = new StringBuilder();
-    for (Connector connector : this.server.getConnectors()) {
-      if (ports.length() != 0) {
-        ports.append(", ");
-      }
-      ports.append(getLocalPort(connector)).append(getProtocols(connector));
+    StringBuilder description = new StringBuilder("port");
+    Connector[] connectors = this.server.getConnectors();
+    if (connectors.length != 1) {
+      description.append("s");
     }
-    return ports.toString();
+    description.append(" ");
+    for (int i = 0; i < connectors.length; i++) {
+      if (i != 0) {
+        description.append(", ");
+      }
+      Connector connector = connectors[i];
+      description.append(getLocalPort(connector)).append(getProtocols(connector));
+    }
+    return description.toString();
   }
 
   private String getProtocols(Connector connector) {

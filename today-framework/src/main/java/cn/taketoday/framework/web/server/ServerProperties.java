@@ -1124,6 +1124,12 @@ public class ServerProperties {
      */
     private DataSize maxHttpResponseHeaderSize = DataSize.ofKilobytes(8);
 
+    /**
+     * Maximum number of connections that the server accepts and processes at any
+     * given time.
+     */
+    private int maxConnections = -1;
+
     public Accesslog getAccesslog() {
       return this.accesslog;
     }
@@ -1154,6 +1160,14 @@ public class ServerProperties {
 
     public DataSize getMaxHttpResponseHeaderSize() {
       return maxHttpResponseHeaderSize;
+    }
+
+    public int getMaxConnections() {
+      return this.maxConnections;
+    }
+
+    public void setMaxConnections(int maxConnections) {
+      this.maxConnections = maxConnections;
     }
 
     /**

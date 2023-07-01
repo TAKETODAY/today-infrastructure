@@ -87,31 +87,32 @@ public class JettyWebServerFactoryCustomizer
 
     factory.setThreadPool(JettyThreadPool.create(threadProperties));
 
-    PropertyMapper propertyMapper = PropertyMapper.get();
-    propertyMapper.from(threadProperties::getAcceptors).whenNonNull().to(factory::setAcceptors);
-    propertyMapper.from(threadProperties::getSelectors).whenNonNull().to(factory::setSelectors);
+    PropertyMapper map = PropertyMapper.get();
+    map.from(threadProperties::getAcceptors).whenNonNull().to(factory::setAcceptors);
+    map.from(threadProperties::getSelectors).whenNonNull().to(factory::setSelectors);
 
-    propertyMapper.from(properties::getMaxHttpRequestHeaderSize)
+    map.from(properties::getMaxHttpRequestHeaderSize)
             .whenNonNull()
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to(size -> factory.addServerCustomizers(new MaxHttpRequestHeaderSizeCustomizer(size)));
 
-    propertyMapper.from(jettyProperties::getMaxHttpResponseHeaderSize)
+    map.from(jettyProperties::getMaxConnections).to(factory::setMaxConnections);
+    map.from(jettyProperties::getMaxHttpResponseHeaderSize)
             .whenNonNull()
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to(size -> factory.addServerCustomizers(new MaxHttpResponseHeaderSizeCustomizer(size)));
 
-    propertyMapper.from(jettyProperties::getMaxHttpFormPostSize)
+    map.from(jettyProperties::getMaxHttpFormPostSize)
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to(maxHttpFormPostSize -> customizeMaxHttpFormPostSize(factory, maxHttpFormPostSize));
 
-    propertyMapper.from(jettyProperties::getConnectionIdleTimeout)
+    map.from(jettyProperties::getConnectionIdleTimeout)
             .whenNonNull()
             .to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
-    propertyMapper.from(jettyProperties::getAccesslog)
+    map.from(jettyProperties::getAccesslog)
             .when(Accesslog::isEnabled)
             .to(accesslog -> customizeAccessLog(factory, accesslog));
   }

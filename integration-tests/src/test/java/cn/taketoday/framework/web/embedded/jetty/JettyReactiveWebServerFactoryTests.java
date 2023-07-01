@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,8 +20,8 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
-import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
+import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -34,6 +34,7 @@ import java.net.InetAddress;
 import java.time.Duration;
 import java.util.Arrays;
 
+import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactoryTests;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.http.client.reactive.JettyResourceFactory;
@@ -149,6 +150,22 @@ class JettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
       }
     });
     this.webServer.stop();
+  }
+
+  @Test
+  void shouldApplyMaxConnections() {
+    JettyReactiveWebServerFactory factory = getFactory();
+    factory.setMaxConnections(1);
+    this.webServer = factory.getWebServer(new EchoHandler());
+    Server server = ((JettyWebServer) this.webServer).getServer();
+    ConnectionLimit connectionLimit = server.getBean(ConnectionLimit.class);
+    assertThat(connectionLimit).isNotNull();
+    assertThat(connectionLimit.getMaxConnections()).isOne();
+  }
+
+  //  @Override
+  protected String startedLogMessage() {
+    return ((JettyWebServer) this.webServer).getStartedLogMessage();
   }
 
 }

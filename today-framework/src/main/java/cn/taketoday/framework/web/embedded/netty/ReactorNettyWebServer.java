@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -123,7 +123,11 @@ public class ReactorNettyWebServer implements WebServer {
     StringBuilder message = new StringBuilder();
     tryAppend(message, "port %s", server::port);
     tryAppend(message, "path %s", server::path);
-    return message.length() > 0 ? " on " + message : "";
+    return (message.length() > 0) ? "Netty started on " + message : "Netty started";
+  }
+
+  protected String getStartedLogMessage() {
+    return getStartedOnMessage(this.disposableServer);
   }
 
   private void tryAppend(StringBuilder message, String format, Supplier<Object> supplier) {
