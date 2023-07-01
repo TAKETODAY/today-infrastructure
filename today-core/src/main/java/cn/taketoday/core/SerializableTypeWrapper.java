@@ -29,7 +29,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -171,22 +170,24 @@ final class SerializableTypeWrapper {
    */
   record TypeProxyInvocationHandler(TypeProvider provider) implements InvocationHandler, Serializable {
 
+    @Nullable
     @Override
     public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
       switch (method.getName()) {
-        case "equals":
+        case "equals" -> {
           Object other = args[0];
           // Unwrap proxies for speed
           if (other instanceof Type) {
             other = unwrap((Type) other);
           }
           return Objects.equals(provider.getType(), other);
-        case "hashCode":
+        }
+        case "hashCode" -> {
           return Objects.hashCode(provider.getType());
-        case "getTypeProvider":
+        }
+        case "getTypeProvider" -> {
           return provider;
-        default:
-          break;
+        }
       }
 
       if (ObjectUtils.isEmpty(args)) {
@@ -195,19 +196,19 @@ final class SerializableTypeWrapper {
           return fromTypeProvider(new MethodInvokeTypeProvider(provider, method, -1));
         }
         else if (Type[].class == returnType) {
-          Type[] result = new Type[((Type[]) method.invoke(provider.getType())).length];
+          Object returnValue = ReflectionUtils.invokeMethod(method, this.provider.getType());
+          if (returnValue == null) {
+            return null;
+          }
+
+          Type[] result = new Type[((Type[]) returnValue).length];
           for (int i = 0; i < result.length; i++) {
             result[i] = fromTypeProvider(new MethodInvokeTypeProvider(provider, method, i));
           }
           return result;
         }
       }
-      try {
-        return method.invoke(provider.getType(), args);
-      }
-      catch (InvocationTargetException ex) {
-        throw ex.getTargetException();
-      }
+      return ReflectionUtils.invokeMethod(method, provider.getType(), args);
     }
   }
 
