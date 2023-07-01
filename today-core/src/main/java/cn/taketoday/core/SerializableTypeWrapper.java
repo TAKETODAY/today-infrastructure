@@ -45,9 +45,10 @@ import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Internal utility class that can be used to obtain wrapped {@link Serializable}
- * variants of {@link Type java.lang.reflect.Types}.
+ * variants of {@link java.lang.reflect.Type java.lang.reflect.Types}.
  *
- * <p>{@link #fromField(Field) Fields can be used as the root source for a serializable type.
+ * <p>{@link #forField(Field) Fields} or {@link #forMethodParameter(MethodParameter)
+ * MethodParameters} can be used as the root source for a serializable type.
  * Alternatively, a regular {@link Class} can also be used as source.
  *
  * <p>The returned type will either be a {@link Class} or a serializable proxy of
@@ -59,7 +60,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Phillip Webb
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
 final class SerializableTypeWrapper {
@@ -75,8 +76,18 @@ final class SerializableTypeWrapper {
   /**
    * Return a {@link Serializable} variant of {@link Field#getGenericType()}.
    */
-  public static Type fromField(Field field) {
-    return fromTypeProvider(new FieldTypeProvider(field));
+  @Nullable
+  public static Type forField(Field field) {
+    return forTypeProvider(new FieldTypeProvider(field));
+  }
+
+  /**
+   * Return a {@link Serializable} variant of
+   * {@link MethodParameter#getGenericParameterType()}.
+   */
+  @Nullable
+  public static Type forMethodParameter(MethodParameter methodParameter) {
+    return forTypeProvider(new MethodParameterTypeProvider(methodParameter));
   }
 
   /**
@@ -100,7 +111,7 @@ final class SerializableTypeWrapper {
    * environment, this delegate will simply return the original {@code Type} as-is.
    */
   @Nullable
-  static Type fromTypeProvider(TypeProvider provider) {
+  static Type forTypeProvider(TypeProvider provider) {
     Type providedType = provider.getType();
     if (providedType == null || providedType instanceof Serializable) {
       // No serializable type wrapping necessary (e.g. for java.lang.Class)
@@ -193,7 +204,7 @@ final class SerializableTypeWrapper {
       if (ObjectUtils.isEmpty(args)) {
         Class<?> returnType = method.getReturnType();
         if (Type.class == returnType) {
-          return fromTypeProvider(new MethodInvokeTypeProvider(provider, method, -1));
+          return forTypeProvider(new MethodInvokeTypeProvider(provider, method, -1));
         }
         else if (Type[].class == returnType) {
           Object returnValue = ReflectionUtils.invokeMethod(method, this.provider.getType());
@@ -203,7 +214,7 @@ final class SerializableTypeWrapper {
 
           Type[] result = new Type[((Type[]) returnValue).length];
           for (int i = 0; i < result.length; i++) {
-            result[i] = fromTypeProvider(new MethodInvokeTypeProvider(provider, method, i));
+            result[i] = forTypeProvider(new MethodInvokeTypeProvider(provider, method, i));
           }
           return result;
         }

@@ -1634,7 +1634,7 @@ public class ResolvableType implements Serializable {
           @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
 
     if (type == null && typeProvider != null) {
-      type = SerializableTypeWrapper.fromTypeProvider(typeProvider);
+      type = SerializableTypeWrapper.forTypeProvider(typeProvider);
     }
     if (type == null) {
       return NONE;
