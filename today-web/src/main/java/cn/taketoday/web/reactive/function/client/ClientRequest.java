@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.reactive.ClientHttpRequest;
@@ -253,7 +253,7 @@ public interface ClientRequest {
      * @param <P> the type of the {@code Publisher}
      * @return the built request
      */
-    <S, P extends Publisher<S>> Builder body(P publisher, TypeReference<S> typeReference);
+    <S, P extends Publisher<S>> Builder body(P publisher, ParameterizedTypeReference<S> typeReference);
 
     /**
      * Set the attribute with the given name to the given value.

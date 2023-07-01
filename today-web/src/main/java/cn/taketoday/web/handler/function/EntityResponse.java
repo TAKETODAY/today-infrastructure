@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -72,7 +72,7 @@ public interface EntityResponse<T> extends ServerResponse {
    * @param <T> the type of element contained in the entity
    * @return the created builder
    */
-  static <T> Builder<T> fromObject(T t, TypeReference<T> entityType) {
+  static <T> Builder<T> fromObject(T t, ParameterizedTypeReference<T> entityType) {
     return new DefaultEntityResponseBuilder<>(t, entityType.getType());
   }
 

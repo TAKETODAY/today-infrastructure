@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.service.invoker;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
@@ -45,7 +45,7 @@ class TestHttpClientAdapter implements HttpClientAdapter {
   private HttpRequestValues requestValues;
 
   @Nullable
-  private TypeReference<?> bodyType;
+  private ParameterizedTypeReference<?> bodyType;
 
   public String getInvokedMethodName() {
     assertThat(this.invokedMethodName).isNotNull();
@@ -58,7 +58,7 @@ class TestHttpClientAdapter implements HttpClientAdapter {
   }
 
   @Nullable
-  public TypeReference<?> getBodyType() {
+  public ParameterizedTypeReference<?> getBodyType() {
     return this.bodyType;
   }
 
@@ -77,13 +77,13 @@ class TestHttpClientAdapter implements HttpClientAdapter {
   }
 
   @Override
-  public <T> Mono<T> requestToBody(HttpRequestValues requestValues, TypeReference<T> bodyType) {
+  public <T> Mono<T> requestToBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     saveInput("requestToBody", requestValues, bodyType);
     return (Mono<T>) Mono.just(getInvokedMethodName());
   }
 
   @Override
-  public <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, TypeReference<T> bodyType) {
+  public <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     saveInput("requestToBodyFlux", requestValues, bodyType);
     return (Flux<T>) Flux.just("request", "To", "Body", "Flux");
   }
@@ -96,7 +96,7 @@ class TestHttpClientAdapter implements HttpClientAdapter {
 
   @Override
   public <T> Mono<ResponseEntity<T>> requestToEntity(
-          HttpRequestValues requestValues, TypeReference<T> type) {
+          HttpRequestValues requestValues, ParameterizedTypeReference<T> type) {
 
     saveInput("requestToEntity", requestValues, type);
     return Mono.just((ResponseEntity<T>) ResponseEntity.ok("requestToEntity"));
@@ -104,14 +104,14 @@ class TestHttpClientAdapter implements HttpClientAdapter {
 
   @Override
   public <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(
-          HttpRequestValues requestValues, TypeReference<T> bodyType) {
+          HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
 
     saveInput("requestToEntityFlux", requestValues, bodyType);
     return Mono.just(ResponseEntity.ok((Flux<T>) Flux.just("request", "To", "Entity", "Flux")));
   }
 
   private <T> void saveInput(
-          String methodName, HttpRequestValues requestValues, @Nullable TypeReference<T> bodyType) {
+          String methodName, HttpRequestValues requestValues, @Nullable ParameterizedTypeReference<T> bodyType) {
 
     this.invokedMethodName = methodName;
     this.requestValues = requestValues;

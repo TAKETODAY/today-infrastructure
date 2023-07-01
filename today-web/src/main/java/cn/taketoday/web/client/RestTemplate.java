@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -579,7 +579,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   @Override
   public <T> ResponseEntity<T> exchange(
           String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          TypeReference<T> responseType, Object... uriVariables) throws RestClientException {
+          ParameterizedTypeReference<T> responseType, Object... uriVariables) throws RestClientException {
 
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
@@ -590,7 +590,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   @Override
   public <T> ResponseEntity<T> exchange(
           String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          TypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
+          ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException {
 
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
@@ -600,7 +600,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   @Override
   public <T> ResponseEntity<T> exchange(
-          URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity, TypeReference<T> responseType) throws RestClientException {
+          URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity, ParameterizedTypeReference<T> responseType) throws RestClientException {
 
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(requestEntity, type);
@@ -618,7 +618,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
   @Override
   public <T> ResponseEntity<T> exchange(
-          RequestEntity<?> entity, TypeReference<T> responseType) throws RestClientException {
+          RequestEntity<?> entity, ParameterizedTypeReference<T> responseType) throws RestClientException {
     Type type = responseType.getType();
     RequestCallback requestCallback = httpEntityCallback(entity, type);
     ResponseExtractor<ResponseEntity<T>> responseExtractor = responseEntityExtractor(type);

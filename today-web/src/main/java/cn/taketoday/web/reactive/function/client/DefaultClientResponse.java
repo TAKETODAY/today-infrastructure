@@ -30,7 +30,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.Decoder;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -156,7 +156,7 @@ class DefaultClientResponse implements ClientResponse {
   }
 
   @Override
-  public <T> Mono<T> bodyToMono(TypeReference<T> elementTypeRef) {
+  public <T> Mono<T> bodyToMono(ParameterizedTypeReference<T> elementTypeRef) {
     return body(BodyExtractors.toMono(elementTypeRef));
   }
 
@@ -168,7 +168,7 @@ class DefaultClientResponse implements ClientResponse {
   }
 
   @Override
-  public <T> Flux<T> bodyToFlux(TypeReference<T> elementTypeRef) {
+  public <T> Flux<T> bodyToFlux(ParameterizedTypeReference<T> elementTypeRef) {
     return body(BodyExtractors.toFlux(elementTypeRef));
   }
 
@@ -188,7 +188,7 @@ class DefaultClientResponse implements ClientResponse {
   }
 
   @Override
-  public <T> Mono<ResponseEntity<T>> toEntity(TypeReference<T> bodyTypeReference) {
+  public <T> Mono<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyTypeReference) {
     return WebClientUtils.mapToEntity(this, bodyToMono(bodyTypeReference));
   }
 
@@ -198,7 +198,7 @@ class DefaultClientResponse implements ClientResponse {
   }
 
   @Override
-  public <T> Mono<ResponseEntity<List<T>>> toEntityList(TypeReference<T> elementTypeRef) {
+  public <T> Mono<ResponseEntity<List<T>>> toEntityList(ParameterizedTypeReference<T> elementTypeRef) {
     return WebClientUtils.mapToEntityList(this, bodyToFlux(elementTypeRef));
   }
 

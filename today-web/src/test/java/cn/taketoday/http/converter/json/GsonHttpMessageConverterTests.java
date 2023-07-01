@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
@@ -209,7 +209,7 @@ public class GsonHttpMessageConverterTests {
   @Test
   @SuppressWarnings("unchecked")
   public void readAndWriteParameterizedType() throws Exception {
-    TypeReference<List<MyBean>> beansList = new TypeReference<List<MyBean>>() {
+    ParameterizedTypeReference<List<MyBean>> beansList = new ParameterizedTypeReference<List<MyBean>>() {
     };
 
     String body = "[{\"bytes\":[1,2],\"array\":[\"Foo\",\"Bar\"]," +
@@ -236,8 +236,8 @@ public class GsonHttpMessageConverterTests {
   @Test
   @SuppressWarnings("unchecked")
   public void writeParameterizedBaseType() throws Exception {
-    TypeReference<List<MyBean>> beansList = new TypeReference<List<MyBean>>() { };
-    TypeReference<List<MyBase>> baseList = new TypeReference<List<MyBase>>() { };
+    ParameterizedTypeReference<List<MyBean>> beansList = new ParameterizedTypeReference<List<MyBean>>() { };
+    ParameterizedTypeReference<List<MyBase>> baseList = new ParameterizedTypeReference<List<MyBase>>() { };
 
     String body = "[{\"bytes\":[1,2],\"array\":[\"Foo\",\"Bar\"]," +
             "\"number\":42,\"string\":\"Foo\",\"bool\":true,\"fraction\":42.0}]";

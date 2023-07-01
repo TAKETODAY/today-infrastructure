@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
@@ -604,7 +604,7 @@ public interface WebTestClient {
      * @return spec for further declaration of the request
      */
     <T, S extends Publisher<T>> RequestHeadersSpec<?> body(
-            S publisher, TypeReference<T> elementTypeRef);
+            S publisher, ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Set the body from the given producer. This method invokes the
@@ -621,7 +621,7 @@ public interface WebTestClient {
 
     /**
      * Set the body from the given producer. This method invokes the
-     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(Object, TypeReference)
+     * {@link cn.taketoday.web.reactive.function.client.WebClient.RequestBodySpec#body(Object, ParameterizedTypeReference)
      * body(Object, TypeReference)} method on the underlying {@code WebClient}.
      *
      * @param producer the producer to write to the request. This must be a
@@ -630,7 +630,7 @@ public interface WebTestClient {
      * @param elementTypeRef the type reference of elements contained in the producer
      * @return spec for further declaration of the request
      */
-    RequestHeadersSpec<?> body(Object producer, TypeReference<?> elementTypeRef);
+    RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef);
 
     /**
      * Set the body of the request to the given {@code BodyInserter}.
@@ -720,7 +720,7 @@ public interface WebTestClient {
      * Alternative to {@link #expectBody(Class)} that accepts information
      * about a target type with generics.
      */
-    <B> BodySpec<B, ?> expectBody(TypeReference<B> bodyType);
+    <B> BodySpec<B, ?> expectBody(ParameterizedTypeReference<B> bodyType);
 
     /**
      * Consume and decode the response body to {@code List<E>} and then apply
@@ -734,7 +734,7 @@ public interface WebTestClient {
      * Alternative to {@link #expectBodyList(Class)} that accepts information
      * about a target type with generics.
      */
-    <E> ListBodySpec<E> expectBodyList(TypeReference<E> elementType);
+    <E> ListBodySpec<E> expectBodyList(ParameterizedTypeReference<E> elementType);
 
     /**
      * Consume and decode the response body to {@code byte[]} and then apply
@@ -756,7 +756,7 @@ public interface WebTestClient {
      * Alternative to {@link #returnResult(Class)} that accepts information
      * about a target type with generics.
      */
-    <T> FluxExchangeResult<T> returnResult(TypeReference<T> elementTypeRef);
+    <T> FluxExchangeResult<T> returnResult(ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * {@link Consumer} of a {@link ResponseSpec}.

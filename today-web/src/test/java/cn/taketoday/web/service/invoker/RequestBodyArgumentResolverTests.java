@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.service.annotation.GetExchange;
 import io.reactivex.rxjava3.core.Completable;
@@ -69,7 +69,7 @@ public class RequestBodyArgumentResolverTests {
 
     assertThat(getRequestValues().getBodyValue()).isNull();
     assertThat(getRequestValues().getBody()).isSameAs(bodyMono);
-    assertThat(getRequestValues().getBodyElementType()).isEqualTo(new TypeReference<String>() { });
+    assertThat(getRequestValues().getBodyElementType()).isEqualTo(new ParameterizedTypeReference<String>() { });
   }
 
   @Test
@@ -79,7 +79,7 @@ public class RequestBodyArgumentResolverTests {
     this.service.executeSingle(Single.just(bodyValue));
 
     assertThat(getRequestValues().getBodyValue()).isNull();
-    assertThat(getRequestValues().getBodyElementType()).isEqualTo(new TypeReference<String>() { });
+    assertThat(getRequestValues().getBodyElementType()).isEqualTo(new ParameterizedTypeReference<String>() { });
 
     Publisher<?> body = getRequestValues().getBody();
     assertThat(body).isNotNull();

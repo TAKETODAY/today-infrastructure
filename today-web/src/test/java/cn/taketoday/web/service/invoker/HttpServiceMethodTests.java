@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HttpServiceMethodTests {
 
-  private static final TypeReference<String> BODY_TYPE = new TypeReference<>() { };
+  private static final ParameterizedTypeReference<String> BODY_TYPE = new ParameterizedTypeReference<>() { };
 
   private final TestHttpClientAdapter client = new TestHttpClientAdapter();
 
@@ -199,7 +199,7 @@ public class HttpServiceMethodTests {
     assertThat(requestValues.getHeaders().getAccept()).containsExactly(MediaType.APPLICATION_JSON);
   }
 
-  private void verifyClientInvocation(String methodName, @Nullable TypeReference<?> expectedBodyType) {
+  private void verifyClientInvocation(String methodName, @Nullable ParameterizedTypeReference<?> expectedBodyType) {
     assertThat(this.client.getInvokedMethodName()).isEqualTo(methodName);
     assertThat(this.client.getBodyType()).isEqualTo(expectedBodyType);
   }

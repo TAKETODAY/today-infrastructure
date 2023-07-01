@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
@@ -60,7 +60,7 @@ public class MultipartBodyBuilderTests {
 
     Publisher<String> publisher = Flux.just("foo", "bar", "baz");
     builder.asyncPart("publisherClass", publisher, String.class).header("baz", "qux");
-    builder.asyncPart("publisherPtr", publisher, new TypeReference<String>() { }).header("baz", "qux");
+    builder.asyncPart("publisherPtr", publisher, new ParameterizedTypeReference<String>() { }).header("baz", "qux");
 
     MultiValueMap<String, HttpEntity<?>> result = builder.build();
 

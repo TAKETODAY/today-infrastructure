@@ -38,7 +38,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
@@ -342,7 +342,7 @@ class DefaultWebClient implements WebClient {
 
     @Override
     public <T, P extends Publisher<T>> RequestHeadersSpec<?> body(
-            P publisher, TypeReference<T> elementTypeRef) {
+            P publisher, ParameterizedTypeReference<T> elementTypeRef) {
       this.inserter = BodyInserters.fromPublisher(publisher, elementTypeRef);
       return this;
     }
@@ -360,7 +360,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public RequestHeadersSpec<?> body(Object producer, TypeReference<?> elementTypeRef) {
+    public RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef) {
       this.inserter = BodyInserters.fromProducer(producer, elementTypeRef);
       return this;
     }
@@ -542,7 +542,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public <T> Mono<T> bodyToMono(TypeReference<T> elementTypeRef) {
+    public <T> Mono<T> bodyToMono(ParameterizedTypeReference<T> elementTypeRef) {
       Assert.notNull(elementTypeRef, "TypeReference must not be null");
       return this.responseMono.flatMap(response ->
               handleBodyMono(response, response.bodyToMono(elementTypeRef)));
@@ -556,7 +556,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public <T> Flux<T> bodyToFlux(TypeReference<T> elementTypeRef) {
+    public <T> Flux<T> bodyToFlux(ParameterizedTypeReference<T> elementTypeRef) {
       Assert.notNull(elementTypeRef, "TypeReference must not be null");
       return this.responseMono.flatMapMany(response ->
               handleBodyFlux(response, response.bodyToFlux(elementTypeRef)));
@@ -570,7 +570,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public <T> Mono<ResponseEntity<T>> toEntity(TypeReference<T> bodyTypeRef) {
+    public <T> Mono<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyTypeRef) {
       return this.responseMono.flatMap(response ->
               WebClientUtils.mapToEntity(response,
                       handleBodyMono(response, response.bodyToMono(bodyTypeRef))));
@@ -584,7 +584,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public <T> Mono<ResponseEntity<List<T>>> toEntityList(TypeReference<T> elementTypeRef) {
+    public <T> Mono<ResponseEntity<List<T>>> toEntityList(ParameterizedTypeReference<T> elementTypeRef) {
       return this.responseMono.flatMap(response ->
               WebClientUtils.mapToEntityList(response,
                       handleBodyFlux(response, response.bodyToFlux(elementTypeRef))));
@@ -597,7 +597,7 @@ class DefaultWebClient implements WebClient {
     }
 
     @Override
-    public <T> Mono<ResponseEntity<Flux<T>>> toEntityFlux(TypeReference<T> elementTypeRef) {
+    public <T> Mono<ResponseEntity<Flux<T>>> toEntityFlux(ParameterizedTypeReference<T> elementTypeRef) {
       return this.responseMono.flatMap(response ->
               handlerEntityFlux(response, response.bodyToFlux(elementTypeRef)));
     }

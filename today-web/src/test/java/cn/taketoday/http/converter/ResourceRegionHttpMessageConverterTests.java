@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,8 +21,6 @@
 package cn.taketoday.http.converter;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Type;
@@ -31,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -71,13 +69,13 @@ public class ResourceRegionHttpMessageConverterTests {
 
   @Test
   public void canWriteResourceCollection() {
-    Type resourceRegionList = new TypeReference<List<ResourceRegion>>() { }.getType();
+    Type resourceRegionList = new ParameterizedTypeReference<List<ResourceRegion>>() { }.getType();
     assertThat(converter.canWrite(resourceRegionList, null, MediaType.APPLICATION_OCTET_STREAM)).isTrue();
     assertThat(converter.canWrite(resourceRegionList, null, MediaType.ALL)).isTrue();
 
     assertThat(converter.canWrite(List.class, MediaType.APPLICATION_OCTET_STREAM)).isFalse();
     assertThat(converter.canWrite(List.class, MediaType.ALL)).isFalse();
-    Type resourceObjectList = new TypeReference<List<Object>>() { }.getType();
+    Type resourceObjectList = new ParameterizedTypeReference<List<Object>>() { }.getType();
     assertThat(converter.canWrite(resourceObjectList, null, MediaType.ALL)).isFalse();
   }
 

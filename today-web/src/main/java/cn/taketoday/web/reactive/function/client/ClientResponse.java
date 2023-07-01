@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,7 +27,7 @@ import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
@@ -111,7 +111,7 @@ public interface ClientResponse {
    * @param <T> the element type
    * @return a mono containing the body of the given type {@code T}
    */
-  <T> Mono<T> bodyToMono(TypeReference<T> elementTypeRef);
+  <T> Mono<T> bodyToMono(ParameterizedTypeReference<T> elementTypeRef);
 
   /**
    * Extract the body to a {@code Flux}.
@@ -129,7 +129,7 @@ public interface ClientResponse {
    * @param <T> the element type
    * @return a flux containing the body of the given type {@code T}
    */
-  <T> Flux<T> bodyToFlux(TypeReference<T> elementTypeRef);
+  <T> Flux<T> bodyToFlux(ParameterizedTypeReference<T> elementTypeRef);
 
   /**
    * Release the body of this response.
@@ -155,7 +155,7 @@ public interface ClientResponse {
    * @param <T> response body type
    * @return {@code Mono} with the {@code ResponseEntity}
    */
-  <T> Mono<ResponseEntity<T>> toEntity(TypeReference<T> bodyTypeReference);
+  <T> Mono<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyTypeReference);
 
   /**
    * Return this response as a delayed list of {@code ResponseEntity}s.
@@ -173,7 +173,7 @@ public interface ClientResponse {
    * @param <T> the type of elements in the list
    * @return {@code Mono} with the list of {@code ResponseEntity}s
    */
-  <T> Mono<ResponseEntity<List<T>>> toEntityList(TypeReference<T> elementTypeRef);
+  <T> Mono<ResponseEntity<List<T>>> toEntityList(ParameterizedTypeReference<T> elementTypeRef);
 
   /**
    * Return this response as a delayed {@code ResponseEntity} containing

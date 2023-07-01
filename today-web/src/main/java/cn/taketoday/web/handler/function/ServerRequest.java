@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -140,7 +140,7 @@ public interface ServerRequest {
    * @param <T> the body type
    * @return the body
    */
-  <T> T body(TypeReference<T> bodyType) throws IOException;
+  <T> T body(ParameterizedTypeReference<T> bodyType) throws IOException;
 
   /**
    * Get the request attribute value if present.

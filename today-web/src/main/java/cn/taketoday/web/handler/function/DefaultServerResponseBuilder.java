@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -183,7 +183,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public <T> ServerResponse body(T body, TypeReference<T> bodyType) {
+  public <T> ServerResponse body(T body, ParameterizedTypeReference<T> bodyType) {
     return new DefaultEntityResponseBuilder<>(body, bodyType.getType())
             .status(this.statusCode)
             .headers(headers -> headers.putAll(this.headers))

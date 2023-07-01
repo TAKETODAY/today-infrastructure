@@ -28,7 +28,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.CharSequenceEncoder;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
@@ -207,7 +207,7 @@ public class DefaultClientRequestBuilderTests {
   public void bodyTypeReference() {
     String body = "foo";
     Publisher<String> publisher = Mono.just(body);
-    TypeReference<String> typeReference = new TypeReference<>() { };
+    ParameterizedTypeReference<String> typeReference = new ParameterizedTypeReference<>() { };
     ClientRequest result = ClientRequest.create(POST, DEFAULT_URL).body(publisher, typeReference).build();
 
     List<HttpMessageWriter<?>> messageWriters = new ArrayList<>();

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,6 +23,7 @@ package cn.taketoday.http.converter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.lang.Nullable;
@@ -37,7 +38,7 @@ import cn.taketoday.http.MediaType;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sebastien Deleuze
- * @see cn.taketoday.core.TypeReference
+ * @see ParameterizedTypeReference
  * @since 4.0
  */
 public interface GenericHttpMessageConverter<T> extends HttpMessageConverter<T> {

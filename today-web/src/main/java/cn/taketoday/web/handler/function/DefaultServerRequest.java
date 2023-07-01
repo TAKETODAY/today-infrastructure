@@ -42,7 +42,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -159,7 +159,7 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public <T> T body(TypeReference<T> bodyType) throws IOException {
+  public <T> T body(ParameterizedTypeReference<T> bodyType) throws IOException {
     Type type = bodyType.getType();
     return bodyInternal(type, bodyClass(type));
   }

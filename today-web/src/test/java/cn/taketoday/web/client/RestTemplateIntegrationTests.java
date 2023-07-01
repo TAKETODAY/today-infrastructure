@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
@@ -229,7 +229,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   @ParameterizedRestTemplateTest
   void patchForObject(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     assumeFalse(clientHttpRequestFactory instanceof SimpleClientHttpRequestFactory,
-            "JDK client does not support the PATCH method");
+            "HttpURLConnection does not support the PATCH method");
 
     setUpClient(clientHttpRequestFactory);
 
@@ -258,6 +258,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
                     template.execute(baseUrl + "/status/badrequest", HttpMethod.GET, null, null))
             .satisfies(ex -> {
               assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+              assumeFalse(clientHttpRequestFactory instanceof JdkClientHttpRequestFactory, "JDK HttpClient does not expose status text");
               assertThat(ex.getMessage()).isEqualTo("400 Client Error: [no body]");
             });
   }
@@ -381,7 +382,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
-  void jsonPostForObject(ClientHttpRequestFactory clientHttpRequestFactory) {
+  void jsonPostForObject(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
     HttpHeaders entityHeaders = HttpHeaders.create();
@@ -430,7 +431,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     List<ParentClass> list = new ArrayList<>();
     list.add(new Foo("foo"));
     list.add(new Bar("bar"));
-    TypeReference<?> typeReference = new TypeReference<List<ParentClass>>() { };
+    ParameterizedTypeReference<?> typeReference = new ParameterizedTypeReference<List<ParentClass>>() { };
     RequestEntity<List<ParentClass>> entity = RequestEntity
             .post(URI.create(baseUrl + "/jsonpost"))
             .contentType(new MediaType("application", "json", StandardCharsets.UTF_8))

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.ByteArrayDecoder;
 import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -169,7 +169,7 @@ public class DefaultClientResponseTests {
     given(mockExchangeStrategies.messageReaders()).willReturn(messageReaders);
 
     Mono<String> resultMono =
-            defaultClientResponse.bodyToMono(new TypeReference<String>() {
+            defaultClientResponse.bodyToMono(new ParameterizedTypeReference<String>() {
             });
     assertThat(resultMono.block()).isEqualTo("foo");
   }
@@ -202,7 +202,7 @@ public class DefaultClientResponseTests {
     given(mockExchangeStrategies.messageReaders()).willReturn(messageReaders);
 
     Flux<String> resultFlux =
-            defaultClientResponse.bodyToFlux(new TypeReference<String>() {
+            defaultClientResponse.bodyToFlux(new ParameterizedTypeReference<String>() {
             });
     Mono<List<String>> result = resultFlux.collectList();
     assertThat(result.block()).isEqualTo(Collections.singletonList("foo"));
@@ -261,7 +261,7 @@ public class DefaultClientResponseTests {
     given(mockExchangeStrategies.messageReaders()).willReturn(messageReaders);
 
     ResponseEntity<String> result = defaultClientResponse.toEntity(
-            new TypeReference<String>() {
+            new ParameterizedTypeReference<String>() {
             }).block();
     assertThat(result.getBody()).isEqualTo("foo");
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -323,7 +323,7 @@ public class DefaultClientResponseTests {
     given(mockExchangeStrategies.messageReaders()).willReturn(messageReaders);
 
     ResponseEntity<List<String>> result = defaultClientResponse.toEntityList(
-            new TypeReference<String>() { }).block();
+            new ParameterizedTypeReference<String>() { }).block();
     assertThat(result.getBody()).isEqualTo(Collections.singletonList("foo"));
     assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(result.getStatusCodeValue()).isEqualTo(HttpStatus.OK.value());

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,7 +30,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpStatus;
@@ -168,7 +168,7 @@ class HttpMessageConverterExtractorTests {
   void generics() throws IOException {
     responseHeaders.setContentType(contentType);
     String expected = "Foo";
-    TypeReference<List<String>> reference = new TypeReference<List<String>>() { };
+    ParameterizedTypeReference<List<String>> reference = new ParameterizedTypeReference<List<String>>() { };
     Type type = reference.getType();
 
     GenericHttpMessageConverter<String> converter = mock(GenericHttpMessageConverter.class);

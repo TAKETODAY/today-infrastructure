@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -43,7 +43,7 @@ import java.util.UUID;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
@@ -95,7 +95,7 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
   //
 
   @SuppressWarnings("unchecked")
-  public <T> TypeHandler<T> getTypeHandler(TypeReference<T> javaTypeReference) {
+  public <T> TypeHandler<T> getTypeHandler(ParameterizedTypeReference<T> javaTypeReference) {
     ResolvableType resolvableType = javaTypeReference.getResolvableType();
     Class<T> aClass = (Class<T>) resolvableType.toClass();
     return getTypeHandler(aClass);
@@ -212,7 +212,7 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
       }
     }
     // try to auto-discover the mapped type
-    if (!mappedTypeFound && typeHandler instanceof TypeReference typeReference) {
+    if (!mappedTypeFound && typeHandler instanceof ParameterizedTypeReference typeReference) {
       try {
         register(typeReference, typeHandler);
         mappedTypeFound = true;
@@ -230,7 +230,7 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     typeHandlers.put(javaType, typeHandler);
   }
 
-  public <T> void register(TypeReference<T> reference, TypeHandler<T> handler) {
+  public <T> void register(ParameterizedTypeReference<T> reference, TypeHandler<T> handler) {
     ResolvableType resolvableType = reference.getResolvableType();
     Class<?> aClass = resolvableType.toClass();
     register(aClass, handler);

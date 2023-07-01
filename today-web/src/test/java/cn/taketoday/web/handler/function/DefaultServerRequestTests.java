@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -294,7 +294,7 @@ class DefaultServerRequestTests {
     DefaultServerRequest request = new DefaultServerRequest(context,
             Collections.singletonList(new MappingJackson2HttpMessageConverter()));
 
-    List<String> result = request.body(new TypeReference<List<String>>() { });
+    List<String> result = request.body(new ParameterizedTypeReference<List<String>>() { });
     assertThat(result.size()).isEqualTo(2);
     assertThat(result.get(0)).isEqualTo("foo");
     assertThat(result.get(1)).isEqualTo("bar");

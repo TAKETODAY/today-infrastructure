@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -318,7 +318,7 @@ class DefaultWebTestClient implements WebTestClient {
 
     @Override
     public <T, P extends Publisher<T>> RequestHeadersSpec<?> body(
-            P publisher, TypeReference<T> elementTypeRef) {
+            P publisher, ParameterizedTypeReference<T> elementTypeRef) {
       this.inserter = BodyInserters.fromPublisher(publisher, elementTypeRef);
       return this;
     }
@@ -336,7 +336,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public RequestHeadersSpec<?> body(Object producer, TypeReference<?> elementTypeRef) {
+    public RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef) {
       this.inserter = BodyInserters.fromProducer(producer, elementTypeRef);
       return this;
     }
@@ -443,7 +443,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public <B> BodySpec<B, ?> expectBody(TypeReference<B> bodyType) {
+    public <B> BodySpec<B, ?> expectBody(ParameterizedTypeReference<B> bodyType) {
       B body = this.response.bodyToMono(bodyType).block(this.timeout);
       EntityExchangeResult<B> entityResult = initEntityExchangeResult(body);
       return new DefaultBodySpec<>(entityResult);
@@ -455,7 +455,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public <E> ListBodySpec<E> expectBodyList(TypeReference<E> elementType) {
+    public <E> ListBodySpec<E> expectBodyList(ParameterizedTypeReference<E> elementType) {
       Flux<E> flux = this.response.bodyToFlux(elementType);
       return getListBodySpec(flux);
     }
@@ -494,7 +494,7 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
-    public <T> FluxExchangeResult<T> returnResult(TypeReference<T> elementTypeRef) {
+    public <T> FluxExchangeResult<T> returnResult(ParameterizedTypeReference<T> elementTypeRef) {
       Flux<T> body = this.response.bodyToFlux(elementTypeRef);
       return new FluxExchangeResult<>(this.exchangeResult, body);
     }

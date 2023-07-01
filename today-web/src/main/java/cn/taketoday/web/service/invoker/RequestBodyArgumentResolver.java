@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import org.reactivestreams.Publisher;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.annotation.RequestBody;
@@ -78,7 +78,7 @@ public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver 
     parameter = parameter.nested();
     Class<?> elementClass = parameter.getNestedParameterType();
     Assert.isTrue(elementClass != Void.class, message);
-    TypeReference<E> typeRef = TypeReference.fromType(parameter.getNestedGenericParameterType());
+    ParameterizedTypeReference<E> typeRef = ParameterizedTypeReference.forType(parameter.getNestedGenericParameterType());
     Publisher<E> publisher = reactiveAdapter.toPublisher(argument);
 
     requestValues.setBody(publisher, typeRef);

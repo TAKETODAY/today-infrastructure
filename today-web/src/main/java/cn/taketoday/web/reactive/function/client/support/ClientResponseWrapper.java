@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
@@ -107,7 +107,7 @@ public class ClientResponseWrapper implements ClientResponse {
   }
 
   @Override
-  public <T> Mono<T> bodyToMono(TypeReference<T> elementTypeRef) {
+  public <T> Mono<T> bodyToMono(ParameterizedTypeReference<T> elementTypeRef) {
     return this.delegate.bodyToMono(elementTypeRef);
   }
 
@@ -117,7 +117,7 @@ public class ClientResponseWrapper implements ClientResponse {
   }
 
   @Override
-  public <T> Flux<T> bodyToFlux(TypeReference<T> elementTypeRef) {
+  public <T> Flux<T> bodyToFlux(ParameterizedTypeReference<T> elementTypeRef) {
     return this.delegate.bodyToFlux(elementTypeRef);
   }
 
@@ -137,7 +137,7 @@ public class ClientResponseWrapper implements ClientResponse {
   }
 
   @Override
-  public <T> Mono<ResponseEntity<T>> toEntity(TypeReference<T> bodyTypeReference) {
+  public <T> Mono<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyTypeReference) {
     return this.delegate.toEntity(bodyTypeReference);
   }
 
@@ -147,7 +147,7 @@ public class ClientResponseWrapper implements ClientResponse {
   }
 
   @Override
-  public <T> Mono<ResponseEntity<List<T>>> toEntityList(TypeReference<T> elementTypeRef) {
+  public <T> Mono<ResponseEntity<List<T>>> toEntityList(ParameterizedTypeReference<T> elementTypeRef) {
     return this.delegate.toEntityList(elementTypeRef);
   }
 

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.http.HttpHeaders;
@@ -321,14 +321,14 @@ final class HttpServiceMethod {
 
       if (reactiveAdapter == null) {
         return request -> client.requestToEntity(
-                request, TypeReference.fromType(methodParam.getNestedGenericParameterType()));
+                request, ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType()));
       }
 
       Assert.isTrue(reactiveAdapter.isMultiValue(),
               "ResponseEntity body must be a concrete value or a multi-value Publisher");
 
-      TypeReference<?> bodyType =
-              TypeReference.fromType(methodParam.nested().getNestedGenericParameterType());
+      ParameterizedTypeReference<?> bodyType =
+              ParameterizedTypeReference.forType(methodParam.nested().getNestedGenericParameterType());
 
       // Shortcut for Flux
       if (reactiveAdapter.getReactiveType().equals(Flux.class)) {
@@ -345,8 +345,8 @@ final class HttpServiceMethod {
     private static Function<HttpRequestValues, Publisher<?>> initBodyFunction(
             HttpClientAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
 
-      TypeReference<?> bodyType =
-              TypeReference.fromType(methodParam.getNestedGenericParameterType());
+      ParameterizedTypeReference<?> bodyType =
+              ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType());
 
       return reactiveAdapter != null && reactiveAdapter.isMultiValue()
              ? request -> client.requestToBodyFlux(request, bodyType)

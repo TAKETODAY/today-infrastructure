@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -308,7 +308,7 @@ class DefaultServerResponseBuilderTests {
     List<String> body = new ArrayList<>();
     body.add("foo");
     body.add("bar");
-    ServerResponse response = ServerResponse.ok().body(body, new TypeReference<List<String>>() { });
+    ServerResponse response = ServerResponse.ok().body(body, new ParameterizedTypeReference<List<String>>() { });
 
     MockHttpServletRequest mockRequest = new MockHttpServletRequest("GET", "https://example.com");
     MockHttpServletResponse mockResponse = new MockHttpServletResponse();

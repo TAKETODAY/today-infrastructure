@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -61,7 +61,7 @@ class DefaultEntityResponseBuilderTests {
   @Test
   void fromObjectTypeReference() {
     String body = "foo";
-    var response = EntityResponse.fromObject(body, new TypeReference<String>() { })
+    var response = EntityResponse.fromObject(body, new ParameterizedTypeReference<String>() { })
             .build();
 
     assertThat(response.entity()).isSameAs(body);

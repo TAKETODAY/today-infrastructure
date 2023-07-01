@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -791,7 +791,7 @@ public class TestRestTemplate {
   /**
    * Execute the HTTP method to the given URI template, writing the given request entity
    * to the request, and returns the response as {@link ResponseEntity}. The given
-   * {@link TypeReference} is used to pass generic type information:
+   * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
@@ -807,17 +807,17 @@ public class TestRestTemplate {
    * @return the response as entity
    * @see RestTemplate#exchange(String, cn.taketoday.http.HttpMethod,
    * cn.taketoday.http.HttpEntity,
-   * cn.taketoday.core.TypeReference, Object[])
+   * ParameterizedTypeReference, Object[])
    */
   public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
-          TypeReference<T> responseType, Object... urlVariables) {
+          ParameterizedTypeReference<T> responseType, Object... urlVariables) {
     return this.restTemplate.exchange(url, method, requestEntity, responseType, urlVariables);
   }
 
   /**
    * Execute the HTTP method to the given URI template, writing the given request entity
    * to the request, and returns the response as {@link ResponseEntity}. The given
-   * {@link TypeReference} is used to pass generic type information:
+   * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
@@ -833,17 +833,17 @@ public class TestRestTemplate {
    * @return the response as entity
    * @see RestTemplate#exchange(String, cn.taketoday.http.HttpMethod,
    * cn.taketoday.http.HttpEntity,
-   * cn.taketoday.core.TypeReference, Map)
+   * ParameterizedTypeReference, Map)
    */
   public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity,
-          TypeReference<T> responseType, Map<String, ?> urlVariables) {
+          ParameterizedTypeReference<T> responseType, Map<String, ?> urlVariables) {
     return this.restTemplate.exchange(url, method, requestEntity, responseType, urlVariables);
   }
 
   /**
    * Execute the HTTP method to the given URI template, writing the given request entity
    * to the request, and returns the response as {@link ResponseEntity}. The given
-   * {@link TypeReference} is used to pass generic type information:
+   * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean = new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
    * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response = template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
@@ -858,10 +858,10 @@ public class TestRestTemplate {
    * @return the response as entity
    * @see RestTemplate#exchange(URI, cn.taketoday.http.HttpMethod,
    * cn.taketoday.http.HttpEntity,
-   * cn.taketoday.core.TypeReference)
+   * ParameterizedTypeReference)
    */
   public <T> ResponseEntity<T> exchange(URI url, HttpMethod method, HttpEntity<?> requestEntity,
-          TypeReference<T> responseType) {
+          ParameterizedTypeReference<T> responseType) {
     return this.restTemplate.exchange(applyRootUriIfNecessary(url), method, requestEntity, responseType);
   }
 
@@ -886,7 +886,7 @@ public class TestRestTemplate {
 
   /**
    * Execute the request specified in the given {@link RequestEntity} and return the
-   * response as {@link ResponseEntity}. The given {@link TypeReference} is
+   * response as {@link ResponseEntity}. The given {@link ParameterizedTypeReference} is
    * used to pass generic type information: <pre class="code">
    * MyRequest body = ...
    * RequestEntity request = RequestEntity.post(new URI(&quot;https://example.com/foo&quot;)).accept(MediaType.APPLICATION_JSON).body(body);
@@ -899,9 +899,9 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return the response as entity
    * @see RestTemplate#exchange(cn.taketoday.http.RequestEntity,
-   * cn.taketoday.core.TypeReference)
+   * ParameterizedTypeReference)
    */
-  public <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, TypeReference<T> responseType) {
+  public <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType) {
     return this.restTemplate.exchange(createRequestEntityWithRootAppliedUri(requestEntity), responseType);
   }
 

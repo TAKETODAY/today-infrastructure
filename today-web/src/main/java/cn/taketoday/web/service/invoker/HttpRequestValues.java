@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
@@ -81,13 +81,13 @@ public final class HttpRequestValues {
   private final Publisher<?> body;
 
   @Nullable
-  private final TypeReference<?> bodyElementType;
+  private final ParameterizedTypeReference<?> bodyElementType;
 
   private HttpRequestValues(@Nullable HttpMethod httpMethod,
           @Nullable URI uri, @Nullable String uriTemplate, Map<String, String> uriVariables,
           HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
           @Nullable Object bodyValue,
-          @Nullable Publisher<?> body, @Nullable TypeReference<?> bodyElementType) {
+          @Nullable Publisher<?> body, @Nullable ParameterizedTypeReference<?> bodyElementType) {
 
     Assert.isTrue(uri != null || uriTemplate != null, "Neither URI nor URI template");
 
@@ -184,7 +184,7 @@ public final class HttpRequestValues {
    * Return the element type for a {@linkplain #getBody() Publisher body}.
    */
   @Nullable
-  public TypeReference<?> getBodyElementType() {
+  public ParameterizedTypeReference<?> getBodyElementType() {
     return this.bodyElementType;
   }
 
@@ -231,7 +231,7 @@ public final class HttpRequestValues {
     private Publisher<?> body;
 
     @Nullable
-    private TypeReference<?> bodyElementType;
+    private ParameterizedTypeReference<?> bodyElementType;
 
     /**
      * Set the HTTP method for the request.
@@ -343,7 +343,7 @@ public final class HttpRequestValues {
      */
     public <T, P extends Publisher<T>> Builder addRequestPart(String name, P publisher, ResolvableType type) {
       this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
-      this.multipartBuilder.asyncPart(name, publisher, TypeReference.fromType(type.getType()));
+      this.multipartBuilder.asyncPart(name, publisher, ParameterizedTypeReference.forType(type.getType()));
       return this;
     }
 
@@ -362,7 +362,7 @@ public final class HttpRequestValues {
     /**
      * Set the request body as a concrete value to be serialized.
      * <p>This is mutually exclusive with, and resets any previously set
-     * {@linkplain #setBody(Publisher, TypeReference) body Publisher}.
+     * {@linkplain #setBody(Publisher, ParameterizedTypeReference) body Publisher}.
      */
     public void setBodyValue(Object bodyValue) {
       this.bodyValue = bodyValue;
@@ -375,7 +375,7 @@ public final class HttpRequestValues {
      * <p>This is mutually exclusive with, and resets any previously set
      * {@linkplain #setBodyValue(Object) body value}.
      */
-    public <T, P extends Publisher<T>> void setBody(P body, TypeReference<T> elementTye) {
+    public <T, P extends Publisher<T>> void setBody(P body, ParameterizedTypeReference<T> elementTye) {
       this.body = body;
       this.bodyElementType = elementTye;
       this.bodyValue = null;

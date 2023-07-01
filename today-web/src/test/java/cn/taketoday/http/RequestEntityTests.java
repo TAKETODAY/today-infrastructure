@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -175,7 +175,7 @@ class RequestEntityTests {
   void types() throws URISyntaxException {
     URI url = new URI("https://example.com");
     List<String> body = Arrays.asList("foo", "bar");
-    TypeReference<?> typeReference = new TypeReference<List<String>>() { };
+    ParameterizedTypeReference<?> typeReference = new ParameterizedTypeReference<List<String>>() { };
 
     RequestEntity<?> entity = RequestEntity.post(url).body(body, typeReference.getType());
     assertThat(entity.getType()).isEqualTo(typeReference.getType());

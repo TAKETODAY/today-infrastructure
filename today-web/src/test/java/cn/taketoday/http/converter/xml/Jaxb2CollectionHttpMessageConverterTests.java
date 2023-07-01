@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,7 +31,7 @@ import java.util.Set;
 
 import javax.xml.stream.XMLInputFactory;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.MockHttpInputMessage;
@@ -66,10 +66,10 @@ public class Jaxb2CollectionHttpMessageConverterTests {
   @BeforeEach
   public void setup() {
     converter = new Jaxb2CollectionHttpMessageConverter<Collection<Object>>();
-    rootElementListType = new TypeReference<List<RootElement>>() { }.getType();
-    rootElementSetType = new TypeReference<Set<RootElement>>() { }.getType();
-    typeListType = new TypeReference<List<TestType>>() { }.getType();
-    typeSetType = new TypeReference<Set<TestType>>() { }.getType();
+    rootElementListType = new ParameterizedTypeReference<List<RootElement>>() { }.getType();
+    rootElementSetType = new ParameterizedTypeReference<Set<RootElement>>() { }.getType();
+    typeListType = new ParameterizedTypeReference<List<TestType>>() { }.getType();
+    typeSetType = new ParameterizedTypeReference<Set<TestType>>() { }.getType();
   }
 
   @Test

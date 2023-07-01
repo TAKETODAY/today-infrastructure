@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.NamedThreadLocal;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
@@ -495,11 +495,11 @@ public class DefaultWebClientTests {
     WebClient.ResponseSpec spec = this.builder.build().get().uri("/path").retrieve();
 
     testStatusHandlerForToEntity(spec.toEntity(String.class));
-    testStatusHandlerForToEntity(spec.toEntity(new TypeReference<String>() { }));
+    testStatusHandlerForToEntity(spec.toEntity(new ParameterizedTypeReference<String>() { }));
     testStatusHandlerForToEntity(spec.toEntityList(String.class));
-    testStatusHandlerForToEntity(spec.toEntityList(new TypeReference<String>() { }));
+    testStatusHandlerForToEntity(spec.toEntityList(new ParameterizedTypeReference<String>() { }));
     testStatusHandlerForToEntity(spec.toEntityFlux(String.class));
-    testStatusHandlerForToEntity(spec.toEntityFlux(new TypeReference<String>() { }));
+    testStatusHandlerForToEntity(spec.toEntityFlux(new ParameterizedTypeReference<String>() { }));
     testStatusHandlerForToEntity(spec.toEntityFlux(BodyExtractors.toFlux(String.class)));
   }
 

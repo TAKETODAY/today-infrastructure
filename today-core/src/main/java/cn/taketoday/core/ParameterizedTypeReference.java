@@ -38,10 +38,10 @@ import cn.taketoday.lang.Assert;
  * @author TODAY 2021/1/6 22:11
  * @since 3.0
  */
-public abstract class TypeReference<T> {
+public abstract class ParameterizedTypeReference<T> {
   private final Type type;
 
-  protected TypeReference() {
+  protected ParameterizedTypeReference() {
     Class<?> typeReferenceSubclass = findTypeReferenceSubclass(getClass());
     Type type = typeReferenceSubclass.getGenericSuperclass();
     Assert.isInstanceOf(ParameterizedType.class, type, "Type must be a parameterized type");
@@ -51,7 +51,7 @@ public abstract class TypeReference<T> {
     this.type = actualTypeArguments[0];
   }
 
-  private TypeReference(Type type) {
+  private ParameterizedTypeReference(Type type) {
     this.type = type;
   }
 
@@ -66,7 +66,7 @@ public abstract class TypeReference<T> {
   @Override
   public boolean equals(Object other) {
     return (this == other
-            || (other instanceof TypeReference && this.type.equals(((TypeReference<?>) other).type)));
+            || (other instanceof ParameterizedTypeReference && this.type.equals(((ParameterizedTypeReference<?>) other).type)));
   }
 
   @Override
@@ -76,7 +76,7 @@ public abstract class TypeReference<T> {
 
   @Override
   public String toString() {
-    return "TypeReference<" + this.type + ">";
+    return "ParameterizedTypeReference<" + this.type + ">";
   }
 
   /**
@@ -87,8 +87,8 @@ public abstract class TypeReference<T> {
    * @return a corresponding reference which may be passed into
    * {@code TypeReference}-accepting methods
    */
-  public static <T> TypeReference<T> fromType(Type type) {
-    return new TypeReference<T>(type) { };
+  public static <T> ParameterizedTypeReference<T> forType(Type type) {
+    return new ParameterizedTypeReference<T>(type) { };
   }
 
   private static Class<?> findTypeReferenceSubclass(Class<?> child) {
@@ -96,7 +96,7 @@ public abstract class TypeReference<T> {
     if (Object.class == parent) {
       throw new IllegalStateException("Expected TypeReference superclass");
     }
-    else if (TypeReference.class == parent) {
+    else if (ParameterizedTypeReference.class == parent) {
       return child;
     }
     else {

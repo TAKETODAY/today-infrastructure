@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -75,7 +75,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T> {
 
   private static final Type RESOURCE_REGION_LIST_TYPE =
-          new TypeReference<List<ResourceRegion>>() { }.getType();
+          new ParameterizedTypeReference<List<ResourceRegion>>() { }.getType();
 
   private final T entity;
 

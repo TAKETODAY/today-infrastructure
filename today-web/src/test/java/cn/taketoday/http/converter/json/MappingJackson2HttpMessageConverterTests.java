@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
@@ -289,7 +289,7 @@ public class MappingJackson2HttpMessageConverterTests {
   @Test
   @SuppressWarnings("unchecked")
   public void readAndWriteParameterizedType() throws Exception {
-    TypeReference<List<MyBean>> beansList = new TypeReference<List<MyBean>>() { };
+    ParameterizedTypeReference<List<MyBean>> beansList = new ParameterizedTypeReference<List<MyBean>>() { };
 
     String body = "[{" +
             "\"bytes\":\"AQI=\"," +
@@ -320,8 +320,8 @@ public class MappingJackson2HttpMessageConverterTests {
   @Test
   @SuppressWarnings("unchecked")
   public void writeParameterizedBaseType() throws Exception {
-    TypeReference<List<MyBean>> beansList = new TypeReference<List<MyBean>>() { };
-    TypeReference<List<MyBase>> baseList = new TypeReference<List<MyBase>>() { };
+    ParameterizedTypeReference<List<MyBean>> beansList = new ParameterizedTypeReference<List<MyBean>>() { };
+    ParameterizedTypeReference<List<MyBase>> baseList = new ParameterizedTypeReference<List<MyBase>>() { };
 
     String body = "[{" +
             "\"bytes\":\"AQI=\"," +
@@ -352,7 +352,7 @@ public class MappingJackson2HttpMessageConverterTests {
   // gh-24498
   @Test
   public void writeOptional() throws IOException {
-    TypeReference<Optional<MyParent>> optionalParent = new TypeReference<>() { };
+    ParameterizedTypeReference<Optional<MyParent>> optionalParent = new ParameterizedTypeReference<>() { };
     Optional<MyParent> result = Optional.of(new Impl1());
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     converter.write(result, optionalParent.getType(), MediaType.APPLICATION_JSON, outputMessage);
@@ -487,8 +487,8 @@ public class MappingJackson2HttpMessageConverterTests {
     bar.setString("Bar");
     bar.setNumber(123);
     beans.add(bar);
-    TypeReference<List<MyInterface>> typeReference =
-            new TypeReference<List<MyInterface>>() { };
+    ParameterizedTypeReference<List<MyInterface>> typeReference =
+            new ParameterizedTypeReference<List<MyInterface>>() { };
 
     this.converter.writeInternal(beans, typeReference.getType(), outputMessage);
 

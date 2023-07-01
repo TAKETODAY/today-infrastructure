@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.ByteBufferDecoder;
 import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -138,7 +138,7 @@ public class BodyExtractorsTests {
   @Test
   public void toMonoTypeReference() {
     BodyExtractor<Mono<Map<String, String>>, ReactiveHttpInputMessage> extractor =
-            BodyExtractors.toMono(new TypeReference<Map<String, String>>() { });
+            BodyExtractors.toMono(new ParameterizedTypeReference<Map<String, String>>() { });
 
     byte[] bytes = "{\"username\":\"foo\",\"password\":\"bar\"}".getBytes(StandardCharsets.UTF_8);
     DefaultDataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(ByteBuffer.wrap(bytes));
@@ -183,7 +183,7 @@ public class BodyExtractorsTests {
   @Test  // SPR-15758
   public void toMonoWithEmptyBodyAndNoContentType() {
     BodyExtractor<Mono<Map<String, String>>, ReactiveHttpInputMessage> extractor =
-            BodyExtractors.toMono(new TypeReference<Map<String, String>>() { });
+            BodyExtractors.toMono(new ParameterizedTypeReference<Map<String, String>>() { });
 
     MockServerHttpRequest request = MockServerHttpRequest.post("/").body(Flux.empty());
     Mono<Map<String, String>> result = extractor.extract(request, this.context);

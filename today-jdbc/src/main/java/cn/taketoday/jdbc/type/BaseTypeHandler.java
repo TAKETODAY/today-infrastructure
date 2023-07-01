@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -41,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY
  */
 public abstract class BaseTypeHandler<T>
-        extends TypeReference<T> implements TypeHandler<T> {
+        extends ParameterizedTypeReference<T> implements TypeHandler<T> {
 
   @Override
   public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {

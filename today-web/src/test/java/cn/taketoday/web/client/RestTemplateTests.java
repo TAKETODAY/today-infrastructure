@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
@@ -656,7 +656,7 @@ class RestTemplateTests {
   void exchangeParameterizedType() throws Exception {
     GenericHttpMessageConverter converter = mock(GenericHttpMessageConverter.class);
     template.setMessageConverters(Collections.<HttpMessageConverter<?>>singletonList(converter));
-    TypeReference<List<Integer>> intList = new TypeReference<List<Integer>>() { };
+    ParameterizedTypeReference<List<Integer>> intList = new ParameterizedTypeReference<List<Integer>>() { };
     given(converter.canRead(intList.getType(), null, null)).willReturn(true);
     given(converter.getSupportedMediaTypes(any())).willReturn(Collections.singletonList(MediaType.TEXT_PLAIN));
     given(converter.canWrite(String.class, String.class, null)).willReturn(true);

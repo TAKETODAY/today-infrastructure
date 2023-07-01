@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.CodecException;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -263,7 +263,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeNonUtf8Encoding() {
     Mono<DataBuffer> input = stringBuffer("{\"foo\":\"bar\"}", StandardCharsets.UTF_16);
-    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new ParameterizedTypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
                     .assertNext(value -> Assertions.assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
@@ -276,7 +276,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeNonUnicode() {
     Flux<DataBuffer> input = Flux.concat(stringBuffer("{\"føø\":\"bår\"}", StandardCharsets.ISO_8859_1));
-    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new ParameterizedTypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
                     .assertNext(o -> Assertions.assertThat((Map<String, String>) o).containsEntry("føø", "bår"))
@@ -289,7 +289,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeMonoNonUtf8Encoding() {
     Mono<DataBuffer> input = stringBuffer("{\"foo\":\"bar\"}", StandardCharsets.UTF_16);
-    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new ParameterizedTypeReference<Map<String, String>>() { });
 
     testDecodeToMono(input, type, step -> step
                     .assertNext(value -> Assertions.assertThat((Map<String, String>) value).containsEntry("foo", "bar"))
@@ -302,7 +302,7 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
   @SuppressWarnings("unchecked")
   public void decodeAscii() {
     Flux<DataBuffer> input = Flux.concat(stringBuffer("{\"foo\":\"bar\"}", StandardCharsets.US_ASCII));
-    ResolvableType type = ResolvableType.forType(new TypeReference<Map<String, String>>() { });
+    ResolvableType type = ResolvableType.forType(new ParameterizedTypeReference<Map<String, String>>() { });
 
     testDecode(input, type, step -> step
                     .assertNext(value -> Assertions.assertThat((Map<String, String>) value).containsEntry("foo", "bar"))

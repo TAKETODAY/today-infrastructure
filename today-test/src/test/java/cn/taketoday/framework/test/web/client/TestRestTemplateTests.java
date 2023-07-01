@@ -23,7 +23,7 @@ package cn.taketoday.framework.test.web.client;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.framework.test.web.client.TestRestTemplate.CustomHttpComponentsClientHttpRequestFactory;
 import cn.taketoday.framework.test.web.client.TestRestTemplate.HttpClientOption;
 import cn.taketoday.http.HttpEntity;
@@ -281,7 +281,7 @@ class TestRestTemplateTests {
   @Test
   void exchangeWithRequestEntityAndParameterizedTypeReferenceHandlesRelativeUris() throws IOException {
     verifyRelativeUriHandling((testRestTemplate, relativeUri) -> testRestTemplate
-            .exchange(new RequestEntity<String>(HttpMethod.GET, relativeUri), new TypeReference<String>() {
+            .exchange(new RequestEntity<String>(HttpMethod.GET, relativeUri), new ParameterizedTypeReference<String>() {
             }));
   }
 
@@ -294,7 +294,7 @@ class TestRestTemplateTests {
   @Test
   void exchangeWithParameterizedTypeReferenceHandlesRelativeUris() throws IOException {
     verifyRelativeUriHandling((testRestTemplate, relativeUri) -> testRestTemplate.exchange(relativeUri,
-            HttpMethod.GET, new HttpEntity<>(new byte[0]), new TypeReference<String>() {
+            HttpMethod.GET, new HttpEntity<>(new byte[0]), new ParameterizedTypeReference<String>() {
             }));
   }
 

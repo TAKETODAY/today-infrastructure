@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -24,7 +24,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -562,7 +562,7 @@ public interface RestOperations {
   /**
    * Execute the HTTP method to the given URI template, writing the given
    * request entity to the request, and returns the response as {@link ResponseEntity}.
-   * The given {@link TypeReference} is used to pass generic type information:
+   * The given {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean =
    *     new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
@@ -581,12 +581,12 @@ public interface RestOperations {
    */
   <T> ResponseEntity<T> exchange(
           String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          TypeReference<T> responseType, Object... uriVariables) throws RestClientException;
+          ParameterizedTypeReference<T> responseType, Object... uriVariables) throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
    * request entity to the request, and returns the response as {@link ResponseEntity}.
-   * The given {@link TypeReference} is used to pass generic type information:
+   * The given {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean =
    *     new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
@@ -605,12 +605,12 @@ public interface RestOperations {
    */
   <T> ResponseEntity<T> exchange(
           String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          TypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
+          ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
    * request entity to the request, and returns the response as {@link ResponseEntity}.
-   * The given {@link TypeReference} is used to pass generic type information:
+   * The given {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean =
    *     new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
@@ -627,7 +627,7 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-                                 TypeReference<T> responseType) throws RestClientException;
+                                 ParameterizedTypeReference<T> responseType) throws RestClientException;
 
   /**
    * Execute the request specified in the given {@link RequestEntity} and return
@@ -652,7 +652,7 @@ public interface RestOperations {
   /**
    * Execute the request specified in the given {@link RequestEntity} and return
    * the response as {@link ResponseEntity}. The given
-   * {@link TypeReference} is used to pass generic type information:
+   * {@link ParameterizedTypeReference} is used to pass generic type information:
    * <pre class="code">
    * MyRequest body = ...
    * RequestEntity request = RequestEntity
@@ -668,7 +668,7 @@ public interface RestOperations {
    * @param responseType the type to convert the response to, or {@code Void.class} for no body
    * @return the response as entity
    */
-  <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, TypeReference<T> responseType)
+  <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType)
           throws RestClientException;
 
   // General execution

@@ -35,7 +35,7 @@ import java.util.Set;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -96,7 +96,7 @@ public abstract class AbstractMessageConverterMethodProcessor
   private static final Set<String> SAFE_MEDIA_BASE_TYPES = Set.of("audio", "image", "video");
   private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES = List.of(MediaType.ALL, new MediaType("application"));
   private static final Type RESOURCE_REGION_LIST_TYPE =
-          new TypeReference<List<ResourceRegion>>() { }.getType();
+          new ParameterizedTypeReference<List<ResourceRegion>>() { }.getType();
 
   private final ContentNegotiationManager contentNegotiationManager;
 

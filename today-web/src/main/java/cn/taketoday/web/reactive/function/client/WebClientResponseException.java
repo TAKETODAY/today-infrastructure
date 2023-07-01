@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
@@ -215,10 +215,10 @@ public class WebClientResponseException extends WebClientException {
 
   /**
    * Variant of {@link #getResponseBodyAs(Class)} with
-   * {@link TypeReference}.
+   * {@link ParameterizedTypeReference}.
    */
   @Nullable
-  public <E> E getResponseBodyAs(TypeReference<E> targetType) {
+  public <E> E getResponseBodyAs(ParameterizedTypeReference<E> targetType) {
     return getResponseBodyAs(ResolvableType.forType(targetType.getType()));
   }
 

@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
@@ -127,7 +127,7 @@ class WebClientDataBufferAllocatingTests extends AbstractDataBufferAllocatingTes
     Mono<Map<String, String>> mono = this.webClient.get()
             .uri("/sample").accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .bodyToMono(new TypeReference<Map<String, String>>() { });
+            .bodyToMono(new ParameterizedTypeReference<Map<String, String>>() { });
 
     StepVerifier.create(mono).expectError(WebClientResponseException.class).verify(Duration.ofSeconds(3));
     Assertions.assertThat(this.server.getRequestCount()).isEqualTo(1);

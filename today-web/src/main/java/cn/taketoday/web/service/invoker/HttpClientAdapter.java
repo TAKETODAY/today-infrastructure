@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.service.invoker;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
 import reactor.core.publisher.Flux;
@@ -62,7 +62,7 @@ public interface HttpClientAdapter {
    * @param <T> the type the response is decoded to
    * @return {@code Mono} that returns the decoded response.
    */
-  <T> Mono<T> requestToBody(HttpRequestValues requestValues, TypeReference<T> bodyType);
+  <T> Mono<T> requestToBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
   /**
    * Perform the given request and decode the response content to a stream with
@@ -73,7 +73,7 @@ public interface HttpClientAdapter {
    * @param <T> the type the response is decoded to
    * @return {@code Flux} with decoded stream elements.
    */
-  <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, TypeReference<T> bodyType);
+  <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
   /**
    * Variant of {@link #requestToVoid(HttpRequestValues)} with additional
@@ -82,15 +82,15 @@ public interface HttpClientAdapter {
   Mono<ResponseEntity<Void>> requestToBodilessEntity(HttpRequestValues requestValues);
 
   /**
-   * Variant of {@link #requestToBody(HttpRequestValues, TypeReference)}
+   * Variant of {@link #requestToBody(HttpRequestValues, ParameterizedTypeReference)}
    * with additional access to the response status and headers.
    */
-  <T> Mono<ResponseEntity<T>> requestToEntity(HttpRequestValues requestValues, TypeReference<T> bodyType);
+  <T> Mono<ResponseEntity<T>> requestToEntity(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
   /**
-   * Variant of {@link #requestToBodyFlux(HttpRequestValues, TypeReference)}
+   * Variant of {@link #requestToBodyFlux(HttpRequestValues, ParameterizedTypeReference)}
    * with additional access to the response status and headers.
    */
-  <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(HttpRequestValues requestValues, TypeReference<T> bodyType);
+  <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
 }

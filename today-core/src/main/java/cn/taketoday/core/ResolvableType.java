@@ -1598,14 +1598,14 @@ public class ResolvableType implements Serializable {
   }
 
   /**
-   * Return a {@link ResolvableType} for the specified {@link TypeReference}.
+   * Return a {@link ResolvableType} for the specified {@link ParameterizedTypeReference}.
    * <p>Note: The resulting {@link ResolvableType} instance may not be {@link Serializable}.
    *
    * @param typeReference the reference to obtain the source type from
-   * @return a {@link ResolvableType} for the specified {@link TypeReference}
+   * @return a {@link ResolvableType} for the specified {@link ParameterizedTypeReference}
    * @see #forType(Type)
    */
-  public static ResolvableType forType(TypeReference<?> typeReference) {
+  public static ResolvableType forType(ParameterizedTypeReference<?> typeReference) {
     return forType(typeReference.getType(), null, null);
   }
 

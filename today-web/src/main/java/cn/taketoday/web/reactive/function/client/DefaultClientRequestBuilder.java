@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -138,7 +138,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   @Override
   public <S, P extends Publisher<S>> ClientRequest.Builder body(
-          P publisher, TypeReference<S> typeReference) {
+          P publisher, ParameterizedTypeReference<S> typeReference) {
 
     this.body = BodyInserters.fromPublisher(publisher, typeReference);
     return this;

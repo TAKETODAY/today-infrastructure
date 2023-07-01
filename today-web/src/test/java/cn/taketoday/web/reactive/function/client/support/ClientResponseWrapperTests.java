@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.ResponseCookie;
@@ -115,7 +115,7 @@ public class ClientResponseWrapperTests {
   @Test
   public void bodyToMonoTypeReference() {
     Mono<String> result = Mono.just("foo");
-    TypeReference<String> reference = new TypeReference<>() { };
+    ParameterizedTypeReference<String> reference = new ParameterizedTypeReference<>() { };
     given(mockResponse.bodyToMono(reference)).willReturn(result);
 
     assertThat(wrapper.bodyToMono(reference)).isSameAs(result);
@@ -132,7 +132,7 @@ public class ClientResponseWrapperTests {
   @Test
   public void bodyToFluxTypeReference() {
     Flux<String> result = Flux.just("foo");
-    TypeReference<String> reference = new TypeReference<>() { };
+    ParameterizedTypeReference<String> reference = new ParameterizedTypeReference<>() { };
     given(mockResponse.bodyToFlux(reference)).willReturn(result);
 
     assertThat(wrapper.bodyToFlux(reference)).isSameAs(result);
@@ -149,7 +149,7 @@ public class ClientResponseWrapperTests {
   @Test
   public void toEntityTypeReference() {
     Mono<ResponseEntity<String>> result = Mono.just(new ResponseEntity<>("foo", HttpStatus.OK));
-    TypeReference<String> reference = new TypeReference<>() { };
+    ParameterizedTypeReference<String> reference = new ParameterizedTypeReference<>() { };
     given(mockResponse.toEntity(reference)).willReturn(result);
 
     assertThat(wrapper.toEntity(reference)).isSameAs(result);
@@ -166,7 +166,7 @@ public class ClientResponseWrapperTests {
   @Test
   public void toEntityListTypeReference() {
     Mono<ResponseEntity<List<String>>> result = Mono.just(new ResponseEntity<>(singletonList("foo"), HttpStatus.OK));
-    TypeReference<String> reference = new TypeReference<>() { };
+    ParameterizedTypeReference<String> reference = new ParameterizedTypeReference<>() { };
     given(mockResponse.toEntityList(reference)).willReturn(result);
 
     assertThat(wrapper.toEntityList(reference)).isSameAs(result);

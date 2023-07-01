@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpEntity;
@@ -141,7 +141,7 @@ public abstract class BodyInserters {
    * @return the inserter to write a producer
    */
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(
-          T producer, TypeReference<?> elementTypeRef) {
+          T producer, ParameterizedTypeReference<?> elementTypeRef) {
 
     Assert.notNull(producer, "'producer' must not be null");
     Assert.notNull(elementTypeRef, "'elementTypeRef' must not be null");
@@ -185,7 +185,7 @@ public abstract class BodyInserters {
    * @return the inserter to write a {@code Publisher}
    */
   public static <T, P extends Publisher<T>> BodyInserter<P, ReactiveHttpOutputMessage> fromPublisher(
-          P publisher, TypeReference<T> elementTypeRef) {
+          P publisher, ParameterizedTypeReference<T> elementTypeRef) {
 
     Assert.notNull(publisher, "'publisher' must not be null");
     Assert.notNull(elementTypeRef, "'elementTypeRef' must not be null");
@@ -322,7 +322,7 @@ public abstract class BodyInserters {
 
   /**
    * Variant of {@link #fromMultipartAsyncData(String, Publisher, Class)} that
-   * accepts a {@link TypeReference} for the element type, which
+   * accepts a {@link ParameterizedTypeReference} for the element type, which
    * allows specifying generic type information.
    * <p>Note that you can also build the multipart data externally with
    * {@link MultipartBodyBuilder}, and pass the resulting map directly to the
@@ -334,7 +334,7 @@ public abstract class BodyInserters {
    * @return the inserter that allows adding more parts
    */
   public static <T, P extends Publisher<T>> MultipartInserter fromMultipartAsyncData(
-          String name, P publisher, TypeReference<T> typeReference) {
+          String name, P publisher, ParameterizedTypeReference<T> typeReference) {
 
     return new DefaultMultipartInserter().withPublisher(name, publisher, typeReference);
   }
@@ -463,7 +463,7 @@ public abstract class BodyInserters {
 
     /**
      * Variant of {@link #withPublisher(String, Publisher, Class)} that accepts a
-     * {@link TypeReference} for the element type, which allows
+     * {@link ParameterizedTypeReference} for the element type, which allows
      * specifying generic type information.
      *
      * @param name the key to be added
@@ -472,7 +472,7 @@ public abstract class BodyInserters {
      * @return this inserter for adding more parts
      */
     <T, P extends Publisher<T>> MultipartInserter withPublisher(String name, P publisher,
-            TypeReference<T> typeReference);
+            ParameterizedTypeReference<T> typeReference);
 
   }
 
@@ -536,7 +536,7 @@ public abstract class BodyInserters {
 
     @Override
     public <T, P extends Publisher<T>> MultipartInserter withPublisher(
-            String name, P publisher, TypeReference<T> typeReference) {
+            String name, P publisher, ParameterizedTypeReference<T> typeReference) {
 
       this.builder.asyncPart(name, publisher, typeReference);
       return this;

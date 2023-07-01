@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -543,7 +543,7 @@ public interface ServerResponse {
      * @param bodyType the type of the body, used to capture the generic type
      * @return the built response
      */
-    <T> ServerResponse body(T body, TypeReference<T> bodyType);
+    <T> ServerResponse body(T body, ParameterizedTypeReference<T> bodyType);
 
     /**
      * Render the template with the given {@code name} using the given {@code modelAttributes}.

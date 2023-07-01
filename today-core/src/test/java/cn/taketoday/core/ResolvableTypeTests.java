@@ -180,7 +180,7 @@ public class ResolvableTypeTests {
   @Test
   void resolveTypeVariableFromReflectiveTypeReference() throws Exception {
     Type sourceType = Methods.class.getMethod("typedReturn").getGenericReturnType();
-    ResolvableType type = ResolvableType.forType(TypeReference.fromType(sourceType));
+    ResolvableType type = ResolvableType.forType(ParameterizedTypeReference.forType(sourceType));
     assertThat(type.resolve()).isNull();
     assertThat(type.getType().toString()).isEqualTo("T");
   }
@@ -839,7 +839,7 @@ public class ResolvableTypeTests {
   void resolveTypeVariableFromDeclaredTypeReference() throws Exception {
     Type sourceType = Methods.class.getMethod("charSequenceReturn").getGenericReturnType();
     ResolvableType reflectiveType = ResolvableType.forType(sourceType);
-    ResolvableType declaredType = ResolvableType.forType(new TypeReference<List<CharSequence>>() { });
+    ResolvableType declaredType = ResolvableType.forType(new ParameterizedTypeReference<List<CharSequence>>() { });
     assertThat(declaredType).isEqualTo(reflectiveType);
   }
 

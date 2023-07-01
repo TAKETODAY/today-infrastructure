@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -49,7 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -200,7 +200,7 @@ class WebClientIntegrationTests {
     Mono<ValueContainer<Pojo>> result = this.webClient.get()
             .uri("/json").accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .bodyToMono(new TypeReference<ValueContainer<Pojo>>() { });
+            .bodyToMono(new ParameterizedTypeReference<ValueContainer<Pojo>>() { });
 
     StepVerifier.create(result)
             .assertNext(c -> assertThat(c.getContainerValue()).isEqualTo(new Pojo("foofoo", "barbar")))
@@ -776,7 +776,7 @@ class WebClientIntegrationTests {
             .uri("/greeting")
             .retrieve()
             .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.just(new MyException("500 error!")))
-            .bodyToMono(new TypeReference<String>() { });
+            .bodyToMono(new ParameterizedTypeReference<String>() { });
 
     StepVerifier.create(result)
             .expectError(MyException.class)

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,7 @@
 
 package cn.taketoday.web.reactive.function.client.support;
 
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseEntity;
@@ -64,12 +64,12 @@ public final class WebClientAdapter implements HttpClientAdapter {
   }
 
   @Override
-  public <T> Mono<T> requestToBody(HttpRequestValues requestValues, TypeReference<T> bodyType) {
+  public <T> Mono<T> requestToBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().bodyToMono(bodyType);
   }
 
   @Override
-  public <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, TypeReference<T> bodyType) {
+  public <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().bodyToFlux(bodyType);
   }
 
@@ -79,12 +79,12 @@ public final class WebClientAdapter implements HttpClientAdapter {
   }
 
   @Override
-  public <T> Mono<ResponseEntity<T>> requestToEntity(HttpRequestValues requestValues, TypeReference<T> bodyType) {
+  public <T> Mono<ResponseEntity<T>> requestToEntity(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().toEntity(bodyType);
   }
 
   @Override
-  public <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(HttpRequestValues requestValues, TypeReference<T> bodyType) {
+  public <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().toEntityFlux(bodyType);
   }
 

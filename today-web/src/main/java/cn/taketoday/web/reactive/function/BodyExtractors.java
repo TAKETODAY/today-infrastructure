@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.MediaType;
@@ -80,7 +80,7 @@ public abstract class BodyExtractors {
    * @param <T> the element type to decode to
    * @return {@code BodyExtractor} for {@code Mono<T>}
    */
-  public static <T> BodyExtractor<Mono<T>, ReactiveHttpInputMessage> toMono(TypeReference<T> elementTypeRef) {
+  public static <T> BodyExtractor<Mono<T>, ReactiveHttpInputMessage> toMono(ParameterizedTypeReference<T> elementTypeRef) {
     return toMono(ResolvableType.forType(elementTypeRef.getType()));
   }
 
@@ -110,7 +110,7 @@ public abstract class BodyExtractors {
    * @param <T> the element type to decode to
    * @return {@code BodyExtractor} for {@code Flux<T>}
    */
-  public static <T> BodyExtractor<Flux<T>, ReactiveHttpInputMessage> toFlux(TypeReference<T> typeRef) {
+  public static <T> BodyExtractor<Flux<T>, ReactiveHttpInputMessage> toFlux(ParameterizedTypeReference<T> typeRef) {
     return toFlux(ResolvableType.forType(typeRef.getType()));
   }
 

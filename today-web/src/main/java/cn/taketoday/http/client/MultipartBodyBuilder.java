@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ResolvableTypeProvider;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -190,7 +190,7 @@ public final class MultipartBodyBuilder {
 
   /**
    * Variant of {@link #asyncPart(String, Publisher, Class)} with a
-   * {@link TypeReference} for the element type information.
+   * {@link ParameterizedTypeReference} for the element type information.
    *
    * @param name the name of the part to add
    * @param publisher the part contents
@@ -198,7 +198,7 @@ public final class MultipartBodyBuilder {
    * @return builder that allows for further customization of part headers
    */
   public <T, P extends Publisher<T>> PartBuilder asyncPart(
-          String name, P publisher, TypeReference<T> typeReference) {
+          String name, P publisher, ParameterizedTypeReference<T> typeReference) {
 
     Assert.hasLength(name, "'name' must not be empty");
     Assert.notNull(publisher, "'publisher' is required");
@@ -327,7 +327,7 @@ public final class MultipartBodyBuilder {
     }
 
     public PublisherPartBuilder(
-            String name, @Nullable HttpHeaders headers, P body, TypeReference<S> typeRef) {
+            String name, @Nullable HttpHeaders headers, P body, ParameterizedTypeReference<S> typeRef) {
 
       super(name, headers, body);
       this.resolvableType = ResolvableType.forType(typeRef);

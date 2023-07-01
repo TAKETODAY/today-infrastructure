@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,7 +33,7 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.TypeReference;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
@@ -741,7 +741,7 @@ public interface WebClient {
      * @return this builder
      */
     <T, P extends Publisher<T>> RequestHeadersSpec<?> body(P publisher,
-            TypeReference<T> elementTypeRef);
+            ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Variant of {@link #body(Publisher, Class)} that allows using any
@@ -755,7 +755,7 @@ public interface WebClient {
     RequestHeadersSpec<?> body(Object producer, Class<?> elementClass);
 
     /**
-     * Variant of {@link #body(Publisher, TypeReference)} that
+     * Variant of {@link #body(Publisher, ParameterizedTypeReference)} that
      * allows using any producer that can be resolved to {@link Publisher}
      * via {@link ReactiveAdapterRegistry}.
      *
@@ -763,7 +763,7 @@ public interface WebClient {
      * @param elementTypeRef the type of elements produced
      * @return this builder
      */
-    RequestHeadersSpec<?> body(Object producer, TypeReference<?> elementTypeRef);
+    RequestHeadersSpec<?> body(Object producer, ParameterizedTypeReference<?> elementTypeRef);
 
     /**
      * Set the body of the request using the given body inserter.
@@ -836,13 +836,13 @@ public interface WebClient {
     <T> Mono<T> bodyToMono(Class<T> elementClass);
 
     /**
-     * Variant of {@link #bodyToMono(Class)} with a {@link TypeReference}.
+     * Variant of {@link #bodyToMono(Class)} with a {@link ParameterizedTypeReference}.
      *
      * @param elementTypeRef the type to decode to
      * @param <T> the target body type
      * @return the decoded body
      */
-    <T> Mono<T> bodyToMono(TypeReference<T> elementTypeRef);
+    <T> Mono<T> bodyToMono(ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Decode the body to a {@link Flux} with elements of the given type.
@@ -857,13 +857,13 @@ public interface WebClient {
     <T> Flux<T> bodyToFlux(Class<T> elementClass);
 
     /**
-     * Variant of {@link #bodyToMono(Class)} with a {@link TypeReference}.
+     * Variant of {@link #bodyToMono(Class)} with a {@link ParameterizedTypeReference}.
      *
      * @param elementTypeRef the type of element to decode to
      * @param <T> the body element type
      * @return the decoded body
      */
-    <T> Flux<T> bodyToFlux(TypeReference<T> elementTypeRef);
+    <T> Flux<T> bodyToFlux(ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Return a {@code ResponseEntity} with the body decoded to an Object of
@@ -878,13 +878,13 @@ public interface WebClient {
     <T> Mono<ResponseEntity<T>> toEntity(Class<T> bodyClass);
 
     /**
-     * Variant of {@link #bodyToMono(Class)} with a {@link TypeReference}.
+     * Variant of {@link #bodyToMono(Class)} with a {@link ParameterizedTypeReference}.
      *
      * @param bodyTypeReference the expected response body type
      * @param <T> the response body type
      * @return the {@code ResponseEntity} with the decoded body
      */
-    <T> Mono<ResponseEntity<T>> toEntity(TypeReference<T> bodyTypeReference);
+    <T> Mono<ResponseEntity<T>> toEntity(ParameterizedTypeReference<T> bodyTypeReference);
 
     /**
      * Return a {@code ResponseEntity} with the body decoded to a {@code List}
@@ -900,13 +900,13 @@ public interface WebClient {
     <T> Mono<ResponseEntity<List<T>>> toEntityList(Class<T> elementClass);
 
     /**
-     * Variant of {@link #toEntity(Class)} with a {@link TypeReference}.
+     * Variant of {@link #toEntity(Class)} with a {@link ParameterizedTypeReference}.
      *
      * @param elementTypeRef the type of element to decode the target Flux to
      * @param <T> the body element type
      * @return the {@code ResponseEntity}
      */
-    <T> Mono<ResponseEntity<List<T>>> toEntityList(TypeReference<T> elementTypeRef);
+    <T> Mono<ResponseEntity<List<T>>> toEntityList(ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Return a {@code ResponseEntity} with the body decoded to a {@code Flux}
@@ -924,13 +924,13 @@ public interface WebClient {
     <T> Mono<ResponseEntity<Flux<T>>> toEntityFlux(Class<T> elementType);
 
     /**
-     * Variant of {@link #toEntityFlux(Class)} with a {@link TypeReference}.
+     * Variant of {@link #toEntityFlux(Class)} with a {@link ParameterizedTypeReference}.
      *
      * @param elementTypeReference the type of element to decode the target Flux to
      * @param <T> the body element type
      * @return the {@code ResponseEntity}
      */
-    <T> Mono<ResponseEntity<Flux<T>>> toEntityFlux(TypeReference<T> elementTypeReference);
+    <T> Mono<ResponseEntity<Flux<T>>> toEntityFlux(ParameterizedTypeReference<T> elementTypeReference);
 
     /**
      * Variant of {@link #toEntityFlux(Class)} with a {@link BodyExtractor}.
