@@ -51,13 +51,16 @@ public class PemSslStoreBundle implements SslStoreBundle {
   @Nullable
   private final String keyAlias;
 
+  @Nullable
+  private final String keyPassword;
+
   /**
    * Create a new {@link PemSslStoreBundle} instance.
    *
    * @param keyStoreDetails the key store details
    * @param trustStoreDetails the trust store details
    */
-  public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails, @Nullable PemSslStoreDetails trustStoreDetails) {
+  public PemSslStoreBundle(PemSslStoreDetails keyStoreDetails, PemSslStoreDetails trustStoreDetails) {
     this(keyStoreDetails, trustStoreDetails, null);
   }
 
@@ -70,9 +73,24 @@ public class PemSslStoreBundle implements SslStoreBundle {
    */
   public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails,
           @Nullable PemSslStoreDetails trustStoreDetails, @Nullable String keyAlias) {
+    this(keyStoreDetails, trustStoreDetails, keyAlias, null);
+  }
+
+  /**
+   * Create a new {@link PemSslStoreBundle} instance.
+   *
+   * @param keyStoreDetails the key store details
+   * @param trustStoreDetails the trust store details
+   * @param keyAlias the key alias to use or {@code null} to use a default alias
+   * @param keyPassword the password to use for the key
+   */
+  public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails,
+          @Nullable PemSslStoreDetails trustStoreDetails, @Nullable String keyAlias,
+          @Nullable String keyPassword) {
     this.keyAlias = keyAlias;
     this.keyStoreDetails = keyStoreDetails;
     this.trustStoreDetails = trustStoreDetails;
+    this.keyPassword = keyPassword;
   }
 
   @Override
@@ -96,14 +114,14 @@ public class PemSslStoreBundle implements SslStoreBundle {
       return null;
     }
     try {
-      Assert.notNull(details.certificate(), "CertificateContent is required");
+      Assert.notNull(details.certificate(), "Certificate content must not be null");
       String type = (!StringUtils.hasText(details.type())) ? KeyStore.getDefaultType() : details.type();
       KeyStore store = KeyStore.getInstance(type);
       store.load(null);
       String certificateContent = PemContent.load(details.certificate());
       String privateKeyContent = PemContent.load(details.privateKey());
       X509Certificate[] certificates = PemCertificateParser.parse(certificateContent);
-      PrivateKey privateKey = PemPrivateKeyParser.parse(privateKeyContent);
+      PrivateKey privateKey = PemPrivateKeyParser.parse(privateKeyContent, details.privateKeyPassword());
       addCertificates(store, certificates, privateKey);
       return store;
     }
@@ -112,11 +130,12 @@ public class PemSslStoreBundle implements SslStoreBundle {
     }
   }
 
-  private void addCertificates(KeyStore keyStore,
-          @Nullable X509Certificate[] certificates, @Nullable PrivateKey privateKey) throws KeyStoreException {
+  private void addCertificates(KeyStore keyStore, @Nullable X509Certificate[] certificates,
+          @Nullable PrivateKey privateKey) throws KeyStoreException {
     String alias = (this.keyAlias != null) ? this.keyAlias : DEFAULT_KEY_ALIAS;
     if (privateKey != null) {
-      keyStore.setKeyEntry(alias, privateKey, null, certificates);
+      keyStore.setKeyEntry(alias, privateKey,
+              (this.keyPassword != null) ? this.keyPassword.toCharArray() : null, certificates);
     }
     else if (certificates != null) {
       for (int index = 0; index < certificates.length; index++) {

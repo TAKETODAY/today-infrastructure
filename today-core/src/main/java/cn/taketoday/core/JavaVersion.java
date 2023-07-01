@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -25,6 +25,8 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.Future;
 
 import cn.taketoday.util.ReflectionUtils;
 
@@ -46,7 +48,22 @@ public enum JavaVersion {
   /**
    * Java 18.
    */
-  EIGHTEEN("18", Duration.class, "isPositive");
+  EIGHTEEN("18", Duration.class, "isPositive"),
+
+  /**
+   * Java 19.
+   */
+  NINETEEN("19", Future.class, "state"),
+
+  /**
+   * Java 20.
+   */
+  TWENTY("20", Class.class, "accessFlags"),
+
+  /**
+   * Java 21.
+   */
+  TWENTY_ONE("21", SortedSet.class, "getFirst");
 
   private final String name;
 

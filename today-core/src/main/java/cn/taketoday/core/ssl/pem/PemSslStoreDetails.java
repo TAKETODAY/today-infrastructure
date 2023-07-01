@@ -35,13 +35,19 @@ import cn.taketoday.util.StringUtils;
  * that can be loaded by {@link ResourceUtils#getURL})
  * @param privateKey the private key content (either the PEM content itself or something
  * that can be loaded by {@link ResourceUtils#getURL})
+ * @param privateKeyPassword a password used to decrypt an encrypted private key
  * @author Scott Frederick
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public record PemSslStoreDetails(
-        @Nullable String type, @Nullable String certificate, @Nullable String privateKey) {
+        @Nullable String type, @Nullable String certificate,
+        @Nullable String privateKey, @Nullable String privateKeyPassword) {
+
+  public PemSslStoreDetails(@Nullable String type, @Nullable String certificate, @Nullable String privateKey) {
+    this(type, certificate, privateKey, null);
+  }
 
   /**
    * Return a new {@link PemSslStoreDetails} instance with a new private key.
@@ -50,7 +56,17 @@ public record PemSslStoreDetails(
    * @return a new {@link PemSslStoreDetails} instance
    */
   public PemSslStoreDetails withPrivateKey(String privateKey) {
-    return new PemSslStoreDetails(this.type, this.certificate, privateKey);
+    return new PemSslStoreDetails(this.type, this.certificate, privateKey, this.privateKeyPassword);
+  }
+
+  /**
+   * Return a new {@link PemSslStoreDetails} instance with a new private key password.
+   *
+   * @param password the new private key password
+   * @return a new {@link PemSslStoreDetails} instance
+   */
+  public PemSslStoreDetails withPrivateKeyPassword(String password) {
+    return new PemSslStoreDetails(this.type, this.certificate, this.privateKey, password);
   }
 
   boolean isEmpty() {
@@ -58,7 +74,7 @@ public record PemSslStoreDetails(
   }
 
   private boolean isEmpty(@Nullable String value) {
-    return StringUtils.isBlank(value);
+    return !StringUtils.hasText(value);
   }
 
   /**
