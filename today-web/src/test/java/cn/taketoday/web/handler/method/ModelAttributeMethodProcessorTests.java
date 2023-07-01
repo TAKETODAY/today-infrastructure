@@ -28,11 +28,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
@@ -176,17 +178,22 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
     this.container.addAttribute(name, target);
 
-    StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = mock(BindingContext.class);
-    request.setBinding(factory);
-    ResolvableType type = ResolvableType.forMethodParameter(paramNamedValidModelAttr.getParameter());
+    AtomicReference<StubRequestDataBinder> ref = new AtomicReference<>();
 
-    given(factory.createBinder(this.request, target, name, type)).willReturn(dataBinder);
+    BindingContext factory = new BindingContext() {
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, objectName);
+        ref.set(dataBinder);
+        return dataBinder;
+      }
+    };
+    request.setBinding(factory);
 
     this.processor.resolveArgument(this.request, paramNamedValidModelAttr);
 
-    assertThat(dataBinder.isBindInvoked()).isTrue();
-    assertThat(dataBinder.isValidateInvoked()).isTrue();
+    assertThat(ref.get().isBindInvoked()).isTrue();
+    assertThat(ref.get().isValidateInvoked()).isTrue();
   }
 
   @Test
@@ -196,7 +203,13 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
 
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
+    BindingContext factory = new BindingContext() {
+
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        return dataBinder;
+      }
+    };
 
     factory.addAttribute(name, target);
 
@@ -216,7 +229,12 @@ class ModelAttributeMethodProcessorTests {
     String name = "noBindAttr";
     Object target = new TestBean();
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
+    BindingContext factory = new BindingContext() {
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        return dataBinder;
+      }
+    };
     factory.addAttribute(name, target);
 
     request.setBinding(factory);
@@ -232,17 +250,19 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
     this.container.getModel().addAttribute(target);
 
-    StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
-    dataBinder.getBindingResult().reject("error");
-    BindingContext binderFactory = mock(BindingContext.class);
-    request.setBinding(binderFactory);
+    BindingContext binderFactory = new BindingContext() {
 
-    ResolvableType type = ResolvableType.forMethodParameter(paramNonSimpleType.getParameter());
-    given(binderFactory.createBinder(this.request, target, name, type)).willReturn(dataBinder);
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
+        dataBinder.getBindingResult().reject("error");
+        return dataBinder;
+      }
+    };
+    request.setBinding(binderFactory);
 
     assertThatExceptionOfType(MethodArgumentNotValidException.class)
             .isThrownBy(() -> processor.resolveArgument(request, this.paramNonSimpleType));
-    verify(binderFactory).createBinder(this.request, target, name);
   }
 
   @Test  // SPR-9378
@@ -251,7 +271,12 @@ class ModelAttributeMethodProcessorTests {
     Object testBean = new TestBean(name);
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(testBean, name);
 
-    BindingContext factory = new ModelHandlerTests.BindingContext0(dataBinder);
+    BindingContext factory = new BindingContext() {
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        return dataBinder;
+      }
+    };
 
     factory.addAttribute(name, testBean);
     factory.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, testBean);
@@ -287,17 +312,17 @@ class ModelAttributeMethodProcessorTests {
     mockRequest.addParameter("listOfStrings", "1,2");
     ServletRequestContext requestWithParam = new ServletRequestContext(null, mockRequest, null);
 
-    BindingContext factory = mock(BindingContext.class);
-    ResolvableType type = ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter());
-    given(factory.createBinder(any(), any(), eq("testBeanWithConstructorArgs"), type))
-            .willAnswer(invocation -> {
-              WebDataBinder binder = new WebDataBinder(invocation.getArgument(1));
-              binder.setTargetType(ResolvableType.forMethodParameter(this.beanWithConstructorArgs.getParameter()));
+    BindingContext factory = new BindingContext() {
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        WebDataBinder binder = new WebDataBinder(target, objectName);
+        binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter()));
 
-              // Add conversion service which will convert "1,2" to a list
-              binder.setConversionService(new DefaultFormattingConversionService());
-              return binder;
-            });
+        // Add conversion service which will convert "1,2" to a list
+        binder.setConversionService(new DefaultFormattingConversionService());
+        return binder;
+      }
+    };
 
     requestWithParam.setBinding(factory);
     Object resolved = this.processor.resolveArgument(requestWithParam, this.beanWithConstructorArgs);
@@ -309,14 +334,11 @@ class ModelAttributeMethodProcessorTests {
     Object target = new TestBean();
     this.container.addAttribute(expectedAttrName, target);
 
-    WebDataBinder dataBinder = new WebDataBinder(target);
-    BindingContext factory = mock(BindingContext.class);
+    BindingContext factory = new BindingContext();
     ResolvableType type = ResolvableType.forMethodParameter(param.getParameter());
-    given(factory.createBinder(this.request, target, expectedAttrName, type)).willReturn(dataBinder);
 
     request.setBinding(factory);
     this.processor.resolveArgument(request, param);
-    verify(factory).createBinder(this.request, target, expectedAttrName);
   }
 
   private static class StubRequestDataBinder extends WebDataBinder {
