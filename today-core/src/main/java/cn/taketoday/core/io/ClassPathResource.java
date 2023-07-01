@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -41,6 +41,8 @@ import cn.taketoday.util.StringUtils;
  * Always supports resolution as URL.
  *
  * @author TODAY
+ * @author Juergen Hoeller
+ * @author Sam Brannen
  * @see ClassLoader#getResourceAsStream(String)
  * @see ClassLoader#getResource(String)
  * @see Class#getResourceAsStream(String)
@@ -103,10 +105,14 @@ public class ClassPathResource extends AbstractFileResolvingResource {
    * the class path via a leading slash.
    * <p>If the supplied {@code Class} is {@code null}, the default class
    * loader will be used for loading the resource.
+   * <p>This is also useful for resource access within the module system,
+   * loading a resource from the containing module of a given {@code Class}.
+   * See {@link ModuleResource} and its javadoc.
    *
    * @param path relative or absolute path within the class path
    * @param clazz the class to load resources with
    * @see ClassUtils#getDefaultClassLoader()
+   * @see ModuleResource
    */
   public ClassPathResource(String path, Class<?> clazz) {
     Assert.notNull(path, "Path must not be null");
