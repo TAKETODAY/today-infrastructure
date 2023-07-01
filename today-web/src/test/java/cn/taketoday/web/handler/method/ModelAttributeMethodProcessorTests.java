@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.validation.BindingResult;
@@ -50,6 +51,9 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -156,12 +160,14 @@ class ModelAttributeMethodProcessorTests {
   @Test
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
     WebDataBinder dataBinder = new WebDataBinder(null);
-    BindingContext factory = mock(BindingContext.class);
-    request.setBinding(factory);
-    given(factory.createBinder(ArgumentMatchers.any(), ArgumentMatchers.notNull(), ArgumentMatchers.eq("attrName"))).willReturn(dataBinder);
+    dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getParameter()));
 
-    this.processor.resolveArgument(request, paramNamedValidModelAttr);
-    verify(factory).createBinder(ArgumentMatchers.any(), ArgumentMatchers.notNull(), ArgumentMatchers.eq("attrName"));
+    BindingContext factory = mock();
+    request.setBinding(factory);
+    given(factory.createBinder(any(), isNull(), eq("attrName"), any())).willReturn(dataBinder);
+
+    this.processor.resolveArgument(request, this.paramNamedValidModelAttr);
+    verify(factory).createBinder(any(), isNull(), eq("attrName"), any());
   }
 
   @Test
@@ -173,8 +179,9 @@ class ModelAttributeMethodProcessorTests {
     StubRequestDataBinder dataBinder = new StubRequestDataBinder(target, name);
     BindingContext factory = mock(BindingContext.class);
     request.setBinding(factory);
+    ResolvableType type = ResolvableType.forMethodParameter(paramNamedValidModelAttr.getParameter());
 
-    given(factory.createBinder(this.request, target, name)).willReturn(dataBinder);
+    given(factory.createBinder(this.request, target, name, type)).willReturn(dataBinder);
 
     this.processor.resolveArgument(this.request, paramNamedValidModelAttr);
 
@@ -230,7 +237,8 @@ class ModelAttributeMethodProcessorTests {
     BindingContext binderFactory = mock(BindingContext.class);
     request.setBinding(binderFactory);
 
-    given(binderFactory.createBinder(this.request, target, name)).willReturn(dataBinder);
+    ResolvableType type = ResolvableType.forMethodParameter(paramNonSimpleType.getParameter());
+    given(binderFactory.createBinder(this.request, target, name, type)).willReturn(dataBinder);
 
     assertThatExceptionOfType(MethodArgumentNotValidException.class)
             .isThrownBy(() -> processor.resolveArgument(request, this.paramNonSimpleType));
@@ -280,9 +288,12 @@ class ModelAttributeMethodProcessorTests {
     ServletRequestContext requestWithParam = new ServletRequestContext(null, mockRequest, null);
 
     BindingContext factory = mock(BindingContext.class);
-    given(factory.createBinder(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.eq("testBeanWithConstructorArgs")))
+    ResolvableType type = ResolvableType.forMethodParameter(beanWithConstructorArgs.getParameter());
+    given(factory.createBinder(any(), any(), eq("testBeanWithConstructorArgs"), type))
             .willAnswer(invocation -> {
               WebDataBinder binder = new WebDataBinder(invocation.getArgument(1));
+              binder.setTargetType(ResolvableType.forMethodParameter(this.beanWithConstructorArgs.getParameter()));
+
               // Add conversion service which will convert "1,2" to a list
               binder.setConversionService(new DefaultFormattingConversionService());
               return binder;
@@ -300,7 +311,9 @@ class ModelAttributeMethodProcessorTests {
 
     WebDataBinder dataBinder = new WebDataBinder(target);
     BindingContext factory = mock(BindingContext.class);
-    given(factory.createBinder(this.request, target, expectedAttrName)).willReturn(dataBinder);
+    ResolvableType type = ResolvableType.forMethodParameter(param.getParameter());
+    given(factory.createBinder(this.request, target, expectedAttrName, type)).willReturn(dataBinder);
+
     request.setBinding(factory);
     this.processor.resolveArgument(request, param);
     verify(factory).createBinder(this.request, target, expectedAttrName);

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -209,9 +209,11 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
     if (bindingErrorProcessor != null) {
       binder.setBindingErrorProcessor(bindingErrorProcessor);
     }
-    if (validator != null && binder.getTarget() != null
-            && validator.supports(binder.getTarget().getClass())) {
-      binder.setValidator(validator);
+    if (validator != null) {
+      Class<?> type = getTargetType(binder);
+      if (type != null && validator.supports(type)) {
+        binder.setValidator(validator);
+      }
     }
     if (conversionService != null) {
       binder.setConversionService(conversionService);
@@ -221,6 +223,18 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
         propertyEditorRegistrar.registerCustomEditors(binder);
       }
     }
+  }
+
+  @Nullable
+  private static Class<?> getTargetType(WebDataBinder binder) {
+    Class<?> type = null;
+    if (binder.getTarget() != null) {
+      type = binder.getTarget().getClass();
+    }
+    else if (binder.getTargetType() != null) {
+      type = binder.getTargetType().resolve();
+    }
+    return type;
   }
 
 }

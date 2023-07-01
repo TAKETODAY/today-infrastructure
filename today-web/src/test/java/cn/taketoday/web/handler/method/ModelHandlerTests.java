@@ -223,7 +223,7 @@ class ModelHandlerTests {
     }
 
     @Override
-    public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String name) throws Throwable {
+    public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String objectName) throws Throwable {
       return dataBinder;
     }
   }

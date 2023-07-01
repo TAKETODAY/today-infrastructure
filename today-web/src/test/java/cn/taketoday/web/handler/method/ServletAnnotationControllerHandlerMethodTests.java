@@ -72,6 +72,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.annotation.DateTimeFormat;
+import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.format.support.FormattingConversionServiceFactoryBean;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -2136,6 +2137,112 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   }
 
   @Test
+  void nestedDataClassBinding() throws Exception {
+    initDispatcherServlet(NestedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param1", "nestedValue1");
+    request.addParameter("nestedParam2.param2", "true");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("value1-nestedValue1-true-0");
+  }
+
+  @Test
+  void nestedDataClassBindingWithAdditionalSetter() throws Exception {
+    initDispatcherServlet(NestedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param1", "nestedValue1");
+    request.addParameter("nestedParam2.param2", "true");
+    request.addParameter("nestedParam2.param3", "3");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("value1-nestedValue1-true-3");
+  }
+
+  @Test
+  void nestedDataClassBindingWithOptionalParameter() throws Exception {
+    initDispatcherServlet(NestedValidatedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param1", "nestedValue1");
+    request.addParameter("nestedParam2.param2", "true");
+    request.addParameter("nestedParam2.optionalParam", "8");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("value1-nestedValue1-true-8");
+  }
+
+  @Test
+  void nestedDataClassBindingWithMissingParameter() throws Exception {
+    initDispatcherServlet(NestedValidatedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param1", "nestedValue1");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("1:value1-nestedValue1-null-null");
+  }
+
+  @Test
+  void nestedDataClassBindingWithConversionError() throws Exception {
+    initDispatcherServlet(NestedValidatedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param1", "nestedValue1");
+    request.addParameter("nestedParam2.param2", "x");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("1:value1-nestedValue1-x-null");
+  }
+
+  @Test
+  void nestedDataClassBindingWithValidationError() throws Exception {
+    initDispatcherServlet(NestedValidatedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param2", "true");
+    request.addParameter("nestedParam2.param3", "0");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("1:value1--true-0");
+  }
+
+  @Test
+  void nestedDataClassBindingWithValidationErrorAndConversionError() throws Exception {
+    initDispatcherServlet(NestedValidatedDataClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param2", "x");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("2:value1-null-x-null");
+  }
+
+  @Test
+  void nestedDataClassBindingWithDataAndLocalDate() throws Exception {
+    initDispatcherServlet(NestedDataAndDateClassController.class);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/bind");
+    request.addParameter("param1", "value1");
+    request.addParameter("nestedParam2.param1", "nestedValue1");
+    request.addParameter("nestedParam2.param2", "true");
+    request.addParameter("nestedParam2.optionalParam", "8");
+    request.addParameter("nestedParam3.date", "2010-01-01");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    getServlet().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("2010-01-01");
+  }
+
+  @Test
   void routerFunction() throws ServletException, IOException {
     initDispatcherServlet(wac -> {
       wac.registerBean(RouterFunction.class, () ->
@@ -4095,6 +4202,146 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     @RequestMapping("/bind")
     public String handle(DataRecord data) {
       return data.param1 + "-" + data.param2 + "-" + data.param3;
+    }
+  }
+
+  static class NestedDataClass {
+
+    @NotNull
+    private final String param1;
+
+    @Valid
+    private final DataClass nestedParam2;
+
+    public NestedDataClass(@NotNull String param1, DataClass nestedParam2) {
+      this.param1 = param1;
+      this.nestedParam2 = nestedParam2;
+    }
+
+    public String getParam1() {
+      return this.param1;
+    }
+
+    public DataClass getNestedParam2() {
+      return this.nestedParam2;
+    }
+  }
+
+  @RestController
+  static class NestedDataClassController {
+
+    @RequestMapping("/bind")
+    public String handle(NestedDataClass data) {
+      DataClass nestedParam2 = data.nestedParam2;
+      return (data.param1 + "-" + nestedParam2.param1 + "-" + nestedParam2.param2 + "-" + nestedParam2.param3);
+    }
+  }
+
+  @RestController
+  static class NestedValidatedDataClassController {
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+//      binder.setConversionService(new DefaultFormattingConversionService());
+      binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+      LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
+      vf.afterPropertiesSet();
+      binder.setValidator(vf);
+    }
+
+    @RequestMapping("/bind")
+    public NestedBindStatusView handle(@Valid NestedDataClass data, BindingResult result) {
+      assertThat(data).isNotNull();
+      if (result.hasErrors()) {
+        String content = result.getErrorCount() + ":" + result.getFieldValue("param1");
+        content += "-" + result.getFieldValue("nestedParam2.param1");
+        content += "-" + result.getFieldValue("nestedParam2.param2");
+        content += "-" + result.getFieldValue("nestedParam2.param3");
+        return new NestedBindStatusView(content);
+      }
+      DataClass nested = data.nestedParam2;
+      return new NestedBindStatusView(
+              data.param1 + "-" + nested.param1 + "-" + nested.param2 + "-" + nested.param3);
+    }
+  }
+
+  static class NestedBindStatusView extends AbstractView {
+
+    private final String content;
+
+    NestedBindStatusView(String content) {
+      this.content = content;
+    }
+
+    @Override
+    protected void renderMergedOutputModel(
+            Map<String, Object> model, RequestContext request) throws Exception {
+//      RequestContext rc = new RequestContext(request, model);
+//      rc.getBindStatus("nestedDataClass");
+//      rc.getBindStatus("nestedDataClass.param1");
+//      rc.getBindStatus("nestedDataClass.nestedParam2");
+//      rc.getBindStatus("nestedDataClass.nestedParam2.param1");
+//      rc.getBindStatus("nestedDataClass.nestedParam2.param2");
+//      rc.getBindStatus("nestedDataClass.nestedParam2.param3");
+      request.getWriter().write(this.content);
+    }
+  }
+
+  static class NestedDataAndDateClass {
+
+    @NotNull
+    private final String param1;
+
+    @Valid
+    private final DataClass nestedParam2;
+
+    @Valid
+    private final DateClass nestedParam3;
+
+    public NestedDataAndDateClass(
+            @NotNull String param1, DataClass nestedParam2, DateClass nestedParam3) {
+
+      this.param1 = param1;
+      this.nestedParam2 = nestedParam2;
+      this.nestedParam3 = nestedParam3;
+    }
+
+    public String getParam1() {
+      return this.param1;
+    }
+
+    public DataClass getNestedParam2() {
+      return this.nestedParam2;
+    }
+
+    public DateClass getNestedParam3() {
+      return this.nestedParam3;
+    }
+  }
+
+  @RestController
+  static class NestedDataAndDateClassController {
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+      binder.initDirectFieldAccess();
+    }
+
+    @RequestMapping("/bind")
+    public String handle(NestedDataAndDateClass data, BindingResult result) {
+      if (result.hasErrors()) {
+        return result.getFieldError().toString();
+      }
+      assertThat(data).isNotNull();
+      assertThat(data.getParam1()).isEqualTo("value1");
+      assertThat(data.getNestedParam2().param1).isEqualTo("nestedValue1");
+      assertThat(data.getNestedParam2().param2).isTrue();
+      assertThat(data.getNestedParam2().param3).isEqualTo(8);
+      assertThat(data.getNestedParam3().date).isNotNull();
+      assertThat(data.getNestedParam3().date.getYear()).isEqualTo(2010);
+      assertThat(data.getNestedParam3().date.getMonthValue()).isEqualTo(1);
+      assertThat(data.getNestedParam3().date.getDayOfMonth()).isEqualTo(1);
+      return result.getFieldValue("nestedParam3.date").toString();
     }
   }
 

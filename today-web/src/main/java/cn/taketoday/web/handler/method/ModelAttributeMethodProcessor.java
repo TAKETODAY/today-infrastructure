@@ -21,42 +21,33 @@
 package cn.taketoday.web.handler.method;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.DataBinder;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.SmartValidator;
-import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.Part;
 
 /**
  * Resolve {@code @ModelAttribute} annotated method arguments and handle
@@ -132,41 +123,42 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     BindingResult bindingResult = null;
 
     if (bindingContext.containsAttribute(name)) {
-      attribute = bindingContext.getModel().getAttribute(name);
+      attribute = bindingContext.getModel().get(name);
+      if (attribute == null || ObjectUtils.unwrapOptional(attribute) == null) {
+        bindingResult = bindingContext.createBinder(context, null, name).getBindingResult();
+        attribute = wrapAsOptionalIfNecessary(parameter, null);
+      }
     }
     else {
-      // Create attribute instance
       try {
+        // Mainly to allow subclasses alternative to create attribute
         attribute = createAttribute(name, parameter, bindingContext, context);
       }
-      catch (BindException ex) {
+      catch (MethodArgumentNotValidException ex) {
         if (isBindExceptionRequired(parameter)) {
-          // No BindingResult parameter -> fail with BindException
           throw ex;
         }
-        // Otherwise, expose null/empty value and associated BindingResult
-        if (parameter.getParameterType() == Optional.class) {
-          attribute = Optional.empty();
-        }
-        else {
-          attribute = ex.getTarget();
-        }
+        attribute = wrapAsOptionalIfNecessary(parameter, ex.getTarget());
         bindingResult = ex.getBindingResult();
       }
     }
 
+    // No BindingResult yet, proceed with binding and validation
     if (bindingResult == null) {
-      // Bean property binding and validation;
-      // skipped in case of binding failure on construction.
-      WebDataBinder binder = bindingContext.createBinder(context, attribute, name);
-      if (binder.getTarget() != null) {
+      ResolvableType type = ResolvableType.forMethodParameter(parameter);
+      WebDataBinder binder = bindingContext.createBinder(context, attribute, name, type);
+      if (attribute == null) {
+        constructAttribute(binder, context);
+        attribute = wrapAsOptionalIfNecessary(parameter, binder.getTarget());
+      }
+      if (!binder.getBindingResult().hasErrors()) {
         if (!bindingContext.isBindingDisabled(name)) {
           bindRequestParameters(binder, context);
         }
         validateIfApplicable(binder, parameter);
-        if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
-          throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
-        }
+      }
+      if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
+        throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
       }
       // Value type adaptation, also covering java.util.Optional
       if (!parameter.getParameterType().isInstance(attribute)) {
@@ -183,48 +175,36 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     return attribute;
   }
 
+  @Nullable
+  private static Object wrapAsOptionalIfNecessary(MethodParameter parameter, @Nullable Object target) {
+    return parameter.getParameterType() == Optional.class ? Optional.ofNullable(target) : target;
+  }
+
   /**
    * Extension point to create the model attribute if not found in the model,
    * with subsequent parameter binding through bean properties (unless suppressed).
-   * <p>The default implementation typically uses the unique public no-arg constructor
-   * if available but also handles a "primary constructor" approach for data classes:
-   * It understands the JavaBeans {@code ConstructorProperties} annotation as well as
-   * runtime-retained parameter names in the bytecode, associating request parameters
-   * with constructor arguments by name. If no such constructor is found, the default
-   * constructor will be used (even if not public), assuming subsequent bean property
-   * bindings through setter methods.
+   * <p>By default this method returns {@code null} in which case
+   * {@link cn.taketoday.validation.DataBinder#construct} is used instead
+   * to create the model attribute. The main purpose of this method then is to
+   * allow to create the model attribute in some other, alternative way.
    *
    * @param attributeName the name of the attribute (never {@code null})
    * @param parameter the method parameter declaration
    * @param bindingContext for creating WebDataBinder instance
    * @param request the current request
-   * @return the created model attribute (never {@code null})
-   * @throws BindException in case of constructor argument binding failure
-   * @throws Exception in case of constructor invocation failure
-   * @see #constructAttribute(Constructor, String, MethodParameter, BindingContext, RequestContext)
-   * @see #createAttributeFromRequestValue
+   * @return the created model attribute, or {@code null}
    */
+  @Nullable
   protected Object createAttribute(String attributeName, MethodParameter parameter,
           BindingContext bindingContext, RequestContext request) throws Throwable {
 
     String value = getRequestValueForAttribute(attributeName, request);
     if (value != null) {
-      Object attribute = createAttributeFromRequestValue(
+      return createAttributeFromRequestValue(
               value, attributeName, parameter, bindingContext, request);
-      if (attribute != null) {
-        return attribute;
-      }
     }
 
-    MethodParameter nestedParameter = parameter.nestedIfOptional();
-    Class<?> clazz = nestedParameter.getNestedParameterType();
-
-    Constructor<?> ctor = BeanUtils.obtainConstructor(clazz);
-    Object attribute = constructAttribute(ctor, attributeName, parameter, bindingContext, request);
-    if (parameter != nestedParameter) {
-      attribute = Optional.of(attribute);
-    }
-    return attribute;
+    return null;
   }
 
   /**
@@ -289,109 +269,13 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   }
 
   /**
-   * Construct a new attribute instance with the given constructor.
-   * <p>Called from
-   * {@link #createAttribute(String, MethodParameter, BindingContext, RequestContext)}
-   * after constructor resolution.
+   * Extension point to create the attribute, binding the request to constructor args.
    *
-   * @param ctor the constructor to use
-   * @param attributeName the name of the attribute (never {@code null})
-   * @param binderFactory for creating WebDataBinder instance
+   * @param binder the data binder instance to use for the binding
    * @param request the current request
-   * @return the created model attribute (never {@code null})
-   * @throws BindException in case of constructor argument binding failure
-   * @throws Exception in case of constructor invocation failure
    */
-  protected Object constructAttribute(Constructor<?> ctor, String attributeName, MethodParameter parameter,
-          BindingContext binderFactory, RequestContext request) throws Throwable {
-
-    if (ctor.getParameterCount() == 0) {
-      // A single default constructor -> clearly a standard JavaBeans arrangement.
-      return BeanUtils.newInstance(ctor);
-    }
-
-    // A single data class constructor -> resolve constructor arguments from request parameters.
-    String[] paramNames = BeanUtils.getParameterNames(ctor);
-    Class<?>[] paramTypes = ctor.getParameterTypes();
-    Object[] args = new Object[paramTypes.length];
-    WebDataBinder binder = binderFactory.createBinder(request, null, attributeName);
-    String fieldDefaultPrefix = binder.getFieldDefaultPrefix();
-    String fieldMarkerPrefix = binder.getFieldMarkerPrefix();
-    boolean bindingFailure = false;
-    HashSet<String> failedParams = new HashSet<>(4);
-
-    for (int i = 0; i < paramNames.length; i++) {
-      String paramName = paramNames[i];
-      Class<?> paramType = paramTypes[i];
-      String[] arrayValue = request.getParameters(paramName);
-
-      Object value = null;
-
-      if (arrayValue != null && arrayValue.length == 1) {
-        value = arrayValue[0];
-      }
-
-      if (value == null) {
-        if (fieldDefaultPrefix != null) {
-          value = request.getParameter(fieldDefaultPrefix + paramName);
-        }
-        if (value == null) {
-          if (fieldMarkerPrefix != null && request.getParameter(fieldMarkerPrefix + paramName) != null) {
-            value = binder.getEmptyValue(paramType);
-          }
-          else {
-            value = resolveConstructorArgument(paramName, paramType, request);
-          }
-        }
-      }
-
-      try {
-        MethodParameter methodParam = MethodParameter.forFieldAwareConstructor(ctor, i, paramName);
-        if (value == null && methodParam.isOptional()) {
-          args[i] = methodParam.getParameterType() == Optional.class ? Optional.empty() : null;
-        }
-        else {
-          args[i] = binder.convertIfNecessary(value, paramType, methodParam);
-        }
-      }
-      catch (TypeMismatchException ex) {
-        ex.initPropertyName(paramName);
-        args[i] = null;
-        failedParams.add(paramName);
-        binder.getBindingResult().recordFieldValue(paramName, paramType, value);
-        binder.getBindingErrorProcessor().processPropertyAccessException(ex, binder.getBindingResult());
-        bindingFailure = true;
-      }
-    }
-
-    if (bindingFailure) {
-      BindingResult result = binder.getBindingResult();
-      for (int i = 0; i < paramNames.length; i++) {
-        String paramName = paramNames[i];
-        if (!failedParams.contains(paramName)) {
-          Object value = args[i];
-          result.recordFieldValue(paramName, paramTypes[i], value);
-          validateValueIfApplicable(binder, parameter, ctor.getDeclaringClass(), paramName, value);
-        }
-      }
-      if (!parameter.isOptional()) {
-        try {
-          Object target = BeanUtils.newInstance(ctor, args);
-          throw new BindException(result) {
-            @Override
-            public Object getTarget() {
-              return target;
-            }
-          };
-        }
-        catch (BeanInstantiationException ex) {
-          // swallow and proceed without target instance
-        }
-      }
-      throw new BindException(result);
-    }
-
-    return BeanUtils.newInstance(ctor, args);
+  protected void constructAttribute(WebDataBinder binder, RequestContext request) {
+    binder.construct(request);
   }
 
   /**
@@ -402,27 +286,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    */
   protected void bindRequestParameters(WebDataBinder binder, RequestContext request) {
     binder.bind(request);
-  }
-
-  @Nullable
-  public Object resolveConstructorArgument(
-          String paramName, Class<?> paramType, RequestContext request) throws Exception {
-    if (request.isMultipart()) {
-
-      if (ServletDetector.runningInServlet(request)) {
-        if (paramType == Part.class) {
-          List<Part> parts = ServletUtils.getParts(ServletUtils.getServletRequest(request), paramName);
-          return parts.size() == 1 ? parts.get(0) : parts;
-        }
-      }
-
-      List<MultipartFile> files = request.getMultipartRequest().getFiles(paramName);
-      if (CollectionUtils.isNotEmpty(files)) {
-        return files.size() == 1 ? files.get(0) : files;
-      }
-    }
-
-    return getUriVariables(request).get(paramName);
   }
 
   /**
@@ -441,42 +304,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
       Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
       if (validationHints != null) {
         binder.validate(validationHints);
-        break;
-      }
-    }
-  }
-
-  /**
-   * Validate the specified candidate value if applicable.
-   * <p>The default implementation checks for {@code @jakarta.validation.Valid},
-   * Infra {@link cn.taketoday.validation.annotation.Validated},
-   * and custom annotations whose name starts with "Valid".
-   *
-   * @param binder the DataBinder to be used
-   * @param parameter the method parameter declaration
-   * @param targetType the target type
-   * @param fieldName the name of the field
-   * @param value the candidate value
-   * @see #validateIfApplicable(WebDataBinder, MethodParameter)
-   * @see SmartValidator#validateValue(Class, String, Object, Errors, Object...)
-   */
-  protected void validateValueIfApplicable(WebDataBinder binder, MethodParameter parameter,
-          Class<?> targetType, String fieldName, @Nullable Object value) {
-
-    for (Annotation ann : parameter.getParameterAnnotations()) {
-      Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
-      if (validationHints != null) {
-        for (Validator validator : binder.getValidators()) {
-          if (validator instanceof SmartValidator smartValidator) {
-            try {
-              smartValidator.validateValue(targetType, fieldName, value,
-                      binder.getBindingResult(), validationHints);
-            }
-            catch (IllegalArgumentException ex) {
-              // No corresponding field on the target class...
-            }
-          }
-        }
         break;
       }
     }

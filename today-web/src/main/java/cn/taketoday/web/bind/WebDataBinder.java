@@ -24,17 +24,25 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import cn.taketoday.beans.ConfigurablePropertyAccessor;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -225,6 +233,33 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
+   * Check if a value can be resolved if {@link #getFieldDefaultPrefix()}
+   * or {@link #getFieldMarkerPrefix()} is prepended.
+   *
+   * @param name the name of the value to resolve
+   * @param type the type of value expected
+   * @param resolver delegate resolver to use for the checks
+   * @return the resolved value, or {@code null}
+   */
+  @Nullable
+  protected Object resolvePrefixValue(String name, Class<?> type, BiFunction<String, Class<?>, Object> resolver) {
+    Object value = resolver.apply(name, type);
+    if (value == null) {
+      String prefix = getFieldDefaultPrefix();
+      if (prefix != null) {
+        value = resolver.apply(prefix + name, type);
+      }
+      if (value == null) {
+        prefix = getFieldMarkerPrefix();
+        if (prefix != null && resolver.apply(prefix + name, type) != null) {
+          value = getEmptyValue(type);
+        }
+      }
+    }
+    return value;
+  }
+
+  /**
    * This implementation performs a field default and marker check
    * before delegating to the superclass binding process.
    *
@@ -369,6 +404,19 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
+   * Use a default or single data constructor to create the target by
+   * binding request parameters, multipart files, or parts to constructor args.
+   * <p>After the call, use {@link #getBindingResult()} to check for bind errors.
+   * If there are none, the target is set, and {@link #bind(RequestContext)}
+   * can be called for further initialization via setters.
+   *
+   * @param request the request to bind
+   */
+  public void construct(RequestContext request) {
+    construct(new RequestValueResolver(request, this));
+  }
+
+  /**
    * Bind the parameters of the given request to this binder's target,
    * also binding multipart files in case of a multipart request.
    * <p>This call can create field errors, representing basic binding
@@ -450,6 +498,71 @@ public class WebDataBinder extends DataBinder {
   public void closeNoCatch() throws BindException {
     if (getBindingResult().hasErrors()) {
       throw new BindException(getBindingResult());
+    }
+  }
+
+  /**
+   * Resolver that looks up values to bind in a {@link ServletRequest}.
+   */
+  protected static class RequestValueResolver implements ValueResolver {
+
+    private final RequestContext request;
+
+    private final WebDataBinder dataBinder;
+
+    protected RequestValueResolver(RequestContext request, WebDataBinder dataBinder) {
+      this.request = request;
+      this.dataBinder = dataBinder;
+    }
+
+    protected RequestContext getRequest() {
+      return this.request;
+    }
+
+    @Nullable
+    @Override
+    public final Object resolveValue(String name, Class<?> paramType) {
+      Object value = getRequestParameter(name, paramType);
+      if (value == null) {
+        value = this.dataBinder.resolvePrefixValue(name, paramType, this::getRequestParameter);
+      }
+      if (value == null) {
+        value = getMultipartValue(name, paramType);
+      }
+      return value;
+    }
+
+    @Nullable
+    protected Object getRequestParameter(String name, Class<?> type) {
+      String[] value = request.getParameters(name);
+      if (value == null) {
+        HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+        if (matchingMetadata != null) {
+          return matchingMetadata.getUriVariables().get(name);
+        }
+      }
+      else if (value.length == 1) {
+        return value[0];
+      }
+      return value;
+    }
+
+    @Nullable
+    private Object getMultipartValue(String name, Class<?> paramType) {
+      if (request.isMultipart()) {
+        if (ServletDetector.runningInServlet(request)) {
+          if (paramType == Part.class) {
+            List<Part> parts = ServletUtils.getParts(ServletUtils.getServletRequest(request), name);
+            return parts.size() == 1 ? parts.get(0) : parts;
+          }
+        }
+
+        List<MultipartFile> files = request.getMultipartRequest().getFiles(name);
+        if (CollectionUtils.isNotEmpty(files)) {
+          return files.size() == 1 ? files.get(0) : files;
+        }
+      }
+      return null;
     }
   }
 

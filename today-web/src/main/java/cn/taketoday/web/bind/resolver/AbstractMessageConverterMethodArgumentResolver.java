@@ -240,7 +240,9 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
       String name = Conventions.getVariableNameForParameter(parameter);
-      WebDataBinder binder = bindingContext.createBinder(context, arg, name);
+      ResolvableType type = ResolvableType.forMethodParameter(parameter);
+
+      WebDataBinder binder = bindingContext.createBinder(context, arg, name, type);
       if (arg != null) {
         validateIfApplicable(binder, parameter);
         if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
@@ -95,13 +96,13 @@ public class BindingContext {
    * Create a {@link WebDataBinder} without a target object for type
    * conversion of request values to simple types.
    *
-   * @param exchange the current exchange
-   * @param name the name of the target object
+   * @param context the current exchange
+   * @param objectName the name of the target object
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext exchange, String name) throws Throwable {
-    return createBinder(exchange, null, name);
+  public WebDataBinder createBinder(RequestContext context, String objectName) throws Throwable {
+    return createBinder(context, null, objectName, null);
   }
 
   /**
@@ -110,17 +111,50 @@ public class BindingContext {
    *
    * @param request the current request
    * @param target the object to create a data binder for
-   * @param name the name of the target object
+   * @param objectName the name of the target object
    * @return the created data binder
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(RequestContext request, @Nullable Object target, String name) throws Throwable {
-    WebDataBinder dataBinder = new WebDataBinder(target, name);
+  public WebDataBinder createBinder(RequestContext request,
+          @Nullable Object target, String objectName) throws Throwable {
+    return createBinder(request, target, objectName, null);
+  }
+
+  /**
+   * Variant of {@link #createBinder(RequestContext, Object, String)} with a
+   * {@link ResolvableType} for which the {@code DataBinder} is created.
+   * This may be used to construct the target, or otherwise provide more
+   * insight on how to initialize the binder.
+   */
+  public WebDataBinder createBinder(RequestContext request,
+          @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
+    WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
+
+    if (target == null && targetType != null) {
+      dataBinder.setTargetType(targetType);
+    }
+
     if (initializer != null) {
       initializer.initBinder(dataBinder);
     }
     initBinder(dataBinder, request);
+
     return dataBinder;
+  }
+
+  /**
+   * Extension point to create the WebDataBinder instance.
+   * By default this is {@code WebDataBinder}.
+   *
+   * @param target the binding target or {@code null} for type conversion only
+   * @param objectName the binding target object name
+   * @param request the current request
+   * @throws Exception in case of invalid state or arguments
+   */
+  protected WebDataBinder createBinderInstance(
+          @Nullable Object target, String objectName, RequestContext request) throws Exception {
+
+    return new WebDataBinder(target, objectName);
   }
 
   /**
@@ -361,7 +395,7 @@ public class BindingContext {
    * Remove the given attributes from the model.
    */
   public BindingContext removeAttributes(@Nullable Map<String, ?> attributes) {
-    if (attributes != null) {
+    if (attributes != null && hasModel()) {
       ModelMap modelMap = getModel();
       for (String key : attributes.keySet()) {
         modelMap.removeAttribute(key);
@@ -375,7 +409,7 @@ public class BindingContext {
    * A shortcut for {@code getModel().containsAttribute(String)}.
    */
   public boolean containsAttribute(String name) {
-    return getModel().containsAttribute(name);
+    return hasModel() && getModel().containsAttribute(name);
   }
 
   /**

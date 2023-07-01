@@ -49,6 +49,7 @@ class MultipartFileArgumentResolverTests {
   @BeforeEach
   void setUp() {
     HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.clientAdapter);
+    proxyFactory.afterPropertiesSet();
     this.client = proxyFactory.createClient(TestClient.class);
   }
 
