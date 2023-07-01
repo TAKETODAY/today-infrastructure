@@ -423,7 +423,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   @Nullable
   public String getBeanClassName() {
-    return beanClass instanceof Class<?> clazz ? clazz.getName() : (String) beanClass;
+    Object beanClassObject = this.beanClass;  // defensive access to volatile beanClass field
+    return beanClassObject instanceof Class<?> clazz ? clazz.getName() : (String) beanClassObject;
   }
 
   /**
