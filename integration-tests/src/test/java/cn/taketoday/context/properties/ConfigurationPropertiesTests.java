@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -732,6 +732,16 @@ class ConfigurationPropertiesTests {
       assertThat(ex).hasCauseInstanceOf(BindException.class);
       assertThat(ex.getCause()).hasCauseExactlyInstanceOf(BindValidationException.class);
     });
+  }
+
+  @Test
+  void loadWhenConstructorBoundConfigurationPropertiesIsAlsoValidatorShouldApplyValidator() {
+    assertThatExceptionOfType(Exception.class)
+            .isThrownBy(() -> load(ValidatorConstructorBoundPropertiesConfiguration.class))
+            .satisfies((ex) -> {
+              assertThat(ex).hasCauseInstanceOf(BindException.class);
+              assertThat(ex.getCause()).hasCauseExactlyInstanceOf(BindValidationException.class);
+            });
   }
 
   @Test
@@ -2055,6 +2065,36 @@ class ConfigurationPropertiesTests {
 
     void setFoo(String foo) {
       this.foo = foo;
+    }
+
+  }
+
+  @EnableConfigurationProperties(ValidatorConstructorBoundProperties.class)
+  static class ValidatorConstructorBoundPropertiesConfiguration {
+
+  }
+
+  @ConfigurationProperties
+  static class ValidatorConstructorBoundProperties implements Validator {
+
+    private final String foo;
+
+    ValidatorConstructorBoundProperties(String foo) {
+      this.foo = foo;
+    }
+
+    @Override
+    public boolean supports(Class<?> type) {
+      return type == ValidatorConstructorBoundProperties.class;
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+      ValidationUtils.rejectIfEmpty(errors, "foo", "TEST1");
+    }
+
+    String getFoo() {
+      return this.foo;
     }
 
   }

@@ -1225,7 +1225,7 @@ public abstract class AbstractApplicationContext
 
   @Override
   public Set<String> getBeanNamesForType(
-          Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+          @Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
   }
@@ -1238,7 +1238,7 @@ public abstract class AbstractApplicationContext
 
   @Override
   public <T> Map<String, T> getBeansOfType(
-          Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+          @Nullable Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType, includeNonSingletons, allowEagerInit);
   }

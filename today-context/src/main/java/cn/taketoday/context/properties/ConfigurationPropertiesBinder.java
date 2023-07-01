@@ -21,12 +21,14 @@
 package cn.taketoday.context.properties;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistry;
 import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
@@ -56,6 +58,7 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.validation.Errors;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.annotation.Validated;
 
@@ -153,23 +156,38 @@ class ConfigurationPropertiesBinder {
     if (jsr303Present && target.getAnnotation(Validated.class) != null) {
       validators.add(getJsr303Validator());
     }
-    if (target.getValue() != null && target.getValue().get() instanceof Validator validator) {
-      validators.add(validator);
+    Validator selfValidator = getSelfValidator(target);
+    if (selfValidator != null) {
+      validators.add(selfValidator);
     }
     return validators;
   }
 
+  @Nullable
+  private Validator getSelfValidator(Bindable<?> target) {
+    if (target.getValue() != null) {
+      Object value = target.getValue().get();
+      return (value instanceof Validator validator) ? validator : null;
+    }
+    Class<?> type = target.getType().resolve();
+    if (type != null && Validator.class.isAssignableFrom(type)) {
+      return new SelfValidatingConstructorBoundBindableValidator(type);
+    }
+    return null;
+  }
+
   private Validator getJsr303Validator() {
     Validator jsr303Validator = this.jsr303Validator;
-
     if (jsr303Validator == null) {
-      this.jsr303Validator = jsr303Validator = new ConfigurationPropertiesJsr303Validator(this.applicationContext);
+      jsr303Validator = new ConfigurationPropertiesJsr303Validator(this.applicationContext);
+      this.jsr303Validator = jsr303Validator;
     }
     return jsr303Validator;
   }
 
-  private List<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
-    return applicationContext.getBeanProvider(ConfigurationPropertiesBindHandlerAdvisor.class).orderedList();
+  private Collection<ConfigurationPropertiesBindHandlerAdvisor> getBindHandlerAdvisors() {
+    return BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext,
+            ConfigurationPropertiesBindHandlerAdvisor.class, true, true).values();
   }
 
   private Binder getBinder() {
@@ -198,16 +216,18 @@ class ConfigurationPropertiesBinder {
 
   @Nullable
   private Consumer<PropertyEditorRegistry> getPropertyEditorInitializer() {
-    if (this.applicationContext instanceof ConfigurableApplicationContext) {
-      return ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory()::copyRegisteredEditorsTo;
+    if (applicationContext instanceof ConfigurableApplicationContext configurableContext) {
+      return configurableContext.getBeanFactory()::copyRegisteredEditorsTo;
     }
     return null;
   }
 
   static void register(BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      var definition = BeanDefinitionBuilder.rootBeanDefinition(
-              ConfigurationPropertiesBinderFactory.class).getBeanDefinition();
+      BeanDefinition definition = BeanDefinitionBuilder
+              .rootBeanDefinition(ConfigurationPropertiesBinderFactory.class)
+              .getBeanDefinition();
+      definition.setEnableDependencyInjection(false);
       definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
       registry.registerBeanDefinition(ConfigurationPropertiesBinder.BEAN_NAME, definition);
     }
@@ -264,6 +284,30 @@ class ConfigurationPropertiesBinder {
     public ConfigurationPropertiesBinder getObject() throws Exception {
       Assert.state(this.binder != null, "Binder was not created due to missing setApplicationContext call");
       return this.binder;
+    }
+
+  }
+
+  /**
+   * A {@code Validator} for a constructor-bound {@code Bindable} where the type being
+   * bound is itself a {@code Validator} implementation.
+   */
+  static class SelfValidatingConstructorBoundBindableValidator implements Validator {
+
+    private final Class<?> type;
+
+    SelfValidatingConstructorBoundBindableValidator(Class<?> type) {
+      this.type = type;
+    }
+
+    @Override
+    public boolean supports(Class<?> candidate) {
+      return candidate.isAssignableFrom(this.type);
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+      ((Validator) target).validate(target, errors);
     }
 
   }

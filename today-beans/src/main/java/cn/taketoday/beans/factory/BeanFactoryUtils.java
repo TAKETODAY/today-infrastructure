@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -330,9 +330,10 @@ public abstract class BeanFactoryUtils {
     LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
     result.putAll(factory.getBeansOfType(type));
     if (factory instanceof HierarchicalBeanFactory hbf) {
-      if (hbf.getParentBeanFactory() != null) {
+      BeanFactory parentBeanFactory = hbf.getParentBeanFactory();
+      if (parentBeanFactory != null) {
         Map<String, T> parentResult = beansOfTypeIncludingAncestors(
-                hbf.getParentBeanFactory(), type);
+                parentBeanFactory, type);
 
         for (Map.Entry<String, T> entry : parentResult.entrySet()) {
           String beanName = entry.getKey();

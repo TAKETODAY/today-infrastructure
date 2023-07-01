@@ -1413,8 +1413,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Nullable
-  public Object doResolveDependency(
-          DependencyDescriptor descriptor, @Nullable String beanName,
+  public Object doResolveDependency(DependencyDescriptor descriptor, @Nullable String beanName,
           @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
     InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
     try {
