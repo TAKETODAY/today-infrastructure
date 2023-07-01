@@ -35,13 +35,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -80,7 +80,7 @@ public class MethodParameter {
 
   /** The containing class. Could also be supplied by overriding {@link #getContainingClass()} */
   @Nullable
-  private Class<?> containingClass;
+  private volatile Class<?> containingClass;
 
   @Nullable
   private volatile Class<?> parameterType;
@@ -711,11 +711,11 @@ public class MethodParameter {
     if (!(other instanceof MethodParameter otherParam)) {
       return false;
     }
-    return getContainingClass() == otherParam.getContainingClass()
-            && ObjectUtils.nullSafeEquals(this.typeIndexesPerLevel, otherParam.typeIndexesPerLevel)
-            && this.nestingLevel == otherParam.nestingLevel
-            && this.parameterIndex == otherParam.parameterIndex
-            && this.executable.equals(otherParam.executable);
+    return nestingLevel == otherParam.nestingLevel
+            && parameterIndex == otherParam.parameterIndex
+            && getContainingClass() == otherParam.getContainingClass()
+            && executable.equals(otherParam.executable)
+            && Objects.equals(typeIndexesPerLevel, otherParam.typeIndexesPerLevel);
   }
 
   @Override
