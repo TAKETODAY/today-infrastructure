@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -35,6 +35,7 @@ import cn.taketoday.util.ClassUtils;
  * callback methods on all currently registered synchronizations.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionSynchronization
  * @see TransactionSynchronizationManager#getSynchronizations()
  * @since 4.0
@@ -112,7 +113,7 @@ public abstract class TransactionSynchronizationUtils {
         synchronization.beforeCompletion();
       }
       catch (Throwable ex) {
-        log.debug("TransactionSynchronization.beforeCompletion threw exception", ex);
+        log.error("TransactionSynchronization.beforeCompletion threw exception", ex);
       }
     }
   }
@@ -180,7 +181,7 @@ public abstract class TransactionSynchronizationUtils {
           synchronization.afterCompletion(completionStatus);
         }
         catch (Throwable ex) {
-          log.debug("TransactionSynchronization.afterCompletion threw exception", ex);
+          log.error("TransactionSynchronization.afterCompletion threw exception", ex);
         }
       }
     }
