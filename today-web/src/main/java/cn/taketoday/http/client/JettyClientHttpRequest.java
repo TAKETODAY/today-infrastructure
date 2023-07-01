@@ -27,8 +27,8 @@ import org.eclipse.jetty.client.util.OutputStreamRequestContent;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -53,18 +53,16 @@ class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private final Request request;
 
-  private final Duration timeOut;
-  private final HttpMethod method;
+  private final int readTimeout;
 
-  public JettyClientHttpRequest(Request request, Duration timeOut) {
+  public JettyClientHttpRequest(Request request, int readTimeout) {
     this.request = request;
-    this.timeOut = timeOut;
-    this.method = HttpMethod.valueOf(request.getMethod());
+    this.readTimeout = readTimeout;
   }
 
   @Override
   public HttpMethod getMethod() {
-    return method;
+    return HttpMethod.valueOf(this.request.getMethod());
   }
 
   @Override
@@ -102,15 +100,31 @@ class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
       else {
         this.request.send(responseListener);
       }
-      Response response = responseListener.get(TimeUnit.MILLISECONDS.convert(this.timeOut), TimeUnit.MILLISECONDS);
+      Response response = responseListener.get(this.readTimeout, TimeUnit.MILLISECONDS);
       return new JettyClientHttpResponse(response, responseListener.getInputStream());
     }
     catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
       throw new IOException("Request was interrupted: " + ex.getMessage(), ex);
     }
-    catch (TimeoutException | ExecutionException ex) {
-      throw new IOException("Could not send request: " + ex.getMessage(), ex);
+    catch (ExecutionException ex) {
+      Throwable cause = ex.getCause();
+
+      if (cause instanceof UncheckedIOException uioEx) {
+        throw uioEx.getCause();
+      }
+      if (cause instanceof RuntimeException rtEx) {
+        throw rtEx;
+      }
+      else if (cause instanceof IOException ioEx) {
+        throw ioEx;
+      }
+      else {
+        throw new IOException(cause.getMessage(), cause);
+      }
+    }
+    catch (TimeoutException ex) {
+      throw new IOException("Request timed out: " + ex.getMessage(), ex);
     }
   }
 }
