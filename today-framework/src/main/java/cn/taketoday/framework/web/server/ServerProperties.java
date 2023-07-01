@@ -103,6 +103,7 @@ public class ServerProperties {
   /**
    * Strategy for handling X-Forwarded-* headers.
    */
+  @Nullable
   private ForwardHeadersStrategy forwardHeadersStrategy;
 
   /**
@@ -233,11 +234,12 @@ public class ServerProperties {
     return this.undertow;
   }
 
+  @Nullable
   public ForwardHeadersStrategy getForwardHeadersStrategy() {
     return this.forwardHeadersStrategy;
   }
 
-  public void setForwardHeadersStrategy(ForwardHeadersStrategy forwardHeadersStrategy) {
+  public void setForwardHeadersStrategy(@Nullable ForwardHeadersStrategy forwardHeadersStrategy) {
     this.forwardHeadersStrategy = forwardHeadersStrategy;
   }
 
@@ -1216,6 +1218,7 @@ public class ServerProperties {
         this.format = format;
       }
 
+      @Nullable
       public String getCustomFormat() {
         return this.customFormat;
       }
@@ -1224,6 +1227,7 @@ public class ServerProperties {
         this.customFormat = customFormat;
       }
 
+      @Nullable
       public String getFilename() {
         return this.filename;
       }
@@ -1232,6 +1236,7 @@ public class ServerProperties {
         this.filename = filename;
       }
 
+      @Nullable
       public String getFileDateFormat() {
         return this.fileDateFormat;
       }
@@ -1362,10 +1367,11 @@ public class ServerProperties {
         this.maxQueueCapacity = maxQueueCapacity;
       }
 
-      public void setIdleTimeout(Duration idleTimeout) {
+      public void setIdleTimeout(@Nullable Duration idleTimeout) {
         this.idleTimeout = idleTimeout;
       }
 
+      @Nullable
       public Duration getIdleTimeout() {
         return this.idleTimeout;
       }

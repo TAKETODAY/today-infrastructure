@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,6 +68,8 @@ import cn.taketoday.util.StringUtils;
 public class TomcatWebServerFactoryCustomizer
         implements WebServerFactoryCustomizer<ConfigurableTomcatWebServerFactory>, Ordered {
 
+  static final int order = 0;
+
   private final Environment environment;
 
   private final ServerProperties serverProperties;
@@ -79,7 +81,7 @@ public class TomcatWebServerFactoryCustomizer
 
   @Override
   public int getOrder() {
-    return 0;
+    return order;
   }
 
   @Override

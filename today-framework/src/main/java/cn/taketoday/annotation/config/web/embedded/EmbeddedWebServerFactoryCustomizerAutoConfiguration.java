@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,10 +27,12 @@ import org.eclipse.jetty.util.Loader;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.xnio.SslClientAuthMode;
 
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnVirtualThreads;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
@@ -65,6 +67,12 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
       return new TomcatWebServerFactoryCustomizer(environment, serverProperties);
     }
 
+    @Component
+    @ConditionalOnVirtualThreads
+    TomcatVirtualThreadsWebServerFactoryCustomizer tomcatVirtualThreadsProtocolHandlerCustomizer() {
+      return new TomcatVirtualThreadsWebServerFactoryCustomizer();
+    }
+
   }
 
   /**
@@ -78,6 +86,13 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
     public JettyWebServerFactoryCustomizer jettyWebServerFactoryCustomizer(
             Environment environment, ServerProperties serverProperties) {
       return new JettyWebServerFactoryCustomizer(environment, serverProperties);
+    }
+
+    @Component
+    @ConditionalOnVirtualThreads
+    JettyVirtualThreadsWebServerFactoryCustomizer jettyVirtualThreadsWebServerFactoryCustomizer(
+            ServerProperties serverProperties) {
+      return new JettyVirtualThreadsWebServerFactoryCustomizer(serverProperties);
     }
 
   }

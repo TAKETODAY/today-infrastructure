@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,14 +30,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
-import org.eclipse.jetty.util.BlockingArrayQueue;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.jetty.util.thread.ThreadPool;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
@@ -66,6 +61,8 @@ import cn.taketoday.util.PropertyMapper;
 public class JettyWebServerFactoryCustomizer
         implements WebServerFactoryCustomizer<ConfigurableJettyWebServerFactory>, Ordered {
 
+  static final int ORDER = 0;
+
   private final Environment environment;
 
   private final ServerProperties serverProperties;
@@ -77,7 +74,7 @@ public class JettyWebServerFactoryCustomizer
 
   @Override
   public int getOrder() {
-    return 0;
+    return ORDER;
   }
 
   @Override
@@ -88,7 +85,7 @@ public class JettyWebServerFactoryCustomizer
 
     ServerProperties.Jetty.Threads threadProperties = jettyProperties.getThreads();
 
-    factory.setThreadPool(determineThreadPool(jettyProperties.getThreads()));
+    factory.setThreadPool(JettyThreadPool.create(threadProperties));
 
     PropertyMapper propertyMapper = PropertyMapper.get();
     propertyMapper.from(threadProperties::getAcceptors).whenNonNull().to(factory::setAcceptors);
@@ -164,27 +161,6 @@ public class JettyWebServerFactoryCustomizer
       }
 
     });
-  }
-
-  private ThreadPool determineThreadPool(ServerProperties.Jetty.Threads properties) {
-    BlockingQueue<Runnable> queue = determineBlockingQueue(properties.getMaxQueueCapacity());
-    int maxThreadCount = (properties.getMax() > 0) ? properties.getMax() : 200;
-    int minThreadCount = (properties.getMin() > 0) ? properties.getMin() : 8;
-    int threadIdleTimeout = (properties.getIdleTimeout() != null) ? (int) properties.getIdleTimeout().toMillis()
-                                                                  : 60000;
-    return new QueuedThreadPool(maxThreadCount, minThreadCount, threadIdleTimeout, queue);
-  }
-
-  private BlockingQueue<Runnable> determineBlockingQueue(Integer maxQueueCapacity) {
-    if (maxQueueCapacity == null) {
-      return null;
-    }
-    if (maxQueueCapacity == 0) {
-      return new SynchronousQueue<>();
-    }
-    else {
-      return new BlockingArrayQueue<>(maxQueueCapacity);
-    }
   }
 
   private void customizeAccessLog(ConfigurableJettyWebServerFactory factory, Accesslog properties) {
