@@ -15,6 +15,8 @@ pluginManagement {
   }
 }
 
+rootProject.name = 'today-infrastructure'
+
 include 'infra-bom'
 include 'infra-docs'
 include 'infra-platform'
@@ -46,8 +48,6 @@ include 'today-context-indexer'
 file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
   include "today-starter:${it.name}"
 }
-
-rootProject.name = 'today-infrastructure'
 
 rootProject.children.findAll { !it.name.startsWith("today-starter-") }.each { project ->
   project.buildFileName = "${project.name}.gradle"
