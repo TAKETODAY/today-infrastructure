@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -89,7 +89,7 @@ abstract class TransactionSynchronizationUtils {
   public static Mono<Void> triggerBeforeCompletion(Collection<TransactionSynchronization> synchronizations) {
     return Flux.fromIterable(synchronizations)
             .concatMap(TransactionSynchronization::beforeCompletion).onErrorContinue((t, o) ->
-                    logger.debug("TransactionSynchronization.beforeCompletion threw exception", t)).then();
+                    logger.error("TransactionSynchronization.beforeCompletion threw exception", t)).then();
   }
 
   /**
@@ -121,7 +121,7 @@ abstract class TransactionSynchronizationUtils {
           Collection<TransactionSynchronization> synchronizations, int completionStatus) {
 
     return Flux.fromIterable(synchronizations).concatMap(it -> it.afterCompletion(completionStatus))
-            .onErrorContinue((t, o) -> logger.debug("TransactionSynchronization.afterCompletion threw exception", t)).then();
+            .onErrorContinue((t, o) -> logger.error("TransactionSynchronization.afterCompletion threw exception", t)).then();
   }
 
   /**
