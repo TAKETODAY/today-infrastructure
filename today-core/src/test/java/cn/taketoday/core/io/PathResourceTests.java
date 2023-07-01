@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -258,6 +258,19 @@ class PathResourceTests {
   void directoryIsNotWritable() {
     PathResource resource = new PathResource(TEST_DIR);
     assertThat(resource.isWritable()).isFalse();
+  }
+
+  @Test
+  void equalsAndHashCode() {
+    Resource resource1 = new PathResource(TEST_FILE);
+    Resource resource2 = new PathResource(TEST_FILE);
+    Resource resource3 = new PathResource(TEST_DIR);
+    assertThat(resource1).isEqualTo(resource1);
+    assertThat(resource1).isEqualTo(resource2);
+    assertThat(resource2).isEqualTo(resource1);
+    assertThat(resource1).isNotEqualTo(resource3);
+    assertThat(resource1).hasSameHashCodeAs(resource2);
+    assertThat(resource1).doesNotHaveSameHashCodeAs(resource3);
   }
 
   @Test
