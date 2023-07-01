@@ -30,13 +30,20 @@ import cn.taketoday.lang.Assert;
  * {@link Type}. In order to capture the generic type and retain it at runtime,
  * you need to create a subclass (ideally as anonymous inline class) as follows:
  *
- * <pre class="code">
- * TypeReference&lt;List&lt;String&gt;&gt; typeRef = new TypeReference&lt;List&lt;String&gt;&gt;() {};
- * </pre>
+ * <pre> {@code
+ * ParameterizedTypeReference<List<String>> typeRef = new ParameterizedTypeReference<List<String>>() {};
+ * }</pre>
+ *
+ * <p>The resulting {@code typeRef} instance can then be used to obtain a {@link Type}
+ * instance that carries the captured parameterized type information at runtime.
+ * For more information on "super type tokens" see the link to Neal Gafter's blog post.
  *
  * @param <T> the referenced type
- * @author TODAY 2021/1/6 22:11
- * @since 3.0
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see <a href="https://gafter.blogspot.nl/2006/12/super-type-tokens.html">Neal Gafter on Super Type Tokens</a>
+ * @since 3.0 2021/1/6 22:11
  */
 public abstract class ParameterizedTypeReference<T> {
   private final Type type;
