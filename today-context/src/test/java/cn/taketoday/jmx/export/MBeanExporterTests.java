@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -102,9 +102,10 @@ public class MBeanExporterTests extends AbstractMBeanServerTests {
     exporter.setBeans(getBeanMap());
     exporter.setServer(server);
     exporter.setNotificationListenerMappings(listeners);
-    assertThatExceptionOfType(MBeanExportException.class).as("NotificationListener on a non-existent MBean").isThrownBy(() ->
-                    start(exporter))
-            .satisfies(ex -> assertThat(ex.contains(InstanceNotFoundException.class)));
+    assertThatExceptionOfType(MBeanExportException.class)
+            .as("NotificationListener on a non-existent MBean")
+            .isThrownBy(() -> start(exporter))
+            .withCauseExactlyInstanceOf(InstanceNotFoundException.class);
   }
 
   @Test
