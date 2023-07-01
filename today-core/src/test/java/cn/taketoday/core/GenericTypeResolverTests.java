@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -185,6 +185,51 @@ public class GenericTypeResolverTests {
     assertThat(resolved).isEqualTo(E.class);
   }
 
+  @Test
+  void resolveWildcardTypeWithUpperBound() {
+    Method method = findMethod(MySimpleSuperclassType.class, "upperBound", List.class);
+    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
+    ResolvableType resolvableType = ResolvableType.forType(resolved);
+    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
+    assertThat(resolvableType.resolveGenerics()).containsExactly(String.class);
+  }
+
+  @Test
+  void resolveWildcardTypeWithUpperBoundWithResolvedType() {
+    Method method = findMethod(MySimpleSuperclassType.class, "upperBoundWithResolvedType", List.class);
+    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
+    ResolvableType resolvableType = ResolvableType.forType(resolved);
+    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
+    assertThat(resolvableType.resolveGenerics()).containsExactly(Integer.class);
+  }
+
+  @Test
+  void resolveWildcardTypeWithLowerBound() {
+    Method method = findMethod(MySimpleSuperclassType.class, "lowerBound", List.class);
+    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
+    ResolvableType resolvableType = ResolvableType.forType(resolved);
+    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
+    assertThat(resolvableType.resolveGenerics()).containsExactly(String.class);
+  }
+
+  @Test
+  void resolveWildcardTypeWithLowerBoundWithResolvedType() {
+    Method method = findMethod(MySimpleSuperclassType.class, "lowerBoundWithResolvedType", List.class);
+    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
+    ResolvableType resolvableType = ResolvableType.forType(resolved);
+    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
+    assertThat(resolvableType.resolveGenerics()).containsExactly(Integer.class);
+  }
+
+  @Test
+  void resolveWildcardTypeWithUnbounded() {
+    Method method = findMethod(MySimpleSuperclassType.class, "unbounded", List.class);
+    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
+    ResolvableType resolvableType = ResolvableType.forType(resolved);
+    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
+    assertThat(resolvableType.resolveGenerics()).containsExactly(Object.class);
+  }
+
   public interface MyInterfaceType<T> {
   }
 
@@ -195,6 +240,20 @@ public class GenericTypeResolverTests {
   }
 
   public abstract class MySuperclassType<T> {
+    public void upperBound(List<? extends T> list) {
+    }
+
+    public void upperBoundWithResolvedType(List<? extends Integer> list) {
+    }
+
+    public void lowerBound(List<? extends T> list) {
+    }
+
+    public void lowerBoundWithResolvedType(List<? super Integer> list) {
+    }
+
+    public void unbounded(List<?> list) {
+    }
   }
 
   public class MySimpleSuperclassType extends MySuperclassType<String> {
