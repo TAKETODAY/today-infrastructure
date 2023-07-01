@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -204,12 +204,11 @@ public class CaffeineCacheManager implements CacheManager {
   @Override
   @Nullable
   public Cache getCache(String name) {
-    if (this.dynamic) {
-      return cacheMap.computeIfAbsent(name, this::createCaffeineCache);
+    Cache cache = cacheMap.get(name);
+    if (cache == null && this.dynamic) {
+      cache = cacheMap.computeIfAbsent(name, this::createCaffeineCache);
     }
-    else {
-      return this.cacheMap.get(name);
-    }
+    return cache;
   }
 
   /**
