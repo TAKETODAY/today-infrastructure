@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -81,24 +81,6 @@ public class CookieProperties {
    * SameSite setting for the cookie.
    */
   private SameSite sameSite;
-
-  /**
-   * Comment for the session cookie.
-   */
-  private String comment;
-
-  /**
-   * Return the comment for the session cookie.
-   *
-   * @return the session cookie comment
-   */
-  public String getComment() {
-    return this.comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
 
   public String getName() {
     return this.name;

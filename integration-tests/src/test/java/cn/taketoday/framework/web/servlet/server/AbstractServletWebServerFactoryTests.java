@@ -852,7 +852,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     factory.getSession().getCookie().setName("testname");
     factory.getSession().getCookie().setDomain("testdomain");
     factory.getSession().getCookie().setPath("/testpath");
-    factory.getSession().getCookie().setComment("testcomment");
     factory.getSession().getCookie().setHttpOnly(true);
     factory.getSession().getCookie().setSecure(true);
     factory.getSession().getCookie().setMaxAge(Duration.ofSeconds(60));
@@ -1127,7 +1126,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     factory.getSession().getCookie().setName("testname");
     factory.getSession().getCookie().setDomain("testdomain");
     factory.getSession().getCookie().setPath("/testpath");
-    factory.getSession().getCookie().setComment("testcomment");
     factory.getSession().getCookie().setHttpOnly(true);
     factory.getSession().getCookie().setSecure(true);
     factory.getSession().getCookie().setMaxAge(Duration.ofMinutes(1));
