@@ -16,6 +16,7 @@ dependencies {
   optional("com.google.code.gson:gson")
   optional("ch.qos.logback:logback-classic")
   optional 'jakarta.transaction:jakarta.transaction-api'
+  optional("io.projectreactor.netty:reactor-netty-http")
 
   testImplementation(project(':today-test'))
 
@@ -65,7 +66,6 @@ dependencies {
   compileOnly 'io.projectreactor:reactor-core'
   compileOnly 'io.projectreactor.tools:blockhound'
   compileOnly 'org.apache.httpcomponents.core5:httpcore5'
-  compileOnly 'io.projectreactor.netty:reactor-netty-http'
   compileOnly 'com.zaxxer:HikariCP'
   compileOnly 'com.fasterxml.jackson.core:jackson-databind'
   compileOnly 'com.fasterxml.jackson.module:jackson-module-parameter-names'
