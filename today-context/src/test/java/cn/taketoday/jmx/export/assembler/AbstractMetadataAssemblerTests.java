@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -150,7 +150,7 @@ public abstract class AbstractMetadataAssemblerTests extends AbstractJmxAssemble
     ModelMBeanOperationInfo oper = info.getOperation("add");
     MBeanParameterInfo[] params = oper.getSignature();
 
-    assertThat(params.length).as("Invalid number of params").isEqualTo(2);
+    assertThat(params).as("Invalid number of params").hasSize(2);
     assertThat(params[0].getName()).as("Incorrect name for x param").isEqualTo("x");
     assertThat(params[0].getType()).as("Incorrect type for x param").isEqualTo(int.class.getName());
 
@@ -180,8 +180,8 @@ public abstract class AbstractMetadataAssemblerTests extends AbstractJmxAssemble
     start(exporter);
 
     MBeanInfo inf = getServer().getMBeanInfo(ObjectNameManager.getInstance(objectName));
-    assertThat(inf.getOperations().length).as("Incorrect number of operations").isEqualTo(getExpectedOperationCount());
-    assertThat(inf.getAttributes().length).as("Incorrect number of attributes").isEqualTo(getExpectedAttributeCount());
+    assertThat(inf.getOperations()).as("Incorrect number of operations").hasSize(getExpectedOperationCount());
+    assertThat(inf.getAttributes()).as("Incorrect number of attributes").hasSize(getExpectedAttributeCount());
 
     assertThat(assembler.includeBean(proxy.getClass(), "some bean name")).as("Not included in autodetection").isTrue();
   }

@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -45,6 +45,7 @@ import cn.taketoday.jmx.support.JmxUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractMBeanInfoAssembler implements MBeanInfoAssembler {
@@ -62,7 +63,7 @@ public abstract class AbstractMBeanInfoAssembler implements MBeanInfoAssembler {
    * @see #getConstructorInfo(Object, String)
    * @see #getOperationInfo(Object, String)
    * @see #getNotificationInfo(Object, String)
-   * @see #populateMBeanDescriptor(Descriptor, Object, String)
+   * @see #populateMBeanDescriptor(javax.management.Descriptor, Object, String)
    */
   @Override
   public ModelMBeanInfo getMBeanInfo(Object managedBean, String beanKey) throws JMException {

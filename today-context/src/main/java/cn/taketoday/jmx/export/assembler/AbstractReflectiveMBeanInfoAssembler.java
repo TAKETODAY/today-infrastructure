@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -59,6 +59,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author David Boden
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #includeOperation
  * @see #includeReadAttribute
  * @see #includeWriteAttribute
@@ -182,7 +183,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
   private Integer defaultCurrencyTimeLimit;
 
   /**
-   * Indicates whether or not strict casing is being used for attributes.
+   * Indicates whether strict casing is being used for attributes.
    */
   private boolean useStrictCasing = true;
 
@@ -248,7 +249,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * through reflection.
    * <p>Set this property to {@code true} for JMX implementations that
    * require the "class" field to be specified, for example WebLogic's.
-   * In that case, Framework will expose the target class name there, in case of
+   * In that case, Infra will expose the target class name there, in case of
    * a plain bean instance or a CGLIB proxy. When encountering a JDK dynamic
    * proxy, the <b>first</b> interface implemented by the proxy will be specified.
    * <p><b>WARNING:</b> Review your proxy definitions when exposing a JDK dynamic
@@ -549,7 +550,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * @param beanKey the key associated with the MBean in the beans map
    * of the {@code MBeanExporter}
    * @see #setDefaultCurrencyTimeLimit(Integer)
-   * @see #applyDefaultCurrencyTimeLimit(Descriptor)
+   * @see #applyDefaultCurrencyTimeLimit(javax.management.Descriptor)
    */
   @Override
   protected void populateMBeanDescriptor(Descriptor descriptor, Object managedBean, String beanKey) {
@@ -568,7 +569,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * @param beanKey the key associated with the MBean in the beans map
    * of the {@code MBeanExporter}
    * @see #setDefaultCurrencyTimeLimit(Integer)
-   * @see #applyDefaultCurrencyTimeLimit(Descriptor)
+   * @see #applyDefaultCurrencyTimeLimit(javax.management.Descriptor)
    */
   protected void populateAttributeDescriptor(
           Descriptor desc, @Nullable Method getter, @Nullable Method setter, String beanKey) {
@@ -587,7 +588,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * @param beanKey the key associated with the MBean in the beans map
    * of the {@code MBeanExporter}
    * @see #setDefaultCurrencyTimeLimit(Integer)
-   * @see #applyDefaultCurrencyTimeLimit(Descriptor)
+   * @see #applyDefaultCurrencyTimeLimit(javax.management.Descriptor)
    */
   protected void populateOperationDescriptor(Descriptor desc, Method method, String beanKey) {
     applyDefaultCurrencyTimeLimit(desc);
@@ -616,7 +617,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
    * @param desc the JMX attribute or operation descriptor
    * @param currencyTimeLimit the "currencyTimeLimit" value to apply
    * @see #setDefaultCurrencyTimeLimit(Integer)
-   * @see #applyDefaultCurrencyTimeLimit(Descriptor)
+   * @see #applyDefaultCurrencyTimeLimit(javax.management.Descriptor)
    */
   protected void applyCurrencyTimeLimit(Descriptor desc, int currencyTimeLimit) {
     if (currencyTimeLimit > 0) {
