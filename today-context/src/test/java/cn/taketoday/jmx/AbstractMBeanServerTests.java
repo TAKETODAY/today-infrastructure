@@ -22,6 +22,7 @@ package cn.taketoday.jmx;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
@@ -61,6 +62,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
+@Order(0)
 @ExtendWith(AbstractMBeanServerTests.BindExceptionHandler.class)
 public abstract class AbstractMBeanServerTests {
 

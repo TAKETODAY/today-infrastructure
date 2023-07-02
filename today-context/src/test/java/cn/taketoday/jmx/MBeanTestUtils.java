@@ -47,7 +47,7 @@ public class MBeanTestUtils {
    * {@link MBeanServerFactory#releaseMBeanServer(MBeanServer)} whose error
    * message contains the text "not in list".
    */
-  public static void releaseMBeanServer(MBeanServer server) {
+  public static synchronized void releaseMBeanServer(MBeanServer server) {
     try {
       MBeanServerFactory.releaseMBeanServer(server);
     }
