@@ -23,6 +23,7 @@ package cn.taketoday.framework.env;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.yaml.snakeyaml.composer.ComposerException;
 import org.yaml.snakeyaml.constructor.ConstructorException;
 
 import java.nio.charset.StandardCharsets;
@@ -140,7 +141,7 @@ class OriginTrackedYamlLoaderTests {
     String yaml = "value: !!java.net.URL [!!java.lang.String [!!java.lang.StringBuilder [\"http://localhost:9000/\"]]]";
     Resource resource = new ByteArrayResource(yaml.getBytes(StandardCharsets.UTF_8));
     this.loader = new OriginTrackedYamlLoader(resource);
-    assertThatThrownBy(this.loader::load);
+    assertThatExceptionOfType(ComposerException.class).isThrownBy(this.loader::load);
   }
 
   @Test
