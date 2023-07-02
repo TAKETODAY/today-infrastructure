@@ -124,11 +124,6 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
   }
 
-  @Override
-  protected boolean isCookieCommentSupported() {
-    return false;
-  }
-
   // JMX MBean names clash if you get more than one Engine with the same name...
   @Test
   void tomcatEngineNames() {

@@ -205,10 +205,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     }
   }
 
-  protected boolean isCookieCommentSupported() {
-    return true;
-  }
-
   @Test
   void startServlet() throws Exception {
     AbstractServletWebServerFactory factory = getFactory();
@@ -846,7 +842,6 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void sessionCookieConfiguration() {
     AbstractServletWebServerFactory factory = getFactory();
     factory.getSession().getCookie().setName("testname");
@@ -861,9 +856,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     assertThat(sessionCookieConfig.getName()).isEqualTo("testname");
     assertThat(sessionCookieConfig.getDomain()).isEqualTo("testdomain");
     assertThat(sessionCookieConfig.getPath()).isEqualTo("/testpath");
-    if (isCookieCommentSupported()) {
-      assertThat(sessionCookieConfig.getComment()).isEqualTo("testcomment");
-    }
     assertThat(sessionCookieConfig.isHttpOnly()).isTrue();
     assertThat(sessionCookieConfig.isSecure()).isTrue();
     assertThat(sessionCookieConfig.getMaxAge()).isEqualTo(60);
@@ -1118,7 +1110,6 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void sessionConfiguration() {
     AbstractServletWebServerFactory factory = getFactory();
     factory.getSession().setTimeout(Duration.ofSeconds(123));
@@ -1137,9 +1128,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     assertThat(servletContext.getSessionCookieConfig().getName()).isEqualTo("testname");
     assertThat(servletContext.getSessionCookieConfig().getDomain()).isEqualTo("testdomain");
     assertThat(servletContext.getSessionCookieConfig().getPath()).isEqualTo("/testpath");
-    if (isCookieCommentSupported()) {
-      assertThat(servletContext.getSessionCookieConfig().getComment()).isEqualTo("testcomment");
-    }
     assertThat(servletContext.getSessionCookieConfig().isHttpOnly()).isTrue();
     assertThat(servletContext.getSessionCookieConfig().isSecure()).isTrue();
     assertThat(servletContext.getSessionCookieConfig().getMaxAge()).isEqualTo(60);
