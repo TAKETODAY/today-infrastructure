@@ -83,6 +83,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.BootstrapRegistry.InstanceSupplier;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;

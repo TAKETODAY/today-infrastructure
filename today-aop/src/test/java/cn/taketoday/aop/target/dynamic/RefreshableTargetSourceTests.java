@@ -22,8 +22,8 @@ package cn.taketoday.aop.target.dynamic;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.aop.DisabledIfInContinuousIntegration;
 import cn.taketoday.aop.target.AbstractRefreshableTargetSource;
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -35,10 +35,10 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.http.ContentDisposition;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.web.DisabledIfInContinuousIntegration;
 import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.publisher.Flux;
@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/22 9:47
  */
-@DisabledIfInContinuousIntegration(disabledReason = "file CRLF problem")
+//@DisabledIfInContinuousIntegration(disabledReason = "file CRLF problem")
 class PartEventHttpMessageReaderTests {
 
   private static final int BUFFER_SIZE = 64;

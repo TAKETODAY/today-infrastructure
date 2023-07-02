@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,9 +26,9 @@ import java.net.URI;
 import java.time.Duration;
 
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.web.DisabledIfInContinuousIntegration;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
