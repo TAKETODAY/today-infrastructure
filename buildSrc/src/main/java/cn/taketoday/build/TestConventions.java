@@ -79,12 +79,12 @@ class TestConventions {
     project.getPlugins().withType(TestRetryPlugin.class, testRetryPlugin -> {
       TestRetryTaskExtension testRetry = test.getExtensions().getByType(TestRetryTaskExtension.class);
       testRetry.getFailOnPassedAfterRetry().set(false);
-      testRetry.getMaxRetries().set(isCi() ? 3 : 1);
+      testRetry.getMaxRetries().set(isCi() ? 3 : 0);
     });
   }
 
   private boolean isCi() {
-    return Boolean.parseBoolean(System.getenv("CI"));
+    return Boolean.parseBoolean(System.getProperty("CI"));
   }
 
 }

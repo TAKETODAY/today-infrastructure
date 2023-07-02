@@ -34,7 +34,6 @@ import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 
-import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.jmx.AbstractJmxTests;
 import cn.taketoday.jmx.IJmxTestBean;
 import cn.taketoday.jmx.support.ObjectNameManager;
@@ -107,7 +106,6 @@ public abstract class AbstractJmxAssemblerTests extends AbstractJmxTests {
   }
 
   @Test
-  @DisabledIfInContinuousIntegration
   public void testDescriptionNotNull() throws Exception {
     ModelMBeanInfo info = getMBeanInfoFromAssembler();
 

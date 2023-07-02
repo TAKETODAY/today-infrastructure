@@ -22,6 +22,7 @@ package cn.taketoday.validation.beanvalidation;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/15 22:44
  */
+@Order(1)
 class MethodValidationAdapterTests {
 
   private static final Person faustino1234 = new Person("Faustino1234");

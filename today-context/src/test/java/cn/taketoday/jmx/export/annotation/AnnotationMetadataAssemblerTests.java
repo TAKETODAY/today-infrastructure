@@ -20,6 +20,7 @@
 
 package cn.taketoday.jmx.export.annotation;
 
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
@@ -36,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Harrop
  * @author Chris Beams
  */
+@Order(Integer.MIN_VALUE)
 public class AnnotationMetadataAssemblerTests extends AbstractMetadataAssemblerTests {
 
   private static final String OBJECT_NAME = "bean:name=testBean4";
