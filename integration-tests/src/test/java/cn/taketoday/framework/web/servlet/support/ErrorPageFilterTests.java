@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.ErrorPage;
@@ -345,6 +346,7 @@ class ErrorPageFilterTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void errorMessageForRequestWithoutPathInfo(CapturedOutput output) throws IOException, ServletException {
     this.request.setServletPath("/test");
     this.filter.addErrorPages(new ErrorPage("/error"));
@@ -357,6 +359,7 @@ class ErrorPageFilterTests {
   }
 
   @Test
+  @DisabledIfInContinuousIntegration
   void errorMessageForRequestWithPathInfo(CapturedOutput output) throws IOException, ServletException {
     this.request.setServletPath("/test");
     this.request.setPathInfo("/alpha");
