@@ -13,4 +13,5 @@ dependencies {
   testImplementation(testFixtures(project(":today-core")))
   testFixturesImplementation(testFixtures(project(":today-beans")))
   testFixturesImplementation(testFixtures(project(":today-core")))
+  testFixturesImplementation("com.google.code.findbugs:jsr305")
 }
