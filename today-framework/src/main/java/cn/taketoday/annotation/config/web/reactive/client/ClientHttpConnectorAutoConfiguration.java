@@ -58,7 +58,7 @@ public class ClientHttpConnectorAutoConfiguration {
   @Component
   @Lazy
   @ConditionalOnMissingBean(ClientHttpConnector.class)
-  ClientHttpConnector webClientHttpConnector(ClientHttpConnectorFactory<?> clientHttpConnectorFactory) {
+  static ClientHttpConnector webClientHttpConnector(ClientHttpConnectorFactory<?> clientHttpConnectorFactory) {
     return clientHttpConnectorFactory.createClientHttpConnector();
   }
 
@@ -66,7 +66,7 @@ public class ClientHttpConnectorAutoConfiguration {
   @Lazy
   @Order(0)
   @ConditionalOnBean(ClientHttpConnector.class)
-  public WebClientCustomizer webClientHttpConnectorCustomizer(ClientHttpConnector clientHttpConnector) {
+  static WebClientCustomizer webClientHttpConnectorCustomizer(ClientHttpConnector clientHttpConnector) {
     return builder -> builder.clientConnector(clientHttpConnector);
   }
 

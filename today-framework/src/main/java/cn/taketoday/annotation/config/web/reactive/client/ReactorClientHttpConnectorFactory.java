@@ -20,11 +20,12 @@
 
 package cn.taketoday.annotation.config.web.reactive.client;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.SSLException;
 
+import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslManagerBundle;
 import cn.taketoday.core.ssl.SslOptions;
@@ -47,34 +48,36 @@ class ReactorClientHttpConnectorFactory implements ClientHttpConnectorFactory<Re
 
   private final ReactorResourceFactory reactorResourceFactory;
 
-  private final Supplier<Stream<ReactorNettyHttpClientMapper>> mappers;
+  @Nullable
+  private final ObjectProvider<ReactorNettyHttpClientMapper> mappersProvider;
 
   ReactorClientHttpConnectorFactory(ReactorResourceFactory reactorResourceFactory) {
-    this(reactorResourceFactory, Stream::empty);
+    this(reactorResourceFactory, null);
   }
 
   ReactorClientHttpConnectorFactory(ReactorResourceFactory reactorResourceFactory,
-          Supplier<Stream<ReactorNettyHttpClientMapper>> mappers) {
+          @Nullable ObjectProvider<ReactorNettyHttpClientMapper> mappersProvider) {
     this.reactorResourceFactory = reactorResourceFactory;
-    this.mappers = mappers;
+    this.mappersProvider = mappersProvider;
   }
 
   @Override
   public ReactorClientHttpConnector createClientHttpConnector(@Nullable SslBundle sslBundle) {
-    ReactorNettyHttpClientMapper mapper = this.mappers.get()
-            .reduce((before, after) -> (client) -> after.configure(before.configure(client)))
-            .orElse(client -> client);
-    if (sslBundle != null) {
-      mapper = new SslConfigurer(sslBundle)::configure;
+    List<ReactorNettyHttpClientMapper> mappers = new ArrayList<>();
+    if (mappersProvider != null) {
+      mappers.addAll(mappersProvider.orderedList());
     }
-    return new ReactorClientHttpConnector(this.reactorResourceFactory, mapper::configure);
-
+    if (sslBundle != null) {
+      mappers.add(new SslConfigurer(sslBundle));
+    }
+    return new ReactorClientHttpConnector(reactorResourceFactory,
+            ReactorNettyHttpClientMapper.forCompose(mappers));
   }
 
   /**
    * Configures the Netty {@link HttpClient} with SSL.
    */
-  private static class SslConfigurer {
+  private static class SslConfigurer implements ReactorNettyHttpClientMapper {
 
     private final SslBundle sslBundle;
 
@@ -82,7 +85,8 @@ class ReactorClientHttpConnectorFactory implements ClientHttpConnectorFactory<Re
       this.sslBundle = sslBundle;
     }
 
-    HttpClient configure(HttpClient httpClient) {
+    @Override
+    public HttpClient apply(HttpClient httpClient) {
       return httpClient.secure(ThrowingConsumer.of(this::customizeSsl).throwing(IllegalStateException::new));
     }
 

@@ -25,6 +25,7 @@ import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -42,24 +43,26 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@DisableAllDependencyInjection
 class ClientHttpConnectorFactoryConfiguration {
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(reactor.netty.http.client.HttpClient.class)
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
+  @DisableAllDependencyInjection
   static class ReactorNetty {
 
     @Component
     @ConditionalOnMissingBean
-    ReactorResourceFactory reactorServerResourceFactory() {
+    static ReactorResourceFactory reactorServerResourceFactory() {
       return new ReactorResourceFactory();
     }
 
     @Component
-    ReactorClientHttpConnectorFactory reactorClientHttpConnectorFactory(
+    static ReactorClientHttpConnectorFactory reactorClientHttpConnectorFactory(
             ReactorResourceFactory reactorResourceFactory,
             ObjectProvider<ReactorNettyHttpClientMapper> mapperProvider) {
-      return new ReactorClientHttpConnectorFactory(reactorResourceFactory, mapperProvider::orderedStream);
+      return new ReactorClientHttpConnectorFactory(reactorResourceFactory, mapperProvider);
     }
 
   }
@@ -67,16 +70,17 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(org.eclipse.jetty.reactive.client.ReactiveRequest.class)
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
+  @DisableAllDependencyInjection
   static class JettyClient {
 
     @Component
     @ConditionalOnMissingBean
-    JettyResourceFactory jettyClientResourceFactory() {
+    static JettyResourceFactory jettyClientResourceFactory() {
       return new JettyResourceFactory();
     }
 
     @Component
-    JettyClientHttpConnectorFactory jettyClientHttpConnectorFactory(JettyResourceFactory jettyResourceFactory) {
+    static JettyClientHttpConnectorFactory jettyClientHttpConnectorFactory(JettyResourceFactory jettyResourceFactory) {
       return new JettyClientHttpConnectorFactory(jettyResourceFactory);
     }
 
@@ -85,10 +89,11 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass({ HttpAsyncClients.class, AsyncRequestProducer.class, ReactiveResponseConsumer.class })
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
+  @DisableAllDependencyInjection
   static class HttpClient5 {
 
     @Component
-    HttpComponentsClientHttpConnectorFactory httpComponentsClientHttpConnectorFactory() {
+    static HttpComponentsClientHttpConnectorFactory httpComponentsClientHttpConnectorFactory() {
       return new HttpComponentsClientHttpConnectorFactory();
     }
 
@@ -97,10 +102,11 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(java.net.http.HttpClient.class)
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
+  @DisableAllDependencyInjection
   static class JdkClient {
 
     @Component
-    JdkClientHttpConnectorFactory jdkClientHttpConnectorFactory() {
+    static JdkClientHttpConnectorFactory jdkClientHttpConnectorFactory() {
       return new JdkClientHttpConnectorFactory();
     }
 

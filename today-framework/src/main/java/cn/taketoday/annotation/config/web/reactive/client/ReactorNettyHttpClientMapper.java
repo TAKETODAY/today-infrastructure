@@ -20,7 +20,12 @@
 
 package cn.taketoday.annotation.config.web.reactive.client;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Function;
+
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
+import cn.taketoday.lang.Assert;
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -32,7 +37,7 @@ import reactor.netty.http.client.HttpClient;
  * @since 4.0
  */
 @FunctionalInterface
-public interface ReactorNettyHttpClientMapper {
+public interface ReactorNettyHttpClientMapper extends Function<HttpClient, HttpClient> {
 
   /**
    * Configure the given {@link HttpClient} and return the newly created instance.
@@ -40,6 +45,34 @@ public interface ReactorNettyHttpClientMapper {
    * @param httpClient the client to configure
    * @return the new client instance
    */
-  HttpClient configure(HttpClient httpClient);
+  @Override
+  HttpClient apply(HttpClient httpClient);
+
+  /**
+   * Return a new {@link ReactorNettyHttpClientMapper} composed of the given mappers.
+   *
+   * @param mappers the mappers to compose
+   * @return a composed {@link ReactorNettyHttpClientMapper} instance
+   */
+  static ReactorNettyHttpClientMapper forCompose(ReactorNettyHttpClientMapper... mappers) {
+    Assert.notNull(mappers, "Mappers must not be null");
+    return forCompose(Arrays.asList(mappers));
+  }
+
+  /**
+   * Return a new {@link ReactorNettyHttpClientMapper} composed of the given mappers.
+   *
+   * @param mappers the mappers to compose
+   * @return a composed {@link ReactorNettyHttpClientMapper} instance
+   */
+  static ReactorNettyHttpClientMapper forCompose(Collection<ReactorNettyHttpClientMapper> mappers) {
+    Assert.notNull(mappers, "Mappers must not be null");
+    return httpClient -> {
+      for (ReactorNettyHttpClientMapper mapper : mappers) {
+        httpClient = mapper.apply(httpClient);
+      }
+      return httpClient;
+    };
+  }
 
 }

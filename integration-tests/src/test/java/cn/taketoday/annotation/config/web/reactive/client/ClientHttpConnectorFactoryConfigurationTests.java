@@ -29,6 +29,10 @@ import java.util.concurrent.Executor;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.core.ssl.SslBundle;
+import cn.taketoday.core.ssl.SslBundleKey;
+import cn.taketoday.core.ssl.jks.JksSslStoreBundle;
+import cn.taketoday.core.ssl.jks.JksSslStoreDetails;
 import cn.taketoday.framework.test.context.FilteredClassLoader;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
 import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
@@ -37,7 +41,9 @@ import cn.taketoday.http.client.reactive.JettyResourceFactory;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 /**
  * Tests for {@link ClientHttpConnectorFactoryConfiguration}.
@@ -84,12 +90,16 @@ class ClientHttpConnectorFactoryConfigurationTests {
 
   @Test
   void shouldApplyHttpClientMapper() {
+    JksSslStoreDetails storeDetails = JksSslStoreDetails.forLocation("classpath:test.jks");
+    JksSslStoreBundle stores = new JksSslStoreBundle(storeDetails, storeDetails);
+    SslBundle sslBundle = spy(SslBundle.of(stores, SslBundleKey.of("password")));
     new ReactiveWebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(ClientHttpConnectorFactoryConfiguration.ReactorNetty.class))
             .withUserConfiguration(CustomHttpClientMapper.class)
             .run((context) -> {
-              context.getBean(ReactorClientHttpConnectorFactory.class).createClientHttpConnector();
+              context.getBean(ReactorClientHttpConnectorFactory.class).createClientHttpConnector(sslBundle);
               assertThat(CustomHttpClientMapper.called).isTrue();
+              then(sslBundle).should().getManagers();
             });
   }
 
