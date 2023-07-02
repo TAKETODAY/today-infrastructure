@@ -645,8 +645,7 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     }
   }
 
-  protected abstract String startedLogMessage();
-
+//  protected abstract String startedLogMessage();
 
   public interface BlockedPortAction {
 
