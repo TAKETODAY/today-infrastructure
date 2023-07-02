@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -62,6 +63,12 @@ public abstract class LoggingSystem {
    * implementation.
    */
   public static final String ROOT_LOGGER_NAME = "ROOT";
+
+  /**
+   * The name of an {@link Environment} property used to indicate that a correlation ID
+   * is expected to be logged at some point.
+   */
+  public static final String EXPECT_CORRELATION_ID_PROPERTY = "logging.expect-correlation-id";
 
   private static final LoggingSystemFactory SYSTEM_FACTORY = LoggingSystemFactory.fromTodayStrategies();
 

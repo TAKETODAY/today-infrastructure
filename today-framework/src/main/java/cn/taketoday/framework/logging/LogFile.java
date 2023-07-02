@@ -56,8 +56,10 @@ public class LogFile {
    */
   public static final String FILE_PATH_PROPERTY = "logging.file.path";
 
+  @Nullable
   private final String file;
 
+  @Nullable
   private final String path;
 
   /**
@@ -75,7 +77,7 @@ public class LogFile {
    * @param file a reference to the file to write
    * @param path a reference to the logging path to use if {@code file} is not specified
    */
-  LogFile(String file, @Nullable String path) {
+  LogFile(@Nullable String file, @Nullable String path) {
     Assert.isTrue(StringUtils.isNotEmpty(file) || StringUtils.isNotEmpty(path),
             "File or Path must not be empty");
     this.file = file;
@@ -95,13 +97,13 @@ public class LogFile {
    * @param properties the properties to apply to
    */
   public void applyTo(Properties properties) {
-    put(properties, LoggingSystemProperties.LOG_PATH, path);
-    put(properties, LoggingSystemProperties.LOG_FILE, toString());
+    put(properties, LoggingSystemProperty.LOG_PATH, this.path);
+    put(properties, LoggingSystemProperty.LOG_FILE, toString());
   }
 
-  private void put(Properties properties, String key, String value) {
+  private void put(Properties properties, LoggingSystemProperty property, @Nullable String value) {
     if (StringUtils.isNotEmpty(value)) {
-      properties.put(key, value);
+      properties.put(property.getEnvironmentVariableName(), value);
     }
   }
 

@@ -36,7 +36,7 @@ import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.context.event.ApplicationStartingEvent;
 import cn.taketoday.framework.logging.LogFile;
 import cn.taketoday.framework.logging.LoggingSystem;
-import cn.taketoday.framework.logging.LoggingSystemProperties;
+import cn.taketoday.framework.logging.LoggingSystemProperty;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.stereotype.Component;
@@ -73,7 +73,7 @@ class LoggingApplicationListenerIntegrationTests {
       assertThat(service.logFile).hasToString(logFile);
     }
     finally {
-      System.clearProperty(LoggingSystemProperties.LOG_FILE);
+      System.clearProperty(LoggingSystemProperty.LOG_FILE.getEnvironmentVariableName());
     }
   }
 

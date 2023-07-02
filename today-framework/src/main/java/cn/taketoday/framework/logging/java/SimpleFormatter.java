@@ -26,12 +26,13 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
-import cn.taketoday.framework.logging.LoggingSystemProperties;
+import cn.taketoday.framework.logging.LoggingSystemProperty;
 
 /**
  * Simple 'Java Logging' {@link Formatter}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class SimpleFormatter extends Formatter {
@@ -40,7 +41,7 @@ public class SimpleFormatter extends Formatter {
 
   private final String format = getOrUseDefault("LOG_FORMAT", DEFAULT_FORMAT);
 
-  private final String pid = getOrUseDefault(LoggingSystemProperties.PID_KEY, "????");
+  private final String pid = getOrUseDefault(LoggingSystemProperty.PID.getEnvironmentVariableName(), "????");
 
   private final Date date = new Date();
 

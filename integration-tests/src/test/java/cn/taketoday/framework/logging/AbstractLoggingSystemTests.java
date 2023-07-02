@@ -23,6 +23,7 @@ package cn.taketoday.framework.logging;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.MDC;
 
 import java.nio.file.Path;
 
@@ -55,8 +56,10 @@ public abstract class AbstractLoggingSystemTests {
 
   @AfterEach
   void clear() {
-    System.clearProperty(LoggingSystemProperties.LOG_FILE);
-    System.clearProperty(LoggingSystemProperties.PID_KEY);
+    for (LoggingSystemProperty property : LoggingSystemProperty.values()) {
+      System.getProperties().remove(property.getEnvironmentVariableName());
+    }
+    MDC.clear();
   }
 
   protected final String[] getSpringConfigLocations(AbstractLoggingSystem system) {

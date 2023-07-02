@@ -75,7 +75,7 @@ import cn.taketoday.framework.logging.LoggerConfiguration;
 import cn.taketoday.framework.logging.LoggerGroups;
 import cn.taketoday.framework.logging.LoggingStartupContext;
 import cn.taketoday.framework.logging.LoggingSystem;
-import cn.taketoday.framework.logging.LoggingSystemProperties;
+import cn.taketoday.framework.logging.LoggingSystemProperty;
 import cn.taketoday.framework.logging.java.JavaLoggingSystem;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
@@ -473,16 +473,16 @@ class LoggingApplicationListenerTests {
   void systemPropertiesAreSetForLoggingConfiguration() {
     addPropertiesToEnvironment(this.context, "logging.exception-conversion-word=conversion",
             "logging.file.name=" + this.logFile, "logging.file.path=path", "logging.pattern.console=console",
-            "logging.pattern.file=file", "logging.pattern.level=level",
+            "logging.pattern.file=file", "logging.pattern.level=level", "logging.pattern.correlation=correlation",
             "logging.pattern.rolling-file-name=my.log.%d{yyyyMMdd}.%i.gz");
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
-    assertThat(System.getProperty(LoggingSystemProperties.CONSOLE_LOG_PATTERN)).isEqualTo("console");
-    assertThat(System.getProperty(LoggingSystemProperties.FILE_LOG_PATTERN)).isEqualTo("file");
-    assertThat(System.getProperty(LoggingSystemProperties.EXCEPTION_CONVERSION_WORD)).isEqualTo("conversion");
-    assertThat(System.getProperty(LoggingSystemProperties.LOG_FILE)).isEqualTo(this.logFile.getAbsolutePath());
-    assertThat(System.getProperty(LoggingSystemProperties.LOG_LEVEL_PATTERN)).isEqualTo("level");
-    assertThat(System.getProperty(LoggingSystemProperties.LOG_PATH)).isEqualTo("path");
-    assertThat(System.getProperty(LoggingSystemProperties.PID_KEY)).isNotNull();
+    assertThat(getSystemProperty(LoggingSystemProperty.CONSOLE_PATTERN)).isEqualTo("console");
+    assertThat(getSystemProperty(LoggingSystemProperty.FILE_PATTERN)).isEqualTo("file");
+    assertThat(getSystemProperty(LoggingSystemProperty.EXCEPTION_CONVERSION_WORD)).isEqualTo("conversion");
+    assertThat(getSystemProperty(LoggingSystemProperty.LOG_FILE)).isEqualTo(this.logFile.getAbsolutePath());
+    assertThat(getSystemProperty(LoggingSystemProperty.LEVEL_PATTERN)).isEqualTo("level");
+    assertThat(getSystemProperty(LoggingSystemProperty.LOG_PATH)).isEqualTo("path");
+    assertThat(getSystemProperty(LoggingSystemProperty.PID)).isNotNull();
   }
 
   @Test
@@ -490,15 +490,14 @@ class LoggingApplicationListenerTests {
     // gh-7719
     addPropertiesToEnvironment(this.context, "logging.pattern.console=console ${doesnotexist}");
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
-    assertThat(System.getProperty(LoggingSystemProperties.CONSOLE_LOG_PATTERN))
-            .isEqualTo("console ${doesnotexist}");
+    assertThat(getSystemProperty(LoggingSystemProperty.CONSOLE_PATTERN)).isEqualTo("console ${doesnotexist}");
   }
 
   @Test
   void environmentPropertiesResolvePlaceholders() {
     addPropertiesToEnvironment(this.context, "logging.pattern.console=console ${pid}");
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
-    assertThat(System.getProperty(LoggingSystemProperties.CONSOLE_LOG_PATTERN))
+    assertThat(getSystemProperty(LoggingSystemProperty.CONSOLE_PATTERN))
             .isEqualTo(this.context.getEnvironment().getProperty("logging.pattern.console"));
   }
 
@@ -506,7 +505,7 @@ class LoggingApplicationListenerTests {
   void logFilePropertiesCanReferenceSystemProperties() {
     addPropertiesToEnvironment(this.context, "logging.file.name=" + this.tempDir + "${PID}.log");
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
-    assertThat(System.getProperty(LoggingSystemProperties.LOG_FILE))
+    assertThat(getSystemProperty(LoggingSystemProperty.LOG_FILE))
             .isEqualTo(this.tempDir + new ApplicationPid().toString() + ".log");
   }
 
@@ -579,6 +578,10 @@ class LoggingApplicationListenerTests {
     assertTraceEnabled("com.foo", false);
     assertTraceEnabled("com.foo.bar", true);
     assertTraceEnabled("com.foo.baz", true);
+  }
+
+  private String getSystemProperty(LoggingSystemProperty property) {
+    return System.getProperty(property.getEnvironmentVariableName());
   }
 
   private void assertTraceEnabled(String name, boolean expected) {

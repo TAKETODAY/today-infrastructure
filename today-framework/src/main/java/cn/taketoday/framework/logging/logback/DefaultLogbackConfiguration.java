@@ -76,12 +76,14 @@ class DefaultLogbackConfiguration {
 
   private void defaults(LogbackConfigurator config) {
     config.conversionRule("clr", ColorConverter.class);
+    config.conversionRule("correlationId", CorrelationIdConverter.class);
     config.conversionRule("wex", WhitespaceThrowableProxyConverter.class);
     config.conversionRule("wEx", ExtendedWhitespaceThrowableProxyConverter.class);
     config.getContext()
             .putProperty("CONSOLE_LOG_PATTERN", resolve(config, "${CONSOLE_LOG_PATTERN:-"
                     + "%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) "
-                    + "%clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} "
+                    + "%clr(${PID:- }){magenta} %clr(---){faint} %clr(${LOGGED_APPLICATION_NAME:-}[%15.15t]){faint} "
+                    + "%clr(${LOG_CORRELATION_PATTERN:-}){faint}%clr(%-40.40logger{39}){cyan} "
                     + "%clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"));
     String defaultCharset = Charset.defaultCharset().name();
     config.getContext()
@@ -89,7 +91,8 @@ class DefaultLogbackConfiguration {
     config.getContext().putProperty("CONSOLE_LOG_THRESHOLD", resolve(config, "${CONSOLE_LOG_THRESHOLD:-TRACE}"));
     config.getContext()
             .putProperty("FILE_LOG_PATTERN", resolve(config, "${FILE_LOG_PATTERN:-"
-                    + "%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] "
+                    + "%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- ${LOGGED_APPLICATION_NAME:-}[%t] "
+                    + "${LOG_CORRELATION_PATTERN:-}"
                     + "%-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"));
     config.getContext()
             .putProperty("FILE_LOG_CHARSET", resolve(config, "${FILE_LOG_CHARSET:-" + defaultCharset + "}"));
@@ -101,7 +104,7 @@ class DefaultLogbackConfiguration {
     config.logger("org.apache.tomcat.util.net.NioSelectorPool", Level.WARN);
     config.logger("org.eclipse.jetty.util.component.AbstractLifeCycle", Level.ERROR);
     config.logger("org.hibernate.validator.internal.util.Version", Level.WARN);
-    config.logger("cn.taketoday.framework.actuate.endpoint.jmx", Level.WARN);
+    config.logger("org.springframework.boot.actuate.endpoint.jmx", Level.WARN);
   }
 
   private Appender<ILoggingEvent> consoleAppender(LogbackConfigurator config) {

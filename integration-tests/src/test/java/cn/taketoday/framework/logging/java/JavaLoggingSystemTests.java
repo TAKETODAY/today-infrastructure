@@ -38,6 +38,7 @@ import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.framework.logging.LoggerConfiguration;
 import cn.taketoday.framework.logging.LoggingSystem;
 import cn.taketoday.framework.logging.LoggingSystemProperties;
+import cn.taketoday.framework.logging.LoggingSystemProperty;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.util.ClassUtils;
@@ -117,7 +118,7 @@ class JavaLoggingSystemTests extends AbstractLoggingSystemTests {
 
   @Test
   void testSystemPropertyInitializesFormat(CapturedOutput output) {
-    System.setProperty(LoggingSystemProperties.PID_KEY, "1234");
+    System.setProperty(LoggingSystemProperty.PID.getEnvironmentVariableName(), "1234");
     this.loggingSystem.beforeInitialize();
     this.loggingSystem.initialize(null,
             "classpath:" + ClassUtils.addResourcePathToPackagePath(getClass(), "logging.properties"), null);

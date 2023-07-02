@@ -28,9 +28,9 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 
-import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.logging.LoggingSystemProperties;
+import cn.taketoday.framework.logging.LoggingSystemProperty;
 import cn.taketoday.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,12 +48,12 @@ class LogbackLoggingSystemPropertiesTests {
 
   @BeforeEach
   void captureSystemPropertyNames() {
-    System.getProperties().remove(LoggingSystemProperties.CONSOLE_LOG_CHARSET);
-    System.getProperties().remove(LoggingSystemProperties.FILE_LOG_CHARSET);
+    for (LoggingSystemProperty property : LoggingSystemProperty.values()) {
+      System.getProperties().remove(property.getEnvironmentVariableName());
+    }
     this.systemPropertyNames = new HashSet<>(System.getProperties().keySet());
     this.environment = new MockEnvironment();
-    this.environment
-            .setConversionService((ConfigurableConversionService) ApplicationConversionService.getSharedInstance());
+    this.environment.setConversionService(ApplicationConversionService.getSharedInstance());
 
   }
 
@@ -66,7 +66,8 @@ class LogbackLoggingSystemPropertiesTests {
   void applySetsStandardSystemProperties() {
     this.environment.setProperty("logging.pattern.console", "boot");
     new LogbackLoggingSystemProperties(this.environment).apply();
-    assertThat(System.getProperties()).containsEntry(LoggingSystemProperties.CONSOLE_LOG_PATTERN, "boot");
+    assertThat(System.getProperties())
+            .containsEntry(LoggingSystemProperty.CONSOLE_PATTERN.getEnvironmentVariableName(), "boot");
   }
 
   @Test
@@ -78,11 +79,11 @@ class LogbackLoggingSystemPropertiesTests {
     this.environment.setProperty("logging.logback.rollingpolicy.max-history", "mh");
     new LogbackLoggingSystemProperties(this.environment).apply();
     assertThat(System.getProperties())
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_FILE_NAME_PATTERN, "fnp")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_CLEAN_HISTORY_ON_START, "chos")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_MAX_FILE_SIZE, "1024")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_TOTAL_SIZE_CAP, "2048")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_MAX_HISTORY, "mh");
+            .containsEntry(RollingPolicySystemProperty.FILE_NAME_PATTERN.getEnvironmentVariableName(), "fnp")
+            .containsEntry(RollingPolicySystemProperty.CLEAN_HISTORY_ON_START.getEnvironmentVariableName(), "chos")
+            .containsEntry(RollingPolicySystemProperty.MAX_FILE_SIZE.getEnvironmentVariableName(), "1024")
+            .containsEntry(RollingPolicySystemProperty.TOTAL_SIZE_CAP.getEnvironmentVariableName(), "2048")
+            .containsEntry(RollingPolicySystemProperty.MAX_HISTORY.getEnvironmentVariableName(), "mh");
   }
 
   @Test
@@ -94,24 +95,24 @@ class LogbackLoggingSystemPropertiesTests {
     this.environment.setProperty("logging.file.max-history", "mh");
     new LogbackLoggingSystemProperties(this.environment).apply();
     assertThat(System.getProperties())
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_FILE_NAME_PATTERN, "fnp")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_CLEAN_HISTORY_ON_START, "chos")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_MAX_FILE_SIZE, "1024")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_TOTAL_SIZE_CAP, "2048")
-            .containsEntry(LogbackLoggingSystemProperties.ROLLINGPOLICY_MAX_HISTORY, "mh");
+            .containsEntry(RollingPolicySystemProperty.FILE_NAME_PATTERN.getEnvironmentVariableName(), "fnp")
+            .containsEntry(RollingPolicySystemProperty.CLEAN_HISTORY_ON_START.getEnvironmentVariableName(), "chos")
+            .containsEntry(RollingPolicySystemProperty.MAX_FILE_SIZE.getEnvironmentVariableName(), "1024")
+            .containsEntry(RollingPolicySystemProperty.TOTAL_SIZE_CAP.getEnvironmentVariableName(), "2048")
+            .containsEntry(RollingPolicySystemProperty.MAX_HISTORY.getEnvironmentVariableName(), "mh");
   }
 
   @Test
   void consoleCharsetWhenNoPropertyUsesDefault() {
     new LoggingSystemProperties(new MockEnvironment()).apply(null);
-    assertThat(System.getProperty(LoggingSystemProperties.CONSOLE_LOG_CHARSET))
+    assertThat(System.getProperty(LoggingSystemProperty.CONSOLE_CHARSET.getEnvironmentVariableName()))
             .isEqualTo(Charset.defaultCharset().name());
   }
 
   @Test
   void fileCharsetWhenNoPropertyUsesDefault() {
     new LoggingSystemProperties(new MockEnvironment()).apply(null);
-    assertThat(System.getProperty(LoggingSystemProperties.FILE_LOG_CHARSET))
+    assertThat(System.getProperty(LoggingSystemProperty.FILE_CHARSET.getEnvironmentVariableName()))
             .isEqualTo(Charset.defaultCharset().name());
   }
 
