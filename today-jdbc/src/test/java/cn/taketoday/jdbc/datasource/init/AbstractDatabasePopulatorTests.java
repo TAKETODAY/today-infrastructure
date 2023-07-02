@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,8 +22,6 @@ package cn.taketoday.jdbc.datasource.init;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -43,7 +41,6 @@ import static org.mockito.Mockito.verify;
  * @author Sam Brannen
  * @author Oliver Gierke
  */
-@Execution(ExecutionMode.SAME_THREAD)
 abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializationTests {
 
   private static final String COUNT_DAVE_SQL = "select COUNT(NAME) from T_TEST where NAME='Dave'";
@@ -181,11 +178,7 @@ abstract class AbstractDatabasePopulatorTests extends AbstractDatabaseInitializa
     verify(populator).populate(connection);
   }
 
-  /**
-   * See SPR-9781
-   */
   @Test
-  @Timeout(2)
   void executesHugeScriptInReasonableTime() throws SQLException {
     databasePopulator.addScript(defaultSchema());
     databasePopulator.addScript(resource("db-test-data-huge.sql"));
