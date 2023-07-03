@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
-import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
+import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.env.PropertySources;
@@ -89,16 +89,14 @@ public class ConfigurationPropertiesBindingPostProcessor
   }
 
   private boolean hasBoundValueObject(String beanName) {
-    return registry.containsBeanDefinition(beanName) && BindMethod.VALUE_OBJECT.equals(
-            registry.getBeanDefinition(beanName).getAttribute(BindMethod.class.getName())
-    );
+    return BindMethod.VALUE_OBJECT.equals(BindMethodAttribute.get(this.registry, beanName));
   }
 
   private void bind(@Nullable ConfigurationPropertiesBean bean) {
     if (bean == null) {
       return;
     }
-    if (bean.getBindMethod() != BindMethod.JAVA_BEAN) {
+    if (bean.asBindTarget().getBindMethod() != BindMethod.VALUE_OBJECT) {
       throw new IllegalStateException("Cannot bind @ConfigurationProperties for bean '"
               + bean.getName() + "'. Ensure that @ConstructorBinding has not been applied to regular bean");
     }

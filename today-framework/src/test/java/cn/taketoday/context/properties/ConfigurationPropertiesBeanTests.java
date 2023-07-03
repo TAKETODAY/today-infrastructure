@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -37,7 +37,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
+import cn.taketoday.context.properties.bind.BindConstructorProvider;
+import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.ConstructorBinding;
 import cn.taketoday.core.ResolvableType;
@@ -58,48 +59,49 @@ class ConfigurationPropertiesBeanTests {
 
   @Test
   void getAllReturnsAll() {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             NonAnnotatedComponent.class, AnnotatedComponent.class, AnnotatedBeanConfiguration.class,
-            ValueObjectConfiguration.class);
-    Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
-    assertThat(all).containsOnlyKeys("annotatedComponent", "annotatedBean", ValueObject.class.getName());
-    ConfigurationPropertiesBean component = all.get("annotatedComponent");
-    assertThat(component.getName()).isEqualTo("annotatedComponent");
-    assertThat(component.getInstance()).isInstanceOf(AnnotatedComponent.class);
-    assertThat(component.getAnnotation()).isNotNull();
-    assertThat(component.getType()).isEqualTo(AnnotatedComponent.class);
-    assertThat(component.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
-    ConfigurationPropertiesBean bean = all.get("annotatedBean");
-    assertThat(bean.getName()).isEqualTo("annotatedBean");
-    assertThat(bean.getInstance()).isInstanceOf(AnnotatedBean.class);
-    assertThat(bean.getType()).isEqualTo(AnnotatedBean.class);
-    assertThat(bean.getAnnotation()).isNotNull();
-    assertThat(bean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
-    ConfigurationPropertiesBean valueObject = all.get(ValueObject.class.getName());
-    assertThat(valueObject.getName()).isEqualTo(ValueObject.class.getName());
-    assertThat(valueObject.getInstance()).isInstanceOf(ValueObject.class);
-    assertThat(valueObject.getType()).isEqualTo(ValueObject.class);
-    assertThat(valueObject.getAnnotation()).isNotNull();
-    assertThat(valueObject.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
-    context.close();
+            ValueObjectConfiguration.class)) {
+      Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
+      assertThat(all).containsOnlyKeys("annotatedComponent", "annotatedBean", ValueObject.class.getName());
+      ConfigurationPropertiesBean component = all.get("annotatedComponent");
+      assertThat(component.getName()).isEqualTo("annotatedComponent");
+      assertThat(component.getInstance()).isInstanceOf(AnnotatedComponent.class);
+      assertThat(component.getAnnotation()).isNotNull();
+      assertThat(component.getType()).isEqualTo(AnnotatedComponent.class);
+      assertThat(component.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      ConfigurationPropertiesBean bean = all.get("annotatedBean");
+      assertThat(bean.getName()).isEqualTo("annotatedBean");
+      assertThat(bean.getInstance()).isInstanceOf(AnnotatedBean.class);
+      assertThat(bean.getType()).isEqualTo(AnnotatedBean.class);
+      assertThat(bean.getAnnotation()).isNotNull();
+      assertThat(bean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      ConfigurationPropertiesBean valueObject = all.get(ValueObject.class.getName());
+      assertThat(valueObject.getName()).isEqualTo(ValueObject.class.getName());
+      assertThat(valueObject.getInstance()).isInstanceOf(ValueObject.class);
+      assertThat(valueObject.getType()).isEqualTo(ValueObject.class);
+      assertThat(valueObject.getAnnotation()).isNotNull();
+      assertThat(valueObject.asBindTarget().getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
+    }
   }
 
   @Test
   void getAllDoesNotFindABeanDeclaredInAStaticBeanMethodOnAConfigurationAndConfigurationPropertiesAnnotatedClass() {
-    var context = new AnnotationConfigApplicationContext(StaticBeanMethodConfiguration.class);
-    Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
-    assertThat(all).containsOnlyKeys("configurationPropertiesBeanTests.StaticBeanMethodConfiguration");
-    context.close();
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+            StaticBeanMethodConfiguration.class)) {
+      Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
+      assertThat(all).containsOnlyKeys("configurationPropertiesBeanTests.StaticBeanMethodConfiguration");
+    }
   }
 
   @Test
   void getAllWhenHasBadBeanDoesNotFail() {
-    var context = new AnnotationConfigApplicationContext(
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             NonAnnotatedComponent.class, AnnotatedComponent.class, AnnotatedBeanConfiguration.class,
-            ValueObjectConfiguration.class, BadBeanConfiguration.class);
-    Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
-    assertThat(all).isNotEmpty();
-    context.close();
+            ValueObjectConfiguration.class, BadBeanConfiguration.class)) {
+      Map<String, ConfigurationPropertiesBean> all = ConfigurationPropertiesBean.getAll(context);
+      assertThat(all).isNotEmpty();
+    }
   }
 
   @Test
@@ -116,7 +118,7 @@ class ConfigurationPropertiesBeanTests {
       assertThat(propertiesBean.getInstance()).isInstanceOf(AnnotatedComponent.class);
       assertThat(propertiesBean.getType()).isEqualTo(AnnotatedComponent.class);
       assertThat(propertiesBean.getAnnotation().prefix()).isEqualTo("prefix");
-      assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
     });
   }
 
@@ -128,7 +130,7 @@ class ConfigurationPropertiesBeanTests {
       assertThat(propertiesBean.getInstance()).isInstanceOf(NonAnnotatedBean.class);
       assertThat(propertiesBean.getType()).isEqualTo(NonAnnotatedBean.class);
       assertThat(propertiesBean.getAnnotation().prefix()).isEqualTo("prefix");
-      assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
     });
   }
 
@@ -141,7 +143,7 @@ class ConfigurationPropertiesBeanTests {
               assertThat(propertiesBean.getInstance()).isInstanceOf(NonAnnotatedBean.class);
               assertThat(propertiesBean.getType()).isEqualTo(NonAnnotatedBean.class);
               assertThat(propertiesBean.getAnnotation().prefix()).isEqualTo("prefix");
-              assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+              assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
             });
   }
 
@@ -153,7 +155,7 @@ class ConfigurationPropertiesBeanTests {
       assertThat(propertiesBean.getInstance()).isInstanceOf(NonAnnotatedBean.class);
       assertThat(propertiesBean.getType()).isEqualTo(NonAnnotatedBean.class);
       assertThat(propertiesBean.getAnnotation().prefix()).isEqualTo("prefix");
-      assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
     });
   }
 
@@ -161,7 +163,7 @@ class ConfigurationPropertiesBeanTests {
   void getWhenHasFactoryMethodBindsUsingMethodReturnType() throws Throwable {
     get(NonAnnotatedGenericBeanConfiguration.class, "nonAnnotatedGenericBean", (propertiesBean) -> {
       assertThat(propertiesBean.getType()).isEqualTo(NonAnnotatedGenericBean.class);
-      assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
       ResolvableType type = propertiesBean.asBindTarget().getType();
       assertThat(type.resolve()).isEqualTo(NonAnnotatedGenericBean.class);
       assertThat(type.resolveGeneric(0)).isEqualTo(String.class);
@@ -172,7 +174,7 @@ class ConfigurationPropertiesBeanTests {
   void getWhenHasFactoryMethodWithoutAnnotationBindsUsingMethodType() throws Throwable {
     get(AnnotatedGenericBeanConfiguration.class, "annotatedGenericBean", (propertiesBean) -> {
       assertThat(propertiesBean.getType()).isEqualTo(AnnotatedGenericBean.class);
-      assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
       ResolvableType type = propertiesBean.asBindTarget().getType();
       assertThat(type.resolve()).isEqualTo(AnnotatedGenericBean.class);
       assertThat(type.resolveGeneric(0)).isEqualTo(String.class);
@@ -183,7 +185,7 @@ class ConfigurationPropertiesBeanTests {
   void getWhenHasNoFactoryMethodBindsUsingObjectType() throws Throwable {
     get(AnnotatedGenericComponent.class, "annotatedGenericComponent", (propertiesBean) -> {
       assertThat(propertiesBean.getType()).isEqualTo(AnnotatedGenericComponent.class);
-      assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
+      assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.JAVA_BEAN);
       ResolvableType type = propertiesBean.asBindTarget().getType();
       assertThat(type.resolve()).isEqualTo(AnnotatedGenericComponent.class);
       assertThat(type.getGeneric(0).resolve()).isNull();
@@ -227,13 +229,13 @@ class ConfigurationPropertiesBeanTests {
     assertThat(propertiesBean.getName()).isEqualTo("valueObjectBean");
     assertThat(propertiesBean.getInstance()).isNull();
     assertThat(propertiesBean.getType()).isEqualTo(ConstructorBindingOnConstructor.class);
-    assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
+    assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
     assertThat(propertiesBean.getAnnotation()).isNotNull();
     Bindable<?> target = propertiesBean.asBindTarget();
     assertThat(target.getType()).isEqualTo(ResolvableType.forClass(ConstructorBindingOnConstructor.class));
     assertThat(target.getValue()).isNull();
-    assertThat(ConfigurationPropertiesBindConstructorProvider.INSTANCE
-            .getBindConstructor(ConstructorBindingOnConstructor.class, false)).isNotNull();
+    assertThat(BindConstructorProvider.DEFAULT.getBindConstructor(ConstructorBindingOnConstructor.class, false))
+            .isNotNull();
   }
 
   @Test
@@ -241,21 +243,25 @@ class ConfigurationPropertiesBeanTests {
     Class<?> implicitConstructorBinding = new ByteBuddy(ClassFileVersion.JAVA_V16).makeRecord()
             .name("cn.taketoday.context.properties.ImplicitConstructorBinding")
             .annotateType(AnnotationDescription.Builder.ofType(ConfigurationProperties.class)
-                    .define("prefix", "implicit").build())
-            .defineRecordComponent("someString", String.class).defineRecordComponent("someInteger", Integer.class)
-            .make().load(getClass().getClassLoader()).getLoaded();
+                    .define("prefix", "implicit")
+                    .build())
+            .defineRecordComponent("someString", String.class)
+            .defineRecordComponent("someInteger", Integer.class)
+            .make()
+            .load(getClass().getClassLoader())
+            .getLoaded();
     ConfigurationPropertiesBean propertiesBean = ConfigurationPropertiesBean
             .forValueObject(implicitConstructorBinding, "implicitBindingRecord");
     assertThat(propertiesBean.getName()).isEqualTo("implicitBindingRecord");
     assertThat(propertiesBean.getInstance()).isNull();
     assertThat(propertiesBean.getType()).isEqualTo(implicitConstructorBinding);
-    assertThat(propertiesBean.getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
+    assertThat(propertiesBean.asBindTarget().getBindMethod()).isEqualTo(BindMethod.VALUE_OBJECT);
     assertThat(propertiesBean.getAnnotation()).isNotNull();
     Bindable<?> target = propertiesBean.asBindTarget();
     assertThat(target.getType()).isEqualTo(ResolvableType.forClass(implicitConstructorBinding));
     assertThat(target.getValue()).isNull();
-    Constructor<?> bindConstructor = ConfigurationPropertiesBindConstructorProvider.INSTANCE
-            .getBindConstructor(implicitConstructorBinding, false);
+    Constructor<?> bindConstructor = BindConstructorProvider.DEFAULT.getBindConstructor(implicitConstructorBinding,
+            false);
     assertThat(bindConstructor).isNotNull();
     assertThat(bindConstructor.getParameterTypes()).containsExactly(String.class, Integer.class);
   }
@@ -266,71 +272,72 @@ class ConfigurationPropertiesBeanTests {
             .isThrownBy(() -> ConfigurationPropertiesBean.forValueObject(AnnotatedBean.class, "annotatedBean"))
             .withMessage("Bean 'annotatedBean' is not a @ConfigurationProperties value object");
     assertThatIllegalStateException()
-            .isThrownBy(
-                    () -> ConfigurationPropertiesBean.forValueObject(NonAnnotatedBean.class, "nonAnnotatedBean"))
+            .isThrownBy(() -> ConfigurationPropertiesBean.forValueObject(NonAnnotatedBean.class, "nonAnnotatedBean"))
             .withMessage("Bean 'nonAnnotatedBean' is not a @ConfigurationProperties value object");
 
   }
 
   @Test
-  void bindTypeForTypeWhenNoConstructorBindingReturnsJavaBean() {
-    BindMethod bindType = BindMethod.forType(NoConstructorBinding.class);
+  void deduceBindMethodWhenNoConstructorBindingReturnsJavaBean() {
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(NoConstructorBinding.class);
     assertThat(bindType).isEqualTo(BindMethod.JAVA_BEAN);
   }
 
   @Test
-  void bindTypeForTypeWhenConstructorBindingOnConstructorReturnsValueObject() {
-    BindMethod bindType = BindMethod.forType(ConstructorBindingOnConstructor.class);
+  void deduceBindMethodWhenConstructorBindingOnConstructorReturnsValueObject() {
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(ConstructorBindingOnConstructor.class);
     assertThat(bindType).isEqualTo(BindMethod.VALUE_OBJECT);
   }
 
   @Test
-  void bindTypeForTypeWhenNoConstructorBindingAnnotationOnSingleParameterizedConstructorReturnsValueObject() {
-    BindMethod bindType = BindMethod.forType(ConstructorBindingNoAnnotation.class);
+  void deduceBindMethodWhenNoConstructorBindingAnnotationOnSingleParameterizedConstructorReturnsValueObject() {
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(ConstructorBindingNoAnnotation.class);
     assertThat(bindType).isEqualTo(BindMethod.VALUE_OBJECT);
   }
 
   @Test
-  void bindTypeForTypeWhenConstructorBindingOnMultipleConstructorsThrowsException() {
+  void deduceBindMethodWhenConstructorBindingOnMultipleConstructorsThrowsException() {
     assertThatIllegalStateException()
-            .isThrownBy(() -> BindMethod.forType(ConstructorBindingOnMultipleConstructors.class))
+            .isThrownBy(
+                    () -> ConfigurationPropertiesBean.deduceBindMethod(ConstructorBindingOnMultipleConstructors.class))
             .withMessage(ConstructorBindingOnMultipleConstructors.class.getName()
                     + " has more than one @ConstructorBinding constructor");
   }
 
   @Test
-  void bindTypeForTypeWithMultipleConstructorsReturnJavaBean() {
-    BindMethod bindType = BindMethod.forType(NoConstructorBindingOnMultipleConstructors.class);
+  void deduceBindMethodWithMultipleConstructorsReturnJavaBean() {
+    BindMethod bindType = ConfigurationPropertiesBean
+            .deduceBindMethod(NoConstructorBindingOnMultipleConstructors.class);
     assertThat(bindType).isEqualTo(BindMethod.JAVA_BEAN);
   }
 
   @Test
-  void bindTypeForTypeWithNoArgConstructorReturnsJavaBean() {
-    BindMethod bindType = BindMethod.forType(JavaBeanWithNoArgConstructor.class);
+  void deduceBindMethodWithNoArgConstructorReturnsJavaBean() {
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(JavaBeanWithNoArgConstructor.class);
     assertThat(bindType).isEqualTo(BindMethod.JAVA_BEAN);
   }
 
   @Test
-  void bindTypeForTypeWithSingleArgAutowiredConstructorReturnsJavaBean() {
-    BindMethod bindType = BindMethod.forType(JavaBeanWithAutowiredConstructor.class);
+  void deduceBindMethodWithSingleArgAutowiredConstructorReturnsJavaBean() {
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(JavaBeanWithAutowiredConstructor.class);
     assertThat(bindType).isEqualTo(BindMethod.JAVA_BEAN);
   }
 
   @Test
   void constructorBindingAndAutowiredConstructorsShouldThrowException() {
-    assertThatIllegalStateException()
-            .isThrownBy(() -> BindMethod.forType(ConstructorBindingAndAutowiredConstructors.class));
+    assertThatIllegalStateException().isThrownBy(
+            () -> ConfigurationPropertiesBean.deduceBindMethod(ConstructorBindingAndAutowiredConstructors.class));
   }
 
   @Test
   void innerClassWithSyntheticFieldShouldReturnJavaBean() {
-    BindMethod bindType = BindMethod.forType(Inner.class);
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(Inner.class);
     assertThat(bindType).isEqualTo(BindMethod.JAVA_BEAN);
   }
 
   @Test
   void innerClassWithParameterizedConstructorShouldReturnJavaBean() {
-    BindMethod bindType = BindMethod.forType(ParameterizedConstructorInner.class);
+    BindMethod bindType = ConfigurationPropertiesBean.deduceBindMethod(ParameterizedConstructorInner.class);
     assertThat(bindType).isEqualTo(BindMethod.JAVA_BEAN);
   }
 
@@ -346,13 +353,13 @@ class ConfigurationPropertiesBeanTests {
 
   private void get(Class<?> configuration, String beanName, boolean cacheBeanMetadata,
           ThrowingConsumer<ConfigurationPropertiesBean> consumer) throws Throwable {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.getBeanFactory().setCacheBeanMetadata(cacheBeanMetadata);
-    context.register(configuration);
-    context.refresh();
-    Object bean = context.getBean(beanName);
-    consumer.accept(ConfigurationPropertiesBean.get(context, bean, beanName));
-    context.close();
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+      context.getBeanFactory().setCacheBeanMetadata(cacheBeanMetadata);
+      context.register(configuration);
+      context.refresh();
+      Object bean = context.getBean(beanName);
+      consumer.accept(ConfigurationPropertiesBean.get(context, bean, beanName));
+    }
   }
 
   @Component("nonAnnotatedComponent")
@@ -618,6 +625,7 @@ class ConfigurationPropertiesBeanTests {
   class ParameterizedConstructorInner {
 
     ParameterizedConstructorInner(Integer age) {
+
     }
 
   }

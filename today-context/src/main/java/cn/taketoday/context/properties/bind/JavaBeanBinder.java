@@ -99,7 +99,7 @@ class JavaBeanBinder implements DataObjectBinder {
 
   private <T> boolean bind(BeanSupplier<T> beanSupplier,
           DataObjectPropertyBinder propertyBinder, BeanProperty property) {
-    String propertyName = property.getName();
+    String propertyName = property.name;
     ResolvableType type = property.getType();
     Supplier<Object> value = property.getValue(beanSupplier);
     Annotation[] annotations = property.getAnnotations();
@@ -112,7 +112,7 @@ class JavaBeanBinder implements DataObjectBinder {
       property.setValue(beanSupplier, bound);
     }
     else if (value == null || !bound.equals(value.get())) {
-      throw new IllegalStateException("No setter found for property: " + property.getName());
+      throw new IllegalStateException("No setter found for property: " + property.name);
     }
     return true;
   }
@@ -327,18 +327,18 @@ class JavaBeanBinder implements DataObjectBinder {
    */
   static class BeanProperty {
 
-    private final String name;
+    public final String name;
 
-    private final ResolvableType declaringClassType;
-
-    @Nullable
-    private Method getter;
+    public final ResolvableType declaringClassType;
 
     @Nullable
-    private Method setter;
+    public Method getter;
 
     @Nullable
-    private Field field;
+    public Method setter;
+
+    @Nullable
+    public Field field;
 
     BeanProperty(String name, ResolvableType declaringClassType) {
       this.name = DataObjectPropertyName.toDashedForm(name);
@@ -365,10 +365,6 @@ class JavaBeanBinder implements DataObjectBinder {
       if (this.field == null) {
         this.field = field;
       }
-    }
-
-    String getName() {
-      return this.name;
     }
 
     ResolvableType getType() {

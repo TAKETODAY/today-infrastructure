@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -24,6 +24,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class Binder {
 
   private final BindHandler defaultBindHandler;
 
-  private final List<DataObjectBinder> dataObjectBinders;
+  private final Map<BindMethod, List<DataObjectBinder>> dataObjectBinders;
 
   /**
    * Create a new {@link Binder} instance for the specified sources. A
@@ -203,15 +204,16 @@ public class Binder {
    * @param constructorProvider the constructor provider which provides the bind
    * constructor to use when binding
    */
-  public Binder(
-          Iterable<ConfigurationPropertySource> sources,
+  public Binder(Iterable<ConfigurationPropertySource> sources,
           @Nullable PlaceholdersResolver placeholdersResolver,
           @Nullable List<ConversionService> conversionServices,
           @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
           @Nullable BindHandler defaultBindHandler,
-          @Nullable BindConstructorProvider constructorProvider
-  ) {
+          @Nullable BindConstructorProvider constructorProvider) {
     Assert.notNull(sources, "Sources must not be null");
+    for (ConfigurationPropertySource source : sources) {
+      Assert.notNull(source, "Sources must not contain null elements");
+    }
     this.sources = sources;
     this.bindConverter = BindConverter.get(conversionServices, propertyEditorInitializer);
     this.defaultBindHandler = defaultBindHandler != null ? defaultBindHandler : BindHandler.DEFAULT;
@@ -221,7 +223,12 @@ public class Binder {
       constructorProvider = BindConstructorProvider.DEFAULT;
     }
     ValueObjectBinder valueObjectBinder = new ValueObjectBinder(constructorProvider);
-    this.dataObjectBinders = List.of(valueObjectBinder, JavaBeanBinder.INSTANCE);
+    JavaBeanBinder javaBeanBinder = JavaBeanBinder.INSTANCE;
+    Map<BindMethod, List<DataObjectBinder>> dataObjectBinders = new HashMap<>();
+    dataObjectBinders.put(BindMethod.VALUE_OBJECT, List.of(valueObjectBinder));
+    dataObjectBinders.put(BindMethod.JAVA_BEAN, List.of(javaBeanBinder));
+    dataObjectBinders.put(null, List.of(valueObjectBinder, javaBeanBinder));
+    this.dataObjectBinders = Collections.unmodifiableMap(dataObjectBinders);
   }
 
   /**
@@ -410,7 +417,7 @@ public class Binder {
 
   @Nullable
   private Object create(Bindable<?> target, Context context) {
-    for (DataObjectBinder dataObjectBinder : this.dataObjectBinders) {
+    for (DataObjectBinder dataObjectBinder : dataObjectBinders.get(target.getBindMethod())) {
       Object instance = dataObjectBinder.create(target, context);
       if (instance != null) {
         return instance;
@@ -519,13 +526,14 @@ public class Binder {
       return null;
     }
     Class<?> type = target.getType().resolve(Object.class);
+    BindMethod bindMethod = target.getBindMethod();
     if (!allowRecursiveBinding && context.isBindingDataObject(type)) {
       return null;
     }
     DataObjectPropertyBinder propertyBinder = (propertyName, propertyTarget)
             -> bind(name.append(propertyName), propertyTarget, handler, context, false, false);
     return context.withDataObject(type, () -> {
-      for (DataObjectBinder dataObjectBinder : this.dataObjectBinders) {
+      for (DataObjectBinder dataObjectBinder : dataObjectBinders.get(bindMethod)) {
         Object instance = dataObjectBinder.bind(name, target, context, propertyBinder);
         if (instance != null) {
           return instance;

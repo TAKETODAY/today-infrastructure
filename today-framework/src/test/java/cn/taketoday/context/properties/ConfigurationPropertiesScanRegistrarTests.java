@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
-import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
+import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.context.properties.scan.combined.c.CombinedConfiguration;
 import cn.taketoday.context.properties.scan.combined.d.OtherCombinedConfiguration;
 import cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration;
@@ -85,14 +85,14 @@ class ConfigurationPropertiesScanRegistrarTests {
             getAnnotationMetadata(ConfigurationPropertiesScanConfiguration.DifferentPackageConfiguration.class),
             new BootstrapContext(beanFactory, null));
     assertThat(beanFactory.containsBeanDefinition(
-            "foo-cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties"))
+            "foo-org.springframework.boot.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties"))
             .isFalse();
     BeanDefinition aDefinition = beanFactory.getBeanDefinition(
-            "a-cn.taketoday.context.properties.scan.valid.a.AScanConfiguration$AProperties");
+            "a-org.springframework.boot.context.properties.scan.valid.a.AScanConfiguration$AProperties");
     BeanDefinition bFirstDefinition = beanFactory.getBeanDefinition(
-            "b.first-cn.taketoday.context.properties.scan.valid.b.BScanConfiguration$BFirstProperties");
+            "b.first-org.springframework.boot.context.properties.scan.valid.b.BScanConfiguration$BFirstProperties");
     BeanDefinition bSecondDefinition = beanFactory.getBeanDefinition(
-            "b.second-cn.taketoday.context.properties.scan.valid.b.BScanConfiguration$BSecondProperties");
+            "b.second-org.springframework.boot.context.properties.scan.valid.b.BScanConfiguration$BSecondProperties");
     assertThat(aDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
     // Constructor injection
     assertThat(bFirstDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.VALUE_OBJECT));
@@ -104,8 +104,9 @@ class ConfigurationPropertiesScanRegistrarTests {
   void scanWhenComponentAnnotationPresentShouldSkipType() throws IOException {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.setAllowBeanDefinitionOverriding(false);
-    this.registrar.registerBeanDefinitions(getAnnotationMetadata(CombinedScanConfiguration.class), new BootstrapContext(beanFactory, null));
-    assertThat(beanFactory.getBeanDefinitionCount()).isEqualTo(0);
+    this.registrar.registerBeanDefinitions(getAnnotationMetadata(CombinedScanConfiguration.class),
+            new BootstrapContext(beanFactory, null));
+    assertThat(beanFactory.getBeanDefinitionCount()).isZero();
   }
 
   @Test
@@ -114,7 +115,7 @@ class ConfigurationPropertiesScanRegistrarTests {
     beanFactory.setAllowBeanDefinitionOverriding(false);
     this.registrar.registerBeanDefinitions(getAnnotationMetadata(OtherCombinedScanConfiguration.class),
             new BootstrapContext(beanFactory, null));
-    assertThat(beanFactory.getBeanDefinitionCount()).isEqualTo(0);
+    assertThat(beanFactory.getBeanDefinitionCount()).isZero();
   }
 
   private Consumer<BeanDefinition> configurationPropertiesBeanDefinition(BindMethod bindMethod) {

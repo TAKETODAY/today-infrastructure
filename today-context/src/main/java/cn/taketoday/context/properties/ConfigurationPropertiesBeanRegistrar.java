@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,7 +26,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
-import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
+import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
@@ -55,8 +55,8 @@ final class ConfigurationPropertiesBeanRegistrar {
   }
 
   void register(Class<?> type) {
-    MergedAnnotation<ConfigurationProperties> annotation = MergedAnnotations.from(
-            type, SearchStrategy.TYPE_HIERARCHY).get(ConfigurationProperties.class);
+    var annotation = MergedAnnotations.from(type, SearchStrategy.TYPE_HIERARCHY)
+            .get(ConfigurationProperties.class);
     register(type, annotation);
   }
 
@@ -80,40 +80,30 @@ final class ConfigurationPropertiesBeanRegistrar {
     if (beanFactory != null && beanFactory.containsBeanDefinition(name)) {
       return true;
     }
-    if (beanFactory instanceof HierarchicalBeanFactory hbf) {
-      return containsBeanDefinition(hbf.getParentBeanFactory(), name);
+    if (beanFactory instanceof HierarchicalBeanFactory hierarchicalBeanFactory) {
+      return containsBeanDefinition(hierarchicalBeanFactory.getParentBeanFactory(), name);
     }
     return false;
   }
 
-  private void registerBeanDefinition(
-          String beanName, Class<?> type, MergedAnnotation<ConfigurationProperties> annotation) {
+  private void registerBeanDefinition(String beanName,
+          Class<?> type, MergedAnnotation<ConfigurationProperties> annotation) {
     if (!annotation.isPresent()) {
       throw new IllegalStateException(
-              "No ConfigurationProperties annotation found on  '" + type.getName() + "'.");
+              "No " + ConfigurationProperties.class.getSimpleName()
+                      + " annotation found on  '" + type.getName() + "'.");
     }
     this.registry.registerBeanDefinition(beanName, createBeanDefinition(beanName, type));
   }
 
   private BeanDefinition createBeanDefinition(String beanName, Class<?> type) {
-    BindMethod bindMethod = BindMethod.forType(type);
+    BindMethod bindMethod = ConfigurationPropertiesBean.deduceBindMethod(type);
     RootBeanDefinition definition = new RootBeanDefinition(type);
-    definition.setAttribute(BindMethod.class.getName(), bindMethod);
+    BindMethodAttribute.set(definition, bindMethod);
     if (bindMethod == BindMethod.VALUE_OBJECT) {
-      definition.setInstanceSupplier(() -> createValueObject(beanName, type));
+      definition.setInstanceSupplier(() -> ConstructorBound.from(this.beanFactory, beanName, type));
     }
     return definition;
-  }
-
-  private Object createValueObject(String beanName, Class<?> beanType) {
-    ConfigurationPropertiesBean bean = ConfigurationPropertiesBean.forValueObject(beanType, beanName);
-    ConfigurationPropertiesBinder binder = ConfigurationPropertiesBinder.get(this.beanFactory);
-    try {
-      return binder.bindOrCreate(bean);
-    }
-    catch (Exception ex) {
-      throw new ConfigurationPropertiesBindException(bean, ex);
-    }
   }
 
 }

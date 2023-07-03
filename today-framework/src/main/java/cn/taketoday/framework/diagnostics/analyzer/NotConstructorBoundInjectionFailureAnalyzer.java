@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -26,11 +26,14 @@ import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.context.properties.ConfigurationProperties;
-import cn.taketoday.context.properties.ConfigurationPropertiesBean.BindMethod;
+import cn.taketoday.context.properties.ConfigurationPropertiesBean;
+import cn.taketoday.context.properties.ConfigurationPropertiesScan;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.context.properties.bind.ConstructorBinding;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.lang.Nullable;
 
@@ -53,34 +56,37 @@ class NotConstructorBoundInjectionFailureAnalyzer
 
   @Nullable
   @Override
-  protected FailureAnalysis analyze(Throwable rootFailure, NoSuchBeanDefinitionException cause, @Nullable String description) {
+  protected FailureAnalysis analyze(Throwable rootFailure,
+          NoSuchBeanDefinitionException cause, @Nullable String description) {
     InjectionPoint injectionPoint = findInjectionPoint(rootFailure);
     if (isConstructorBindingConfigurationProperties(injectionPoint)) {
       String simpleName = injectionPoint.getMember().getDeclaringClass().getSimpleName();
-      String action = String.format(
-              "Update your configuration so that %s is defined via @ConfigurationPropertiesScan or @EnableConfigurationProperties.", simpleName);
-      return new FailureAnalysis(
-              simpleName + " is annotated with @" + ConstructorBinding.class.getSimpleName()
-                      + " but it is defined as a regular bean which caused dependency injection to fail.",
-              action, cause);
+      String action = String.format("Update your configuration so that %s is defined via @%s or @%s.",
+              ConfigurationPropertiesScan.class.getSimpleName(),
+              EnableConfigurationProperties.class.getSimpleName(), simpleName);
+      return new FailureAnalysis(simpleName +
+              " is annotated with @" + ConstructorBinding.class.getSimpleName()
+              + " but it is defined as a regular bean which caused dependency injection to fail.", action, cause);
     }
     return null;
   }
 
   private boolean isConstructorBindingConfigurationProperties(@Nullable InjectionPoint injectionPoint) {
-    if (injectionPoint != null && injectionPoint.getMember() instanceof Constructor<?> constructor) {
-      Class<?> declaringClass = constructor.getDeclaringClass();
-      MergedAnnotation<ConfigurationProperties> configurationProperties = MergedAnnotations.from(declaringClass)
-              .get(ConfigurationProperties.class);
-      return configurationProperties.isPresent()
-              && BindMethod.forType(constructor.getDeclaringClass()) == BindMethod.VALUE_OBJECT;
-    }
-    return false;
+    return injectionPoint != null && injectionPoint.getMember() instanceof Constructor<?> constructor
+            && isConstructorBindingConfigurationProperties(constructor);
+  }
+
+  private boolean isConstructorBindingConfigurationProperties(Constructor<?> constructor) {
+    Class<?> declaringClass = constructor.getDeclaringClass();
+    BindMethod bindMethod = ConfigurationPropertiesBean.deduceBindMethod(declaringClass);
+    return MergedAnnotations.from(declaringClass, SearchStrategy.TYPE_HIERARCHY)
+            .isPresent(ConfigurationProperties.class) && bindMethod == BindMethod.VALUE_OBJECT;
   }
 
   @Nullable
   private InjectionPoint findInjectionPoint(Throwable failure) {
-    UnsatisfiedDependencyException unsatisfiedDependencyException = findCause(failure, UnsatisfiedDependencyException.class);
+    UnsatisfiedDependencyException unsatisfiedDependencyException = findCause(failure,
+            UnsatisfiedDependencyException.class);
     if (unsatisfiedDependencyException == null) {
       return null;
     }

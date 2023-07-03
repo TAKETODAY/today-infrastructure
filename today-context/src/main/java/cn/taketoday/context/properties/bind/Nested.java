@@ -18,7 +18,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.context.properties;
+package cn.taketoday.context.properties.bind;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -26,27 +26,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.properties.bind.Nested;
-
 /**
- * Indicates that a field in a {@link ConfigurationProperties @ConfigurationProperties}
- * object should be treated as if it were a nested type. This annotation has no bearing on
- * the actual binding processes, but it is used by the
- * {@code infra-configuration-processor} as a hint that a field is not bound as a
- * single value. When this is specified, a nested group is created for the field and its
- * type is harvested.
- * <p>
- * This has no effect on collections and maps as these types are automatically identified.
+ * Meta-annotation that should be added to annotations that indicate a field is a nested
+ * type. Used to ensure that correct reflection hints are registered.
  *
- * @author Stephane Nicoll
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see BindableRuntimeHintsRegistrar
  * @since 4.0
  */
-@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
 @Documented
-@Nested
-public @interface NestedConfigurationProperty {
+public @interface Nested {
 
 }
