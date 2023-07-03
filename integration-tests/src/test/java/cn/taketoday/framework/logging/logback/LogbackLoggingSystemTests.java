@@ -33,7 +33,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -323,7 +322,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
 
   @Test
   void springConfigLocations() {
-    String[] locations = getSpringConfigLocations(this.loggingSystem);
+    String[] locations = getConfigLocations(this.loggingSystem);
     assertThat(locations).containsExactly("logback-test-infra.groovy", "logback-test-infra.xml",
             "logback-infra.groovy", "logback-infra.xml");
   }
@@ -770,17 +769,6 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
 
   private static SizeAndTimeBasedRollingPolicy<?> getRollingPolicy() {
     return (SizeAndTimeBasedRollingPolicy<?>) getFileAppender().getRollingPolicy();
-  }
-
-  private String getLineWithText(File file, CharSequence outputSearch) {
-    return getLineWithText(contentOf(file), outputSearch);
-  }
-
-  private String getLineWithText(CharSequence output, CharSequence outputSearch) {
-    return Arrays.stream(output.toString().split("\\r?\\n"))
-            .filter((line) -> line.contains(outputSearch))
-            .findFirst()
-            .orElse(null);
   }
 
 }

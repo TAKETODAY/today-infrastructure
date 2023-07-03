@@ -25,10 +25,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.MDC;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+
+import static org.assertj.core.api.Assertions.contentOf;
 
 /**
  * Base for {@link LoggingSystem} tests.
@@ -62,7 +66,7 @@ public abstract class AbstractLoggingSystemTests {
     MDC.clear();
   }
 
-  protected final String[] getSpringConfigLocations(AbstractLoggingSystem system) {
+  protected final String[] getConfigLocations(AbstractLoggingSystem system) {
     return system.getInfraConfigLocations();
   }
 
@@ -84,6 +88,19 @@ public abstract class AbstractLoggingSystemTests {
       path = path.substring(0, path.length() - 1);
     }
     return path;
+  }
+
+  @Nullable
+  protected final String getLineWithText(File file, CharSequence outputSearch) {
+    return getLineWithText(contentOf(file), outputSearch);
+  }
+
+  @Nullable
+  protected final String getLineWithText(CharSequence output, CharSequence outputSearch) {
+    return Arrays.stream(output.toString().split("\\r?\\n"))
+            .filter((line) -> line.contains(outputSearch))
+            .findFirst()
+            .orElse(null);
   }
 
 }
