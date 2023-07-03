@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -61,15 +61,15 @@ final class GracefulShutdown {
   private void doShutdown(GracefulShutdownCallback callback) {
     getConnectors().forEach(this::close);
     try {
-      for (Container host : tomcat.getEngine().findChildren()) {
+      for (Container host : this.tomcat.getEngine().findChildren()) {
         for (Container context : host.findChildren()) {
-          while (isActive(context)) {
-            if (this.aborted) {
-              log.info("Graceful shutdown aborted with one or more requests still active");
-              callback.shutdownComplete(GracefulShutdownResult.REQUESTS_ACTIVE);
-              return;
-            }
+          while (!aborted && isActive(context)) {
             Thread.sleep(50);
+          }
+          if (aborted) {
+            log.info("Graceful shutdown aborted with one or more requests still active");
+            callback.shutdownComplete(GracefulShutdownResult.REQUESTS_ACTIVE);
+            return;
           }
         }
       }

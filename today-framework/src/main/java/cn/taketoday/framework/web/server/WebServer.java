@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -64,10 +64,16 @@ public interface WebServer {
    * shutdown.
    *
    * @param callback the callback to invoke when the graceful shutdown completes
-   * @since 4.0
    */
   default void shutDownGracefully(GracefulShutdownCallback callback) {
     callback.shutdownComplete(GracefulShutdownResult.IMMEDIATE);
+  }
+
+  /**
+   * Destroys the web server such that it cannot be started again.
+   */
+  default void destroy() {
+    stop();
   }
 
 }

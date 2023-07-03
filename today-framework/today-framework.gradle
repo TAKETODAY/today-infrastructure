@@ -1,9 +1,9 @@
 description = 'A Java library for dependency injection and aspect oriented programing and building high-performance web applications like Spring Boot.'
 
 dependencies {
-  implementation project(':today-core')
-  implementation project(':today-beans')
-  implementation project(':today-context')
+  api project(':today-core')
+  api project(':today-beans')
+  api project(':today-context')
 
   optional project(':today-aop')
   optional project(':today-web')
@@ -11,73 +11,176 @@ dependencies {
   optional project(':today-websocket')
   optional project(':today-orm')
 
-  optional("ch.qos.logback:logback-classic")
-  optional('org.freemarker:freemarker')
-  optional("com.google.code.gson:gson")
-  optional("ch.qos.logback:logback-classic")
+  optional 'ch.qos.logback:logback-classic'
+  optional 'org.freemarker:freemarker'
+  optional 'com.google.code.gson:gson'
   optional 'jakarta.transaction:jakarta.transaction-api'
-  optional("io.projectreactor.netty:reactor-netty-http")
+  optional 'io.projectreactor.netty:reactor-netty-http'
+  optional 'jakarta.servlet:jakarta.servlet-api'
+  optional 'mysql:mysql-connector-java'
+  optional 'org.glassfish.external:opendmk_jmxremote_optional_jar'
+  optional 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.8'
+  optional 'io.projectreactor:reactor-test'
+  optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+  optional 'org.xmlunit:xmlunit-assertj'
+  optional 'commons-io:commons-io'
+  optional 'jaxen:jaxen'
+  optional 'org.python:jython-standalone'
+  optional 'org.mozilla:rhino'
+  optional 'org.javamoney.moneta:moneta-core'
+  optional 'org.glassfish:jakarta.el'
+  optional 'org.awaitility:awaitility'
+  optional 'org.codehaus.janino:janino:3.1.6'
+  optional 'com.github.h-thurow:simple-jndi:0.23.0'
+  optional 'jakarta.json.bind:jakarta.json.bind-api'
+  optional 'jakarta.resource:jakarta.resource-api'
+  optional 'org.aspectj:aspectjweaver'
+  optional 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+  optional 'jakarta.servlet.jsp:jakarta.servlet.jsp-api'
+  optional 'jakarta.annotation:jakarta.annotation-api'
+  optional 'jakarta.inject:jakarta.inject-api'
+  optional 'jakarta.websocket:jakarta.websocket-api'
+  optional 'io.netty:netty-codec-http'
+  optional 'io.netty:netty-transport-native-kqueue'
+  optional 'org.hibernate:hibernate-core-jakarta'
+  optional 'org.eclipse.persistence:org.eclipse.persistence.jpa'
+  optional 'com.google.code.findbugs:jsr305'
+  optional 'org.projectlombok:lombok'
+  optional 'org.yaml:snakeyaml'
+  optional 'org.apache.tomcat.embed:tomcat-embed-core'
+  optional 'org.eclipse.jetty:jetty-webapp'
+  optional 'io.undertow:undertow-core'
+  optional 'io.undertow:undertow-servlet'
+  optional 'org.eclipse.jetty.http2:http2-server'
+  optional 'org.eclipse.jetty:jetty-alpn-server'
+  optional 'org.hibernate:hibernate-validator'
+  optional 'org.apache.tomcat.embed:tomcat-embed-websocket'
+  optional 'io.undertow:undertow-websockets-jsr'
+  optional 'org.eclipse.jetty.websocket:websocket-jetty-server'
+  optional 'org.eclipse.jetty.websocket:websocket-jakarta-server'
+  optional 'org.eclipse.jetty.websocket:websocket-jetty-client'
+  optional 'io.projectreactor:reactor-core'
+  optional 'io.projectreactor.tools:blockhound'
+  optional 'org.apache.httpcomponents.core5:httpcore5'
+  optional 'com.zaxxer:HikariCP'
+  optional 'com.fasterxml.jackson.core:jackson-databind'
+  optional 'com.fasterxml.jackson.module:jackson-module-parameter-names'
+  optional 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+  optional 'org.apache.tomcat:tomcat-jdbc:10.0.16'
+  optional 'org.apache.commons:commons-dbcp2:2.9.0'
+  optional 'org.apache.httpcomponents.client5:httpclient5'
+  optional 'org.eclipse.jetty:jetty-reactive-httpclient'
+  optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  optional 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
+  optional 'com.oracle.database.jdbc:ucp:21.7.0.0'
 
-  testImplementation(project(':today-test'))
+  testImplementation(project(":today-aop"))
+  testImplementation(project(":today-beans"))
+  testImplementation(project(":today-context"))
+  testImplementation(project(":today-core"))
+  testImplementation(project(":today-mybatis"))
+  testImplementation(testFixtures(project(":today-aop")))
+  testImplementation(testFixtures(project(":today-beans")))
+  testImplementation(testFixtures(project(":today-core")))
+  testImplementation(testFixtures(project(":today-tx")))
+  testImplementation(testFixtures(project(":today-context")))
+  testImplementation(project(":today-jdbc"))
+  testImplementation(project(":today-test"))
+  testImplementation(project(':today-test-support'))
+  testImplementation(project(":today-tx"))
+  testImplementation(project(":today-web"))
+  testImplementation project(':today-websocket')
+  testImplementation project(':today-orm')
+  testImplementation(project(":today-core-test"))
+
+  testImplementation 'org.skyscreamer:jsonassert:1.5.0'
+
+  testImplementation("org.eclipse.jetty:jetty-webapp") {
+    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
+    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
+  }
+
+  testImplementation 'org.eclipse.jetty.http2:http2-client'
+  testImplementation 'org.eclipse.jetty.http2:http2-http-client-transport'
+  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
+  testImplementation 'org.eclipse.jetty:jetty-http'
+  testImplementation 'org.eclipse.jetty:jetty-client'
+  testImplementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
+  testImplementation 'org.eclipse.jetty.http2:http2-server'
+  testImplementation 'org.apache.httpcomponents.core5:httpcore5'
+  testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  testImplementation 'org.apache.httpcomponents.client5:httpclient5'
+  testImplementation 'org.eclipse.jetty:apache-jsp'
+  testImplementation 'io.undertow:undertow-servlet'
+  testImplementation 'jakarta.websocket:jakarta.websocket-api'
+  testImplementation 'org.apache.tomcat.embed:tomcat-embed-websocket'
+  testImplementation 'jakarta.json.bind:jakarta.json.bind-api'
+
+  testImplementation 'org.freemarker:freemarker'
+  testImplementation 'org.eclipse:yasson'
+  testImplementation 'ch.qos.logback:logback-classic'
+  testImplementation("org.codehaus.janino:janino")
+
+  testImplementation 'org.apache.derby:derby'
+  testImplementation 'org.apache.derby:derbytools'
+  testImplementation("com.squareup.okhttp3:okhttp")
+
+  testImplementation 'jakarta.persistence:jakarta.persistence-api'
+  testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+  testImplementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
+  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile'
+  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 
   testImplementation 'mysql:mysql-connector-java'
-  testImplementation 'org.glassfish.external:opendmk_jmxremote_optional_jar'
-  testImplementation 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.8'
-  testImplementation 'io.projectreactor:reactor-test'
-  testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-  testImplementation 'org.xmlunit:xmlunit-assertj'
-  testImplementation 'commons-io:commons-io'
-  testImplementation 'jaxen:jaxen'
-  testImplementation 'org.python:jython-standalone'
-  testImplementation 'org.mozilla:rhino'
-  testImplementation 'org.javamoney.moneta:moneta-core'
-  testImplementation 'org.glassfish:jakarta.el'
-  testImplementation 'org.awaitility:awaitility'
-  testImplementation 'org.codehaus.janino:janino:3.1.6'
+  testImplementation 'org.eclipse.jetty.websocket:websocket-jetty-client'
+  testImplementation("org.eclipse.jetty.websocket:websocket-jakarta-server") {
+    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
+    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
+    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-websocket-api")
+  }
+  testImplementation("org.eclipse.jetty.websocket:websocket-jetty-server") {
+    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
+    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
+  }
+
   testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'
+  testImplementation 'org.apache.commons:commons-dbcp2:2.9.0'
+  testImplementation 'com.oracle.database.jdbc:ucp:21.7.0.0'
+  testImplementation 'org.hibernate:hibernate-envers:5.6.15.Final'
 
-  compileOnly 'org.aspectj:aspectjweaver'
-  compileOnly 'jakarta.servlet:jakarta.servlet-api'
-  compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
-  compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api'
-  compileOnly 'jakarta.json.bind:jakarta.json.bind-api'
-  compileOnly 'jakarta.annotation:jakarta.annotation-api'
-  compileOnly 'jakarta.inject:jakarta.inject-api'
-  compileOnly 'jakarta.websocket:jakarta.websocket-api'
-  compileOnly 'io.netty:netty-codec-http'
-  compileOnly 'io.netty:netty-transport-native-kqueue'
-  compileOnly 'org.hibernate:hibernate-core-jakarta'
-  compileOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa'
-  compileOnly 'com.google.code.findbugs:jsr305'
-  compileOnly 'org.projectlombok:lombok'
-  compileOnly 'org.yaml:snakeyaml'
-  compileOnly 'org.apache.tomcat.embed:tomcat-embed-core'
-  compileOnly 'org.eclipse.jetty:jetty-webapp'
-  compileOnly 'io.undertow:undertow-core'
-  compileOnly 'io.undertow:undertow-servlet'
-  compileOnly 'org.eclipse.jetty.http2:http2-server'
-  compileOnly 'org.eclipse.jetty:jetty-alpn-server'
-  compileOnly 'org.hibernate:hibernate-validator'
-  compileOnly 'org.apache.tomcat.embed:tomcat-embed-websocket'
-  compileOnly 'io.undertow:undertow-websockets-jsr'
-  compileOnly 'org.eclipse.jetty.websocket:websocket-jetty-server'
-  compileOnly 'org.eclipse.jetty.websocket:websocket-jakarta-server'
-  compileOnly 'org.eclipse.jetty.websocket:websocket-jetty-client'
-  compileOnly 'io.projectreactor:reactor-core'
-  compileOnly 'io.projectreactor.tools:blockhound'
-  compileOnly 'org.apache.httpcomponents.core5:httpcore5'
-  compileOnly 'com.zaxxer:HikariCP'
-  compileOnly 'com.fasterxml.jackson.core:jackson-databind'
-  compileOnly 'com.fasterxml.jackson.module:jackson-module-parameter-names'
-  compileOnly 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
-  compileOnly 'org.apache.tomcat:tomcat-jdbc:10.0.16'
-  compileOnly 'org.apache.commons:commons-dbcp2:2.9.0'
-  compileOnly 'org.apache.httpcomponents.client5:httpclient5'
-  compileOnly 'org.eclipse.jetty:jetty-reactive-httpclient'
-  compileOnly 'org.apache.httpcomponents.core5:httpcore5-reactive'
+  testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic'
+  testImplementation 'org.projectlombok:lombok:1.18.22'
+  testImplementation 'org.apache.tomcat:tomcat-jdbc:10.0.16'
+  testImplementation 'com.zaxxer:HikariCP:5.0.0'
 
-  compileOnly 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
-  compileOnly 'com.oracle.database.jdbc:ucp:21.7.0.0'
+  testImplementation 'com.hazelcast:hazelcast-all:3.12.6'
 
+  testImplementation 'org.skyscreamer:jsonassert:1.5.0'
+  testImplementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.1.jre17'
+  testImplementation 'com.h2database:h2'
+  testImplementation 'org.postgresql:postgresql'
+  testImplementation 'org.mariadb.jdbc:mariadb-java-client:2.7.1'
+  testImplementation 'net.sourceforge.jtds:jtds:1.3.1'
+  testImplementation 'org.firebirdsql.jdbc:jaybird:4.0.6.java8'
+
+  testImplementation 'org.xerial:sqlite-jdbc:3.36.0.3'
+  testImplementation 'com.ibm.db2:jcc:11.5.7.0'
+  testImplementation 'org.testcontainers:jdbc:1.16.3'
+  testImplementation 'org.testcontainers:cassandra:1.16.2'
+  testImplementation 'org.testcontainers:testcontainers:1.16.2'
+  testImplementation 'com.mchange:c3p0:0.9.5.5'
+  testImplementation 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
+
+  testImplementation("org.hsqldb:hsqldb")
+
+  testImplementation 'org.aspectj:aspectjrt'
+  testImplementation 'jakarta.annotation:jakarta.annotation-api'
+  testImplementation 'org.mybatis:mybatis:3.5.9'
+  testImplementation 'javax.cache:cache-api'
+  testImplementation 'org.reactivestreams:reactive-streams'
 
 }

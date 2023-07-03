@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import cn.taketoday.context.testfixture.origin.MockOrigin;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;

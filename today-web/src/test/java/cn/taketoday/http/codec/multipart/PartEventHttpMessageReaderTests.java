@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/22 9:47
  */
-//@DisabledIfInContinuousIntegration(disabledReason = "file CRLF problem")
+@DisabledIfInContinuousIntegration(disabledReason = "file CRLF problem")
 class PartEventHttpMessageReaderTests {
 
   private static final int BUFFER_SIZE = 64;

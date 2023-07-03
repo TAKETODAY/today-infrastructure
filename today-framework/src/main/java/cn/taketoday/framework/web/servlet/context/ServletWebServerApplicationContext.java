@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -152,6 +152,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
       WebServer webServer = this.webServer;
       if (webServer != null) {
         webServer.stop();
+        webServer.destroy();
       }
       throw ex;
     }
@@ -174,6 +175,11 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
       AvailabilityChangeEvent.publish(this, ReadinessState.REFUSING_TRAFFIC);
     }
     super.doClose();
+
+    WebServer webServer = this.webServer;
+    if (webServer != null) {
+      webServer.destroy();
+    }
   }
 
   private void createWebServer() {

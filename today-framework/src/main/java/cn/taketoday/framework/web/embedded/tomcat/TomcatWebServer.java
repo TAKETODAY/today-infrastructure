@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -332,16 +332,10 @@ public class TomcatWebServer implements WebServer {
       boolean wasStarted = this.started;
       try {
         this.started = false;
-        try {
-          if (this.gracefulShutdown != null) {
-            this.gracefulShutdown.abort();
-          }
-          stopTomcat();
-          this.tomcat.destroy();
+        if (this.gracefulShutdown != null) {
+          this.gracefulShutdown.abort();
         }
-        catch (LifecycleException ex) {
-          // swallow and continue
-        }
+        removeServiceConnectors();
       }
       catch (Exception ex) {
         throw new WebServerException("Unable to stop embedded Tomcat", ex);
@@ -351,6 +345,20 @@ public class TomcatWebServer implements WebServer {
           containerCounter.decrementAndGet();
         }
       }
+    }
+  }
+
+  @Override
+  public void destroy() throws WebServerException {
+    try {
+      stopTomcat();
+      this.tomcat.destroy();
+    }
+    catch (LifecycleException ex) {
+      // Swallow and continue
+    }
+    catch (Exception ex) {
+      throw new WebServerException("Unable to destroy embedded Tomcat", ex);
     }
   }
 

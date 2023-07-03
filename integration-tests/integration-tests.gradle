@@ -45,7 +45,7 @@ dependencies {
   testImplementation 'org.hibernate:hibernate-validator'
   testImplementation 'org.glassfish:jakarta.el'
   testImplementation 'org.awaitility:awaitility'
-  testImplementation 'org.reactivestreams:reactive-streams:'
+  testImplementation 'org.reactivestreams:reactive-streams'
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation 'io.undertow:undertow-core'
   testImplementation 'io.netty:netty-codec-http'
