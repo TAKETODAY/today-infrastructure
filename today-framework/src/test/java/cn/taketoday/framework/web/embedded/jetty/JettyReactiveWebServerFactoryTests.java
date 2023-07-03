@@ -39,6 +39,7 @@ import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFacto
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.http.client.reactive.JettyResourceFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.test.web.servlet.Servlet5ClassPathOverrides;
 import cn.taketoday.web.reactive.function.client.WebClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,9 @@ import static org.mockito.Mockito.mock;
  *
  * @author Brian Clozel
  * @author Madhura Bhave
+ * @author Moritz Halbritter
  */
+@Servlet5ClassPathOverrides
 class JettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactoryTests {
 
   @Override
@@ -163,9 +166,18 @@ class JettyReactiveWebServerFactoryTests extends AbstractReactiveWebServerFactor
     assertThat(connectionLimit.getMaxConnections()).isOne();
   }
 
-  //  @Override
+  @Override
   protected String startedLogMessage() {
     return ((JettyWebServer) this.webServer).getStartedLogMessage();
+  }
+
+  @Override
+  protected void addConnector(int port, AbstractReactiveWebServerFactory factory) {
+    ((JettyReactiveWebServerFactory) factory).addServerCustomizers((server) -> {
+      ServerConnector connector = new ServerConnector(server);
+      connector.setPort(port);
+      server.addConnector(connector);
+    });
   }
 
 }

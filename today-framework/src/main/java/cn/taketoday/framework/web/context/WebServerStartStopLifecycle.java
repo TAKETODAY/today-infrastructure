@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -51,6 +51,7 @@ public class WebServerStartStopLifecycle implements SmartLifecycle {
 
   @Override
   public void stop() {
+    this.running = false;
     this.webServer.stop();
   }
 
@@ -61,7 +62,7 @@ public class WebServerStartStopLifecycle implements SmartLifecycle {
 
   @Override
   public int getPhase() {
-    return Integer.MAX_VALUE - 1;
+    return WebServerGracefulShutdownLifecycle.SMART_LIFECYCLE_PHASE - 1;
   }
 
 }

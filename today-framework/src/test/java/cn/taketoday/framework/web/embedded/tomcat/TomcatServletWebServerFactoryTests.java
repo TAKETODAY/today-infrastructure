@@ -413,8 +413,8 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatServletWebServerFactory factory = getFactory();
     this.webServer = factory.getWebServer();
     // override defaults, see org.apache.catalina.util.CharsetMapperDefault.properties
-    Properties charsetMapperDefault = PropertiesUtils.loadProperties(
-            new ClassPathResource("CharsetMapperDefault.properties", CharsetMapper.class));
+    Properties charsetMapperDefault = PropertiesUtils
+            .loadProperties(new ClassPathResource("CharsetMapperDefault.properties", CharsetMapper.class));
     for (String language : charsetMapperDefault.stringPropertyNames()) {
       assertThat(getCharset(new Locale(language))).isEqualTo(StandardCharsets.UTF_8);
     }
@@ -691,6 +691,11 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   protected void handleExceptionCausedByBlockedPortOnSecondaryConnector(RuntimeException ex, int blockedPort) {
     assertThat(ex).isInstanceOf(ConnectorStartFailedException.class);
     assertThat(((ConnectorStartFailedException) ex).getPort()).isEqualTo(blockedPort);
+  }
+
+  @Override
+  protected String startedLogMessage() {
+    return ((TomcatWebServer) this.webServer).getStartedLogMessage();
   }
 
 }

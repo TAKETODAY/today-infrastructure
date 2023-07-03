@@ -34,7 +34,6 @@ import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.net.ConnectException;
@@ -55,6 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -93,9 +93,7 @@ class TomcatReactiveWebServerFactoryTests extends AbstractReactiveWebServerFacto
     TomcatContextCustomizer customizer = mock(TomcatContextCustomizer.class);
     factory.addContextCustomizers(customizer);
     this.webServer = factory.getWebServer(mock(HttpHandler.class));
-    ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
-    then(customizer).should().customize(contextCaptor.capture());
-    assertThat(contextCaptor.getValue().getParent()).isNotNull();
+    then(customizer).should().customize(assertArg((context) -> assertThat(context.getParent()).isNotNull()));
   }
 
   @Test
@@ -279,6 +277,18 @@ class TomcatReactiveWebServerFactoryTests extends AbstractReactiveWebServerFacto
   private void handleExceptionCausedByBlockedPortOnPrimaryConnector(RuntimeException ex, int blockedPort) {
     assertThat(ex).isInstanceOf(PortInUseException.class);
     assertThat(((PortInUseException) ex).getPort()).isEqualTo(blockedPort);
+  }
+
+  @Override
+  protected String startedLogMessage() {
+    return ((TomcatWebServer) this.webServer).getStartedLogMessage();
+  }
+
+  @Override
+  protected void addConnector(int port, AbstractReactiveWebServerFactory factory) {
+    Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+    connector.setPort(port);
+    ((TomcatReactiveWebServerFactory) factory).addAdditionalTomcatConnectors(connector);
   }
 
 }

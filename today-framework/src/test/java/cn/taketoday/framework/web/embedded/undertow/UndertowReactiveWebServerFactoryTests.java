@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,7 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Arrays;
 
+import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactoryTests;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.http.MediaType;
@@ -139,12 +140,16 @@ class UndertowReactiveWebServerFactoryTests extends AbstractReactiveWebServerFac
     factory.setAccessLogSuffix(suffix);
     File accessLogDirectory = this.tempDir;
     factory.setAccessLogDirectory(accessLogDirectory);
-    assertThat(accessLogDirectory.listFiles()).isEmpty();
+    assertThat(accessLogDirectory).isEmptyDirectory();
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     WebClient client = getWebClient(this.webServer.getPort()).build();
-    Mono<String> result = client.post().uri("/test").contentType(MediaType.TEXT_PLAIN)
-            .body(BodyInserters.fromValue("Hello World")).retrieve().bodyToMono(String.class);
+    Mono<String> result = client.post()
+            .uri("/test")
+            .contentType(MediaType.TEXT_PLAIN)
+            .body(BodyInserters.fromValue("Hello World"))
+            .retrieve()
+            .bodyToMono(String.class);
     assertThat(result.block(Duration.ofSeconds(30))).isEqualTo("Hello World");
     File accessLog = new File(accessLogDirectory, expectedFile);
     awaitFile(accessLog);
@@ -153,6 +158,17 @@ class UndertowReactiveWebServerFactoryTests extends AbstractReactiveWebServerFac
 
   private void awaitFile(File file) {
     Awaitility.waitAtMost(Duration.ofSeconds(10)).until(file::exists, is(true));
+  }
+
+  @Override
+  protected String startedLogMessage() {
+    return ((UndertowWebServer) this.webServer).getStartLogMessage();
+  }
+
+  @Override
+  protected void addConnector(int port, AbstractReactiveWebServerFactory factory) {
+    ((UndertowReactiveWebServerFactory) factory)
+            .addBuilderCustomizers((builder) -> builder.addHttpListener(port, "0.0.0.0"));
   }
 
 }

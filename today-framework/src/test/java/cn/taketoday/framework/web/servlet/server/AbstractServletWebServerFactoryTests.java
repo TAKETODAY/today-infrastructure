@@ -109,7 +109,6 @@ import cn.taketoday.core.ssl.jks.JksSslStoreBundle;
 import cn.taketoday.core.ssl.jks.JksSslStoreDetails;
 import cn.taketoday.core.ssl.pem.PemSslStoreBundle;
 import cn.taketoday.core.ssl.pem.PemSslStoreDetails;
-import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.server.Compression;
@@ -131,7 +130,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
 import cn.taketoday.test.util.ReflectionTestUtils;
@@ -170,6 +168,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 /**
  * Base for testing classes that extends {@link AbstractServletWebServerFactory}.
@@ -198,6 +197,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     if (this.webServer != null) {
       try {
         this.webServer.stop();
+        try {
+          this.webServer.destroy();
+        }
+        catch (Exception ex) {
+          // Ignore
+        }
       }
       catch (Exception ex) {
         // Ignore
@@ -214,7 +219,6 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  @DisabledIfInContinuousIntegration
   void startCalledTwice(CapturedOutput output) throws Exception {
     AbstractServletWebServerFactory factory = getFactory();
     this.webServer = factory.getWebServer(exampleServletRegistration());
@@ -233,6 +237,19 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     this.webServer.stop();
     this.webServer.stop();
+  }
+
+  @Test
+  protected void restartAfterStop() throws IOException, URISyntaxException {
+    AbstractServletWebServerFactory factory = getFactory();
+    this.webServer = factory.getWebServer(exampleServletRegistration());
+    this.webServer.start();
+    assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
+    int port = this.webServer.getPort();
+    this.webServer.stop();
+    assertThatIOException().isThrownBy(() -> getResponse(getLocalUrl(port, "/hello")));
+    this.webServer.start();
+    assertThat(getResponse(getLocalUrl("/hello"))).isEqualTo("Hello World");
   }
 
   @Test
@@ -297,7 +314,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer();
     this.webServer.start();
     assertThat(this.webServer.getPort()).isGreaterThan(0);
-    this.webServer.stop();
+    this.webServer.destroy();
     assertThat(this.webServer.getPort()).isEqualTo(-1);
   }
 
@@ -324,7 +341,6 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  @DisabledIfInContinuousIntegration
   void contextPathIsLoggedOnStartup(CapturedOutput output) {
     AbstractServletWebServerFactory factory = getFactory();
     factory.setContextPath("/custom");
@@ -491,7 +507,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
             new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build());
-    var connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+    PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
             .setSSLSocketFactory(socketFactory)
             .build();
     HttpClient httpClient = this.httpClientBuilder.get().setConnectionManager(connectionManager).build();
@@ -790,7 +806,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer.start();
     String s1 = getResponse(getLocalUrl("/session"));
     String s2 = getResponse(getLocalUrl("/session"));
-    this.webServer.stop();
+    this.webServer.destroy();
     this.webServer = factory.getWebServer(sessionServletRegistration());
     this.webServer.start();
     String s3 = getResponse(getLocalUrl("/session"));
@@ -809,7 +825,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer(sessionServletRegistration());
     this.webServer.start();
     getResponse(getLocalUrl("/session"));
-    this.webServer.stop();
+    this.webServer.destroy();
     File[] dirContents = sessionStoreDir.listFiles((dir, name) -> !(".".equals(name) || "..".equals(name)));
     assertThat(dirContents).isNotEmpty();
   }
@@ -1134,11 +1150,20 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  void servletContextListenerContextDestroyedIsCalledWhenContainerIsStopped() throws Exception {
+  protected void servletContextListenerContextDestroyedIsNotCalledWhenContainerIsStopped() throws Exception {
     ServletContextListener listener = mock(ServletContextListener.class);
     this.webServer = getFactory().getWebServer((servletContext) -> servletContext.addListener(listener));
     this.webServer.start();
     this.webServer.stop();
+    then(listener).should(times(0)).contextDestroyed(any(ServletContextEvent.class));
+  }
+
+  @Test
+  void servletContextListenerContextDestroyedIsCalledWhenContainerIsDestroyed() throws Exception {
+    ServletContextListener listener = mock(ServletContextListener.class);
+    this.webServer = getFactory().getWebServer((servletContext) -> servletContext.addListener(listener));
+    this.webServer.start();
+    this.webServer.destroy();
     then(listener).should().contextDestroyed(any(ServletContextEvent.class));
   }
 
@@ -1281,6 +1306,35 @@ public abstract class AbstractServletWebServerFactoryTests {
     catch (RuntimeException ex) {
 
     }
+  }
+
+  @Test
+  void startedLogMessageWithSinglePort() {
+    AbstractServletWebServerFactory factory = getFactory();
+    this.webServer = factory.getWebServer();
+    this.webServer.start();
+    assertThat(startedLogMessage()).matches("(Jetty|Tomcat|Undertow) started on port " + this.webServer.getPort()
+            + " \\(http(/1.1)?\\)( with context path '(/)?')?");
+  }
+
+  @Test
+  void startedLogMessageWithSinglePortAndContextPath() {
+    AbstractServletWebServerFactory factory = getFactory();
+    factory.setContextPath("/test");
+    this.webServer = factory.getWebServer();
+    this.webServer.start();
+    assertThat(startedLogMessage()).matches("(Jetty|Tomcat|Undertow) started on port " + this.webServer.getPort()
+            + " \\(http(/1.1)?\\) with context path '/test'");
+  }
+
+  @Test
+  void startedLogMessageWithMultiplePorts() {
+    AbstractServletWebServerFactory factory = getFactory();
+    addConnector(0, factory);
+    this.webServer = factory.getWebServer();
+    this.webServer.start();
+    assertThat(startedLogMessage()).matches("(Jetty|Tomcat|Undertow) started on ports " + this.webServer.getPort()
+            + " \\(http(/1.1)?\\), [0-9]+ \\(http(/1.1)?\\)( with context path '(/)?')?");
   }
 
   protected Future<Object> initiateGetRequest(int port, String path) {
@@ -1455,13 +1509,13 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   protected abstract AbstractServletWebServerFactory getFactory();
 
-  @Nullable
   protected abstract org.apache.jasper.servlet.JspServlet getJspServlet() throws Exception;
 
   protected ServletContextInitializer exampleServletRegistration() {
     return new ServletRegistrationBean<>(new ExampleServlet(), "/hello");
   }
 
+  @SuppressWarnings("serial")
   private ServletContextInitializer errorServletRegistration() {
     ServletRegistrationBean<ExampleServlet> bean = new ServletRegistrationBean<>(new ExampleServlet() {
 
@@ -1531,6 +1585,8 @@ public abstract class AbstractServletWebServerFactoryTests {
     }
   }
 
+  protected abstract String startedLogMessage();
+
   private class TestGzipInputStreamFactory implements InputStreamFactory {
 
     private final AtomicBoolean requested = new AtomicBoolean();
@@ -1596,7 +1652,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   public static class FailingServlet extends HttpServlet {
 
     @Override
@@ -1606,7 +1661,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   public static class FailingServletContextListener implements ServletContextListener {
 
     @Override
@@ -1616,7 +1670,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   static class FailingServletException extends RuntimeException {
 
     FailingServletException() {
@@ -1625,7 +1678,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   protected static class BlockingServlet extends HttpServlet {
 
     private final BlockingQueue<Blocker> blockers = new ArrayBlockingQueue<>(10);
@@ -1659,7 +1711,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   static class BlockingAsyncServlet extends HttpServlet {
 
     private final BlockingQueue<Blocker> blockers = new ArrayBlockingQueue<>(10);
@@ -1716,7 +1767,6 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   }
 
-  @SuppressWarnings("serial")
   static final class CookieServlet extends HttpServlet {
 
     private final boolean addSupplierTestCookies;

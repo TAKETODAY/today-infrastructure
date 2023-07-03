@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -83,11 +83,14 @@ public class UndertowServletWebServer extends UndertowWebServer {
 
   @Override
   protected String getStartLogMessage() {
-    String message = super.getStartLogMessage();
-    if (StringUtils.hasText(this.contextPath)) {
-      message += " with context path '" + this.contextPath + "'";
+    if (StringUtils.isBlank(this.contextPath)) {
+      return super.getStartLogMessage();
     }
-    return message;
+    StringBuilder message = new StringBuilder(super.getStartLogMessage());
+    message.append(" with context path '");
+    message.append(this.contextPath);
+    message.append("'");
+    return message.toString();
   }
 
   public DeploymentManager getDeploymentManager() {

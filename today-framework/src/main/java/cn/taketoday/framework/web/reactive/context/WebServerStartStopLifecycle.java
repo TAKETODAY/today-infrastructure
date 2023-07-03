@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,6 +21,7 @@
 package cn.taketoday.framework.web.reactive.context;
 
 import cn.taketoday.context.SmartLifecycle;
+import cn.taketoday.framework.web.context.WebServerGracefulShutdownLifecycle;
 import cn.taketoday.framework.web.server.WebServer;
 
 /**
@@ -28,6 +29,7 @@ import cn.taketoday.framework.web.server.WebServer;
  * {@link ReactiveWebServerApplicationContext}.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class WebServerStartStopLifecycle implements SmartLifecycle {
@@ -59,7 +61,7 @@ class WebServerStartStopLifecycle implements SmartLifecycle {
 
   @Override
   public int getPhase() {
-    return Integer.MAX_VALUE - 1;
+    return WebServerGracefulShutdownLifecycle.SMART_LIFECYCLE_PHASE - 1024;
   }
 
 }

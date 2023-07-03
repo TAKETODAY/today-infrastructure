@@ -37,7 +37,6 @@ import cn.taketoday.framework.logging.AbstractLoggingSystemTests;
 import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.framework.logging.LoggerConfiguration;
 import cn.taketoday.framework.logging.LoggingSystem;
-import cn.taketoday.framework.logging.LoggingSystemProperties;
 import cn.taketoday.framework.logging.LoggingSystemProperty;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
