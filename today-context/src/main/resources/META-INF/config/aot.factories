@@ -1,7 +1,9 @@
 cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor= \
+cn.taketoday.context.properties.ConfigurationPropertiesBeanFactoryInitializationAotProcessor,\
 cn.taketoday.context.aot.ReflectiveProcessorBeanFactoryInitializationAotProcessor
 
 cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\
+cn.taketoday.context.properties.ConfigurationPropertiesBeanRegistrationAotProcessor,\
 cn.taketoday.validation.beanvalidation.BeanValidationBeanRegistrationAotProcessor
 
 cn.taketoday.aot.hint.RuntimeHintsRegistrar= \

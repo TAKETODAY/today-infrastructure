@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -32,7 +32,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.aot.hint.MemberCategory;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
+import cn.taketoday.aot.test.generate.TestGenerationContext;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.framework.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor;
+import cn.taketoday.framework.jackson.JsonComponentModuleTests.ComponentWithInnerAbstractClass.ConcreteSerializer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -114,6 +122,31 @@ class JsonComponentModuleTests {
     assertDeserializeForSpecifiedClasses(module);
   }
 
+  @Test
+  void aotContributionRegistersReflectionHintsForSuitableInnerClasses() {
+    load(ComponentWithInnerAbstractClass.class);
+    ConfigurableBeanFactory beanFactory = this.context.getBeanFactory();
+    BeanFactoryInitializationAotContribution contribution = new JsonComponentBeanFactoryInitializationAotProcessor()
+            .processAheadOfTime(beanFactory);
+    TestGenerationContext generationContext = new TestGenerationContext();
+    contribution.applyTo(generationContext, null);
+    RuntimeHints runtimeHints = generationContext.getRuntimeHints();
+    assertThat(RuntimeHintsPredicates.reflection()
+            .onType(ComponentWithInnerAbstractClass.class)
+            .withMemberCategory(MemberCategory.DECLARED_CLASSES)).accepts(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection()
+            .onType(ConcreteSerializer.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection()
+            .onType(ComponentWithInnerAbstractClass.AbstractSerializer.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)
+            .negate()).accepts(runtimeHints);
+    assertThat(RuntimeHintsPredicates.reflection()
+            .onType(ComponentWithInnerAbstractClass.NotSuitable.class)
+            .withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)
+            .negate()).accepts(runtimeHints);
+  }
+
   private void load(Class<?>... configs) {
     StandardApplicationContext context = new StandardApplicationContext();
     context.register(configs);
@@ -183,11 +216,15 @@ class JsonComponentModuleTests {
   @JsonComponent
   static class ComponentWithInnerAbstractClass {
 
-    static class AbstractSerializer extends NameAndAgeJsonComponent.Serializer {
+    abstract static class AbstractSerializer extends NameAndAgeJsonComponent.Serializer {
 
     }
 
     static class ConcreteSerializer extends AbstractSerializer {
+
+    }
+
+    static class NotSuitable {
 
     }
 

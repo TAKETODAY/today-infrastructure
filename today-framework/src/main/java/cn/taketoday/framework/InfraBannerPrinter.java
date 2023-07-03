@@ -26,6 +26,8 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.core.ansi.AnsiColor;
 import cn.taketoday.core.ansi.AnsiOutput;
 import cn.taketoday.core.env.Environment;
@@ -34,6 +36,8 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.Version;
 import cn.taketoday.logging.Logger;
+
+import static cn.taketoday.framework.Banner.BANNER_LOCATION_TXT;
 
 /**
  * Class used by {@link Application} to print the application banner.
@@ -68,7 +72,7 @@ class InfraBannerPrinter {
 
   private Banner getBanner(Environment environment) {
     // Text Banner
-    String location = environment.getProperty(Banner.BANNER_LOCATION, Banner.BANNER_LOCATION_TXT);
+    String location = environment.getProperty(Banner.BANNER_LOCATION, BANNER_LOCATION_TXT);
     Resource resource = resourceLoader.getResource(location);
     try {
       if (resource.exists() && !resource.getURL().toExternalForm().contains("liquibase-core")) {
@@ -128,4 +132,12 @@ class InfraBannerPrinter {
     }
   }
 
+  static class Hints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+      hints.resources().registerPattern(Banner.BANNER_LOCATION_TXT);
+    }
+
+  }
 }

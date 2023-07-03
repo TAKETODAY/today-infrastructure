@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -27,15 +27,26 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
+import cn.taketoday.aot.generate.GenerationContext;
+import cn.taketoday.aot.hint.MemberCategory;
+import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationCode;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -109,7 +120,7 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
     }
   }
 
-  private boolean isSuitableInnerClass(Class<?> innerClass) {
+  private static boolean isSuitableInnerClass(Class<?> innerClass) {
     return !Modifier.isAbstract(innerClass.getModifiers())
             && (JsonSerializer.class.isAssignableFrom(innerClass)
             || JsonDeserializer.class.isAssignableFrom(innerClass)
@@ -148,6 +159,47 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
       Assert.isAssignable(baseType, type);
       consumer.accept((Class<T>) type, element);
     }
+  }
+
+  static class JsonComponentBeanFactoryInitializationAotProcessor implements BeanFactoryInitializationAotProcessor {
+
+    @Override
+    public BeanFactoryInitializationAotContribution processAheadOfTime(
+            ConfigurableBeanFactory beanFactory) {
+      Set<String> jsonComponents = beanFactory.getBeanNamesForAnnotation(JsonComponent.class);
+      Map<Class<?>, List<Class<?>>> innerComponents = new HashMap<>();
+      for (String jsonComponent : jsonComponents) {
+        Class<?> type = beanFactory.getType(jsonComponent, true);
+        Assert.state(type != null, "Cannot determine JsonComponent bean type");
+        for (Class<?> declaredClass : type.getDeclaredClasses()) {
+          if (isSuitableInnerClass(declaredClass)) {
+            innerComponents.computeIfAbsent(type, (t) -> new ArrayList<>()).add(declaredClass);
+          }
+        }
+      }
+      return innerComponents.isEmpty() ? null : new JsonComponentAotContribution(innerComponents);
+    }
+
+  }
+
+  private static final class JsonComponentAotContribution implements BeanFactoryInitializationAotContribution {
+
+    private final Map<Class<?>, List<Class<?>>> innerComponents;
+
+    private JsonComponentAotContribution(Map<Class<?>, List<Class<?>>> innerComponents) {
+      this.innerComponents = innerComponents;
+    }
+
+    @Override
+    public void applyTo(GenerationContext generationContext,
+            BeanFactoryInitializationCode beanFactoryInitializationCode) {
+      ReflectionHints reflection = generationContext.getRuntimeHints().reflection();
+      this.innerComponents.forEach((outer, inners) -> {
+        reflection.registerType(outer, MemberCategory.DECLARED_CLASSES);
+        inners.forEach((inner) -> reflection.registerType(inner, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
+      });
+    }
+
   }
 
 }

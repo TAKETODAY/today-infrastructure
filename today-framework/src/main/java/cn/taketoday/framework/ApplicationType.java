@@ -20,6 +20,10 @@
 
 package cn.taketoday.framework;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
+import cn.taketoday.aot.hint.TypeReference;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.ServletDetector;
 
@@ -75,6 +79,25 @@ public enum ApplicationType {
       }
     }
     return ApplicationType.NORMAL;
+  }
+
+  static class Hints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+      registerTypeIfPresent(ServletDetector.SERVLET_CLASS, classLoader, hints);
+      registerTypeIfPresent(ServletDetector.SERVLET_WEBSOCKET_CLASS, classLoader, hints);
+      registerTypeIfPresent(WEB_INDICATOR_CLASS, classLoader, hints);
+      registerTypeIfPresent(NETTY_INDICATOR_CLASS, classLoader, hints);
+      registerTypeIfPresent(REACTOR_INDICATOR_CLASS, classLoader, hints);
+    }
+
+    private void registerTypeIfPresent(String typeName, @Nullable ClassLoader classLoader, RuntimeHints hints) {
+      if (ClassUtils.isPresent(typeName, classLoader)) {
+        hints.reflection().registerType(TypeReference.of(typeName));
+      }
+    }
+
   }
 
 }

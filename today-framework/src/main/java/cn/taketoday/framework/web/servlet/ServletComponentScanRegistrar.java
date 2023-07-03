@@ -24,9 +24,11 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.beans.factory.aot.BeanRegistrationExcludeFilter;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -88,6 +90,15 @@ class ServletComponentScanRegistrar implements ImportBeanDefinitionRegistrar {
 
     private void addPackageNames(Collection<String> additionalPackageNames) {
       this.packageNames.addAll(additionalPackageNames);
+    }
+
+  }
+
+  static class ServletComponentScanBeanRegistrationExcludeFilter implements BeanRegistrationExcludeFilter {
+
+    @Override
+    public boolean isExcludedFromAotProcessing(RegisteredBean registeredBean) {
+      return BEAN_NAME.equals(registeredBean.getBeanName());
     }
 
   }

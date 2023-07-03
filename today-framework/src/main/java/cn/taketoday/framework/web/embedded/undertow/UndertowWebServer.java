@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
 import cn.taketoday.framework.web.server.PortInUseException;
@@ -58,6 +60,7 @@ import io.undertow.server.handlers.GracefulShutdownHandler;
  * @author Eddú Meléndez
  * @author Christoph Dreis
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class UndertowWebServer implements WebServer {
@@ -420,6 +423,27 @@ public class UndertowWebServer implements WebServer {
    * {@link Closeable} {@link HttpHandler}.
    */
   private interface CloseableHttpHandler extends HttpHandler, Closeable {
+
+  }
+
+  /**
+   * {@link RuntimeHintsRegistrar} that allows Undertow's configured and actual ports to
+   * be retrieved at runtime in a native image.
+   */
+  static class UndertowWebServerRuntimeHints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+      hints.reflection()
+              .registerTypeIfPresent(classLoader, "io.undertow.Undertow",
+                      (hint) -> hint.withField("listeners").withField("channels"));
+      hints.reflection()
+              .registerTypeIfPresent(classLoader, "io.undertow.Undertow$ListenerConfig",
+                      (hint) -> hint.withField("type").withField("port"));
+      hints.reflection()
+              .registerTypeIfPresent(classLoader, "io.undertow.protocols.ssl.UndertowAcceptingSslChannel",
+                      (hint) -> hint.withField("ssl"));
+    }
 
   }
 

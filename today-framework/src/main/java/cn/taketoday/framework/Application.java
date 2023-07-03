@@ -48,6 +48,7 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.properties.bind.Bindable;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.support.AbstractApplicationContext;
@@ -1550,4 +1551,11 @@ public class Application {
 
   }
 
+  static class ApplicationRuntimeHints extends BindableRuntimeHintsRegistrar {
+
+    ApplicationRuntimeHints() {
+      super(Application.class);
+    }
+
+  }
 }

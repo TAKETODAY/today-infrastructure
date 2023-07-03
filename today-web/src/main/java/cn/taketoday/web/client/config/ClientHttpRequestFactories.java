@@ -66,6 +66,13 @@ import okhttp3.OkHttpClient;
  * @since 4.0 2022/11/1 22:40
  */
 public abstract class ClientHttpRequestFactories {
+  static final String APACHE_HTTP_CLIENT_CLASS = "org.apache.hc.client5.http.impl.classic.HttpClients";
+
+  private static final boolean APACHE_HTTP_CLIENT_PRESENT = ClassUtils.isPresent(APACHE_HTTP_CLIENT_CLASS, null);
+
+  static final String OKHTTP_CLIENT_CLASS = "okhttp3.OkHttpClient";
+
+  private static final boolean OKHTTP_CLIENT_PRESENT = ClassUtils.isPresent(OKHTTP_CLIENT_CLASS, null);
 
   /**
    * Return a new {@link ClientHttpRequestFactory} instance using the most appropriate
@@ -76,11 +83,10 @@ public abstract class ClientHttpRequestFactories {
    */
   public static ClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
     Assert.notNull(settings, "Settings is required");
-    ClassLoader classLoader = ClientHttpRequestFactories.class.getClassLoader();
-    if (ClassUtils.isPresent("org.apache.hc.client5.http.impl.classic.HttpClients", classLoader)) {
+    if (APACHE_HTTP_CLIENT_PRESENT) {
       return HttpComponents.get(settings);
     }
-    if (ClassUtils.isPresent("okhttp3.OkHttpClient", classLoader)) {
+    if (OKHTTP_CLIENT_PRESENT) {
       return OkHttp.get(settings);
     }
     return Simple.get(settings);

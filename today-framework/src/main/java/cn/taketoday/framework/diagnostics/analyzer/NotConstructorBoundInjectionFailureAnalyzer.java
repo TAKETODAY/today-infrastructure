@@ -62,8 +62,9 @@ class NotConstructorBoundInjectionFailureAnalyzer
     if (isConstructorBindingConfigurationProperties(injectionPoint)) {
       String simpleName = injectionPoint.getMember().getDeclaringClass().getSimpleName();
       String action = String.format("Update your configuration so that %s is defined via @%s or @%s.",
+              simpleName,
               ConfigurationPropertiesScan.class.getSimpleName(),
-              EnableConfigurationProperties.class.getSimpleName(), simpleName);
+              EnableConfigurationProperties.class.getSimpleName());
       return new FailureAnalysis(simpleName +
               " is annotated with @" + ConstructorBinding.class.getSimpleName()
               + " but it is defined as a regular bean which caused dependency injection to fail.", action, cause);

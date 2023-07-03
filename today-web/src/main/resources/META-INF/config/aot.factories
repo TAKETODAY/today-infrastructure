@@ -3,6 +3,7 @@ cn.taketoday.http.HttpMimeTypesRuntimeHints,\
 cn.taketoday.http.codec.CodecConfigurerRuntimeHints,\
 cn.taketoday.http.converter.json.JacksonModulesRuntimeHints,\
 cn.taketoday.http.converter.json.ProblemDetailRuntimeHints,\
+cn.taketoday.web.client.config.ClientHttpRequestFactoriesRuntimeHints,\
 cn.taketoday.web.util.WebUtilRuntimeHints
 
 cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor=\

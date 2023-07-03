@@ -31,10 +31,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.framework.web.server.MimeMappings.DefaultMimeMappings;
 import cn.taketoday.framework.web.server.MimeMappings.Mapping;
+import cn.taketoday.framework.web.server.MimeMappings.MimeMappingsRuntimeHints;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -222,6 +225,14 @@ class MimeMappingsTests {
     Properties tomcatDefaultMimeMappings = PropertiesUtils
             .loadProperties(new ClassPathResource("MimeTypeMappings.properties", Tomcat.class));
     assertThat(ourDefaultMimeMappings).containsExactlyInAnyOrderEntriesOf(tomcatDefaultMimeMappings);
+  }
+
+  @Test
+  void shouldRegisterHints() {
+    RuntimeHints runtimeHints = new RuntimeHints();
+    new MimeMappingsRuntimeHints().registerHints(runtimeHints, getClass().getClassLoader());
+    assertThat(RuntimeHintsPredicates.resource()
+            .forResource("cn/taketoday/framework/web/server/mime-mappings.properties")).accepts(runtimeHints);
   }
 
 }

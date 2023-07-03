@@ -29,6 +29,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
 import cn.taketoday.lang.Assert;
@@ -403,6 +405,16 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
     @Override
     Map<String, Mapping> getMap() {
       return !this.copied.get() ? this.source.getMap() : super.getMap();
+    }
+
+  }
+
+  static class MimeMappingsRuntimeHints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+      hints.resources()
+              .registerPattern("cn/taketoday/framework/web/server/" + DefaultMimeMappings.MIME_MAPPINGS_PROPERTIES);
     }
 
   }
