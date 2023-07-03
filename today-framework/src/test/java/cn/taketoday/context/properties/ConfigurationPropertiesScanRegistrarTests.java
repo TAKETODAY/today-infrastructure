@@ -85,14 +85,14 @@ class ConfigurationPropertiesScanRegistrarTests {
             getAnnotationMetadata(ConfigurationPropertiesScanConfiguration.DifferentPackageConfiguration.class),
             new BootstrapContext(beanFactory, null));
     assertThat(beanFactory.containsBeanDefinition(
-            "foo-org.springframework.boot.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties"))
+            "foo-cn.taketoday.context.properties.scan.valid.ConfigurationPropertiesScanConfiguration$FooProperties"))
             .isFalse();
     BeanDefinition aDefinition = beanFactory.getBeanDefinition(
-            "a-org.springframework.boot.context.properties.scan.valid.a.AScanConfiguration$AProperties");
+            "a-cn.taketoday.context.properties.scan.valid.a.AScanConfiguration$AProperties");
     BeanDefinition bFirstDefinition = beanFactory.getBeanDefinition(
-            "b.first-org.springframework.boot.context.properties.scan.valid.b.BScanConfiguration$BFirstProperties");
+            "b.first-cn.taketoday.context.properties.scan.valid.b.BScanConfiguration$BFirstProperties");
     BeanDefinition bSecondDefinition = beanFactory.getBeanDefinition(
-            "b.second-org.springframework.boot.context.properties.scan.valid.b.BScanConfiguration$BSecondProperties");
+            "b.second-cn.taketoday.context.properties.scan.valid.b.BScanConfiguration$BSecondProperties");
     assertThat(aDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.JAVA_BEAN));
     // Constructor injection
     assertThat(bFirstDefinition).satisfies(configurationPropertiesBeanDefinition(BindMethod.VALUE_OBJECT));

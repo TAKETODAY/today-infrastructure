@@ -96,9 +96,10 @@ public class ConfigurationPropertiesBindingPostProcessor
     if (bean == null) {
       return;
     }
-    if (bean.asBindTarget().getBindMethod() != BindMethod.VALUE_OBJECT) {
-      throw new IllegalStateException("Cannot bind @ConfigurationProperties for bean '"
-              + bean.getName() + "'. Ensure that @ConstructorBinding has not been applied to regular bean");
+    if (bean.asBindTarget().getBindMethod() == BindMethod.VALUE_OBJECT) {
+      throw new IllegalStateException(
+              "Cannot bind @ConfigurationProperties for bean '" + bean.getName() +
+                      "'. Ensure that @ConstructorBinding has not been applied to regular bean");
     }
     try {
       this.binder.bind(bean);

@@ -38,7 +38,7 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.properties.bind.BindConstructorProvider;
+import cn.taketoday.context.properties.bind.BindMethod;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.ResolvableType;
@@ -50,6 +50,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
+
+import static cn.taketoday.context.properties.bind.BindConstructorProvider.DEFAULT;
 
 /**
  * Provides access to {@link ConfigurationProperties @ConfigurationProperties} bean
@@ -66,12 +68,6 @@ import cn.taketoday.validation.annotation.Validated;
  * @since 4.0
  */
 public final class ConfigurationPropertiesBean {
-
-  private static final cn.taketoday.context.properties.bind.BindMethod JAVA_BEAN_BIND_METHOD = //
-          cn.taketoday.context.properties.bind.BindMethod.JAVA_BEAN;
-
-  private static final cn.taketoday.context.properties.bind.BindMethod VALUE_OBJECT_BIND_METHOD = //
-          cn.taketoday.context.properties.bind.BindMethod.VALUE_OBJECT;
 
   private final String name;
 
@@ -114,15 +110,6 @@ public final class ConfigurationPropertiesBean {
   @Nullable
   Class<?> getType() {
     return this.bindTarget.getType().resolve();
-  }
-
-  /**
-   * Return the property binding method that was used for the bean.
-   *
-   * @return the bind method
-   */
-  public BindMethod getBindMethod() {
-    return BindMethod.from(this.bindTarget.getBindMethod());
   }
 
   /**
@@ -229,12 +216,12 @@ public final class ConfigurationPropertiesBean {
     }
     bindTarget = bindTarget.withBindMethod(BindMethodAttribute.get(applicationContext, beanName));
     if (bindTarget.getBindMethod() == null && factoryMethod != null) {
-      bindTarget = bindTarget.withBindMethod(JAVA_BEAN_BIND_METHOD);
+      bindTarget = bindTarget.withBindMethod(BindMethod.JAVA_BEAN);
     }
     if (bindTarget.getBindMethod() == null) {
       bindTarget = bindTarget.withBindMethod(deduceBindMethod(bindTarget));
     }
-    if (bindTarget.getBindMethod() != VALUE_OBJECT_BIND_METHOD) {
+    if (bindTarget.getBindMethod() != BindMethod.VALUE_OBJECT) {
       bindTarget = bindTarget.withExistingValue(bean);
     }
     return create(beanName, bean, bindTarget);
@@ -294,15 +281,19 @@ public final class ConfigurationPropertiesBean {
 
   static ConfigurationPropertiesBean forValueObject(Class<?> beanType, String beanName) {
     Bindable<Object> bindTarget = createBindTarget(null, beanType, null);
-    Assert.state(bindTarget != null && deduceBindMethod(bindTarget) == VALUE_OBJECT_BIND_METHOD,
-            () -> "Bean '" + beanName + "' is not a @ConfigurationProperties value object");
-    return create(beanName, null, bindTarget.withBindMethod(VALUE_OBJECT_BIND_METHOD));
+
+    if (bindTarget == null || deduceBindMethod(bindTarget) != BindMethod.VALUE_OBJECT) {
+      throw new IllegalStateException("Bean '" + beanName + "' is not a @ConfigurationProperties value object");
+    }
+
+    return create(beanName, null, bindTarget.withBindMethod(BindMethod.VALUE_OBJECT));
   }
 
   @Nullable
   private static Bindable<Object> createBindTarget(@Nullable Object bean, Class<?> beanType, @Nullable Method factoryMethod) {
-    ResolvableType type = (factoryMethod != null) ? ResolvableType.forReturnType(factoryMethod)
-                                                  : ResolvableType.forClass(beanType);
+    ResolvableType type = factoryMethod != null
+                          ? ResolvableType.forReturnType(factoryMethod)
+                          : ResolvableType.forClass(beanType);
     Annotation[] annotations = findAnnotations(bean, beanType, factoryMethod);
     return (annotations != null) ? Bindable.of(type).withAnnotations(annotations) : null;
   }
@@ -336,13 +327,16 @@ public final class ConfigurationPropertiesBean {
 
   private static <A extends Annotation> MergedAnnotation<A> findMergedAnnotation(
           @Nullable AnnotatedElement element, Class<A> annotationType) {
-    return (element != null) ? MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY).get(annotationType)
-                             : MergedAnnotation.missing();
+    return element != null
+           ? MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY).get(annotationType)
+           : MergedAnnotation.missing();
   }
 
   @Nullable
   private static ConfigurationPropertiesBean create(String name, @Nullable Object instance, @Nullable Bindable<Object> bindTarget) {
-    return (bindTarget != null) ? new ConfigurationPropertiesBean(name, instance, bindTarget) : null;
+    return bindTarget != null
+           ? new ConfigurationPropertiesBean(name, instance, bindTarget)
+           : null;
   }
 
   /**
@@ -351,9 +345,8 @@ public final class ConfigurationPropertiesBean {
    * @param type the source type
    * @return the bind method to use
    */
-
-  public static cn.taketoday.context.properties.bind.BindMethod deduceBindMethod(Class<?> type) {
-    return deduceBindMethod(BindConstructorProvider.DEFAULT.getBindConstructor(type, false));
+  public static BindMethod deduceBindMethod(Class<?> type) {
+    return deduceBindMethod(DEFAULT.getBindConstructor(type, false));
   }
 
   /**
@@ -362,44 +355,12 @@ public final class ConfigurationPropertiesBean {
    * @param bindable the source bindable
    * @return the bind method to use
    */
-  static cn.taketoday.context.properties.bind.BindMethod deduceBindMethod(Bindable<Object> bindable) {
-    return deduceBindMethod(BindConstructorProvider.DEFAULT.getBindConstructor(bindable, false));
+  static BindMethod deduceBindMethod(Bindable<Object> bindable) {
+    return deduceBindMethod(DEFAULT.getBindConstructor(bindable, false));
   }
 
-  private static cn.taketoday.context.properties.bind.BindMethod deduceBindMethod(
-          @Nullable Constructor<?> bindConstructor) {
-    return (bindConstructor != null) ? VALUE_OBJECT_BIND_METHOD : JAVA_BEAN_BIND_METHOD;
-  }
-
-  /**
-   * The binding method that is used for the bean.
-   *
-   * @deprecated since 3.0.8 for removal in 3.3.0 in favor of
-   * {@link cn.taketoday.context.properties.bind.BindMethod}
-   */
-  @Deprecated(since = "3.0.8", forRemoval = true)
-  public enum BindMethod {
-
-    /**
-     * Java Bean using getter/setter binding.
-     */
-    JAVA_BEAN,
-
-    /**
-     * Value object using constructor binding.
-     */
-    VALUE_OBJECT;
-
-    static BindMethod from(@Nullable cn.taketoday.context.properties.bind.BindMethod bindMethod) {
-      if (bindMethod == null) {
-        return null;
-      }
-      return switch (bindMethod) {
-        case VALUE_OBJECT -> BindMethod.VALUE_OBJECT;
-        case JAVA_BEAN -> BindMethod.JAVA_BEAN;
-      };
-    }
-
+  private static BindMethod deduceBindMethod(@Nullable Constructor<?> bindConstructor) {
+    return bindConstructor != null ? BindMethod.VALUE_OBJECT : BindMethod.JAVA_BEAN;
   }
 
 }

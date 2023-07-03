@@ -364,24 +364,19 @@ public class Binder {
     return bind(name, target, handler, true);
   }
 
-  private <T> T bind(
-          ConfigurationPropertyName name,
+  private <T> T bind(ConfigurationPropertyName name,
           Bindable<T> target, @Nullable BindHandler handler, boolean create) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(target, "Target must not be null");
-    handler = (handler != null) ? handler : this.defaultBindHandler;
+    if (handler == null) {
+      handler = defaultBindHandler;
+    }
     Context context = new Context();
     return bind(name, target, handler, context, false, create);
   }
 
-  private <T> T bind(
-          ConfigurationPropertyName name,
-          Bindable<T> target,
-          BindHandler handler,
-          Context context,
-          boolean allowRecursiveBinding,
-          boolean create
-  ) {
+  private <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
+          BindHandler handler, Context context, boolean allowRecursiveBinding, boolean create) {
     try {
       Bindable<T> replacementTarget = handler.onStart(name, target, context);
       if (replacementTarget == null) {
@@ -396,9 +391,8 @@ public class Binder {
     }
   }
 
-  private <T> T handleBindResult(
-          ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
-          Context context, @Nullable Object result, boolean create) throws Exception {
+  private <T> T handleBindResult(ConfigurationPropertyName name, Bindable<T> target,
+          BindHandler handler, Context context, @Nullable Object result, boolean create) throws Exception {
     if (result != null) {
       result = handler.onSuccess(name, target, context, result);
       result = context.getConverter().convert(result, target);
@@ -483,8 +477,7 @@ public class Binder {
     return null;
   }
 
-  private <T> Object bindAggregate(
-          ConfigurationPropertyName name, Bindable<T> target,
+  private <T> Object bindAggregate(ConfigurationPropertyName name, Bindable<T> target,
           BindHandler handler, Context context, AggregateBinder<?> aggregateBinder) {
 
     AggregateElementBinder elementBinder = (itemName, itemTarget, source) -> {
@@ -519,8 +512,7 @@ public class Binder {
   }
 
   @Nullable
-  private Object bindDataObject(
-          ConfigurationPropertyName name, Bindable<?> target,
+  private Object bindDataObject(ConfigurationPropertyName name, Bindable<?> target,
           BindHandler handler, Context context, boolean allowRecursiveBinding) {
     if (isUnbindableBean(name, target, context)) {
       return null;

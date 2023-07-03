@@ -230,8 +230,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    *
    * @param suffix the elements to append
    * @return a new {@link ConfigurationPropertyName}
+   * @since 2.5.0
    */
-  public ConfigurationPropertyName append(@Nullable ConfigurationPropertyName suffix) {
+  public ConfigurationPropertyName append(ConfigurationPropertyName suffix) {
     if (suffix == null) {
       return this;
     }
@@ -271,6 +272,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    *
    * @param offset the element offset
    * @return the sub name
+   * @since 2.5.0
    */
   public ConfigurationPropertyName subName(int offset) {
     if (offset == 0) {
@@ -325,13 +327,18 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     int i1 = 0;
     int i2 = 0;
     while (i1 < l1 || i2 < l2) {
-      ElementType type1 = (i1 < l1) ? n1.elements.getType(i1) : null;
-      ElementType type2 = (i2 < l2) ? n2.elements.getType(i2) : null;
-      String e1 = (i1 < l1) ? n1.getElement(i1++, Form.UNIFORM) : null;
-      String e2 = (i2 < l2) ? n2.getElement(i2++, Form.UNIFORM) : null;
-      int result = compare(e1, type1, e2, type2);
-      if (result != 0) {
-        return result;
+      try {
+        ElementType type1 = (i1 < l1) ? n1.elements.getType(i1) : null;
+        ElementType type2 = (i2 < l2) ? n2.elements.getType(i2) : null;
+        String e1 = (i1 < l1) ? n1.getElement(i1++, Form.UNIFORM) : null;
+        String e2 = (i2 < l2) ? n2.getElement(i2++, Form.UNIFORM) : null;
+        int result = compare(e1, type1, e2, type2);
+        if (result != 0) {
+          return result;
+        }
+      }
+      catch (ArrayIndexOutOfBoundsException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return 0;
@@ -361,13 +368,14 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     if (obj == this) {
       return true;
     }
-    if (!(obj instanceof ConfigurationPropertyName other)) {
+    if (obj == null || obj.getClass() != getClass()) {
       return false;
     }
+    ConfigurationPropertyName other = (ConfigurationPropertyName) obj;
     if (getNumberOfElements() != other.getNumberOfElements()) {
       return false;
     }
-    if (elements.canShortcutWithSource(ElementType.UNIFORM)
+    if (this.elements.canShortcutWithSource(ElementType.UNIFORM)
             && other.elements.canShortcutWithSource(ElementType.UNIFORM)) {
       return toString().equals(other.toString());
     }
@@ -462,7 +470,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     int i2 = 0;
     while (i1 < l1) {
       if (i2 >= l2) {
-        return remainderIsNotAlphaNumberic(e1, i, i1);
+        return remainderIsNotAlphanumeric(e1, i, i1);
       }
       char ch1 = indexed1 ? e1.charAt(i, i1) : Character.toLowerCase(e1.charAt(i, i1));
       char ch2 = indexed2 ? e2.charAt(i, i2) : Character.toLowerCase(e2.charAt(i, i2));
@@ -481,12 +489,12 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       }
     }
     if (i2 < l2) {
-      return remainderIsNotAlphaNumberic(e2, i, i2);
+      return remainderIsNotAlphanumeric(e2, i, i2);
     }
     return true;
   }
 
-  private boolean remainderIsNotAlphaNumberic(Elements elements, int element, int index) {
+  private boolean remainderIsNotAlphanumeric(Elements elements, int element, int index) {
     if (elements.getType(element).isIndexed()) {
       return false;
     }
@@ -520,9 +528,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   public int hashCode() {
     int hashCode = this.hashCode;
     Elements elements = this.elements;
-    int elementsSize = elements.getSize();
-    if (hashCode == 0 && elementsSize != 0) {
-      for (int elementIndex = 0; elementIndex < elementsSize; elementIndex++) {
+    if (hashCode == 0 && elements.getSize() != 0) {
+      for (int elementIndex = 0; elementIndex < elements.getSize(); elementIndex++) {
         int elementHashCode = 0;
         boolean indexed = elements.getType(elementIndex).isIndexed();
         int length = elements.getLength(elementIndex);
@@ -602,8 +609,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @param name the source name
    * @return a {@link ConfigurationPropertyName} instance
    */
-  @Nullable
-  public static ConfigurationPropertyName ofIfValid(@Nullable CharSequence name) {
+  public static ConfigurationPropertyName ofIfValid(CharSequence name) {
     return of(name, true);
   }
 
@@ -755,22 +761,46 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   /**
    * Allows access to the individual elements that make up the name. We store the
    * indexes in arrays rather than a list of object in order to conserve memory.
-   *
-   * @param resolved Contains any resolved elements or can be {@code null} if there aren't any.
-   * Resolved elements allow us to modify the element values in some way (or example
-   * when adapting with a mapping function, or when append has been called). Note
-   * that this array is not used as a cache, in fact, when it's not null then
-   * {@link #canShortcutWithSource} will always return false which may hurt
-   * performance.
    */
-  private record Elements(CharSequence source, int size, int[] start, int[] end,
-                          ElementType[] type, @Nullable CharSequence[] resolved) {
+  private static class Elements {
 
     private static final int[] NO_POSITION = {};
 
     private static final ElementType[] NO_TYPE = {};
 
     public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null);
+
+    private final CharSequence source;
+
+    private final int size;
+
+    private final int[] start;
+
+    private final int[] end;
+
+    private final ElementType[] type;
+
+    /**
+     * Contains any resolved elements or can be {@code null} if there aren't any.
+     * Resolved elements allow us to modify the element values in some way (or example
+     * when adapting with a mapping function, or when append has been called). Note
+     * that this array is not used as a cache, in fact, when it's not null then
+     * {@link #canShortcutWithSource} will always return false which may hurt
+     * performance.
+     */
+    @Nullable
+    private final CharSequence[] resolved;
+
+    Elements(CharSequence source, int size, int[] start, int[] end, ElementType[] type,
+            @Nullable CharSequence[] resolved) {
+      super();
+      this.source = source;
+      this.size = size;
+      this.start = start;
+      this.end = end;
+      this.type = type;
+      this.resolved = resolved;
+    }
 
     Elements append(Elements additional) {
       int size = this.size + additional.size;
@@ -987,8 +1017,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return existingType;
     }
 
-    private void add(int start, int end,
-            ElementType type, @Nullable Function<CharSequence, CharSequence> valueProcessor) {
+    private void add(int start, int end, ElementType type,
+            @Nullable Function<CharSequence, CharSequence> valueProcessor) {
       if ((end - start) < 1 || type == ElementType.EMPTY) {
         return;
       }
@@ -1076,7 +1106,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     DASHED(false),
 
     /**
-     * The element contains non uniform characters and will need to be converted.
+     * The element contains non-uniform characters and will need to be converted.
      */
     NON_UNIFORM(false),
 

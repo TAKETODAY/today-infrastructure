@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -67,9 +67,7 @@ public interface BindHandler {
    */
   @Nullable
   default Object onSuccess(ConfigurationPropertyName name,
-                           Bindable<?> target,
-                           BindContext context,
-                           Object result) {
+          Bindable<?> target, BindContext context, Object result) {
     return result;
   }
 
@@ -85,9 +83,7 @@ public interface BindHandler {
    * @return the actual result that should be used (must not be {@code null})
    */
   default Object onCreate(ConfigurationPropertyName name,
-                          Bindable<?> target,
-                          BindContext context,
-                          Object result) {
+          Bindable<?> target, BindContext context, Object result) {
     return result;
   }
 
@@ -105,9 +101,7 @@ public interface BindHandler {
    */
   @Nullable
   default Object onFailure(ConfigurationPropertyName name,
-                           Bindable<?> target,
-                           BindContext context,
-                           Exception error) throws Exception {
+          Bindable<?> target, BindContext context, Exception error) throws Exception {
     throw error;
   }
 
@@ -123,9 +117,7 @@ public interface BindHandler {
    * @throws Exception if the binding isn't valid
    */
   default void onFinish(ConfigurationPropertyName name,
-                        Bindable<?> target,
-                        BindContext context,
-                        @Nullable Object result) throws Exception {
+          Bindable<?> target, BindContext context, @Nullable Object result) throws Exception {
   }
 
 }
