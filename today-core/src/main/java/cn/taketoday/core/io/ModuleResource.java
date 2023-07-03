@@ -105,7 +105,7 @@ public class ModuleResource extends AbstractResource {
   @Override
   public String toString() {
     return "module resource [" + this.path + "]" +
-            (this.module.isNamed() ? " from module '" + this.module.getName() + "'" : "");
+            (this.module.isNamed() ? " from module [" + this.module.getName() + "]" : "");
   }
 
   @Override
