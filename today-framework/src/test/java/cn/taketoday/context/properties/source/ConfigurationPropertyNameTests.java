@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -690,12 +690,20 @@ class ConfigurationPropertyNameTests {
   }
 
   @Test
-  void equalsWhenAdaptedNameMatchesDueToRemovalOfTrailingCharacters() {
-    // gh-30317
+  void equalsWhenAdaptedNameMatchesDueToRemovalOfTrailingNonUniformCharacters() {
     ConfigurationPropertyName name1 = ConfigurationPropertyName.of("example.demo");
     ConfigurationPropertyName name2 = ConfigurationPropertyName.adapt("example.demo$$", '.');
     assertThat(name1).isEqualTo(name2);
     assertThat(name2).isEqualTo(name1);
+  }
+
+  // gh-34804
+  @Test
+  void equalsSymmetricWhenNameMatchesDueToIgnoredTrailingDashes() {
+    ConfigurationPropertyName n1 = ConfigurationPropertyName.of("example.demo");
+    ConfigurationPropertyName n2 = ConfigurationPropertyName.of("example.demo--");
+    assertThat(n2).isEqualTo(n1);
+    assertThat(n1).isEqualTo(n2);
   }
 
   @Test
