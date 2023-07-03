@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -90,19 +90,19 @@ class UndertowWebServerFactoryCustomizerTests {
   }
 
   @Test
-  void customMaxHttpHeaderSize() {
+  void customMaxHttpRequestHeaderSize() {
     bind("server.max-http-request-header-size=2048");
     assertThat(boundServerOption(UndertowOptions.MAX_HEADER_SIZE)).isEqualTo(2048);
   }
 
   @Test
-  void customMaxHttpHeaderSizeIgnoredIfNegative() {
+  void customMaxHttpRequestHeaderSizeIgnoredIfNegative() {
     bind("server.max-http-request-header-size=-1");
     assertThat(boundServerOption(UndertowOptions.MAX_HEADER_SIZE)).isNull();
   }
 
   @Test
-  void customMaxHttpHeaderSizeIgnoredIfZero() {
+  void customMaxHttpRequestHeaderSizeIgnoredIfZero() {
     bind("server.max-http-request-header-size=0");
     assertThat(boundServerOption(UndertowOptions.MAX_HEADER_SIZE)).isNull();
   }
