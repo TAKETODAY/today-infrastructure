@@ -48,8 +48,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -61,6 +63,7 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
@@ -76,17 +79,20 @@ import cn.taketoday.util.StringUtils;
  */
 final class ModifiedClassPathClassLoader extends URLClassLoader {
 
-  private static final ConcurrentReferenceHashMap<List<AnnotatedElement>, ModifiedClassPathClassLoader>
-          cache = new ConcurrentReferenceHashMap<>();
+  private static final Map<List<AnnotatedElement>, ModifiedClassPathClassLoader> cache = new ConcurrentReferenceHashMap<>();
 
   private static final Pattern INTELLIJ_CLASSPATH_JAR_PATTERN = Pattern.compile(".*classpath(\\d+)?\\.jar");
 
   private static final int MAX_RESOLUTION_ATTEMPTS = 5;
 
+  private final Set<String> excludedPackages;
+
   private final ClassLoader junitLoader;
 
-  ModifiedClassPathClassLoader(URL[] urls, ClassLoader parent, ClassLoader junitLoader) {
+  ModifiedClassPathClassLoader(URL[] urls, Set<String> excludedPackages,
+          ClassLoader parent, ClassLoader junitLoader) {
     super(urls, parent);
+    this.excludedPackages = excludedPackages;
     this.junitLoader = junitLoader;
   }
 
@@ -97,6 +103,10 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
             || name.startsWith("io.netty.internal.tcnative")) {
       return Class.forName(name, false, this.junitLoader);
     }
+    String packageName = ClassUtils.getPackageName(name);
+    if (excludedPackages.contains(packageName)) {
+      throw new ClassNotFoundException();
+    }
     return super.loadClass(name);
   }
 
@@ -105,13 +115,13 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
     candidates.add(testClass);
     candidates.add(testMethod);
     candidates.addAll(getAnnotatedElements(arguments.toArray()));
-    var annotatedElements = candidates.stream()
+    List<AnnotatedElement> annotatedElements = candidates.stream()
             .filter(ModifiedClassPathClassLoader::hasAnnotation)
             .collect(Collectors.toList());
     if (annotatedElements.isEmpty()) {
       return null;
     }
-    return cache.computeIfAbsent(annotatedElements, key -> compute(testClass.getClassLoader(), key));
+    return cache.computeIfAbsent(annotatedElements, (key) -> compute(testClass.getClassLoader(), key));
   }
 
   private static Collection<AnnotatedElement> getAnnotatedElements(Object[] array) {
@@ -134,13 +144,13 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
             || annotations.isPresent(ClassPathExclusions.class);
   }
 
-  private static ModifiedClassPathClassLoader compute(
-          ClassLoader classLoader, List<AnnotatedElement> annotatedClasses) {
+  private static ModifiedClassPathClassLoader compute(ClassLoader classLoader,
+          List<AnnotatedElement> annotatedClasses) {
     List<MergedAnnotations> annotations = annotatedClasses.stream()
             .map(source -> MergedAnnotations.from(source, SearchStrategy.TYPE_HIERARCHY))
             .toList();
     return new ModifiedClassPathClassLoader(processUrls(extractUrls(classLoader), annotations),
-            classLoader.getParent(), classLoader);
+            excludedPackages(annotations), classLoader.getParent(), classLoader);
   }
 
   private static URL[] extractUrls(ClassLoader classLoader) {
@@ -247,7 +257,8 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
     DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
     LocalRepository localRepository = new LocalRepository(System.getProperty("user.home") + "/.m2/repository");
     RemoteRepository remoteRepository = new RemoteRepository.Builder("central", "default",
-            "https://repo.maven.apache.org/maven2").build();
+            "https://repo.maven.apache.org/maven2")
+            .build();
     session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, localRepository));
     for (int i = 0; i < MAX_RESOLUTION_ATTEMPTS; i++) {
       CollectRequest collectRequest = new CollectRequest(null, Collections.singletonList(remoteRepository));
@@ -275,6 +286,17 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
       dependencies.add(new Dependency(new DefaultArtifact(coordinate), null));
     }
     return dependencies;
+  }
+
+  private static Set<String> excludedPackages(List<MergedAnnotations> annotations) {
+    Set<String> excludedPackages = new HashSet<>();
+    for (MergedAnnotations candidate : annotations) {
+      MergedAnnotation<ClassPathExclusions> annotation = candidate.get(ClassPathExclusions.class);
+      if (annotation.isPresent()) {
+        excludedPackages.addAll(Arrays.asList(annotation.getStringArray("packages")));
+      }
+    }
+    return excludedPackages;
   }
 
   /**
@@ -307,8 +329,7 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
             }
           }
         }
-        catch (URISyntaxException ignored) {
-        }
+        catch (URISyntaxException ignored) { }
       }
       return false;
     }

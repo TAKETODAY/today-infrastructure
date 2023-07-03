@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,6 +29,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
+
 /**
  * Annotation used to exclude entries from the classpath.
  *
@@ -42,6 +44,8 @@ import java.lang.annotation.Target;
 public @interface ClassPathExclusions {
 
   /**
+   * Alias for {@code files}.
+   * <p>
    * One or more Ant-style patterns that identify entries to be excluded from the class
    * path. Matching is performed against an entry's {@link File#getName() file name}.
    * For example, to exclude Hibernate Validator from the classpath,
@@ -49,6 +53,27 @@ public @interface ClassPathExclusions {
    *
    * @return the exclusion patterns
    */
-  String[] value();
+  @AliasFor("files")
+  String[] value() default {};
+
+  /**
+   * One or more Ant-style patterns that identify entries to be excluded from the class
+   * path. Matching is performed against an entry's {@link File#getName() file name}.
+   * For example, to exclude Hibernate Validator from the classpath,
+   * {@code "hibernate-validator-*.jar"} can be used.
+   *
+   * @return the exclusion patterns
+   * @since 3.2.0
+   */
+  @AliasFor("value")
+  String[] files() default {};
+
+  /**
+   * One or more packages that should be excluded from the classpath.
+   *
+   * @return the excluded packages
+   * @since 3.2.0
+   */
+  String[] packages() default {};
 
 }
