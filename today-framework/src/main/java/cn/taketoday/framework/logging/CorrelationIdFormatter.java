@@ -41,7 +41,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * Utility class that can be used to format a correlation identifier for logging based on
  * <a href=
- * "https://www.w3.org/TR/trace-context/#examples-of-http-traceparent-headers">w3c</a>
+ * "https://www.w3.org/TR/trace-context/#examples-of-http-traceparent-headers">W3C</a>
  * recommendations.
  * <p>
  * The formatter can be configured with a comma-separated list of names and the expected
@@ -51,8 +51,8 @@ import cn.taketoday.util.StringUtils;
  * {@code 16} respectively.
  * <p>
  * Correlation IDs are formatted as dash separated strings surrounded in square brackets.
- * Formatted output is always of a fixed width and with trailing whitespace. Dashes are
- * omitted if none of the named items can be resolved.
+ * Formatted output is always of a fixed width and with trailing space. Dashes are omitted
+ * if none of the named items can be resolved.
  * <p>
  * The following example would return a formatted result of
  * {@code "[01234567890123456789012345678901-0123456789012345] "}: <pre class="code">
@@ -110,10 +110,12 @@ public final class CorrelationIdFormatter {
     Predicate<Part> canResolve = part -> StringUtils.isNotEmpty(resolver.apply(part.name()));
     try {
       if (parts.stream().anyMatch(canResolve)) {
-        appendable.append("[");
-        for (Iterator<Part> iterator = parts.iterator(); iterator.hasNext(); ) {
+        appendable.append('[');
+        for (Iterator<Part> iterator = this.parts.iterator(); iterator.hasNext(); ) {
           appendable.append(iterator.next().resolve(resolver));
-          appendable.append((!iterator.hasNext()) ? "" : "-");
+          if (iterator.hasNext()) {
+            appendable.append('-');
+          }
         }
         appendable.append("] ");
       }
@@ -136,7 +138,7 @@ public final class CorrelationIdFormatter {
   /**
    * Create a new {@link CorrelationIdFormatter} instance from the given specification.
    *
-   * @param spec a comma separated specification
+   * @param spec a comma-separated specification
    * @return a new {@link CorrelationIdFormatter} instance
    */
   public static CorrelationIdFormatter of(String spec) {
@@ -180,7 +182,7 @@ public final class CorrelationIdFormatter {
    */
   record Part(String name, int length) {
 
-    private static final Pattern pattern = Pattern.compile("^(.+?)\\((\\d+)\\)?$");
+    private static final Pattern pattern = Pattern.compile("^(.+?)\\((\\d+)\\)$");
 
     String resolve(Function<String, String> resolver) {
       String resolved = resolver.apply(name());
@@ -188,7 +190,7 @@ public final class CorrelationIdFormatter {
         return blank();
       }
       int padding = length() - resolved.length();
-      return resolved + " ".repeat(Math.max(padding, 0));
+      return (padding <= 0) ? resolved : resolved + " ".repeat(padding);
     }
 
     String blank() {
