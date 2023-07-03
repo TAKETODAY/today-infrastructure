@@ -22,6 +22,7 @@ package cn.taketoday.web.client.config;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
@@ -166,18 +167,14 @@ public abstract class ClientHttpRequestFactories {
       }
       if (sslBundle != null) {
         SslOptions options = sslBundle.getOptions();
-        var socketFactory = new SSLConnectionSocketFactory(
-                sslBundle.createSslContext(),
-                options.getEnabledProtocols(),
-                options.getCiphers(),
-                new DefaultHostnameVerifier()
-        );
+        var socketFactory = new SSLConnectionSocketFactory(sslBundle.createSslContext(),
+                options.getEnabledProtocols(), options.getCiphers(), new DefaultHostnameVerifier());
         connectionManagerBuilder.setSSLSocketFactory(socketFactory);
       }
-      var connectionManager = connectionManagerBuilder.build();
+      PoolingHttpClientConnectionManager connectionManager = connectionManagerBuilder.build();
       return HttpClientBuilder.create()
-              .setConnectionManager(connectionManager)
-              .build();
+              .useSystemProperties()
+              .setConnectionManager(connectionManager).build();
     }
 
   }
