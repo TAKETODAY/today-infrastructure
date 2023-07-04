@@ -26,8 +26,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.Conventions;
@@ -75,10 +75,12 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 
   static void registerMethodValidationExcludeFilter(BeanDefinitionRegistry registry) {
     if (!registry.containsBeanDefinition(METHOD_VALIDATION_EXCLUDE_FILTER_BEAN_NAME)) {
-      RootBeanDefinition definition = new RootBeanDefinition(MethodValidationExcludeFilter.class);
-      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
-      definition.setInstanceSupplier(() -> MethodValidationExcludeFilter.byAnnotation(ConfigurationProperties.class));
-      definition.setEnableDependencyInjection(false);
+      BeanDefinition definition = BeanDefinitionBuilder
+              .rootBeanDefinition(MethodValidationExcludeFilter.class, "byAnnotation")
+              .addConstructorArgValue(ConfigurationProperties.class)
+              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
+              .setEnableDependencyInjection(false)
+              .getBeanDefinition();
       registry.registerBeanDefinition(METHOD_VALIDATION_EXCLUDE_FILTER_BEAN_NAME, definition);
     }
   }
