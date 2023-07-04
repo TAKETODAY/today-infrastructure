@@ -23,6 +23,7 @@ package cn.taketoday.context.properties.bind;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -196,12 +197,10 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
         hints.registerConstructor(bindConstructor, ExecutableMode.INVOKE);
         return;
       }
-      if (type != null) {
-        Arrays.stream(this.type.getDeclaredConstructors())
-                .filter(this::hasNoParameters)
-                .findFirst()
-                .ifPresent((constructor) -> hints.registerConstructor(constructor, ExecutableMode.INVOKE));
-      }
+      Arrays.stream(this.type.getDeclaredConstructors())
+              .filter(this::hasNoParameters)
+              .findFirst()
+              .ifPresent((constructor) -> hints.registerConstructor(constructor, ExecutableMode.INVOKE));
     }
 
     private void verifyParameterNamesAreAvailable(Constructor<?> bindConstructor) {
@@ -216,9 +215,10 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
     }
 
     private void handleValueObjectProperties(Constructor<?> bindConstructor, ReflectionHints hints) {
-      for (int i = 0; i < bindConstructor.getParameterCount(); i++) {
-        String propertyName = bindConstructor.getParameters()[i].getName();
-        ResolvableType propertyType = ResolvableType.forConstructorParameter(bindConstructor, i);
+      int i = 0;
+      for (Parameter parameter : bindConstructor.getParameters()) {
+        String propertyName = parameter.getName();
+        ResolvableType propertyType = ResolvableType.forConstructorParameter(bindConstructor, i++);
         handleProperty(hints, propertyName, propertyType);
       }
     }
@@ -230,7 +230,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
         if (getter != null) {
           hints.registerMethod(getter, ExecutableMode.INVOKE);
         }
-        Method setter = property.getter;
+        Method setter = property.setter;
         if (setter != null) {
           hints.registerMethod(setter, ExecutableMode.INVOKE);
         }
