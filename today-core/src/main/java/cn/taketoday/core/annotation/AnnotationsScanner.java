@@ -34,7 +34,6 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotations.Search;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
@@ -46,6 +45,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationsProcessor
  * @since 4.0
  */

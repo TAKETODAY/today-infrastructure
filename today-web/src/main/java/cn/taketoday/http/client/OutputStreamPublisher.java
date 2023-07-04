@@ -214,7 +214,7 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
       }
     }
 
-    private void invokeHandler() {
+    public void invokeHandler() {
       // assume sync write within try-with-resource block
 
       // use BufferedOutputStream, so that written bytes are buffered

@@ -24,7 +24,6 @@ import java.util.Arrays;
 
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**

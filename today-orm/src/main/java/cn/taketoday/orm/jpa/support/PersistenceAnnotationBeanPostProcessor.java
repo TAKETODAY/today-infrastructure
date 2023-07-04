@@ -39,7 +39,6 @@ import cn.taketoday.aot.generate.GeneratedClass;
 import cn.taketoday.aot.generate.GeneratedMethod;
 import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.aot.generate.GenerationContext;
-import cn.taketoday.aot.generate.MethodReference;
 import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.beans.BeanUtils;

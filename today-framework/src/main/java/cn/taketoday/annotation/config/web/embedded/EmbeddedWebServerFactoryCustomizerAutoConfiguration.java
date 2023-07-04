@@ -27,7 +27,6 @@ import org.eclipse.jetty.util.Loader;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.xnio.SslClientAuthMode;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -62,14 +61,14 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   public static class TomcatWebServerFactoryCustomizerConfiguration {
 
     @Component
-    public TomcatWebServerFactoryCustomizer tomcatWebServerFactoryCustomizer(Environment environment,
+    static TomcatWebServerFactoryCustomizer tomcatWebServerFactoryCustomizer(Environment environment,
             ServerProperties serverProperties) {
       return new TomcatWebServerFactoryCustomizer(environment, serverProperties);
     }
 
     @Component
     @ConditionalOnVirtualThreads
-    TomcatVirtualThreadsWebServerFactoryCustomizer tomcatVirtualThreadsProtocolHandlerCustomizer() {
+    static TomcatVirtualThreadsWebServerFactoryCustomizer tomcatVirtualThreadsProtocolHandlerCustomizer() {
       return new TomcatVirtualThreadsWebServerFactoryCustomizer();
     }
 
@@ -83,14 +82,14 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   public static class JettyWebServerFactoryCustomizerConfiguration {
 
     @Component
-    public JettyWebServerFactoryCustomizer jettyWebServerFactoryCustomizer(
+    static JettyWebServerFactoryCustomizer jettyWebServerFactoryCustomizer(
             Environment environment, ServerProperties serverProperties) {
       return new JettyWebServerFactoryCustomizer(environment, serverProperties);
     }
 
     @Component
     @ConditionalOnVirtualThreads
-    JettyVirtualThreadsWebServerFactoryCustomizer jettyVirtualThreadsWebServerFactoryCustomizer(
+    static JettyVirtualThreadsWebServerFactoryCustomizer jettyVirtualThreadsWebServerFactoryCustomizer(
             ServerProperties serverProperties) {
       return new JettyVirtualThreadsWebServerFactoryCustomizer(serverProperties);
     }
@@ -105,7 +104,7 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   public static class UndertowWebServerFactoryCustomizerConfiguration {
 
     @Component
-    public UndertowWebServerFactoryCustomizer undertowWebServerFactoryCustomizer(
+    static UndertowWebServerFactoryCustomizer undertowWebServerFactoryCustomizer(
             Environment environment, ServerProperties serverProperties) {
       return new UndertowWebServerFactoryCustomizer(environment, serverProperties);
     }
@@ -120,7 +119,7 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
   public static class NettyWebServerFactoryCustomizerConfiguration {
 
     @Component
-    public ReactorNettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(
+    static ReactorNettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(
             Environment environment, ServerProperties serverProperties) {
       return new ReactorNettyWebServerFactoryCustomizer(environment, serverProperties);
     }
