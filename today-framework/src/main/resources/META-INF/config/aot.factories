@@ -10,7 +10,10 @@ cn.taketoday.framework.json.JacksonRuntimeHints,\
 cn.taketoday.framework.logging.java.JavaLoggingSystemRuntimeHints,\
 cn.taketoday.framework.logging.logback.LogbackRuntimeHints,\
 cn.taketoday.framework.web.embedded.undertow.UndertowWebServer.UndertowWebServerRuntimeHints,\
-cn.taketoday.framework.web.server.MimeMappings.MimeMappingsRuntimeHints
+cn.taketoday.framework.web.server.MimeMappings.MimeMappingsRuntimeHints,\
+cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints,\
+cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration.Hints,\
+cn.taketoday.framework.template.TemplateRuntimeHints
 
 cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
 cn.taketoday.framework.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor

@@ -18,35 +18,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package org.aopalliance.aop;
+package cn.taketoday.framework.template;
 
-import java.io.Serial;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Superclass for all AOP infrastructure exceptions. Unchecked, as such
- * exceptions are fatal and end user code shouldn't be forced to catch them.
+ * {@link RuntimeHintsRegistrar} for default template location.
  *
- * @author Rod Johnson
- * @author Bob Lee
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class AspectException extends RuntimeException {
+class TemplateRuntimeHints implements RuntimeHintsRegistrar {
 
-  @Serial
-  private static final long serialVersionUID = 371663334385751868L;
-
-  /**
-   * Constructor for AspectException.
-   */
-  public AspectException(String s) {
-    super(s);
-  }
-
-  /**
-   * Constructor for AspectException.
-   */
-  public AspectException(String s, Throwable t) {
-    super(s, t);
+  @Override
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+    hints.resources().registerPatternIfPresent(classLoader,
+            "templates", (hint) -> hint.includes("templates/*"));
   }
 
 }

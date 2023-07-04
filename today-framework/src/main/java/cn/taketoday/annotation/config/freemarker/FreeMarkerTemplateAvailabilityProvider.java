@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,8 +23,12 @@ package cn.taketoday.annotation.config.freemarker;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.framework.template.PathBasedTemplateAvailabilityProvider;
 import cn.taketoday.framework.template.TemplateAvailabilityProvider;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link TemplateAvailabilityProvider} that provides availability information for
@@ -36,8 +40,10 @@ import cn.taketoday.framework.template.TemplateAvailabilityProvider;
  */
 public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAvailabilityProvider {
 
+  private static final String REQUIRED_CLASS_NAME = "freemarker.template.Configuration";
+
   public FreeMarkerTemplateAvailabilityProvider() {
-    super("freemarker.template.Configuration", FreeMarkerTemplateAvailabilityProperties.class, "freemarker");
+    super(REQUIRED_CLASS_NAME, FreeMarkerTemplateAvailabilityProperties.class, "freemarker");
   }
 
   protected static final class FreeMarkerTemplateAvailabilityProperties extends TemplateAvailabilityProperties {
@@ -60,6 +66,21 @@ public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAva
 
     public void setTemplateLoaderPath(List<String> templateLoaderPath) {
       this.templateLoaderPath = templateLoaderPath;
+    }
+
+  }
+
+  static class Hints extends BindableRuntimeHintsRegistrar {
+
+    Hints() {
+      super(FreeMarkerTemplateAvailabilityProperties.class);
+    }
+
+    @Override
+    public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+      if (ClassUtils.isPresent(REQUIRED_CLASS_NAME, classLoader)) {
+        super.registerHints(hints, classLoader);
+      }
     }
 
   }

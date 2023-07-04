@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -40,8 +40,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.stream.Stream;
 
 import cn.taketoday.annotation.config.jackson.JacksonProperties.ConstructorDetectorStrategy;
+import cn.taketoday.aot.hint.ReflectionHints;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
@@ -340,6 +344,38 @@ public class JacksonAutoConfiguration {
       }
 
     }
+  }
+
+  static class Hints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+      if (ClassUtils.isPresent("com.fasterxml.jackson.databind.PropertyNamingStrategy", classLoader)) {
+        registerPropertyNamingStrategyHints(hints.reflection());
+      }
+    }
+
+    /**
+     * Register hints for the {@code configurePropertyNamingStrategyField} method to
+     * use.
+     *
+     * @param hints reflection hints
+     */
+    private void registerPropertyNamingStrategyHints(ReflectionHints hints) {
+      registerPropertyNamingStrategyHints(hints, PropertyNamingStrategies.class);
+    }
+
+    private void registerPropertyNamingStrategyHints(ReflectionHints hints, Class<?> type) {
+      Stream.of(type.getDeclaredFields())
+              .filter(this::isPropertyNamingStrategyField)
+              .forEach(hints::registerField);
+    }
+
+    private boolean isPropertyNamingStrategyField(Field candidate) {
+      return ReflectionUtils.isPublicStaticFinal(candidate)
+              && candidate.getType().isAssignableFrom(PropertyNamingStrategy.class);
+    }
+
   }
 
 }
