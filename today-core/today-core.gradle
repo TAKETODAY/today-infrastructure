@@ -1,3 +1,6 @@
+import cn.taketoday.build.shadow.ShadowSource
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
   id 'me.champeau.mrjar'
 }
@@ -8,13 +11,38 @@ multiRelease {
   targetVersions 17 //, 21
 }
 
+def javapoetVersion = "1.13.0"
+
 configurations {
 //  java21Api.extendsFrom(api)
 //  java21Implementation.extendsFrom(implementation)
   graalvm
+  javapoet
+}
+
+task javapoetRepackJar(type: ShadowJar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
+}
+
+task javapoetSource(type: ShadowSource) {
+  configurations = [project.configurations.javapoet]
+  relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
+  outputDirectory = file("build/shadow-source/javapoet")
+}
+
+task javapoetSourceJar(type: Jar) {
+  archiveBaseName = 'today-javapoet-repack'
+  archiveVersion = javapoetVersion
+  archiveClassifier = 'sources'
+  from javapoetSource
 }
 
 dependencies {
+  javapoet("com.squareup:javapoet:${javapoetVersion}@jar")
+  api(files(javapoetRepackJar))
 
   compileOnly("io.projectreactor.tools:blockhound")
   compileOnly("org.graalvm.sdk:graal-sdk")
@@ -44,6 +72,11 @@ dependencies {
   testImplementation("ch.qos.logback:logback-classic")
   testImplementation 'org.apache.logging.log4j:log4j-core'
 
+  testImplementation "com.google.truth:truth:1.1.5"
+  testImplementation "com.google.testing.compile:compile-testing:0.21.0"
+  testImplementation 'com.google.jimfs:jimfs:1.2'
+  testImplementation 'org.eclipse.jdt.core.compiler:ecj:4.6.1'
+
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.junit.platform:junit-platform-launcher")
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
@@ -54,6 +87,16 @@ dependencies {
 
   testImplementation 'org.projectlombok:lombok'
   testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+}
+
+jar {
+  manifest.attributes["Dependencies"] = "jdk.unsupported"  // for WildFly (-> Objenesis 3.2)
+
+  dependsOn javapoetRepackJar
+  from(zipTree(javapoetRepackJar.archivePath)) {
+    include "cn/taketoday/javapoet/**"
+  }
+
 }
 
 test {
@@ -68,3 +111,7 @@ test {
   ]
 }
 
+sourcesJar {
+  dependsOn javapoetSourceJar
+  from javapoetSource
+}
