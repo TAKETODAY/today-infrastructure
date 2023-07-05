@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,8 +44,10 @@ public interface WebSessionListener extends EventListener {
   /**
    * Receives notification that a session has been created.
    *
+   * <p>
+   * The default implementation takes no action.
+   *
    * @param se the WebSessionEvent containing the session
-   * @implSpec The default implementation takes no action.
    */
   default void sessionCreated(WebSessionEvent se) {
     // default do nothing
@@ -53,9 +55,10 @@ public interface WebSessionListener extends EventListener {
 
   /**
    * Receives notification that a session is about to be invalidated.
+   * <p>
+   * The default implementation takes no action.
    *
    * @param se the WebSessionEvent containing the session
-   * @implSpec The default implementation takes no action.
    */
   default void sessionDestroyed(WebSessionEvent se) {
     // default do nothing

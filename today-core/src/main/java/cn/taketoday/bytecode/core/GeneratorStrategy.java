@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,7 @@
 package cn.taketoday.bytecode.core;
 
 /**
- * The <code>GeneratorStrategy</code. is responsible for taking a
+ * The <code>GeneratorStrategy</code>. is responsible for taking a
  * {@link ClassGenerator} and producing a byte array containing the
  * data for the generated <code>Class</code>. By providing your own strategy you
  * may examine or modify the generated class before it is loaded. Typically this

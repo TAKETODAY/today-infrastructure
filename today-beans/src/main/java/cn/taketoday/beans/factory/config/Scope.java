@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
 
 import java.util.function.Supplier;
@@ -33,10 +34,10 @@ import cn.taketoday.lang.Nullable;
  * {@link ConfigurableBeanFactory#registerScope(String, Scope) specific key}.
  *
  * <p>{@link cn.taketoday.context.ApplicationContext} implementations
- * such as a {@link cn.taketoday.web.WebApplicationContext}
+ * such as a {@link cn.taketoday.web.servlet.WebApplicationContext}
  * may register additional standard scopes specific to their environment,
- * e.g. {@link cn.taketoday.web.WebApplicationContext#SCOPE_REQUEST "request"}
- * and {@link cn.taketoday.web.WebApplicationContext#SCOPE_SESSION "session"},
+ * e.g. {@link cn.taketoday.web.RequestContext#SCOPE_REQUEST "request"}
+ * and {@link cn.taketoday.web.RequestContext#SCOPE_SESSION "session"},
  * based on this Scope SPI.
  *
  * <p>Even if its primary use is for extended scopes in a web environment,

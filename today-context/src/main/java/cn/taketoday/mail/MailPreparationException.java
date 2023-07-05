@@ -25,7 +25,8 @@ package cn.taketoday.mail;
  * for example when a FreeMarker template cannot be rendered for the mail text.
  *
  * @author Juergen Hoeller
- * @see cn.taketoday.web.view.freemarker.FreeMarkerTemplateUtils#processTemplateIntoString
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see cn.taketoday.ui.freemarker.FreeMarkerTemplateUtils#processTemplateIntoString
  * @since 4.0
  */
 @SuppressWarnings("serial")

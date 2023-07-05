@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -29,7 +29,7 @@ package cn.taketoday.core.io;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.web.context.support.ServletContextResource
+ * @see cn.taketoday.web.servlet.support.ServletContextResource
  * @since 4.0 2022/2/20 16:38
  */
 public interface ContextResource extends Resource {

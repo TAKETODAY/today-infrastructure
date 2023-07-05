@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -68,8 +68,8 @@ public class SecureRandomSessionIdGenerator implements SessionIdGenerator {
 
   /**
    * Encode the bytes into a String with a slightly modified Base64-algorithm
-   * This code was written by Kevin Kelley <kelley@ruralnet.net>
-   * and adapted by Thomas Peuss <jboss@peuss.de>
+   * This code was written by Kevin Kelley {@code kelley@ruralnet.net}
+   * and adapted by Thomas Peuss {@code jboss@peuss.de}
    *
    * @param data The bytes you want to encode
    * @return the encoded String

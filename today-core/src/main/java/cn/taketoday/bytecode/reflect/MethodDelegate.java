@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -55,11 +55,11 @@ import cn.taketoday.util.ReflectionUtils;
  * Consider the example below:
  * </p>
  *
- * <pre>
+ * <pre>{@code
  * public interface MainDelegate {
  *     int main(String[] args);
  * }
- * </pre>
+ * }</pre>
  *
  * <p>
  * The interface above is an example of an interface that can become a delegate.
@@ -69,7 +69,7 @@ import cn.taketoday.util.ReflectionUtils;
  * The following program will show how to use it:
  * </p>
  *
- * <pre>
+ * <pre>{@code
  * public class Main {
  *     public static int main(String[] args) {
  *         Main newMain = new Main();
@@ -84,7 +84,7 @@ import cn.taketoday.util.ReflectionUtils;
  *         return args.length;
  *     }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>
  * By themselves, delegates don't do much. Their true power lies in the fact

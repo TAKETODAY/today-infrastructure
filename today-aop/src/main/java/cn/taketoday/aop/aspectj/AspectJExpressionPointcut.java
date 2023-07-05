@@ -245,7 +245,7 @@ public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 
   /**
    * If a pointcut expression has been specified in XML, the user cannot
-   * write {@code and} as "&&" (though &amp;&amp; will work).
+   * write {@code and} as "&amp;&amp;" (though &amp;&amp; will work).
    * We also allow {@code and} between two pointcut sub-expressions.
    * <p>This method converts back to {@code &&} for the AspectJ pointcut parser.
    */
