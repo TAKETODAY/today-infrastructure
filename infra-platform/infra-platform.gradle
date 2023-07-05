@@ -1,8 +1,9 @@
-plugins {
-  id 'java-platform'
-}
-
 description = 'Infrastructure Dependencies'
+
+apply plugin: 'java-platform'
+apply from: "$rootDir/gradle/publications.gradle"
+
+group = "cn.taketoday"
 
 javaPlatform {
   allowDependencies()
@@ -20,6 +21,7 @@ dependencies {
   api(platform("org.eclipse.jetty:jetty-bom:11.0.15"))
   api(platform("org.junit:junit-bom:5.9.3"))
   api(platform("org.mockito:mockito-bom:5.4.0"))
+  api(platform(project(":infra-bom")))
 
   constraints {
     api("com.fasterxml:aalto-xml:1.3.2")
@@ -163,5 +165,14 @@ dependencies {
     api("org.apache.maven.resolver:maven-resolver-impl:1.6.3")
     api("org.apache.maven:maven-resolver-provider:3.6.3")
     api("org.apache.maven.resolver:maven-resolver-transport-http:1.6.3")
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifactId = 'infra-dependencies'
+      from components.javaPlatform
+    }
   }
 }
