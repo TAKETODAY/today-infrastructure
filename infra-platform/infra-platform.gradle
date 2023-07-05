@@ -21,6 +21,7 @@ dependencies {
   api(platform("org.eclipse.jetty:jetty-bom:11.0.15"))
   api(platform("org.junit:junit-bom:5.9.3"))
   api(platform("org.mockito:mockito-bom:5.4.0"))
+  api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
   api(platform(project(":infra-bom")))
 
   constraints {
