@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -253,14 +253,15 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   /**
    * If array is present, returns a sequential {@link Stream} containing
    * only that value, otherwise returns an empty {@code Stream}.
-   *
-   * @return the optional value as a {@code Stream}
-   * @apiNote This method can be used to transform a {@code Stream} of optional
+   * <p>
+   * This method can be used to transform a {@code Stream} of optional
    * elements to a {@code Stream} of present value elements:
    * <pre>{@code
    *     Stream<Optional<T>> os = ..
    *     Stream<T> s = os.flatMap(ArrayHolder::stream)
    * }</pre>
+   *
+   * @return the optional value as a {@code Stream}
    * @see #isPresent()
    */
   public Stream<E> stream() {
@@ -339,6 +340,10 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   /**
    * If array is present, returns the value, otherwise throws an exception
    * produced by the exception supplying function.
+   * <p>
+   * A method reference to the exception constructor with an empty argument
+   * list can be used as the supplier. For example,
+   * {@code IllegalStateException::new}
    *
    * @param <X> Type of the exception to be thrown
    * @param exceptionSupplier the supplying function that produces an
@@ -347,9 +352,6 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
    * @throws X if no value is present
    * @throws NullPointerException if no value is present and the exception
    * supplying function is {@code null}
-   * @apiNote A method reference to the exception constructor with an empty argument
-   * list can be used as the supplier. For example,
-   * {@code IllegalStateException::new}
    * @see #isPresent()
    */
   public <X extends Throwable> E[] orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {

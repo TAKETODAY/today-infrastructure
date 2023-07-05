@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -38,9 +38,11 @@ public interface AttributeBindingListener extends EventListener {
   /**
    * Notifies the object that it is being bound to a session and identifies the session.
    *
+   * <p>
+   * The default implementation takes no action.
+   *
    * @param session web session
    * @param attributeName attribute name
-   * @implSpec The default implementation takes no action.
    * @see #valueUnbound
    * @see WebSession#setAttribute(String, Object)
    */
@@ -51,9 +53,11 @@ public interface AttributeBindingListener extends EventListener {
   /**
    * Notifies the object that it is being unbound from a session and identifies the session.
    *
+   * <p>
+   * The default implementation takes no action.
+   *
    * @param session session
    * @param attributeName attribute name
-   * @implSpec The default implementation takes no action.
    * @see #valueBound
    * @see WebSession#setAttribute(String, Object)
    */

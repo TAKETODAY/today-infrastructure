@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,8 +31,8 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  * <p>
  * Iterate handlers in runtime
  * </p>
- * <pre>
- * &#64GET("/object")
+ * <pre> {@code
+ * @GET("/object")
  * public Object object(boolean key1, boolean key2, boolean key3, RequestContext context) throws IOException {
  *   if (key1) {
  *     return new Body("key1", 1);
@@ -47,7 +47,7 @@ import cn.taketoday.web.handler.method.HandlerMethod;
  *   }
  *   return "body:Hello";
  * }
- * </pre>
+ * }</pre>
  *
  * @author TODAY 2019-07-14 17:41
  */

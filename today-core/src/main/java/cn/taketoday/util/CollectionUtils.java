@@ -645,7 +645,7 @@ public abstract class CollectionUtils {
    * @param list target list
    * @param index new element's index
    * @param element element object
-   * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+   * @throws IndexOutOfBoundsException if the index is out of range {@code (index < 0 || index >= size())}
    * @throws NullPointerException if the specified element is null and this list does not permit null
    * elements
    * @see List#set(int, Object)
@@ -713,7 +713,6 @@ public abstract class CollectionUtils {
    *     CollectionUtils.addAll(flavors, null); // add nothing element can be null
    * </pre>
    *
-   * @param <T> the class of the elements to add and of the collection
    * @param c the collection into which <tt>elements</tt> are to be inserted
    * @param elements the elements to insert into <tt>c</tt>
    * @throws UnsupportedOperationException if <tt>c</tt> does not support
@@ -739,7 +738,6 @@ public abstract class CollectionUtils {
    * Adds all of the specified elements to the specified collection.
    * Elements to be added may be specified individually or as Enumeration.
    *
-   * @param <T> the class of the elements to add and of the collection
    * @param c the collection into which <tt>elements</tt> are to be inserted
    * @param values the elements to insert into <tt>c</tt>
    * @throws UnsupportedOperationException if <tt>c</tt> does not support
@@ -775,7 +773,6 @@ public abstract class CollectionUtils {
    *     CollectionUtils.addAll(flavors, null); // add nothing element can be null
    * </pre>
    *
-   * @param <T> the class of the elements to add and of the collection
    * @param c the collection into which <tt>elements</tt> are to be inserted
    * @param elements the elements to insert into <tt>c</tt>
    * @throws UnsupportedOperationException if <tt>c</tt> does not support
