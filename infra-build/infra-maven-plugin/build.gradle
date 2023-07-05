@@ -1,0 +1,72 @@
+plugins {
+//  id "org.asciidoctor.jvm.convert"
+  id "cn.taketoday.integration-test"
+  id "cn.taketoday.maven-plugin"
+}
+
+description = "Maven plugin for Today Infrastructure Applications"
+
+configurations {
+  documentation
+}
+
+dependencies {
+  compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
+  compileOnly 'org.sonatype.plexus:plexus-build-api:0.0.7'
+  compileOnly 'org.apache.maven.shared:file-management:1.2.1'
+  compileOnly 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
+  compileOnly "org.apache.maven:maven-plugin-api:3.0"
+  runtimeOnly 'org.sonatype.plexus:plexus-build-api:0.0.7'
+
+  compileOnly("org.apache.maven.plugins:maven-shade-plugin:3.5.0") {
+    exclude(group: "javax.enterprise", module: "cdi-api")
+    exclude(group: "javax.inject", module: "javax.inject")
+  }
+
+  implementation(project(":today-context"))
+
+  intTestImplementation("org.apache.maven.shared:maven-invoker:3.6.0") {
+    exclude(group: "javax.inject", module: "javax.inject")
+  }
+  intTestImplementation("org.assertj:assertj-core")
+  intTestImplementation("org.junit.jupiter:junit-jupiter")
+  intTestImplementation("org.testcontainers:testcontainers")
+  intTestImplementation("org.testcontainers:junit-jupiter")
+
+  testImplementation("org.assertj:assertj-core")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.mockito:mockito-junit-jupiter")
+
+  testImplementation(project(":today-core"))
+
+}
+
+ext {
+  versionElements = version.split("\\.")
+  xsdVersion = versionElements[0] + "." + versionElements[1]
+}
+
+sourceSets {
+  intTest {
+    output.dir("${buildDir}/generated-resources", builtBy: "extractVersionProperties")
+  }
+}
+
+
+javadoc {
+  options {
+    author = true
+    docTitle = "Infra Maven Plugin ${project.version} API"
+    encoding = "UTF-8"
+    memberLevel = "protected"
+    outputLevel = "quiet"
+    splitIndex = true
+    use = true
+    windowTitle = "Infra Maven Plugin ${project.version} API"
+  }
+}
+
+prepareMavenBinaries {
+  versions "3.9.0", "3.8.5", "3.6.3"
+}

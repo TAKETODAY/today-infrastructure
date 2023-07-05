@@ -9,7 +9,7 @@ plugins {
 
 ext {
   moduleProjects = subprojects.findAll { it.name.startsWith("today-") }
-  javaProjects = subprojects - project(":infra-bom") - project(":infra-platform") - project(":infra-code-coverage")
+  javaProjects = subprojects - project(":infra-bom") - project(":infra-platform") - project(":infra-build:infra-code-coverage")
 }
 
 configure(allprojects) { project ->

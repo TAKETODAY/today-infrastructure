@@ -17,7 +17,12 @@ ext {
 dependencies {
   implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
   implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
-  implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
+  // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
+   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
+
+  implementation 'cn.taketoday:today-core:4.0.0-Draft.3'
+
+
 }
 
 gradlePlugin {
@@ -37,6 +42,14 @@ gradlePlugin {
     runtimeHintsAgentPlugin {
       id = "cn.taketoday.build.runtimehints-agent"
       implementationClass = "cn.taketoday.build.hint.RuntimeHintsAgentPlugin"
+    }
+    integrationTestPlugin {
+      id = "cn.taketoday.integration-test"
+      implementationClass = "cn.taketoday.build.IntegrationTestPlugin"
+    }
+    mavenPluginPlugin {
+      id = "cn.taketoday.maven-plugin"
+      implementationClass = "cn.taketoday.build.maven.MavenPluginPlugin"
     }
   }
 }

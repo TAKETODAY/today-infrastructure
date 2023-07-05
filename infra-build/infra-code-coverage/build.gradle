@@ -3,6 +3,8 @@ plugins {
   id 'jacoco-report-aggregation'
 }
 
+description = "Code Coverage"
+
 configurations {
   jacocoAggregation.extendsFrom(dependencyManagement)
 }

@@ -20,7 +20,7 @@ rootProject.name = 'today-infrastructure'
 include 'infra-bom'
 include 'infra-docs'
 include 'infra-platform'
-include 'infra-code-coverage'
+
 include 'today-retry'
 include 'today-tx'
 include 'today-web'
@@ -49,7 +49,13 @@ file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
   include "today-starter:${it.name}"
 }
 
-rootProject.children.findAll { !it.name.startsWith("today-starter-") }.each { project ->
+file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
+  include "infra-build:${it.name}"
+}
+
+rootProject.children.findAll {
+  !it.name.startsWith("infra-build") || !it.name.startsWith("today-starter-")
+}.each { project ->
   project.buildFileName = "${project.name}.gradle"
 }
 
