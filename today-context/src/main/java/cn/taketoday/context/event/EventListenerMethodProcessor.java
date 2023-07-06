@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -21,10 +21,8 @@
 package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,13 +62,9 @@ import cn.taketoday.util.CollectionUtils;
  * @see EventListenerFactory
  * @see DefaultEventListenerFactory
  */
-public class EventListenerMethodProcessor
-        implements BeanFactoryPostProcessor, SmartInitializingSingleton, ApplicationContextAware {
+public class EventListenerMethodProcessor implements SmartInitializingSingleton, ApplicationContextAware {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-  @Nullable
-  private List<EventListenerFactory> eventListenerFactories;
 
   private final EventExpressionEvaluator evaluator = new EventExpressionEvaluator();
 
@@ -87,15 +81,10 @@ public class EventListenerMethodProcessor
   }
 
   @Override
-  public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-    Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
-    List<EventListenerFactory> factories = new ArrayList<>(beans.values());
-    AnnotationAwareOrderComparator.sort(factories);
-    this.eventListenerFactories = factories;
-  }
-
-  @Override
   public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
+    var factories = beanFactory.getBeans(EventListenerFactory.class);
+    AnnotationAwareOrderComparator.sort(factories);
+
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
       if (ScopedProxyUtils.isScopedTarget(beanName)) {
@@ -124,7 +113,7 @@ public class EventListenerMethodProcessor
           }
         }
         try {
-          process(beanName, type);
+          process(beanName, type, factories);
         }
         catch (Throwable ex) {
           throw new BeanInitializationException("Failed to process @EventListener " +
@@ -134,7 +123,7 @@ public class EventListenerMethodProcessor
     }
   }
 
-  private void process(final String beanName, final Class<?> targetType) {
+  private void process(String beanName, Class<?> targetType, List<EventListenerFactory> factories) {
     if (!this.nonAnnotatedClasses.contains(targetType)
             && AnnotationUtils.isCandidateClass(targetType, EventListener.class)) {
       Set<Method> annotatedMethods = null;
@@ -155,8 +144,6 @@ public class EventListenerMethodProcessor
         // Non-empty set of methods
         ConfigurableApplicationContext context = this.applicationContext;
         Assert.state(context != null, "No ApplicationContext set");
-        List<EventListenerFactory> factories = this.eventListenerFactories;
-        Assert.state(factories != null, "EventListenerFactory List not initialized");
         for (Method method : annotatedMethods) {
           for (EventListenerFactory factory : factories) {
             if (factory.supportsMethod(method)) {

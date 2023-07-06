@@ -30,6 +30,7 @@ dependencies {
   optional("javax.cache:cache-api")
   optional("com.github.ben-manes.caffeine:caffeine")
   optional("org.freemarker:freemarker")
+  optional 'ch.qos.logback:logback-classic'
 
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
