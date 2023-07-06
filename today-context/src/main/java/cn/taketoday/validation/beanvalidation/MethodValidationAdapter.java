@@ -39,7 +39,6 @@ import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.support.DefaultMessageSourceResolvable;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Conventions;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -86,7 +85,7 @@ public class MethodValidationAdapter {
 
   private MessageCodesResolver messageCodesResolver = new DefaultMessageCodesResolver();
 
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   @Nullable
   private BindingResultNameResolver objectNameResolver;

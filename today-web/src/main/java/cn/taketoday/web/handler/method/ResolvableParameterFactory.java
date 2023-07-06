@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -23,7 +23,6 @@ package cn.taketoday.web.handler.method;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
@@ -43,7 +42,7 @@ public class ResolvableParameterFactory {
   private final HashMap<Method, ResolvableMethodParameter[]> cache = new HashMap<>();
 
   public ResolvableParameterFactory() {
-    this(new DefaultParameterNameDiscoverer());
+    this(ParameterNameDiscoverer.getSharedInstance());
   }
 
   public ResolvableParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {

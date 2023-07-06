@@ -148,7 +148,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
   /** Resolver strategy for method parameter names. @since 4.0 */
   @Nullable
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   /** Strategy for creating bean instances. */
   private InstantiationStrategy instantiationStrategy;
@@ -223,8 +223,9 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #doCreateBean
    */
   @Nullable
-  protected Object createBean(
-          String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
+  protected Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
+          throws BeanCreationException {
+
     if (log.isDebugEnabled()) {
       log.trace("Creating instance of bean '{}'", beanName);
     }
@@ -1078,8 +1079,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param beanWrapper the BeanWrapper wrapping the target object
    * @param pvs the new property values
    */
-  protected void applyPropertyValues(
-          String beanName, BeanDefinition definition, BeanWrapper beanWrapper, @Nullable PropertyValues pvs) {
+  protected void applyPropertyValues(String beanName,
+          BeanDefinition definition, BeanWrapper beanWrapper, @Nullable PropertyValues pvs) {
     if (pvs == null || pvs.isEmpty()) {
       return;
     }
@@ -1182,8 +1183,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Convert the given value for the specified target property.
    */
   @Nullable
-  private Object convertForProperty(
-          @Nullable Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
+  private Object convertForProperty(@Nullable Object value,
+          String propertyName, BeanWrapper bw, TypeConverter converter) {
     if (converter instanceof BeanWrapperImpl) {
       return ((BeanWrapperImpl) converter).convertForProperty(value, propertyName);
     }
@@ -1204,8 +1205,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param bw the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
-  protected void autowireByName(
-          String beanName, AbstractBeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
+  protected void autowireByName(String beanName,
+          AbstractBeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, bw);
     for (String propertyName : propertyNames) {
       if (containsBean(propertyName)) {
@@ -1238,8 +1239,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param wrapper the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
-  protected void autowireByType(
-          String beanName, BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
+  protected void autowireByType(String beanName,
+          BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
     BeanMetadata metadata = wrapper.getMetadata();
     LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
 

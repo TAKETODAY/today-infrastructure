@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -34,7 +34,6 @@ import java.util.Optional;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
@@ -209,8 +208,6 @@ class ValueObjectBinder implements DataObjectBinder {
    */
   private static final class DefaultValueObject<T> extends ValueObject<T> {
 
-    private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
-
     private final List<ConstructorParameter> constructorParameters;
 
     private DefaultValueObject(Constructor<T> constructor, ResolvableType type) {
@@ -220,7 +217,7 @@ class ValueObjectBinder implements DataObjectBinder {
 
     private static List<ConstructorParameter> parseConstructorParameters(
             Constructor<?> constructor, ResolvableType type) {
-      String[] names = PARAMETER_NAME_DISCOVERER.getParameterNames(constructor);
+      String[] names = ParameterNameDiscoverer.findParameterNames(constructor);
       if (names == null) {
         throw new IllegalStateException("Failed to extract parameter names for " + constructor);
       }

@@ -190,7 +190,7 @@ public abstract class AbstractReflectiveMBeanInfoAssembler extends AbstractMBean
   private boolean exposeClassDescriptor = false;
 
   @Nullable
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   /**
    * Set the default for the JMX field "currencyTimeLimit".

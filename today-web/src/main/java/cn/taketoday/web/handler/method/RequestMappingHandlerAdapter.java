@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
@@ -78,7 +77,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   private SessionAttributeStore sessionAttributeStore = new DefaultSessionAttributeStore();
 
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   @Nullable
   private ConfigurableBeanFactory beanFactory;

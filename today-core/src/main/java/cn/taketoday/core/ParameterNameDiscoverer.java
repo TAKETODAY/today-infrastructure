@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -70,6 +70,32 @@ public abstract class ParameterNameDiscoverer {
   @Nullable
   protected String[] doGet(Executable executable) {
     return null;
+  }
+
+  /**
+   * shared instance
+   */
+  public static ParameterNameDiscoverer getSharedInstance() {
+    return DefaultParameterNameDiscoverer.INSTANCE;
+  }
+
+  /**
+   * Return parameter names for an Executable(method or constructor), or {@code null}
+   * if they cannot be determined.
+   * <p>Individual entries in the array may be {@code null} if parameter names are only
+   * available for some parameters of the given method but not for others. However,
+   * it is recommended to use stub parameter names instead wherever feasible.
+   *
+   * @param executable the Executable(method or constructor) to find parameter names for
+   * @return an array of parameter names if the names can be resolved,
+   * or {@code null} if they cannot
+   * @see Executable#getParameterCount()
+   * @see DefaultParameterNameDiscoverer
+   * @see #getSharedInstance()
+   */
+  @Nullable
+  public static String[] findParameterNames(@Nullable Executable executable) {
+    return getSharedInstance().getParameterNames(executable);
   }
 
 }

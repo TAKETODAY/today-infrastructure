@@ -37,7 +37,6 @@ import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -148,8 +147,6 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
    */
   private static final class Processor {
 
-    private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
-
     private final Class<?> type;
 
     @Nullable
@@ -204,7 +201,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
     }
 
     private void verifyParameterNamesAreAvailable(Constructor<?> bindConstructor) {
-      String[] parameterNames = parameterNameDiscoverer.getParameterNames(bindConstructor);
+      String[] parameterNames = ParameterNameDiscoverer.findParameterNames(bindConstructor);
       if (parameterNames == null) {
         this.compiledWithoutParameters.add(bindConstructor.getDeclaringClass());
       }

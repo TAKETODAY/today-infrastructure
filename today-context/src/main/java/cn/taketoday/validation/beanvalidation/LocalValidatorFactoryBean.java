@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -39,7 +39,6 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.MessageSource;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
@@ -104,7 +103,7 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
   private ConstraintValidatorFactory constraintValidatorFactory;
 
   @Nullable
-  private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   @Nullable
   private Resource[] mappingLocations;

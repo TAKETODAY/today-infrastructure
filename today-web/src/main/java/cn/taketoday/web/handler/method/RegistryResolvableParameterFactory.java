@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -20,7 +20,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.lang.Assert;
@@ -36,7 +35,7 @@ public class RegistryResolvableParameterFactory extends ResolvableParameterFacto
   private final ParameterResolvingRegistry resolvingRegistry;
 
   public RegistryResolvableParameterFactory() {
-    this(new ParameterResolvingRegistry(), new DefaultParameterNameDiscoverer());
+    this(new ParameterResolvingRegistry(), ParameterNameDiscoverer.getSharedInstance());
   }
 
   public RegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {

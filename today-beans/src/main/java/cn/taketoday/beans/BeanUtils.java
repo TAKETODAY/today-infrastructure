@@ -67,9 +67,6 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class BeanUtils {
 
-  private static final ParameterNameDiscoverer parameterNameDiscoverer =
-          new DefaultParameterNameDiscoverer();
-
   private static final Set<Class<?>> unknownEditorTypes =
           Collections.newSetFromMap(new ConcurrentReferenceHashMap<>(64));
 
@@ -306,7 +303,7 @@ public abstract class BeanUtils {
    */
   public static String[] getParameterNames(Constructor<?> ctor) {
     ConstructorProperties cp = ctor.getAnnotation(ConstructorProperties.class);
-    String[] paramNames = cp != null ? cp.value() : parameterNameDiscoverer.getParameterNames(ctor);
+    String[] paramNames = cp != null ? cp.value() : ParameterNameDiscoverer.findParameterNames(ctor);
     if (paramNames == null) {
       throw new IllegalStateException("Cannot resolve parameter names for constructor " + ctor);
     }

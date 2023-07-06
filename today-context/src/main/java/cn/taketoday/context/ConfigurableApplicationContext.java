@@ -20,6 +20,8 @@
 
 package cn.taketoday.context;
 
+import java.io.Closeable;
+
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
@@ -43,7 +45,7 @@ import cn.taketoday.lang.Nullable;
  * @author Sam Brannen
  * @author TODAY 2018-11-14 21:16
  */
-public interface ConfigurableApplicationContext extends ApplicationContext, Lifecycle, AutoCloseable {
+public interface ConfigurableApplicationContext extends ApplicationContext, Lifecycle, Closeable {
 
   /**
    * Any number of these characters are considered delimiters between

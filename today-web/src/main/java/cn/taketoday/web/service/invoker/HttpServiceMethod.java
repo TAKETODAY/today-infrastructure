@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.http.HttpHeaders;
@@ -87,7 +87,7 @@ final class HttpServiceMethod {
     if (count == 0) {
       return new MethodParameter[0];
     }
-    DefaultParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
+    ParameterNameDiscoverer nameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
     MethodParameter[] parameters = new MethodParameter[count];
     for (int i = 0; i < count; i++) {
       var parameter = new SynthesizingMethodParameter(method, i);

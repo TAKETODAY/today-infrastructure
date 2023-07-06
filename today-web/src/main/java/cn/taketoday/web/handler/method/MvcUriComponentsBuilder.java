@@ -41,7 +41,6 @@ import cn.taketoday.bytecode.proxy.Factory;
 import cn.taketoday.bytecode.proxy.MethodProxy;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AntPathMatcher;
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -107,7 +106,7 @@ public class MvcUriComponentsBuilder {
 
   private static final PathMatcher pathMatcher = new AntPathMatcher();
 
-  private static final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private static final ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   private static final CompositeUriComponentsContributor defaultUriComponentsContributor =
           new CompositeUriComponentsContributor(

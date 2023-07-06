@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -33,6 +33,8 @@ package cn.taketoday.core;
  * @since 4.0
  */
 public class DefaultParameterNameDiscoverer extends CompositeParameterNameDiscoverer {
+
+  public static final DefaultParameterNameDiscoverer INSTANCE = new DefaultParameterNameDiscoverer();
 
   public DefaultParameterNameDiscoverer() {
     addDiscoverer(new ReflectiveParameterNameDiscoverer(),

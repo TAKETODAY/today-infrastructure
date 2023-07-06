@@ -1,6 +1,6 @@
 /*
  * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
+ * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -22,7 +22,6 @@ package cn.taketoday.context.expression;
 
 import java.util.Map;
 
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
@@ -56,7 +55,7 @@ public abstract class CachedExpressionEvaluator {
    * Create a new instance with the specified {@link SpelExpressionParser}.
    */
   protected CachedExpressionEvaluator(SpelExpressionParser parser) {
-    this(parser, new DefaultParameterNameDiscoverer());
+    this(parser, ParameterNameDiscoverer.getSharedInstance());
   }
 
   /**
