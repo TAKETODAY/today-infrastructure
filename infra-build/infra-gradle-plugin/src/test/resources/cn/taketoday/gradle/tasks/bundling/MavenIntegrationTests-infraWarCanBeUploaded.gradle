@@ -1,0 +1,22 @@
+
+
+plugins {
+	id 'war'
+	id 'maven'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraWar {
+	mainClass = 'com.example.Application'
+}
+
+group = 'com.example'
+version = '1.0'
+
+uploadInfraArchives {
+	repositories {
+		mavenDeployer {
+		 	repository(url: "file:${buildDir}/repo")
+		}
+	}
+}

@@ -1,0 +1,12 @@
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+repositories {
+	flatDir { dirs 'libs' }
+}
+
+dependencies {
+	implementation('cn.taketoday:today-starter')
+}

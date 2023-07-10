@@ -8,8 +8,16 @@ plugins {
 }
 
 ext {
-  moduleProjects = subprojects.findAll { it.name.startsWith("today-") }
-  javaProjects = subprojects - project(":infra-bom") - project(":infra-platform") - project(":infra-build:infra-code-coverage")
+  moduleProjects = subprojects.findAll { it.name.startsWith("today-") } + [
+          project(":infra-build:infra-gradle-plugin"),
+          project(":infra-build:infra-maven-plugin"),
+          project(":infra-build:infra-app-loader"),
+          project(":infra-build:infra-app-loader-tools"),
+          project(":infra-build:infra-jarmode-layertools")
+  ]
+  javaProjects = subprojects - [
+          project(":infra-build:infra-code-coverage"),
+          project(":infra-bom"), project(":infra-build"), project(":infra-platform")]
 }
 
 configure(allprojects) { project ->

@@ -1,0 +1,13 @@
+plugins {
+  id 'war'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+// tag::dependencies[]
+dependencies {
+  implementation('cn.taketoday:today-starter-web')
+  providedRuntime('cn.taketoday:today-starter-tomcat')
+}
+// end::dependencies[]

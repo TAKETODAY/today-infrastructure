@@ -1,0 +1,26 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::docker-host[]
+tasks.named("infraBuildImage") {
+  docker {
+    host = "tcp://192.168.99.100:2376"
+    tlsVerify = true
+    certPath = "/home/user/.minikube/certs"
+  }
+}
+// end::docker-host[]
+
+tasks.register("infraBuildImageDocker") {
+  doFirst {
+    println("host=${tasks.infraBuildImage.docker.host.get()}")
+    println("tlsVerify=${tasks.infraBuildImage.docker.tlsVerify.get()}")
+    println("certPath=${tasks.infraBuildImage.docker.certPath.get()}")
+  }
+}

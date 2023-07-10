@@ -1,0 +1,31 @@
+plugins {
+	id 'cn.taketoday.application'
+	id 'cn.taketoday.application.aot'
+	id 'java'
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'file:repository' }
+}
+
+configurations.all {
+	resolutionStrategy {
+		eachDependency {
+			if (it.requested.group == 'cn.taketoday') {
+				it.useVersion project.infraVersion
+			}
+		}
+	}
+}
+
+dependencies {
+	implementation "org.hibernate.orm:hibernate-core:6.1.1.Final"
+}
+
+task('processTestAotClasspath') {
+	dependsOn configurations.processTestAotClasspath 
+	doFirst {
+		configurations.processTestAotClasspath.files.each { println it }
+	}
+}

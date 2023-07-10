@@ -1,0 +1,27 @@
+plugins {
+  id 'java'
+  id 'maven-publish'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::publishing[]
+publishing {
+  publications {
+    bootJava(MavenPublication) {
+      artifact tasks.named("infraJar")
+    }
+  }
+  repositories {
+    maven {
+      url 'https://repo.example.com'
+    }
+  }
+}
+// end::publishing[]
+
+tasks.register("publishingConfiguration") {
+  doLast {
+    println publishing.publications.bootJava
+    println publishing.repositories.maven.url
+  }
+}

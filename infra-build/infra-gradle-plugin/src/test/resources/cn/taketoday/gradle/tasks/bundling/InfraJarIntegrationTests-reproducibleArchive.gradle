@@ -1,0 +1,12 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+	preserveFileTimestamps = false
+	reproducibleFileOrder = true
+}

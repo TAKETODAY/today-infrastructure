@@ -1,0 +1,15 @@
+plugins {
+	id 'cn.taketoday.application'
+	id 'cn.taketoday.application.aot'
+	id 'java'
+}
+
+dependencies {
+	implementation project(":library")
+}
+
+task('processAotClasspath') {
+	doFirst {
+		tasks.findByName('processAot').classpath.files.each { println it }
+	}
+}

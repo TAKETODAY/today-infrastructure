@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,7 @@ import cn.taketoday.logging.LoggerFactory;
 /**
  * {@link BeanFactoryInitializationAotProcessor} implementation that processes
  * {@link RuntimeHintsRegistrar} implementations declared as
- * {@code spring.factories} or using
+ * {@code today-strategies.properties} or using
  * {@link ImportRuntimeHints @ImportRuntimeHints} annotated configuration
  * classes or bean methods.
  *

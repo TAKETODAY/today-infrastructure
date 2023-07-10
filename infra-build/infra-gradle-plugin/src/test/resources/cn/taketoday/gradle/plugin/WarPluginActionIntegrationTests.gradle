@@ -1,0 +1,13 @@
+plugins {
+	id 'cn.taketoday.application' version '{version}'
+}
+
+if (project.hasProperty('applyWarPlugin')) {
+	apply plugin: 'war'
+}
+
+task('taskExists') {
+	doFirst {
+		println "${taskName} exists = ${tasks.findByName(taskName) != null}"
+	}
+}

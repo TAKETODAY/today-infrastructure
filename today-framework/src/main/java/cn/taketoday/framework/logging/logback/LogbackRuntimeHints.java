@@ -49,7 +49,7 @@ class LogbackRuntimeHints implements RuntimeHintsRegistrar {
     ReflectionHints reflection = hints.reflection();
     registerHintsForLogbackLoggingSystemTypeChecks(reflection, classLoader);
     registerHintsForBuiltInLogbackConverters(reflection);
-    registerHintsForSpringBootConverters(reflection);
+    registerHintsForInfraConverters(reflection);
   }
 
   private void registerHintsForLogbackLoggingSystemTypeChecks(ReflectionHints reflection,
@@ -66,7 +66,7 @@ class LogbackRuntimeHints implements RuntimeHintsRegistrar {
             SyslogStartConverter.class);
   }
 
-  private void registerHintsForSpringBootConverters(ReflectionHints reflection) {
+  private void registerHintsForInfraConverters(ReflectionHints reflection) {
     registerForPublicConstructorInvocation(reflection, ColorConverter.class,
             ExtendedWhitespaceThrowableProxyConverter.class, WhitespaceThrowableProxyConverter.class,
             CorrelationIdConverter.class);

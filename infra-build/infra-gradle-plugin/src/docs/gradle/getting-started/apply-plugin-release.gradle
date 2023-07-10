@@ -1,0 +1,3 @@
+plugins {
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}

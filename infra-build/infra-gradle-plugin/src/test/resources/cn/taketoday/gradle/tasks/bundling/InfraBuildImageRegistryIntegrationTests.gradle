@@ -1,0 +1,16 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+java {
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+}
+
+infraBuildImage {
+	builder = "projects.registry.vmware.com/springboot/spring-boot-cnb-builder:0.0.2"
+	publish = true
+}

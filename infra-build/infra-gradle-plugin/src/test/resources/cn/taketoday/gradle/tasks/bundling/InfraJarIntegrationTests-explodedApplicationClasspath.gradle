@@ -1,0 +1,27 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+repositories {
+	mavenCentral()
+	maven { url "file:repository" }
+}
+
+dependencies {
+	implementation("com.example:library:1.0-SNAPSHOT")
+	implementation("org.apache.commons:commons-lang3:3.9")
+}
+
+task explode(type: Sync) {
+	dependsOn(infraJar)
+	destinationDir = file("$buildDir/exploded")
+	from zipTree(files(infraJar).singleFile)
+}
+
+task launch(type: JavaExec) {
+	classpath = files(explode)
+	mainClass = 'cn.taketoday.app.loader.JarLauncher'
+}

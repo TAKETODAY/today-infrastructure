@@ -1,0 +1,13 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+	layered {
+		{layerTools}
+	}
+}

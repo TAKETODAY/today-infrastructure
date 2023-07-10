@@ -1,0 +1,24 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::docker-auth-token[]
+tasks.named("infraBuildImage") {
+  docker {
+    builderRegistry {
+      token = "9cbaf023786cd7..."
+    }
+  }
+}
+// end::docker-auth-token[]
+
+tasks.register("infraBuildImageDocker") {
+  doFirst {
+    println("token=${tasks.infraBuildImage.docker.builderRegistry.token.get()}")
+  }
+}

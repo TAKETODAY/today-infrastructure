@@ -1,0 +1,26 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	developmentOnly("org.apache.commons:commons-lang3:3.9")
+	developmentOnly("commons-io:commons-io:2.6")
+	implementation("commons-io:commons-io:2.6")
+}
+
+infraJar {
+	layered {
+		enabled = false
+	}
+}

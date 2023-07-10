@@ -1,0 +1,76 @@
+plugins {
+  id "maven-publish"
+  id "java-gradle-plugin"
+}
+
+description = "TODAY Infrastructure Applications Gradle Plugins"
+
+configurations {
+  documentation
+  "testCompileClasspath" {
+    // Downgrade SLF4J is required for tests to run in Eclipse
+    resolutionStrategy.force("org.slf4j:slf4j-api:1.7.36")
+  }
+  configureEach {
+    resolutionStrategy {
+      eachDependency { dependency ->
+        // Downgrade Jackson as Gradle cannot cope with 2.15.0's multi-version
+        // jar files with bytecode in META-INF/versions/19
+        if (dependency.requested.group.startsWith("com.fasterxml.jackson")) {
+          dependency.useVersion("2.14.2")
+        }
+      }
+    }
+  }
+}
+
+dependencies {
+
+  optional(project(":today-core"))
+  optional(project(":today-test-support"))
+  optional(project(":infra-build:infra-app-loader"))
+  optional(project(":infra-build:infra-app-loader-tools"))
+
+  optional('org.graalvm.buildtools:native-gradle-plugin:0.9.23')
+
+  implementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
+  implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
+  implementation 'org.apache.commons:commons-compress:1.21'
+
+  testImplementation(project(":today-aop"))
+  testImplementation(project(":today-framework"))
+  testImplementation("com.tngtech.archunit:archunit-junit5:0.22.0")
+  testImplementation("org.assertj:assertj-core")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.testcontainers:testcontainers")
+}
+
+gradlePlugin {
+  plugins {
+    infraPlugin {
+      id = "cn.taketoday.application"
+      displayName = "TODAY Infrastructure Applications Gradle Plugin"
+      description = "TODAY Infrastructure Applications Gradle Plugin"
+      implementationClass = "cn.taketoday.gradle.plugin.InfraApplicationPlugin"
+    }
+    infraAotPlugin {
+      id = "cn.taketoday.application.aot"
+      displayName = "TODAY Infrastructure Applications AOT Gradle Plugin"
+      description = "TODAY Infrastructure Applications AOT Gradle Plugin"
+      implementationClass = "cn.taketoday.gradle.plugin.InfraApplicationAotPlugin"
+    }
+  }
+}
+
+//validatePlugins {
+//  classes.setFrom preparePluginValidationClasses
+//  enableStricterValidation = true
+//}
+
+
+tasks.named('test') {
+  inputs.dir('src/docs/gradle').withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName('buildScripts')
+}
+

@@ -1,0 +1,4 @@
+plugins {
+  id 'cn.taketoday.application' version '{version}'
+  id 'java'
+}

@@ -1,0 +1,5 @@
+plugins {
+	id 'cn.taketoday.application' version '{version}' apply false
+}
+
+task buildInfo(type: cn.taketoday.gradle.tasks.buildinfo.BuildInfo)

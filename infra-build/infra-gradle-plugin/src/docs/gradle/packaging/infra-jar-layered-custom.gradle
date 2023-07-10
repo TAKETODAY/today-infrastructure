@@ -1,0 +1,31 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::layered[]
+tasks.named("infraJar") {
+  layered {
+    application {
+      intoLayer("infra-app-loader") {
+        include "cn/taketoday/app/loader/**"
+      }
+      intoLayer("application")
+    }
+    dependencies {
+      intoLayer("application") {
+        includeProjectDependencies()
+      }
+      intoLayer("snapshot-dependencies") {
+        include "*:*:*SNAPSHOT"
+      }
+      intoLayer("dependencies")
+    }
+    layerOrder = ["dependencies", "infra-app-loader", "snapshot-dependencies", "application"]
+  }
+}
+// end::layered[]

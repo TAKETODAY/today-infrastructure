@@ -1,0 +1,11 @@
+plugins {
+	id 'war'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+group = 'com.example'
+version = '1.0'
+
+infraApplication {
+	buildInfo()
+}

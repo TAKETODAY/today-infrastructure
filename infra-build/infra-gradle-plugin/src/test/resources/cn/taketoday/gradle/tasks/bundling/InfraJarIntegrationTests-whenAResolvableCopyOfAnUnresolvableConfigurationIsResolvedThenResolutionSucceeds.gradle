@@ -1,0 +1,16 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+}
+
+gradle.taskGraph.whenReady {
+	def copy = configurations.implementation.copyRecursive()
+	copy.canBeResolved = true
+	copy.resolve()
+}

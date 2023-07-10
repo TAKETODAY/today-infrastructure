@@ -1,0 +1,11 @@
+plugins {
+	id 'cn.taketoday.application' version '{version}'
+}
+
+apply plugin: 'org.graalvm.buildtools.native'
+
+task('aotPluginApplied') {
+	doFirst {
+		println "cn.taketoday.application.aot applied = ${plugins.hasPlugin('cn.taketoday.application.aot')}"
+	}
+}

@@ -1,0 +1,7 @@
+
+
+plugins {
+	id 'war'
+	id 'application'
+	id 'cn.taketoday.application' version '{version}'
+}

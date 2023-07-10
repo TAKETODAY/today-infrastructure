@@ -1,0 +1,17 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+sourceSets {
+	secondary
+	main {
+		runtimeClasspath += secondary.output
+	}
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+}

@@ -1,0 +1,29 @@
+
+
+plugins {
+	id 'war'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraWar {
+	mainClass = 'com.example.Application'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	developmentOnly("org.apache.commons:commons-lang3:3.9")
+	implementation("commons-io:commons-io:2.6")
+}
+
+infraWar {
+	classpath configurations.developmentOnly
+}
+
+infraWar {
+	layered {
+		enabled = false
+	}
+}

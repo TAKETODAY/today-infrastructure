@@ -1,0 +1,24 @@
+plugins {
+  id "java-library"
+  id "cn.taketoday.build.conventions"
+}
+
+description = "TODAY Infrastructure Application Loader"
+
+dependencies {
+  compileOnly(project(":today-core"))
+
+  testImplementation(project(":today-aop"))
+  testImplementation(project(":today-test"))
+  testImplementation(project(":today-test-support"))
+  testImplementation(project(":today-core-test"))
+
+  testImplementation("org.assertj:assertj-core")
+  testImplementation("org.awaitility:awaitility")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+
+  testRuntimeOnly("ch.qos.logback:logback-classic")
+  testRuntimeOnly("org.bouncycastle:bcprov-jdk18on:1.71")
+  testRuntimeOnly(project(":today-web"))
+}

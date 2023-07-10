@@ -1,0 +1,27 @@
+
+
+plugins {
+	id 'war'
+	id 'maven-publish'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraWar {
+	mainClass = 'com.example.Application'
+}
+
+group = 'com.example'
+version = '1.0'
+
+publishing {
+	repositories {
+		maven {
+			url "${buildDir}/repo"
+		}
+	}
+	publications {
+		bootWeb(MavenPublication) {
+			artifact infraWar
+		}
+	}
+}

@@ -1,0 +1,8 @@
+plugins {
+	id 'cn.taketoday.application' version '{version}'
+	id 'war'
+}
+
+tasks.configureEach {
+	println "Configuring ${it.path}"
+}

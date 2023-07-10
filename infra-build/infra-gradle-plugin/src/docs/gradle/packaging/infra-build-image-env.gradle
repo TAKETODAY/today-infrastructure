@@ -1,0 +1,16 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::env[]
+tasks.named("infraBuildImage") {
+  environment["BP_JVM_VERSION"] = "17"
+}
+// end::env[]
+
+tasks.register("infraBuildImageEnvironment") {
+  doFirst {
+    infraBuildImage.environment.get().each { name, value -> println "$name=$value" }
+  }
+}

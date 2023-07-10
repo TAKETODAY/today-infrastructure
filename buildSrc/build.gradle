@@ -18,7 +18,7 @@ dependencies {
   implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
   implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
-   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
+  implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
 
   implementation 'cn.taketoday:today-core:4.0.0-Draft.3'
 
@@ -50,6 +50,14 @@ gradlePlugin {
     mavenPluginPlugin {
       id = "cn.taketoday.maven-plugin"
       implementationClass = "cn.taketoday.build.maven.MavenPluginPlugin"
+    }
+    deployedPlugin {
+      id = "cn.taketoday.deployed"
+      implementationClass = "cn.taketoday.build.DeployedPlugin"
+    }
+    mavenRepositoryPlugin {
+      id = "cn.taketoday.maven-repository"
+      implementationClass = "cn.taketoday.build.maven.MavenRepositoryPlugin"
     }
   }
 }

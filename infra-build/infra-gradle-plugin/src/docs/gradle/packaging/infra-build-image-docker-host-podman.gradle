@@ -1,0 +1,24 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::docker-host[]
+tasks.named("infraBuildImage") {
+  docker {
+    host = "unix:///run/user/1000/podman/podman.sock"
+    bindHostToBuilder = true
+  }
+}
+// end::docker-host[]
+
+tasks.register("infraBuildImageDocker") {
+  doFirst {
+    println("host=${tasks.infraBuildImage.docker.host.get()}")
+    println("bindHostToBuilder=${tasks.infraBuildImage.docker.bindHostToBuilder.get()}")
+  }
+}

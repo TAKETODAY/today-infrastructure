@@ -1,0 +1,18 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::classifiers[]
+tasks.named("infraJar") {
+  archiveClassifier = 'boot'
+}
+
+tasks.named("jar") {
+  archiveClassifier = ''
+}
+// end::classifiers[]
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.Application'
+}

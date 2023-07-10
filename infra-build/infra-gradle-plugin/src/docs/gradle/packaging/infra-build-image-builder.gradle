@@ -1,0 +1,22 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::builder[]
+tasks.named("infraBuildImage") {
+  builder = "mine/java-cnb-builder"
+  runImage = "mine/java-cnb-run"
+}
+// end::builder[]
+
+tasks.register("infraBuildImageBuilder") {
+  doFirst {
+    println("builder=${tasks.infraBuildImage.builder.get()}")
+    println("runImage=${tasks.infraBuildImage.runImage.get()}")
+  }
+}

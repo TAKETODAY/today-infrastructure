@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -242,7 +239,7 @@ public abstract class AbstractApplicationContextRunner<
    * user configurations} in the order of registration.
    *
    * @param type the type of the bean
-   * @param constructorArgs custom argument values to be fed into Spring's constructor
+   * @param constructorArgs custom argument values to be fed into Infra constructor
    * resolution algorithm, resolving either all arguments or just specific ones, with
    * the rest to be resolved through regular autowiring (may be {@code null} or empty)
    * @param <T> the type of the bean
@@ -260,7 +257,7 @@ public abstract class AbstractApplicationContextRunner<
    *
    * @param name the bean name or {@code null} to use a generated name
    * @param type the type of the bean
-   * @param constructorArgs custom argument values to be fed into Spring's constructor
+   * @param constructorArgs custom argument values to be fed into Infra constructor
    * resolution algorithm, resolving either all arguments or just specific ones, with
    * the rest to be resolved through regular autowiring (may be {@code null} or empty)
    * @param <T> the type of the bean

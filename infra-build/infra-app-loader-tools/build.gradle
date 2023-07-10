@@ -1,0 +1,71 @@
+plugins {
+  id "java-library"
+  id "cn.taketoday.build.conventions"
+}
+
+description = "Infra Application Loader Tools"
+
+def generatedResources = "${buildDir}/generated-resources/main"
+
+configurations {
+  loader {
+    extendsFrom dependencyManagement
+    transitive = false
+  }
+  jarmode {
+    extendsFrom dependencyManagement
+    transitive = false
+  }
+}
+
+dependencies {
+  api 'org.apache.commons:commons-compress'
+  api(project(":today-core"))
+
+  compileOnly("ch.qos.logback:logback-classic")
+
+  loader(project(":infra-build:infra-app-loader"))
+
+  jarmode(project(":infra-build:infra-jarmode-layertools"))
+
+  testImplementation("org.assertj:assertj-core")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.zeroturnaround:zt-zip:1.13")
+}
+
+task reproducibleLoaderJar(type: Jar) {
+  dependsOn configurations.loader
+  from {
+    zipTree(configurations.loader.incoming.files.singleFile).matching {
+      exclude "META-INF/LICENSE.txt"
+      exclude "META-INF/NOTICE.txt"
+      exclude "META-INF/infra-app.properties"
+    }
+  }
+  reproducibleFileOrder = true
+  preserveFileTimestamps = false
+  archiveFileName = "infra-app-loader.jar"
+  destinationDirectory = file("${generatedResources}/META-INF/loader")
+}
+
+task layerToolsJar(type: Sync) {
+  dependsOn configurations.jarmode
+  from {
+    file(configurations.jarmode.incoming.files.singleFile)
+  }
+  rename({ "infra-jarmode-layertools.jar" })
+  into(file("${generatedResources}/META-INF/jarmode"))
+}
+
+sourceSets {
+  main {
+    output.dir(generatedResources, builtBy: [layerToolsJar, reproducibleLoaderJar])
+  }
+}
+
+compileJava {
+  if ((!project.hasProperty("toolchainVersion")) && JavaVersion.current() == JavaVersion.VERSION_1_8) {
+    options.compilerArgs += ['-Xlint:-sunapi', '-XDenableSunApiLintControl']
+  }
+}

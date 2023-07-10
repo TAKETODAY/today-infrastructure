@@ -1,0 +1,13 @@
+plugins {
+	id 'cn.taketoday.application' version '{version}'
+	id 'java'
+}
+
+apply plugin: 'org.graalvm.buildtools.native'
+
+task('infraBuildImageConfiguration') {
+	doFirst {
+		println "builder = ${tasks.getByName('infraBuildImage').builder.get()}"
+		println "BP_NATIVE_IMAGE = ${tasks.getByName('infraBuildImage').environment.get()['BP_NATIVE_IMAGE']}"
+	}
+}

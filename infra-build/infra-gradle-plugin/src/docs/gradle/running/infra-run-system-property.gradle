@@ -1,0 +1,18 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{version}'
+}
+
+// tag::system-property[]
+tasks.named("infraRun") {
+  systemProperty 'com.example.property', findProperty('example') ?: 'default'
+}
+// end::system-property[]
+
+tasks.register("configuredSystemProperties") {
+  doLast {
+    infraRun.systemProperties.each { k, v ->
+      println "$k = $v"
+    }
+  }
+}
