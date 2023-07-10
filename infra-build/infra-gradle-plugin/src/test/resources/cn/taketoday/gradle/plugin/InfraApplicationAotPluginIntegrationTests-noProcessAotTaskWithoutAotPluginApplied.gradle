@@ -1,0 +1,10 @@
+plugins {
+	id 'cn.taketoday.application'
+	id 'java'
+}
+
+task('taskExists') {
+	doFirst {
+		println "${taskName} exists = ${tasks.findByName(taskName) != null}"
+	}
+}

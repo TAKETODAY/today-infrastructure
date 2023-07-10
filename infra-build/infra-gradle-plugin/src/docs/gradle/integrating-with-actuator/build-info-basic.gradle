@@ -1,0 +1,10 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::build-info[]
+infraApplication {
+  buildInfo()
+}
+// end::build-info[]

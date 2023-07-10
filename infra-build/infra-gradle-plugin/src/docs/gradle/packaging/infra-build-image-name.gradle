@@ -1,0 +1,16 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::image-name[]
+tasks.named("infraBuildImage") {
+  imageName = "example.com/library/${project.name}"
+}
+// end::image-name[]
+
+tasks.register("infraBuildImageName") {
+  doFirst {
+    println(tasks.infraBuildImage.imageName.get())
+  }
+}

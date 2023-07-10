@@ -1,0 +1,10 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::main-class[]
+infraApplication {
+  mainClass = 'com.example.ExampleApplication'
+}
+// end::main-class[]

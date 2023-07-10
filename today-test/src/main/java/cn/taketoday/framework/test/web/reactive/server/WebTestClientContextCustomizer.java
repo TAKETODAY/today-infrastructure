@@ -65,9 +65,9 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
     if (AotDetector.useGeneratedArtifacts()) {
       return;
     }
-    InfraTest springBootTest = TestContextAnnotationUtils.findMergedAnnotation(mergedConfig.getTestClass(),
+    InfraTest infraTest = TestContextAnnotationUtils.findMergedAnnotation(mergedConfig.getTestClass(),
             InfraTest.class);
-    if (springBootTest.webEnvironment().isEmbedded()) {
+    if (infraTest.webEnvironment().isEmbedded()) {
       registerWebTestClient(context);
     }
   }

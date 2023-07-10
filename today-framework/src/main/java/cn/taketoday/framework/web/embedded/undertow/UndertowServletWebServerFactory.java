@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -524,7 +521,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   /**
    * {@link ResourceManager} that exposes resource in {@code META-INF/resources}
-   * directory of nested (in {@code BOOT-INF/lib} or {@code WEB-INF/lib}) jars.
+   * directory of nested (in {@code APP-INF/lib} or {@code WEB-INF/lib}) jars.
    */
   private record MetaInfResourcesResourceManager(List<URL> metaInfResourceJarUrls)
           implements ResourceManager {

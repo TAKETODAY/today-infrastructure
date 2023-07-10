@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,7 @@
 
 /**
  * Package providing integration of <a href="https://java.sun.com/webservices/jaxb/">JAXB</a>
- * with Spring's O/X Mapping support.
+ * with Infra O/X Mapping support.
  */
 @NonNullApi
 @NonNullFields

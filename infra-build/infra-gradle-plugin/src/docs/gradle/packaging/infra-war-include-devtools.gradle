@@ -1,0 +1,18 @@
+plugins {
+  id 'war'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraWar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+dependencies {
+  developmentOnly files("spring-boot-devtools-1.2.3.RELEASE.jar")
+}
+
+// tag::include-devtools[]
+tasks.named("infraWar") {
+  classpath configurations.developmentOnly
+}
+// end::include-devtools[]

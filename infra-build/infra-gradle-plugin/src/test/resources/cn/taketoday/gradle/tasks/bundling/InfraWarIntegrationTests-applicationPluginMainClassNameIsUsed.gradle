@@ -1,0 +1,11 @@
+
+
+plugins {
+	id 'war'
+	id 'application'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+application {
+	mainClass = 'com.example.CustomMain'
+}

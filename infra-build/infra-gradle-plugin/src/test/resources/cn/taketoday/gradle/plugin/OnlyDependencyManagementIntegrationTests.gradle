@@ -1,0 +1,23 @@
+plugins {
+	id 'cn.taketoday.application' version '{version}' apply false
+	id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+	maven { url 'file:repository' }
+}
+
+dependencyManagement {
+	resolutionStrategy {
+		eachDependency {
+			if (it.requested.group == 'cn.taketoday') {
+				it.useVersion project.infraVersion
+			}
+		}
+	}
+	imports {
+		mavenBom cn.taketoday.gradle.plugin.InfraApplicationPlugin.BOM_COORDINATES
+	}
+}

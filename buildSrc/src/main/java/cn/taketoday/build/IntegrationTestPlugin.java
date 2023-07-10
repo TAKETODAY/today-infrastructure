@@ -28,8 +28,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.gradle.plugins.ide.eclipse.EclipsePlugin;
-import org.gradle.plugins.ide.eclipse.model.EclipseModel;
 
 /**
  * A {@link Plugin} to configure integration testing support in a {@link Project}.
@@ -43,12 +41,12 @@ public class IntegrationTestPlugin implements Plugin<Project> {
   /**
    * Name of the {@code intTest} task.
    */
-  public static String INT_TEST_TASK_NAME = "intTest";
+  public static final String INT_TEST_TASK_NAME = "intTest";
 
   /**
    * Name of the {@code intTest} source set.
    */
-  public static String INT_TEST_SOURCE_SET_NAME = "intTest";
+  public static final String INT_TEST_SOURCE_SET_NAME = "intTest";
 
   @Override
   public void apply(Project project) {
@@ -59,11 +57,6 @@ public class IntegrationTestPlugin implements Plugin<Project> {
     SourceSet intTestSourceSet = createSourceSet(project);
     Test intTest = createTestTask(project, intTestSourceSet);
     project.getTasks().getByName(LifecycleBasePlugin.CHECK_TASK_NAME).dependsOn(intTest);
-    project.getPlugins().withType(EclipsePlugin.class, (eclipsePlugin) -> {
-      EclipseModel eclipse = project.getExtensions().getByType(EclipseModel.class);
-      eclipse.classpath((classpath) -> classpath.getPlusConfigurations()
-              .add(project.getConfigurations().getByName(intTestSourceSet.getRuntimeClasspathConfigurationName())));
-    });
   }
 
   private SourceSet createSourceSet(Project project) {

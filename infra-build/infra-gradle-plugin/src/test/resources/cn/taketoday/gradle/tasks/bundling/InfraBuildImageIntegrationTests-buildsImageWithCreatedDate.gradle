@@ -1,0 +1,12 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraBuildImage {
+	builder = "projects.registry.vmware.com/springboot/spring-boot-cnb-builder:0.0.2"
+	pullPolicy = "IF_NOT_PRESENT"
+	createdDate = "2020-07-01T12:34:56Z"
+}

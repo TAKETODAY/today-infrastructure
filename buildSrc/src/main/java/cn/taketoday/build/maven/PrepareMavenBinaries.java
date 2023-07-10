@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,8 +66,7 @@ public class PrepareMavenBinaries extends DefaultTask {
       Configuration configuration = getProject().getConfigurations()
               .detachedConfiguration(
                       getProject().getDependencies().create("org.apache.maven:apache-maven:" + version + ":bin@zip"));
-      getProject()
-              .copy((copy) -> copy.into(this.outputDir).from(getProject().zipTree(configuration.getSingleFile())));
+      getProject().copy(copy -> copy.into(this.outputDir).from(getProject().zipTree(configuration.getSingleFile())));
     }
   }
 

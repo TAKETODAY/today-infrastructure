@@ -1,0 +1,17 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+repositories {
+	flatDir {
+		dirs 'repository'
+	}
+}
+
+dependencies {
+	implementation(name: "standard")
+	implementation(name: "starter")
+}

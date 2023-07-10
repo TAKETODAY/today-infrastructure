@@ -1,0 +1,20 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+task launch(type: JavaExec) {
+	classpath = files(infraJar)
+}
+
+repositories {
+	mavenCentral()
+	maven { url "file:repository" }
+}
+
+dependencies {
+	implementation("com.example:library:1.0-SNAPSHOT")
+	implementation("org.apache.commons:commons-lang3:3.9")
+}

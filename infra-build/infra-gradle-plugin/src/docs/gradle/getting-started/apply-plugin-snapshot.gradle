@@ -1,0 +1,11 @@
+buildscript {
+  repositories {
+
+  }
+
+  dependencies {
+    classpath 'cn.taketoday:infra-gradle-plugin:{gradle-project-version}'
+  }
+}
+
+apply plugin: 'cn.taketoday'

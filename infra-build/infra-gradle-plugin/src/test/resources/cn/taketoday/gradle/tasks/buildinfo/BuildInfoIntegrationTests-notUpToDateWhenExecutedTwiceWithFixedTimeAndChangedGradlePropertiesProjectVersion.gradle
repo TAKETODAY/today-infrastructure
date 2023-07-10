@@ -1,0 +1,13 @@
+plugins {
+  id 'cn.taketoday.application' version '{version}' apply false
+}
+
+task buildInfo(type: cn.taketoday.gradle.tasks.buildinfo.BuildInfo) {
+  excludes = ["time"]
+  properties {
+    artifact = 'example'
+    group = 'com.example'
+    name = 'example'
+    additional = ['additional': 'alpha']
+  }
+}

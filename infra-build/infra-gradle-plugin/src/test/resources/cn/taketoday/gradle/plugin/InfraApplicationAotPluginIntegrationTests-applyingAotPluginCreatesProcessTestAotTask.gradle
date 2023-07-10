@@ -1,0 +1,11 @@
+plugins {
+	id 'cn.taketoday.application'
+	id 'cn.taketoday.application.aot'
+	id 'java'
+}
+
+task('taskExists') {
+	doFirst {
+		println "${taskName} exists = ${tasks.findByName(taskName) != null}"
+	}
+}

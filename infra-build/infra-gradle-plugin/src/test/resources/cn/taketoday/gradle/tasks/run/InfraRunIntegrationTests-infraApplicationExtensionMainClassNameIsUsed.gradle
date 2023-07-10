@@ -1,0 +1,10 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraApplication {
+	mainClass = 'com.example.infrarun.main.CustomMainClass'
+}

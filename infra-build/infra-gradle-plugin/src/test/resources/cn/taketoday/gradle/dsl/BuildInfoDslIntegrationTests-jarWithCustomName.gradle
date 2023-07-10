@@ -1,0 +1,22 @@
+import org.gradle.util.GradleVersion
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+group = 'com.example'
+version = '1.0'
+
+infraJar {
+	if (GradleVersion.current().compareTo(GradleVersion.version('6.0.0')) < 0) {
+		baseName = 'foo'
+	}
+	else {
+		archiveBaseName = 'foo'	
+	}
+}
+
+infraApplication {
+	buildInfo()
+}

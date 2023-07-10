@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.app.loader.tools.RunProcess;
+
 /**
  * Run an application in place.
  *
@@ -50,8 +49,14 @@ public class RunMojo extends AbstractRunMojo {
   /**
    * Whether the JVM's launch should be optimized.
    */
-  @Parameter(property = "today-infra.run.optimizedLaunch", defaultValue = "true")
+  @Parameter(property = "infra.run.optimizedLaunch", defaultValue = "true")
   private boolean optimizedLaunch;
+
+  /**
+   * Flag to include the test classpath when running.
+   */
+  @Parameter(property = "infra.run.useTestClasspath", defaultValue = "false")
+  private Boolean useTestClasspath;
 
   @Override
   protected RunArguments resolveJvmArguments() {
@@ -65,9 +70,14 @@ public class RunMojo extends AbstractRunMojo {
   @Override
   protected void run(JavaProcessExecutor processExecutor, File workingDirectory, List<String> args,
           Map<String, String> environmentVariables) throws MojoExecutionException, MojoFailureException {
-    processExecutor.withRunProcessCustomizer((runProcess) ->
+    processExecutor.withRunProcessCustomizer(runProcess ->
                     Runtime.getRuntime().addShutdownHook(new Thread(new RunProcessKiller(runProcess))))
             .run(workingDirectory, args, environmentVariables);
+  }
+
+  @Override
+  protected boolean isUseTestClasspath() {
+    return this.useTestClasspath;
   }
 
   private static final class RunProcessKiller implements Runnable {

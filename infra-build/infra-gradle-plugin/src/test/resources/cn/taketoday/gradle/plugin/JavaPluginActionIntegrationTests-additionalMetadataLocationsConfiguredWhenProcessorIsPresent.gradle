@@ -1,0 +1,19 @@
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+repositories {
+	flatDir { dirs 'libs' }
+}
+
+dependencies {
+//	def configurationName = configurations.findByName('annotationProcessor') != null ? 'annotationProcessor' : 'implementation'
+//	add(configurationName, [name: 'infra-configuration-processor-1.2.3'])
+}
+
+compileJava {
+	doLast {
+		println "${name} compiler args: ${options.compilerArgs}"
+	}
+}

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.infra.maven;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.shared.artifact.filter.collection.ArtifactsFilter;
 import org.apache.maven.shared.artifact.filter.collection.ScopeFilter;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -39,8 +36,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-
-import cn.taketoday.util.ExceptionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -115,7 +110,6 @@ class DependencyFilterMojoTests {
   }
 
   @Test
-  @Disabled
   void excludeByJarType() throws MojoExecutionException {
     TestableDependencyFilterMojo mojo = new TestableDependencyFilterMojo(Collections.emptyList(), "");
     Artifact one = createArtifact("com.foo", "one", null, "dependencies-starter");
@@ -144,14 +138,17 @@ class DependencyFilterMojoTests {
   }
 
   private static File createArtifactFile(String jarType) {
-    Path jarPath = temp.resolve(UUID.randomUUID().toString() + ".jar");
+    Path jarPath = temp.resolve(UUID.randomUUID() + ".jar");
     Manifest manifest = new Manifest();
     manifest.getMainAttributes().putValue("Manifest-Version", "1.0");
+    if (jarType != null) {
+      manifest.getMainAttributes().putValue("Infra-App-Jar-Type", jarType);
+    }
     try {
       new JarOutputStream(new FileOutputStream(jarPath.toFile()), manifest).close();
     }
     catch (IOException ex) {
-      throw ExceptionUtils.sneakyThrow(ex);
+      throw new RuntimeException(ex);
     }
     return jarPath.toFile();
   }

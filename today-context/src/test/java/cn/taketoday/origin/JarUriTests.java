@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,15 +29,15 @@ class JarUriTests {
   @Test
   void describeBootInfClassesUri() {
     JarUri uri = JarUri.from("jar:file:/home/user/project/target/project-0.0.1-SNAPSHOT.jar"
-            + "!/BOOT-INF/classes!/application.properties");
+            + "!/APP-INF/classes!/application.properties");
     assertThat(uri.getDescription()).isEqualTo("project-0.0.1-SNAPSHOT.jar");
   }
 
   @Test
   void describeBootInfLibUri() {
     JarUri uri = JarUri.from("jar:file:/home/user/project/target/project-0.0.1-SNAPSHOT.jar"
-            + "!/BOOT-INF/lib/nested.jar!/application.properties");
-    assertThat(uri.getDescription()).isEqualTo("project-0.0.1-SNAPSHOT.jar!/BOOT-INF/lib/nested.jar");
+            + "!/APP-INF/lib/nested.jar!/application.properties");
+    assertThat(uri.getDescription()).isEqualTo("project-0.0.1-SNAPSHOT.jar!/APP-INF/lib/nested.jar");
   }
 
   @Test

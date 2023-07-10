@@ -1,0 +1,14 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::additional[]
+infraApplication {
+  buildInfo {
+    properties {
+      additional = ['a': 'alpha', 'b': 'bravo']
+    }
+  }
+}
+// end::additional[]

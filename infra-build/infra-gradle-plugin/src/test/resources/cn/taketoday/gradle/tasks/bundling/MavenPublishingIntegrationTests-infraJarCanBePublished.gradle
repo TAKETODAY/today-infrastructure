@@ -1,0 +1,26 @@
+
+plugins {
+	id 'java'
+	id 'maven-publish'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraJar {
+	mainClass = 'com.example.Application'
+}
+
+group = 'com.example'
+version = '1.0'
+
+publishing {
+	repositories {
+		maven {
+			url "${buildDir}/repo"
+		}
+	}
+	publications {
+		bootJava(MavenPublication) {
+			artifact infraJar
+		}
+	}
+}

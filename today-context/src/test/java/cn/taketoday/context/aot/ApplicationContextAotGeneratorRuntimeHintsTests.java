@@ -94,7 +94,8 @@ class ApplicationContextAotGeneratorRuntimeHintsTests {
     compile(context, (hints, invocations) -> assertThat(invocations).match(hints));
   }
 
-  private void compile(GenericApplicationContext applicationContext, BiConsumer<RuntimeHints, RuntimeHintsInvocations> initializationResult) {
+  private void compile(GenericApplicationContext applicationContext,
+          BiConsumer<RuntimeHints, RuntimeHintsInvocations> initializationResult) {
     ApplicationContextAotGenerator generator = new ApplicationContextAotGenerator();
     TestGenerationContext generationContext = new TestGenerationContext();
     generator.processAheadOfTime(applicationContext, generationContext);

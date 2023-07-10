@@ -1,0 +1,8 @@
+- "test":
+  - "APP-INF/lib/a.jar"
+  - "APP-INF/lib/b.jar"
+- "empty":
+- "application":
+  - "APP-INF/classes/Demo.class"
+  - "META-INF/"
+  - "a b/c d"

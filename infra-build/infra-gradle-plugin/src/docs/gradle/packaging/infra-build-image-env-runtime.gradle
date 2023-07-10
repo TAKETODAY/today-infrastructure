@@ -1,0 +1,21 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::env-runtime[]
+tasks.named("infraBuildImage") {
+  environment["BPE_DELIM_JAVA_TOOL_OPTIONS"] = " "
+  environment["BPE_APPEND_JAVA_TOOL_OPTIONS"] = "-XX:+HeapDumpOnOutOfMemoryError"
+}
+// end::env-runtime[]
+
+tasks.register("infraBuildImageEnvironment") {
+  doFirst {
+    infraBuildImage.environment.get().each { name, value -> println "$name=$value" }
+  }
+}

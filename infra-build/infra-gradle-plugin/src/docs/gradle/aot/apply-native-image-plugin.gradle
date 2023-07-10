@@ -1,0 +1,5 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+  id 'org.graalvm.buildtools.native' version '{native-build-tools-version}'
+}

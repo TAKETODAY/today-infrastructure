@@ -1,0 +1,10 @@
+
+
+plugins {
+	id 'war'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+infraWar {
+	mainClass = 'com.example.Application'
+}

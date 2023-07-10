@@ -1,0 +1,13 @@
+plugins {
+	id 'cn.taketoday.application'
+	id 'cn.taketoday.application.aot'
+	id 'java'
+}
+
+repositories {
+	mavenCentral()
+}
+
+infraApplication {
+	mainClass = 'com.example.Main'
+}

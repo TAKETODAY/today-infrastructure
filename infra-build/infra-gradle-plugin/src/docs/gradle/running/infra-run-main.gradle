@@ -1,0 +1,16 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+// tag::main[]
+tasks.named("infraRun") {
+  mainClass = 'com.example.ExampleApplication'
+}
+// end::main[]
+
+tasks.register("configuredMainClass") {
+  doLast {
+    println infraRun.mainClass
+  }
+}

@@ -1,0 +1,34 @@
+
+
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+	id 'war'
+}
+
+infraWar {
+	mainClass = 'com.example.Application'
+}
+
+repositories {
+	mavenCentral()
+	maven { url "file:repository" }
+}
+
+dependencies {
+	implementation("com.example:library:1.0-SNAPSHOT")
+	implementation("org.apache.commons:commons-lang3:3.9")
+	implementation("cn.taketoday:today-core:4.0.0-Draft.3")
+}
+
+task listLayers(type: JavaExec) {
+	classpath = infraWar.outputs.files
+	systemProperties = [ "jarmode": "layertools" ]
+	args "list"
+}
+
+task extractLayers(type: JavaExec) {
+	classpath = infraWar.outputs.files
+	systemProperties = [ "jarmode": "layertools" ]
+	args "extract"
+}

@@ -1,0 +1,30 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::docker-auth-user[]
+tasks.named("infraBuildImage") {
+  docker {
+    builderRegistry {
+      username = "user"
+      password = "secret"
+      url = "https://docker.example.com/v1/"
+      email = "user@example.com"
+    }
+  }
+}
+// end::docker-auth-user[]
+
+tasks.register("infraBuildImageDocker") {
+  doFirst {
+    println("username=${tasks.infraBuildImage.docker.builderRegistry.username.get()}")
+    println("password=${tasks.infraBuildImage.docker.builderRegistry.password.get()}")
+    println("url=${tasks.infraBuildImage.docker.builderRegistry.url.get()}")
+    println("email=${tasks.infraBuildImage.docker.builderRegistry.email.get()}")
+  }
+}

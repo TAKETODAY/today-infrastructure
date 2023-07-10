@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +16,7 @@
  */
 
 /**
- * Provides generic support classes for using Spring's O/X Mapping integration
+ * Provides generic support classes for using Infra O/X Mapping integration
  * within various scenario's. Includes the MarshallingSource for compatibility
  * with TrAX, MarshallingView for use within Infra Web MVC, and the
  * MarshallingMessageConverter for use within Infra JMS support.
