@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import cn.taketoday.app.loader.tools.FileUtils;
 
 /**
  * Base class to run a Infra application.
@@ -82,33 +81,33 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
    * consider adding {@code today-infra-devtools} to your project instead as it provides
    * this feature and many more.
    */
-  @Parameter(property = "today-infra.run.addResources", defaultValue = "false")
+  @Parameter(property = "infra.run.addResources", defaultValue = "false")
   private boolean addResources = false;
 
   /**
    * Path to agent jars.
    */
-  @Parameter(property = "today-infra.run.agents")
+  @Parameter(property = "infra.run.agents")
   private File[] agents;
 
   /**
    * Flag to say that the agent requires -noverify.
    */
-  @Parameter(property = "today-infra.run.noverify")
+  @Parameter(property = "infra.run.noverify")
   private boolean noverify = false;
 
   /**
    * Current working directory to use for the application. If not specified, basedir
    * will be used.
    */
-  @Parameter(property = "today-infra.run.workingDirectory")
+  @Parameter(property = "infra.run.workingDirectory")
   private File workingDirectory;
 
   /**
    * JVM arguments that should be associated with the forked process used to run the
    * application. On command line, make sure to wrap multiple values between quotes.
    */
-  @Parameter(property = "today-infra.run.jvmArguments")
+  @Parameter(property = "infra.run.jvmArguments")
   private String jvmArguments;
 
   /**
@@ -135,48 +134,42 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
    * spaces to separate multiple arguments and make sure to wrap multiple values between
    * quotes. When specified, takes precedence over {@link #arguments}.
    */
-  @Parameter(property = "today-infra.run.arguments")
+  @Parameter(property = "infra.run.arguments")
   private String commandlineArguments;
 
   /**
-   * The infra profiles to activate. Convenience shortcut of specifying the
-   * 'infra.profiles.active' argument. On command line use commas to separate multiple
+   * The spring profiles to activate. Convenience shortcut of specifying the
+   * 'spring.profiles.active' argument. On command line use commas to separate multiple
    * profiles.
    */
-  @Parameter(property = "today-infra.run.profiles")
+  @Parameter(property = "infra.run.profiles")
   private String[] profiles;
 
   /**
    * The name of the main class. If not specified the first compiled class found that
    * contains a 'main' method will be used.
    */
-  @Parameter(property = "today-infra.run.main-class")
+  @Parameter(property = "infra.run.main-class")
   private String mainClass;
 
   /**
    * Additional directories besides the classes directory that should be added to the
    * classpath.
    */
-  @Parameter(property = "today-infra.run.directories")
+  @Parameter(property = "infra.run.directories")
   private String[] directories;
 
   /**
-   * Directory containing the classes and resource files that should be packaged into
-   * the archive.
+   * Directory containing the classes and resource files that should be used to run the
+   * application.
    */
   @Parameter(defaultValue = "${project.build.outputDirectory}", required = true)
   private File classesDirectory;
 
   /**
-   * Flag to include the test classpath when running.
-   */
-  @Parameter(property = "today-infra.run.useTestClasspath", defaultValue = "false")
-  private Boolean useTestClasspath;
-
-  /**
    * Skip the execution.
    */
-  @Parameter(property = "today-infra.run.skip", defaultValue = "false")
+  @Parameter(property = "infra.run.skip", defaultValue = "false")
   private boolean skip;
 
   @Override
@@ -185,11 +178,28 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
       getLog().debug("skipping run as per configuration.");
       return;
     }
-    String startClass = (this.mainClass != null)
-                        ? this.mainClass
-                        : InfraApplicationClassFinder.findSingleClass(this.classesDirectory);
-    run(startClass);
+    run(determineMainClass());
   }
+
+  private String determineMainClass() throws MojoExecutionException {
+    if (this.mainClass != null) {
+      return this.mainClass;
+    }
+    return InfraApplicationClassFinder.findSingleClass(getClassesDirectories());
+  }
+
+  /**
+   * Returns the directories that contain the application's classes and resources. When
+   * the application's main class has not been configured, each directory is searched in
+   * turn for an appropriate main class.
+   *
+   * @return the directories that contain the application's classes and resources
+   */
+  protected List<File> getClassesDirectories() {
+    return List.of(this.classesDirectory);
+  }
+
+  protected abstract boolean isUseTestClasspath();
 
   private void run(String startClassName) throws MojoExecutionException, MojoFailureException {
     List<String> args = new ArrayList<>();
@@ -224,7 +234,8 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
    */
   protected RunArguments resolveApplicationArguments() {
     RunArguments runArguments =
-            arguments != null ? new RunArguments(this.arguments) : new RunArguments(this.commandlineArguments);
+            arguments != null ? new RunArguments(this.arguments)
+                              : new RunArguments(this.commandlineArguments);
     addActiveProfileArgument(runArguments);
     return runArguments;
   }
@@ -350,18 +361,23 @@ public abstract class AbstractRunMojo extends AbstractDependencyFilterMojo {
       for (Resource resource : this.project.getResources()) {
         File directory = new File(resource.getDirectory());
         urls.add(directory.toURI().toURL());
-        FileUtils.removeDuplicatesFromOutputDirectory(this.classesDirectory, directory);
+        for (File classesDirectory : getClassesDirectories()) {
+          FileUtils.removeDuplicatesFromOutputDirectory(classesDirectory, directory);
+        }
       }
     }
   }
 
   private void addProjectClasses(List<URL> urls) throws MalformedURLException {
-    urls.add(this.classesDirectory.toURI().toURL());
+    for (File classesDirectory : getClassesDirectories()) {
+      urls.add(classesDirectory.toURI().toURL());
+    }
   }
 
   private void addDependencies(List<URL> urls) throws MalformedURLException, MojoExecutionException {
-    Set<Artifact> artifacts = (this.useTestClasspath) ? filterDependencies(this.project.getArtifacts())
-                                                      : filterDependencies(this.project.getArtifacts(), new ExcludeTestScopeArtifactFilter());
+    Set<Artifact> artifacts = (isUseTestClasspath())
+                              ? filterDependencies(this.project.getArtifacts())
+                              : filterDependencies(this.project.getArtifacts(), new ExcludeTestScopeArtifactFilter());
     for (Artifact artifact : artifacts) {
       if (artifact.getFile() != null) {
         urls.add(artifact.getFile().toURI().toURL());

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +60,7 @@ public abstract class AbstractDependencyFilterMojo extends AbstractMojo {
    * mandatory {@code groupId} and {@code artifactId} properties and an optional
    * {@code classifier} property.
    */
-  @Parameter(property = "today-infra.includes")
+  @Parameter(property = "infra.includes")
   private List<Include> includes;
 
   /**
@@ -70,13 +68,13 @@ public abstract class AbstractDependencyFilterMojo extends AbstractMojo {
    * mandatory {@code groupId} and {@code artifactId} properties and an optional
    * {@code classifier} property.
    */
-  @Parameter(property = "today-infra.excludes")
+  @Parameter(property = "infra.excludes")
   private List<Exclude> excludes;
 
   /**
    * Comma separated list of groupId names to exclude (exact match).
    */
-  @Parameter(property = "today-infra.excludeGroupIds", defaultValue = "")
+  @Parameter(property = "infra.excludeGroupIds", defaultValue = "")
   private String excludeGroupIds;
 
   protected void setExcludes(List<Exclude> excludes) {
@@ -141,7 +139,7 @@ public abstract class AbstractDependencyFilterMojo extends AbstractMojo {
     if (this.excludes != null && !this.excludes.isEmpty()) {
       filters.addFilter(new ExcludeFilter(this.excludes));
     }
-//    filters.addFilter(new JarTypeFilter());
+    filters.addFilter(new JarTypeFilter());
     return filters;
   }
 
@@ -176,4 +174,19 @@ public abstract class AbstractDependencyFilterMojo extends AbstractMojo {
 
   }
 
+  /**
+   * {@link ArtifactFilter} that only include runtime scopes.
+   */
+  protected static class RuntimeArtifactFilter implements ArtifactFilter {
+
+    private static final Collection<String> SCOPES = List.of(Artifact.SCOPE_COMPILE,
+            Artifact.SCOPE_COMPILE_PLUS_RUNTIME, Artifact.SCOPE_RUNTIME);
+
+    @Override
+    public boolean include(Artifact artifact) {
+      String scope = artifact.getScope();
+      return !artifact.isOptional() && (scope == null || SCOPES.contains(scope));
+    }
+
+  }
 }

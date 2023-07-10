@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2012 - 2023 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>cn.taketoday</groupId>
+  <artifactId>infra-maven-plugin</artifactId>
+
+  <version>{{version}}</version>
+  <packaging>maven-plugin</packaging>
+
+  <name>Maven plugin for Today Infrastructure Applications</name>
+
+  <url>https://github.com/TAKETODAY/today-infrastructure</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <inceptionYear>2017</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</name>
+      <url>https://www.gnu.org/licenses/gpl.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <organization>
+    <name>TODAY Tech</name>
+    <url>https://taketoday.cn</url>
+  </organization>
+
+  <developers>
+    <developer>
+      <name>Harry Yang</name>
+      <url>https://taketoday.cn</url>
+      <email>taketoday@foxmail.com</email>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/TAKETODAY/today-infrastructure.git</url>
+    <developerConnection>Harry Yang</developerConnection>
+    <tag>dependency-injection, aspect-oriented-programing, web-framework</tag>
+  </scm>
+
+  <issueManagement>
+    <system>Github Issues</system>
+    <url>https://github.com/TAKETODAY/today-infrastructure/issues</url>
+  </issueManagement>
+
+  <build>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.6.4</version>
+      </plugin>
+    </plugins>
+
+  </build>
+
+</project>

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +35,8 @@ import java.util.concurrent.Callable;
 import javax.management.MBeanServerConnection;
 import javax.management.ReflectionException;
 import javax.management.remote.JMXConnector;
+
+import cn.taketoday.app.loader.tools.RunProcess;
 
 /**
  * Start a infra application. Contrary to the {@code run} goal, this does not block and
@@ -75,7 +74,7 @@ public class StartMojo extends AbstractRunMojo {
    * The number of milliseconds to wait between each attempt to check if the infra
    * application is ready.
    */
-  @Parameter(property = "today-infra.start.wait", defaultValue = "500")
+  @Parameter(property = "infra.start.wait", defaultValue = "500")
   private long wait;
 
   /**
@@ -83,10 +82,16 @@ public class StartMojo extends AbstractRunMojo {
    * Combined with the "wait" argument, this gives a global timeout value (30 sec by
    * default)
    */
-  @Parameter(property = "today-infra.start.maxAttempts", defaultValue = "60")
+  @Parameter(property = "infra.start.maxAttempts", defaultValue = "60")
   private int maxAttempts;
 
   private final Object lock = new Object();
+
+  /**
+   * Flag to include the test classpath when running.
+   */
+  @Parameter(property = "infra.run.useTestClasspath", defaultValue = "false")
+  private Boolean useTestClasspath;
 
   @Override
   protected void run(JavaProcessExecutor processExecutor, File workingDirectory, List<String> args,
@@ -190,6 +195,11 @@ public class StartMojo extends AbstractRunMojo {
     }
     throw new MojoExecutionException(
             "Infra application did not start before the configured timeout (" + (wait * maxAttempts) + "ms");
+  }
+
+  @Override
+  protected boolean isUseTestClasspath() {
+    return this.useTestClasspath;
   }
 
   private class CreateJmxConnector implements Callable<JMXConnector> {

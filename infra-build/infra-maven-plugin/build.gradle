@@ -1,50 +1,61 @@
 plugins {
-//  id "org.asciidoctor.jvm.convert"
+  id "cn.taketoday.maven-repository"
   id "cn.taketoday.integration-test"
   id "cn.taketoday.maven-plugin"
 }
 
 description = "Maven plugin for Today Infrastructure Applications"
 
-configurations {
-  documentation
-}
-
 dependencies {
-  compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
-  compileOnly 'org.sonatype.plexus:plexus-build-api:0.0.7'
-  compileOnly 'org.apache.maven.shared:file-management:1.2.1'
-  compileOnly 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
-  compileOnly "org.apache.maven:maven-plugin-api:3.0"
-  runtimeOnly 'org.sonatype.plexus:plexus-build-api:0.0.7'
-
-  compileOnly("org.apache.maven.plugins:maven-shade-plugin:3.5.0") {
+  optional 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
+  optional 'org.apache.maven.shared:file-management:1.2.1'
+  optional 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
+  optional "org.apache.maven:maven-plugin-api:3.0"
+  optional 'org.sonatype.plexus:plexus-build-api:0.0.7'
+  optional("org.apache.maven.plugins:maven-shade-plugin:3.5.0") {
     exclude(group: "javax.enterprise", module: "cdi-api")
     exclude(group: "javax.inject", module: "javax.inject")
   }
 
+  implementation(project(":today-core"))
   implementation(project(":today-context"))
+  implementation(project(":infra-build:infra-app-loader"))
+  implementation(project(":infra-build:infra-app-loader-tools"))
 
-  intTestImplementation("org.apache.maven.shared:maven-invoker:3.6.0") {
+  implementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
+  implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
+  implementation 'org.apache.commons:commons-compress'
+
+  testImplementation(project(":today-test-support"))
+  testImplementation("org.testcontainers:testcontainers")
+  testImplementation("org.testcontainers:junit-jupiter")
+  testImplementation("org.apache.maven.shared:maven-invoker:3.1.0") {
     exclude(group: "javax.inject", module: "javax.inject")
   }
-  intTestImplementation("org.assertj:assertj-core")
-  intTestImplementation("org.junit.jupiter:junit-jupiter")
+
+  intTestRuntimeOnly(project(":today-test-support"))
+  intTestRuntimeOnly(project(":infra-build:infra-app-loader"))
+  intTestRuntimeOnly(project(":infra-build:infra-app-loader-tools"))
+
+//  intTestImplementation("org.assertj:assertj-core")
+//  intTestImplementation("org.junit.jupiter:junit-jupiter")
   intTestImplementation("org.testcontainers:testcontainers")
   intTestImplementation("org.testcontainers:junit-jupiter")
+  intTestImplementation("org.apache.maven.shared:maven-invoker:3.1.0") {
+    exclude(group: "javax.inject", module: "javax.inject")
+  }
+  intTestImplementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
+  intTestImplementation 'org.sonatype.plexus:plexus-build-api:0.0.7'
+  intTestImplementation 'org.apache.maven.shared:file-management:1.2.1'
+  intTestImplementation 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
+  intTestImplementation "org.apache.maven:maven-plugin-api:3.0"
+  intTestImplementation("org.apache.maven.plugins:maven-shade-plugin:3.5.0") {
+    exclude(group: "javax.enterprise", module: "cdi-api")
+    exclude(group: "javax.inject", module: "javax.inject")
+  }
 
-  testImplementation("org.assertj:assertj-core")
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.mockito:mockito-core")
-  testImplementation("org.mockito:mockito-junit-jupiter")
+  intTestImplementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
 
-  testImplementation(project(":today-core"))
-
-}
-
-ext {
-  versionElements = version.split("\\.")
-  xsdVersion = versionElements[0] + "." + versionElements[1]
 }
 
 sourceSets {
@@ -59,8 +70,8 @@ javadoc {
     author = true
     docTitle = "Infra Maven Plugin ${project.version} API"
     encoding = "UTF-8"
-    memberLevel = "protected"
-    outputLevel = "quiet"
+    memberLevel = JavadocMemberLevel.PROTECTED
+    outputLevel = JavadocOutputLevel.QUIET
     splitIndex = true
     use = true
     windowTitle = "Infra Maven Plugin ${project.version} API"

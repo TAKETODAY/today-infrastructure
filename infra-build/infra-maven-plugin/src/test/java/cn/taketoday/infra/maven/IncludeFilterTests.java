@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +31,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link IncludeFilter}.
+ * Tests for {@link org.springframework.boot.maven.IncludeFilter}.
  *
  * @author David Turanski
  */
@@ -44,7 +40,7 @@ class IncludeFilterTests {
 
   @Test
   void includeSimple() throws ArtifactFilterException {
-    IncludeFilter filter = new IncludeFilter(List.of(createInclude("com.foo", "bar")));
+    IncludeFilter filter = new IncludeFilter(Arrays.asList(createInclude("com.foo", "bar")));
     Artifact artifact = createArtifact("com.foo", "bar");
     Set result = filter.filter(Collections.singleton(artifact));
     assertThat(result).hasSize(1);
@@ -53,7 +49,7 @@ class IncludeFilterTests {
 
   @Test
   void includeGroupIdNoMatch() throws ArtifactFilterException {
-    IncludeFilter filter = new IncludeFilter(List.of(createInclude("com.foo", "bar")));
+    IncludeFilter filter = new IncludeFilter(Arrays.asList(createInclude("com.foo", "bar")));
     Artifact artifact = createArtifact("com.baz", "bar");
     Set result = filter.filter(Collections.singleton(artifact));
     assertThat(result).isEmpty();
@@ -61,7 +57,7 @@ class IncludeFilterTests {
 
   @Test
   void includeArtifactIdNoMatch() throws ArtifactFilterException {
-    IncludeFilter filter = new IncludeFilter(List.of(createInclude("com.foo", "bar")));
+    IncludeFilter filter = new IncludeFilter(Arrays.asList(createInclude("com.foo", "bar")));
     Artifact artifact = createArtifact("com.foo", "biz");
     Set result = filter.filter(Collections.singleton(artifact));
     assertThat(result).isEmpty();
@@ -69,7 +65,7 @@ class IncludeFilterTests {
 
   @Test
   void includeClassifier() throws ArtifactFilterException {
-    IncludeFilter filter = new IncludeFilter(List.of(createInclude("com.foo", "bar", "jdk5")));
+    IncludeFilter filter = new IncludeFilter(Arrays.asList(createInclude("com.foo", "bar", "jdk5")));
     Artifact artifact = createArtifact("com.foo", "bar", "jdk5");
     Set result = filter.filter(Collections.singleton(artifact));
     assertThat(result).hasSize(1);
@@ -78,7 +74,7 @@ class IncludeFilterTests {
 
   @Test
   void includeClassifierNoTargetClassifier() throws ArtifactFilterException {
-    IncludeFilter filter = new IncludeFilter(List.of(createInclude("com.foo", "bar", "jdk5")));
+    IncludeFilter filter = new IncludeFilter(Arrays.asList(createInclude("com.foo", "bar", "jdk5")));
     Artifact artifact = createArtifact("com.foo", "bar");
     Set result = filter.filter(Collections.singleton(artifact));
     assertThat(result).isEmpty();
@@ -86,7 +82,7 @@ class IncludeFilterTests {
 
   @Test
   void includeClassifierNoMatch() throws ArtifactFilterException {
-    IncludeFilter filter = new IncludeFilter(List.of(createInclude("com.foo", "bar", "jdk5")));
+    IncludeFilter filter = new IncludeFilter(Arrays.asList(createInclude("com.foo", "bar", "jdk5")));
     Artifact artifact = createArtifact("com.foo", "bar", "jdk6");
     Set result = filter.filter(Collections.singleton(artifact));
     assertThat(result).isEmpty();

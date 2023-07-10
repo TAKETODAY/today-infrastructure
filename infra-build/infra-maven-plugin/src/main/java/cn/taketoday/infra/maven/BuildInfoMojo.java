@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +35,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.infra.maven.BuildPropertiesWriter.NullAdditionalPropertyValueException;
-import cn.taketoday.infra.maven.BuildPropertiesWriter.ProjectDetails;
+import cn.taketoday.app.loader.tools.BuildPropertiesWriter;
+import cn.taketoday.app.loader.tools.BuildPropertiesWriter.NullAdditionalPropertyValueException;
+import cn.taketoday.app.loader.tools.BuildPropertiesWriter.ProjectDetails;
 
 /**
  * Generate a {@code build-info.properties} file based on the content of the current

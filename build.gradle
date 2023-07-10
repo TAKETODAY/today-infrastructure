@@ -9,11 +9,11 @@ plugins {
 
 ext {
   moduleProjects = subprojects.findAll { it.name.startsWith("today-") } + [
-          project(":infra-build:infra-gradle-plugin"),
-          project(":infra-build:infra-maven-plugin"),
           project(":infra-build:infra-app-loader"),
           project(":infra-build:infra-app-loader-tools"),
-          project(":infra-build:infra-jarmode-layertools")
+          project(":infra-build:infra-jarmode-layertools"),
+          project(":infra-build:infra-gradle-plugin"),
+          project(":infra-build:infra-maven-plugin")
   ]
   javaProjects = subprojects - [
           project(":infra-build:infra-code-coverage"),
@@ -65,7 +65,7 @@ configure([rootProject] + javaProjects) { project ->
       canBeResolved = false
       visible = false
     }
-    matching { it.name.endsWith("Classpath") }.configureEach {
+    matching { it.name.endsWithAny("Classpath", "nnotationProcessor") }.configureEach {
       it.extendsFrom(dependencyManagement)
     }
   }
@@ -85,7 +85,7 @@ configure([rootProject] + javaProjects) { project ->
     testImplementation("junit:junit")
     testImplementation("org.assertj:assertj-core")
     testImplementation 'org.projectlombok:lombok'
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+    testAnnotationProcessor("org.projectlombok:lombok")
 
     // Pull in the latest JUnit 5 Launcher API to ensure proper support in IDEs.
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
