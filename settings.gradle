@@ -55,7 +55,7 @@ file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
 
 rootProject.children.findAll {
   it.name.startsWith("today-") && !it.name.startsWith("today-starter")
-}.each { project ->
-  project.buildFileName = "${project.name}.gradle"
+}.each {
+  it.buildFileName = "${it.name}.gradle"
 }
 
