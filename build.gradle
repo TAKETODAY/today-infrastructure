@@ -17,12 +17,12 @@ ext {
           project(":infra-bom"), project(":infra-build"), project(":infra-platform")]
 }
 
-configure(allprojects) { project ->
+configure(allprojects) {
   repositories {
     mavenLocal()
 
-//    maven { url "https://maven.aliyun.com/repository/public" }
-//		maven { url "https://repo.huaweicloud.com/repository/maven" }
+    maven { url "https://maven.aliyun.com/repository/public" }
+    maven { url "https://repo.huaweicloud.com/repository/maven" }
 
     mavenCentral()
     maven {
@@ -47,7 +47,7 @@ configure(allprojects) { project ->
   }
 }
 
-configure([rootProject] + javaProjects) { project ->
+configure([rootProject] + javaProjects) {
   group = "cn.taketoday"
 
   apply plugin: "java"
@@ -72,7 +72,7 @@ configure([rootProject] + javaProjects) { project ->
   }
 
   dependencies {
-    dependencyManagement(enforcedPlatform(dependencies.project(path: ":infra-platform")))
+    dependencyManagement(enforcedPlatform(project(":infra-platform")))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.junit.platform:junit-platform-suite-api")
@@ -105,7 +105,7 @@ configure([rootProject] + javaProjects) { project ->
   ] as String[]
 }
 
-configure(moduleProjects) { project ->
+configure(moduleProjects) {
   apply from: "${rootDir}/gradle/infra-module.gradle"
 }
 

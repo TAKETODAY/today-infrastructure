@@ -1,10 +1,13 @@
 plugins {
-  id "cn.taketoday.maven-repository"
   id "cn.taketoday.integration-test"
   id "cn.taketoday.maven-plugin"
 }
 
 description = "Maven plugin for Today Infrastructure Applications"
+
+configurations {
+  effectiveBom.extendsFrom(dependencyManagement)
+}
 
 dependencies {
   optional 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
@@ -24,7 +27,7 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
   implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
-  implementation 'org.apache.commons:commons-compress'
+  implementation 'org.apache.commons:commons-compress:1.21'
 
   testImplementation(project(":today-test-support"))
   testImplementation("org.testcontainers:testcontainers")
@@ -33,12 +36,19 @@ dependencies {
     exclude(group: "javax.inject", module: "javax.inject")
   }
 
-  intTestRuntimeOnly(project(":today-test-support"))
-  intTestRuntimeOnly(project(":infra-build:infra-app-loader"))
-  intTestRuntimeOnly(project(":infra-build:infra-app-loader-tools"))
+  intTestImplementation(project(":today-test-support"))
+  intTestImplementation(project(":infra-build:infra-app-loader"))
+  intTestImplementation(project(":infra-build:infra-app-loader-tools"))
 
-//  intTestImplementation("org.assertj:assertj-core")
-//  intTestImplementation("org.junit.jupiter:junit-jupiter")
+  mavenRepository(project(path: ":today-core", configuration: "mavenRepository"))
+  mavenRepository(project(path: ":today-context", configuration: "mavenRepository"))
+  mavenRepository(project(path: ":today-test-support", configuration: "mavenRepository"))
+  mavenRepository(project(path: ":infra-build:infra-app-loader", configuration: "mavenRepository"))
+  mavenRepository(project(path: ":infra-build:infra-app-loader-tools", configuration: "mavenRepository"))
+  mavenRepository('org.springframework.boot:spring-boot-buildpack-platform:3.1.1')
+
+  intTestImplementation("org.assertj:assertj-core")
+  intTestImplementation("org.junit.jupiter:junit-jupiter")
   intTestImplementation("org.testcontainers:testcontainers")
   intTestImplementation("org.testcontainers:junit-jupiter")
   intTestImplementation("org.apache.maven.shared:maven-invoker:3.1.0") {
@@ -56,14 +66,24 @@ dependencies {
 
   intTestImplementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
 
+  versionProperties(dependencies.project(path: ":infra-platform", configuration: "effectiveBom"))
+
+//  afterEvaluate {
+//    configurations.forEach {
+//      println it.name
+//      it.getDependencies().configureEach {
+//        println it
+//      }
+//      println()
+//    }
+//  }
 }
 
 sourceSets {
   intTest {
-    output.dir("${buildDir}/generated-resources", builtBy: "extractVersionProperties")
+//    output.dir("${buildDir}/generated-resources", builtBy: "extractVersionProperties")
   }
 }
-
 
 javadoc {
   options {
