@@ -10,20 +10,20 @@ configurations {
   javapoet
 }
 
-task javapoetRepackJar(type: ShadowJar) {
+tasks.register('javapoetRepackJar', ShadowJar) {
   archiveBaseName = 'today-javapoet-repack'
   archiveVersion = javapoetVersion
   configurations = [project.configurations.javapoet]
   relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
 }
 
-task javapoetSource(type: ShadowSource) {
+tasks.register('javapoetSource', ShadowSource) {
   configurations = [project.configurations.javapoet]
   relocate('com.squareup.javapoet', 'cn.taketoday.javapoet')
-  outputDirectory = file("build/shadow-source/javapoet")
+  outputDirectory.set file("build/shadow-source/javapoet")
 }
 
-task javapoetSourceJar(type: Jar) {
+tasks.register('javapoetSourceJar', Jar) {
   archiveBaseName = 'today-javapoet-repack'
   archiveVersion = javapoetVersion
   archiveClassifier = 'sources'
@@ -75,8 +75,6 @@ dependencies {
   testFixturesImplementation("org.xmlunit:xmlunit-assertj")
   testFixturesImplementation("io.projectreactor:reactor-test")
 
-  testImplementation 'org.projectlombok:lombok'
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
 }
 
 jar {
