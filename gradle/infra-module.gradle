@@ -53,13 +53,14 @@ javadoc {
   logging.captureStandardOutput LogLevel.INFO  // suppress "## warnings" message
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+  dependsOn classes
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   archiveClassifier.set("sources")
   from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar) {
+tasks.register('javadocJar', Jar) {
   archiveClassifier.set("javadoc")
   from javadoc
 }
