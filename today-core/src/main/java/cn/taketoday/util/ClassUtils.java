@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.util;
 
 import java.io.Closeable;
 import java.io.Externalizable;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -31,12 +29,17 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Currency;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -50,7 +53,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TimeZone;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import cn.taketoday.bytecode.ClassReader;
 import cn.taketoday.core.GenericTypeResolver;
@@ -1342,10 +1347,18 @@ public abstract class ClassUtils {
                     || UUID.class == type
                     || Class.class == type
                     || Locale.class == type
+                    || Pattern.class == type
                     || Date.class.isAssignableFrom(type)
                     || Enum.class.isAssignableFrom(type)
+                    || File.class.isAssignableFrom(type)
+                    || Path.class.isAssignableFrom(type)
                     || Number.class.isAssignableFrom(type)
+                    || ZoneId.class.isAssignableFrom(type)
+                    || Charset.class.isAssignableFrom(type)
+                    || TimeZone.class.isAssignableFrom(type)
                     || Temporal.class.isAssignableFrom(type)
+                    || Currency.class.isAssignableFrom(type)
+                    || InetAddress.class.isAssignableFrom(type)
                     || CharSequence.class.isAssignableFrom(type)
     );
   }
