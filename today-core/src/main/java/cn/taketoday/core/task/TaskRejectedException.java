@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,8 @@
 
 package cn.taketoday.core.task;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -27,6 +26,7 @@ import java.util.concurrent.RejectedExecutionException;
  * a given task for execution.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TaskExecutor#execute(Runnable)
  * @see TaskTimeoutException
  * @since 4.0
@@ -51,10 +51,31 @@ public class TaskRejectedException extends RejectedExecutionException {
    * @param msg the detail message
    * @param cause the root cause (usually from using an underlying
    * API such as the {@code java.util.concurrent} package)
-   * @see RejectedExecutionException
+   * @see java.util.concurrent.RejectedExecutionException
    */
   public TaskRejectedException(String msg, Throwable cause) {
     super(msg, cause);
+  }
+
+  /**
+   * Create a new {@code TaskRejectedException}
+   * with a default message for the given executor and task.
+   *
+   * @param executor the {@code Executor} that rejected the task
+   * @param task the task object that got rejected
+   * @param cause the original {@link RejectedExecutionException}
+   * @see ExecutorService#isShutdown()
+   * @see java.util.concurrent.RejectedExecutionException
+   */
+  public TaskRejectedException(Executor executor, Object task, RejectedExecutionException cause) {
+    super(executorDescription(executor) + " did not accept task: " + task, cause);
+  }
+
+  private static String executorDescription(Executor executor) {
+    if (executor instanceof ExecutorService executorService) {
+      return "ExecutorService in " + (executorService.isShutdown() ? "shutdown" : "active") + " state";
+    }
+    return executor.toString();
   }
 
 }

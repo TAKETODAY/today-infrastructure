@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,14 +57,15 @@ import cn.taketoday.lang.Nullable;
  * instead, consider {@link ScheduledExecutorFactoryBean}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ExecutorService
  * @see Executors
  * @see ThreadPoolExecutor
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ThreadPoolExecutorFactoryBean
-        extends ExecutorConfigurationSupport implements FactoryBean<ExecutorService> {
+public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
+        implements FactoryBean<ExecutorService> {
 
   private int corePoolSize = 1;
 
@@ -198,7 +196,17 @@ public class ThreadPoolExecutorFactoryBean
           ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
 
     return new ThreadPoolExecutor(corePoolSize, maxPoolSize,
-            keepAliveSeconds, TimeUnit.SECONDS, queue, threadFactory, rejectedExecutionHandler);
+            keepAliveSeconds, TimeUnit.SECONDS, queue, threadFactory, rejectedExecutionHandler) {
+      @Override
+      protected void beforeExecute(Thread thread, Runnable task) {
+        ThreadPoolExecutorFactoryBean.this.beforeExecute(thread, task);
+      }
+
+      @Override
+      protected void afterExecute(Runnable task, Throwable ex) {
+        ThreadPoolExecutorFactoryBean.this.afterExecute(task, ex);
+      }
+    };
   }
 
   /**

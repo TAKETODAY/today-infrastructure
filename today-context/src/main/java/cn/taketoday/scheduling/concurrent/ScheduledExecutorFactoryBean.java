@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +63,7 @@ import cn.taketoday.util.ObjectUtils;
  * property to "true".
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setPoolSize
  * @see #setRemoveOnCancelPolicy
  * @see #setThreadFactory
@@ -75,8 +73,8 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ScheduledExecutorFactoryBean
-        extends ExecutorConfigurationSupport implements FactoryBean<ScheduledExecutorService> {
+public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport
+        implements FactoryBean<ScheduledExecutorService> {
 
   private int poolSize = 1;
 
@@ -158,8 +156,8 @@ public class ScheduledExecutorFactoryBean
             createExecutor(this.poolSize, threadFactory, rejectedExecutionHandler);
 
     if (this.removeOnCancelPolicy) {
-      if (executor instanceof ScheduledThreadPoolExecutor) {
-        ((ScheduledThreadPoolExecutor) executor).setRemoveOnCancelPolicy(true);
+      if (executor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
+        threadPoolExecutor.setRemoveOnCancelPolicy(true);
       }
       else {
         logger.debug("Could not apply remove-on-cancel policy - not a ScheduledThreadPoolExecutor");
@@ -193,7 +191,17 @@ public class ScheduledExecutorFactoryBean
   protected ScheduledExecutorService createExecutor(
           int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
 
-    return new ScheduledThreadPoolExecutor(poolSize, threadFactory, rejectedExecutionHandler);
+    return new ScheduledThreadPoolExecutor(poolSize, threadFactory, rejectedExecutionHandler) {
+      @Override
+      protected void beforeExecute(Thread thread, Runnable task) {
+        ScheduledExecutorFactoryBean.this.beforeExecute(thread, task);
+      }
+
+      @Override
+      protected void afterExecute(Runnable task, Throwable ex) {
+        ScheduledExecutorFactoryBean.this.afterExecute(task, ex);
+      }
+    };
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +44,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
 /**
  * JavaBean that allows for configuring a {@link ThreadPoolExecutor}
  * in bean style (through its "corePoolSize", "maxPoolSize", "keepAliveSeconds", "queueCapacity"
- * properties) and exposing it as a Framework {@link cn.taketoday.core.task.TaskExecutor}.
+ * properties) and exposing it as a Infra {@link cn.taketoday.core.task.TaskExecutor}.
  * This class is also well suited for management and monitoring (e.g. through JMX),
  * providing several useful attributes: "corePoolSize", "maxPoolSize", "keepAliveSeconds"
  * (all supporting updates at runtime); "poolSize", "activeCount" (for introspection only).
@@ -62,9 +59,9 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * {@link #setCorePoolSize "corePoolSize"} (see also the
  * {@link #setAllowCoreThreadTimeOut "allowCoreThreadTimeOut"} mode of scaling).
  *
- * <p><b>NOTE:</b> This class implements
+ * <p><b>NOTE:</b> This class implements Infra
  * {@link cn.taketoday.core.task.TaskExecutor} interface as well as the
- * {@link Executor} interface, with the former being the primary
+ * {@link java.util.concurrent.Executor} interface, with the former being the primary
  * interface, the other just serving as secondary convenience. For this reason, the
  * exception handling follows the TaskExecutor contract rather than the Executor contract,
  * in particular regarding the {@link cn.taketoday.core.task.TaskRejectedException}.
@@ -72,10 +69,11 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * <p>For an alternative, you may set up a ThreadPoolExecutor instance directly using
  * constructor injection, or use a factory method definition that points to the
  * {@link java.util.concurrent.Executors} class. To expose such a raw Executor as a
- * Framework {@link cn.taketoday.core.task.TaskExecutor}, simply wrap it with a
+ * Infra {@link cn.taketoday.core.task.TaskExecutor}, simply wrap it with a
  * {@link cn.taketoday.scheduling.concurrent.ConcurrentTaskExecutor} adapter.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.core.task.TaskExecutor
  * @see ThreadPoolExecutor
  * @see ThreadPoolExecutorFactoryBean
@@ -83,8 +81,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ThreadPoolTaskExecutor
-        extends ExecutorConfigurationSupport
+public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
         implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
 
   private final Object poolSizeMonitor = new Object();
@@ -159,7 +156,7 @@ public class ThreadPoolTaskExecutor
 
   /**
    * Set the ThreadPoolExecutor's keep-alive seconds.
-   * Default is 60.
+   * <p>Default is 60.
    * <p><b>This setting can be modified at runtime, for example through JMX.</b>
    */
   public void setKeepAliveSeconds(int keepAliveSeconds) {
@@ -182,7 +179,7 @@ public class ThreadPoolTaskExecutor
 
   /**
    * Set the capacity for the ThreadPoolExecutor's BlockingQueue.
-   * Default is {@code Integer.MAX_VALUE}.
+   * <p>Default is {@code Integer.MAX_VALUE}.
    * <p>Any positive value will lead to a LinkedBlockingQueue instance;
    * any other value will lead to a SynchronousQueue instance.
    *
@@ -256,27 +253,31 @@ public class ThreadPoolTaskExecutor
 
     BlockingQueue<Runnable> queue = createQueue(this.queueCapacity);
 
-    ThreadPoolExecutor executor;
-    if (this.taskDecorator != null) {
-      executor = new ThreadPoolExecutor(
-              this.corePoolSize, this.maxPoolSize, this.keepAliveSeconds, TimeUnit.SECONDS,
-              queue, threadFactory, rejectedExecutionHandler) {
-        @Override
-        public void execute(Runnable command) {
-          Runnable decorated = taskDecorator.decorate(command);
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+            this.corePoolSize, this.maxPoolSize, this.keepAliveSeconds, TimeUnit.SECONDS,
+            queue, threadFactory, rejectedExecutionHandler) {
+      @Override
+      public void execute(Runnable command) {
+        Runnable decorated = command;
+        if (taskDecorator != null) {
+          decorated = taskDecorator.decorate(command);
           if (decorated != command) {
             decoratedTaskMap.put(decorated, command);
           }
-          super.execute(decorated);
         }
-      };
-    }
-    else {
-      executor = new ThreadPoolExecutor(
-              this.corePoolSize, this.maxPoolSize, this.keepAliveSeconds, TimeUnit.SECONDS,
-              queue, threadFactory, rejectedExecutionHandler);
+        super.execute(decorated);
+      }
 
-    }
+      @Override
+      protected void beforeExecute(Thread thread, Runnable task) {
+        ThreadPoolTaskExecutor.this.beforeExecute(thread, task);
+      }
+
+      @Override
+      protected void afterExecute(Runnable task, Throwable ex) {
+        ThreadPoolTaskExecutor.this.afterExecute(task, ex);
+      }
+    };
 
     if (this.allowCoreThreadTimeOut) {
       executor.allowCoreThreadTimeOut(true);
@@ -296,8 +297,8 @@ public class ThreadPoolTaskExecutor
    *
    * @param queueCapacity the specified queue capacity
    * @return the BlockingQueue instance
-   * @see LinkedBlockingQueue
-   * @see SynchronousQueue
+   * @see java.util.concurrent.LinkedBlockingQueue
+   * @see java.util.concurrent.SynchronousQueue
    */
   protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
     if (queueCapacity > 0) {
@@ -322,7 +323,7 @@ public class ThreadPoolTaskExecutor
   /**
    * Return the current pool size.
    *
-   * @see ThreadPoolExecutor#getPoolSize()
+   * @see java.util.concurrent.ThreadPoolExecutor#getPoolSize()
    */
   public int getPoolSize() {
     if (this.threadPoolExecutor == null) {
@@ -336,6 +337,7 @@ public class ThreadPoolTaskExecutor
    * Return the current queue size.
    *
    * @see java.util.concurrent.ThreadPoolExecutor#getQueue()
+   * @since 5.3.21
    */
   public int getQueueSize() {
     if (this.threadPoolExecutor == null) {
@@ -365,7 +367,7 @@ public class ThreadPoolTaskExecutor
       executor.execute(task);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(executor, task, ex);
     }
   }
 
@@ -381,7 +383,7 @@ public class ThreadPoolTaskExecutor
       return executor.submit(task);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(executor, task, ex);
     }
   }
 
@@ -392,7 +394,7 @@ public class ThreadPoolTaskExecutor
       return executor.submit(task);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(executor, task, ex);
     }
   }
 
@@ -405,7 +407,7 @@ public class ThreadPoolTaskExecutor
       return future;
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(executor, task, ex);
     }
   }
 
@@ -418,7 +420,7 @@ public class ThreadPoolTaskExecutor
       return future;
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + executor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(executor, task, ex);
     }
   }
 
@@ -427,8 +429,8 @@ public class ThreadPoolTaskExecutor
     super.cancelRemainingTask(task);
     // Cancel associated user-level Future handle as well
     Object original = this.decoratedTaskMap.get(task);
-    if (original instanceof Future) {
-      ((Future<?>) original).cancel(true);
+    if (original instanceof Future<?> future) {
+      future.cancel(true);
     }
   }
 
