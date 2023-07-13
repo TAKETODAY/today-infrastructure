@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +79,11 @@ public abstract class AbstractMockWebServerTests {
         }
         else if (request.getPath().equals("/status/notfound")) {
           return new MockResponse().setResponseCode(404);
+        }
+        else if (request.getPath().equals("/status/299")) {
+          assertThat(request.getHeader("Expect"))
+                  .contains("299");
+          return new MockResponse().setResponseCode(299);
         }
         else if (request.getPath().startsWith("/params")) {
           assertThat(request.getPath()).contains("param1=value");
