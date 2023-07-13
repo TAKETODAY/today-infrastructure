@@ -60,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Today <br>
  * 2018-07-12 20:46:41
  */
-class ObjectUtilsTest {
+class ObjectUtilsTests {
 
   @Test
   void testIsEmpty() {

@@ -639,7 +639,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
    * Resolve the specified cached method argument or field value.
    */
   @Nullable
-  private Object resolvedCachedArgument(@Nullable String beanName, @Nullable Object cachedArgument) {
+  private Object resolveCachedArgument(@Nullable String beanName, @Nullable Object cachedArgument) {
     if (cachedArgument instanceof DependencyDescriptor descriptor) {
       Assert.state(this.beanFactory != null, "No BeanFactory available");
       return this.beanFactory.resolveDependency(descriptor, beanName, null, null);
@@ -682,7 +682,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       Object value;
       if (this.cached) {
         try {
-          value = resolvedCachedArgument(beanName, this.cachedFieldValue);
+          value = resolveCachedArgument(beanName, this.cachedFieldValue);
         }
         catch (NoSuchBeanDefinitionException ex) {
           // Unexpected removal of target bean for cached argument -> re-resolve
@@ -787,7 +787,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       }
       Object[] arguments = new Object[cachedMethodArguments.length];
       for (int i = 0; i < arguments.length; i++) {
-        arguments[i] = resolvedCachedArgument(beanName, cachedMethodArguments[i]);
+        arguments[i] = resolveCachedArgument(beanName, cachedMethodArguments[i]);
       }
       return arguments;
     }
