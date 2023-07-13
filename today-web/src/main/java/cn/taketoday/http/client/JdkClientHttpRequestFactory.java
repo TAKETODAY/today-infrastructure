@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +89,18 @@ public class JdkClientHttpRequestFactory implements ClientHttpRequestFactory {
    */
   public void setReadTimeout(int readTimeout) {
     this.readTimeout = Duration.ofMillis(readTimeout);
+  }
+
+  /**
+   * Set the underlying {@code HttpClient}'s read timeout as a
+   * {@code Duration}.
+   * <p>Default is the system's default timeout.
+   *
+   * @see java.net.http.HttpRequest.Builder#timeout
+   */
+  public void setReadTimeout(Duration readTimeout) {
+    Assert.notNull(readTimeout, "ReadTimeout is required");
+    this.readTimeout = readTimeout;
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.classic.methods.HttpTrace;
 import org.apache.hc.client5.http.config.Configurable;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
@@ -41,6 +39,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
@@ -70,9 +69,9 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
   private HttpClient httpClient;
 
-  private int connectTimeout = -1;
+  private long connectTimeout = -1;
 
-  private int connectionRequestTimeout = -1;
+  private long connectionRequestTimeout = -1;
 
   @Nullable
   private BiFunction<HttpMethod, URI, HttpContext> httpContextFactory;
@@ -123,12 +122,32 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * {@link HttpClient} itself.
    *
    * @param connectTimeout the timeout value in milliseconds
-   * @see RequestConfig#getConnectTimeout()
+   * @see ConnectionConfig#getConnectTimeout()
    * @see SocketConfig#getSoTimeout
    */
   public void setConnectTimeout(int connectTimeout) {
     Assert.isTrue(connectTimeout >= 0, "Timeout must be a non-negative value");
     this.connectTimeout = connectTimeout;
+  }
+
+  /**
+   * Set the connection timeout for the underlying {@link RequestConfig}.
+   * A timeout value of 0 specifies an infinite timeout.
+   * <p>Additional properties can be configured by specifying a
+   * {@link RequestConfig} instance on a custom {@link HttpClient}.
+   * <p>This options does not affect connection timeouts for SSL
+   * handshakes or CONNECT requests; for that, it is required to
+   * use the {@link SocketConfig} on the
+   * {@link HttpClient} itself.
+   *
+   * @param connectTimeout the timeout value in milliseconds
+   * @see ConnectionConfig#getConnectTimeout()
+   * @see SocketConfig#getSoTimeout
+   */
+  public void setConnectTimeout(Duration connectTimeout) {
+    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    Assert.isTrue(!connectTimeout.isNegative(), "Timeout must be a non-negative value");
+    this.connectTimeout = connectTimeout.toMillis();
   }
 
   /**
@@ -144,6 +163,22 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   public void setConnectionRequestTimeout(int connectionRequestTimeout) {
     Assert.isTrue(connectionRequestTimeout >= 0, "Timeout must be a non-negative value");
     this.connectionRequestTimeout = connectionRequestTimeout;
+  }
+
+  /**
+   * Set the timeout in milliseconds used when requesting a connection
+   * from the connection manager using the underlying {@link RequestConfig}.
+   * A timeout value of 0 specifies an infinite timeout.
+   * <p>Additional properties can be configured by specifying a
+   * {@link RequestConfig} instance on a custom {@link HttpClient}.
+   *
+   * @param connectionRequestTimeout the timeout value to request a connection in milliseconds
+   * @see RequestConfig#getConnectionRequestTimeout()
+   */
+  public void setConnectionRequestTimeout(Duration connectionRequestTimeout) {
+    Assert.notNull(connectionRequestTimeout, "ConnectionRequestTimeout must not be null");
+    Assert.isTrue(!connectionRequestTimeout.isNegative(), "Timeout must be a non-negative value");
+    this.connectionRequestTimeout = connectionRequestTimeout.toMillis();
   }
 
   /**

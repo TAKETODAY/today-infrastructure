@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import org.eclipse.jetty.client.api.Request;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
@@ -39,13 +37,14 @@ import cn.taketoday.lang.Assert;
  * @see <a href="https://www.eclipse.org/jetty/documentation/jetty-11/programming-guide/index.html#pg-client-http">Jetty HttpClient</a>
  * @since 4.0
  */
-public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, InitializingBean, DisposableBean {
+public class JettyClientHttpRequestFactory
+        implements ClientHttpRequestFactory, InitializingBean, DisposableBean {
 
   private final HttpClient httpClient;
 
   private final boolean defaultClient;
 
-  private int readTimeout = 1000;
+  private long readTimeout = 10 * 1000;
 
   /**
    * Default constructor that creates a new instance of {@link HttpClient}.
@@ -71,6 +70,7 @@ public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, 
   /**
    * Set the underlying connect timeout in milliseconds.
    * A value of 0 specifies an infinite timeout.
+   * <p>Default is 5 seconds.
    */
   public void setConnectTimeout(int connectTimeout) {
     Assert.isTrue(connectTimeout >= 0, "Timeout must be a non-negative value");
@@ -78,11 +78,31 @@ public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, 
   }
 
   /**
-   * Set the underlying read timeout in milliseconds.
+   * Set the underlying connect timeout in milliseconds.
+   * A value of 0 specifies an infinite timeout.
+   * <p>Default is 5 seconds.
    */
-  public void setReadTimeout(int readTimeout) {
+  public void setConnectTimeout(Duration connectTimeout) {
+    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    this.httpClient.setConnectTimeout(connectTimeout.toMillis());
+  }
+
+  /**
+   * Set the underlying read timeout in milliseconds.
+   * <p>Default is 10 seconds.
+   */
+  public void setReadTimeout(long readTimeout) {
     Assert.isTrue(readTimeout > 0, "Timeout must be a positive value");
     this.readTimeout = readTimeout;
+  }
+
+  /**
+   * Set the underlying read timeout as {@code Duration}.
+   * <p>Default is 10 seconds.
+   */
+  public void setReadTimeout(Duration readTimeout) {
+    Assert.notNull(readTimeout, "ReadTimeout must not be null");
+    this.readTimeout = readTimeout.toMillis();
   }
 
   @Override

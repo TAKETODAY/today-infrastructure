@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +23,10 @@ import java.net.Proxy;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Duration;
 
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -83,6 +82,18 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
   }
 
   /**
+   * Set the underlying URLConnection's connect timeout as {@code Duration}.
+   * A timeout value of 0 specifies an infinite timeout.
+   * <p>Default is the system's default timeout.
+   *
+   * @see URLConnection#setConnectTimeout(int)
+   */
+  public void setConnectTimeout(Duration connectTimeout) {
+    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    this.connectTimeout = (int) connectTimeout.toMillis();
+  }
+
+  /**
    * Set the underlying URLConnection's read timeout (in milliseconds).
    * A timeout value of 0 specifies an infinite timeout.
    * <p>Default is the system's default timeout.
@@ -91,6 +102,18 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
    */
   public void setReadTimeout(int readTimeout) {
     this.readTimeout = readTimeout;
+  }
+
+  /**
+   * Set the underlying URLConnection's read timeout (in milliseconds).
+   * A timeout value of 0 specifies an infinite timeout.
+   * <p>Default is the system's default timeout.
+   *
+   * @see URLConnection#setReadTimeout(int)
+   */
+  public void setReadTimeout(Duration readTimeout) {
+    Assert.notNull(readTimeout, "ReadTimeout must not be null");
+    this.readTimeout = (int) readTimeout.toMillis();
   }
 
   @Override

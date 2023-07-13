@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.http.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.beans.factory.DisposableBean;
@@ -43,6 +41,7 @@ import okhttp3.OkHttpClient;
 public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
 
   private OkHttpClient client;
+
   private final boolean defaultClient;
 
   /**
@@ -75,6 +74,16 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   /**
+   * Set the underlying read timeout in milliseconds.
+   * A value of 0 specifies an infinite timeout.
+   */
+  public void setReadTimeout(Duration readTimeout) {
+    this.client = this.client.newBuilder()
+            .readTimeout(readTimeout)
+            .build();
+  }
+
+  /**
    * Set the underlying write timeout in milliseconds.
    * A value of 0 specifies an infinite timeout.
    */
@@ -85,12 +94,32 @@ public class OkHttp3ClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   /**
+   * Set the underlying write timeout in milliseconds.
+   * A value of 0 specifies an infinite timeout.
+   */
+  public void setWriteTimeout(Duration writeTimeout) {
+    this.client = this.client.newBuilder()
+            .writeTimeout(writeTimeout)
+            .build();
+  }
+
+  /**
    * Set the underlying connect timeout in milliseconds.
    * A value of 0 specifies an infinite timeout.
    */
   public void setConnectTimeout(int connectTimeout) {
     this.client = this.client.newBuilder()
             .connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
+            .build();
+  }
+
+  /**
+   * Set the underlying connect timeout in milliseconds.
+   * A value of 0 specifies an infinite timeout.
+   */
+  public void setConnectTimeout(Duration connectTimeout) {
+    this.client = this.client.newBuilder()
+            .connectTimeout(connectTimeout)
             .build();
   }
 
