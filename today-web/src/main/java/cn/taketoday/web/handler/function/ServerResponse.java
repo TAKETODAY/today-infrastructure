@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +31,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
@@ -492,7 +488,26 @@ public interface ServerResponse {
      *
      * @param writeFunction the function used to write to the {@link HttpServletResponse}
      */
-    ServerResponse build(Function<RequestContext, Object> writeFunction);
+    ServerResponse build(WriteFunction writeFunction);
+
+    /**
+     * Defines the contract for {@link #build(WriteFunction)}.
+     */
+    @FunctionalInterface
+    interface WriteFunction {
+
+      /**
+       * Write to the given {@code servletResponse}, or return a
+       * {@code ModelAndView} to be rendered.
+       *
+       * @param request the HTTP request, HTTP response to write to
+       * @return a {@code ModelAndView} to render, or {@code null} if handled directly
+       * @throws Exception in case of Servlet errors
+       */
+      @Nullable
+      Object write(RequestContext request) throws Exception;
+
+    }
 
   }
 

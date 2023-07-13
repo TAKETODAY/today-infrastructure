@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.CacheControl;
@@ -169,8 +165,8 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
   }
 
   @Override
-  public ServerResponse build(Function<RequestContext, Object> writeFunction) {
-    return new WriterFunctionResponse(this.statusCode, this.headers, this.cookies, writeFunction);
+  public ServerResponse build(WriteFunction writeFunction) {
+    return new WriteFunctionResponse(this.statusCode, this.headers, this.cookies, writeFunction);
   }
 
   @Override
@@ -211,12 +207,13 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
             .build();
   }
 
-  private static class WriterFunctionResponse extends AbstractServerResponse {
+  private static class WriteFunctionResponse extends AbstractServerResponse {
 
-    private final Function<RequestContext, Object> writeFunction;
+    private final WriteFunction writeFunction;
 
-    public WriterFunctionResponse(HttpStatusCode statusCode, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
-            Function<RequestContext, Object> writeFunction) {
+    public WriteFunctionResponse(HttpStatusCode statusCode, HttpHeaders headers,
+            MultiValueMap<String, HttpCookie> cookies, WriteFunction writeFunction) {
+
       super(statusCode, headers, cookies);
       Assert.notNull(writeFunction, "WriteFunction is required");
       this.writeFunction = writeFunction;
@@ -224,8 +221,8 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
     @Nullable
     @Override
-    protected Object writeToInternal(RequestContext request, Context context) {
-      return this.writeFunction.apply(request);
+    protected Object writeToInternal(RequestContext request, Context context) throws Throwable {
+      return this.writeFunction.write(request);
     }
   }
 
