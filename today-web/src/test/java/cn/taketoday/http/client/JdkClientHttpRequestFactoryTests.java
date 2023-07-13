@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +17,43 @@
 
 package cn.taketoday.http.client;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.URI;
+
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.lang.Nullable;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/7/1 20:19
  */
 class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
+
+  @Nullable
+  private static String originalPropertyValue;
+
+  @BeforeAll
+  public static void setProperty() {
+    originalPropertyValue = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
+    System.setProperty("jdk.httpclient.allowRestrictedHeaders", "expect");
+  }
+
+  @AfterAll
+  public static void restoreProperty() {
+    if (originalPropertyValue != null) {
+      System.setProperty("jdk.httpclient.allowRestrictedHeaders", originalPropertyValue);
+    }
+    else {
+      System.clearProperty("jdk.httpclient.allowRestrictedHeaders");
+    }
+  }
 
   @Override
   protected ClientHttpRequestFactory createRequestFactory() {
@@ -40,6 +65,16 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
   public void httpMethods() throws Exception {
     super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
+  }
+
+  @Test
+  public void customizeDisallowedHeaders() throws IOException {
+    ClientHttpRequest request = factory.createRequest(URI.create(this.baseUrl + "/status/299"), HttpMethod.PUT);
+    request.getHeaders().set("Expect", "299");
+
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));
+    }
   }
 
 }

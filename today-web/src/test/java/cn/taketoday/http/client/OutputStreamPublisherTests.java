@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.FlowAdapters;
 
 import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -44,17 +39,36 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
  */
 class OutputStreamPublisherTests {
 
+  private static final byte[] FOO = "foo".getBytes(StandardCharsets.UTF_8);
+
+  private static final byte[] BAR = "bar".getBytes(StandardCharsets.UTF_8);
+
+  private static final byte[] BAZ = "baz".getBytes(StandardCharsets.UTF_8);
+
   private final Executor executor = Executors.newSingleThreadExecutor();
+
+  private final OutputStreamPublisher.ByteMapper<byte[]> byteMapper =
+          new OutputStreamPublisher.ByteMapper<>() {
+            @Override
+            public byte[] map(int b) {
+              return new byte[] { (byte) b };
+            }
+
+            @Override
+            public byte[] map(byte[] b, int off, int len) {
+              byte[] result = new byte[len];
+              System.arraycopy(b, off, result, 0, len);
+              return result;
+            }
+          };
 
   @Test
   void basic() {
-    Flow.Publisher<ByteBuffer> flowPublisher = OutputStreamPublisher.create(outputStream -> {
-      try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-        writer.write("foo");
-        writer.write("bar");
-        writer.write("baz");
-      }
-    }, this.executor);
+    Flow.Publisher<byte[]> flowPublisher = OutputStreamPublisher.create(outputStream -> {
+      outputStream.write(FOO);
+      outputStream.write(BAR);
+      outputStream.write(BAZ);
+    }, this.byteMapper, this.executor);
     Flux<String> flux = toString(flowPublisher);
 
     StepVerifier.create(flux)
@@ -64,16 +78,30 @@ class OutputStreamPublisherTests {
 
   @Test
   void flush() {
-    Flow.Publisher<ByteBuffer> flowPublisher = OutputStreamPublisher.create(outputStream -> {
-      try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-        writer.write("foo");
-        writer.flush();
-        writer.write("bar");
-        writer.flush();
-        writer.write("baz");
-        writer.flush();
-      }
-    }, this.executor);
+    Flow.Publisher<byte[]> flowPublisher = OutputStreamPublisher.create(outputStream -> {
+      outputStream.write(FOO);
+      outputStream.flush();
+      outputStream.write(BAR);
+      outputStream.flush();
+      outputStream.write(BAZ);
+      outputStream.flush();
+    }, this.byteMapper, this.executor);
+    Flux<String> flux = toString(flowPublisher);
+
+    StepVerifier.create(flux)
+            .assertNext(s -> assertThat(s).isEqualTo("foo"))
+            .assertNext(s -> assertThat(s).isEqualTo("bar"))
+            .assertNext(s -> assertThat(s).isEqualTo("baz"))
+            .verifyComplete();
+  }
+
+  @Test
+  void chunkSize() {
+    Flow.Publisher<byte[]> flowPublisher = OutputStreamPublisher.create(outputStream -> {
+      outputStream.write(FOO);
+      outputStream.write(BAR);
+      outputStream.write(BAZ);
+    }, this.byteMapper, this.executor, 3);
     Flux<String> flux = toString(flowPublisher);
 
     StepVerifier.create(flux)
@@ -87,19 +115,18 @@ class OutputStreamPublisherTests {
   void cancel() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
-    Flow.Publisher<ByteBuffer> flowPublisher = OutputStreamPublisher.create(outputStream -> {
-      try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-        assertThatIOException()
-                .isThrownBy(() -> {
-                  writer.write("foo");
-                  writer.flush();
-                  writer.write("bar");
-                  writer.flush();
-                })
-                .withMessage("Subscription has been terminated");
-        latch.countDown();
-      }
-    }, this.executor);
+    Flow.Publisher<byte[]> flowPublisher = OutputStreamPublisher.create(outputStream -> {
+      assertThatIOException()
+              .isThrownBy(() -> {
+                outputStream.write(FOO);
+                outputStream.flush();
+                outputStream.write(BAR);
+                outputStream.flush();
+              })
+              .withMessage("Subscription has been terminated");
+      latch.countDown();
+
+    }, this.byteMapper, this.executor);
     Flux<String> flux = toString(flowPublisher);
 
     StepVerifier.create(flux, 1)
@@ -114,14 +141,14 @@ class OutputStreamPublisherTests {
   void closed() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
-    Flow.Publisher<ByteBuffer> flowPublisher = OutputStreamPublisher.create(outputStream -> {
-      Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+    Flow.Publisher<byte[]> flowPublisher = OutputStreamPublisher.create(outputStream -> {
+      OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
       writer.write("foo");
       writer.close();
       assertThatIOException().isThrownBy(() -> writer.write("bar"))
               .withMessage("Stream closed");
       latch.countDown();
-    }, this.executor);
+    }, this.byteMapper, this.executor);
     Flux<String> flux = toString(flowPublisher);
 
     StepVerifier.create(flux)
@@ -135,17 +162,17 @@ class OutputStreamPublisherTests {
   void negativeRequestN() throws InterruptedException {
     CountDownLatch latch = new CountDownLatch(1);
 
-    Flow.Publisher<ByteBuffer> flowPublisher = OutputStreamPublisher.create(outputStream -> {
-      try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-        writer.write("foo");
-        writer.flush();
-        writer.write("foo");
-        writer.flush();
+    Flow.Publisher<byte[]> flowPublisher = OutputStreamPublisher.create(outputStream -> {
+      try (outputStream) {
+        outputStream.write(FOO);
+        outputStream.flush();
+        outputStream.write(BAR);
+        outputStream.flush();
       }
       finally {
         latch.countDown();
       }
-    }, this.executor);
+    }, this.byteMapper, this.executor);
     Flow.Subscription[] subscriptions = new Flow.Subscription[1];
     Flux<String> flux = toString(a -> flowPublisher.subscribe(new Flow.Subscriber<>() {
       @Override
@@ -155,7 +182,7 @@ class OutputStreamPublisherTests {
       }
 
       @Override
-      public void onNext(ByteBuffer item) {
+      public void onNext(byte[] item) {
         a.onNext(item);
       }
 
@@ -179,9 +206,9 @@ class OutputStreamPublisherTests {
     latch.await();
   }
 
-  private static Flux<String> toString(Flow.Publisher<ByteBuffer> flowPublisher) {
+  private static Flux<String> toString(Flow.Publisher<byte[]> flowPublisher) {
     return Flux.from(FlowAdapters.toPublisher(flowPublisher))
-            .map(bb -> StandardCharsets.UTF_8.decode(bb).toString());
+            .map(bytes -> new String(bytes, StandardCharsets.UTF_8));
   }
 
 }

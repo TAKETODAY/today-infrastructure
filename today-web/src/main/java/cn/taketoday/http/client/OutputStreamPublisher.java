@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,6 @@ package cn.taketoday.http.client;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
@@ -36,64 +32,125 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Bridges between {@link OutputStream} and
- * {@link Flow.Publisher Flow.Publisher&lt;ByteBuffer&gt;}.
+ * {@link Flow.Publisher Flow.Publisher&lt;T&gt;}.
  *
+ * @param <T> the published item type
  * @author Oleh Dokuka
  * @author Arjen Poutsma
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #create(OutputStreamHandler, Executor)
+ * @see #create(OutputStreamHandler, ByteMapper, Executor)
  * @since 4.0
  */
-final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
+final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
+
+  private static final int DEFAULT_CHUNK_SIZE = 1024;
 
   private final OutputStreamHandler outputStreamHandler;
 
+  private final ByteMapper<T> byteMapper;
+
   private final Executor executor;
 
-  private OutputStreamPublisher(OutputStreamHandler outputStreamHandler, Executor executor) {
+  private final int chunkSize;
+
+  private OutputStreamPublisher(OutputStreamHandler outputStreamHandler,
+          ByteMapper<T> byteMapper, Executor executor, int chunkSize) {
     this.outputStreamHandler = outputStreamHandler;
+    this.byteMapper = byteMapper;
     this.executor = executor;
+    this.chunkSize = chunkSize;
   }
 
   /**
-   * Creates a new {@code Publisher<ByteBuffer>} based on bytes written to a
-   * {@code OutputStream}.
+   * Creates a new {@code Publisher<T>} based on bytes written to a
+   * {@code OutputStream}. The parameter {@code byteMapper} is used to map
+   * from written bytes to the published type.
    * <ul>
    * <li>The parameter {@code outputStreamHandler} is invoked once per
    * subscription of the returned {@code Publisher}, when the first
-   * {@code ByteBuffer} is
+   * item is
    * {@linkplain Flow.Subscription#request(long) requested}.</li>
-   * <li>Each {@link OutputStream#write(byte[], int, int) OutputStream.write()}
-   * invocation that {@code outputStreamHandler} makes will result in a
-   * {@linkplain Flow.Subscriber#onNext(Object) published} {@code ByteBuffer}
+   * <li>{@link OutputStream#write(byte[], int, int) OutputStream.write()}
+   * invocations made by {@code outputStreamHandler} are buffered until they
+   * exceed the default chunk size of 1024, and then result in a
+   * {@linkplain Flow.Subscriber#onNext(Object) published} item
    * if there is {@linkplain Flow.Subscription#request(long) demand}.</li>
    * <li>If there is <em>no demand</em>, {@code OutputStream.write()} will block
    * until there is.</li>
    * <li>If the subscription is {@linkplain Flow.Subscription#cancel() cancelled},
    * {@code OutputStream.write()} will throw a {@code IOException}.</li>
-   * <li>{@linkplain OutputStream#close() Closing} the {@code OutputStream}
-   * will result in a {@linkplain Flow.Subscriber#onComplete() complete} signal.</li>
+   * <li>The subscription is
+   * {@linkplain Flow.Subscriber#onComplete() completed} when
+   * {@code outputStreamHandler} completes.</li>
    * <li>Any {@code IOException}s thrown from {@code outputStreamHandler} will
    * be dispatched to the {@linkplain Flow.Subscriber#onError(Throwable) Subscriber}.
    * </ul>
    *
    * @param outputStreamHandler invoked when the first buffer is requested
+   * @param byteMapper maps written bytes to {@code T}
    * @param executor used to invoke the {@code outputStreamHandler}
-   * @return a {@code Publisher<ByteBuffer>} based on bytes written by
-   * {@code outputStreamHandler}
+   * @param <T> the publisher type
+   * @return a {@code Publisher<T>} based on bytes written by
+   * {@code outputStreamHandler} mapped by {@code byteMapper}
    */
-  public static Flow.Publisher<ByteBuffer> create(OutputStreamHandler outputStreamHandler, Executor executor) {
+  public static <T> Flow.Publisher<T> create(OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper,
+          Executor executor) {
+
     Assert.notNull(outputStreamHandler, "OutputStreamHandler must not be null");
+    Assert.notNull(byteMapper, "ByteMapper must not be null");
     Assert.notNull(executor, "Executor must not be null");
 
-    return new OutputStreamPublisher(outputStreamHandler, executor);
+    return new OutputStreamPublisher<>(outputStreamHandler, byteMapper, executor, DEFAULT_CHUNK_SIZE);
+  }
+
+  /**
+   * Creates a new {@code Publisher<T>} based on bytes written to a
+   * {@code OutputStream}. The parameter {@code byteMapper} is used to map
+   * from written bytes to the published type.
+   * <ul>
+   * <li>The parameter {@code outputStreamHandler} is invoked once per
+   * subscription of the returned {@code Publisher}, when the first
+   * item is
+   * {@linkplain Flow.Subscription#request(long) requested}.</li>
+   * <li>{@link OutputStream#write(byte[], int, int) OutputStream.write()}
+   * invocations made by {@code outputStreamHandler} are buffered until they
+   * exceed {@code chunkSize}, and then result in a
+   * {@linkplain Flow.Subscriber#onNext(Object) published} item
+   * if there is {@linkplain Flow.Subscription#request(long) demand}.</li>
+   * <li>If there is <em>no demand</em>, {@code OutputStream.write()} will block
+   * until there is.</li>
+   * <li>If the subscription is {@linkplain Flow.Subscription#cancel() cancelled},
+   * {@code OutputStream.write()} will throw a {@code IOException}.</li>
+   * <li>The subscription is
+   * {@linkplain Flow.Subscriber#onComplete() completed} when
+   * {@code outputStreamHandler} completes.</li>
+   * <li>Any {@code IOException}s thrown from {@code outputStreamHandler} will
+   * be dispatched to the {@linkplain Flow.Subscriber#onError(Throwable) Subscriber}.
+   * </ul>
+   *
+   * @param outputStreamHandler invoked when the first buffer is requested
+   * @param byteMapper maps written bytes to {@code T}
+   * @param executor used to invoke the {@code outputStreamHandler}
+   * @param <T> the publisher type
+   * @return a {@code Publisher<T>} based on bytes written by
+   * {@code outputStreamHandler} mapped by {@code byteMapper}
+   */
+  public static <T> Flow.Publisher<T> create(OutputStreamHandler outputStreamHandler,
+          ByteMapper<T> byteMapper, Executor executor, int chunkSize) {
+
+    Assert.notNull(outputStreamHandler, "OutputStreamHandler must not be null");
+    Assert.notNull(byteMapper, "ByteMapper must not be null");
+    Assert.notNull(executor, "Executor must not be null");
+    Assert.isTrue(chunkSize > 0, "ChunkSize must be larger than 0");
+
+    return new OutputStreamPublisher<>(outputStreamHandler, byteMapper, executor, chunkSize);
   }
 
   @Override
-  public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
+  public void subscribe(Flow.Subscriber<? super T> subscriber) {
     Objects.requireNonNull(subscriber, "Subscriber must not be null");
 
-    OutputStreamSubscription subscription = new OutputStreamSubscription(subscriber, this.outputStreamHandler);
+    OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(subscriber, this.outputStreamHandler,
+            this.byteMapper, this.chunkSize);
     subscriber.onSubscribe(subscription);
     this.executor.execute(subscription::invokeHandler);
   }
@@ -111,7 +168,8 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
      * <li>If the linked subscription has
      * {@linkplain Flow.Subscription#request(long) demand}, any
      * {@linkplain OutputStream#write(byte[], int, int) written} bytes
-     * will be {@linkplain Flow.Subscriber#onNext(Object) published} to the
+     * will be {@linkplain ByteMapper#map(byte[], int, int) mapped}
+     * and {@linkplain Flow.Subscriber#onNext(Object) published} to the
      * {@link Flow.Subscriber Subscriber}.</li>
      * <li>If there is no demand, any
      * {@link OutputStream#write(byte[], int, int) write()} invocations will
@@ -130,38 +188,62 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
 
   }
 
-  private static final class OutputStreamSubscription extends OutputStream implements Flow.Subscription {
+  /**
+   * Maps bytes written to in {@link OutputStreamHandler#handle(OutputStream)}
+   * to published items.
+   *
+   * @param <T> the type to map to
+   */
+  public interface ByteMapper<T> {
+
+    /**
+     * Maps a single byte to {@code T}.
+     */
+    T map(int b);
+
+    /**
+     * Maps a byte array to {@code T}.
+     */
+    T map(byte[] b, int off, int len);
+
+  }
+
+  private static final class OutputStreamSubscription<T> extends OutputStream implements Flow.Subscription {
 
     static final Object READY = new Object();
 
-    private final Flow.Subscriber<? super ByteBuffer> actual;
+    private final Flow.Subscriber<? super T> actual;
 
     private final OutputStreamHandler outputStreamHandler;
 
+    private final ByteMapper<T> byteMapper;
+
+    private final int chunkSize;
+
     private final AtomicLong requested = new AtomicLong();
 
-    private final AtomicReference<Object> parkedThreadAtomic = new AtomicReference<>();
+    private final AtomicReference<Object> parkedThread = new AtomicReference<>();
 
     @Nullable
     private volatile Throwable error;
 
     private long produced;
 
-    public OutputStreamSubscription(Flow.Subscriber<? super ByteBuffer> actual,
-            OutputStreamHandler outputStreamHandler) {
+    public OutputStreamSubscription(Flow.Subscriber<? super T> actual, OutputStreamHandler outputStreamHandler,
+            ByteMapper<T> byteMapper, int chunkSize) {
       this.actual = actual;
+      this.byteMapper = byteMapper;
       this.outputStreamHandler = outputStreamHandler;
+      this.chunkSize = chunkSize;
     }
 
     @Override
     public void write(int b) throws IOException {
       checkDemandAndAwaitIfNeeded();
 
-      ByteBuffer byteBuffer = ByteBuffer.allocate(1);
-      byteBuffer.put((byte) b);
-      byteBuffer.flip();
+      T next = this.byteMapper.map(b);
 
-      this.actual.onNext(byteBuffer);
+      this.actual.onNext(next);
 
       this.produced++;
     }
@@ -175,11 +257,9 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
     public void write(byte[] b, int off, int len) throws IOException {
       checkDemandAndAwaitIfNeeded();
 
-      ByteBuffer byteBuffer = ByteBuffer.allocate(len);
-      byteBuffer.put(b, off, len);
-      byteBuffer.flip();
+      T next = this.byteMapper.map(b, off, len);
 
-      this.actual.onNext(byteBuffer);
+      this.actual.onNext(next);
 
       this.produced++;
     }
@@ -214,12 +294,12 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
       }
     }
 
-    public void invokeHandler() {
+    private void invokeHandler() {
       // assume sync write within try-with-resource block
 
       // use BufferedOutputStream, so that written bytes are buffered
       // before publishing as byte buffer
-      try (OutputStream outputStream = new BufferedOutputStream(this)) {
+      try (OutputStream outputStream = new BufferedOutputStream(this, this.chunkSize)) {
         this.outputStreamHandler.handle(outputStream);
       }
       catch (IOException ex) {
@@ -293,7 +373,7 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
       Thread toUnpark = Thread.currentThread();
 
       while (true) {
-        Object current = this.parkedThreadAtomic.get();
+        Object current = this.parkedThread.get();
         if (current == READY) {
           break;
         }
@@ -302,19 +382,19 @@ final class OutputStreamPublisher implements Flow.Publisher<ByteBuffer> {
           throw new IllegalStateException("Only one (Virtual)Thread can await!");
         }
 
-        if (this.parkedThreadAtomic.compareAndSet(null, toUnpark)) {
+        if (this.parkedThread.compareAndSet(null, toUnpark)) {
           LockSupport.park();
           // we don't just break here because park() can wake up spuriously
           // if we got a proper resume, get() == READY and the loop will quit above
         }
       }
       // clear the resume indicator so that the next await call will park without a resume()
-      this.parkedThreadAtomic.lazySet(null);
+      this.parkedThread.lazySet(null);
     }
 
     private void resume() {
-      if (this.parkedThreadAtomic.get() != READY) {
-        Object old = this.parkedThreadAtomic.getAndSet(READY);
+      if (this.parkedThread.get() != READY) {
+        Object old = this.parkedThread.getAndSet(READY);
         if (old != READY) {
           LockSupport.unpark((Thread) old);
         }

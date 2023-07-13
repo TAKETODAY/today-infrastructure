@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2012 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 
@@ -37,6 +38,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link ClientHttpRequest} implementation based the Java {@link HttpClient}.
@@ -49,12 +51,29 @@ import cn.taketoday.util.StreamUtils;
  */
 class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
-  /*
-   * The JDK HttpRequest doesn't allow all headers to be set. The named headers are taken from the default
-   * implementation for HttpRequest.
+  private static final OutputStreamPublisher.ByteMapper<ByteBuffer> BYTE_MAPPER = new ByteBufferMapper();
+
+  private static final Set<String> DISALLOWED_HEADERS = disallowedHeaders();
+
+  /**
+   * By default, {@link HttpRequest} does not allow {@code Connection},
+   * {@code Content-Length}, {@code Expect}, {@code Host}, or {@code Upgrade}
+   * headers to be set, but this can be overriden with the
+   * {@code jdk.httpclient.allowRestrictedHeaders} system property.
+   *
+   * @see jdk.internal.net.http.common.Utils#getDisallowedHeaders()
    */
-  private static final List<String> DISALLOWED_HEADERS =
-          List.of("connection", "content-length", "expect", "host", "upgrade");
+  private static Set<String> disallowedHeaders() {
+    TreeSet<String> headers = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    headers.addAll(Set.of("connection", "content-length", "expect", "host", "upgrade"));
+
+    String headersToAllow = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
+    if (headersToAllow != null) {
+      Set<String> toAllow = StringUtils.commaDelimitedListToSet(headersToAllow);
+      headers.removeAll(toAllow);
+    }
+    return Collections.unmodifiableSet(headers);
+  }
 
   private final HttpClient httpClient;
 
@@ -110,15 +129,14 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
       builder.timeout(this.timeout);
     }
 
-    headers.forEach((headerName, headerValues) -> {
-      if (!headerName.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)) {
-        if (!DISALLOWED_HEADERS.contains(headerName.toLowerCase())) {
-          for (String headerValue : headerValues) {
-            builder.header(headerName, headerValue);
-          }
+    for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      String headerName = entry.getKey();
+      if (!DISALLOWED_HEADERS.contains(headerName.toLowerCase())) {
+        for (String headerValue : entry.getValue()) {
+          builder.header(headerName, headerValue);
         }
       }
-    });
+    }
 
     builder.method(this.method.name(), bodyPublisher(headers, body));
     return builder.build();
@@ -128,6 +146,7 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     if (body != null) {
       Flow.Publisher<ByteBuffer> outputStreamPublisher = OutputStreamPublisher.create(
               outputStream -> body.writeTo(StreamUtils.nonClosing(outputStream)),
+              BYTE_MAPPER,
               this.executor);
 
       long contentLength = headers.getContentLength();
@@ -141,6 +160,26 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
     else {
       return HttpRequest.BodyPublishers.noBody();
     }
+  }
+
+  private static final class ByteBufferMapper implements OutputStreamPublisher.ByteMapper<ByteBuffer> {
+
+    @Override
+    public ByteBuffer map(int b) {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(1);
+      byteBuffer.put((byte) b);
+      byteBuffer.flip();
+      return byteBuffer;
+    }
+
+    @Override
+    public ByteBuffer map(byte[] b, int off, int len) {
+      ByteBuffer byteBuffer = ByteBuffer.allocate(len);
+      byteBuffer.put(b, off, len);
+      byteBuffer.flip();
+      return byteBuffer;
+    }
+
   }
 
 }
