@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,9 @@ import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.FieldError;
+import cn.taketoday.validation.method.MethodValidationResult;
+import cn.taketoday.validation.method.ParameterErrors;
+import cn.taketoday.validation.method.ParameterValidationResult;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -71,35 +71,30 @@ class MethodValidationAdapterTests {
     MyService target = new MyService();
     Method method = getMethod(target, "addStudent");
 
-    validateArguments(target, method, new Object[] { faustino1234, cayetana6789, 3 }, ex -> {
+    testArgs(target, method, new Object[] { faustino1234, cayetana6789, 3 }, ex -> {
 
-      assertThat(ex.getConstraintViolations()).hasSize(3);
       assertThat(ex.getAllValidationResults()).hasSize(3);
 
-      assertBeanResult(ex.getBeanResults().get(0), 0, "student", faustino1234, List.of(
-              """
-                      Field error in object 'student' on field 'name': rejected value [Faustino1234]; \
-                      codes [Size.student.name,Size.name,Size.java.lang.String,Size]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [student.name,name]; arguments []; default message [name],10,1]; \
-                      default message [size must be between 1 and 10]"""));
+      assertBeanResult(ex.getBeanResults().get(0), 0, "student", faustino1234, List.of("""
+              Field error in object 'student' on field 'name': rejected value [Faustino1234]; \
+              codes [Size.student.name,Size.name,Size.java.lang.String,Size]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [student.name,name]; arguments []; default message [name],10,1]; \
+              default message [size must be between 1 and 10]"""));
 
-      assertBeanResult(ex.getBeanResults().get(1), 1, "guardian", cayetana6789, List.of(
-              """
-                      Field error in object 'guardian' on field 'name': rejected value [Cayetana6789]; \
-                      codes [Size.guardian.name,Size.name,Size.java.lang.String,Size]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [guardian.name,name]; arguments []; default message [name],10,1]; \
-                      default message [size must be between 1 and 10]"""));
+      assertBeanResult(ex.getBeanResults().get(1), 1, "guardian", cayetana6789, List.of("""
+              Field error in object 'guardian' on field 'name': rejected value [Cayetana6789]; \
+              codes [Size.guardian.name,Size.name,Size.java.lang.String,Size]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [guardian.name,name]; arguments []; default message [name],10,1]; \
+              default message [size must be between 1 and 10]"""));
 
-      assertValueResult(ex.getValueResults().get(0), 2, 3, List.of(
-              """
-                      cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [Max.myService#addStudent.degrees,Max.degrees,Max.int,Max]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [myService#addStudent.degrees,degrees]; arguments []; default message [degrees],2]; \
-                      default message [must be less than or equal to 2]"""
-      ));
+      assertValueResult(ex.getValueResults().get(0), 2, 3, List.of("""
+              cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [Max.myService#addStudent.degrees,Max.degrees,Max.int,Max]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [myService#addStudent.degrees,degrees]; arguments []; default message [degrees],2]; \
+              default message [must be less than or equal to 2]"""));
     });
   }
 
@@ -108,20 +103,18 @@ class MethodValidationAdapterTests {
     MyService target = new MyService();
     Method method = getMethod(target, "addStudent");
 
-    this.validationAdapter.setBindingResultNameResolver((parameter, value) -> "studentToAdd");
+    this.validationAdapter.setObjectNameResolver((param, value) -> "studentToAdd");
 
-    validateArguments(target, method, new Object[] { faustino1234, new Person("Joe"), 1 }, ex -> {
+    testArgs(target, method, new Object[] { faustino1234, new Person("Joe"), 1 }, ex -> {
 
-      assertThat(ex.getConstraintViolations()).hasSize(1);
       assertThat(ex.getAllValidationResults()).hasSize(1);
 
-      assertBeanResult(ex.getBeanResults().get(0), 0, "studentToAdd", faustino1234, List.of(
-              """
-                      Field error in object 'studentToAdd' on field 'name': rejected value [Faustino1234]; \
-                      codes [Size.studentToAdd.name,Size.name,Size.java.lang.String,Size]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [studentToAdd.name,name]; arguments []; default message [name],10,1]; \
-                      default message [size must be between 1 and 10]"""));
+      assertBeanResult(ex.getBeanResults().get(0), 0, "studentToAdd", faustino1234, List.of("""
+              Field error in object 'studentToAdd' on field 'name': rejected value [Faustino1234]; \
+              codes [Size.studentToAdd.name,Size.name,Size.java.lang.String,Size]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [studentToAdd.name,name]; arguments []; default message [name],10,1]; \
+              default message [size must be between 1 and 10]"""));
     });
   }
 
@@ -129,19 +122,16 @@ class MethodValidationAdapterTests {
   void validateReturnValue() {
     MyService target = new MyService();
 
-    validateReturnValue(target, getMethod(target, "getIntValue"), 4, ex -> {
+    testReturnValue(target, getMethod(target, "getIntValue"), 4, ex -> {
 
-      assertThat(ex.getConstraintViolations()).hasSize(1);
       assertThat(ex.getAllValidationResults()).hasSize(1);
 
-      assertValueResult(ex.getValueResults().get(0), -1, 4, List.of(
-              """
-                      cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [Min.myService#getIntValue,Min,Min.int]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [myService#getIntValue]; arguments []; default message [],5]; \
-                      default message [must be greater than or equal to 5]"""
-      ));
+      assertValueResult(ex.getValueResults().get(0), -1, 4, List.of("""
+              cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [Min.myService#getIntValue,Min,Min.int]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [myService#getIntValue]; arguments []; default message [],5]; \
+              default message [must be greater than or equal to 5]"""));
     });
   }
 
@@ -149,18 +139,16 @@ class MethodValidationAdapterTests {
   void validateReturnValueBean() {
     MyService target = new MyService();
 
-    validateReturnValue(target, getMethod(target, "getPerson"), faustino1234, ex -> {
+    testReturnValue(target, getMethod(target, "getPerson"), faustino1234, ex -> {
 
-      assertThat(ex.getConstraintViolations()).hasSize(1);
       assertThat(ex.getAllValidationResults()).hasSize(1);
 
-      assertBeanResult(ex.getBeanResults().get(0), -1, "person", faustino1234, List.of(
-              """
-                      Field error in object 'person' on field 'name': rejected value [Faustino1234]; \
-                      codes [Size.person.name,Size.name,Size.java.lang.String,Size]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [person.name,name]; arguments []; default message [name],10,1]; \
-                      default message [size must be between 1 and 10]"""));
+      assertBeanResult(ex.getBeanResults().get(0), -1, "person", faustino1234, List.of("""
+              Field error in object 'person' on field 'name': rejected value [Faustino1234]; \
+              codes [Size.person.name,Size.name,Size.java.lang.String,Size]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [person.name,name]; arguments []; default message [name],10,1]; \
+              default message [size must be between 1 and 10]"""));
     });
   }
 
@@ -169,49 +157,41 @@ class MethodValidationAdapterTests {
     MyService target = new MyService();
     Method method = getMethod(target, "addPeople");
 
-    validateArguments(target, method, new Object[] { List.of(faustino1234, cayetana6789) }, ex -> {
+    testArgs(target, method, new Object[] { List.of(faustino1234, cayetana6789) }, ex -> {
 
-      assertThat(ex.getConstraintViolations()).hasSize(2);
       assertThat(ex.getAllValidationResults()).hasSize(2);
 
       int paramIndex = 0;
       String objectName = "people";
       List<ParameterErrors> results = ex.getBeanResults();
 
-      assertBeanResult(results.get(0), paramIndex, objectName, faustino1234, List.of(
-              """
-                      Field error in object 'people' on field 'name': rejected value [Faustino1234]; \
-                      codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [people.name,name]; arguments []; default message [name],10,1]; \
-                      default message [size must be between 1 and 10]"""));
+      assertBeanResult(results.get(0), paramIndex, objectName, faustino1234, List.of("""
+              Field error in object 'people' on field 'name': rejected value [Faustino1234]; \
+              codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [people.name,name]; arguments []; default message [name],10,1]; \
+              default message [size must be between 1 and 10]"""));
 
-      assertBeanResult(results.get(1), paramIndex, objectName, cayetana6789, List.of(
-              """
-                      Field error in object 'people' on field 'name': rejected value [Cayetana6789]; \
-                      codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
-                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
-                      codes [people.name,name]; arguments []; default message [name],10,1]; \
-                      default message [size must be between 1 and 10]"""));
+      assertBeanResult(results.get(1), paramIndex, objectName, cayetana6789, List.of("""
+              Field error in object 'people' on field 'name': rejected value [Cayetana6789]; \
+              codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [people.name,name]; arguments []; default message [name],10,1]; \
+              default message [size must be between 1 and 10]"""));
     });
   }
 
-  private void validateArguments(
-          Object target, Method method, Object[] arguments, Consumer<MethodValidationResult> assertions) {
-
-    assertions.accept(
-            this.validationAdapter.validateMethodArguments(target, method, null, arguments, new Class<?>[0]));
+  private void testArgs(Object target, Method method, Object[] args, Consumer<MethodValidationResult> consumer) {
+    consumer.accept(this.validationAdapter.validateArguments(target, method, null, args, new Class<?>[0]));
   }
 
-  private void validateReturnValue(Object target, Method method,
-          @Nullable Object returnValue, Consumer<MethodValidationResult> assertions) {
-
-    assertions.accept(
-            this.validationAdapter.validateMethodReturnValue(target, method, null, returnValue, new Class<?>[0]));
+  private void testReturnValue(Object target, Method method, @Nullable Object value, Consumer<MethodValidationResult> consumer) {
+    consumer.accept(this.validationAdapter.validateReturnValue(target, method, null, value, new Class<?>[0]));
   }
 
-  private static void assertBeanResult(ParameterErrors errors,
-          int parameterIndex, String objectName, Object argument, List<String> fieldErrors) {
+  private static void assertBeanResult(
+          ParameterErrors errors, int parameterIndex, String objectName, Object argument,
+          List<String> fieldErrors) {
 
     assertThat(errors.getMethodParameter().getParameterIndex()).isEqualTo(parameterIndex);
     assertThat(errors.getObjectName()).isEqualTo(objectName);
@@ -222,8 +202,8 @@ class MethodValidationAdapterTests {
             .containsExactlyInAnyOrderElementsOf(fieldErrors);
   }
 
-  private static void assertValueResult(ParameterValidationResult result,
-          int parameterIndex, Object argument, List<String> errors) {
+  private static void assertValueResult(
+          ParameterValidationResult result, int parameterIndex, Object argument, List<String> errors) {
 
     assertThat(result.getMethodParameter().getParameterIndex()).isEqualTo(parameterIndex);
     assertThat(result.getArgument()).isEqualTo(argument);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import cn.taketoday.aop.ProxyMethodInvocation;
@@ -34,6 +32,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.annotation.Validated;
+import cn.taketoday.validation.method.MethodValidationException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.executable.ExecutableValidator;
@@ -64,11 +65,13 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
   private final MethodValidationAdapter delegate;
 
+  private final boolean adaptViolations;
+
   /**
    * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
    */
   public MethodValidationInterceptor() {
-    this.delegate = new MethodValidationAdapter();
+    this(new MethodValidationAdapter(), false);
   }
 
   /**
@@ -77,7 +80,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    * @param validatorFactory the JSR-303 ValidatorFactory to use
    */
   public MethodValidationInterceptor(ValidatorFactory validatorFactory) {
-    this.delegate = new MethodValidationAdapter(validatorFactory);
+    this(new MethodValidationAdapter(validatorFactory), false);
   }
 
   /**
@@ -86,7 +89,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    * @param validator the JSR-303 Validator to use
    */
   public MethodValidationInterceptor(Validator validator) {
-    this.delegate = new MethodValidationAdapter(validator);
+    this(validator, false);
   }
 
   /**
@@ -96,7 +99,45 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    * @param validator a Supplier for the Validator to use
    */
   public MethodValidationInterceptor(Supplier<Validator> validator) {
-    this.delegate = new MethodValidationAdapter(validator);
+    this(validator, false);
+  }
+
+  /**
+   * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
+   */
+  public MethodValidationInterceptor(boolean adaptViolations) {
+    this(new MethodValidationAdapter(), adaptViolations);
+  }
+
+  /**
+   * Create a new MethodValidationInterceptor for the supplied
+   * (potentially lazily initialized) Validator.
+   *
+   * @param validator the JSR-303 Validator to use
+   * @param adaptViolations whether to adapt {@link ConstraintViolation}s, and
+   * if {@code true}, raise {@link MethodValidationException}, of if
+   * {@code false} raise {@link ConstraintViolationException} instead
+   */
+  public MethodValidationInterceptor(Validator validator, boolean adaptViolations) {
+    this(new MethodValidationAdapter(validator), adaptViolations);
+  }
+
+  /**
+   * Create a new MethodValidationInterceptor for the supplied
+   * (potentially lazily initialized) Validator.
+   *
+   * @param validator a Supplier for the Validator to use
+   * @param adaptViolations whether to adapt {@link ConstraintViolation}s, and
+   * if {@code true}, raise {@link MethodValidationException}, of if
+   * {@code false} raise {@link ConstraintViolationException} instead
+   */
+  public MethodValidationInterceptor(Supplier<Validator> validator, boolean adaptViolations) {
+    this(new MethodValidationAdapter(validator), adaptViolations);
+  }
+
+  private MethodValidationInterceptor(MethodValidationAdapter validationAdapter, boolean adaptViolations) {
+    this.delegate = validationAdapter;
+    this.adaptViolations = adaptViolations;
   }
 
   @Override
@@ -109,15 +150,32 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
 
     Object target = getTarget(invocation);
     Method method = invocation.getMethod();
+    Object[] arguments = invocation.getArguments();
     Class<?>[] groups = determineValidationGroups(invocation);
 
-    delegate.validateMethodArguments(target, method, null, invocation.getArguments(), groups)
-            .throwIfViolationsPresent();
+    Set<ConstraintViolation<Object>> violations;
+
+    if (this.adaptViolations) {
+      this.delegate.applyArgumentValidation(target, method, null, arguments, groups);
+    }
+    else {
+      violations = this.delegate.invokeValidatorForArguments(target, method, arguments, groups);
+      if (!violations.isEmpty()) {
+        throw new ConstraintViolationException(violations);
+      }
+    }
 
     Object returnValue = invocation.proceed();
 
-    delegate.validateMethodReturnValue(target, method, null, returnValue, groups)
-            .throwIfViolationsPresent();
+    if (this.adaptViolations) {
+      this.delegate.applyReturnValueValidation(target, method, null, arguments, groups);
+    }
+    else {
+      violations = this.delegate.invokeValidatorForReturnValue(target, method, returnValue, groups);
+      if (!violations.isEmpty()) {
+        throw new ConstraintViolationException(violations);
+      }
+    }
 
     return returnValue;
   }
@@ -165,8 +223,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
    */
   protected Class<?>[] determineValidationGroups(MethodInvocation invocation) {
     Object target = getTarget(invocation);
-    Method method = invocation.getMethod();
-    return MethodValidationAdapter.determineValidationGroups(target, method);
+    return delegate.determineValidationGroups(target, invocation.getMethod());
   }
 
 }

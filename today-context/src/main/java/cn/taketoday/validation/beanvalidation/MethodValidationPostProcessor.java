@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +23,17 @@ import java.lang.annotation.Annotation;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.framework.autoproxy.AbstractBeanFactoryAwareAdvisingPostProcessor;
-import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
+import cn.taketoday.aop.support.annotation.AnnotationMatchingPointcut;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.annotation.Validated;
+import cn.taketoday.validation.method.MethodValidationException;
+import cn.taketoday.validation.method.MethodValidationResult;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
@@ -44,9 +45,15 @@ import jakarta.validation.ValidatorFactory;
  * and/or on their return value (in the latter case specified at the method level,
  * typically as inline annotation), e.g.:
  *
- * <pre class="code">
- * public @NotNull Object myValidMethod(@NotNull String arg1, @Max(10) int arg2)
- * </pre>
+ * <pre>{@code
+ * public @NotNull Object myValidMethod(@NotNull String arg1, @Max(10) int arg2) {
+ *
+ * }
+ * }</pre>
+ *
+ * <p>In case of validation errors, the interceptor can raise
+ * {@link ConstraintViolationException}, or adapt the violations to
+ * {@link MethodValidationResult} and raise {@link MethodValidationException}.
  *
  * <p>Target classes with such annotated methods need to be annotated with Framework's
  * {@link Validated} annotation at the type level, for their methods to be searched for
@@ -56,6 +63,7 @@ import jakarta.validation.ValidatorFactory;
  * <p>this functionality requires a Bean Validation 1.1+ provider.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodValidationInterceptor
  * @see jakarta.validation.executable.ExecutableValidator
  * @since 4.0
@@ -68,6 +76,8 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
 
   @Nullable
   private Validator validator;
+
+  private boolean adaptConstraintViolations;
 
   /**
    * Set the 'validated' annotation type.
@@ -111,6 +121,17 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
     this.validator = validatorFactory.getValidator();
   }
 
+  /**
+   * Whether to adapt {@link ConstraintViolation}s to {@link MethodValidationResult}.
+   * <p>By default {@code false} in which case
+   * {@link jakarta.validation.ConstraintViolationException} is raised in case of
+   * violations. When set to {@code true}, {@link MethodValidationException}
+   * is raised instead with the method validation results.
+   */
+  public void setAdaptConstraintViolations(boolean adaptViolations) {
+    this.adaptConstraintViolations = adaptViolations;
+  }
+
   @Override
   public void afterPropertiesSet() {
     Pointcut pointcut = new AnnotationMatchingPointcut(validatedAnnotationType, true);
@@ -127,8 +148,8 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
    */
   protected Advice createMethodValidationAdvice(@Nullable Validator validator) {
     return validator != null
-           ? new MethodValidationInterceptor(validator)
-           : new MethodValidationInterceptor();
+           ? new MethodValidationInterceptor(validator, adaptConstraintViolations)
+           : new MethodValidationInterceptor(adaptConstraintViolations);
   }
 
 }
