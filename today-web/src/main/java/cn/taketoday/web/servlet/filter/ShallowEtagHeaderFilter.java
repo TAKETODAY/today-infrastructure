@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,10 @@ import jakarta.servlet.http.HttpServletResponse;
  * <p>Since the ETag is based on the response content, the response
  * (e.g. a {@link View}) is still rendered.
  * As such, this filter only saves bandwidth, not server performance.
+ *
+ * <p>State-changing HTTP methods and other HTTP conditional request headers such as
+ * {@code If-Match} and {@code If-Unmodified-Since} are outside the scope of this filter.
+ * Please consider using {@link RequestContext#checkNotModified(String, long)} instead.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
