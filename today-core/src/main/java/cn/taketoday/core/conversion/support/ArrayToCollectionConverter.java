@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.core.conversion.support;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -71,7 +69,7 @@ final class ArrayToCollectionConverter implements ConditionalGenericConverter {
 
     int length = Array.getLength(source);
     TypeDescriptor elementDesc = targetType.getElementDescriptor();
-    Collection<Object> target = CollectionUtils.createCollection(targetType.getType(),
+    Collection<Object> target = createCollection(targetType.getType(),
             (elementDesc != null ? elementDesc.getType() : null), length);
 
     if (elementDesc == null) {
@@ -89,6 +87,15 @@ final class ArrayToCollectionConverter implements ConditionalGenericConverter {
       }
     }
     return target;
+  }
+
+  private Collection<Object> createCollection(Class<?> targetType, @Nullable Class<?> elementType, int length) {
+    if (targetType.isInterface() && targetType.isAssignableFrom(ArrayList.class)) {
+      // Source is an array -> prefer ArrayList for Collection and SequencedCollection.
+      // CollectionFactory.createCollection traditionally prefers LinkedHashSet instead.
+      return new ArrayList<>(length);
+    }
+    return CollectionUtils.createCollection(targetType, elementType, length);
   }
 
 }
