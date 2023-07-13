@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +21,7 @@ import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Mono;
 
 /**
- * This is the central interface in Framework's reactive transaction infrastructure.
+ * This is the central interface in Infra reactive transaction infrastructure.
  * Applications can use this directly, but it is not primarily meant as an API:
  * Typically, applications will work with either transactional operators or
  * declarative transaction demarcation through AOP.
@@ -50,6 +47,8 @@ public interface ReactiveTransactionManager extends TransactionManager {
    * <p>An exception to the above rule is the read-only flag, which should be
    * ignored if no explicit read-only mode is supported. Essentially, the
    * read-only flag is just a hint for potential optimization.
+   * <p>Note: In contrast to {@link PlatformTransactionManager}, exceptions
+   * are propagated through the reactive pipeline returned from this method.
    *
    * @param definition the TransactionDefinition instance,
    * describing propagation behavior, isolation level, timeout etc.
@@ -63,8 +62,7 @@ public interface ReactiveTransactionManager extends TransactionManager {
    * @see TransactionDefinition#getTimeout
    * @see TransactionDefinition#isReadOnly
    */
-  Mono<ReactiveTransaction> getReactiveTransaction(@Nullable TransactionDefinition definition)
-          throws TransactionException;
+  Mono<ReactiveTransaction> getReactiveTransaction(@Nullable TransactionDefinition definition);
 
   /**
    * Commit the given transaction, with regard to its status. If the transaction
@@ -74,14 +72,12 @@ public interface ReactiveTransactionManager extends TransactionManager {
    * has been suspended to be able to create a new one, resume the previous
    * transaction after committing the new one.
    * <p>Note that when the commit call completes, no matter if normally or
-   * throwing an exception, the transaction must be fully completed and
+   * propagating an exception, the transaction must be fully completed and
    * cleaned up. No rollback call should be expected in such a case.
-   * <p>If this method throws an exception other than a TransactionException,
-   * then some before-commit error caused the commit attempt to fail. For
-   * example, an O/R Mapping tool might have tried to flush changes to the
-   * database right before commit, with the resulting DataAccessException
-   * causing the transaction to fail. The original exception will be
-   * propagated to the caller of this commit method in such a case.
+   * <p>Note: In contrast to {@link PlatformTransactionManager}, exceptions
+   * are propagated through the reactive pipeline returned from this method.
+   * Also, depending on the transaction manager implementation, {@code commit}
+   * may propagate {@link cn.taketoday.dao.DataAccessException} as well.
    *
    * @param transaction object returned by the {@code getTransaction} method
    * @throws UnexpectedRollbackException in case of an unexpected rollback
@@ -94,7 +90,7 @@ public interface ReactiveTransactionManager extends TransactionManager {
    * is already completed (that is, committed or rolled back)
    * @see ReactiveTransaction#setRollbackOnly
    */
-  Mono<Void> commit(ReactiveTransaction transaction) throws TransactionException;
+  Mono<Void> commit(ReactiveTransaction transaction);
 
   /**
    * Perform a rollback of the given transaction.
@@ -102,10 +98,14 @@ public interface ReactiveTransactionManager extends TransactionManager {
    * participation in the surrounding transaction. If a previous transaction
    * has been suspended to be able to create a new one, resume the previous
    * transaction after rolling back the new one.
-   * <p><b>Do not call rollback on a transaction if commit threw an exception.</b>
+   * <p><b>Do not call rollback on a transaction if commit failed.</b>
    * The transaction will already have been completed and cleaned up when commit
    * returns, even in case of a commit exception. Consequently, a rollback call
    * after commit failure will lead to an IllegalTransactionStateException.
+   * <p>Note: In contrast to {@link PlatformTransactionManager}, exceptions
+   * are propagated through the reactive pipeline returned from this method.
+   * Also, depending on the transaction manager implementation, {@code rollback}
+   * may propagate {@link cn.taketoday.dao.DataAccessException} as well.
    *
    * @param transaction object returned by the {@code getTransaction} method
    * @throws TransactionSystemException in case of rollback or system errors
@@ -113,7 +113,7 @@ public interface ReactiveTransactionManager extends TransactionManager {
    * @throws IllegalTransactionStateException if the given transaction
    * is already completed (that is, committed or rolled back)
    */
-  Mono<Void> rollback(ReactiveTransaction transaction) throws TransactionException;
+  Mono<Void> rollback(ReactiveTransaction transaction);
 
 }
 
