@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -966,6 +964,14 @@ class ObjectUtilsTest {
     }
 
     @Test
+    void nullSafeConciseToStringForPrimitivesAndWrappers() {
+      assertThat(ObjectUtils.nullSafeConciseToString(true)).isEqualTo("true");
+      assertThat(ObjectUtils.nullSafeConciseToString('X')).isEqualTo("X");
+      assertThat(ObjectUtils.nullSafeConciseToString(42L)).isEqualTo("42");
+      assertThat(ObjectUtils.nullSafeConciseToString(99.1234D)).isEqualTo("99.1234");
+    }
+
+    @Test
     void nullSafeConciseToStringForNumber() {
       assertThat(ObjectUtils.nullSafeConciseToString(42L)).isEqualTo("42");
       assertThat(ObjectUtils.nullSafeConciseToString(99.1234D)).isEqualTo("99.1234");
@@ -1026,6 +1032,12 @@ class ObjectUtilsTest {
       assertThat(ObjectUtils.nullSafeConciseToString(list.toArray(String[]::new))).startsWith(prefix(String[].class));
       assertThat(ObjectUtils.nullSafeConciseToString(new ArrayList<>(list))).startsWith(prefix(ArrayList.class));
       assertThat(ObjectUtils.nullSafeConciseToString(new HashSet<>(list))).startsWith(prefix(HashSet.class));
+    }
+
+    @Test
+    void nullSafeConciseToStringForMaps() {
+      Map<String, Integer> map = Map.of("a", 1, "b", 2, "c", 3);
+      assertThat(ObjectUtils.nullSafeConciseToString(map)).startsWith(prefix(map.getClass()));
     }
 
     @Test
