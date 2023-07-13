@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.http.converter;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -622,7 +620,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     private boolean headersWritten = false;
 
     public MultipartHttpOutputMessage(OutputStream outputStream, Charset charset) {
-      this.outputStream = outputStream;
+      this.outputStream = new MultipartOutputStream(outputStream);
       this.charset = charset;
     }
 
@@ -657,6 +655,32 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     private byte[] getBytes(String name) {
       return name.getBytes(this.charset);
+    }
+
+  }
+
+  /**
+   * OutputStream that neither flushes nor closes.
+   */
+  private static class MultipartOutputStream extends FilterOutputStream {
+
+    public MultipartOutputStream(OutputStream out) {
+      super(out);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int let) throws IOException {
+      this.out.write(b, off, let);
+    }
+
+    @Override
+    public void flush() {
+
+    }
+
+    @Override
+    public void close() {
+
     }
   }
 
