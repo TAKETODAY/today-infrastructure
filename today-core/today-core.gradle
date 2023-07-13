@@ -81,7 +81,7 @@ jar {
   manifest.attributes["Dependencies"] = "jdk.unsupported"  // for WildFly (-> Objenesis 3.2)
 
   dependsOn javapoetRepackJar
-  from(zipTree(javapoetRepackJar.archivePath)) {
+  from(zipTree(javapoetRepackJar.archiveFile)) {
     include "cn/taketoday/javapoet/**"
   }
 
