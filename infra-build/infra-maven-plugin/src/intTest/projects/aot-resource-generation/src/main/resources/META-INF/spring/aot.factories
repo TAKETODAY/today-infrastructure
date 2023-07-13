@@ -1,2 +1,2 @@
-org.springframework.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
+cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
 org.test.ResourceRegisteringAotProcessor
