@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
+import cn.taketoday.http.support.Netty4HeadersAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -58,7 +56,7 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   private final HttpServerResponse response;
 
   public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
-    super(bufferFactory, new DefaultHttpHeaders(new NettyHeadersAdapter(response.responseHeaders())));
+    super(bufferFactory, new DefaultHttpHeaders(new Netty4HeadersAdapter(response.responseHeaders())));
     Assert.notNull(response, "HttpServerResponse must not be null");
     this.response = response;
   }

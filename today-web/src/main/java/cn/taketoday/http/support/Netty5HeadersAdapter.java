@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +15,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.http.client.reactive;
+package cn.taketoday.http.support;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -30,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -38,18 +36,22 @@ import io.netty5.handler.codec.http.headers.HttpHeaders;
 /**
  * {@code MultiValueMap} implementation for wrapping Netty HTTP headers.
  *
- * <p>There is a duplicate of this class in the server package!
- *
- * <p>This class is based on {@link NettyHeadersAdapter}.
+ * <p>This class is based on {@link Netty4HeadersAdapter}.
  *
  * @author Violeta Georgieva
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class Netty5HeadersAdapter implements MultiValueMap<String, String> {
+public final class Netty5HeadersAdapter implements MultiValueMap<String, String> {
 
   private final HttpHeaders headers;
 
-  Netty5HeadersAdapter(HttpHeaders headers) {
+  /**
+   * Create a new {@code Netty5HeadersAdapter} based on the given
+   * {@code HttpHeaders}.
+   */
+  public Netty5HeadersAdapter(HttpHeaders headers) {
+    Assert.notNull(headers, "Headers must not be null");
     this.headers = headers;
   }
 
@@ -87,11 +89,8 @@ class Netty5HeadersAdapter implements MultiValueMap<String, String> {
   @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
-    this.headers.forEach(entry -> {
-      if (!singleValueMap.containsKey(entry.getKey())) {
-        singleValueMap.put(entry.getKey().toString(), entry.getValue().toString());
-      }
-    });
+    this.headers.forEach(entry -> singleValueMap.putIfAbsent(
+            entry.getKey().toString(), entry.getValue().toString()));
     return singleValueMap;
   }
 
@@ -112,7 +111,7 @@ class Netty5HeadersAdapter implements MultiValueMap<String, String> {
 
   @Override
   public boolean containsValue(Object value) {
-    return (value instanceof CharSequence &&
+    return (value instanceof String &&
             StreamSupport.stream(this.headers.spliterator(), false)
                     .anyMatch(entry -> value.equals(entry.getValue())));
   }

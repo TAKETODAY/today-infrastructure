@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,9 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.stream.Stream;
 
+import cn.taketoday.http.support.JettyHeadersAdapter;
+import cn.taketoday.http.support.Netty4HeadersAdapter;
+import cn.taketoday.http.support.Netty5HeadersAdapter;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -137,7 +137,7 @@ class HeadersAdaptersTests {
   static Stream<Arguments> headers() {
     return Stream.of(
             arguments(named("Map", MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
-            arguments(named("Netty", new NettyHeadersAdapter(new DefaultHttpHeaders()))),
+            arguments(named("Netty", new Netty4HeadersAdapter(new DefaultHttpHeaders()))),
             arguments(named("Netty", new Netty5HeadersAdapter(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders()))),
             arguments(named("Tomcat", new TomcatHeadersAdapter(new MimeHeaders()))),
             arguments(named("Undertow", new UndertowHeadersAdapter(new HeaderMap()))),

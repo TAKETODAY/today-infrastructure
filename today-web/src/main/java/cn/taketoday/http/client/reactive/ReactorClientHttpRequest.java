@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
+import cn.taketoday.http.support.Netty4HeadersAdapter;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
@@ -140,6 +138,6 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new NettyHeadersAdapter(this.request.requestHeaders()));
+    return HttpHeaders.readOnlyHttpHeaders(new Netty4HeadersAdapter(this.request.requestHeaders()));
   }
 }

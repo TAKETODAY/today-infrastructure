@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.support.Netty4HeadersAdapter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -71,7 +69,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
    */
   public ReactorClientHttpResponse(HttpClientResponse response, Connection connection) {
     this.response = response;
-    MultiValueMap<String, String> adapter = new NettyHeadersAdapter(response.responseHeaders());
+    MultiValueMap<String, String> adapter = new Netty4HeadersAdapter(response.responseHeaders());
     this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
     this.inbound = connection.inbound();
     this.bufferFactory = new NettyDataBufferFactory(connection.outbound().alloc());
@@ -82,7 +80,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
    */
   public ReactorClientHttpResponse(HttpClientResponse response, NettyInbound inbound, ByteBufAllocator alloc) {
     this.response = response;
-    MultiValueMap<String, String> adapter = new NettyHeadersAdapter(response.responseHeaders());
+    MultiValueMap<String, String> adapter = new Netty4HeadersAdapter(response.responseHeaders());
     this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
     this.inbound = inbound;
     this.bufferFactory = new NettyDataBufferFactory(alloc);
