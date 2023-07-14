@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -230,10 +227,11 @@ public class DefineClassHelper {
         MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
         c = lookup.defineClass(classFile);
       }
-      catch (IllegalAccessException ex) {
+      catch (LinkageError | IllegalAccessException ex) {
         throw new CodeGenerationException("ClassLoader mismatch for [" + neighbor.getName() +
                 "]: JVM should be started with --add-opens=java.base/java.lang=ALL-UNNAMED " +
-                "for ClassLoader.defineClass to be accessible on " + loader.getClass().getName(), ex);
+                "for ClassLoader.defineClass to be accessible on " + loader.getClass().getName() +
+                "; consider co-locating the affected class in that target ClassLoader instead.", ex);
       }
       catch (Throwable ex) {
         throw newException(className, ex);
