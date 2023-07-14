@@ -39,6 +39,7 @@ import cn.taketoday.core.DefaultAliasRegistry;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -461,7 +462,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     }
     String canonicalName = canonicalName(beanName);
     Set<String> dependentBeans = dependentBeanMap.get(canonicalName);
-    if (dependentBeans == null) {
+    if (CollectionUtils.isEmpty(dependentBeans)) {
       return false;
     }
     if (dependentBeans.contains(dependentBeanName)) {
