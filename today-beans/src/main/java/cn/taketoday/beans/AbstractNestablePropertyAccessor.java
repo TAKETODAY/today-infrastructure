@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -663,21 +660,31 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             growCollectionIfNecessary(list, index, indexedPropertyName.toString(), handler, i + 1);
             value = list.get(index);
           }
-          else if (value instanceof Set set) {
-            // Apply index to Iterator in case of a Set.
+          else if (value instanceof Iterable iterable) {
+            // Apply index to Iterator in case of a Set/Collection/Iterable.
             int index = Integer.parseInt(key);
-            if (index < 0 || index >= set.size()) {
-              throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                      "Cannot get element with index " + index + " from Set of size " +
-                              set.size() + ", accessed using property path '" + propertyName + "'");
+            if (value instanceof Collection<?> coll) {
+              if (index < 0 || index >= coll.size()) {
+                throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
+                        "Cannot get element with index " + index + " from Collection of size " +
+                                coll.size() + ", accessed using property path '" + propertyName + "'");
+              }
             }
-            Iterator<Object> it = set.iterator();
-            for (int j = 0; it.hasNext(); j++) {
+            Iterator<Object> it = iterable.iterator();
+            boolean found = false;
+            int currIndex = 0;
+            for (; it.hasNext(); currIndex++) {
               Object elem = it.next();
-              if (j == index) {
+              if (currIndex == index) {
                 value = elem;
+                found = true;
                 break;
               }
+            }
+            if (!found) {
+              throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
+                      "Cannot get element with index " + index + " from Iterable of size " +
+                              currIndex + ", accessed using property path '" + propertyName + "'");
             }
           }
           else if (value instanceof Map<?, ?> map) {
@@ -699,6 +706,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         }
       }
       return value;
+    }
+    catch (InvalidPropertyException ex) {
+      throw ex;
     }
     catch (IndexOutOfBoundsException ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
