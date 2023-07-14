@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -982,11 +979,11 @@ public class ResolvableType implements Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ResolvableType otherType)) {
+    if (other == null || other.getClass() != getClass()) {
       return false;
     }
-
-    if (!Objects.equals(this.type, otherType.type)) {
+    ResolvableType otherType = (ResolvableType) other;
+    if (!equalsType(otherType)) {
       return false;
     }
     if (typeProvider != otherType.typeProvider
@@ -997,14 +994,25 @@ public class ResolvableType implements Serializable {
     )) {
       return false;
     }
-    if (variableResolver != otherType.variableResolver
-            && (variableResolver == null
-            || otherType.variableResolver == null
-            || !ObjectUtils.nullSafeEquals(variableResolver.getSource(), otherType.variableResolver.getSource())
-    )) {
-      return false;
-    }
-    return Objects.equals(this.componentType, otherType.componentType);
+    return variableResolver == otherType.variableResolver
+            || (variableResolver != null
+            && otherType.variableResolver != null
+            && ObjectUtils.nullSafeEquals(variableResolver.getSource(), otherType.variableResolver.getSource())
+    );
+  }
+
+  /**
+   * Check for type-level equality with another {@code ResolvableType}.
+   * <p>In contrast to {@link #equals(Object)} or {@link #isAssignableFrom(ResolvableType)},
+   * this works between different sources as well, e.g. method parameters and return types.
+   *
+   * @param otherType the {@code ResolvableType} to match against
+   * @return whether the declared type and type variables match
+   * @since 4.0
+   */
+  public boolean equalsType(ResolvableType otherType) {
+    return Objects.equals(this.type, otherType.type)
+            && Objects.equals(this.componentType, otherType.componentType);
   }
 
   @Override
@@ -1013,16 +1021,17 @@ public class ResolvableType implements Serializable {
   }
 
   private int calculateHashCode() {
-    int hashCode = Objects.hashCode(this.type);
+    int hashCode = ObjectUtils.nullSafeHashCode(this.type);
+    if (this.componentType != null) {
+      hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.componentType);
+    }
     if (this.typeProvider != null) {
       hashCode = 31 * hashCode + Objects.hashCode(this.typeProvider.getType());
     }
     if (this.variableResolver != null) {
       hashCode = 31 * hashCode + ObjectUtils.nullSafeHashCode(this.variableResolver.getSource());
     }
-    if (this.componentType != null) {
-      hashCode = 31 * hashCode + Objects.hashCode(this.componentType);
-    }
+
     return hashCode;
   }
 
@@ -1229,8 +1238,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forReturnType(Method method) {
     Assert.notNull(method, "Method is required");
-    Type genericReturnType = method.getGenericReturnType();
-    return forType(genericReturnType);
+    return forMethodParameter(new MethodParameter(method, -1));
   }
 
   /**
@@ -1244,23 +1252,9 @@ public class ResolvableType implements Serializable {
    * @see #forReturnType(Method)
    */
   public static ResolvableType forReturnType(Method method, @Nullable Class<?> implementationClass) {
-    Assert.notNull(method, "Method is required");
-    Class<?> declaringClass = method.getDeclaringClass();
-    ResolvableType owner = implementationClass == null
-                           ? forType(declaringClass)
-                           : forType(implementationClass).as(declaringClass);
-    return forType(null, new TypeProvider() {
-
-      @Override
-      public Type getType() {
-        return method.getGenericReturnType();
-      }
-
-      @Override
-      public Object getSource() {
-        return method;
-      }
-    }, owner.asVariableResolver());
+    Assert.notNull(method, "Method must not be null");
+    MethodParameter methodParameter = new MethodParameter(method, -1, implementationClass);
+    return forMethodParameter(methodParameter);
   }
 
   /**
@@ -1438,7 +1432,9 @@ public class ResolvableType implements Serializable {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(generics, "Generics array is required");
     TypeVariable<?>[] variables = clazz.getTypeParameters();
-    Assert.isTrue(variables.length == generics.length, "Mismatched number of generics specified");
+    if (variables.length != generics.length) {
+      throw new IllegalArgumentException("Mismatched number of generics specified for " + clazz.toGenericString());
+    }
 
     Type[] arguments = new Type[generics.length];
     for (int i = 0; i < generics.length; i++) {
