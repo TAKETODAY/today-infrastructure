@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +53,6 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.core.Constants;
 import cn.taketoday.jmx.export.assembler.AutodetectCapableMBeanInfoAssembler;
 import cn.taketoday.jmx.export.assembler.MBeanInfoAssembler;
 import cn.taketoday.jmx.export.assembler.MetadataMBeanInfoAssembler;
@@ -139,11 +135,16 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
   /** Constant for the JMX {@code mr_type} "ObjectReference". */
   private static final String MR_TYPE_OBJECT_REFERENCE = "ObjectReference";
 
-  /** Prefix for the autodetect constants defined in this class. */
-  private static final String CONSTANT_PREFIX_AUTODETECT = "AUTODETECT_";
-
-  /** Constants instance for this class. */
-  private static final Constants constants = new Constants(MBeanExporter.class);
+  /**
+   * Map of constant names to constant values for the autodetect constants defined
+   * in this class.
+   */
+  private static final Map<String, Integer> constants = Map.of(
+          "AUTODETECT_NONE", AUTODETECT_NONE,
+          "AUTODETECT_MBEAN", AUTODETECT_MBEAN,
+          "AUTODETECT_ASSEMBLER", AUTODETECT_ASSEMBLER,
+          "AUTODETECT_ALL", AUTODETECT_ALL
+  );
 
   /** The beans to be exposed as JMX managed resources, with JMX names as keys. */
   @Nullable
@@ -151,7 +152,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
 
   /** The autodetect mode to use for this MBeanExporter. */
   @Nullable
-  private Integer autodetectMode;
+  Integer autodetectMode;
 
   /** Whether to eagerly initialize candidate beans when autodetecting MBeans. */
   private boolean allowEagerInit = false;
@@ -239,9 +240,8 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @see #AUTODETECT_NONE
    */
   public void setAutodetectMode(int autodetectMode) {
-    if (!constants.getValues(CONSTANT_PREFIX_AUTODETECT).contains(autodetectMode)) {
-      throw new IllegalArgumentException("Only values of autodetect constants allowed");
-    }
+    Assert.isTrue(constants.containsValue(autodetectMode),
+            "Only values of autodetect constants allowed");
     this.autodetectMode = autodetectMode;
   }
 
@@ -257,10 +257,10 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * @see #AUTODETECT_NONE
    */
   public void setAutodetectModeName(String constantName) {
-    if (!constantName.startsWith(CONSTANT_PREFIX_AUTODETECT)) {
-      throw new IllegalArgumentException("Only autodetect constants allowed");
-    }
-    this.autodetectMode = (Integer) constants.asNumber(constantName);
+    Assert.hasText(constantName, "'constantName' must not be null or blank");
+    Integer mode = constants.get(constantName);
+    Assert.notNull(mode, "Only autodetect constants allowed");
+    this.autodetectMode = mode;
   }
 
   /**
