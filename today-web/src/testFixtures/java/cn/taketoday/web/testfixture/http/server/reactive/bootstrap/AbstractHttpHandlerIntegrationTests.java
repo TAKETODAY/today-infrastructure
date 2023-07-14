@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,10 @@
 
 package cn.taketoday.web.testfixture.http.server.reactive.bootstrap;
 
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.junit.jupiter.api.parallel.Execution;
@@ -36,11 +36,11 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import cn.taketoday.http.server.reactive.HttpHandler;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.client.HttpServerErrorException;
 import reactor.core.publisher.Flux;
+
+import static org.junit.jupiter.api.Named.named;
 
 @Execution(ExecutionMode.SAME_THREAD)
 public abstract class AbstractHttpHandlerIntegrationTests {
@@ -73,7 +73,7 @@ public abstract class AbstractHttpHandlerIntegrationTests {
     throw throwable;
   };
 
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected final Log logger = LogFactory.getLog(getClass());
 
   protected HttpServer server;
 
@@ -123,12 +123,13 @@ public abstract class AbstractHttpHandlerIntegrationTests {
   public @interface ParameterizedHttpServerTest {
   }
 
-  static Stream<HttpServer> httpServers() {
+  static Stream<Named<HttpServer>> httpServers() {
     return Stream.of(
-            new JettyHttpServer(),
-            new ReactorHttpServer(),
-            new TomcatHttpServer(),
-            new UndertowHttpServer()
+            named("Jetty", new JettyHttpServer()),
+            named("Reactor Netty", new ReactorHttpServer()),
+            named("Reactor Netty 2", new ReactorHttpServer()),
+            named("Tomcat", new TomcatHttpServer()),
+            named("Undertow", new UndertowHttpServer())
     );
   }
 
