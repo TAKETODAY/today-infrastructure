@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +33,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
@@ -47,15 +45,20 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.validation.BindException;
+import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.ServletRequestDataBinder;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Default {@link ServerRequest.Builder} implementation.
@@ -307,6 +310,35 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
         }
       }
       throw new HttpMediaTypeNotSupportedException(contentType, Collections.emptyList(), method());
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException {
+      Assert.notNull(bindType, "BindType must not be null");
+      Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer must not be null");
+
+      WebDataBinder dataBinder = new WebDataBinder(null);
+      dataBinder.setTargetType(ResolvableType.forClass(bindType));
+      dataBinderCustomizer.accept(dataBinder);
+
+      RequestContext context = requestContext();
+      dataBinder.construct(context);
+      dataBinder.bind(context);
+
+      BindingResult bindingResult = dataBinder.getBindingResult();
+      if (bindingResult.hasErrors()) {
+        throw new BindException(bindingResult);
+      }
+      else {
+        T result = (T) bindingResult.getTarget();
+        if (result != null) {
+          return result;
+        }
+        else {
+          throw new IllegalStateException("Binding result has neither target nor errors");
+        }
+      }
     }
 
     @Override

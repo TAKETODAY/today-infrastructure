@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +48,7 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.validation.BindException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -328,6 +326,70 @@ class DefaultServerRequestTests {
 //
 //  }
 
+  @Test
+  void bindToConstructor() throws BindException {
+    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    servletRequest.addParameter("foo", "FOO");
+    servletRequest.addParameter("bar", "BAR");
+
+    DefaultServerRequest request = getRequest(servletRequest);
+
+    ConstructorInjection result = request.bind(ConstructorInjection.class);
+    assertThat(result.getFoo()).isEqualTo("FOO");
+    assertThat(result.getBar()).isEqualTo("BAR");
+  }
+
+  @Test
+  void bindToProperties() throws BindException {
+    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    servletRequest.addParameter("foo", "FOO");
+    servletRequest.addParameter("bar", "BAR");
+
+    DefaultServerRequest request = getRequest(servletRequest);
+
+    PropertyInjection result = request.bind(PropertyInjection.class);
+    assertThat(result.getFoo()).isEqualTo("FOO");
+    assertThat(result.getBar()).isEqualTo("BAR");
+  }
+
+  @Test
+  void bindToMixed() throws BindException {
+    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    servletRequest.addParameter("foo", "FOO");
+    servletRequest.addParameter("bar", "BAR");
+
+    DefaultServerRequest request = getRequest(servletRequest);
+
+    MixedInjection result = request.bind(MixedInjection.class);
+    assertThat(result.getFoo()).isEqualTo("FOO");
+    assertThat(result.getBar()).isEqualTo("BAR");
+  }
+
+  @Test
+  void bindCustomizer() throws BindException {
+    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    servletRequest.addParameter("foo", "FOO");
+    servletRequest.addParameter("bar", "BAR");
+
+    DefaultServerRequest request = getRequest(servletRequest);
+
+    PropertyInjection result = request.bind(PropertyInjection.class, dataBinder -> dataBinder.setAllowedFields("foo"));
+    assertThat(result.getFoo()).isEqualTo("FOO");
+    assertThat(result.getBar()).isNull();
+  }
+
+  @Test
+  void bindError() throws BindException {
+    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    servletRequest.addParameter("foo", "FOO");
+
+    DefaultServerRequest request = getRequest(servletRequest);
+
+    assertThatExceptionOfType(BindException.class).isThrownBy(() ->
+            request.bind(ErrorInjection.class)
+    );
+  }
+
   @ParameterizedHttpMethodTest
   void checkNotModifiedTimestamp(String method) throws Exception {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest(method, "/", true);
@@ -508,6 +570,82 @@ class DefaultServerRequestTests {
   @ParameterizedTest(name = "[{index}] {0}")
   @ValueSource(strings = { "GET", "HEAD" })
   @interface ParameterizedHttpMethodTest {
+  }
+
+  private static final class ConstructorInjection {
+    private final String foo;
+
+    private final String bar;
+
+    public ConstructorInjection(String foo, String bar) {
+      this.foo = foo;
+      this.bar = bar;
+    }
+
+    public String getFoo() {
+      return this.foo;
+    }
+
+    public String getBar() {
+      return this.bar;
+    }
+  }
+
+  private static final class PropertyInjection {
+    private String foo;
+
+    private String bar;
+
+    public String getFoo() {
+      return this.foo;
+    }
+
+    public void setFoo(String foo) {
+      this.foo = foo;
+    }
+
+    public String getBar() {
+      return this.bar;
+    }
+
+    public void setBar(String bar) {
+      this.bar = bar;
+    }
+  }
+
+  private static final class MixedInjection {
+    private final String foo;
+
+    private String bar;
+
+    public MixedInjection(String foo) {
+      this.foo = foo;
+    }
+
+    public String getFoo() {
+      return this.foo;
+    }
+
+    public String getBar() {
+      return this.bar;
+    }
+
+    public void setBar(String bar) {
+      this.bar = bar;
+    }
+  }
+
+  private static final class ErrorInjection {
+
+    private int foo;
+
+    public int getFoo() {
+      return this.foo;
+    }
+
+    public void setFoo(int foo) {
+      this.foo = foo;
+    }
   }
 
 }

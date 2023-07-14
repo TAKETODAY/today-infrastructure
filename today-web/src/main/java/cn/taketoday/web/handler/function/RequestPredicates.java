@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -51,7 +49,9 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.validation.BindException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriUtils;
@@ -1045,6 +1045,16 @@ public abstract class RequestPredicates {
     @Override
     public <T> T body(ParameterizedTypeReference<T> bodyType) throws IOException {
       return request.body(bodyType);
+    }
+
+    @Override
+    public <T> T bind(Class<T> bindType) throws BindException {
+      return this.request.bind(bindType);
+    }
+
+    @Override
+    public <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException {
+      return this.request.bind(bindType, dataBinderCustomizer);
     }
 
     @Override

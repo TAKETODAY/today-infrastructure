@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +43,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.validation.BindException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriBuilder;
@@ -141,6 +140,30 @@ public interface ServerRequest {
    * @return the body
    */
   <T> T body(ParameterizedTypeReference<T> bodyType) throws IOException;
+
+  /**
+   * Bind to this request and return an instance of the given type.
+   *
+   * @param bindType the type of class to bind this request to
+   * @param <T> the type to bind to
+   * @return a constructed and bound instance of {@code bindType}
+   * @throws BindException in case of binding errors
+   */
+  default <T> T bind(Class<T> bindType) throws BindException {
+    return bind(bindType, dataBinder -> { });
+  }
+
+  /**
+   * Bind to this request and return an instance of the given type.
+   *
+   * @param bindType the type of class to bind this request to
+   * @param dataBinderCustomizer used to customize the data binder, e.g. set
+   * (dis)allowed fields
+   * @param <T> the type to bind to
+   * @return a constructed and bound instance of {@code bindType}
+   * @throws BindException in case of binding errors
+   */
+  <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException;
 
   /**
    * Get the request attribute value if present.
