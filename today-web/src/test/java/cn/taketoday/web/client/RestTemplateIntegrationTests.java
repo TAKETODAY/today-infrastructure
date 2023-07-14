@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +53,7 @@ import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
+import cn.taketoday.http.client.ReactorNettyClientRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
@@ -101,7 +99,8 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
             named("HttpComponents", new HttpComponentsClientHttpRequestFactory()),
             named("OkHttp", new OkHttp3ClientHttpRequestFactory()),
             named("Jetty", new JettyClientHttpRequestFactory()),
-            named("JDK HttpClient", new JdkClientHttpRequestFactory())
+            named("JDK HttpClient", new JdkClientHttpRequestFactory()),
+            named("Reactor Netty", new ReactorNettyClientRequestFactory())
     );
   }
 
