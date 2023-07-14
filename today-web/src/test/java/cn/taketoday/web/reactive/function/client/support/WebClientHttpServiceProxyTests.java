@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,9 +160,8 @@ public class WebClientHttpServiceProxyTests {
   }
 
   private TestHttpService initHttpService(WebClient webClient) {
-    HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(WebClientAdapter.forClient(webClient));
-    proxyFactory.afterPropertiesSet();
-    return proxyFactory.createClient(TestHttpService.class);
+    return HttpServiceProxyFactory.forAdapter(WebClientAdapter.forClient(webClient))
+            .createClient(TestHttpService.class);
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {

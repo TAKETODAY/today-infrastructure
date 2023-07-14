@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,6 @@
 package cn.taketoday.web.service.invoker;
 
 import org.apache.groovy.util.Maps;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Documented;
@@ -56,20 +52,14 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class NamedValueArgumentResolverTests {
 
-  private final TestHttpClientAdapter client = new TestHttpClientAdapter();
+  private final TestExchangeAdapter client = new TestExchangeAdapter();
 
   private final TestNamedValueArgumentResolver argumentResolver = new TestNamedValueArgumentResolver();
 
-  private Service service;
-
-  @BeforeEach
-  void setUp() throws Exception {
-    HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.client);
-    proxyFactory.addCustomArgumentResolver(this.argumentResolver);
-    proxyFactory.afterPropertiesSet();
-
-    this.service = proxyFactory.createClient(Service.class);
-  }
+  private final Service service = HttpServiceProxyFactory.forAdapter(this.client)
+          .customArgumentResolver(this.argumentResolver)
+          .build()
+          .createClient(Service.class);
 
   @Test
   void stringTestValue() {
@@ -78,6 +68,7 @@ class NamedValueArgumentResolverTests {
   }
 
   @Test
+    // gh-29095
   void dateTestValue() {
     this.service.executeDate(LocalDate.of(2022, 9, 16));
     assertTestValue("value", "2022-09-16");

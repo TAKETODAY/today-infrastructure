@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,20 +17,42 @@
 
 package cn.taketoday.web.service.invoker;
 
+import java.time.Duration;
+
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Contract to abstract the underlying HTTP client and decouple it from the
- * {@linkplain HttpServiceProxyFactory#createClient(Class) HTTP service proxy}.
+ * Contract to abstract a reactive, HTTP client from
+ * {@linkplain HttpServiceProxyFactory} and make it pluggable.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface HttpClientAdapter {
+public interface ReactorHttpExchangeAdapter extends HttpExchangeAdapter {
+
+  /**
+   * Return the configured {@link ReactiveAdapterRegistry}.
+   */
+  ReactiveAdapterRegistry getReactiveAdapterRegistry();
+
+  /**
+   * Return the configured time to block for the response from an HTTP service
+   * method with a synchronous (blocking) method signature.
+   *
+   * <p>By default, not set in which case the behavior depends on connection
+   * and request timeout settings of the underlying HTTP client. We recommend
+   * configuring timeout values directly on the underlying HTTP client, which
+   * provides more control over such settings.
+   */
+  @Nullable
+  Duration getBlockTimeout();
 
   /**
    * Perform the given request, and release the response content, if any.
@@ -42,7 +61,7 @@ public interface HttpClientAdapter {
    * @return {@code Mono} that completes when the request is fully executed
    * and the response content is released.
    */
-  Mono<Void> requestToVoid(HttpRequestValues requestValues);
+  Mono<Void> exchangeForMono(HttpRequestValues requestValues);
 
   /**
    * Perform the given request, release the response content, and return the
@@ -52,7 +71,7 @@ public interface HttpClientAdapter {
    * @return {@code Mono} that returns the response headers the request is
    * fully executed and the response content released.
    */
-  Mono<HttpHeaders> requestToHeaders(HttpRequestValues requestValues);
+  Mono<HttpHeaders> exchangeForHeadersMono(HttpRequestValues requestValues);
 
   /**
    * Perform the given request and decode the response content to the given type.
@@ -62,7 +81,7 @@ public interface HttpClientAdapter {
    * @param <T> the type the response is decoded to
    * @return {@code Mono} that returns the decoded response.
    */
-  <T> Mono<T> requestToBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
+  <T> Mono<T> exchangeForBodyMono(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
   /**
    * Perform the given request and decode the response content to a stream with
@@ -73,24 +92,26 @@ public interface HttpClientAdapter {
    * @param <T> the type the response is decoded to
    * @return {@code Flux} with decoded stream elements.
    */
-  <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
+  <T> Flux<T> exchangeForBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
   /**
-   * Variant of {@link #requestToVoid(HttpRequestValues)} with additional
+   * Variant of {@link #exchangeForMono(HttpRequestValues)} with additional
    * access to the response status and headers.
    */
-  Mono<ResponseEntity<Void>> requestToBodilessEntity(HttpRequestValues requestValues);
+  Mono<ResponseEntity<Void>> exchangeForBodilessEntityMono(HttpRequestValues requestValues);
 
   /**
-   * Variant of {@link #requestToBody(HttpRequestValues, ParameterizedTypeReference)}
+   * Variant of {@link #exchangeForBodyMono(HttpRequestValues, ParameterizedTypeReference)}
    * with additional access to the response status and headers.
    */
-  <T> Mono<ResponseEntity<T>> requestToEntity(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
+  <T> Mono<ResponseEntity<T>> exchangeForEntityMono(
+          HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
   /**
-   * Variant of {@link #requestToBodyFlux(HttpRequestValues, ParameterizedTypeReference)}
+   * Variant of {@link #exchangeForBodyFlux(HttpRequestValues, ParameterizedTypeReference)}
    * with additional access to the response status and headers.
    */
-  <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
+  <T> Mono<ResponseEntity<Flux<T>>> exchangeForEntityFlux(
+          HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType);
 
 }

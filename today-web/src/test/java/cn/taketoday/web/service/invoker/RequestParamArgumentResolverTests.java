@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.web.service.invoker;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -42,21 +38,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class RequestParamArgumentResolverTests {
+class RequestParamArgumentResolverTests {
 
-  private final TestHttpClientAdapter client = new TestHttpClientAdapter();
+  private final TestExchangeAdapter client = new TestExchangeAdapter();
 
-  private Service service;
-
-  @BeforeEach
-  void setUp() throws Exception {
-    HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.client);
-    proxyFactory.afterPropertiesSet();
-    this.service = proxyFactory.createClient(Service.class);
-  }
-
-  // Base class functionality should be tested in NamedValueArgumentResolverTests.
-  // Form data vs query params tested in HttpRequestValuesTests.
+  private final Service service =
+          HttpServiceProxyFactory.forAdapter(this.client).build().createClient(Service.class);
 
   @Test
   @SuppressWarnings("unchecked")
@@ -64,7 +51,7 @@ public class RequestParamArgumentResolverTests {
     this.service.postForm("value 1", "value 2");
 
     Object body = this.client.getRequestValues().getBodyValue();
-    assertThat(body).isNotNull().isInstanceOf(MultiValueMap.class);
+    assertThat(body).isInstanceOf(MultiValueMap.class);
     assertThat((MultiValueMap<String, String>) body).hasSize(2)
             .containsEntry("param1", List.of("value 1"))
             .containsEntry("param2", List.of("value 2"));

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.web.service.invoker;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,24 +29,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Unit tests for {@link CookieValueArgumentResolver}.
+ *
  * <p>For base class functionality, see {@link NamedValueArgumentResolverTests}.
  *
  * @author Rossen Stoyanchev
  */
 class CookieValueArgumentResolverTests {
 
-  private final TestHttpClientAdapter client = new TestHttpClientAdapter();
+  private final TestExchangeAdapter client = new TestExchangeAdapter();
 
-  private Service service;
-
-  @BeforeEach
-  void setUp() throws Exception {
-    HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.client);
-    proxyFactory.afterPropertiesSet();
-    this.service = proxyFactory.createClient(Service.class);
-  }
-
-  // Base class functionality should be tested in NamedValueArgumentResolverTests.
+  private final Service service =
+          HttpServiceProxyFactory.forAdapter(this.client).createClient(Service.class);
 
   @Test
   void cookieValue() {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.web.service.invoker;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -37,21 +33,19 @@ import cn.taketoday.web.testfixture.servlet.MockMultipartFile;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/6/30 21:50
+ * Unit tests for {@link MultipartFileArgumentResolver}.
+ * Tests for base class functionality of this resolver can be found in
+ * {@link NamedValueArgumentResolverTests}.
+ *
+ * @author Olga Maciaszek-Sharma
  */
+@SuppressWarnings("unchecked")
 class MultipartFileArgumentResolverTests {
 
-  private final TestHttpClientAdapter clientAdapter = new TestHttpClientAdapter();
+  private final TestExchangeAdapter client = new TestExchangeAdapter();
 
-  private TestClient client;
-
-  @BeforeEach
-  void setUp() {
-    HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.clientAdapter);
-    proxyFactory.afterPropertiesSet();
-    this.client = proxyFactory.createClient(TestClient.class);
-  }
+  private final MultipartService multipartService =
+          HttpServiceProxyFactory.forAdapter(this.client).build().createClient(MultipartService.class);
 
   @Test
   void multipartFile() {
@@ -59,8 +53,8 @@ class MultipartFileArgumentResolverTests {
     String originalFileName = "originalTestFileName";
     MultipartFile testFile = new MockMultipartFile(fileName, originalFileName, "text/plain", "test".getBytes());
 
-    this.client.postMultipartFile(testFile);
-    Object value = this.clientAdapter.getRequestValues().getBodyValue();
+    this.multipartService.postMultipartFile(testFile);
+    Object value = this.client.getRequestValues().getBodyValue();
 
     assertThat(value).isInstanceOf(MultiValueMap.class);
     MultiValueMap<String, HttpEntity<?>> map = (MultiValueMap<String, HttpEntity<?>>) value;
@@ -79,8 +73,8 @@ class MultipartFileArgumentResolverTests {
 
   @Test
   void optionalMultipartFile() {
-    this.client.postOptionalMultipartFile(Optional.empty(), "anotherPart");
-    Object value = clientAdapter.getRequestValues().getBodyValue();
+    this.multipartService.postOptionalMultipartFile(Optional.empty(), "anotherPart");
+    Object value = client.getRequestValues().getBodyValue();
 
     assertThat(value).isInstanceOf(MultiValueMap.class);
     MultiValueMap<String, HttpEntity<?>> map = (MultiValueMap<String, HttpEntity<?>>) value;
@@ -88,7 +82,7 @@ class MultipartFileArgumentResolverTests {
   }
 
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private interface TestClient {
+  private interface MultipartService {
 
     @PostExchange
     void postMultipartFile(MultipartFile file);

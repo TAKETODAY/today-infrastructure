@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,29 +17,34 @@
 
 package cn.taketoday.web.reactive.function.client.support;
 
+import org.reactivestreams.Publisher;
+
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.reactive.function.client.WebClient;
-import cn.taketoday.web.service.invoker.HttpClientAdapter;
+import cn.taketoday.web.service.invoker.AbstractReactorHttpExchangeAdapter;
 import cn.taketoday.web.service.invoker.HttpRequestValues;
 import cn.taketoday.web.service.invoker.HttpServiceProxyFactory;
+import cn.taketoday.web.service.invoker.ReactiveHttpRequestValues;
+import cn.taketoday.web.service.invoker.ReactorHttpExchangeAdapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * {@link HttpClientAdapter} that enables an {@link HttpServiceProxyFactory} to
- * use {@link WebClient} for request execution.
+ * {@link ReactorHttpExchangeAdapter} that enables an {@link HttpServiceProxyFactory}
+ * to use {@link WebClient} for request execution.
  *
  * <p>Use static factory methods in this class to create an
  * {@code HttpServiceProxyFactory} configured with a given {@code WebClient}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class WebClientAdapter implements HttpClientAdapter {
+public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
 
   private final WebClient webClient;
 
@@ -54,37 +56,42 @@ public final class WebClientAdapter implements HttpClientAdapter {
   }
 
   @Override
-  public Mono<Void> requestToVoid(HttpRequestValues requestValues) {
+  public boolean supportsRequestAttributes() {
+    return true;
+  }
+
+  @Override
+  public Mono<Void> exchangeForMono(HttpRequestValues requestValues) {
     return newRequest(requestValues).retrieve().toBodilessEntity().then();
   }
 
   @Override
-  public Mono<HttpHeaders> requestToHeaders(HttpRequestValues requestValues) {
+  public Mono<HttpHeaders> exchangeForHeadersMono(HttpRequestValues requestValues) {
     return newRequest(requestValues).retrieve().toBodilessEntity().map(ResponseEntity::getHeaders);
   }
 
   @Override
-  public <T> Mono<T> requestToBody(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+  public <T> Mono<T> exchangeForBodyMono(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().bodyToMono(bodyType);
   }
 
   @Override
-  public <T> Flux<T> requestToBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+  public <T> Flux<T> exchangeForBodyFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().bodyToFlux(bodyType);
   }
 
   @Override
-  public Mono<ResponseEntity<Void>> requestToBodilessEntity(HttpRequestValues requestValues) {
+  public Mono<ResponseEntity<Void>> exchangeForBodilessEntityMono(HttpRequestValues requestValues) {
     return newRequest(requestValues).retrieve().toBodilessEntity();
   }
 
   @Override
-  public <T> Mono<ResponseEntity<T>> requestToEntity(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+  public <T> Mono<ResponseEntity<T>> exchangeForEntityMono(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().toEntity(bodyType);
   }
 
   @Override
-  public <T> Mono<ResponseEntity<Flux<T>>> requestToEntityFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
+  public <T> Mono<ResponseEntity<Flux<T>>> exchangeForEntityFlux(HttpRequestValues requestValues, ParameterizedTypeReference<T> bodyType) {
     return newRequest(requestValues).retrieve().toEntityFlux(bodyType);
   }
 
@@ -114,38 +121,16 @@ public final class WebClientAdapter implements HttpClientAdapter {
     if (requestValues.getBodyValue() != null) {
       bodySpec.bodyValue(requestValues.getBodyValue());
     }
-    else if (requestValues.getBody() != null) {
-      Assert.notNull(requestValues.getBodyElementType(), "Publisher body element type is required");
-      bodySpec.body(requestValues.getBody(), requestValues.getBodyElementType());
+    else if (requestValues instanceof ReactiveHttpRequestValues reactiveRequestValues) {
+      Publisher<?> body = reactiveRequestValues.getBodyPublisher();
+      if (body != null) {
+        ParameterizedTypeReference<?> elementType = reactiveRequestValues.getBodyPublisherElementType();
+        Assert.notNull(elementType, "Publisher body element type is required");
+        bodySpec.body(body, elementType);
+      }
     }
 
     return bodySpec;
-  }
-
-  /**
-   * Static method to create a {@link HttpServiceProxyFactory} configured to
-   * use the given {@link WebClient} instance. Effectively a shortcut for:
-   * <pre>
-   * WebClientAdapter adapter = WebClientAdapter.forClient(webClient);
-   * HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(adapter);
-   * </pre>
-   *
-   * @param webClient the client to use
-   * @return the created {@code HttpServiceProxyFactory} instance
-   */
-  public static HttpServiceProxyFactory createHttpServiceProxyFactory(WebClient webClient) {
-    return new HttpServiceProxyFactory(new WebClientAdapter(webClient));
-  }
-
-  /**
-   * Variant of {@link #createHttpServiceProxyFactory(WebClient)} that accepts
-   * a {@link WebClient.Builder} and uses it to create the client.
-   *
-   * @param webClientBuilder a builder to create the client to use with
-   * @return the created {@code HttpServiceProxyFactory} instance
-   */
-  public static HttpServiceProxyFactory createHttpServiceProxyFactory(WebClient.Builder webClientBuilder) {
-    return createHttpServiceProxyFactory(webClientBuilder.build());
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,6 @@
 
 package cn.taketoday.web.service.invoker;
 
-import org.reactivestreams.Publisher;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,12 +24,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.client.MultipartBodyBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -45,14 +38,15 @@ import cn.taketoday.web.util.UriUtils;
 
 /**
  * Container for HTTP request values extracted from an
- * {@link cn.taketoday.web.service.annotation.HttpExchange @HttpExchange}-annotated
+ * {@link org.springframework.web.service.annotation.HttpExchange @HttpExchange}-annotated
  * method and argument values passed to it. This is then given to
- * {@link HttpClientAdapter} to adapt to the underlying HTTP client.
+ * {@link HttpExchangeAdapter} to adapt to the underlying HTTP client.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class HttpRequestValues {
+public class HttpRequestValues {
 
   private static final MultiValueMap<String, String> EMPTY_COOKIES_MAP =
           MultiValueMap.from(Collections.emptyMap());
@@ -77,17 +71,10 @@ public final class HttpRequestValues {
   @Nullable
   private final Object bodyValue;
 
-  @Nullable
-  private final Publisher<?> body;
-
-  @Nullable
-  private final ParameterizedTypeReference<?> bodyElementType;
-
-  private HttpRequestValues(@Nullable HttpMethod httpMethod,
+  protected HttpRequestValues(@Nullable HttpMethod httpMethod,
           @Nullable URI uri, @Nullable String uriTemplate, Map<String, String> uriVariables,
           HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
-          @Nullable Object bodyValue,
-          @Nullable Publisher<?> body, @Nullable ParameterizedTypeReference<?> bodyElementType) {
+          @Nullable Object bodyValue) {
 
     Assert.isTrue(uri != null || uriTemplate != null, "Neither URI nor URI template");
 
@@ -99,8 +86,6 @@ public final class HttpRequestValues {
     this.cookies = cookies;
     this.attributes = attributes;
     this.bodyValue = bodyValue;
-    this.body = body;
-    this.bodyElementType = bodyElementType;
   }
 
   /**
@@ -162,30 +147,10 @@ public final class HttpRequestValues {
 
   /**
    * Return the request body as a value to be serialized, if set.
-   * <p>This is mutually exclusive with {@link #getBody()}.
-   * Only one of the two or neither is set.
    */
   @Nullable
   public Object getBodyValue() {
     return this.bodyValue;
-  }
-
-  /**
-   * Return the request body as a Publisher.
-   * <p>This is mutually exclusive with {@link #getBodyValue()}.
-   * Only one of the two or neither is set.
-   */
-  @Nullable
-  public Publisher<?> getBody() {
-    return this.body;
-  }
-
-  /**
-   * Return the element type for a {@linkplain #getBody() Publisher body}.
-   */
-  @Nullable
-  public ParameterizedTypeReference<?> getBodyElementType() {
-    return this.bodyElementType;
   }
 
   public static Builder builder() {
@@ -195,7 +160,7 @@ public final class HttpRequestValues {
   /**
    * Builder for {@link HttpRequestValues}.
    */
-  public final static class Builder {
+  public static class Builder {
 
     @Nullable
     private HttpMethod httpMethod;
@@ -219,19 +184,13 @@ public final class HttpRequestValues {
     private MultiValueMap<String, String> requestParams;
 
     @Nullable
-    private MultipartBodyBuilder multipartBuilder;
+    private MultiValueMap<String, Object> parts;
 
     @Nullable
     private Map<String, Object> attributes;
 
     @Nullable
     private Object bodyValue;
-
-    @Nullable
-    private Publisher<?> body;
-
-    @Nullable
-    private ParameterizedTypeReference<?> bodyElementType;
 
     /**
      * Set the HTTP method for the request.
@@ -261,8 +220,6 @@ public final class HttpRequestValues {
 
     /**
      * Add a URI variable name-value pair.
-     * <p>This is mutually exclusive with, and resets any previously set
-     * {@linkplain #setUri(URI) full URI}.
      */
     public Builder setUriVariable(String name, String value) {
       this.uriVars = (this.uriVars != null ? this.uriVars : new LinkedHashMap<>());
@@ -328,22 +285,18 @@ public final class HttpRequestValues {
     }
 
     /**
-     * Add a part to a multipart request. The part value may be as described
-     * in {@link MultipartBodyBuilder#part(String, Object)}.
+     * Add a part for a multipart request. The part may be:
+     * <ul>
+     * <li>String -- form field
+     * <li>{@link cn.taketoday.core.io.Resource Resource} -- file part
+     * <li>Object -- content to be encoded (e.g. to JSON)
+     * <li>{@link HttpEntity} -- part content and headers although generally it's
+     * easier to add headers through the returned builder
+     * </ul>
      */
     public Builder addRequestPart(String name, Object part) {
-      this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
-      this.multipartBuilder.part(name, part);
-      return this;
-    }
-
-    /**
-     * Variant of {@link #addRequestPart(String, Object)} that allows the
-     * part value to be produced by a {@link Publisher}.
-     */
-    public <T, P extends Publisher<T>> Builder addRequestPart(String name, P publisher, ResolvableType type) {
-      this.multipartBuilder = (this.multipartBuilder != null ? this.multipartBuilder : new MultipartBodyBuilder());
-      this.multipartBuilder.asyncPart(name, publisher, ParameterizedTypeReference.forType(type.getType()));
+      this.parts = this.parts != null ? this.parts : new LinkedMultiValueMap<>();
+      this.parts.add(name, part);
       return this;
     }
 
@@ -360,29 +313,14 @@ public final class HttpRequestValues {
     }
 
     /**
-     * Set the request body as a concrete value to be serialized.
-     * <p>This is mutually exclusive with, and resets any previously set
-     * {@linkplain #setBody(Publisher, ParameterizedTypeReference) body Publisher}.
+     * Set the request body as an Object to be serialized.
      */
     public void setBodyValue(Object bodyValue) {
       this.bodyValue = bodyValue;
-      this.body = null;
-      this.bodyElementType = null;
     }
 
     /**
-     * Set the request body as a concrete value to be serialized.
-     * <p>This is mutually exclusive with, and resets any previously set
-     * {@linkplain #setBodyValue(Object) body value}.
-     */
-    public <T, P extends Publisher<T>> void setBody(P body, ParameterizedTypeReference<T> elementTye) {
-      this.body = body;
-      this.bodyElementType = elementTye;
-      this.bodyValue = null;
-    }
-
-    /**
-     * Builder the {@link HttpRequestValues} instance.
+     * Build the {@link HttpRequestValues} instance.
      */
     public HttpRequestValues build() {
 
@@ -395,15 +333,15 @@ public final class HttpRequestValues {
       Map<String, String> uriVars = (this.uriVars != null ? new HashMap<>(this.uriVars) : Collections.emptyMap());
 
       Object bodyValue = this.bodyValue;
-      if (this.multipartBuilder != null) {
-        Assert.isTrue(bodyValue == null && this.body == null, "Expected body or request parts, not both");
-        bodyValue = this.multipartBuilder.build();
+      if (hasParts()) {
+        Assert.isTrue(!hasBody(), "Expected body or request parts, not both");
+        bodyValue = buildMultipartBody();
       }
 
-      if (CollectionUtils.isNotEmpty(this.requestParams)) {
-        if (hasContentType(MediaType.APPLICATION_FORM_URLENCODED)) {
-          Assert.isTrue(this.multipartBuilder == null, "Cannot add parts to form data request");
-          Assert.isTrue(bodyValue == null && this.body == null, "Cannot set body of form data request");
+      if (!CollectionUtils.isEmpty(this.requestParams)) {
+        if (hasFormDataContentType()) {
+          Assert.isTrue(!hasParts(), "Request parts not expected for a form data request");
+          Assert.isTrue(!hasBody(), "Body not expected for a form data request");
           bodyValue = new LinkedMultiValueMap<>(this.requestParams);
         }
         else if (uri != null) {
@@ -426,19 +364,33 @@ public final class HttpRequestValues {
         headers.putAll(this.headers);
       }
 
-      MultiValueMap<String, String> cookies = (this.cookies != null ?
-                                               new LinkedMultiValueMap<>(this.cookies) : EMPTY_COOKIES_MAP);
+      MultiValueMap<String, String> cookies =
+              this.cookies != null ?
+              new LinkedMultiValueMap<>(this.cookies) : EMPTY_COOKIES_MAP;
 
       Map<String, Object> attributes = (this.attributes != null ?
                                         new HashMap<>(this.attributes) : Collections.emptyMap());
 
-      return new HttpRequestValues(
-              this.httpMethod, uri, uriTemplate, uriVars, headers, cookies, attributes,
-              bodyValue, this.body, this.bodyElementType);
+      return createRequestValues(
+              this.httpMethod, uri, uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
     }
 
-    private boolean hasContentType(MediaType mediaType) {
-      return headers != null && mediaType.equals(headers.getContentType());
+    protected boolean hasParts() {
+      return (this.parts != null);
+    }
+
+    protected boolean hasBody() {
+      return (this.bodyValue != null);
+    }
+
+    protected Object buildMultipartBody() {
+      Assert.notNull(this.parts, "`parts` is null, was hasParts() not called?");
+      return this.parts;
+    }
+
+    private boolean hasFormDataContentType() {
+      return (this.headers != null &&
+              MediaType.APPLICATION_FORM_URLENCODED.equals(this.headers.getContentType()));
     }
 
     private String appendQueryParams(
@@ -459,6 +411,14 @@ public final class HttpRequestValues {
       return uriComponentsBuilder.build().toUriString();
     }
 
+    protected HttpRequestValues createRequestValues(@Nullable HttpMethod httpMethod,
+            @Nullable URI uri, @Nullable String uriTemplate, Map<String, String> uriVars,
+            HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
+            @Nullable Object bodyValue) {
+
+      return new HttpRequestValues(
+              this.httpMethod, uri, uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
+    }
   }
 
 }

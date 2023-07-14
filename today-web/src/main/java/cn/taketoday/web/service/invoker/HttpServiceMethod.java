@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,12 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
-import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
@@ -43,6 +40,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.service.annotation.HttpExchange;
@@ -52,13 +50,18 @@ import reactor.core.publisher.Mono;
 /**
  * Implements the invocation of an {@link HttpExchange @HttpExchange}-annotated,
  * {@link HttpServiceProxyFactory#createClient(Class) HTTP service proxy} method
- * by delegating to an {@link HttpClientAdapter} to perform actual requests.
+ * by delegating to an {@link HttpExchangeAdapter} to perform actual requests.
  *
  * @author Rossen Stoyanchev
+ * @author Sebastien Deleuze
+ * @author Olga Maciaszek-Sharma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class HttpServiceMethod {
+
+  private static final boolean REACTOR_PRESENT =
+          ClassUtils.isPresent("reactor.core.publisher.Mono", HttpServiceMethod.class.getClassLoader());
 
   private final Method method;
 
@@ -70,16 +73,24 @@ final class HttpServiceMethod {
 
   private final ResponseFunction responseFunction;
 
-  HttpServiceMethod(
-          Method method, Class<?> containingClass, List<HttpServiceArgumentResolver> argumentResolvers,
-          HttpClientAdapter client, @Nullable StringValueResolver embeddedValueResolver,
-          ReactiveAdapterRegistry reactiveRegistry, Duration blockTimeout) {
+  HttpServiceMethod(Method method, Class<?> containingClass, List<HttpServiceArgumentResolver> argumentResolvers,
+          HttpExchangeAdapter adapter, @Nullable StringValueResolver embeddedValueResolver) {
 
     this.method = method;
-    this.argumentResolvers = argumentResolvers;
     this.parameters = initMethodParameters(method);
-    this.responseFunction = ResponseFunction.create(client, method, reactiveRegistry, blockTimeout);
-    this.requestValuesInitializer = HttpRequestValuesInitializer.create(method, containingClass, embeddedValueResolver);
+    this.argumentResolvers = argumentResolvers;
+
+    boolean isReactorAdapter = REACTOR_PRESENT && adapter instanceof ReactorHttpExchangeAdapter;
+
+    this.requestValuesInitializer =
+            HttpRequestValuesInitializer.create(
+                    method, containingClass, embeddedValueResolver,
+                    (isReactorAdapter ? ReactiveHttpRequestValues::builder : HttpRequestValues::builder));
+
+    this.responseFunction =
+            isReactorAdapter
+            ? ReactorExchangeResponseFunction.create((ReactorHttpExchangeAdapter) adapter, method)
+            : ExchangeResponseFunction.create(adapter, method);
   }
 
   private static MethodParameter[] initMethodParameters(Method method) {
@@ -87,12 +98,12 @@ final class HttpServiceMethod {
     if (count == 0) {
       return new MethodParameter[0];
     }
-    ParameterNameDiscoverer nameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
+
+    DefaultParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
     MethodParameter[] parameters = new MethodParameter[count];
     for (int i = 0; i < count; i++) {
-      var parameter = new SynthesizingMethodParameter(method, i);
-      parameter.initParameterNameDiscovery(nameDiscoverer);
-      parameters[i] = parameter;
+      parameters[i] = new SynthesizingMethodParameter(method, i);
+      parameters[i].initParameterNameDiscovery(nameDiscoverer);
     }
     return parameters;
   }
@@ -103,9 +114,9 @@ final class HttpServiceMethod {
 
   @Nullable
   public Object invoke(Object[] arguments) {
-    var requestValues = requestValuesInitializer.initializeRequestValuesBuilder();
+    HttpRequestValues.Builder requestValues = this.requestValuesInitializer.initializeRequestValuesBuilder();
     applyArguments(requestValues, arguments);
-    return responseFunction.execute(requestValues.build());
+    return this.responseFunction.execute(requestValues.build());
   }
 
   private void applyArguments(HttpRequestValues.Builder requestValues, Object[] arguments) {
@@ -120,13 +131,13 @@ final class HttpServiceMethod {
           break;
         }
       }
-      Assert.state(resolved, formatArgumentError(parameters[i], "No suitable resolver"));
-    }
-  }
+      if (!resolved) {
+        throw new IllegalStateException("Could not resolve parameter [" + parameters[i].getParameterIndex() + "] in " +
+                parameters[i].getExecutable().toGenericString() +
+                (StringUtils.hasText("No suitable resolver") ? ": " + "No suitable resolver" : ""));
+      }
 
-  private static String formatArgumentError(MethodParameter param, String message) {
-    return "Could not resolve parameter [" + param.getParameterIndex() + "] in " +
-            param.getExecutable().toGenericString() + (StringUtils.hasText(message) ? ": " + message : "");
+    }
   }
 
   /**
@@ -135,10 +146,11 @@ final class HttpServiceMethod {
    */
   private record HttpRequestValuesInitializer(
           @Nullable HttpMethod httpMethod, @Nullable String url,
-          @Nullable MediaType contentType, @Nullable List<MediaType> acceptMediaTypes) {
+          @Nullable MediaType contentType, @Nullable List<MediaType> acceptMediaTypes,
+          Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
 
     public HttpRequestValues.Builder initializeRequestValuesBuilder() {
-      HttpRequestValues.Builder requestValues = HttpRequestValues.builder();
+      HttpRequestValues.Builder requestValues = this.requestValuesSupplier.get();
       if (this.httpMethod != null) {
         requestValues.setHttpMethod(this.httpMethod);
       }
@@ -157,8 +169,9 @@ final class HttpServiceMethod {
     /**
      * Introspect the method and create the request factory for it.
      */
-    public static HttpRequestValuesInitializer create(Method method,
-            Class<?> containingClass, @Nullable StringValueResolver embeddedValueResolver) {
+    public static HttpRequestValuesInitializer create(Method method, Class<?> containingClass,
+            @Nullable StringValueResolver embeddedValueResolver,
+            Supplier<HttpRequestValues.Builder> requestValuesSupplier) {
 
       HttpExchange annot1 = AnnotatedElementUtils.findMergedAnnotation(containingClass, HttpExchange.class);
       HttpExchange annot2 = AnnotatedElementUtils.findMergedAnnotation(method, HttpExchange.class);
@@ -170,7 +183,8 @@ final class HttpServiceMethod {
       MediaType contentType = initContentType(annot1, annot2);
       List<MediaType> acceptableMediaTypes = initAccept(annot1, annot2);
 
-      return new HttpRequestValuesInitializer(httpMethod, url, contentType, acceptableMediaTypes);
+      return new HttpRequestValuesInitializer(
+              httpMethod, url, contentType, acceptableMediaTypes, requestValuesSupplier);
     }
 
     @Nullable
@@ -253,57 +267,127 @@ final class HttpServiceMethod {
   }
 
   /**
-   * Function to execute a request, obtain a response, and adapt to the expected
-   * return type, blocking if necessary.
+   * Execute a request, obtain a response, and adapt to the expected return type.
    */
-  private record ResponseFunction(
-          Function<HttpRequestValues, Publisher<?>> responseFunction,
-          @Nullable ReactiveAdapter returnTypeAdapter,
-          boolean blockForOptional, Duration blockTimeout) {
+  private interface ResponseFunction {
 
     @Nullable
-    public Object execute(HttpRequestValues requestValues) {
-      Publisher<?> responsePublisher = this.responseFunction.apply(requestValues);
-      if (returnTypeAdapter != null) {
-        return returnTypeAdapter.fromPublisher(responsePublisher);
-      }
+    Object execute(HttpRequestValues requestValues);
 
-      return blockForOptional ?
-             ((Mono<?>) responsePublisher).blockOptional(blockTimeout) :
-             ((Mono<?>) responsePublisher).block(blockTimeout);
+  }
+
+  private record ExchangeResponseFunction(
+          Function<HttpRequestValues, Object> responseFunction) implements ResponseFunction {
+
+    @Override
+    public Object execute(HttpRequestValues requestValues) {
+      return this.responseFunction.apply(requestValues);
     }
 
     /**
-     * Create the {@code ResponseFunction} that matches the method's return type.
+     * Create the {@code ResponseFunction} that matches the method return type.
      */
-    public static ResponseFunction create(HttpClientAdapter client,
-            Method method, ReactiveAdapterRegistry reactiveRegistry, Duration blockTimeout) {
+    public static ResponseFunction create(HttpExchangeAdapter client, Method method) {
+      MethodParameter param = new MethodParameter(method, -1).nestedIfOptional();
+      Class<?> paramType = param.getNestedParameterType();
 
+      Function<HttpRequestValues, Object> responseFunction;
+      if (paramType.equals(void.class) || paramType.equals(Void.class)) {
+        responseFunction = requestValues -> {
+          client.exchange(requestValues);
+          return null;
+        };
+      }
+      else if (paramType.equals(HttpHeaders.class)) {
+        responseFunction = request -> asOptionalIfNecessary(client.exchangeForHeaders(request), param);
+      }
+      else if (paramType.equals(ResponseEntity.class)) {
+        MethodParameter bodyParam = param.nested();
+        if (bodyParam.getNestedParameterType().equals(Void.class)) {
+          responseFunction = request ->
+                  asOptionalIfNecessary(client.exchangeForBodilessEntity(request), param);
+        }
+        else {
+          ParameterizedTypeReference<?> bodyTypeRef =
+                  ParameterizedTypeReference.forType(bodyParam.getNestedGenericParameterType());
+          responseFunction = request ->
+                  asOptionalIfNecessary(client.exchangeForEntity(request, bodyTypeRef), param);
+        }
+      }
+      else {
+        ParameterizedTypeReference<?> bodyTypeRef =
+                ParameterizedTypeReference.forType(param.getNestedGenericParameterType());
+        responseFunction = request ->
+                asOptionalIfNecessary(client.exchangeForBody(request, bodyTypeRef), param);
+      }
+
+      return new ExchangeResponseFunction(responseFunction);
+    }
+
+    private static @Nullable Object asOptionalIfNecessary(@Nullable Object response, MethodParameter param) {
+      return param.getParameterType().equals(Optional.class) ? Optional.ofNullable(response) : response;
+    }
+  }
+
+  /**
+   * {@link ResponseFunction} for {@link ReactorHttpExchangeAdapter}.
+   */
+  private record ReactorExchangeResponseFunction(
+          Function<HttpRequestValues, Publisher<?>> responseFunction,
+          @Nullable ReactiveAdapter returnTypeAdapter,
+          boolean blockForOptional, @Nullable Duration blockTimeout) implements ResponseFunction {
+
+    @Nullable
+    public Object execute(HttpRequestValues requestValues) {
+
+      Publisher<?> responsePublisher = this.responseFunction.apply(requestValues);
+
+      if (this.returnTypeAdapter != null) {
+        return this.returnTypeAdapter.fromPublisher(responsePublisher);
+      }
+
+      if (this.blockForOptional) {
+        return (this.blockTimeout != null ?
+                ((Mono<?>) responsePublisher).blockOptional(this.blockTimeout) :
+                ((Mono<?>) responsePublisher).blockOptional());
+      }
+      else {
+        return (this.blockTimeout != null ?
+                ((Mono<?>) responsePublisher).block(this.blockTimeout) :
+                ((Mono<?>) responsePublisher).block());
+      }
+    }
+
+    /**
+     * Create the {@code ResponseFunction} that matches the method return type.
+     */
+    public static ResponseFunction create(ReactorHttpExchangeAdapter client, Method method) {
       MethodParameter returnParam = new MethodParameter(method, -1);
       Class<?> returnType = returnParam.getParameterType();
-      ReactiveAdapter reactiveAdapter = reactiveRegistry.getAdapter(returnType);
+
+      ReactiveAdapter reactiveAdapter = client.getReactiveAdapterRegistry().getAdapter(returnType);
 
       MethodParameter actualParam = (reactiveAdapter != null ? returnParam.nested() : returnParam.nestedIfOptional());
       Class<?> actualType = actualParam.getNestedParameterType();
 
       Function<HttpRequestValues, Publisher<?>> responseFunction;
       if (actualType.equals(void.class) || actualType.equals(Void.class)) {
-        responseFunction = client::requestToVoid;
+        responseFunction = client::exchangeForMono;
       }
       else if (reactiveAdapter != null && reactiveAdapter.isNoValue()) {
-        responseFunction = client::requestToVoid;
+        responseFunction = client::exchangeForMono;
       }
       else if (actualType.equals(HttpHeaders.class)) {
-        responseFunction = client::requestToHeaders;
+        responseFunction = client::exchangeForHeadersMono;
       }
       else if (actualType.equals(ResponseEntity.class)) {
         MethodParameter bodyParam = actualParam.nested();
         Class<?> bodyType = bodyParam.getNestedParameterType();
         if (bodyType.equals(Void.class)) {
-          responseFunction = client::requestToBodilessEntity;
+          responseFunction = client::exchangeForBodilessEntityMono;
         }
         else {
-          ReactiveAdapter bodyAdapter = reactiveRegistry.getAdapter(bodyType);
+          ReactiveAdapter bodyAdapter = client.getReactiveAdapterRegistry().getAdapter(bodyType);
           responseFunction = initResponseEntityFunction(client, bodyParam, bodyAdapter);
         }
       }
@@ -311,16 +395,17 @@ final class HttpServiceMethod {
         responseFunction = initBodyFunction(client, actualParam, reactiveAdapter);
       }
 
-      boolean blockForOptional = returnType.equals(Optional.class);
-      return new ResponseFunction(responseFunction, reactiveAdapter, blockForOptional, blockTimeout);
+      return new ReactorExchangeResponseFunction(
+              responseFunction, reactiveAdapter, returnType.equals(Optional.class), client.getBlockTimeout());
     }
 
     @SuppressWarnings("ConstantConditions")
     private static Function<HttpRequestValues, Publisher<?>> initResponseEntityFunction(
-            HttpClientAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
+            ReactorHttpExchangeAdapter client, MethodParameter methodParam,
+            @Nullable ReactiveAdapter reactiveAdapter) {
 
       if (reactiveAdapter == null) {
-        return request -> client.requestToEntity(
+        return request -> client.exchangeForEntityMono(
                 request, ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType()));
       }
 
@@ -332,10 +417,10 @@ final class HttpServiceMethod {
 
       // Shortcut for Flux
       if (reactiveAdapter.getReactiveType().equals(Flux.class)) {
-        return request -> client.requestToEntityFlux(request, bodyType);
+        return request -> client.exchangeForEntityFlux(request, bodyType);
       }
 
-      return request -> client.requestToEntityFlux(request, bodyType)
+      return request -> client.exchangeForEntityFlux(request, bodyType)
               .map(entity -> {
                 Object body = reactiveAdapter.fromPublisher(entity.getBody());
                 return new ResponseEntity<>(body, entity.getHeaders(), entity.getStatusCode());
@@ -343,16 +428,16 @@ final class HttpServiceMethod {
     }
 
     private static Function<HttpRequestValues, Publisher<?>> initBodyFunction(
-            HttpClientAdapter client, MethodParameter methodParam, @Nullable ReactiveAdapter reactiveAdapter) {
+            ReactorHttpExchangeAdapter client, MethodParameter methodParam,
+            @Nullable ReactiveAdapter reactiveAdapter) {
 
       ParameterizedTypeReference<?> bodyType =
               ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType());
 
       return reactiveAdapter != null && reactiveAdapter.isMultiValue()
-             ? request -> client.requestToBodyFlux(request, bodyType)
-             : request -> client.requestToBody(request, bodyType);
+             ? request -> client.exchangeForBodyFlux(request, bodyType)
+             : request -> client.exchangeForBodyMono(request, bodyType);
     }
-
   }
 
 }

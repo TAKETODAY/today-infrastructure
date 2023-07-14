@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,20 +38,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class HttpRequestValuesTests {
+class HttpRequestValuesTests {
 
   @Test
   void defaultUri() {
     HttpRequestValues requestValues = HttpRequestValues.builder().setHttpMethod(HttpMethod.GET).build();
 
     assertThat(requestValues.getUri()).isNull();
-    assertThat(requestValues.getUriTemplate()).isEqualTo("");
+    assertThat(requestValues.getUriTemplate()).isEmpty();
   }
 
   @ParameterizedTest
   @ValueSource(strings = { "POST", "PUT", "PATCH" })
   @SuppressWarnings("unchecked")
-  void requestParamAsFormData(String httpMethod) {
+  void formData(String httpMethod) {
 
     HttpRequestValues requestValues = HttpRequestValues.builder().setHttpMethod(HttpMethod.valueOf(httpMethod))
             .setContentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -69,7 +66,7 @@ public class HttpRequestValuesTests {
   }
 
   @Test
-  void requestParamAsQueryParamsInUriTemplate() {
+  void queryParamsWithUriTemplate() {
 
     HttpRequestValues requestValues = HttpRequestValues.builder().setHttpMethod(HttpMethod.POST)
             .setUriTemplate("/path")
@@ -103,16 +100,18 @@ public class HttpRequestValuesTests {
   }
 
   @Test
-  void requestParamAsQueryParamsInUri() {
+  void queryParamsWithPreparedUri() {
+
+    URI uri = URI.create("/my%20path");
 
     HttpRequestValues requestValues = HttpRequestValues.builder().setHttpMethod(HttpMethod.POST)
-            .setUri(URI.create("/path"))
+            .setUri(uri)
             .addRequestParameter("param1", "1st value")
             .addRequestParameter("param2", "2nd value A", "2nd value B")
             .build();
 
     assertThat(requestValues.getUri().toString())
-            .isEqualTo("/path?param1=1st%20value&param2=2nd%20value%20A&param2=2nd%20value%20B");
+            .isEqualTo("/my%20path?param1=1st%20value&param2=2nd%20value%20A&param2=2nd%20value%20B");
   }
 
   @Test
@@ -127,9 +126,9 @@ public class HttpRequestValuesTests {
             .build();
 
     @SuppressWarnings("unchecked")
-    MultiValueMap<String, HttpEntity<?>> map = (MultiValueMap<String, HttpEntity<?>>) requestValues.getBodyValue();
+    MultiValueMap<String, Object> map = (MultiValueMap<String, Object>) requestValues.getBodyValue();
     assertThat(map).hasSize(2);
-    assertThat(map.getFirst("form field").getBody()).isEqualTo("form value");
+    assertThat(map.getFirst("form field")).isEqualTo("form value");
     assertThat(map.getFirst("entity")).isEqualTo(entity);
   }
 
@@ -148,9 +147,9 @@ public class HttpRequestValuesTests {
     assertThat(uriTemplate).isEqualTo("/path?{queryParam0}={queryParam0[0]}");
 
     @SuppressWarnings("unchecked")
-    MultiValueMap<String, HttpEntity<?>> map = (MultiValueMap<String, HttpEntity<?>>) requestValues.getBodyValue();
+    MultiValueMap<String, Object> map = (MultiValueMap<String, Object>) requestValues.getBodyValue();
     assertThat(map).hasSize(1);
-    assertThat(map.getFirst("form field").getBody()).isEqualTo("form value");
+    assertThat(map.getFirst("form field")).isEqualTo("form value");
   }
 
 }

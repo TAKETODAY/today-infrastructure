@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +17,9 @@
 
 package cn.taketoday.web.service.invoker;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import cn.taketoday.core.ParameterizedTypeReference;
@@ -47,93 +44,33 @@ import static cn.taketoday.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link HttpServiceMethod} with a test {@link TestHttpClientAdapter}
- * that stubs the client invocations.
+ * Tests for {@link HttpServiceMethod} with
+ * {@link TestExchangeAdapter} and {@link TestReactorExchangeAdapter}.
  *
  * <p>The tests do not create or invoke {@code HttpServiceMethod} directly but
  * rather use {@link HttpServiceProxyFactory} to create a service proxy in order to
  * use a strongly typed interface without the need for class casts.
  *
  * @author Rossen Stoyanchev
+ * @author Olga Maciaszek-Sharma
  */
-public class HttpServiceMethodTests {
+class HttpServiceMethodTests {
 
   private static final ParameterizedTypeReference<String> BODY_TYPE = new ParameterizedTypeReference<>() { };
 
-  private final TestHttpClientAdapter client = new TestHttpClientAdapter();
+  private final TestExchangeAdapter client = new TestExchangeAdapter();
 
-  private HttpServiceProxyFactory proxyFactory;
+  private final TestReactorExchangeAdapter reactorClient = new TestReactorExchangeAdapter();
 
-  @BeforeEach
-  void setUp() throws Exception {
-    this.proxyFactory = new HttpServiceProxyFactory(this.client);
-    this.proxyFactory.afterPropertiesSet();
-  }
+  private final HttpServiceProxyFactory proxyFactory =
+          HttpServiceProxyFactory.builder().exchangeAdapter(this.client).build();
 
-  @Test
-  void reactorService() {
-    ReactorService service = this.proxyFactory.createClient(ReactorService.class);
-
-    Mono<Void> voidMono = service.execute();
-    StepVerifier.create(voidMono).verifyComplete();
-    verifyClientInvocation("requestToVoid", null);
-
-    Mono<HttpHeaders> headersMono = service.getHeaders();
-    StepVerifier.create(headersMono).expectNextCount(1).verifyComplete();
-    verifyClientInvocation("requestToHeaders", null);
-
-    Mono<String> body = service.getBody();
-    StepVerifier.create(body).expectNext("requestToBody").verifyComplete();
-    verifyClientInvocation("requestToBody", BODY_TYPE);
-
-    Flux<String> fluxBody = service.getFluxBody();
-    StepVerifier.create(fluxBody).expectNext("request", "To", "Body", "Flux").verifyComplete();
-    verifyClientInvocation("requestToBodyFlux", BODY_TYPE);
-
-    Mono<ResponseEntity<Void>> voidEntity = service.getVoidEntity();
-    StepVerifier.create(voidEntity).expectNext(ResponseEntity.ok().build()).verifyComplete();
-    verifyClientInvocation("requestToBodilessEntity", null);
-
-    Mono<ResponseEntity<String>> entity = service.getEntity();
-    StepVerifier.create(entity).expectNext(ResponseEntity.ok("requestToEntity"));
-    verifyClientInvocation("requestToEntity", BODY_TYPE);
-
-    Mono<ResponseEntity<Flux<String>>> fluxEntity = service.getFluxEntity();
-    StepVerifier.create(fluxEntity.flatMapMany(HttpEntity::getBody)).expectNext("request", "To", "Entity", "Flux").verifyComplete();
-    verifyClientInvocation("requestToEntityFlux", BODY_TYPE);
-
-    assertThat(service.getDefaultMethodValue()).isEqualTo("default value");
-  }
+  private final HttpServiceProxyFactory reactorProxyFactory =
+          HttpServiceProxyFactory.builder().exchangeAdapter(this.reactorClient).build();
 
   @Test
-  void rxJavaService() {
-    RxJavaService service = this.proxyFactory.createClient(RxJavaService.class);
-    Completable completable = service.execute();
-    assertThat(completable).isNotNull();
-
-    Single<HttpHeaders> headersSingle = service.getHeaders();
-    assertThat(headersSingle.blockingGet()).isNotNull();
-
-    Single<String> bodySingle = service.getBody();
-    assertThat(bodySingle.blockingGet()).isEqualTo("requestToBody");
-
-    Flowable<String> bodyFlow = service.getFlowableBody();
-    assertThat(bodyFlow.toList().blockingGet()).asList().containsExactly("request", "To", "Body", "Flux");
-
-    Single<ResponseEntity<Void>> voidEntity = service.getVoidEntity();
-    assertThat(voidEntity.blockingGet().getBody()).isNull();
-
-    Single<ResponseEntity<String>> entitySingle = service.getEntity();
-    assertThat(entitySingle.blockingGet().getBody()).isEqualTo("requestToEntity");
-
-    Single<ResponseEntity<Flowable<String>>> entityFlow = service.getFlowableEntity();
-    Flowable<String> body = (entityFlow.blockingGet()).getBody();
-    assertThat(body.toList().blockingGet()).containsExactly("request", "To", "Entity", "Flux");
-  }
-
-  @Test
-  void blockingService() {
-    BlockingService service = this.proxyFactory.createClient(BlockingService.class);
+  void service() {
+    Service service = this.proxyFactory.createClient(Service.class);
 
     service.execute();
 
@@ -141,16 +78,82 @@ public class HttpServiceMethodTests {
     assertThat(headers).isNotNull();
 
     String body = service.getBody();
-    assertThat(body).isEqualTo("requestToBody");
+    assertThat(body).isEqualTo(this.client.getInvokedMethodName());
 
     Optional<String> optional = service.getBodyOptional();
-    assertThat(optional).contains("requestToBody");
+    assertThat(optional.get()).isEqualTo("exchangeForBody");
 
     ResponseEntity<String> entity = service.getEntity();
-    assertThat(entity.getBody()).isEqualTo("requestToEntity");
+    assertThat(entity.getBody()).isEqualTo("exchangeForEntity");
 
     ResponseEntity<Void> voidEntity = service.getVoidEntity();
     assertThat(voidEntity.getBody()).isNull();
+
+    List<String> list = service.getList();
+    assertThat(list.get(0)).isEqualTo("exchangeForBody");
+  }
+
+  @Test
+  void reactorService() {
+    ReactorService service = this.reactorProxyFactory.createClient(ReactorService.class);
+
+    Mono<Void> voidMono = service.execute();
+    StepVerifier.create(voidMono).verifyComplete();
+    verifyReactorClientInvocation("exchangeForMono", null);
+
+    Mono<HttpHeaders> headersMono = service.getHeaders();
+    StepVerifier.create(headersMono).expectNextCount(1).verifyComplete();
+    verifyReactorClientInvocation("exchangeForHeadersMono", null);
+
+    Mono<String> body = service.getBody();
+    StepVerifier.create(body).expectNext("exchangeForBodyMono").verifyComplete();
+    verifyReactorClientInvocation("exchangeForBodyMono", BODY_TYPE);
+
+    Flux<String> fluxBody = service.getFluxBody();
+    StepVerifier.create(fluxBody).expectNext("exchange", "For", "Body", "Flux").verifyComplete();
+    verifyReactorClientInvocation("exchangeForBodyFlux", BODY_TYPE);
+
+    Mono<ResponseEntity<Void>> voidEntity = service.getVoidEntity();
+    StepVerifier.create(voidEntity).expectNext(ResponseEntity.ok().build()).verifyComplete();
+    verifyReactorClientInvocation("exchangeForBodilessEntityMono", null);
+
+    Mono<ResponseEntity<String>> entity = service.getEntity();
+    StepVerifier.create(entity).expectNext(ResponseEntity.ok("exchangeForEntityMono"));
+    verifyReactorClientInvocation("exchangeForEntityMono", BODY_TYPE);
+
+    Mono<ResponseEntity<Flux<String>>> fluxEntity = service.getFluxEntity();
+    StepVerifier.create(fluxEntity.flatMapMany(HttpEntity::getBody))
+            .expectNext("exchange", "For", "Entity", "Flux")
+            .verifyComplete();
+    verifyReactorClientInvocation("exchangeForEntityFlux", BODY_TYPE);
+
+    assertThat(service.getDefaultMethodValue()).isEqualTo("default value");
+  }
+
+  @Test
+  void rxJavaService() {
+    RxJavaService service = this.reactorProxyFactory.createClient(RxJavaService.class);
+    Completable completable = service.execute();
+    assertThat(completable).isNotNull();
+
+    Single<HttpHeaders> headersSingle = service.getHeaders();
+    assertThat(headersSingle.blockingGet()).isNotNull();
+
+    Single<String> bodySingle = service.getBody();
+    assertThat(bodySingle.blockingGet()).isEqualTo("exchangeForBodyMono");
+
+    Flowable<String> bodyFlow = service.getFlowableBody();
+    assertThat(bodyFlow.toList().blockingGet()).asList().containsExactly("exchange", "For", "Body", "Flux");
+
+    Single<ResponseEntity<Void>> voidEntity = service.getVoidEntity();
+    assertThat(voidEntity.blockingGet().getBody()).isNull();
+
+    Single<ResponseEntity<String>> entitySingle = service.getEntity();
+    assertThat(entitySingle.blockingGet().getBody()).isEqualTo("exchangeForEntityMono");
+
+    Single<ResponseEntity<Flowable<String>>> entityFlow = service.getFlowableEntity();
+    Flowable<String> body = (entityFlow.blockingGet()).getBody();
+    assertThat(body.toList().blockingGet()).containsExactly("exchange", "For", "Entity", "Flux");
   }
 
   @Test
@@ -161,7 +164,7 @@ public class HttpServiceMethodTests {
 
     HttpRequestValues requestValues = this.client.getRequestValues();
     assertThat(requestValues.getHttpMethod()).isEqualTo(HttpMethod.GET);
-    assertThat(requestValues.getUriTemplate()).isEqualTo("");
+    assertThat(requestValues.getUriTemplate()).isEmpty();
     assertThat(requestValues.getHeaders().getContentType()).isNull();
     assertThat(requestValues.getHeaders().getAccept()).isEmpty();
 
@@ -175,10 +178,11 @@ public class HttpServiceMethodTests {
   }
 
   @Test
-  void typeAndMethodAnnotatedService() throws Exception {
-    HttpServiceProxyFactory proxyFactory = new HttpServiceProxyFactory(this.client);
-    proxyFactory.setEmbeddedValueResolver(value -> (value.equals("${baseUrl}") ? "/base" : value));
-    proxyFactory.afterPropertiesSet();
+  void typeAndMethodAnnotatedService() {
+    HttpServiceProxyFactory proxyFactory = HttpServiceProxyFactory.builder()
+            .exchangeAdapter(this.client)
+            .embeddedValueResolver(value -> (value.equals("${baseUrl}") ? "/base" : value))
+            .build();
 
     MethodLevelAnnotatedService service = proxyFactory.createClient(TypeAndMethodLevelAnnotatedService.class);
 
@@ -199,12 +203,37 @@ public class HttpServiceMethodTests {
     assertThat(requestValues.getHeaders().getAccept()).containsExactly(MediaType.APPLICATION_JSON);
   }
 
-  private void verifyClientInvocation(String methodName, @Nullable ParameterizedTypeReference<?> expectedBodyType) {
-    assertThat(this.client.getInvokedMethodName()).isEqualTo(methodName);
-    assertThat(this.client.getBodyType()).isEqualTo(expectedBodyType);
+  protected void verifyReactorClientInvocation(String methodName, @Nullable ParameterizedTypeReference<?> expectedBodyType) {
+    assertThat(this.reactorClient.getInvokedMethodName()).isEqualTo(methodName);
+    assertThat(this.reactorClient.getBodyType()).isEqualTo(expectedBodyType);
   }
 
   @SuppressWarnings("unused")
+  private interface Service {
+
+    @GetExchange
+    void execute();
+
+    @GetExchange
+    HttpHeaders getHeaders();
+
+    @GetExchange
+    String getBody();
+
+    @GetExchange
+    Optional<String> getBodyOptional();
+
+    @GetExchange
+    ResponseEntity<Void> getVoidEntity();
+
+    @GetExchange
+    ResponseEntity<String> getEntity();
+
+    @GetExchange
+    List<String> getList();
+
+  }
+
   private interface ReactorService {
 
     @GetExchange
@@ -231,6 +260,7 @@ public class HttpServiceMethodTests {
     default String getDefaultMethodValue() {
       return "default value";
     }
+
   }
 
   @SuppressWarnings("unused")
@@ -256,28 +286,7 @@ public class HttpServiceMethodTests {
 
     @GetExchange
     Single<ResponseEntity<Flowable<String>>> getFlowableEntity();
-  }
 
-  @SuppressWarnings("unused")
-  private interface BlockingService {
-
-    @GetExchange
-    void execute();
-
-    @GetExchange
-    HttpHeaders getHeaders();
-
-    @GetExchange
-    String getBody();
-
-    @GetExchange
-    Optional<String> getBodyOptional();
-
-    @GetExchange
-    ResponseEntity<Void> getVoidEntity();
-
-    @GetExchange
-    ResponseEntity<String> getEntity();
   }
 
   @SuppressWarnings("unused")
