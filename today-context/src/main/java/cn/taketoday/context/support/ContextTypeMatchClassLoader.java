@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.context.support;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -29,6 +27,7 @@ import cn.taketoday.core.DecoratingClassLoader;
 import cn.taketoday.core.OverridingClassLoader;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -49,16 +48,26 @@ final class ContextTypeMatchClassLoader extends DecoratingClassLoader implements
     ClassLoader.registerAsParallelCapable();
   }
 
+  @Nullable
   private static final Method findLoadedClassMethod;
 
   static {
+    // Try to enable findLoadedClass optimization which allows us to selectively
+    // override classes that have not been loaded yet. If not accessible, we will
+    // always override requested classes, even when the classes have been loaded
+    // by the parent ClassLoader already and cannot be transformed anymore anyway.
+    Method method = null;
     try {
-      findLoadedClassMethod = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
+      method = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
+      ReflectionUtils.makeAccessible(method);
     }
-    catch (NoSuchMethodException ex) {
-      throw new IllegalStateException(
-              "Invalid [java.lang.ClassLoader] class: no 'findLoadedClass' method defined!");
+    catch (Throwable ex) {
+      // Typically a JDK 9+ InaccessibleObjectException...
+      // Avoid through JVM startup with --add-opens=java.base/java.lang=ALL-UNNAMED
+      LoggerFactory.getLogger(ContextTypeMatchClassLoader.class)
+              .debug("ClassLoader.findLoadedClass not accessible -> will always override requested class", ex);
     }
+    findLoadedClassMethod = method;
   }
 
   /** Cache for byte array per class name. */
@@ -98,13 +107,14 @@ final class ContextTypeMatchClassLoader extends DecoratingClassLoader implements
       if (isExcluded(className) || ContextTypeMatchClassLoader.this.isExcluded(className)) {
         return false;
       }
-      ReflectionUtils.makeAccessible(findLoadedClassMethod);
-      ClassLoader parent = getParent();
-      while (parent != null) {
-        if (ReflectionUtils.invokeMethod(findLoadedClassMethod, parent, className) != null) {
-          return false;
+      if (findLoadedClassMethod != null) {
+        ClassLoader parent = getParent();
+        while (parent != null) {
+          if (ReflectionUtils.invokeMethod(findLoadedClassMethod, parent, className) != null) {
+            return false;
+          }
+          parent = parent.getParent();
         }
-        parent = parent.getParent();
       }
       return true;
     }
