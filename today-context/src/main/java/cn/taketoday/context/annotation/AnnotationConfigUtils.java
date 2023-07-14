@@ -76,12 +76,6 @@ public abstract class AnnotationConfigUtils {
           "cn.taketoday.context.annotation.internalConfigurationBeanNameGenerator";
 
   /**
-   * The bean name of the internally managed JSR-250 annotation processor.
-   */
-  private static final String JSR250_ANNOTATION_PROCESSOR_BEAN_NAME =
-          "cn.taketoday.context.annotation.internalJsr250AnnotationProcessor";
-
-  /**
    * The bean name of the internally managed Autowired annotation processor.
    */
   public static final String AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME =
