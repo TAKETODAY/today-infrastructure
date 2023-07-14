@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,9 +79,10 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * instances may use the same the underlying {@link ClientHttpRequestFactory}
  * if they need to share HTTP client resources.
  *
- * <p>The RestTemplate offers templates for common scenarios by HTTP method, in
- * addition to the generalized {@code exchange} and {@code execute} methods that
- * support of less frequent cases.
+ * <p><strong>NOTE:</strong> {@link RestClient} offers a more modern
+ * API for synchronous HTTP access. For asynchronous and streaming scenarios,
+ * consider the reactive
+ * {@link cn.taketoday.web.reactive.function.client.WebClient}.
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
