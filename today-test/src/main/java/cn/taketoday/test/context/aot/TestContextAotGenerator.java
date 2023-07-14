@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -200,8 +197,10 @@ public class TestContextAotGenerator {
     ClassLoader classLoader = getClass().getClassLoader();
     MultiValueMap<ClassName, Class<?>> initializerClassMappings = new LinkedMultiValueMap<>();
     mergedConfigMappings.forEach((mergedConfig, testClasses) -> {
-      logger.debug("Generating AOT artifacts for test classes {}",
-              testClasses.stream().map(Class::getName).toList());
+      if (logger.isDebugEnabled()) {
+        logger.debug("Generating AOT artifacts for test classes {}",
+                testClasses.stream().map(Class::getName).toList());
+      }
       this.mergedConfigRuntimeHints.registerHints(this.runtimeHints, mergedConfig, classLoader);
       try {
         // Use first test class discovered for a given unique MergedContextConfiguration.
@@ -214,8 +213,16 @@ public class TestContextAotGenerator {
         generationContext.writeGeneratedContent();
       }
       catch (Exception ex) {
-        logger.warn("Failed to generate AOT artifacts for test classes {}",
-                testClasses.stream().map(Class::getName).toList(), ex);
+        if (logger.isDebugEnabled()) {
+          logger.debug("Failed to generate AOT artifacts for test classes {}",
+                  testClasses.stream().map(Class::getName).toList(), ex);
+        }
+        else if (logger.isWarnEnabled()) {
+          logger.warn("""
+                  Failed to generate AOT artifacts for test classes %s. \
+                  Enable DEBUG logging to view the stack trace. %s"""
+                  .formatted(testClasses.stream().map(Class::getName).toList(), ex));
+        }
       }
     });
     return initializerClassMappings;
