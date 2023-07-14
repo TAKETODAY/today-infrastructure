@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -399,6 +396,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
     catch (SQLException ex) {
       // Release Connection early, to avoid potential connection pool deadlock
       // in the case when the exception translator hasn't been initialized yet.
+      if (stmt != null) {
+        handleWarnings(stmt, ex);
+      }
       String sql = getSql(action);
       JdbcUtils.closeStatement(stmt);
       stmt = null;
@@ -674,6 +674,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       // in the case when the exception translator hasn't been initialized yet.
       if (psc instanceof ParameterDisposer) {
         ((ParameterDisposer) psc).cleanupParameters();
+      }
+      if (ps != null) {
+        handleWarnings(ps, ex);
       }
       String sql = getSql(psc);
       psc = null;
@@ -1220,6 +1223,9 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       // in the case when the exception translator hasn't been initialized yet.
       if (csc instanceof ParameterDisposer) {
         ((ParameterDisposer) csc).cleanupParameters();
+      }
+      if (cs != null) {
+        handleWarnings(cs, ex);
       }
       String sql = getSql(csc);
       csc = null;

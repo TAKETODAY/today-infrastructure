@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,13 +147,15 @@ public abstract class JdbcAccessor {
   }
 
   /**
-   * Set whether or not we want to ignore SQLWarnings.
-   * <p>Default is "true", swallowing and logging all warnings. Switch this flag
-   * to "false" to make the JdbcTemplate throw an SQLWarningException instead.
+   * Set whether we want to ignore JDBC statement warnings ({@link SQLWarning}).
+   * <p>Default is {@code true}, swallowing and logging all warnings. Switch this flag to
+   * {@code false} to make this JdbcTemplate throw a {@link SQLWarningException} instead
+   * (or chain the {@link SQLWarning} into the primary {@link SQLException}, if any).
    *
-   * @see SQLWarning
-   * @see cn.taketoday.jdbc.SQLWarningException
-   * @see #handleWarnings
+   * @see Statement#getWarnings()
+   * @see java.sql.SQLWarning
+   * @see SQLWarningException
+   * @see #handleWarnings(Statement)
    */
   public void setIgnoreWarnings(boolean ignoreWarnings) {
     this.ignoreWarnings = ignoreWarnings;
@@ -179,12 +178,43 @@ public abstract class JdbcAccessor {
   }
 
   /**
-   * Throw an SQLWarningException if we're not ignoring warnings,
-   * otherwise log the warnings at debug level.
+   * Handle warnings before propagating a primary {@code SQLException}
+   * from executing the given statement.
+   * <p>Calls regular {@link #handleWarnings(Statement)} but catches
+   * {@link SQLWarningException} in order to chain the {@link SQLWarning}
+   * into the primary exception instead.
    *
    * @param stmt the current JDBC statement
-   * @throws SQLWarningException if not ignoring warnings
-   * @see cn.taketoday.jdbc.SQLWarningException
+   * @param ex the primary exception after failed statement execution
+   * @see #handleWarnings(Statement)
+   * @see SQLException#setNextException
+   */
+  protected void handleWarnings(Statement stmt, SQLException ex) {
+    try {
+      handleWarnings(stmt);
+    }
+    catch (SQLWarningException nonIgnoredWarning) {
+      ex.setNextException(nonIgnoredWarning.getSQLWarning());
+    }
+    catch (SQLException warningsEx) {
+      logger.debug("Failed to retrieve warnings", warningsEx);
+    }
+    catch (Throwable warningsEx) {
+      logger.debug("Failed to process warnings", warningsEx);
+    }
+  }
+
+  /**
+   * Handle the warnings for the given JDBC statement, if any.
+   * <p>Throws a {@link SQLWarningException} if we're not ignoring warnings,
+   * otherwise logs the warnings at debug level.
+   *
+   * @param stmt the current JDBC statement
+   * @throws SQLException in case of warnings retrieval failure
+   * @throws SQLWarningException for a concrete warning to raise
+   * (when not ignoring warnings)
+   * @see #setIgnoreWarnings
+   * @see #handleWarnings(SQLWarning)
    */
   public void handleWarnings(Statement stmt) throws SQLException {
     if (isIgnoreWarnings()) {
