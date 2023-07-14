@@ -111,9 +111,7 @@ public abstract class RequestPredicates {
    */
   public static RequestPredicate path(String pattern) {
     Assert.notNull(pattern, "'pattern' is required");
-    if (!pattern.isEmpty() && !pattern.startsWith("/")) {
-      pattern = "/" + pattern;
-    }
+    pattern = StringUtils.prependLeadingSlash(pattern);
     return pathPredicates(PathPatternParser.defaultInstance).apply(pattern);
   }
 

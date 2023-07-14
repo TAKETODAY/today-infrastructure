@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -678,17 +675,17 @@ else */
    * /users   -> /users
    * </pre>
    *
-   * @param url Input url
+   * @param path Input path
    */
-  public static String formatURL(String url) {
-    if (StringUtils.isEmpty(url)) {
+  public static String prependLeadingSlash(@Nullable String path) {
+    if (StringUtils.isEmpty(path)) {
       return Constant.BLANK;
     }
     else {
-      if (url.charAt(0) == '/') {
-        return url;
+      if (path.charAt(0) == '/') {
+        return path;
       }
-      return '/' + url;
+      return '/' + path;
     }
   }
 
