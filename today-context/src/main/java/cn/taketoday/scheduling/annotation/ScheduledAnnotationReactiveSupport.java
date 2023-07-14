@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +33,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.scheduling.SchedulingAwareRunnable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -143,30 +141,42 @@ abstract class ScheduledAnnotationReactiveSupport {
    * semantics (i.e. the task blocks until completion of the Publisher, and the
    * delay is applied until the next iteration).
    */
-  static Runnable createSubscriptionRunnable(Method method,
-          Object targetBean, Scheduled scheduled, List<Runnable> subscriptionTrackerRegistry) {
+  public static Runnable createSubscriptionRunnable(Method method, Object targetBean,
+          Scheduled scheduled, List<Runnable> subscriptionTrackerRegistry) {
 
     boolean shouldBlock = scheduled.fixedDelay() > 0 || StringUtils.hasText(scheduled.fixedDelayString());
     Publisher<?> publisher = getPublisherFor(method, targetBean);
-    return new SubscribingRunnable(publisher, shouldBlock, subscriptionTrackerRegistry);
+    return new SubscribingRunnable(publisher, shouldBlock, scheduled.scheduler(), subscriptionTrackerRegistry);
   }
 
   /**
    * Utility implementation of {@code Runnable} that subscribes to a {@code Publisher}
    * or subscribes-then-blocks if {@code shouldBlock} is set to {@code true}.
    */
-  static final class SubscribingRunnable implements Runnable {
+  static final class SubscribingRunnable implements SchedulingAwareRunnable {
 
     private final Publisher<?> publisher;
 
     final boolean shouldBlock;
 
+    @Nullable
+    private final String qualifier;
+
     private final List<Runnable> subscriptionTrackerRegistry;
 
-    SubscribingRunnable(Publisher<?> publisher, boolean shouldBlock, List<Runnable> subscriptionTrackerRegistry) {
+    SubscribingRunnable(Publisher<?> publisher, boolean shouldBlock,
+            @Nullable String qualifier, List<Runnable> subscriptionTrackerRegistry) {
+
       this.publisher = publisher;
       this.shouldBlock = shouldBlock;
+      this.qualifier = qualifier;
       this.subscriptionTrackerRegistry = subscriptionTrackerRegistry;
+    }
+
+    @Override
+    @Nullable
+    public String getQualifier() {
+      return this.qualifier;
     }
 
     @Override
@@ -174,8 +184,7 @@ abstract class ScheduledAnnotationReactiveSupport {
       if (this.shouldBlock) {
         CountDownLatch latch = new CountDownLatch(1);
         TrackingSubscriber subscriber = new TrackingSubscriber(this.subscriptionTrackerRegistry, latch);
-        this.subscriptionTrackerRegistry.add(subscriber);
-        this.publisher.subscribe(subscriber);
+        subscribe(subscriber);
         try {
           latch.await();
         }
@@ -185,9 +194,13 @@ abstract class ScheduledAnnotationReactiveSupport {
       }
       else {
         TrackingSubscriber subscriber = new TrackingSubscriber(this.subscriptionTrackerRegistry);
-        this.subscriptionTrackerRegistry.add(subscriber);
-        this.publisher.subscribe(subscriber);
+        subscribe(subscriber);
       }
+    }
+
+    private void subscribe(TrackingSubscriber subscriber) {
+      this.subscriptionTrackerRegistry.add(subscriber);
+      this.publisher.subscribe(subscriber);
     }
   }
 
