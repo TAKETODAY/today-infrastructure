@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +30,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.framework.Advised;
@@ -100,8 +98,7 @@ public class EnableAsyncTests {
   public void properExceptionForExistingProxyDependencyMismatch() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfig.class, AsyncBeanWithInterface.class, AsyncBeanUser.class);
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(
-                    ctx::refresh)
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(ctx::refresh)
             .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
     ctx.close();
   }
@@ -110,8 +107,7 @@ public class EnableAsyncTests {
   public void properExceptionForResolvedProxyDependencyMismatch() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AsyncConfig.class, AsyncBeanUser.class, AsyncBeanWithInterface.class);
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(
-                    ctx::refresh)
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(ctx::refresh)
             .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
     ctx.close();
   }
@@ -141,16 +137,23 @@ public class EnableAsyncTests {
     System.setProperty("my.app.myExecutor", "myExecutor2");
 
     Class<?> configClass = AsyncWithExecutorQualifiedByExpressionConfig.class;
-    try {
-      ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass);
+    try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(configClass)) {
       AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder asyncBean =
               context.getBean(AsyncBeanWithExecutorQualifiedByExpressionOrPlaceholder.class);
 
       Future<Thread> workerThread1 = asyncBean.myWork1();
-      assertThat(workerThread1.get().getName()).startsWith("myExecutor1-");
+      assertThat(workerThread1.get(100, TimeUnit.MILLISECONDS).getName()).startsWith("myExecutor1-");
 
+      context.stop();
       Future<Thread> workerThread2 = asyncBean.myWork2();
-      assertThat(workerThread2.get().getName()).startsWith("myExecutor2-");
+      assertThatExceptionOfType(TimeoutException.class).isThrownBy(
+              () -> workerThread2.get(100, TimeUnit.MILLISECONDS));
+
+      context.start();
+      assertThat(workerThread2.get(100, TimeUnit.MILLISECONDS).getName()).startsWith("myExecutor2-");
+
+      Future<Thread> workerThread3 = asyncBean.fallBackToDefaultExecutor();
+      assertThat(workerThread3.get(100, TimeUnit.MILLISECONDS).getName()).startsWith("SimpleAsyncTaskExecutor");
     }
     finally {
       System.clearProperty("myExecutor");
@@ -210,8 +213,7 @@ public class EnableAsyncTests {
     @SuppressWarnings("resource")
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AspectJAsyncAnnotationConfig.class);
-    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
-            ctx::refresh);
+    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(ctx::refresh);
   }
 
   @Test
@@ -382,6 +384,11 @@ public class EnableAsyncTests {
 
     @Async("${my.app.myExecutor}")
     public Future<Thread> myWork2() {
+      return new AsyncResult<>(Thread.currentThread());
+    }
+
+    @Async("${my.app.myExecutor.UNDEFINED:}")
+    public Future<Thread> fallBackToDefaultExecutor() {
       return new AsyncResult<>(Thread.currentThread());
     }
   }

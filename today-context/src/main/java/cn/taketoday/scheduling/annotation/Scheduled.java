@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -205,5 +202,17 @@ public @interface Scheduled {
    * @return the {@code TimeUnit} to use
    */
   TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+
+  /**
+   * A qualifier for determining a scheduler to run this scheduled method on.
+   * <p>Defaults to an empty String, suggesting the default scheduler.
+   * <p>May be used to determine the target scheduler to be used,
+   * matching the qualifier value (or the bean name) of a specific
+   * {@link cn.taketoday.scheduling.TaskScheduler} or
+   * {@link java.util.concurrent.ScheduledExecutorService} bean definition.
+   *
+   * @see cn.taketoday.scheduling.SchedulingAwareRunnable#getQualifier()
+   */
+  String scheduler() default "";
 
 }

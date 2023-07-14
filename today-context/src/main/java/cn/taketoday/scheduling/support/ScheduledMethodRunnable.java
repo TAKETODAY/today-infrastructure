@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.scheduling.SchedulingAwareRunnable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -32,12 +31,33 @@ import cn.taketoday.util.ReflectionUtils;
  * assuming that an error strategy for Runnables is in place.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.scheduling.annotation.ScheduledAnnotationBeanPostProcessor
+ * @since 4.0
  */
-public class ScheduledMethodRunnable implements Runnable {
+public class ScheduledMethodRunnable implements SchedulingAwareRunnable {
 
   private final Object target;
+
   private final Method method;
+
+  @Nullable
+  private final String qualifier;
+
+  /**
+   * Create a {@code ScheduledMethodRunnable} for the given target instance,
+   * calling the specified method.
+   *
+   * @param target the target instance to call the method on
+   * @param method the target method to call
+   * @param qualifier a qualifier associated with this Runnable,
+   * e.g. for determining a scheduler to run this scheduled method on
+   */
+  public ScheduledMethodRunnable(Object target, Method method, @Nullable String qualifier) {
+    this.target = target;
+    this.method = method;
+    this.qualifier = qualifier;
+  }
 
   /**
    * Create a {@code ScheduledMethodRunnable} for the given target instance,
@@ -47,8 +67,7 @@ public class ScheduledMethodRunnable implements Runnable {
    * @param method the target method to call
    */
   public ScheduledMethodRunnable(Object target, Method method) {
-    this.target = target;
-    this.method = method;
+    this(target, method, null);
   }
 
   /**
@@ -60,8 +79,7 @@ public class ScheduledMethodRunnable implements Runnable {
    * @throws NoSuchMethodException if the specified method does not exist
    */
   public ScheduledMethodRunnable(Object target, String methodName) throws NoSuchMethodException {
-    this.target = target;
-    this.method = target.getClass().getMethod(methodName);
+    this(target, target.getClass().getMethod(methodName));
   }
 
   /**
@@ -76,6 +94,12 @@ public class ScheduledMethodRunnable implements Runnable {
    */
   public Method getMethod() {
     return this.method;
+  }
+
+  @Override
+  @Nullable
+  public String getQualifier() {
+    return this.qualifier;
   }
 
   @Override

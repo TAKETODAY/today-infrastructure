@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,8 @@
 
 package cn.taketoday.scheduling;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Extension of the {@link Runnable} interface, adding special callbacks
  * for long-running operations.
@@ -29,6 +28,7 @@ package cn.taketoday.scheduling;
  * as appropriately as they are able to.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.core.task.TaskExecutor
  * @see SchedulingTaskExecutor
  * @since 4.0
@@ -42,7 +42,26 @@ public interface SchedulingAwareRunnable extends Runnable {
    * pool (if any) but rather be considered as long-running background thread.
    * <p>This should be considered a hint. Of course TaskExecutor implementations
    * are free to ignore this flag and the SchedulingAwareRunnable interface overall.
+   * <p>The default implementation returns {@code false}
    */
-  boolean isLongLived();
+  default boolean isLongLived() {
+    return false;
+  }
 
+  /**
+   * Return a qualifier associated with this Runnable.
+   * <p>The default implementation returns {@code null}.
+   * <p>May be used for custom purposes depending on the scheduler implementation.
+   * {@link cn.taketoday.scheduling.config.TaskSchedulerRouter} introspects
+   * this qualifier in order to determine the target scheduler to be used
+   * for a given Runnable, matching the qualifier value (or the bean name)
+   * of a specific {@link cn.taketoday.scheduling.TaskScheduler} or
+   * {@link java.util.concurrent.ScheduledExecutorService} bean definition.
+   *
+   * @see cn.taketoday.scheduling.annotation.Scheduled#scheduler()
+   */
+  @Nullable
+  default String getQualifier() {
+    return null;
+  }
 }

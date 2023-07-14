@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +33,7 @@ import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
+import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
@@ -44,9 +42,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.function.SingletonSupplier;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Base class for asynchronous method execution aspects, such as
@@ -75,9 +73,15 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 
   @Nullable
   private BeanFactory beanFactory;
+
   private SingletonSupplier<Executor> defaultExecutor;
+
   private SingletonSupplier<AsyncUncaughtExceptionHandler> exceptionHandler;
+
   private final ConcurrentHashMap<Method, AsyncTaskExecutor> executors = new ConcurrentHashMap<>(16);
+
+  @Nullable
+  private StringValueResolver embeddedValueResolver;
 
   /**
    * Create a new instance with a default {@link AsyncUncaughtExceptionHandler}.
@@ -110,8 +114,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * Configure this aspect with the given executor and exception handler suppliers,
    * applying the corresponding default if a supplier is not resolvable.
    */
-  public void configure(
-          @Nullable Supplier<Executor> defaultExecutor,
+  public void configure(@Nullable Supplier<Executor> defaultExecutor,
           @Nullable Supplier<AsyncUncaughtExceptionHandler> exceptionHandler) {
 
     this.defaultExecutor = new SingletonSupplier<>(defaultExecutor, () -> getDefaultExecutor(this.beanFactory));
@@ -151,6 +154,9 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   @Override
   public void setBeanFactory(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    if (beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory) {
+      this.embeddedValueResolver = new EmbeddedValueResolver(configurableBeanFactory);
+    }
   }
 
   /**
@@ -165,6 +171,9 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
     if (executor == null) {
       Executor targetExecutor;
       String qualifier = getExecutorQualifier(method);
+      if (embeddedValueResolver != null && StringUtils.isNotEmpty(qualifier)) {
+        qualifier = embeddedValueResolver.resolveStringValue(qualifier);
+      }
       if (StringUtils.isNotEmpty(qualifier)) {
         targetExecutor = findQualifiedExecutor(this.beanFactory, qualifier);
       }
@@ -174,8 +183,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
       if (targetExecutor == null) {
         return null;
       }
-      executor = targetExecutor instanceof AsyncListenableTaskExecutor
-                 ? (AsyncListenableTaskExecutor) targetExecutor : new TaskExecutorAdapter(targetExecutor);
+      executor = (targetExecutor instanceof AsyncTaskExecutor asyncTaskExecutor ?
+                  asyncTaskExecutor : new TaskExecutorAdapter(targetExecutor));
       this.executors.put(method, executor);
     }
     return executor;
