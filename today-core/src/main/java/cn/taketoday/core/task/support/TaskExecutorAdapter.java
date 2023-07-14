@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +39,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * the {@link cn.taketoday.core.task.AsyncTaskExecutor} interface accordingly.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Executor
  * @see ExecutorService
  * @see java.util.concurrent.Executors
@@ -94,8 +92,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
       doExecute(this.concurrentExecutor, this.taskDecorator, task);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + this.concurrentExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
     }
   }
 
@@ -107,8 +104,9 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   @Override
   public Future<?> submit(Runnable task) {
     try {
-      if (this.taskDecorator == null && this.concurrentExecutor instanceof ExecutorService) {
-        return ((ExecutorService) this.concurrentExecutor).submit(task);
+      if (this.taskDecorator == null &&
+              this.concurrentExecutor instanceof ExecutorService executorService) {
+        return executorService.submit(task);
       }
       else {
         FutureTask<Object> future = new FutureTask<>(task, null);
@@ -117,16 +115,16 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
       }
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + this.concurrentExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
     }
   }
 
   @Override
   public <T> Future<T> submit(Callable<T> task) {
     try {
-      if (this.taskDecorator == null && this.concurrentExecutor instanceof ExecutorService) {
-        return ((ExecutorService) this.concurrentExecutor).submit(task);
+      if (this.taskDecorator == null &&
+              this.concurrentExecutor instanceof ExecutorService executorService) {
+        return executorService.submit(task);
       }
       else {
         FutureTask<T> future = new FutureTask<>(task);
@@ -135,8 +133,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
       }
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + this.concurrentExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
     }
   }
 
@@ -148,8 +145,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
       return future;
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + this.concurrentExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
     }
   }
 
@@ -161,8 +157,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
       return future;
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(
-              "Executor [" + this.concurrentExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
     }
   }
 
@@ -175,9 +170,8 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
    * @param runnable the runnable to execute
    * @throws RejectedExecutionException if the given runnable cannot be accepted
    */
-  protected void doExecute(
-          Executor concurrentExecutor, @Nullable TaskDecorator taskDecorator, Runnable runnable)
-          throws RejectedExecutionException {
+  protected void doExecute(Executor concurrentExecutor,
+          @Nullable TaskDecorator taskDecorator, Runnable runnable) throws RejectedExecutionException {
 
     concurrentExecutor.execute(taskDecorator != null ? taskDecorator.decorate(runnable) : runnable);
   }
