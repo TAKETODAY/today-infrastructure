@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.annotation.EnableDependencyInjection;
-import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -161,25 +157,10 @@ public abstract class AnnotationConfigUtils {
     }
 
     // Check for Jakarta Annotations support, and if present add the CommonAnnotationBeanPostProcessor.
-    if (jakartaAnnotationsPresent && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
+    if ((jakartaAnnotationsPresent || jsr250Present)
+            && !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) {
       RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);
       registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME, consumer);
-    }
-
-    // Check for JSR-250 support, and if present add an InitDestroyAnnotationBeanPostProcessor
-    // for the javax variant of PostConstruct/PreDestroy.
-    if (jsr250Present && !registry.containsBeanDefinition(JSR250_ANNOTATION_PROCESSOR_BEAN_NAME)) {
-      try {
-        RootBeanDefinition def = new RootBeanDefinition(InitDestroyAnnotationBeanPostProcessor.class);
-        def.getPropertyValues().add("initAnnotationType",
-                AnnotationConfigUtils.class.getClassLoader().loadClass("javax.annotation.PostConstruct"));
-        def.getPropertyValues().add("destroyAnnotationType",
-                AnnotationConfigUtils.class.getClassLoader().loadClass("javax.annotation.PreDestroy"));
-        registerPostProcessor(registry, def, JSR250_ANNOTATION_PROCESSOR_BEAN_NAME, consumer);
-      }
-      catch (ClassNotFoundException ex) {
-        // Failed to load javax variants of the annotation types -> ignore.
-      }
     }
 
     // Check for JPA support, and if present add the PersistenceAnnotationBeanPostProcessor.

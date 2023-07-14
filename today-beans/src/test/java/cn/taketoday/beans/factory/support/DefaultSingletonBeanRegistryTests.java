@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +15,12 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory;
+package cn.taketoday.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.beans.factory.support.DefaultSingletonBeanRegistry;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,31 +29,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class DefaultSingletonBeanRegistryTests {
 
-  @Test
-  public void testSingletons() {
-    DefaultSingletonBeanRegistry beanRegistry = new DefaultSingletonBeanRegistry();
+  private final DefaultSingletonBeanRegistry beanRegistry = new DefaultSingletonBeanRegistry();
 
-    BeanMappingTestBean tb = new BeanMappingTestBean();
+  @Test
+  void singletons() {
+    TestBean tb = new TestBean();
     beanRegistry.registerSingleton("tb", tb);
     assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
 
-    BeanMappingTestBean tb2 = (BeanMappingTestBean) beanRegistry.getSingleton("tb2", BeanMappingTestBean::new);
+    TestBean tb2 = (TestBean) beanRegistry.getSingleton("tb2", TestBean::new);
     assertThat(beanRegistry.getSingleton("tb2")).isSameAs(tb2);
 
     assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
     assertThat(beanRegistry.getSingleton("tb2")).isSameAs(tb2);
     assertThat(beanRegistry.getSingletonCount()).isEqualTo(2);
-    String[] names = beanRegistry.getSingletonNames();
-    assertThat(names).hasSize(2).contains("tb", "tb2");
+    assertThat(beanRegistry.getSingletonNames()).containsExactly("tb", "tb2");
 
-    assertThat(beanRegistry.getSingletonCount()).isEqualTo(2);
-    assertThat(beanRegistry.getSingletonNames()).hasSize(2);
+    beanRegistry.destroySingletons();
+    assertThat(beanRegistry.getSingletonCount()).isZero();
+    assertThat(beanRegistry.getSingletonNames()).isEmpty();
   }
 
   @Test
-  public void testDisposableBean() {
-    DefaultSingletonBeanRegistry beanRegistry = new DefaultSingletonBeanRegistry();
-
+  void disposableBean() {
     DerivedTestBean tb = new DerivedTestBean();
     beanRegistry.registerSingleton("tb", tb);
     beanRegistry.registerDisposableBean("tb", tb);
@@ -64,15 +59,29 @@ class DefaultSingletonBeanRegistryTests {
 
     assertThat(beanRegistry.getSingleton("tb")).isSameAs(tb);
     assertThat(beanRegistry.getSingletonCount()).isEqualTo(1);
-    String[] names = beanRegistry.getSingletonNames();
-    assertThat(names.length).isEqualTo(1);
-    assertThat(names[0]).isEqualTo("tb");
+    assertThat(beanRegistry.getSingletonNames()).containsExactly("tb");
     assertThat(tb.wasDestroyed()).isFalse();
 
     beanRegistry.destroySingletons();
-    assertThat(beanRegistry.getSingletonCount()).isEqualTo(0);
-    assertThat(beanRegistry.getSingletonNames().length).isEqualTo(0);
+    assertThat(beanRegistry.getSingletonCount()).isZero();
+    assertThat(beanRegistry.getSingletonNames()).isEmpty();
     assertThat(tb.wasDestroyed()).isTrue();
+  }
+
+  @Test
+  void dependentRegistration() {
+    beanRegistry.registerDependentBean("a", "b");
+    beanRegistry.registerDependentBean("b", "c");
+    beanRegistry.registerDependentBean("c", "b");
+    assertThat(beanRegistry.isDependent("a", "b")).isTrue();
+    assertThat(beanRegistry.isDependent("b", "c")).isTrue();
+    assertThat(beanRegistry.isDependent("c", "b")).isTrue();
+    assertThat(beanRegistry.isDependent("a", "c")).isTrue();
+    assertThat(beanRegistry.isDependent("c", "a")).isFalse();
+    assertThat(beanRegistry.isDependent("b", "a")).isFalse();
+    assertThat(beanRegistry.isDependent("a", "a")).isFalse();
+    assertThat(beanRegistry.isDependent("b", "b")).isTrue();
+    assertThat(beanRegistry.isDependent("c", "c")).isTrue();
   }
 
 }

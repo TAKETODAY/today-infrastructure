@@ -24,6 +24,7 @@ dependencies {
   optional("org.hibernate:hibernate-validator")
   optional("org.reactivestreams:reactive-streams")
   optional("io.projectreactor:reactor-core")
+  optional("javax.annotation:javax.annotation-api")
 
   optional("jakarta.mail:jakarta.mail-api")
   optional 'jakarta.activation:jakarta.activation-api'

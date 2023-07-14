@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,6 @@ import java.util.function.BiConsumer;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
-import cn.taketoday.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -257,14 +253,6 @@ class InitDestroyMethodLifecycleTests {
 
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
-
-    // Configure and register an InitDestroyAnnotationBeanPostProcessor as
-    // done in AnnotationConfigUtils.registerAnnotationConfigProcessors()
-    // for an ApplicatonContext.
-    var initDestroyBpp = new InitDestroyAnnotationBeanPostProcessor();
-    initDestroyBpp.setInitAnnotationType(javax.annotation.PostConstruct.class);
-    initDestroyBpp.setDestroyAnnotationType(javax.annotation.PreDestroy.class);
-    beanFactory.addBeanPostProcessor(initDestroyBpp);
 
     RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
     beanDefinition.setInitMethodName(initMethodName);

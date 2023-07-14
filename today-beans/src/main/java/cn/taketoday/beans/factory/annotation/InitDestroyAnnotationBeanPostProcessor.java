@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.annotation;
 
 import java.io.IOException;
@@ -28,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -40,12 +37,9 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
-import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.factory.support.MergedBeanDefinitionPostProcessor;
@@ -64,9 +58,10 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
- * {@link BeanPostProcessor} implementation that invokes annotated init and destroy
- * methods. Allows for an annotation alternative to {@link InitializingBean} and
- * {@link DisposableBean} callback interfaces.
+ * {@link cn.taketoday.beans.factory.config.BeanPostProcessor} implementation
+ * that invokes annotated init and destroy methods. Allows for an annotation
+ * alternative to {@link cn.taketoday.beans.factory.InitializingBean}
+ * and {@link cn.taketoday.beans.factory.DisposableBean} callback interfaces.
  *
  * <p>The actual annotation types that this post-processor checks for can be
  * configured through the {@link #setInitAnnotationType "initAnnotationType"}
@@ -79,7 +74,16 @@ import cn.taketoday.util.ReflectionUtils;
  * may be annotated, but it is recommended to only annotate one single
  * init method and destroy method, respectively.
  *
+ * <p>{@link cn.taketoday.context.annotation.CommonAnnotationBeanPostProcessor}
+ * supports the {@link jakarta.annotation.PostConstruct} and {@link jakarta.annotation.PreDestroy}
+ * annotations out of the box, as init annotation and destroy annotation, respectively.
+ * Furthermore, it also supports the {@link jakarta.annotation.Resource} annotation
+ * for annotation-driven injection of named beans.
+ *
  * @author Juergen Hoeller
+ * @author Stephane Nicoll
+ * @author Phillip Webb
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setInitAnnotationType
  * @see #setDestroyAnnotationType
@@ -110,11 +114,9 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
             }
           };
 
-  @Nullable
-  private Class<? extends Annotation> initAnnotationType;
+  private final Set<Class<? extends Annotation>> initAnnotationTypes = new LinkedHashSet<>(2);
 
-  @Nullable
-  private Class<? extends Annotation> destroyAnnotationType;
+  private final Set<Class<? extends Annotation>> destroyAnnotationTypes = new LinkedHashSet<>(2);
 
   @Nullable
   private final transient ConcurrentHashMap<Class<?>, LifecycleMetadata>
@@ -142,9 +144,24 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
    * <p>Any custom annotation can be used, since there are no required
    * annotation attributes. There is no default, although a typical choice
    * is the {@link jakarta.annotation.PostConstruct} annotation.
+   *
+   * @see #addInitAnnotationType
    */
   public void setInitAnnotationType(Class<? extends Annotation> initAnnotationType) {
-    this.initAnnotationType = initAnnotationType;
+    this.initAnnotationTypes.clear();
+    this.initAnnotationTypes.add(initAnnotationType);
+  }
+
+  /**
+   * Add an init annotation to check for, indicating initialization
+   * methods to call after configuration of a bean.
+   *
+   * @see #setInitAnnotationType
+   */
+  public void addInitAnnotationType(@Nullable Class<? extends Annotation> initAnnotationType) {
+    if (initAnnotationType != null) {
+      this.initAnnotationTypes.add(initAnnotationType);
+    }
   }
 
   /**
@@ -153,9 +170,24 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
    * <p>Any custom annotation can be used, since there are no required
    * annotation attributes. There is no default, although a typical choice
    * is the {@link jakarta.annotation.PreDestroy} annotation.
+   *
+   * @see #addDestroyAnnotationType
    */
   public void setDestroyAnnotationType(Class<? extends Annotation> destroyAnnotationType) {
-    this.destroyAnnotationType = destroyAnnotationType;
+    this.destroyAnnotationTypes.clear();
+    this.destroyAnnotationTypes.add(destroyAnnotationType);
+  }
+
+  /**
+   * Add a destroy annotation to check for, indicating destruction
+   * methods to call when the context is shutting down.
+   *
+   * @see #setDestroyAnnotationType
+   */
+  public void addDestroyAnnotationType(@Nullable Class<? extends Annotation> destroyAnnotationType) {
+    if (destroyAnnotationType != null) {
+      this.destroyAnnotationTypes.add(destroyAnnotationType);
+    }
   }
 
   @Override
@@ -254,7 +286,8 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   }
 
   private LifecycleMetadata buildLifecycleMetadata(Class<?> beanClass) {
-    if (!AnnotationUtils.isCandidateClass(beanClass, Arrays.asList(initAnnotationType, destroyAnnotationType))) {
+    if (!AnnotationUtils.isCandidateClass(beanClass, this.initAnnotationTypes)
+            && !AnnotationUtils.isCandidateClass(beanClass, this.destroyAnnotationTypes)) {
       return this.emptyLifecycleMetadata;
     }
 
@@ -267,17 +300,20 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       ArrayList<LifecycleMethod> currDestroyMethods = new ArrayList<>();
 
       ReflectionUtils.doWithLocalMethods(targetClass, method -> {
-        if (initAnnotationType != null && method.isAnnotationPresent(initAnnotationType)) {
-          LifecycleMethod element = new LifecycleMethod(method, beanClass);
-          currInitMethods.add(element);
-          if (log.isTraceEnabled()) {
-            log.trace("Found init method on class [{}]: {}", beanClass.getName(), method);
+        for (Class<? extends Annotation> initAnnotationType : initAnnotationTypes) {
+          if (initAnnotationType != null && method.isAnnotationPresent(initAnnotationType)) {
+            currInitMethods.add(new LifecycleMethod(method, beanClass));
+            if (log.isTraceEnabled()) {
+              log.trace("Found init method on class [{}]: {}", beanClass.getName(), method);
+            }
           }
         }
-        if (destroyAnnotationType != null && method.isAnnotationPresent(destroyAnnotationType)) {
-          currDestroyMethods.add(new LifecycleMethod(method, beanClass));
-          if (log.isTraceEnabled()) {
-            log.trace("Found destroy method on class [{}]: {}", beanClass.getName(), method);
+        for (Class<? extends Annotation> destroyAnnotationType : destroyAnnotationTypes) {
+          if (destroyAnnotationType != null && method.isAnnotationPresent(destroyAnnotationType)) {
+            currDestroyMethods.add(new LifecycleMethod(method, beanClass));
+            if (log.isTraceEnabled()) {
+              log.trace("Found destroy method on class [{}]: {}", beanClass.getName(), method);
+            }
           }
         }
       });

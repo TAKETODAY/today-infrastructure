@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,8 +61,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import jakarta.ejb.EJB;
 
@@ -143,10 +139,29 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
   private static final Class<? extends Annotation> ejbClass = ClassUtils.load(
           "jakarta.ejb.EJB", CommonAnnotationBeanPostProcessor.class.getClassLoader());
 
+  @Nullable
+  private static final Class<? extends Annotation> jakartaResourceType;
+
+  @Nullable
+  private static final Class<? extends Annotation> javaxResourceType;
+
+  @Nullable
+  private static final Class<? extends Annotation> ejbAnnotationType;
+
   static {
-    resourceAnnotationTypes.add(Resource.class);
-    if (ejbClass != null) {
-      resourceAnnotationTypes.add(ejbClass);
+    jakartaResourceType = loadAnnotationType("jakarta.annotation.Resource");
+    if (jakartaResourceType != null) {
+      resourceAnnotationTypes.add(jakartaResourceType);
+    }
+
+    javaxResourceType = loadAnnotationType("javax.annotation.Resource");
+    if (javaxResourceType != null) {
+      resourceAnnotationTypes.add(javaxResourceType);
+    }
+
+    ejbAnnotationType = loadAnnotationType("jakarta.ejb.EJB");
+    if (ejbAnnotationType != null) {
+      resourceAnnotationTypes.add(ejbAnnotationType);
     }
   }
 
@@ -179,8 +194,14 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
    */
   public CommonAnnotationBeanPostProcessor() {
     setOrder(LOWEST_PRECEDENCE - 3);
-    setInitAnnotationType(PostConstruct.class);
-    setDestroyAnnotationType(PreDestroy.class);
+
+    // Jakarta EE 9 set of annotations in jakarta.annotation package
+    addInitAnnotationType(loadAnnotationType("jakarta.annotation.PostConstruct"));
+    addDestroyAnnotationType(loadAnnotationType("jakarta.annotation.PreDestroy"));
+
+    // Tolerate legacy JSR-250 annotations in javax.annotation package
+    addInitAnnotationType(loadAnnotationType("javax.annotation.PostConstruct"));
+    addDestroyAnnotationType(loadAnnotationType("javax.annotation.PreDestroy"));
 
     // java.naming module present on JDK 9+?
     if (jndiPresent) {
@@ -325,25 +346,33 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       return InjectionMetadata.EMPTY;
     }
 
-    ArrayList<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
+    List<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
     Class<?> targetClass = clazz;
 
     do {
-      final ArrayList<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
+      final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
       ReflectionUtils.doWithLocalFields(targetClass, field -> {
-        if (ejbClass != null && field.isAnnotationPresent(ejbClass)) {
+        if (ejbAnnotationType != null && field.isAnnotationPresent(ejbAnnotationType)) {
           if (Modifier.isStatic(field.getModifiers())) {
             throw new IllegalStateException("@EJB annotation is not supported on static fields");
           }
           currElements.add(new EjbRefElement(field, field, null));
         }
-        else if (field.isAnnotationPresent(Resource.class)) {
+        else if (jakartaResourceType != null && field.isAnnotationPresent(jakartaResourceType)) {
           if (Modifier.isStatic(field.getModifiers())) {
             throw new IllegalStateException("@Resource annotation is not supported on static fields");
           }
           if (!this.ignoredResourceTypes.contains(field.getType().getName())) {
             currElements.add(new ResourceElement(field, field, null));
+          }
+        }
+        else if (javaxResourceType != null && field.isAnnotationPresent(javaxResourceType)) {
+          if (Modifier.isStatic(field.getModifiers())) {
+            throw new IllegalStateException("@Resource annotation is not supported on static fields");
+          }
+          if (!this.ignoredResourceTypes.contains(field.getType().getName())) {
+            currElements.add(new LegacyResourceElement(field, field, null));
           }
         }
       });
@@ -354,7 +383,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
           return;
         }
         if (method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
-          if (ejbClass != null && bridgedMethod.isAnnotationPresent(ejbClass)) {
+          if (ejbAnnotationType != null && bridgedMethod.isAnnotationPresent(ejbAnnotationType)) {
             if (Modifier.isStatic(method.getModifiers())) {
               throw new IllegalStateException("@EJB annotation is not supported on static methods");
             }
@@ -364,7 +393,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
             PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
             currElements.add(new EjbRefElement(method, bridgedMethod, pd));
           }
-          else if (bridgedMethod.isAnnotationPresent(Resource.class)) {
+          else if (jakartaResourceType != null && bridgedMethod.isAnnotationPresent(jakartaResourceType)) {
             if (Modifier.isStatic(method.getModifiers())) {
               throw new IllegalStateException("@Resource annotation is not supported on static methods");
             }
@@ -375,6 +404,19 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
             if (!this.ignoredResourceTypes.contains(paramTypes[0].getName())) {
               PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
               currElements.add(new ResourceElement(method, bridgedMethod, pd));
+            }
+          }
+          else if (javaxResourceType != null && bridgedMethod.isAnnotationPresent(javaxResourceType)) {
+            if (Modifier.isStatic(method.getModifiers())) {
+              throw new IllegalStateException("@Resource annotation is not supported on static methods");
+            }
+            Class<?>[] paramTypes = method.getParameterTypes();
+            if (paramTypes.length != 1) {
+              throw new IllegalStateException("@Resource annotation requires a single-arg method: " + method);
+            }
+            if (!this.ignoredResourceTypes.contains(paramTypes[0].getName())) {
+              PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
+              currElements.add(new LegacyResourceElement(method, bridgedMethod, pd));
             }
           }
         }
@@ -512,6 +554,11 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
     return resource;
   }
 
+  @Nullable
+  private static Class<? extends Annotation> loadAnnotationType(String name) {
+    return ClassUtils.load(name, CommonAnnotationBeanPostProcessor.class.getClassLoader());
+  }
+
   /**
    * Class representing generic injection information about an annotated field
    * or setter method, supporting @Resource and related annotations.
@@ -569,6 +616,51 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
     public ResourceElement(Member member, AnnotatedElement ae, @Nullable PropertyDescriptor pd) {
       super(member, pd);
       Resource resource = ae.getAnnotation(Resource.class);
+      String resourceName = resource.name();
+      Class<?> resourceType = resource.type();
+      this.isDefaultName = StringUtils.isEmpty(resourceName);
+      if (this.isDefaultName) {
+        resourceName = this.member.getName();
+        if (this.member instanceof Method && resourceName.startsWith("set") && resourceName.length() > 3) {
+          resourceName = StringUtils.uncapitalizeAsProperty(resourceName.substring(3));
+        }
+      }
+      else if (embeddedValueResolver != null) {
+        resourceName = embeddedValueResolver.resolveStringValue(resourceName);
+      }
+      if (Object.class != resourceType) {
+        checkResourceType(resourceType);
+      }
+      else {
+        // No resource type specified... check field/method.
+        resourceType = getResourceType();
+      }
+      this.name = (resourceName != null ? resourceName : "");
+      this.lookupType = resourceType;
+      String lookupValue = resource.lookup();
+      this.mappedName = StringUtils.isNotEmpty(lookupValue) ? lookupValue : resource.mappedName();
+      Lazy lazy = ae.getAnnotation(Lazy.class);
+      this.lazyLookup = (lazy != null && lazy.value());
+    }
+
+    @Override
+    protected Object getResourceToInject(Object target, @Nullable String requestingBeanName) {
+      return (this.lazyLookup ? buildLazyResourceProxy(this, requestingBeanName) :
+              getResource(this, requestingBeanName));
+    }
+  }
+
+  /**
+   * Class representing injection information about an annotated field
+   * or setter method, supporting the @Resource annotation.
+   */
+  private class LegacyResourceElement extends LookupElement {
+
+    private final boolean lazyLookup;
+
+    public LegacyResourceElement(Member member, AnnotatedElement ae, @Nullable PropertyDescriptor pd) {
+      super(member, pd);
+      javax.annotation.Resource resource = ae.getAnnotation(javax.annotation.Resource.class);
       String resourceName = resource.name();
       Class<?> resourceType = resource.type();
       this.isDefaultName = StringUtils.isEmpty(resourceName);
