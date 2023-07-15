@@ -930,7 +930,7 @@ class ObjectUtilsTests {
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ObjectUtils.caseInsensitiveValueOf(Tropes.values(), "bogus"))
-            .withMessage("Constant [bogus] does not exist in enum type cn.taketoday.util.ObjectUtilsTest$Tropes");
+            .withMessage("Constant [bogus] does not exist in enum type cn.taketoday.util.ObjectUtilsTests$Tropes");
   }
 
   @Nested
