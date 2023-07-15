@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +55,7 @@ class MapToMapConverterTests {
     Map<String, String> map = new HashMap<>();
     map.put("1", "9");
     map.put("2", "37");
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("scalarMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType, targetType)).isTrue();
@@ -118,7 +115,7 @@ class MapToMapConverterTests {
     Map<String, List<String>> map = new HashMap<>();
     map.put("1", Arrays.asList("9", "12"));
     map.put("2", Arrays.asList("37", "23"));
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("collectionMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType, targetType)).isTrue();
@@ -186,7 +183,7 @@ class MapToMapConverterTests {
   @Test
   void emptyMap() throws Exception {
     Map<String, String> map = new HashMap<>();
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("emptyMapTarget"));
 
     assertThat(conversionService.canConvert(sourceType, targetType)).isTrue();
@@ -204,7 +201,7 @@ class MapToMapConverterTests {
   @Test
   void emptyMapDifferentTargetImplType() throws Exception {
     Map<String, String> map = new HashMap<>();
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(map);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(map);
     TypeDescriptor targetType = new TypeDescriptor(getClass().getField("emptyMapDifferentTarget"));
 
     assertThat(conversionService.canConvert(sourceType, targetType)).isTrue();
@@ -272,7 +269,7 @@ class MapToMapConverterTests {
     result.put(MyEnum.C, 2);
 
     assertThat(conversionService.convert(source,
-            TypeDescriptor.fromObject(source), new TypeDescriptor(getClass().getField("enumMap")))).isEqualTo(result);
+            TypeDescriptor.forObject(source), new TypeDescriptor(getClass().getField("enumMap")))).isEqualTo(result);
   }
 
   public Map<Integer, Integer> scalarMapTarget;

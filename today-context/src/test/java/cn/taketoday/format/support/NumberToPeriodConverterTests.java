@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,7 +73,7 @@ class NumberToPeriodConverterTests {
       given(targetType.getAnnotation(PeriodUnit.class)).willReturn(unitAnnotation);
     }
     given(targetType.getType()).willReturn((Class) Period.class);
-    return (Period) conversionService.convert(source, TypeDescriptor.fromObject(source), targetType);
+    return (Period) conversionService.convert(source, TypeDescriptor.forObject(source), targetType);
   }
 
   static Stream<? extends Arguments> conversionServices() {

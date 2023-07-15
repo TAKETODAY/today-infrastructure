@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,7 +128,7 @@ public class ConstructorReference extends SpelNodeImpl {
       TypedValue childValue = this.children[i + 1].getValueInternal(state);
       Object value = childValue.getValue();
       arguments[i] = value;
-      argumentTypes.add(TypeDescriptor.fromObject(value));
+      argumentTypes.add(TypeDescriptor.forObject(value));
     }
 
     ConstructorExecutor executorToUse = this.cachedExecutor;
@@ -367,7 +364,7 @@ public class ConstructorReference extends SpelNodeImpl {
     for (int i = 0; i < newArray.length; i++) {
       Object arrayEntry = children[i].getValue(state);
       newArray[i] = typeConverter.convertValue(arrayEntry,
-              TypeDescriptor.fromObject(arrayEntry), toTypeDescriptor);
+              TypeDescriptor.forObject(arrayEntry), toTypeDescriptor);
     }
     return newArray;
   }

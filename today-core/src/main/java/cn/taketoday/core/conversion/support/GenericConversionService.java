@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -175,7 +172,7 @@ public class GenericConversionService implements ConfigurableConversionService {
   @Nullable
   public <T> T convert(@Nullable Object source, Class<T> targetType) {
     Assert.notNull(targetType, "Target type to convert to cannot be null");
-    return (T) convert(source, TypeDescriptor.fromObject(source), TypeDescriptor.valueOf(targetType));
+    return (T) convert(source, TypeDescriptor.forObject(source), TypeDescriptor.valueOf(targetType));
   }
 
   @Override
@@ -204,7 +201,7 @@ public class GenericConversionService implements ConfigurableConversionService {
    * where the target type is a descriptor that provides additional conversion context.
    * Simply delegates to {@link #convert(Object, TypeDescriptor, TypeDescriptor)} and
    * encapsulates the construction of the source type descriptor using
-   * {@link TypeDescriptor#fromObject(Object)}.
+   * {@link TypeDescriptor#forObject(Object)}.
    *
    * @param source the source object
    * @param targetType the target type
@@ -216,7 +213,7 @@ public class GenericConversionService implements ConfigurableConversionService {
   @Nullable
   @SuppressWarnings("unchecked")
   public <T> T convert(@Nullable Object source, TypeDescriptor targetType) {
-    return (T) convert(source, TypeDescriptor.fromObject(source), targetType);
+    return (T) convert(source, TypeDescriptor.forObject(source), targetType);
   }
 
   @Override

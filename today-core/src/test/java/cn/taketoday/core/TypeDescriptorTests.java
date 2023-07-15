@@ -330,13 +330,13 @@ public class TypeDescriptorTests {
 
   @Test
   public void fromObject() {
-    TypeDescriptor desc = TypeDescriptor.fromObject("3");
+    TypeDescriptor desc = TypeDescriptor.forObject("3");
     assertThat(desc.getType()).isEqualTo(String.class);
   }
 
   @Test
   public void forObjectNullTypeDescriptor() {
-    TypeDescriptor desc = TypeDescriptor.fromObject(null);
+    TypeDescriptor desc = TypeDescriptor.forObject(null);
     assertThat((Object) desc).isNull();
   }
 
@@ -623,7 +623,7 @@ public class TypeDescriptorTests {
     }
 
     assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.valueOf(CustomSet.class).getElementDescriptor());
-    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.fromObject(new CustomSet()).getElementDescriptor());
+    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.forObject(new CustomSet()).getElementDescriptor());
   }
 
   @Test
@@ -634,8 +634,8 @@ public class TypeDescriptorTests {
 
     assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.valueOf(CustomMap.class).getMapKeyDescriptor());
     assertThat(TypeDescriptor.valueOf(Integer.class)).isEqualTo(TypeDescriptor.valueOf(CustomMap.class).getMapValueDescriptor());
-    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.fromObject(new CustomMap()).getMapKeyDescriptor());
-    assertThat(TypeDescriptor.valueOf(Integer.class)).isEqualTo(TypeDescriptor.fromObject(new CustomMap()).getMapValueDescriptor());
+    assertThat(TypeDescriptor.valueOf(String.class)).isEqualTo(TypeDescriptor.forObject(new CustomMap()).getMapKeyDescriptor());
+    assertThat(TypeDescriptor.valueOf(Integer.class)).isEqualTo(TypeDescriptor.forObject(new CustomMap()).getMapValueDescriptor());
   }
 
   @Test
@@ -660,7 +660,7 @@ public class TypeDescriptorTests {
 
   @Test
   public void serializable() throws Exception {
-    TypeDescriptor descriptor = TypeDescriptor.fromObject("");
+    TypeDescriptor descriptor = TypeDescriptor.forObject("");
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     ObjectOutputStream outputStream = new ObjectOutputStream(out);
     outputStream.writeObject(descriptor);

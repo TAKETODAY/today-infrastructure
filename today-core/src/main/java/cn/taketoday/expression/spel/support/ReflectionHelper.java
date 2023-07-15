@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -283,7 +280,7 @@ public abstract class ReflectionHelper {
       for (int i = 0; i < arguments.length; i++) {
         TypeDescriptor targetType = new TypeDescriptor(MethodParameter.forExecutable(executable, i));
         Object argument = arguments[i];
-        arguments[i] = converter.convertValue(argument, TypeDescriptor.fromObject(argument), targetType);
+        arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
         conversionOccurred |= (argument != arguments[i]);
       }
     }
@@ -292,7 +289,7 @@ public abstract class ReflectionHelper {
       for (int i = 0; i < varargsPosition; i++) {
         TypeDescriptor targetType = new TypeDescriptor(MethodParameter.forExecutable(executable, i));
         Object argument = arguments[i];
-        arguments[i] = converter.convertValue(argument, TypeDescriptor.fromObject(argument), targetType);
+        arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
         conversionOccurred |= (argument != arguments[i]);
       }
 
@@ -302,7 +299,7 @@ public abstract class ReflectionHelper {
       if (varargsPosition == arguments.length - 1) {
         Object argument = arguments[varargsPosition];
         TypeDescriptor targetType = new TypeDescriptor(methodParam);
-        TypeDescriptor sourceType = TypeDescriptor.fromObject(argument);
+        TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
         if (argument == null) {
           // Perform the equivalent of GenericConversionService.convertNullSource() for a single argument.
           if (targetType.getElementDescriptor().getObjectType() == Optional.class) {
@@ -334,7 +331,7 @@ public abstract class ReflectionHelper {
         Assert.state(targetType != null, "No element type");
         for (int i = varargsPosition; i < arguments.length; i++) {
           Object argument = arguments[i];
-          arguments[i] = converter.convertValue(argument, TypeDescriptor.fromObject(argument), targetType);
+          arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
           conversionOccurred |= (argument != arguments[i]);
         }
       }
@@ -365,7 +362,7 @@ public abstract class ReflectionHelper {
         TypeDescriptor targetType = new TypeDescriptor(resolvableType, argumentClass, (Annotation[]) null);
 
         Object argument = arguments[i];
-        arguments[i] = converter.convertValue(argument, TypeDescriptor.fromObject(argument), targetType);
+        arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
         conversionOccurred |= (argument != arguments[i]);
       }
     }
@@ -377,7 +374,7 @@ public abstract class ReflectionHelper {
         TypeDescriptor targetType = new TypeDescriptor(resolvableType, argumentClass, (Annotation[]) null);
 
         Object argument = arguments[i];
-        arguments[i] = converter.convertValue(argument, TypeDescriptor.fromObject(argument), targetType);
+        arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), targetType);
         conversionOccurred |= (argument != arguments[i]);
       }
 
@@ -388,7 +385,7 @@ public abstract class ReflectionHelper {
       // If the target is varargs and there is just one more argument, then convert it here.
       if (varargsPosition == arguments.length - 1) {
         Object argument = arguments[varargsPosition];
-        TypeDescriptor sourceType = TypeDescriptor.fromObject(argument);
+        TypeDescriptor sourceType = TypeDescriptor.forObject(argument);
         if (argument == null) {
           // Perform the equivalent of GenericConversionService.convertNullSource() for a single argument.
           if (varArgContentType.getElementDescriptor().getObjectType() == Optional.class) {
@@ -419,7 +416,7 @@ public abstract class ReflectionHelper {
         Assert.state(varArgContentType != null, "No element type");
         for (int i = varargsPosition; i < arguments.length; i++) {
           Object argument = arguments[i];
-          arguments[i] = converter.convertValue(argument, TypeDescriptor.fromObject(argument), varArgContentType);
+          arguments[i] = converter.convertValue(argument, TypeDescriptor.forObject(argument), varArgContentType);
           conversionOccurred |= (argument != arguments[i]);
         }
       }

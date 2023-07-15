@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -447,7 +444,7 @@ public class Indexer extends SpelNodeImpl {
   @SuppressWarnings("unchecked")
   private <T> T convertValue(TypeConverter converter, @Nullable Object value, Class<T> targetType) {
     T result = (T) converter.convertValue(
-            value, TypeDescriptor.fromObject(value), TypeDescriptor.valueOf(targetType));
+            value, TypeDescriptor.forObject(value), TypeDescriptor.valueOf(targetType));
     if (result == null) {
       throw new IllegalStateException("Null conversion result for index [" + value + "]");
     }
@@ -522,7 +519,7 @@ public class Indexer extends SpelNodeImpl {
     public void setValue(@Nullable Object newValue) {
       TypeDescriptor mapValueDescriptor = this.mapEntryDescriptor.getMapValueDescriptor();
       if (mapValueDescriptor != null) {
-        newValue = typeConverter.convertValue(newValue, TypeDescriptor.fromObject(newValue), mapValueDescriptor);
+        newValue = typeConverter.convertValue(newValue, TypeDescriptor.forObject(newValue), mapValueDescriptor);
       }
       this.map.put(this.key, newValue);
     }
@@ -678,7 +675,7 @@ public class Indexer extends SpelNodeImpl {
       growCollectionIfNecessary();
       if (this.collection instanceof List list) {
         if (this.collectionEntryDescriptor.getElementDescriptor() != null) {
-          newValue = this.typeConverter.convertValue(newValue, TypeDescriptor.fromObject(newValue),
+          newValue = this.typeConverter.convertValue(newValue, TypeDescriptor.forObject(newValue),
                   this.collectionEntryDescriptor.getElementDescriptor());
         }
         list.set(this.index, newValue);

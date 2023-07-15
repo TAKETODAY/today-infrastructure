@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,11 +28,6 @@ import cn.taketoday.expression.OperatorOverloader;
 import cn.taketoday.expression.TypeComparator;
 import cn.taketoday.expression.TypeConverter;
 import cn.taketoday.expression.TypeLocator;
-import cn.taketoday.expression.spel.support.StandardEvaluationContext;
-import cn.taketoday.expression.spel.support.StandardOperatorOverloader;
-import cn.taketoday.expression.spel.support.StandardTypeComparator;
-import cn.taketoday.expression.spel.support.StandardTypeConverter;
-import cn.taketoday.expression.spel.support.StandardTypeLocator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -80,7 +72,7 @@ public class StandardComponentsTests {
   @Test
   public void testStandardTypeConverter() throws EvaluationException {
     TypeConverter tc = new StandardTypeConverter();
-    tc.convertValue(3, TypeDescriptor.fromObject(3), TypeDescriptor.valueOf(Double.class));
+    tc.convertValue(3, TypeDescriptor.forObject(3), TypeDescriptor.valueOf(Double.class));
   }
 
 }

@@ -89,11 +89,12 @@ final class ObjectToOptionalConverter implements ConditionalGenericConverter {
   }
 
   private static class GenericTypeDescriptor extends TypeDescriptor {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
     public GenericTypeDescriptor(TypeDescriptor typeDescriptor) {
-      super(typeDescriptor.getResolvableType().getGeneric(), null, typeDescriptor.getAnnotations());
+      super(typeDescriptor.getResolvableType().getGeneric(), null, typeDescriptor.getAnnotatedElement());
     }
 
   }

@@ -303,6 +303,13 @@ public class TypeDescriptor implements Serializable {
   }
 
   /**
+   * for internal using
+   */
+  public AnnotatedElement getAnnotatedElement() {
+    return annotatedElement;
+  }
+
+  /**
    * Determine if this type descriptor has the specified annotation.
    * <p>this method supports arbitrary levels of meta-annotations.
    *
@@ -595,7 +602,7 @@ public class TypeDescriptor implements Serializable {
    * @return the type descriptor
    */
   @Nullable
-  public static TypeDescriptor fromObject(@Nullable Object source) {
+  public static TypeDescriptor forObject(@Nullable Object source) {
     return source != null ? valueOf(source.getClass()) : null;
   }
 
@@ -604,7 +611,7 @@ public class TypeDescriptor implements Serializable {
    * <p>Use this to instruct the conversion system to convert an object to a
    * specific target type, when no type location such as a method parameter or
    * field is available to provide additional conversion context.
-   * <p>Generally prefer use of {@link #fromObject(Object)} for constructing type
+   * <p>Generally prefer use of {@link #forObject(Object)} for constructing type
    * descriptors from source objects, as it handles the {@code null} object case.
    *
    * @param type the class (may be {@code null} to indicate {@code Object.class})

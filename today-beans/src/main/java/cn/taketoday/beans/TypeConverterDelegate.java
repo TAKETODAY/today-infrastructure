@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +122,7 @@ public class TypeConverterDelegate {
     // No custom editor but custom ConversionService specified?
     ConversionService conversionService = propertyEditorRegistry.getConversionService();
     if (editor == null && conversionService != null && newValue != null && typeDescriptor != null) {
-      TypeDescriptor sourceTypeDesc = TypeDescriptor.fromObject(newValue);
+      TypeDescriptor sourceTypeDesc = TypeDescriptor.forObject(newValue);
       if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {
         try {
           return (T) conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
@@ -242,7 +239,7 @@ public class TypeConverterDelegate {
         else if (conversionService != null && typeDescriptor != null) {
           // ConversionService not tried before, probably custom editor found
           // but editor couldn't produce the required type...
-          TypeDescriptor sourceTypeDesc = TypeDescriptor.fromObject(newValue);
+          TypeDescriptor sourceTypeDesc = TypeDescriptor.forObject(newValue);
           if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {
             return (T) conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
           }

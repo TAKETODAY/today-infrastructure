@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.expression.spel.ast.FormatHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,13 +32,13 @@ public class FormatHelperTests {
 
   @Test
   public void formatMethodWithSingleArgumentForMessage() {
-    String message = FormatHelper.formatMethodForMessage("foo", Arrays.asList(TypeDescriptor.fromObject("a string")));
+    String message = FormatHelper.formatMethodForMessage("foo", Arrays.asList(TypeDescriptor.forObject("a string")));
     assertThat(message).isEqualTo("foo(java.lang.String)");
   }
 
   @Test
   public void formatMethodWithMultipleArgumentsForMessage() {
-    String message = FormatHelper.formatMethodForMessage("foo", Arrays.asList(TypeDescriptor.fromObject("a string"), TypeDescriptor.fromObject(Integer.valueOf(5))));
+    String message = FormatHelper.formatMethodForMessage("foo", Arrays.asList(TypeDescriptor.forObject("a string"), TypeDescriptor.forObject(Integer.valueOf(5))));
     assertThat(message).isEqualTo("foo(java.lang.String,java.lang.Integer)");
   }
 

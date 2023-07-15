@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -311,7 +308,7 @@ class GenericConversionServiceTests {
   void wildcardMap() throws Exception {
     Map<String, String> input = new LinkedHashMap<>();
     input.put("key", "value");
-    Object converted = conversionService.convert(input, TypeDescriptor.fromObject(input), new TypeDescriptor(getClass().getField("wildcardMap")));
+    Object converted = conversionService.convert(input, TypeDescriptor.forObject(input), new TypeDescriptor(getClass().getField("wildcardMap")));
     assertThat(converted).isEqualTo(input);
   }
 
@@ -341,7 +338,7 @@ class GenericConversionServiceTests {
     conversionService.addConverter(new CollectionToArrayConverter(conversionService));
     conversionService.addConverterFactory(new StringToNumberConverterFactory());
     List<String> list = new ArrayList<>();
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(list);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(list);
     TypeDescriptor targetType = TypeDescriptor.valueOf(String[].class);
     assertThat(conversionService.canConvert(sourceType, targetType)).isTrue();
     assertThat(((String[]) conversionService.convert(list, sourceType, targetType)).length).isEqualTo(0);
@@ -352,7 +349,7 @@ class GenericConversionServiceTests {
     conversionService.addConverter(new CollectionToObjectConverter(conversionService));
     conversionService.addConverterFactory(new StringToNumberConverterFactory());
     List<String> list = new ArrayList<>();
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(list);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(list);
     TypeDescriptor targetType = TypeDescriptor.valueOf(Integer.class);
     assertThat(conversionService.canConvert(sourceType, targetType)).isTrue();
     assertThat(conversionService.convert(list, sourceType, targetType)).isNull();

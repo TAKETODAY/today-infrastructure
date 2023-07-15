@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,14 +75,14 @@ public class ExpressionWithConversionTests extends AbstractExpressionTests {
     // ArrayList containing List<Integer> to List<String>
     Class<?> clazz = typeDescriptorForListOfString.getElementDescriptor().getType();
     assertThat(clazz).isEqualTo(String.class);
-    List<?> l = (List<?>) tcs.convertValue(listOfInteger, TypeDescriptor.fromObject(listOfInteger), typeDescriptorForListOfString);
+    List<?> l = (List<?>) tcs.convertValue(listOfInteger, TypeDescriptor.forObject(listOfInteger), typeDescriptorForListOfString);
     assertThat(l).isNotNull();
 
     // ArrayList containing List<String> to List<Integer>
     clazz = typeDescriptorForListOfInteger.getElementDescriptor().getType();
     assertThat(clazz).isEqualTo(Integer.class);
 
-    l = (List<?>) tcs.convertValue(listOfString, TypeDescriptor.fromObject(listOfString), typeDescriptorForListOfString);
+    l = (List<?>) tcs.convertValue(listOfString, TypeDescriptor.forObject(listOfString), typeDescriptorForListOfString);
     assertThat(l).isNotNull();
   }
 

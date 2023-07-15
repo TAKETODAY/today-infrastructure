@@ -661,7 +661,7 @@ class DefaultConversionServiceTests {
     foo.add("2");
     foo.add("3");
     @SuppressWarnings("unchecked")
-    List<Integer> bar = (List<Integer>) conversionService.convert(foo, TypeDescriptor.fromObject(foo),
+    List<Integer> bar = (List<Integer>) conversionService.convert(foo, TypeDescriptor.forObject(foo),
             new TypeDescriptor(getClass().getField("genericList")));
     assertThat(bar).containsExactly(1, 2, 3);
   }
@@ -694,7 +694,7 @@ class DefaultConversionServiceTests {
     map.put("3", "3");
     Collection values = map.values();
     List<Integer> bar = (List<Integer>) conversionService.convert(values,
-            TypeDescriptor.fromObject(values), new TypeDescriptor(getClass().getField("genericList")));
+            TypeDescriptor.forObject(values), new TypeDescriptor(getClass().getField("genericList")));
     assertThat(bar).containsExactly(1, 2, 3);
   }
 
@@ -712,7 +712,7 @@ class DefaultConversionServiceTests {
     Map<String, String> foo = Map.of("1", "BAR", "2", "BAZ");
     @SuppressWarnings("unchecked")
     Map<Integer, Foo> map = (Map<Integer, Foo>) conversionService.convert(foo,
-            TypeDescriptor.fromObject(foo), new TypeDescriptor(getClass().getField("genericMap")));
+            TypeDescriptor.forObject(foo), new TypeDescriptor(getClass().getField("genericMap")));
     assertThat(map).contains(entry(1, Foo.BAR), entry(2, Foo.BAZ));
   }
 

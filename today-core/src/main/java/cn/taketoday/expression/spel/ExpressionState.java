@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,7 +182,7 @@ public class ExpressionState {
 
   public Object convertValue(Object value, TypeDescriptor targetTypeDescriptor) throws EvaluationException {
     Object result = this.relatedContext.getTypeConverter().convertValue(
-            value, TypeDescriptor.fromObject(value), targetTypeDescriptor);
+            value, TypeDescriptor.forObject(value), targetTypeDescriptor);
     if (result == null) {
       throw new IllegalStateException("Null conversion result for value [" + value + "]");
     }
@@ -200,7 +197,7 @@ public class ExpressionState {
   public Object convertValue(TypedValue value, TypeDescriptor targetTypeDescriptor) throws EvaluationException {
     Object val = value.getValue();
     return this.relatedContext.getTypeConverter().convertValue(
-            val, TypeDescriptor.fromObject(val), targetTypeDescriptor);
+            val, TypeDescriptor.forObject(val), targetTypeDescriptor);
   }
 
   /*

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -628,7 +625,7 @@ class SpelReproTests extends AbstractExpressionTests {
     EvaluationContext emptyEvalContext = new StandardEvaluationContext();
 
     List<TypeDescriptor> args = new ArrayList<>();
-    args.add(TypeDescriptor.fromObject(42));
+    args.add(TypeDescriptor.forObject(42));
 
     ConversionPriority1 target = new ConversionPriority1();
     MethodExecutor me = new ReflectiveMethodResolver(true).resolve(emptyEvalContext, target, "getX", args);
@@ -668,7 +665,7 @@ class SpelReproTests extends AbstractExpressionTests {
     EvaluationContext emptyEvalContext = new StandardEvaluationContext();
 
     List<TypeDescriptor> args = new ArrayList<>();
-    args.add(TypeDescriptor.fromObject(INTEGER_VALUE));
+    args.add(TypeDescriptor.forObject(INTEGER_VALUE));
 
     MethodExecutor me = new ReflectiveMethodResolver(true).resolve(emptyEvalContext, target, "getX", args);
     final int actual = (Integer) me.execute(emptyEvalContext, target, INTEGER_VALUE).getValue();
@@ -715,45 +712,45 @@ class SpelReproTests extends AbstractExpressionTests {
     EvaluationContext emptyEvalContext = new StandardEvaluationContext();
     List<TypeDescriptor> args = new ArrayList<>();
 
-    args.add(TypeDescriptor.fromObject(34L));
+    args.add(TypeDescriptor.forObject(34L));
     ReflectionUtil<Integer> ru = new ReflectionUtil<>();
     MethodExecutor me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "methodToCall", args);
 
-    args.set(0, TypeDescriptor.fromObject(23));
+    args.set(0, TypeDescriptor.forObject(23));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, 45);
 
-    args.set(0, TypeDescriptor.fromObject(23f));
+    args.set(0, TypeDescriptor.forObject(23f));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, 45f);
 
-    args.set(0, TypeDescriptor.fromObject(23d));
+    args.set(0, TypeDescriptor.forObject(23d));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, 23d);
 
-    args.set(0, TypeDescriptor.fromObject((short) 23));
+    args.set(0, TypeDescriptor.forObject((short) 23));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, (short) 23);
 
-    args.set(0, TypeDescriptor.fromObject(23L));
+    args.set(0, TypeDescriptor.forObject(23L));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, 23L);
 
-    args.set(0, TypeDescriptor.fromObject((char) 65));
+    args.set(0, TypeDescriptor.forObject((char) 65));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, (char) 65);
 
-    args.set(0, TypeDescriptor.fromObject((byte) 23));
+    args.set(0, TypeDescriptor.forObject((byte) 23));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, (byte) 23);
 
-    args.set(0, TypeDescriptor.fromObject(true));
+    args.set(0, TypeDescriptor.forObject(true));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "foo", args);
     me.execute(emptyEvalContext, ru, true);
 
     // trickier:
-    args.set(0, TypeDescriptor.fromObject(12));
-    args.add(TypeDescriptor.fromObject(23f));
+    args.set(0, TypeDescriptor.forObject(12));
+    args.add(TypeDescriptor.forObject(23f));
     me = new ReflectiveMethodResolver().resolve(emptyEvalContext, ru, "bar", args);
     me.execute(emptyEvalContext, ru, 12, 23f);
   }

@@ -79,7 +79,7 @@ final class BindConverter {
   }
 
   public boolean canConvert(Object source, ResolvableType type, @Nullable Annotation... targetAnnotations) {
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(source);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(source);
     TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
     for (ConversionService service : this.delegates) {
       if (service.canConvert(sourceType, targetType)) {
@@ -100,7 +100,7 @@ final class BindConverter {
     if (source == null) {
       return null;
     }
-    TypeDescriptor sourceType = TypeDescriptor.fromObject(source);
+    TypeDescriptor sourceType = TypeDescriptor.forObject(source);
     TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
 
     ConversionException failure = null;
