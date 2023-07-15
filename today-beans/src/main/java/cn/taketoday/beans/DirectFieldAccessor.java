@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,7 +102,10 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
 
     private final Field field;
 
+    @Nullable
     private TypeDescriptor typeDescriptor;
+
+    @Nullable
     private ResolvableType resolvableType;
 
     public FieldPropertyHandler(Field field) {
@@ -116,10 +116,11 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
     /**
      * Returns {@link TypeDescriptor} for this property
      */
+    @Override
     public TypeDescriptor toTypeDescriptor() {
       TypeDescriptor typeDescriptor = this.typeDescriptor;
       if (typeDescriptor == null) {
-        typeDescriptor = new TypeDescriptor(this.field);
+        typeDescriptor = new TypeDescriptor(getResolvableType(), field.getType(), field);
         this.typeDescriptor = typeDescriptor;
       }
       return typeDescriptor;
@@ -129,10 +130,22 @@ public class DirectFieldAccessor extends AbstractNestablePropertyAccessor {
     public ResolvableType getResolvableType() {
       ResolvableType resolvableType = this.resolvableType;
       if (resolvableType == null) {
-        resolvableType = ResolvableType.forField(this.field);
+        resolvableType = ResolvableType.forField(field);
         this.resolvableType = resolvableType;
       }
       return resolvableType;
+    }
+
+    @Override
+    public TypeDescriptor getMapValueType(int nestingLevel) {
+      return new TypeDescriptor(getResolvableType().getNested(nestingLevel).asMap().getGeneric(1),
+              null, field);
+    }
+
+    @Override
+    public TypeDescriptor getCollectionType(int nestingLevel) {
+      return new TypeDescriptor(getResolvableType().getNested(nestingLevel).asCollection().getGeneric(),
+              null, field);
     }
 
     @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +37,8 @@ import cn.taketoday.beans.testfixture.beans.GenericIntegerBean;
 import cn.taketoday.beans.testfixture.beans.GenericSetOfIntegerBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.UrlResource;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -82,10 +81,8 @@ class BeanWrapperGenericsTests {
     BeanWrapper bw = new BeanWrapperImpl(gb);
     Set<TestBean> input = new HashSet<>();
     input.add(new TestBean());
-    assertThatExceptionOfType(TypeMismatchException.class)
-            .isThrownBy(() -> bw.setPropertyValue("integerSet", input))
-            .havingCause()
-            .isInstanceOf(IllegalArgumentException.class)
+    assertThatExceptionOfType(TypeMismatchException.class).isThrownBy(() ->
+                    bw.setPropertyValue("integerSet", input))
             .withMessageContaining("java.lang.Integer");
   }
 
@@ -167,8 +164,8 @@ class BeanWrapperGenericsTests {
     value2.add(Boolean.TRUE);
     input.put("2", value2);
     bw.setPropertyValue("collectionMap", input);
-    assertThat(gb.getCollectionMap().get(1) instanceof HashSet).isTrue();
-    assertThat(gb.getCollectionMap().get(2) instanceof ArrayList).isTrue();
+    assertThat(gb.getCollectionMap().get(1)).isInstanceOf(HashSet.class);
+    assertThat(gb.getCollectionMap().get(2)).isInstanceOf(ArrayList.class);
   }
 
   @Test
@@ -180,7 +177,7 @@ class BeanWrapperGenericsTests {
     HashSet<Integer> value1 = new HashSet<>();
     value1.add(1);
     bw.setPropertyValue("collectionMap[1]", value1);
-    assertThat(gb.getCollectionMap().get(1) instanceof HashSet).isTrue();
+    assertThat(gb.getCollectionMap().get(1)).isInstanceOf(HashSet.class);
   }
 
   @Test
@@ -288,7 +285,7 @@ class BeanWrapperGenericsTests {
     gb.setMapOfMaps(map);
     BeanWrapper bw = new BeanWrapperImpl(gb);
     bw.setPropertyValue("mapOfMaps[mykey][10]", "5");
-    assertThat(bw.getPropertyValue("mapOfMaps[mykey][10]")).isEqualTo(Long.valueOf(5));
+    assertThat(bw.getPropertyValue("mapOfMaps[mykey][10]")).isEqualTo(5L);
     assertThat(gb.getMapOfMaps().get("mykey").get(10)).isEqualTo(Long.valueOf(5));
   }
 
@@ -326,7 +323,7 @@ class BeanWrapperGenericsTests {
     bw.setPropertyValue("mapOfInteger", map);
 
     Object obj = gb.getMapOfInteger().get("testKey");
-    assertThat(obj instanceof Integer).isTrue();
+    assertThat(obj).isInstanceOf(Integer.class);
   }
 
   @Test
@@ -340,8 +337,8 @@ class BeanWrapperGenericsTests {
     bw.setPropertyValue("mapOfListOfInteger", map);
 
     Object obj = gb.getMapOfListOfInteger().get("testKey").get(0);
-    assertThat(obj instanceof Integer).isTrue();
-    assertThat(((Integer) obj).intValue()).isEqualTo(1);
+    assertThat(obj).isInstanceOf(Integer.class);
+    assertThat(obj).isEqualTo(1);
   }
 
   @Test
@@ -356,8 +353,8 @@ class BeanWrapperGenericsTests {
     bw.setPropertyValue("listOfMapOfInteger", list);
 
     Object obj = gb.getListOfMapOfInteger().get(0).get("testKey");
-    assertThat(obj instanceof Integer).isTrue();
-    assertThat(((Integer) obj).intValue()).isEqualTo(5);
+    assertThat(obj).isInstanceOf(Integer.class);
+    assertThat(obj).isEqualTo(5);
   }
 
   @Test
@@ -371,8 +368,8 @@ class BeanWrapperGenericsTests {
     bw.setPropertyValue("mapOfListOfListOfInteger", map);
 
     Object obj = gb.getMapOfListOfListOfInteger().get("testKey").get(0).get(0);
-    assertThat(obj instanceof Integer).isTrue();
-    assertThat(((Integer) obj).intValue()).isEqualTo(1);
+    assertThat(obj).isInstanceOf(Integer.class);
+    assertThat(obj).isEqualTo(1);
   }
 
   @Test
@@ -436,6 +433,18 @@ class BeanWrapperGenericsTests {
   }
 
   @Test
+  void testComplexGenericIndexedMapEntryWithPlainValue() {
+    String inputValue = "10";
+
+    ComplexMapHolder holder = new ComplexMapHolder();
+    BeanWrapper bw = new BeanWrapperImpl(holder);
+    bw.setPropertyValue("genericIndexedMap[1]", inputValue);
+
+    assertThat(holder.getGenericIndexedMap().keySet().iterator().next()).isEqualTo(1);
+    assertThat(holder.getGenericIndexedMap().values().iterator().next().get(0)).isEqualTo(Long.valueOf(10));
+  }
+
+  @Test
   void testComplexDerivedIndexedMapEntry() {
     List<String> inputValue = new ArrayList<>();
     inputValue.add("10");
@@ -459,6 +468,56 @@ class BeanWrapperGenericsTests {
 
     assertThat(holder.getDerivedIndexedMap().keySet().iterator().next()).isEqualTo(1);
     assertThat(holder.getDerivedIndexedMap().values().iterator().next().get(0)).isEqualTo(Long.valueOf(10));
+  }
+
+  @Test
+  void testComplexDerivedIndexedMapEntryWithPlainValue() {
+    String inputValue = "10";
+
+    ComplexMapHolder holder = new ComplexMapHolder();
+    BeanWrapper bw = new BeanWrapperImpl(holder);
+    bw.setPropertyValue("derivedIndexedMap[1]", inputValue);
+
+    assertThat(holder.getDerivedIndexedMap().keySet().iterator().next()).isEqualTo(1);
+    assertThat(holder.getDerivedIndexedMap().values().iterator().next().get(0)).isEqualTo(Long.valueOf(10));
+  }
+
+  @Test
+  void testComplexMultiValueMapEntry() {
+    List<String> inputValue = new ArrayList<>();
+    inputValue.add("10");
+
+    ComplexMapHolder holder = new ComplexMapHolder();
+    BeanWrapper bw = new BeanWrapperImpl(holder);
+    bw.setPropertyValue("multiValueMap[1]", inputValue);
+
+    assertThat(holder.getMultiValueMap().keySet().iterator().next()).isEqualTo(1);
+    assertThat(holder.getMultiValueMap().values().iterator().next().get(0)).isEqualTo(Long.valueOf(10));
+  }
+
+  @Test
+  void testComplexMultiValueMapEntryWithCollectionConversion() {
+    Set<String> inputValue = new HashSet<>();
+    inputValue.add("10");
+
+    ComplexMapHolder holder = new ComplexMapHolder();
+    BeanWrapper bw = new BeanWrapperImpl(holder);
+    bw.setPropertyValue("multiValueMap[1]", inputValue);
+
+    assertThat(holder.getMultiValueMap().keySet().iterator().next()).isEqualTo(1);
+    assertThat(holder.getMultiValueMap().values().iterator().next().get(0)).isEqualTo(Long.valueOf(10));
+  }
+
+  @Test
+  void testComplexMultiValueMapEntryWithPlainValue() {
+    String inputValue = "10";
+
+    ComplexMapHolder holder = new ComplexMapHolder();
+    BeanWrapper bw = new BeanWrapperImpl(holder);
+    bw.setPropertyValue("multiValueMap[1]", inputValue);
+
+    assertThat(holder.getMultiValueMap().keySet().iterator().next()).isEqualTo(1);
+    assertThat(holder.getMultiValueMap().values().iterator().next().get(0)).isEqualTo(Long.valueOf(10));
   }
 
   @Test
@@ -590,6 +649,8 @@ class BeanWrapperGenericsTests {
 
     private DerivedMap derivedIndexedMap = new DerivedMap();
 
+    private MultiValueMap<Integer, Long> multiValueMap = new LinkedMultiValueMap<>();
+
     public void setGenericMap(Map<List<Integer>, List<Long>> genericMap) {
       this.genericMap = genericMap;
     }
@@ -612,6 +673,14 @@ class BeanWrapperGenericsTests {
 
     public DerivedMap getDerivedIndexedMap() {
       return derivedIndexedMap;
+    }
+
+    public void setMultiValueMap(MultiValueMap<Integer, Long> multiValueMap) {
+      this.multiValueMap = multiValueMap;
+    }
+
+    public MultiValueMap<Integer, Long> getMultiValueMap() {
+      return multiValueMap;
     }
   }
 
