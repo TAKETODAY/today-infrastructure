@@ -803,7 +803,7 @@ public class TypeDescriptor implements Serializable {
   private class AnnotatedElementAdapter implements AnnotatedElement, Serializable {
 
     @Nullable
-    private Annotation[] annotations;
+    private volatile Annotation[] annotations;
 
     @Nullable
     private final AnnotatedElement annotated;
@@ -816,7 +816,7 @@ public class TypeDescriptor implements Serializable {
 
     @Override
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
-      for (Annotation annotation : getAnnotations()) {
+      for (Annotation annotation : getAnnotations(false)) {
         if (annotation.annotationType() == annotationClass) {
           return true;
         }
@@ -828,7 +828,7 @@ public class TypeDescriptor implements Serializable {
     @Nullable
     @SuppressWarnings("unchecked")
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-      for (Annotation annotation : getAnnotations()) {
+      for (Annotation annotation : getAnnotations(false)) {
         if (annotation.annotationType() == annotationClass) {
           return (T) annotation;
         }
@@ -838,37 +838,49 @@ public class TypeDescriptor implements Serializable {
 
     @Override
     public Annotation[] getAnnotations() {
+      return getAnnotations(true);
+    }
+
+    private Annotation[] getAnnotations(boolean cloneArray) {
       Annotation[] annotations = this.annotations;
       if (annotations == null) {
-        if (annotated != null) {
-          annotations = annotated.getAnnotations();
+        synchronized(this) {
+          annotations = this.annotations;
+          if (annotations == null) {
+            if (annotated != null) {
+              annotations = annotated.getAnnotations();
+            }
+            else {
+              annotations = Constant.EMPTY_ANNOTATIONS;
+            }
+            this.annotations = annotations;
+          }
         }
-        else {
-          annotations = Constant.EMPTY_ANNOTATIONS;
-        }
-        this.annotations = annotations;
+      }
+      if (cloneArray && annotations.length > 0) {
+        return annotations.clone();
       }
       return annotations;
     }
 
     @Override
     public Annotation[] getDeclaredAnnotations() {
-      return getAnnotations();
+      return getAnnotations(true);
     }
 
     public boolean isEmpty() {
-      return ObjectUtils.isEmpty(getAnnotations());
+      return ObjectUtils.isEmpty(getAnnotations(false));
     }
 
     @Override
     public boolean equals(@Nullable Object obj) {
       return (this == obj || (obj instanceof AnnotatedElementAdapter that &&
-              Arrays.equals(getAnnotations(), that.getAnnotations())));
+              Arrays.equals(getAnnotations(false), that.getAnnotations(false))));
     }
 
     @Override
     public int hashCode() {
-      return Arrays.hashCode(getAnnotations());
+      return Arrays.hashCode(getAnnotations(false));
     }
 
     @Override

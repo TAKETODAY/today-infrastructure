@@ -179,7 +179,7 @@ public class TypeDescriptorTests {
     final Method testAnnotatedMethod = getClass().getMethod("testAnnotatedMethod", String.class);
     final TypeDescriptor t = TypeDescriptor.forParameter(testAnnotatedMethod, 0);
     t.getAnnotations()[0] = null;
-    assertThat(t.getAnnotations()[0]).isNull();
+    assertThat(t.getAnnotations()[0]).isNotNull();
   }
 
   @Test
