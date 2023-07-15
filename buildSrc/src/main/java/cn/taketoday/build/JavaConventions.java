@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,9 @@ package cn.taketoday.build;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
@@ -30,7 +30,10 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import cn.taketoday.build.optional.OptionalDependenciesPlugin;
 
 /**
  * {@link Plugin} that applies conventions for compiling Java sources in Spring Framework.
@@ -67,7 +70,10 @@ public class JavaConventions {
   }
 
   public void apply(Project project) {
-    project.getPlugins().withType(JavaBasePlugin.class, javaPlugin -> applyJavaCompileConventions(project));
+    project.getPlugins().withType(JavaBasePlugin.class, javaPlugin -> {
+      applyJavaCompileConventions(project);
+      configureDependencyManagement(project);
+    });
   }
 
   /**
@@ -92,6 +98,33 @@ public class JavaConventions {
               compileTask.getOptions().setCompilerArgs(TEST_COMPILER_ARGS);
               compileTask.getOptions().setEncoding("UTF-8");
             });
+  }
+
+  private void configureDependencyManagement(Project project) {
+    ConfigurationContainer configurations = project.getConfigurations();
+    Configuration dependencyManagement = configurations.create("dependencyManagement", (configuration) -> {
+      configuration.setVisible(false);
+      configuration.setCanBeConsumed(false);
+      configuration.setCanBeResolved(false);
+    });
+
+    configurations.matching(configuration -> {
+              String name = configuration.getName();
+              return name.endsWith("Classpath")
+                      || JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME.equals(name)
+                      || JavaPlugin.TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME.equals(name);
+            })
+            .forEach(configuration -> configuration.extendsFrom(dependencyManagement));
+
+    Dependency platform = project.getDependencies()
+            .enforcedPlatform(project.getDependencies()
+                    .project(Collections.singletonMap("path", ":infra-platform")));
+
+    dependencyManagement.getDependencies().add(platform);
+
+    project.getPlugins().withType(OptionalDependenciesPlugin.class,
+            optionalDependencies -> configurations.getByName(OptionalDependenciesPlugin.OPTIONAL_CONFIGURATION_NAME)
+                    .extendsFrom(dependencyManagement));
   }
 
 }

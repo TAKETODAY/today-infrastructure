@@ -40,12 +40,12 @@ dependencies {
   intTestImplementation(project(":infra-build:infra-app-loader"))
   intTestImplementation(project(":infra-build:infra-app-loader-tools"))
 
-  mavenRepository(project(path: ":today-core", configuration: "mavenRepository"))
-  mavenRepository(project(path: ":today-context", configuration: "mavenRepository"))
-  mavenRepository(project(path: ":today-test-support", configuration: "mavenRepository"))
-  mavenRepository(project(path: ":infra-build:infra-app-loader", configuration: "mavenRepository"))
-  mavenRepository(project(path: ":infra-build:infra-app-loader-tools", configuration: "mavenRepository"))
-  mavenRepository('org.springframework.boot:spring-boot-buildpack-platform:3.1.1')
+//  mavenRepository(project(path: ":today-core", configuration: "mavenRepository"))
+//  mavenRepository(project(path: ":today-context", configuration: "mavenRepository"))
+//  mavenRepository(project(path: ":today-test-support", configuration: "mavenRepository"))
+//  mavenRepository(project(path: ":infra-build:infra-app-loader", configuration: "mavenRepository"))
+//  mavenRepository(project(path: ":infra-build:infra-app-loader-tools", configuration: "mavenRepository"))
+//  mavenRepository('org.springframework.boot:spring-boot-buildpack-platform:3.1.1')
 
   intTestImplementation("org.assertj:assertj-core")
   intTestImplementation("org.junit.jupiter:junit-jupiter")

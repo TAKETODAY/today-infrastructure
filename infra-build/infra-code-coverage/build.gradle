@@ -10,7 +10,6 @@ configurations {
 }
 
 dependencies {
-  dependencyManagement(enforcedPlatform(dependencies.project(path: ":infra-platform")))
 
   jacocoAggregation project(':today-core')
   jacocoAggregation project(':today-beans')
