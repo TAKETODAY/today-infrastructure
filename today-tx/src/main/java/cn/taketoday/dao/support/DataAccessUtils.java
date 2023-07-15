@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,10 @@
 package cn.taketoday.dao.support;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.EmptyResultDataAccessException;
@@ -36,6 +37,7 @@ import cn.taketoday.util.NumberUtils;
  * Useful with any data access technology.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class DataAccessUtils {
@@ -59,6 +61,94 @@ public abstract class DataAccessUtils {
       throw new IncorrectResultSizeDataAccessException(1, results.size());
     }
     return results.iterator().next();
+  }
+
+  /**
+   * Return a single result object from the given Stream.
+   * <p>Returns {@code null} if 0 result objects found;
+   * throws an exception if more than 1 element found.
+   *
+   * @param results the result Stream (can be {@code null})
+   * @return the single result object, or {@code null} if none
+   * @throws IncorrectResultSizeDataAccessException if more than one
+   * element has been found in the given Stream
+   */
+  @Nullable
+  public static <T> T singleResult(@Nullable Stream<T> results) throws IncorrectResultSizeDataAccessException {
+    if (results == null) {
+      return null;
+    }
+    try (results) {
+      List<T> resultList = results.limit(2).toList();
+      if (resultList.size() > 1) {
+        throw new IncorrectResultSizeDataAccessException(1);
+      }
+      return resultList.isEmpty() ? null : resultList.get(0);
+    }
+  }
+
+  /**
+   * Return a single result object from the given Iterator.
+   * <p>Returns {@code null} if 0 result objects found;
+   * throws an exception if more than 1 element found.
+   *
+   * @param results the result Iterator (can be {@code null})
+   * @return the single result object, or {@code null} if none
+   * @throws IncorrectResultSizeDataAccessException if more than one
+   * element has been found in the given Iterator
+   */
+  @Nullable
+  public static <T> T singleResult(@Nullable Iterator<T> results) throws IncorrectResultSizeDataAccessException {
+    if (results == null) {
+      return null;
+    }
+    T result = (results.hasNext() ? results.next() : null);
+    if (results.hasNext()) {
+      throw new IncorrectResultSizeDataAccessException(1);
+    }
+    return result;
+  }
+
+  /**
+   * Return a single result object from the given Collection.
+   * <p>Returns {@code Optional.empty()} if 0 result objects found;
+   * throws an exception if more than 1 element found.
+   *
+   * @param results the result Collection (can be {@code null})
+   * @return the single optional result object, or {@code Optional.empty()} if none
+   * @throws IncorrectResultSizeDataAccessException if more than one
+   * element has been found in the given Collection
+   */
+  public static <T> Optional<T> optionalResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+    return Optional.ofNullable(singleResult(results));
+  }
+
+  /**
+   * Return a single result object from the given Stream.
+   * <p>Returns {@code Optional.empty()} if 0 result objects found;
+   * throws an exception if more than 1 element found.
+   *
+   * @param results the result Stream (can be {@code null})
+   * @return the single optional result object, or {@code Optional.empty()} if none
+   * @throws IncorrectResultSizeDataAccessException if more than one
+   * element has been found in the given Stream
+   */
+  public static <T> Optional<T> optionalResult(@Nullable Stream<T> results) throws IncorrectResultSizeDataAccessException {
+    return Optional.ofNullable(singleResult(results));
+  }
+
+  /**
+   * Return a single result object from the given Iterator.
+   * <p>Returns {@code Optional.empty()} if 0 result objects found;
+   * throws an exception if more than 1 element found.
+   *
+   * @param results the result Iterator (can be {@code null})
+   * @return the single optional result object, or {@code Optional.empty()} if none
+   * @throws IncorrectResultSizeDataAccessException if more than one
+   * element has been found in the given Iterator
+   */
+  public static <T> Optional<T> optionalResult(@Nullable Iterator<T> results) throws IncorrectResultSizeDataAccessException {
+    return Optional.ofNullable(singleResult(results));
   }
 
   /**
@@ -94,7 +184,6 @@ public abstract class DataAccessUtils {
    * element has been found in the given Collection
    * @throws EmptyResultDataAccessException if no element at all
    * has been found in the given Collection
-   * @since 4.0
    */
   @Nullable
   public static <T> T nullableSingleResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
@@ -179,9 +268,9 @@ public abstract class DataAccessUtils {
       if (String.class == requiredType) {
         result = result.toString();
       }
-      else if (Number.class.isAssignableFrom(requiredType) && result instanceof Number) {
+      else if (Number.class.isAssignableFrom(requiredType) && result instanceof Number number) {
         try {
-          result = NumberUtils.convertNumberToTargetClass(((Number) result), (Class<? extends Number>) requiredType);
+          result = NumberUtils.convertNumberToTargetClass(number, (Class<? extends Number>) requiredType);
         }
         catch (IllegalArgumentException ex) {
           throw new TypeMismatchDataAccessException(ex.getMessage());
