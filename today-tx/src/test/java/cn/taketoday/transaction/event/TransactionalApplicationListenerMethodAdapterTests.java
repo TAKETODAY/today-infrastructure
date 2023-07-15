@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,8 @@ import cn.taketoday.context.event.ApplicationListenerMethodAdapter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.scheduling.annotation.Async;
+import cn.taketoday.transaction.annotation.Propagation;
+import cn.taketoday.transaction.annotation.RestrictedTransactionalEventListenerFactory;
 import cn.taketoday.transaction.annotation.Transactional;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
@@ -38,6 +37,8 @@ import cn.taketoday.util.ReflectionUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 
 /**
  * @author Stephane Nicoll
@@ -101,7 +102,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
     TransactionalApplicationListenerMethodAdapter adapter = createTestInstance(m);
     adapter.addCallback(callback);
 
-    assertThatExceptionOfType(RuntimeException.class)
+    assertThatRuntimeException()
             .isThrownBy(() -> runInTransaction(() -> adapter.onApplicationEvent(event)))
             .withMessage("event");
 
@@ -132,15 +133,23 @@ public class TransactionalApplicationListenerMethodAdapterTests {
 
   @Test
   public void withTransactionalAnnotation() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalAnnotation", String.class);
-    assertThatIllegalStateException().isThrownBy(() -> createTestInstance(m));
+    assertThatIllegalStateException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
+  }
+
+  @Test
+  public void withTransactionalRequiresNewAnnotation() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalRequiresNewAnnotation", String.class);
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
   }
 
   @Test
   public void withAsyncTransactionalAnnotation() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withAsyncTransactionalAnnotation", String.class);
-    supportsEventType(true, m, createGenericEventType(String.class));
-    supportsEventType(false, m, createGenericEventType(Double.class));
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
   }
 
   private static void assertPhase(Method method, TransactionPhase expected) {
@@ -216,6 +225,11 @@ public class TransactionalApplicationListenerMethodAdapterTests {
     @TransactionalEventListener
     @Transactional
     public void withTransactionalAnnotation(String data) {
+    }
+
+    @TransactionalEventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void withTransactionalRequiresNewAnnotation(String data) {
     }
 
     @TransactionalEventListener

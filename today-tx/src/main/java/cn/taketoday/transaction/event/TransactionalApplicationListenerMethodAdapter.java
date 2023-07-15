@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +28,6 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.scheduling.annotation.Async;
-import cn.taketoday.transaction.annotation.Transactional;
 import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
@@ -71,18 +66,13 @@ public class TransactionalApplicationListenerMethodAdapter
    */
   public TransactionalApplicationListenerMethodAdapter(String beanName, Class<?> targetClass, Method method) {
     super(beanName, targetClass, method);
-    TransactionalEventListener ann =
+    TransactionalEventListener eventAnn =
             AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
-    if (ann == null) {
+    if (eventAnn == null) {
       throw new IllegalStateException("No TransactionalEventListener annotation found on method: " + method);
     }
-    if (AnnotatedElementUtils.hasAnnotation(method, Transactional.class)
-            && !AnnotatedElementUtils.hasAnnotation(method, Async.class)) {
-      throw new IllegalStateException("@TransactionalEventListener method must not be annotated " +
-              "with @Transactional, unless when declared as @Async: " + method);
-    }
-    this.annotation = ann;
-    this.transactionPhase = ann.phase();
+    this.annotation = eventAnn;
+    this.transactionPhase = eventAnn.phase();
   }
 
   @Override

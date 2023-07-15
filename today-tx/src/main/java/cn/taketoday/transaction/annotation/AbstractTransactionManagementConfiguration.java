@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.util.Collection;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ImportAware;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -80,7 +78,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @Component(TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME)
   public static TransactionalEventListenerFactory transactionalEventListenerFactory() {
-    return new TransactionalEventListenerFactory();
+    return new RestrictedTransactionalEventListenerFactory();
   }
 
 }
