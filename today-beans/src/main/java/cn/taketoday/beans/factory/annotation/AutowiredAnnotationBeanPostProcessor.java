@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -277,7 +274,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
     this.beanFactory = (ConfigurableBeanFactory) beanFactory;
   }
- 
+
   @Override
   public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
     if (beanDefinition.isEnableDependencyInjection()) {
@@ -684,8 +681,10 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         try {
           value = resolveCachedArgument(beanName, this.cachedFieldValue);
         }
-        catch (NoSuchBeanDefinitionException ex) {
-          // Unexpected removal of target bean for cached argument -> re-resolve
+        catch (BeansException ex) {
+          // Unexpected target bean mismatch for cached argument -> re-resolve
+          this.cached = false;
+          log.debug("Failed to resolve cached argument", ex);
           value = resolveFieldValue(field, bean, beanName);
         }
       }
@@ -714,9 +713,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       }
       synchronized(this) {
         if (!this.cached) {
-          Object cachedFieldValue = null;
           if (value != null || this.required) {
-            cachedFieldValue = desc;
+            Object cachedFieldValue = desc;
             registerDependentBeans(beanName, autowiredBeanNames);
             if (value != null && autowiredBeanNames.size() == 1) {
               String autowiredBeanName = autowiredBeanNames.iterator().next();
@@ -726,9 +724,13 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
                         desc, autowiredBeanName, field.getType());
               }
             }
+            this.cachedFieldValue = cachedFieldValue;
+            this.cached = true;
           }
-          this.cachedFieldValue = cachedFieldValue;
-          this.cached = true;
+          else {
+            this.cachedFieldValue = null;
+            // cached flag remains false
+          }
         }
       }
       return value;
@@ -758,10 +760,12 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       Object[] arguments;
       if (this.cached) {
         try {
-          arguments = resolveCachedArguments(beanName);
+          arguments = resolveCachedArguments(beanName, this.cachedMethodArguments);
         }
-        catch (NoSuchBeanDefinitionException ex) {
-          // Unexpected removal of target bean for cached argument -> re-resolve
+        catch (BeansException ex) {
+          // Unexpected target bean mismatch for cached argument -> re-resolve
+          this.cached = false;
+          log.debug("Failed to resolve cached argument", ex);
           arguments = resolveMethodArguments(method, bean, beanName);
         }
       }
@@ -780,8 +784,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
 
     @Nullable
-    private Object[] resolveCachedArguments(@Nullable String beanName) {
-      Object[] cachedMethodArguments = this.cachedMethodArguments;
+    private Object[] resolveCachedArguments(@Nullable String beanName, @Nullable Object[] cachedMethodArguments) {
       if (cachedMethodArguments == null) {
         return null;
       }
@@ -820,7 +823,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       synchronized(this) {
         if (!this.cached) {
           if (arguments != null) {
-            DependencyDescriptor[] cachedMethodArguments = Arrays.copyOf(descriptors, arguments.length);
+            DependencyDescriptor[] cachedMethodArguments = Arrays.copyOf(descriptors, argumentCount);
             registerDependentBeans(beanName, autowiredBeans);
             if (autowiredBeans.size() == argumentCount) {
               Iterator<String> it = autowiredBeans.iterator();
@@ -835,11 +838,12 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
               }
             }
             this.cachedMethodArguments = cachedMethodArguments;
+            this.cached = true;
           }
           else {
             this.cachedMethodArguments = null;
+            // cached flag remains false
           }
-          this.cached = true;
         }
       }
       return arguments;

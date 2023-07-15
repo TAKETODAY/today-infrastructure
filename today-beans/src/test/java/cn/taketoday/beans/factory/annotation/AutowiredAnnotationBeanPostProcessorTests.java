@@ -77,6 +77,7 @@ import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -139,16 +140,8 @@ class AutowiredAnnotationBeanPostProcessorTests {
     tb.setFactoryMethodName("createTestBean");
     bf.registerBeanDefinition("testBean", tb);
 
-    @SuppressWarnings("rawtypes")
-    NonPublicResourceInjectionBean bean = bf.getBean("annotatedBean", NonPublicResourceInjectionBean.class);
-    assertThat(bean.getTestBean()).isNull();
-    assertThat(bean.getTestBean2()).isNull();
-    assertThat(bean.getTestBean3()).isNull();
-
-    bean = bf.getBean("annotatedBean", NonPublicResourceInjectionBean.class);
-    assertThat(bean.getTestBean()).isNull();
-    assertThat(bean.getTestBean2()).isNull();
-    assertThat(bean.getTestBean3()).isNull();
+    assertThatThrownBy(() -> bf.getBean("annotatedBean"))
+            .hasMessageContaining("Only one bean which qualifies as autowire candidate, but its factory method");
   }
 
   @Test
