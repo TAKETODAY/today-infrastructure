@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +45,7 @@ class Spr7538Tests {
     paramDescriptors.add(new TypeDescriptor(new MethodParameter(method, 0)));
 
     List<TypeDescriptor> argumentTypes = new ArrayList<>();
-    argumentTypes.add(TypeDescriptor.fromObject(arguments));
+    argumentTypes.add(TypeDescriptor.forObject(arguments));
     ReflectiveMethodResolver resolver = new ReflectiveMethodResolver();
     MethodExecutor executor = resolver.resolve(context, target, "checkCompleteness", argumentTypes);
 
