@@ -30,10 +30,10 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 
 /**
  * Annotation that marks a method to be scheduled. Exactly one of the
- * {@link #cron}, {@link #fixedDelay}, or {@link #fixedRate} attributes must be
- * specified.
+ * {@link #cron}, {@link #fixedDelay}, or {@link #fixedRate} attributes
+ * must be specified.
  *
- * <p>The annotated method must expect no arguments. It will typically have
+ * <p>The annotated method must not accept arguments. It will typically have
  * a {@code void} return type; if not, the returned value will be ignored
  * when called through the scheduler.
  *
@@ -46,13 +46,16 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * doesn't prevent further iterations. If a fixed delay is configured, the
  * subscription is blocked in order to respect the fixed delay semantics.
  *
- * <p>Processing of {@code @Scheduled} annotations is performed by
- * registering a {@link ScheduledAnnotationBeanPostProcessor}. This can be
- * done manually or, more conveniently, through the {@code <task:annotation-driven/>}
- * XML element or {@link EnableScheduling @EnableScheduling} annotation.
+ * <p>Processing of {@code @Scheduled} annotations is performed by registering a
+ * {@link ScheduledAnnotationBeanPostProcessor}. This can be done manually or,
+ * more conveniently, through the {@code <task:annotation-driven/>} XML element
+ * or {@link EnableScheduling @EnableScheduling} annotation.
  *
  * <p>This annotation can be used as a <em>{@linkplain Repeatable repeatable}</em>
- * annotation.
+ * annotation. If several scheduled declarations are found on the same method,
+ * each of them will be processed independently, with a separate trigger firing
+ * for each of them. As a consequence, such co-located schedules may overlap
+ * and execute multiple times in parallel or in immediate succession.
  *
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em> with attribute overrides.
