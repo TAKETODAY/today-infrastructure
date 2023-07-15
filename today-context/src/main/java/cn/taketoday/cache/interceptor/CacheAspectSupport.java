@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -406,13 +403,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     // Check if we have a cached item matching the conditions
     Cache.ValueWrapper cacheHit = findCachedItem(contexts.get(CacheableOperation.class));
 
-    // Collect puts from any @Cacheable miss, if no cached item is found
-    ArrayList<CachePutRequest> cachePutRequests = new ArrayList<>();
-    if (cacheHit == null) {
-      collectPutRequests(contexts.get(CacheableOperation.class),
-              CacheOperationExpressionEvaluator.NO_RESULT, cachePutRequests);
-    }
-
     Object cacheValue;
     Object returnValue;
 
@@ -425,6 +415,12 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       // Invoke the method if we don't have a cache hit
       returnValue = invokeOperation(invoker);
       cacheValue = unwrapReturnValue(returnValue);
+    }
+
+    // Collect puts from any @Cacheable miss, if no cached item is found
+    ArrayList<CachePutRequest> cachePutRequests = new ArrayList<>();
+    if (cacheHit == null) {
+      collectPutRequests(contexts.get(CacheableOperation.class), cacheValue, cachePutRequests);
     }
 
     // Collect any explicit @CachePuts

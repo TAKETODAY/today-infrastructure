@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -504,6 +501,26 @@ public abstract class AbstractCacheAnnotationTests {
     assertThat(primary.get(id).get()).isSameAs(entity);
   }
 
+  protected void testPutRefersToResultWithUnless(CacheableService<?> service) {
+    Long id = 42L;
+    TestEntity entity = new TestEntity();
+    entity.setId(id);
+    Cache primary = this.cm.getCache("primary");
+    assertThat(primary.get(id)).isNull();
+    assertThat(service.putEvaluatesUnlessBeforeKey(entity)).isNotNull();
+    assertThat(primary.get(id).get()).isSameAs(entity);
+  }
+
+  protected void testPutEvaluatesUnlessBeforeKey(CacheableService<?> service) {
+    Long id = Long.MIN_VALUE; // return null
+    TestEntity entity = new TestEntity();
+    entity.setId(id);
+    Cache primary = this.cm.getCache("primary");
+    assertThat(primary.get(id)).isNull();
+    assertThat(service.putEvaluatesUnlessBeforeKey(entity)).isNull();
+    assertThat(primary.get(id)).isNull();
+  }
+
   protected void testMultiCacheAndEvict(CacheableService<?> service) {
     String methodName = "multiCacheAndEvict";
 
@@ -850,8 +867,28 @@ public abstract class AbstractCacheAnnotationTests {
   }
 
   @Test
+  public void testPutRefersToResultWithUnless() {
+    testPutRefersToResultWithUnless(this.cs);
+  }
+
+  @Test
+  public void testPutEvaluatesUnlessBeforeKey() {
+    testPutEvaluatesUnlessBeforeKey(this.cs);
+  }
+
+  @Test
   public void testClassPutRefersToResult() {
     testPutRefersToResult(this.ccs);
+  }
+
+  @Test
+  public void testClassPutRefersToResultWithUnless() {
+    testPutRefersToResultWithUnless(this.ccs);
+  }
+
+  @Test
+  public void testClassPutEvaluatesUnlessBeforeKey() {
+    testPutEvaluatesUnlessBeforeKey(this.ccs);
   }
 
   @Test
