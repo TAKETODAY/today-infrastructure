@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -51,8 +48,9 @@ class ArrayBinder extends IndexedElementsBinder<Object> {
     bindIndexed(name, target, elementBinder, aggregateType, elementType, result);
     if (result.wasSupplied()) {
       List<Object> list = (List<Object>) result.get();
-      Object array = Array.newInstance(elementType.resolve(), list.size());
-      for (int i = 0; i < list.size(); i++) {
+      int size = list.size();
+      Object array = Array.newInstance(elementType.resolve(), size);
+      for (int i = 0; i < size; i++) {
         Array.set(array, i, list.get(i));
       }
       return array;

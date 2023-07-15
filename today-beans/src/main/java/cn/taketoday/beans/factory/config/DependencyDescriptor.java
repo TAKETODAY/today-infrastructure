@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -312,9 +309,9 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
   public TypeDescriptor getTypeDescriptor() {
     TypeDescriptor typeDescriptor = this.typeDescriptor;
     if (typeDescriptor == null) {
-      typeDescriptor = (this.field != null ?
-                        new TypeDescriptor(getResolvableType(), getDependencyType(), field.getAnnotations()) :
-                        new TypeDescriptor(obtainMethodParameter()));
+      typeDescriptor = this.field != null
+                       ? new TypeDescriptor(getResolvableType(), getDependencyType(), field)
+                       : new TypeDescriptor(obtainMethodParameter());
       this.typeDescriptor = typeDescriptor;
     }
     return typeDescriptor;

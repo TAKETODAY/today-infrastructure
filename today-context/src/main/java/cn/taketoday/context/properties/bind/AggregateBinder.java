@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -38,7 +35,10 @@ import cn.taketoday.lang.Nullable;
  */
 abstract class AggregateBinder<T> {
 
-  private final Context context;
+  /**
+   * The context being used by this binder.
+   */
+  public final Context context;
 
   AggregateBinder(Context context) {
     this.context = context;
@@ -91,15 +91,6 @@ abstract class AggregateBinder<T> {
    * @return the merged result
    */
   protected abstract T merge(Supplier<T> existing, T additional);
-
-  /**
-   * Return the context being used by this binder.
-   *
-   * @return the context
-   */
-  protected final Context getContext() {
-    return this.context;
-  }
 
   /**
    * Internal class used to supply the aggregate and cache the value.

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +41,8 @@ import cn.taketoday.util.MultiValueMap;
  * @param <T> the type being bound
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
 
@@ -73,7 +72,7 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
           AggregateElementBinder elementBinder, ResolvableType aggregateType,
           ResolvableType elementType, IndexedCollectionSupplier result) {
 
-    for (ConfigurationPropertySource source : getContext().getSources()) {
+    for (ConfigurationPropertySource source : context.getSources()) {
       bindIndexed(source, name, target, elementBinder, result, aggregateType, elementType);
       if (result.wasSupplied() && result.get() != null) {
         return;
@@ -81,14 +80,14 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     }
   }
 
-  private void bindIndexed(
-          ConfigurationPropertySource source, ConfigurationPropertyName root, Bindable<?> target,
+  private void bindIndexed(ConfigurationPropertySource source,
+          ConfigurationPropertyName root, Bindable<?> target,
           AggregateElementBinder elementBinder, IndexedCollectionSupplier collection,
           ResolvableType aggregateType, ResolvableType elementType) {
 
     ConfigurationProperty property = source.getConfigurationProperty(root);
     if (property != null) {
-      getContext().setConfigurationProperty(property);
+      context.setConfigurationProperty(property);
       bindValue(target, collection.get(), aggregateType, elementType, property.getValue());
     }
     else {
@@ -96,8 +95,7 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     }
   }
 
-  private void bindValue(
-          Bindable<?> target, Collection<Object> collection,
+  private void bindValue(Bindable<?> target, Collection<Object> collection,
           ResolvableType aggregateType, ResolvableType elementType, @Nullable Object value) {
     if (value == null || value instanceof CharSequence && ((CharSequence) value).length() == 0) {
       return;
@@ -105,11 +103,12 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
     Object aggregate = convert(value, aggregateType, target.getAnnotations());
     ResolvableType collectionType = ResolvableType.forClassWithGenerics(collection.getClass(), elementType);
     Collection<Object> elements = convert(aggregate, collectionType);
-    collection.addAll(elements);
+    if (elements != null) {
+      collection.addAll(elements);
+    }
   }
 
-  private void bindIndexed(
-          ConfigurationPropertySource source, ConfigurationPropertyName root,
+  private void bindIndexed(ConfigurationPropertySource source, ConfigurationPropertyName root,
           AggregateElementBinder elementBinder, IndexedCollectionSupplier collection, ResolvableType elementType) {
 
     MultiValueMap<String, ConfigurationPropertyName> knownIndexedChildren = getKnownIndexedChildren(source, root);
@@ -157,8 +156,8 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
 
   @Nullable
   private <C> C convert(Object value, ResolvableType type, Annotation... annotations) {
-    value = getContext().getPlaceholdersResolver().resolvePlaceholders(value);
-    return getContext().getConverter().convert(value, type, annotations);
+    value = context.getPlaceholdersResolver().resolvePlaceholders(value);
+    return context.getConverter().convert(value, type, annotations);
   }
 
   /**

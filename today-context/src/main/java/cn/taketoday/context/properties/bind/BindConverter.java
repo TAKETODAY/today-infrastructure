@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,6 @@
 package cn.taketoday.context.properties.bind;
 
 import java.beans.PropertyEditor;
-import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,7 +59,7 @@ final class BindConverter {
   @Nullable
   private static BindConverter sharedInstance;
 
-  private final List<ConversionService> delegates;
+  private final ArrayList<ConversionService> delegates;
 
   private BindConverter(@Nullable List<ConversionService> conversionServices,
           @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
@@ -79,15 +75,12 @@ final class BindConverter {
     if (!hasApplication) {
       delegates.add(ApplicationConversionService.getSharedInstance());
     }
-    this.delegates = Collections.unmodifiableList(delegates);
+    this.delegates = delegates;
   }
 
-  boolean canConvert(Object source, ResolvableType targetType, Annotation... targetAnnotations) {
-    return canConvert(TypeDescriptor.fromObject(source),
-            new ResolvableTypeDescriptor(targetType, targetAnnotations));
-  }
-
-  private boolean canConvert(TypeDescriptor sourceType, TypeDescriptor targetType) {
+  public boolean canConvert(Object source, ResolvableType type, @Nullable Annotation... targetAnnotations) {
+    TypeDescriptor sourceType = TypeDescriptor.fromObject(source);
+    TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
     for (ConversionService service : this.delegates) {
       if (service.canConvert(sourceType, targetType)) {
         return true;
@@ -97,27 +90,24 @@ final class BindConverter {
   }
 
   @Nullable
-  <T> T convert(Object source, Bindable<T> target) {
+  public <T> T convert(Object source, Bindable<T> target) {
     return convert(source, target.getType(), target.getAnnotations());
   }
 
   @SuppressWarnings("unchecked")
   @Nullable
-  <T> T convert(@Nullable Object source, ResolvableType targetType, Annotation... targetAnnotations) {
+  public <T> T convert(@Nullable Object source, ResolvableType type, Annotation... targetAnnotations) {
     if (source == null) {
       return null;
     }
-    return (T) convert(source, TypeDescriptor.fromObject(source),
-            new ResolvableTypeDescriptor(targetType, targetAnnotations));
-  }
+    TypeDescriptor sourceType = TypeDescriptor.fromObject(source);
+    TypeDescriptor targetType = new TypeDescriptor(type, null, targetAnnotations);
 
-  @Nullable
-  private Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     ConversionException failure = null;
     for (ConversionService delegate : this.delegates) {
       try {
         if (delegate.canConvert(sourceType, targetType)) {
-          return delegate.convert(source, sourceType, targetType);
+          return (T) delegate.convert(source, sourceType, targetType);
         }
       }
       catch (ConversionException ex) {
@@ -129,8 +119,7 @@ final class BindConverter {
     throw failure != null ? failure : new ConverterNotFoundException(sourceType, targetType);
   }
 
-  static BindConverter get(
-          @Nullable List<ConversionService> conversionServices,
+  static BindConverter get(@Nullable List<ConversionService> conversionServices,
           @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
     boolean sharedApplicationConversionService = (conversionServices == null) || (conversionServices.size() == 1
             && conversionServices.get(0) == ApplicationConversionService.getSharedInstance());
@@ -145,20 +134,6 @@ final class BindConverter {
       sharedInstance = new BindConverter(null, null);
     }
     return sharedInstance;
-  }
-
-  /**
-   * A {@link TypeDescriptor} backed by a {@link ResolvableType}.
-   */
-  private static class ResolvableTypeDescriptor extends TypeDescriptor {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    ResolvableTypeDescriptor(ResolvableType resolvableType, Annotation[] annotations) {
-      super(resolvableType, null, annotations);
-    }
-
   }
 
   /**
@@ -216,7 +191,8 @@ final class BindConverter {
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
       Class<?> type = targetType.getType();
-      if (type == null || type == Object.class
+      if (type == null
+              || type == Object.class
               || Collection.class.isAssignableFrom(type)
               || Map.class.isAssignableFrom(type)) {
         return false;

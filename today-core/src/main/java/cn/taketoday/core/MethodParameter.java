@@ -60,7 +60,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @see cn.taketoday.core.annotation.SynthesizingMethodParameter
  * @since 4.0
  */
-public class MethodParameter {
+public class MethodParameter implements AnnotatedElement {
 
   private final Executable executable;
 
@@ -698,6 +698,42 @@ public class MethodParameter {
    */
   protected Annotation[] adaptAnnotationArray(Annotation[] annotations) {
     return annotations;
+  }
+
+  // AnnotatedElement
+
+  @Override
+  public Annotation[] getAnnotations() {
+    return parameterIndex == -1
+           ? getMethodAnnotations()
+           : getParameterAnnotations();
+  }
+
+  @Override
+  public Annotation[] getDeclaredAnnotations() {
+    return getAnnotations();
+  }
+
+  @Override
+  public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
+    for (Annotation annotation : getAnnotations()) {
+      if (annotation.annotationType() == annotationClass) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+    for (Annotation annotation : getAnnotations()) {
+      if (annotation.annotationType() == annotationClass) {
+        return (T) annotation;
+      }
+    }
+    return null;
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -46,7 +43,8 @@ import cn.taketoday.util.CollectionUtils;
  */
 class MapBinder extends AggregateBinder<Map<Object, Object>> {
 
-  private static final Bindable<Map<String, String>> STRING_STRING_MAP = Bindable.mapOf(String.class, String.class);
+  private static final Bindable<Map<String, String>>
+          STRING_STRING_MAP = Bindable.mapOf(String.class, String.class);
 
   MapBinder(Context context) {
     super(context);
@@ -65,11 +63,11 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
 
     Bindable<?> resolvedTarget = resolveTarget(target);
     boolean hasDescendants = hasDescendants(name);
-    for (ConfigurationPropertySource source : getContext().getSources()) {
+    for (ConfigurationPropertySource source : context.getSources()) {
       if (!ConfigurationPropertyName.EMPTY.equals(name)) {
         ConfigurationProperty property = source.getConfigurationProperty(name);
         if (property != null && !hasDescendants) {
-          return getContext().getConverter().convert(property.getValue(), target);
+          return context.getConverter().convert(property.getValue(), target);
         }
         source = source.filter(name::isAncestorOf);
       }
@@ -79,7 +77,7 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
   }
 
   private boolean hasDescendants(ConfigurationPropertyName name) {
-    for (ConfigurationPropertySource source : getContext().getSources()) {
+    for (ConfigurationPropertySource source : context.getSources()) {
       if (source.containsDescendantOf(name) == ConfigurationPropertyState.PRESENT) {
         return true;
       }
@@ -158,9 +156,9 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
     }
 
     void bindEntries(ConfigurationPropertySource source, Map<Object, Object> map) {
-      if (source instanceof IterableConfigurationPropertySource) {
-        BindConverter converter = getContext().getConverter();
-        for (ConfigurationPropertyName name : (IterableConfigurationPropertySource) source) {
+      if (source instanceof IterableConfigurationPropertySource names) {
+        BindConverter converter = context.getConverter();
+        for (ConfigurationPropertyName name : names) {
           Bindable<?> valueBindable = getValueBindable(name);
           ConfigurationPropertyName entryName = getEntryName(source, name);
           Object key = converter.convert(getKeyName(entryName), this.keyType);
@@ -213,8 +211,8 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
         return false;
       }
       Object value = property.getValue();
-      value = getContext().getPlaceholdersResolver().resolvePlaceholders(value);
-      return getContext().getConverter().canConvert(value, this.valueType);
+      value = context.getPlaceholdersResolver().resolvePlaceholders(value);
+      return context.getConverter().canConvert(value, this.valueType);
     }
 
     private String getKeyName(ConfigurationPropertyName name) {

@@ -49,6 +49,8 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
+import static cn.taketoday.core.SerializableTypeWrapper.FieldTypeProvider;
+
 /**
  * Encapsulates a Java {@link Type}, providing access to
  * {@link #getSuperType() supertypes}, {@link #getInterfaces() interfaces}, and
@@ -147,8 +149,8 @@ public class ResolvableType implements Serializable {
    * Private constructor used to create a new {@link ResolvableType} for cache key purposes,
    * with no upfront resolution.
    */
-  private ResolvableType(
-          Type type, @Nullable TypeProvider typeProvider, @Nullable VariableResolver variableResolver) {
+  private ResolvableType(Type type, @Nullable TypeProvider typeProvider,
+          @Nullable VariableResolver variableResolver) {
     this.type = type;
     this.typeProvider = typeProvider;
     this.variableResolver = variableResolver;
@@ -1480,7 +1482,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forField(Field field) {
     Assert.notNull(field, "Field is required");
-    return forType(null, new SerializableTypeWrapper.FieldTypeProvider(field), null);
+    return forType(null, new FieldTypeProvider(field), null);
   }
 
   /**
@@ -1497,7 +1499,7 @@ public class ResolvableType implements Serializable {
   public static ResolvableType forField(Field field, Class<?> implementationClass) {
     Assert.notNull(field, "Field is required");
     ResolvableType owner = forType(implementationClass).as(field.getDeclaringClass());
-    return forType(null, new SerializableTypeWrapper.FieldTypeProvider(field), owner.asVariableResolver());
+    return forType(null, new FieldTypeProvider(field), owner.asVariableResolver());
   }
 
   /**
@@ -1515,7 +1517,7 @@ public class ResolvableType implements Serializable {
     Assert.notNull(field, "Field is required");
     ResolvableType owner = (implementationType != null ? implementationType : NONE);
     owner = owner.as(field.getDeclaringClass());
-    return forType(null, new SerializableTypeWrapper.FieldTypeProvider(field), owner.asVariableResolver());
+    return forType(null, new FieldTypeProvider(field), owner.asVariableResolver());
   }
 
   /**
@@ -1529,7 +1531,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forField(Field field, int nestingLevel) {
     Assert.notNull(field, "Field is required");
-    return forType(null, new SerializableTypeWrapper.FieldTypeProvider(field), null).getNested(nestingLevel);
+    return forType(null, new FieldTypeProvider(field), null).getNested(nestingLevel);
   }
 
   /**
@@ -1548,7 +1550,7 @@ public class ResolvableType implements Serializable {
   public static ResolvableType forField(Field field, int nestingLevel, @Nullable Class<?> implementationClass) {
     Assert.notNull(field, "Field is required");
     ResolvableType owner = forType(implementationClass).as(field.getDeclaringClass());
-    return forType(null, new SerializableTypeWrapper.FieldTypeProvider(field), owner.asVariableResolver()).getNested(nestingLevel);
+    return forType(null, new FieldTypeProvider(field), owner.asVariableResolver()).getNested(nestingLevel);
   }
 
   /**
