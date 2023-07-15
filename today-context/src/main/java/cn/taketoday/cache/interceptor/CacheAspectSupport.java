@@ -559,7 +559,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           @Nullable Object result, ArrayList<CachePutRequest> putRequests) {
 
     for (CacheOperationContext context : contexts) {
-      if (isConditionPassing(context, result)) {
+      if (isConditionPassing(context, result) && context.canPutToCache(result)) {
         Object key = generateKey(context, result);
         putRequests.add(new CachePutRequest(context, key));
       }
@@ -831,10 +831,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     }
 
     public void apply(@Nullable Object result) {
-      if (this.context.canPutToCache(result)) {
-        for (Cache cache : this.context.getCaches()) {
-          doPut(cache, this.key, result);
-        }
+      for (Cache cache : this.context.getCaches()) {
+        doPut(cache, this.key, result);
       }
     }
   }
