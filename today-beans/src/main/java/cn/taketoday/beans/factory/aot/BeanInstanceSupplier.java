@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -167,19 +164,6 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     Assert.notNull(generator, "'generator' must not be null");
     return new BeanInstanceSupplier<>(this.lookup,
             (registeredBean, args) -> generator.apply(registeredBean), this.shortcuts);
-  }
-
-  /**
-   * Return a new {@link BeanInstanceSupplier} instance that uses the specified
-   * {@code generator} supplier to instantiate the underlying bean.
-   *
-   * @param generator a {@link ThrowingSupplier} to instantiate the underlying bean
-   * @return a new {@link BeanInstanceSupplier} instance with the specified generator
-   */
-  public BeanInstanceSupplier<T> withGenerator(ThrowingSupplier<T> generator) {
-    Assert.notNull(generator, "'generator' must not be null");
-    return new BeanInstanceSupplier<>(this.lookup,
-            (registeredBean, args) -> generator.get(), this.shortcuts);
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +58,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingFunction;
-import cn.taketoday.util.function.ThrowingSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -189,16 +185,6 @@ class BeanInstanceSupplierTests {
   }
 
   @Test
-  void withGeneratorWhenSupplierIsNullThrowsException() {
-    BeanInstanceSupplier<Object> resolver = BeanInstanceSupplier
-            .forConstructor();
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> resolver.withGenerator(
-                    (ThrowingSupplier<Object>) null))
-            .withMessage("'generator' must not be null");
-  }
-
-  @Test
   void getWithConstructorDoesNotSetResolvedFactoryMethod() throws Exception {
     BeanInstanceSupplier<SingleArgConstructor> resolver = BeanInstanceSupplier
             .forConstructor(String.class);
@@ -244,17 +230,6 @@ class BeanInstanceSupplierTests {
     BeanInstanceSupplier<String> resolver = BeanInstanceSupplier
             .<String>forConstructor(String.class)
             .withGenerator(registeredBean -> "1");
-    assertThat(resolver.get(registerBean)).isInstanceOf(String.class).isEqualTo("1");
-  }
-
-  @Test
-  void getWithGeneratorCallsSupplier() throws Exception {
-    BeanRegistrar registrar = new BeanRegistrar(SingleArgConstructor.class);
-    this.beanFactory.registerSingleton("one", "1");
-    RegisteredBean registerBean = registrar.registerBean(this.beanFactory);
-    BeanInstanceSupplier<String> resolver = BeanInstanceSupplier
-            .<String>forConstructor(String.class)
-            .withGenerator(() -> "1");
     assertThat(resolver.get(registerBean)).isInstanceOf(String.class).isEqualTo("1");
   }
 
