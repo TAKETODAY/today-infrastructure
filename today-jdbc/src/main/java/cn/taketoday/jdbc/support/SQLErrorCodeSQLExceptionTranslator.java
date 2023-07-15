@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,9 +62,14 @@ import cn.taketoday.util.function.SingletonSupplier;
  * of the class path (e.g. in the "/WEB-INF/classes" directory), as long as the
  * Framework JDBC package is loaded from the same ClassLoader.
  *
+ * <p>This translator is commonly used by default if a user-provided `sql-error-codes.xml`
+ * file has been found in the root of the classpath, as a signal to use this strategy.
+ * Otherwise, {@link SQLExceptionSubclassTranslator} serves as the default translator.
+ *
  * @author Rod Johnson
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SQLErrorCodesFactory
  * @see SQLStateSQLExceptionTranslator
  * @since 4.0
@@ -80,8 +82,9 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
   private static final int MESSAGE_SQL_THROWABLE_CONSTRUCTOR = 4;
   private static final int MESSAGE_SQL_SQLEX_CONSTRUCTOR = 5;
 
-  private static final boolean USER_PROVIDED_ERROR_CODES_FILE_PRESENT =
-          new ClassPathResource(SQLErrorCodesFactory.SQL_ERROR_CODE_OVERRIDE_PATH, SQLErrorCodesFactory.class.getClassLoader()).exists();
+  private static final boolean userProvidedErrorCodesFilePresent =
+          new ClassPathResource(SQLErrorCodesFactory.SQL_ERROR_CODE_OVERRIDE_PATH,
+                  SQLErrorCodesFactory.class.getClassLoader()).exists();
 
   /** Error codes used by this translator. */
   @Nullable
@@ -440,7 +443,7 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
    * in the root of the classpath.
    */
   static boolean hasUserProvidedErrorCodesFile() {
-    return USER_PROVIDED_ERROR_CODES_FILE_PRESENT;
+    return userProvidedErrorCodesFilePresent;
   }
 
 }
