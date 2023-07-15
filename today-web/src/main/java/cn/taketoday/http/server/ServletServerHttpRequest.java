@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,35 +98,45 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   @Override
   public URI getURI() {
     if (this.uri == null) {
-      String urlString = null;
-      boolean hasQuery = false;
-      try {
-        StringBuffer url = this.servletRequest.getRequestURL();
-        String query = this.servletRequest.getQueryString();
-        hasQuery = StringUtils.hasText(query);
-        if (hasQuery) {
-          url.append('?').append(query);
-        }
-        urlString = url.toString();
-        this.uri = new URI(urlString);
-      }
-      catch (URISyntaxException ex) {
-        if (!hasQuery) {
-          throw new IllegalStateException(
-                  "Could not resolve HttpServletRequest as URI: " + urlString, ex);
-        }
-        // Maybe a malformed query string... try plain request URL
-        try {
-          urlString = this.servletRequest.getRequestURL().toString();
-          this.uri = new URI(urlString);
-        }
-        catch (URISyntaxException ex2) {
-          throw new IllegalStateException(
-                  "Could not resolve HttpServletRequest as URI: " + urlString, ex2);
-        }
-      }
+      this.uri = initURI(this.servletRequest);
     }
     return this.uri;
+  }
+
+  /**
+   * Initialize a URI from the given Servlet request.
+   *
+   * @param servletRequest the request
+   * @return the initialized URI
+   */
+  public static URI initURI(HttpServletRequest servletRequest) {
+    String urlString = null;
+    boolean hasQuery = false;
+    try {
+      StringBuffer url = servletRequest.getRequestURL();
+      String query = servletRequest.getQueryString();
+      hasQuery = StringUtils.hasText(query);
+      if (hasQuery) {
+        url.append('?').append(query);
+      }
+      urlString = url.toString();
+      return new URI(urlString);
+    }
+    catch (URISyntaxException ex) {
+      if (!hasQuery) {
+        throw new IllegalStateException(
+                "Could not resolve HttpServletRequest as URI: " + urlString, ex);
+      }
+      // Maybe a malformed query string... try plain request URL
+      try {
+        urlString = servletRequest.getRequestURL().toString();
+        return new URI(urlString);
+      }
+      catch (URISyntaxException ex2) {
+        throw new IllegalStateException(
+                "Could not resolve HttpServletRequest as URI: " + urlString, ex2);
+      }
+    }
   }
 
   @Override
@@ -189,7 +196,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   @Override
   public InetSocketAddress getLocalAddress() {
-    return new InetSocketAddress(this.servletRequest.getLocalName(), this.servletRequest.getLocalPort());
+    return new InetSocketAddress(this.servletRequest.getLocalAddr(), this.servletRequest.getLocalPort());
   }
 
   @Override

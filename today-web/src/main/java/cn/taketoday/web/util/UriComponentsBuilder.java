@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.web.util;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -332,61 +328,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    *
    * @param request the source request
    * @return the URI components of the URI
-   * @see #parseForwardedFor(HttpRequest, InetSocketAddress)
    */
   public static UriComponentsBuilder fromHttpRequest(HttpRequest request) {
     return fromUri(request.getURI()).adaptFromForwardedHeaders(request.getHeaders());
-  }
-
-  /**
-   * Parse the first "Forwarded: for=..." or "X-Forwarded-For" header value to
-   * an {@code InetSocketAddress} representing the address of the client.
-   *
-   * @param request a request with headers that may contain forwarded headers
-   * @param remoteAddress the current remoteAddress
-   * @return an {@code InetSocketAddress} with the extracted host and port, or
-   * {@code null} if the headers are not present.
-   * @see <a href="https://tools.ietf.org/html/rfc7239#section-5.2">RFC 7239, Section 5.2</a>
-   */
-  @Nullable
-  public static InetSocketAddress parseForwardedFor(
-          HttpRequest request, @Nullable InetSocketAddress remoteAddress) {
-
-    int port = (remoteAddress != null ?
-                remoteAddress.getPort() : "https".equals(request.getURI().getScheme()) ? 443 : 80);
-
-    String forwardedHeader = request.getHeaders().getFirst("Forwarded");
-    if (StringUtils.hasText(forwardedHeader)) {
-      String forwardedToUse = StringUtils.tokenizeToStringArray(forwardedHeader, ",")[0];
-      Matcher matcher = FORWARDED_FOR_PATTERN.matcher(forwardedToUse);
-      if (matcher.find()) {
-        String value = matcher.group(1).trim();
-        String host = value;
-        int portSeparatorIdx = value.lastIndexOf(':');
-        int squareBracketIdx = value.lastIndexOf(']');
-        if (portSeparatorIdx > squareBracketIdx) {
-          if (squareBracketIdx == -1 && value.indexOf(':') != portSeparatorIdx) {
-            throw new IllegalArgumentException("Invalid IPv4 address: " + value);
-          }
-          host = value.substring(0, portSeparatorIdx);
-          try {
-            port = Integer.parseInt(value.substring(portSeparatorIdx + 1));
-          }
-          catch (NumberFormatException ex) {
-            throw new IllegalArgumentException(
-                    "Failed to parse a port from \"forwarded\"-type header value: " + value);
-          }
-        }
-        return InetSocketAddress.createUnresolved(host, port);
-      }
-    }
-
-    String forHeader = request.getHeaders().getFirst("X-Forwarded-For");
-    if (StringUtils.hasText(forHeader)) {
-      String host = StringUtils.tokenizeToStringArray(forHeader, ",")[0];
-      return InetSocketAddress.createUnresolved(host, port);
-    }
-    return null;
   }
 
   /**
@@ -930,6 +874,14 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   private void resetSchemeSpecificPart() {
     this.ssp = null;
+  }
+
+  void resetPortIfDefaultForScheme() {
+    if (this.scheme != null &&
+            (((this.scheme.equals("http") || this.scheme.equals("ws")) && "80".equals(this.port)) ||
+                    ((this.scheme.equals("https") || this.scheme.equals("wss")) && "443".equals(this.port)))) {
+      port(null);
+    }
   }
 
   /**

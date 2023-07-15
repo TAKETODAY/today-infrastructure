@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +19,14 @@ package cn.taketoday.web.servlet.filter;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
@@ -36,6 +35,7 @@ import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.UrlPathHelper;
+import cn.taketoday.web.util.ForwardedHeaderUtils;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import jakarta.servlet.FilterChain;
@@ -237,7 +237,9 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
       super(servletRequest);
 
       ServerHttpRequest request = new ServletServerHttpRequest(servletRequest);
-      UriComponents uriComponents = UriComponentsBuilder.fromHttpRequest(request).build();
+      URI uri = request.getURI();
+      HttpHeaders headers = request.getHeaders();
+      UriComponents uriComponents = ForwardedHeaderUtils.adaptFromForwardedHeaders(uri, headers).build();
       int port = uriComponents.getPort();
 
       this.scheme = uriComponents.getScheme();
@@ -245,7 +247,7 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
       this.host = uriComponents.getHost();
       this.port = (port == -1 ? (this.secure ? 443 : 80) : port);
 
-      this.remoteAddress = UriComponentsBuilder.parseForwardedFor(request, request.getRemoteAddress());
+      this.remoteAddress = ForwardedHeaderUtils.parseForwardedFor(uri, headers, request.getRemoteAddress());
 
       String baseUrl = this.scheme + "://" + this.host + (port == -1 ? "" : ":" + port);
       Supplier<HttpServletRequest> delegateRequest = () -> (HttpServletRequest) getRequest();
@@ -447,8 +449,11 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
                ResourceUtils.getRelativePath(this.request.getRequestURI(), path);
       }
 
-      String result = UriComponentsBuilder
-              .fromHttpRequest(new ServletServerHttpRequest(this.request))
+      ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(this.request);
+      URI uri = httpRequest.getURI();
+      HttpHeaders headers = httpRequest.getHeaders();
+
+      String result = ForwardedHeaderUtils.adaptFromForwardedHeaders(uri, headers)
               .replacePath(path)
               .replaceQuery(uriComponents.getQuery())
               .fragment(uriComponents.getFragment())

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.util.UriComponentsBuilder;
+import cn.taketoday.web.util.ForwardedHeaderUtils;
 
 /**
  * Extract values from "Forwarded" and "X-Forwarded-*" headers to override
@@ -104,7 +101,9 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
     if (hasForwardedHeaders(request)) {
       ServerHttpRequest.Builder builder = request.mutate();
       if (!this.removeOnly) {
-        URI uri = UriComponentsBuilder.fromHttpRequest(request).build(true).toUri();
+        URI originalUri = request.getURI();
+        HttpHeaders headers = request.getHeaders();
+        URI uri = ForwardedHeaderUtils.adaptFromForwardedHeaders(originalUri, headers).build(true).toUri();
         builder.uri(uri);
         String prefix = getForwardedPrefix(request);
         if (prefix != null) {
@@ -112,7 +111,7 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
           builder.contextPath(prefix);
         }
         InetSocketAddress remoteAddress = request.getRemoteAddress();
-        remoteAddress = UriComponentsBuilder.parseForwardedFor(request, remoteAddress);
+        remoteAddress = ForwardedHeaderUtils.parseForwardedFor(originalUri, headers, remoteAddress);
         if (remoteAddress != null) {
           builder.remoteAddress(remoteAddress);
         }
