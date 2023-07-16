@@ -30,9 +30,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.DefaultMultiValueMap;
@@ -63,6 +63,7 @@ import cn.taketoday.web.util.UriComponents.UriTemplateVariables;
  * @author Brian Clozel
  * @author Sebastien Deleuze
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #newInstance()
  * @see #fromPath(String)
  * @see #fromUri(URI)
@@ -100,16 +101,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   private static final Pattern HTTP_URL_PATTERN = Pattern.compile(
           "^" + HTTP_PATTERN + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN + ")?" + ")?" +
                   PATH_PATTERN + "(\\?" + QUERY_PATTERN + ")?" + "(#" + LAST_PATTERN + ")?");
-
-  private static final String FORWARDED_VALUE = "\"?([^;,\"]+)\"?";
-
-  private static final Pattern FORWARDED_HOST_PATTERN = Pattern.compile("(?i:host)=" + FORWARDED_VALUE);
-
-  private static final Pattern FORWARDED_PROTO_PATTERN = Pattern.compile("(?i:proto)=" + FORWARDED_VALUE);
-
-  private static final Pattern FORWARDED_FOR_PATTERN = Pattern.compile("(?i:for)=" + FORWARDED_VALUE);
-
-  private static final Object[] EMPTY_VALUES = new Object[0];
 
   @Nullable
   private String scheme;
@@ -330,7 +321,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return the URI components of the URI
    */
   public static UriComponentsBuilder fromHttpRequest(HttpRequest request) {
-    return fromUri(request.getURI()).adaptFromForwardedHeaders(request.getHeaders());
+    return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
   }
 
   /**
@@ -688,7 +679,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   @Override
   public UriComponentsBuilder queryParam(String name, @Nullable Collection<?> values) {
-    return queryParam(name, (CollectionUtils.isEmpty(values) ? EMPTY_VALUES : values.toArray()));
+    return queryParam(name, (CollectionUtils.isEmpty(values) ? Constant.EMPTY_OBJECTS : values.toArray()));
   }
 
   @Override
@@ -729,7 +720,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   @Override
   public UriComponentsBuilder replaceQueryParam(String name, @Nullable Collection<?> values) {
-    return replaceQueryParam(name, (CollectionUtils.isEmpty(values) ? EMPTY_VALUES : values.toArray()));
+    return replaceQueryParam(name, (CollectionUtils.isEmpty(values) ? Constant.EMPTY_OBJECTS : values.toArray()));
   }
 
   /**
@@ -773,95 +764,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
   public UriComponentsBuilder uriVariables(Map<String, Object> uriVariables) {
     this.uriVariables.putAll(uriVariables);
     return this;
-  }
-
-  /**
-   * Adapt this builder's scheme+host+port from the given headers, specifically
-   * "Forwarded" (<a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>,
-   * or "X-Forwarded-Host", "X-Forwarded-Port", and "X-Forwarded-Proto" if
-   * "Forwarded" is not found.
-   * <p><strong>Note:</strong> this method uses values from forwarded headers,
-   * if present, in order to reflect the client-originated protocol and address.
-   * Consider using the {@code ForwardedHeaderFilter} in order to choose from a
-   * central place whether to extract and use, or to discard such headers.
-   * See the Framework reference for more on this filter.
-   *
-   * @param headers the HTTP headers to consider
-   * @return this UriComponentsBuilder
-   */
-  UriComponentsBuilder adaptFromForwardedHeaders(HttpHeaders headers) {
-    try {
-      String forwardedHeader = headers.getFirst("Forwarded");
-      if (StringUtils.hasText(forwardedHeader)) {
-        Matcher matcher = FORWARDED_PROTO_PATTERN.matcher(forwardedHeader);
-        if (matcher.find()) {
-          scheme(matcher.group(1).trim());
-          port(null);
-        }
-        else if (isForwardedSslOn(headers)) {
-          scheme("https");
-          port(null);
-        }
-        matcher = FORWARDED_HOST_PATTERN.matcher(forwardedHeader);
-        if (matcher.find()) {
-          adaptForwardedHost(matcher.group(1).trim());
-        }
-      }
-      else {
-        String protocolHeader = headers.getFirst("X-Forwarded-Proto");
-        if (StringUtils.hasText(protocolHeader)) {
-          scheme(StringUtils.tokenizeToStringArray(protocolHeader, ",")[0]);
-          port(null);
-        }
-        else if (isForwardedSslOn(headers)) {
-          scheme("https");
-          port(null);
-        }
-        String hostHeader = headers.getFirst("X-Forwarded-Host");
-        if (StringUtils.hasText(hostHeader)) {
-          adaptForwardedHost(StringUtils.tokenizeToStringArray(hostHeader, ",")[0]);
-        }
-        String portHeader = headers.getFirst("X-Forwarded-Port");
-        if (StringUtils.hasText(portHeader)) {
-          port(Integer.parseInt(StringUtils.tokenizeToStringArray(portHeader, ",")[0]));
-        }
-      }
-    }
-    catch (NumberFormatException ex) {
-      throw new IllegalArgumentException(
-              "Failed to parse a port from \"forwarded\"-type headers. " +
-                      "If not behind a trusted proxy, consider using ForwardedHeaderFilter " +
-                      "with the removeOnly=true. Request headers: " + headers);
-    }
-
-    if (this.scheme != null &&
-            (((this.scheme.equals("http") || this.scheme.equals("ws")) && "80".equals(this.port)) ||
-                    ((this.scheme.equals("https") || this.scheme.equals("wss")) && "443".equals(this.port)))) {
-      port(null);
-    }
-
-    return this;
-  }
-
-  private boolean isForwardedSslOn(HttpHeaders headers) {
-    String forwardedSsl = headers.getFirst("X-Forwarded-Ssl");
-    return StringUtils.hasText(forwardedSsl) && forwardedSsl.equalsIgnoreCase("on");
-  }
-
-  private void adaptForwardedHost(String rawValue) {
-    int portSeparatorIdx = rawValue.lastIndexOf(':');
-    int squareBracketIdx = rawValue.lastIndexOf(']');
-    if (portSeparatorIdx > squareBracketIdx) {
-      if (squareBracketIdx == -1 && rawValue.indexOf(':') != portSeparatorIdx) {
-        throw new IllegalArgumentException("Invalid IPv4 address: " + rawValue);
-      }
-      host(rawValue.substring(0, portSeparatorIdx));
-      port(Integer.parseInt(rawValue.substring(portSeparatorIdx + 1)));
-    }
-    else {
-      host(rawValue);
-      port(null);
-    }
   }
 
   private void resetHierarchicalComponents() {
