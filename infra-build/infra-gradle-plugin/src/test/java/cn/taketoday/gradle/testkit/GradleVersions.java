@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,12 +35,11 @@ public final class GradleVersions {
   private GradleVersions() {
   }
 
-  @SuppressWarnings("UnstableApiUsage")
   public static List<String> allCompatible() {
     if (isJavaVersion(JavaVersion.VERSION_20)) {
-      return Arrays.asList("8.1.1", "8.2-rc-1");
+      return Arrays.asList("8.1.1", "8.2");
     }
-    return Arrays.asList("7.5.1", GradleVersion.current().getVersion(), "8.0.2", "8.1.1", "8.2-rc-1");
+    return Arrays.asList("7.5.1", GradleVersion.current().getVersion(), "8.0.2", "8.2");
   }
 
   public static String minimumCompatible() {
