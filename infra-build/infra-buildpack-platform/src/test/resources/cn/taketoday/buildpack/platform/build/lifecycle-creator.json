@@ -22,7 +22,7 @@
     "CNB_PLATFORM_API=0.8"
   ],
   "Labels": {
-    "author": "spring-boot"
+    "author": "infra-app"
   },
   "HostConfig": {
     "Binds": [

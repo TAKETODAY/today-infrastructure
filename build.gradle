@@ -9,6 +9,7 @@ ext {
           project(":infra-build:infra-app-loader"),
           project(":infra-build:infra-app-loader-tools"),
           project(":infra-build:infra-jarmode-layertools"),
+          project(":infra-build:infra-buildpack-platform"),
           project(":infra-build:infra-gradle-plugin"),
           project(":infra-build:infra-maven-plugin")
   ]

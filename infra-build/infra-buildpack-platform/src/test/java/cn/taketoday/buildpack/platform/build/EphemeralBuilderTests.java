@@ -104,7 +104,7 @@ class EphemeralBuilderTests extends AbstractJsonTests {
             this.creator, this.env, this.buildpacks);
     ImageConfig config = builder.getArchive().getImageConfig();
     BuilderMetadata ephemeralMetadata = BuilderMetadata.fromImageConfig(config);
-    assertThat(ephemeralMetadata.getCreatedBy().getName()).isEqualTo("Spring Boot");
+    assertThat(ephemeralMetadata.getCreatedBy().getName()).isEqualTo("Infra Application");
     assertThat(ephemeralMetadata.getCreatedBy().getVersion()).isEqualTo("dev");
   }
 

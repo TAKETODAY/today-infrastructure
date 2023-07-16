@@ -17,6 +17,10 @@
 
 package cn.taketoday.buildpack.platform.docker;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.hc.core5.net.URIBuilder;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,7 +32,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,10 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.hc.core5.net.URIBuilder;
 
 import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
 import cn.taketoday.buildpack.platform.docker.transport.HttpTransport;
@@ -56,8 +55,8 @@ import cn.taketoday.buildpack.platform.io.IOBiConsumer;
 import cn.taketoday.buildpack.platform.io.TarArchive;
 import cn.taketoday.buildpack.platform.json.JsonStream;
 import cn.taketoday.buildpack.platform.json.SharedObjectMapper;
-
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -72,7 +71,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class DockerApi {
 
-  private static final List<String> FORCE_PARAMS = Collections.unmodifiableList(Arrays.asList("force", "1"));
+  private static final List<String> FORCE_PARAMS = List.of("force", "1");
 
   static final String API_VERSION = "v1.24";
 
@@ -97,7 +96,6 @@ public class DockerApi {
    * Create a new {@link DockerApi} instance.
    *
    * @param dockerHost the Docker daemon host information
-   * @since 4.0
    */
   public DockerApi(DockerHost dockerHost) {
     this(HttpTransport.create(dockerHost));
@@ -129,12 +127,14 @@ public class DockerApi {
     return buildUrl(path, (params != null) ? params.toArray() : null);
   }
 
-  private URI buildUrl(String path, Object... params) {
+  private URI buildUrl(String path, @Nullable Object... params) {
     try {
       URIBuilder builder = new URIBuilder("/" + API_VERSION + path);
-      int param = 0;
-      while (param < params.length) {
-        builder.addParameter(Objects.toString(params[param++]), Objects.toString(params[param++]));
+      if (params != null) {
+        int param = 0;
+        while (param < params.length) {
+          builder.addParameter(Objects.toString(params[param++]), Objects.toString(params[param++]));
+        }
       }
       return builder.build();
     }

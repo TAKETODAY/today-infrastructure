@@ -24,6 +24,7 @@ dependencies {
   api("org.apache.commons:commons-compress")
   api("net.java.dev.jna:jna-platform:5.7.0")
   api("org.tomlj:tomlj:1.0.0")
+  implementation(project(":today-aop"))
 
   testImplementation(project(":today-test-support"))
   testImplementation("com.jayway.jsonpath:json-path")

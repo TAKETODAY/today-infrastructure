@@ -56,7 +56,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test", NO_ARGS);
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).shouldHaveNoMoreInteractions();
   }
 
@@ -68,7 +68,7 @@ class PhaseTests {
     phase.apply(update);
     then(update).should().withUser("root");
     then(update).should().withCommand("/cnb/lifecycle/test", NO_ARGS);
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).shouldHaveNoMoreInteractions();
   }
 
@@ -79,7 +79,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test", "-log-level", "debug");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).shouldHaveNoMoreInteractions();
   }
 
@@ -90,7 +90,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).shouldHaveNoMoreInteractions();
   }
 
@@ -101,7 +101,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test", "a", "b", "c");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).shouldHaveNoMoreInteractions();
   }
 
@@ -113,7 +113,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).should().withBinding(Binding.from(volumeName, "/test"));
     then(update).shouldHaveNoMoreInteractions();
   }
@@ -126,7 +126,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).should().withEnv("name1", "value1");
     then(update).should().withEnv("name2", "value2");
     then(update).shouldHaveNoMoreInteractions();
@@ -140,7 +140,7 @@ class PhaseTests {
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test");
     then(update).should().withNetworkMode("test");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).shouldHaveNoMoreInteractions();
   }
 
@@ -152,7 +152,7 @@ class PhaseTests {
     Update update = mock(Update.class);
     phase.apply(update);
     then(update).should().withCommand("/cnb/lifecycle/test");
-    then(update).should().withLabel("author", "spring-boot");
+    then(update).should().withLabel("author", "infra-app");
     then(update).should().withSecurityOption("option1=value1");
     then(update).should().withSecurityOption("option2=value2");
     then(update).shouldHaveNoMoreInteractions();

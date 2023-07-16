@@ -23,7 +23,7 @@
     "SOURCE_DATE_EPOCH=1593606896"
   ],
   "Labels": {
-    "author": "spring-boot"
+    "author": "infra-app"
   },
   "HostConfig": {
     "Binds": [
