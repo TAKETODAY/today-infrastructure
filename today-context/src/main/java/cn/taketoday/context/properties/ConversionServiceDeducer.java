@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -35,6 +32,7 @@ import cn.taketoday.core.conversion.GenericConverter;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -67,14 +65,21 @@ class ConversionServiceDeducer {
 
   private List<ConversionService> getConversionServices(ConfigurableApplicationContext applicationContext) {
     List<ConversionService> conversionServices = new ArrayList<>();
+    ConverterBeans converterBeans = new ConverterBeans(applicationContext);
+    if (!converterBeans.isEmpty()) {
+      FormattingConversionService beansConverterService = new FormattingConversionService();
+      converterBeans.addTo(beansConverterService);
+      conversionServices.add(beansConverterService);
+    }
     if (applicationContext.getBeanFactory().getConversionService() != null) {
       conversionServices.add(applicationContext.getBeanFactory().getConversionService());
     }
-    ConverterBeans converterBeans = new ConverterBeans(applicationContext);
     if (!converterBeans.isEmpty()) {
-      ApplicationConversionService beansConverterService = new ApplicationConversionService();
-      converterBeans.addTo(beansConverterService);
-      conversionServices.add(beansConverterService);
+      // Converters beans used to be added to a custom ApplicationConversionService
+      // after the BeanFactory's ConversionService. For backwards compatibility, we
+      // add an ApplicationConversationService as a fallback in the same place in
+      // the list.
+      conversionServices.add(ApplicationConversionService.getSharedInstance());
     }
     return conversionServices;
   }

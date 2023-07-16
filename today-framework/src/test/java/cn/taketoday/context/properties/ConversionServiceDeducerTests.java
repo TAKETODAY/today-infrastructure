@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.format.support.FormattingConversionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,14 +71,15 @@ class ConversionServiceDeducerTests {
   }
 
   @Test
-  void getConversionServiceWhenHasQualifiedConverterBeansContainsCustomizedApplicationService() {
+  void getConversionServiceWhenHasQualifiedConverterBeansContainsCustomizedFormattingService() {
     ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
             CustomConverterConfiguration.class);
     ConversionServiceDeducer deducer = new ConversionServiceDeducer(applicationContext);
     List<ConversionService> conversionServices = deducer.getConversionServices();
-    assertThat(conversionServices).hasSize(1);
-    assertThat(conversionServices.get(0)).isNotSameAs(ApplicationConversionService.getSharedInstance());
+    assertThat(conversionServices).hasSize(2);
+    assertThat(conversionServices.get(0)).isExactlyInstanceOf(FormattingConversionService.class);
     assertThat(conversionServices.get(0).canConvert(InputStream.class, OutputStream.class)).isTrue();
+    assertThat(conversionServices.get(1)).isSameAs(ApplicationConversionService.getSharedInstance());
   }
 
   @Configuration(proxyBeanMethods = false)
