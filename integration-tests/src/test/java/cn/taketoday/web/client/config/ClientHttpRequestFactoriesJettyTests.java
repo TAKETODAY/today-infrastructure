@@ -17,32 +17,33 @@
 
 package cn.taketoday.web.client.config;
 
-import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
+import org.eclipse.jetty.client.HttpClient;
+
+import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
 /**
- * Tests for {@link ClientHttpRequestFactories} when the simple JDK-based client is the
- * predominant HTTP client.
+ * Tests for {@link ClientHttpRequestFactories} when Jetty is the predominant HTTP client.
  *
- * @author Andy Wilkinson
+ * @author Arjen Poutsma
  */
-@ClassPathExclusions({ "httpclient5-*.jar", "okhttp-*.jar", "jetty-client-*.jar" })
-class ClientHttpRequestFactoriesSimpleTests
-        extends AbstractClientHttpRequestFactoriesTests<SimpleClientHttpRequestFactory> {
+@ClassPathExclusions({ "httpclient5-*.jar", "okhttp-*.jar" })
+class ClientHttpRequestFactoriesJettyTests
+        extends AbstractClientHttpRequestFactoriesTests<JettyClientHttpRequestFactory> {
 
-  ClientHttpRequestFactoriesSimpleTests() {
-    super(SimpleClientHttpRequestFactory.class);
+  ClientHttpRequestFactoriesJettyTests() {
+    super(JettyClientHttpRequestFactory.class);
   }
 
   @Override
-  protected long connectTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return (int) ReflectionTestUtils.getField(requestFactory, "connectTimeout");
+  protected long connectTimeout(JettyClientHttpRequestFactory requestFactory) {
+    return ((HttpClient) ReflectionTestUtils.getField(requestFactory, "httpClient")).getConnectTimeout();
   }
 
   @Override
-  protected long readTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return (int) ReflectionTestUtils.getField(requestFactory, "readTimeout");
+  protected long readTimeout(JettyClientHttpRequestFactory requestFactory) {
+    return (long) ReflectionTestUtils.getField(requestFactory, "readTimeout");
   }
 
 }
