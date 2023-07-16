@@ -24,11 +24,11 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.boot.buildpack.platform.build.BuildRequest;
-import org.springframework.boot.buildpack.platform.build.BuildpackReference;
-import org.springframework.boot.buildpack.platform.build.PullPolicy;
-import org.springframework.boot.buildpack.platform.docker.type.Binding;
-import org.springframework.boot.buildpack.platform.docker.type.ImageReference;
+import cn.taketoday.buildpack.platform.build.BuildRequest;
+import cn.taketoday.buildpack.platform.build.BuildpackReference;
+import cn.taketoday.buildpack.platform.build.PullPolicy;
+import cn.taketoday.buildpack.platform.docker.type.Binding;
+import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 
 import java.io.File;
 import java.util.Arrays;

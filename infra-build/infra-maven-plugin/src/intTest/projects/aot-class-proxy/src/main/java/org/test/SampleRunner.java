@@ -20,8 +20,8 @@
 
 package org.test;
 
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
+import cn.taketoday.scheduling.annotation.Async;
+import cn.taketoday.stereotype.Component;
 
 @Component
 public class SampleRunner {

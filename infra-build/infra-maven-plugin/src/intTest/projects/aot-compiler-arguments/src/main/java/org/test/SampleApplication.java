@@ -20,9 +20,9 @@
 
 package org.test;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import cn.taketoday.framework.Application;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 
 @Configuration(proxyBeanMethods = false)
 public class SampleApplication {

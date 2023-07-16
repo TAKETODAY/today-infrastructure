@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.util.GradleVersion;
-import org.springframework.boot.buildpack.platform.build.BuildRequest;
-import org.springframework.util.Assert;
+import cn.taketoday.buildpack.platform.build.BuildRequest;
+import cn.taketoday.lang.Assert;
 import org.tomlj.Toml;
 
 import java.io.File;
@@ -52,8 +52,6 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 
 import cn.taketoday.app.loader.tools.LaunchScript;
-import cn.taketoday.bytecode.ClassVisitor;
-import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationAotProcessor;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.FileCopyUtils;

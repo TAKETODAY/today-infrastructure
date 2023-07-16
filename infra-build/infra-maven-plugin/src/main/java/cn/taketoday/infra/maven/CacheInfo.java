@@ -17,7 +17,7 @@
 
 package cn.taketoday.infra.maven;
 
-import org.springframework.boot.buildpack.platform.build.Cache;
+import cn.taketoday.buildpack.platform.build.Cache;
 
 import cn.taketoday.lang.Assert;
 

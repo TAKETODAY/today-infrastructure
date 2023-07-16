@@ -20,12 +20,12 @@ package cn.taketoday.maven;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.buildpack.platform.docker.DockerApi;
-import org.springframework.boot.buildpack.platform.docker.DockerApi.VolumeApi;
-import org.springframework.boot.buildpack.platform.docker.type.Image;
-import org.springframework.boot.buildpack.platform.docker.type.ImageName;
-import org.springframework.boot.buildpack.platform.docker.type.ImageReference;
-import org.springframework.boot.buildpack.platform.docker.type.VolumeName;
+import cn.taketoday.buildpack.platform.docker.DockerApi;
+import cn.taketoday.buildpack.platform.docker.DockerApi.VolumeApi;
+import cn.taketoday.buildpack.platform.docker.type.Image;
+import cn.taketoday.buildpack.platform.docker.type.ImageName;
+import cn.taketoday.buildpack.platform.docker.type.ImageReference;
+import cn.taketoday.buildpack.platform.docker.type.VolumeName;
 
 import java.io.File;
 import java.io.IOException;

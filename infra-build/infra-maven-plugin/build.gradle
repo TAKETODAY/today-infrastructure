@@ -25,7 +25,7 @@ dependencies {
   implementation(project(":infra-build:infra-app-loader"))
   implementation(project(":infra-build:infra-app-loader-tools"))
 
-  implementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
+  implementation project(":infra-build:infra-buildpack-platform")
   implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
   implementation 'org.apache.commons:commons-compress:1.21'
 
@@ -45,7 +45,6 @@ dependencies {
 //  mavenRepository(project(path: ":today-test-support", configuration: "mavenRepository"))
 //  mavenRepository(project(path: ":infra-build:infra-app-loader", configuration: "mavenRepository"))
 //  mavenRepository(project(path: ":infra-build:infra-app-loader-tools", configuration: "mavenRepository"))
-//  mavenRepository('org.springframework.boot:spring-boot-buildpack-platform:3.1.1')
 
   intTestImplementation("org.assertj:assertj-core")
   intTestImplementation("org.junit.jupiter:junit-jupiter")
@@ -64,7 +63,7 @@ dependencies {
     exclude(group: "javax.inject", module: "javax.inject")
   }
 
-  intTestImplementation 'org.springframework.boot:spring-boot-buildpack-platform:3.1.1'
+  intTestImplementation project(":infra-build:infra-buildpack-platform")
 
   versionProperties(dependencies.project(path: ":infra-platform", configuration: "effectiveBom"))
 

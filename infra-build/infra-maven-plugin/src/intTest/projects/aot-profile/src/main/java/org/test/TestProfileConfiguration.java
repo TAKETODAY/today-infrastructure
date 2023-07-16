@@ -20,9 +20,9 @@
 
 package org.test;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Profile;
 
 @Configuration(proxyBeanMethods = false)
 @Profile("abc")

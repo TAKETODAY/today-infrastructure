@@ -1,6 +1,6 @@
 
 
-import org.springframework.boot.buildpack.platform.build.PullPolicy;
+import cn.taketoday.buildpack.platform.build.PullPolicy;
 
 plugins {
 	id 'java'

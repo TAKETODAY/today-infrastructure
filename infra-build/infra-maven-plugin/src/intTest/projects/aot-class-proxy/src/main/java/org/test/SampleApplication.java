@@ -20,10 +20,10 @@
 
 package org.test;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
+import cn.taketoday.framework.Application;
+import cn.taketoday.context.annotation.ComponentScan;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.scheduling.annotation.EnableAsync;
 
 @Configuration(proxyBeanMethods = false)
 @ComponentScan

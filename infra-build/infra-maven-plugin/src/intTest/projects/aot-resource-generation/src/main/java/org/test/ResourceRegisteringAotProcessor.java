@@ -20,11 +20,11 @@
 
 package org.test;
 
-import org.springframework.aot.generate.GenerationContext;
-import org.springframework.beans.factory.aot.BeanFactoryInitializationAotContribution;
-import org.springframework.beans.factory.aot.BeanFactoryInitializationAotProcessor;
-import org.springframework.beans.factory.aot.BeanFactoryInitializationCode;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import cn.taketoday.aot.generate.GenerationContext;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationCode;
+import cn.taketoday.beans.factory.config.ConfigurableListableBeanFactory;
 
 class ResourceRegisteringAotProcessor implements BeanFactoryInitializationAotProcessor {
 

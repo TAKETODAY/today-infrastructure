@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class TestRunIntegrationTests {
                     .contains("Main class name = org.test.TestSampleApplication")
                     .contains("1. " + canonicalPathOf(project, "target/test-classes"))
                     .contains("2. " + canonicalPathOf(project, "target/classes"))
-                    .containsPattern("3\\. .*spring-core")
+                    .containsPattern("3\\. .*today-core")
                     .containsPattern("4\\. .*spring-jcl"));
   }
 

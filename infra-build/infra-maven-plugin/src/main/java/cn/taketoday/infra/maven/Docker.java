@@ -17,7 +17,7 @@
 
 package cn.taketoday.infra.maven;
 
-import org.springframework.boot.buildpack.platform.docker.configuration.DockerConfiguration;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
 
 /**
  * Docker configuration options.

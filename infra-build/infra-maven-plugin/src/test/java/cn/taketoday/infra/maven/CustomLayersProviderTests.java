@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package cn.taketoday.infra.maven;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -29,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import cn.taketoday.app.loader.tools.Library;
 import cn.taketoday.app.loader.tools.LibraryCoordinates;
 import cn.taketoday.app.loader.tools.layer.CustomLayers;
+import cn.taketoday.core.io.ClassPathResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

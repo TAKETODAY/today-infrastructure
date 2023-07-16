@@ -18,8 +18,8 @@
 package cn.taketoday.infra.maven;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.buildpack.platform.docker.configuration.DockerConfiguration;
-import org.springframework.boot.buildpack.platform.docker.configuration.DockerHost;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
 
 import java.util.Base64;
 

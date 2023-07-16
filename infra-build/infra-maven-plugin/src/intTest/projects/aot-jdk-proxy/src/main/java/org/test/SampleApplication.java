@@ -22,13 +22,13 @@ package org.test;
 
 import org.test.SampleApplication.SampleApplicationRuntimeHints;
 
-import org.springframework.aop.framework.AopProxyUtils;
-import org.springframework.aot.hint.RuntimeHints;
-import org.springframework.aot.hint.RuntimeHintsRegistrar;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.stereotype.Service;
+import cn.taketoday.aop.framework.AopProxyUtils;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
+import cn.taketoday.framework.Application;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.ImportRuntimeHints;
+import cn.taketoday.stereotype.Service;
 
 @Configuration(proxyBeanMethods = false)
 @ImportRuntimeHints(SampleApplicationRuntimeHints.class)

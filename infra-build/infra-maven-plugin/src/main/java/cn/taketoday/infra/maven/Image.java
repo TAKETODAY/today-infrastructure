@@ -18,14 +18,14 @@
 package cn.taketoday.infra.maven;
 
 import org.apache.maven.artifact.Artifact;
-import org.springframework.boot.buildpack.platform.build.BuildRequest;
-import org.springframework.boot.buildpack.platform.build.BuildpackReference;
-import org.springframework.boot.buildpack.platform.build.PullPolicy;
-import org.springframework.boot.buildpack.platform.docker.type.Binding;
-import org.springframework.boot.buildpack.platform.docker.type.ImageName;
-import org.springframework.boot.buildpack.platform.docker.type.ImageReference;
-import org.springframework.boot.buildpack.platform.io.Owner;
-import org.springframework.boot.buildpack.platform.io.TarArchive;
+import cn.taketoday.buildpack.platform.build.BuildRequest;
+import cn.taketoday.buildpack.platform.build.BuildpackReference;
+import cn.taketoday.buildpack.platform.build.PullPolicy;
+import cn.taketoday.buildpack.platform.docker.type.Binding;
+import cn.taketoday.buildpack.platform.docker.type.ImageName;
+import cn.taketoday.buildpack.platform.docker.type.ImageReference;
+import cn.taketoday.buildpack.platform.io.Owner;
+import cn.taketoday.buildpack.platform.io.TarArchive;
 
 import java.util.List;
 import java.util.Map;

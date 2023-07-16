@@ -24,8 +24,8 @@ import org.gradle.api.GradleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.boot.buildpack.platform.docker.configuration.DockerConfiguration;
-import org.springframework.boot.buildpack.platform.docker.configuration.DockerHost;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
 
 import java.io.File;
 import java.util.Base64;

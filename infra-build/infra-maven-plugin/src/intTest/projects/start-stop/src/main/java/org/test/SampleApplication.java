@@ -30,57 +30,57 @@ import javax.management.ObjectName;
  */
 public class SampleApplication {
 
-	private static final Object lock = new Object();
+  private static final Object lock = new Object();
 
-	public static void main(String[] args) throws Exception {
-		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		ObjectName name = new ObjectName(
-				"org.springframework.boot:type=Admin,name=SpringApplication");
-		SpringApplicationAdmin mbean = new SpringApplicationAdmin();
-		mbs.registerMBean(mbean, name);
+  public static void main(String[] args) throws Exception {
+    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+    ObjectName name = new ObjectName(
+            "cn.taketoday.app:type=Admin,name=InfraApplication");
+    SpringApplicationAdmin mbean = new SpringApplicationAdmin();
+    mbs.registerMBean(mbean, name);
 
-		// Flag the app as ready
-		mbean.ready = true;
+    // Flag the app as ready
+    mbean.ready = true;
 
-		int waitAttempts = 0;
-		while (!mbean.shutdownInvoked) {
-			if (waitAttempts > 30) {
-				throw new IllegalStateException(
-						"Shutdown should have been invoked by now");
-			}
-			synchronized (lock) {
-				lock.wait(250);
-			}
-			waitAttempts++;
-		}
-	}
+    int waitAttempts = 0;
+    while (!mbean.shutdownInvoked) {
+      if (waitAttempts > 30) {
+        throw new IllegalStateException(
+                "Shutdown should have been invoked by now");
+      }
+      synchronized(lock) {
+        lock.wait(250);
+      }
+      waitAttempts++;
+    }
+  }
 
-	public interface SpringApplicationAdminMXBean {
+  public interface SpringApplicationAdminMXBean {
 
-		boolean isReady();
+    boolean isReady();
 
-		void shutdown();
+    void shutdown();
 
-	}
+  }
 
-	static class SpringApplicationAdmin implements SpringApplicationAdminMXBean {
+  static class SpringApplicationAdmin implements SpringApplicationAdminMXBean {
 
-		private boolean ready;
+    private boolean ready;
 
-		private boolean shutdownInvoked;
+    private boolean shutdownInvoked;
 
-		@Override
-		public boolean isReady() {
-			System.out.println("isReady: " + this.ready);
-			return this.ready;
-		}
+    @Override
+    public boolean isReady() {
+      System.out.println("isReady: " + this.ready);
+      return this.ready;
+    }
 
-		@Override
-		public void shutdown() {
-			this.shutdownInvoked = true;
-			System.out.println("Shutdown requested");
-		}
+    @Override
+    public void shutdown() {
+      this.shutdownInvoked = true;
+      System.out.println("Shutdown requested");
+    }
 
-	}
+  }
 
 }
