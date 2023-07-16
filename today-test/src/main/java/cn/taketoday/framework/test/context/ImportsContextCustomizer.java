@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +43,8 @@ import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.context.annotation.config.DeterminableImports;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -244,7 +243,8 @@ class ImportsContextCustomizer implements ContextCustomizer {
 
     private void collectElementAnnotations(AnnotatedElement element,
             Set<Annotation> annotations, Set<Class<?>> seen) {
-      for (Annotation annotation : element.getDeclaredAnnotations()) {
+      for (var mergedAnnotation : MergedAnnotations.from(element, SearchStrategy.DIRECT)) {
+        Annotation annotation = mergedAnnotation.synthesize();
         if (!isIgnoredAnnotation(annotation)) {
           annotations.add(annotation);
           collectClassAnnotations(annotation.annotationType(), annotations, seen);
