@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,14 +162,16 @@ public class ReflectiveMethodInvoker {
   public void prepare() throws ClassNotFoundException, NoSuchMethodException {
     if (this.staticMethod != null) {
       int lastDotIndex = this.staticMethod.lastIndexOf('.');
-      if (lastDotIndex == -1 || lastDotIndex == this.staticMethod.length()) {
+      if (lastDotIndex == -1 || lastDotIndex == this.staticMethod.length() - 1) {
         throw new IllegalArgumentException(
                 "staticMethod must be a fully qualified class plus method name: " +
                         "e.g. 'example.MyExampleClass.myExampleMethod'");
       }
       String className = this.staticMethod.substring(0, lastDotIndex);
       String methodName = this.staticMethod.substring(lastDotIndex + 1);
-      this.targetClass = resolveClassName(className);
+      if (this.targetClass == null || !this.targetClass.getName().equals(className)) {
+        this.targetClass = resolveClassName(className);
+      }
       this.targetMethod = methodName;
     }
 

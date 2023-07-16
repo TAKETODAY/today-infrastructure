@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,8 +185,7 @@ public final class AutowiredFieldValueResolver extends AutowiredElementResolver 
     DependencyDescriptor descriptor = new DependencyDescriptor(field, this.required);
     descriptor.setContainingClass(beanClass);
     if (this.shortcut != null) {
-      descriptor = new ShortcutDependencyDescriptor(descriptor, this.shortcut,
-              field.getType());
+      descriptor = new ShortcutDependencyDescriptor(descriptor, this.shortcut);
     }
     Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
     TypeConverter typeConverter = beanFactory.getTypeConverter();
@@ -200,8 +196,8 @@ public final class AutowiredFieldValueResolver extends AutowiredElementResolver 
       return value;
     }
     catch (BeansException ex) {
-      throw new UnsatisfiedDependencyException(null, beanName,
-              new InjectionPoint(field), ex);
+      throw new UnsatisfiedDependencyException(
+              null, beanName, new InjectionPoint(field), ex);
     }
   }
 

@@ -241,7 +241,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
       DependencyDescriptor descriptor = new DependencyDescriptor(parameter, true);
       String shortcut = (this.shortcuts != null ? this.shortcuts[i - startIndex] : null);
       if (shortcut != null) {
-        descriptor = new ShortcutDependencyDescriptor(descriptor, shortcut, registeredBean.getBeanClass());
+        descriptor = new ShortcutDependencyDescriptor(descriptor, shortcut);
       }
       ValueHolder argumentValue = argumentValues.getIndexedArgumentValue(i, null);
       resolved[i - startIndex] = resolveArgument(registeredBean, descriptor, argumentValue, autowiredBeans);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1242,9 +1239,9 @@ public abstract class AbstractAutowireCapableBeanFactory
   protected void autowireByType(String beanName,
           BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
     BeanMetadata metadata = wrapper.getMetadata();
-    LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(4);
 
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, wrapper);
+    LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(propertyNames.length * 2);
     for (String propertyName : propertyNames) {
       try {
         BeanProperty beanProperty = metadata.obtainBeanProperty(propertyName);

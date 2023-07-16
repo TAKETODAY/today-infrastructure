@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -232,15 +229,17 @@ public final class RegisteredBean {
    *
    * @param descriptor the descriptor for the dependency (field/method/constructor)
    * @param typeConverter the TypeConverter to use for populating arrays and collections
-   * @param autowiredBeans a Set that all names of autowired beans (used for
+   * @param autowiredBeanNames a Set that all names of autowired beans (used for
    * resolving the given dependency) are supposed to be added to
    * @return the resolved object, or {@code null} if none found
    */
   @Nullable
-  public Object resolveAutowiredArgument(DependencyDescriptor descriptor, TypeConverter typeConverter,
-          Set<String> autowiredBeans) {
+  public Object resolveAutowiredArgument(DependencyDescriptor descriptor,
+          TypeConverter typeConverter, Set<String> autowiredBeanNames) {
+
     return new ConstructorResolver((AbstractAutowireCapableBeanFactory) getBeanFactory())
-            .resolveAutowiredArgument(descriptor, getBeanName(), autowiredBeans, typeConverter, true);
+            .resolveAutowiredArgument(descriptor, descriptor.getDependencyType(),
+                    getBeanName(), autowiredBeanNames, typeConverter, true);
   }
 
   @Override
