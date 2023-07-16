@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,18 +43,20 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
   public Constructor<?> getBindConstructor(Bindable<?> bindable, boolean isNestedConstructorBinding) {
     Constructors constructors = Constructors.getConstructors(
             bindable.getType().resolve(), isNestedConstructorBinding);
-    if (constructors.getBind() != null && constructors.isDeducedBindConstructor()) {
+    if (constructors.bind != null
+            && constructors.deducedBindConstructor
+            && !constructors.immutableType) {
       if (bindable.getValue() != null && bindable.getValue().get() != null) {
         return null;
       }
     }
-    return constructors.getBind();
+    return constructors.bind;
   }
 
   @Override
   public Constructor<?> getBindConstructor(Class<?> type, boolean isNestedConstructorBinding) {
     Constructors constructors = Constructors.getConstructors(type, isNestedConstructorBinding);
-    return constructors.getBind();
+    return constructors.bind;
   }
 
   /**
@@ -66,32 +65,22 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
   static final class Constructors {
 
     private static final Constructors NONE = new Constructors(
-            false, null, false);
+            false, null, false, false);
 
-    private final boolean hasAutowired;
+    public final boolean hasAutowired;
 
     @Nullable
-    private final Constructor<?> bind;
+    public final Constructor<?> bind;
 
-    private final boolean deducedBindConstructor;
+    public final boolean immutableType;
+    public final boolean deducedBindConstructor;
 
-    private Constructors(boolean hasAutowired, @Nullable Constructor<?> bind, boolean deducedBindConstructor) {
+    private Constructors(boolean hasAutowired, @Nullable Constructor<?> bind,
+            boolean deducedBindConstructor, boolean immutableType) {
       this.hasAutowired = hasAutowired;
       this.bind = bind;
       this.deducedBindConstructor = deducedBindConstructor;
-    }
-
-    boolean hasAutowired() {
-      return this.hasAutowired;
-    }
-
-    @Nullable
-    Constructor<?> getBind() {
-      return this.bind;
-    }
-
-    boolean isDeducedBindConstructor() {
-      return this.deducedBindConstructor;
+      this.immutableType = immutableType;
     }
 
     static Constructors getConstructors(@Nullable Class<?> type, boolean isNestedConstructorBinding) {
@@ -102,6 +91,7 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
       Constructor<?>[] candidates = getCandidateConstructors(type);
       MergedAnnotations[] candidateAnnotations = getAnnotations(candidates);
       boolean deducedBindConstructor = false;
+      boolean immutableType = type.isRecord();
       Constructor<?> bind = getConstructorBindingAnnotated(type, candidates, candidateAnnotations);
       if (bind == null && !hasAutowiredConstructor) {
         bind = deduceBindConstructor(type, candidates);
@@ -112,7 +102,7 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
         Assert.state(!hasAutowiredConstructor,
                 () -> type.getName() + " declares @ConstructorBinding and @Autowired constructor");
       }
-      return new Constructors(hasAutowiredConstructor, bind, deducedBindConstructor);
+      return new Constructors(hasAutowiredConstructor, bind, deducedBindConstructor, immutableType);
     }
 
     private static boolean isAutowiredPresent(Class<?> type) {

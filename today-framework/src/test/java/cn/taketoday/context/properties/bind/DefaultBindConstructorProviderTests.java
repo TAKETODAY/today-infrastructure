@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,8 +87,7 @@ class DefaultBindConstructorProviderTests {
   @Test
   void getBindConstructorWhenHasTwoConstructorsWithBothConstructorBindingThrowsException() {
     assertThatIllegalStateException()
-            .isThrownBy(
-                    () -> this.provider.getBindConstructor(TwoConstructorsWithBothConstructorBinding.class, false))
+            .isThrownBy(() -> this.provider.getBindConstructor(TwoConstructorsWithBothConstructorBinding.class, false))
             .withMessageContaining("has more than one @ConstructorBinding");
   }
 
@@ -104,12 +100,11 @@ class DefaultBindConstructorProviderTests {
 
   @Test
   void getBindConstructorFromProxiedClassWithOneAutowiredConstructorReturnsNull() {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-            ProxiedWithOneConstructorWithAutowired.class);
-    ProxiedWithOneConstructorWithAutowired bean = context.getBean(ProxiedWithOneConstructorWithAutowired.class);
-    Constructor<?> bindConstructor = this.provider.getBindConstructor(bean.getClass(), false);
-    assertThat(bindConstructor).isNull();
-    context.close();
+    try (var context = new AnnotationConfigApplicationContext(ProxiedWithOneConstructorWithAutowired.class)) {
+      ProxiedWithOneConstructorWithAutowired bean = context.getBean(ProxiedWithOneConstructorWithAutowired.class);
+      Constructor<?> bindConstructor = this.provider.getBindConstructor(bean.getClass(), false);
+      assertThat(bindConstructor).isNull();
+    }
   }
 
   @Test
@@ -124,6 +119,14 @@ class DefaultBindConstructorProviderTests {
   void getBindConstructorWhenHasExistingValueAndOneConstructorWithConstructorBindingReturnsConstructor() {
     OneConstructorWithConstructorBinding existingValue = new OneConstructorWithConstructorBinding("name", 123);
     Bindable<?> bindable = Bindable.of(OneConstructorWithConstructorBinding.class).withExistingValue(existingValue);
+    Constructor<?> bindConstructor = this.provider.getBindConstructor(bindable, false);
+    assertThat(bindConstructor).isNotNull();
+  }
+
+  @Test
+  void getBindConstructorWhenHasExistingValueAndValueIsRecordReturnsConstructor() {
+    OneConstructorOnRecord existingValue = new OneConstructorOnRecord("name", 123);
+    Bindable<?> bindable = Bindable.of(OneConstructorOnRecord.class).withExistingValue(existingValue);
     Constructor<?> bindConstructor = this.provider.getBindConstructor(bindable, false);
     assertThat(bindConstructor).isNotNull();
   }
@@ -199,6 +202,10 @@ class DefaultBindConstructorProviderTests {
 
     OneConstructorWithoutAnnotations(String name, int age) {
     }
+
+  }
+
+  static record OneConstructorOnRecord(String name, int age) {
 
   }
 
