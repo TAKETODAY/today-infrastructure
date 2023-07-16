@@ -38,7 +38,7 @@ import cn.taketoday.web.util.UriUtils;
 
 /**
  * Container for HTTP request values extracted from an
- * {@link org.springframework.web.service.annotation.HttpExchange @HttpExchange}-annotated
+ * {@link cn.taketoday.web.service.annotation.HttpExchange @HttpExchange}-annotated
  * method and argument values passed to it. This is then given to
  * {@link HttpExchangeAdapter} to adapt to the underlying HTTP client.
  *

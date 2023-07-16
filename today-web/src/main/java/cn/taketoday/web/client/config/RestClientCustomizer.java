@@ -21,7 +21,7 @@ import cn.taketoday.web.client.RestClient;
 
 /**
  * Callback interface that can be used to customize a
- * {@link org.springframework.web.client.RestClient.Builder RestClient.Builder}.
+ * {@link cn.taketoday.web.client.RestClient.Builder RestClient.Builder}.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -31,7 +31,7 @@ import cn.taketoday.web.client.RestClient;
 public interface RestClientCustomizer {
 
   /**
-   * Callback to customize a {@link org.springframework.web.client.RestClient.Builder
+   * Callback to customize a {@link cn.taketoday.web.client.RestClient.Builder
    * RestClient.Builder} instance.
    *
    * @param restClientBuilder the client builder to customize

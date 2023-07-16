@@ -23,6 +23,7 @@ import java.util.List;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.client.RestClient;
 import cn.taketoday.web.client.config.RestClientCustomizer;
 
@@ -36,6 +37,7 @@ import cn.taketoday.web.client.config.RestClientCustomizer;
  */
 public class HttpMessageConvertersRestClientCustomizer implements RestClientCustomizer {
 
+  @Nullable
   private final Iterable<? extends HttpMessageConverter<?>> messageConverters;
 
   public HttpMessageConvertersRestClientCustomizer(HttpMessageConverter<?>... messageConverters) {
@@ -43,7 +45,7 @@ public class HttpMessageConvertersRestClientCustomizer implements RestClientCust
     this.messageConverters = Arrays.asList(messageConverters);
   }
 
-  HttpMessageConvertersRestClientCustomizer(HttpMessageConverters messageConverters) {
+  HttpMessageConvertersRestClientCustomizer(@Nullable HttpMessageConverters messageConverters) {
     this.messageConverters = messageConverters;
   }
 

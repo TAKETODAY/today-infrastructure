@@ -18,4 +18,9 @@
 /**
  * Auto-configuration for web clients.
  */
+@NonNullApi
+@NonNullFields
 package cn.taketoday.annotation.config.web.client;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

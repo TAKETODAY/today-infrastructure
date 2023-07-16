@@ -17,8 +17,9 @@
 
 package cn.taketoday.annotation.config.web.client;
 
+import java.util.List;
+
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Scope;
@@ -29,6 +30,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.converter.HttpMessageConverters;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.client.RestClient;
 import cn.taketoday.web.client.config.ClientHttpRequestFactories;
 import cn.taketoday.web.client.config.ClientHttpRequestFactorySettings;
@@ -54,17 +56,20 @@ public class RestClientAutoConfiguration {
   @ConditionalOnMissingBean
   @Order(Ordered.LOWEST_PRECEDENCE)
   static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
-          ObjectProvider<HttpMessageConverters> messageConverters) {
-    return new HttpMessageConvertersRestClientCustomizer(messageConverters.getIfUnique());
+          @Nullable HttpMessageConverters messageConverters) {
+    return new HttpMessageConvertersRestClientCustomizer(messageConverters);
   }
 
   @Bean
   @Scope("prototype")
   @ConditionalOnMissingBean
-  static RestClient.Builder restClientBuilder(ObjectProvider<RestClientCustomizer> customizerProvider) {
+  static RestClient.Builder restClientBuilder(List<RestClientCustomizer> customizerProvider) {
     RestClient.Builder builder = RestClient.builder()
             .requestFactory(ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS));
-    customizerProvider.orderedStream().forEach((customizer) -> customizer.customize(builder));
+
+    for (RestClientCustomizer customizer : customizerProvider) {
+      customizer.customize(builder);
+    }
     return builder;
   }
 

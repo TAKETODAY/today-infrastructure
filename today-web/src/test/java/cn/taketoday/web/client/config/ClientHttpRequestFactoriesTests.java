@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.http.client.BufferingClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 
@@ -79,6 +77,13 @@ class ClientHttpRequestFactoriesTests {
   }
 
   @Test
+  void getOfJdkFactoryReturnsJdkFactory() {
+    ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(JdkClientHttpRequestFactory.class,
+            ClientHttpRequestFactorySettings.DEFAULTS);
+    assertThat(requestFactory).isInstanceOf(JdkClientHttpRequestFactory.class);
+  }
+
+  @Test
   void getOfUnknownTypeCreatesFactory() {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(TestClientHttpRequestFactory.class,
             ClientHttpRequestFactorySettings.DEFAULTS);
@@ -104,14 +109,6 @@ class ClientHttpRequestFactoriesTests {
   }
 
   @Test
-  void getOfUnknownTypeWithBodyBufferingCreatesFactoryAndConfiguresBodyBuffering() {
-    ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(TestClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS.withBufferRequestBody(true));
-    assertThat(requestFactory).isInstanceOf(TestClientHttpRequestFactory.class);
-    assertThat(((TestClientHttpRequestFactory) requestFactory).bufferRequestBody).isTrue();
-  }
-
-  @Test
   void getOfUnconfigurableTypeWithConnectTimeoutThrows() {
     assertThatIllegalStateException()
             .isThrownBy(() -> ClientHttpRequestFactories.get(UnconfigurableClientHttpRequestFactory.class,
@@ -128,14 +125,6 @@ class ClientHttpRequestFactoriesTests {
   }
 
   @Test
-  void getOfUnconfigurableTypeWithBodyBufferingThrows() {
-    assertThatIllegalStateException()
-            .isThrownBy(() -> ClientHttpRequestFactories.get(UnconfigurableClientHttpRequestFactory.class,
-                    ClientHttpRequestFactorySettings.DEFAULTS.withBufferRequestBody(true)))
-            .withMessageContaining("suitable setBufferRequestBody method");
-  }
-
-  @Test
   void getOfTypeWithDeprecatedConnectTimeoutThrowsWithConnectTimeout() {
     assertThatIllegalStateException()
             .isThrownBy(() -> ClientHttpRequestFactories.get(DeprecatedMethodsClientHttpRequestFactory.class,
@@ -149,14 +138,6 @@ class ClientHttpRequestFactoriesTests {
             .isThrownBy(() -> ClientHttpRequestFactories.get(DeprecatedMethodsClientHttpRequestFactory.class,
                     ClientHttpRequestFactorySettings.DEFAULTS.withReadTimeout(Duration.ofSeconds(60))))
             .withMessageContaining("setReadTimeout method marked as deprecated");
-  }
-
-  @Test
-  void getOfTypeWithDeprecatedBufferRequestBodyThrowsWithBufferRequestBody() {
-    assertThatIllegalStateException()
-            .isThrownBy(() -> ClientHttpRequestFactories.get(DeprecatedMethodsClientHttpRequestFactory.class,
-                    ClientHttpRequestFactorySettings.DEFAULTS.withBufferRequestBody(false)))
-            .withMessageContaining("setBufferRequestBody method marked as deprecated");
   }
 
   @Test
@@ -185,8 +166,6 @@ class ClientHttpRequestFactoriesTests {
 
     private int readTimeout;
 
-    private boolean bufferRequestBody;
-
     @Override
     public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
       throw new UnsupportedOperationException();
@@ -198,10 +177,6 @@ class ClientHttpRequestFactoriesTests {
 
     public void setReadTimeout(int timeout) {
       this.readTimeout = timeout;
-    }
-
-    public void setBufferRequestBody(boolean bufferRequestBody) {
-      this.bufferRequestBody = bufferRequestBody;
     }
 
   }

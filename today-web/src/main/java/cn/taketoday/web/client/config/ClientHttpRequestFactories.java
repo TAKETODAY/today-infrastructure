@@ -82,8 +82,15 @@ public abstract class ClientHttpRequestFactories {
   private static final boolean JETTY_CLIENT_PRESENT = ClassUtils.isPresent(JETTY_CLIENT_CLASS);
 
   /**
-   * Return a new {@link ClientHttpRequestFactory} instance using the most appropriate
-   * implementation.
+   * Return a {@link ClientHttpRequestFactory} implementation with the given
+   * {@code settings} applied. The first of the following implementations whose
+   * dependencies {@link ClassUtils#isPresent are available} is returned:
+   * <ol>
+   * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
+   * <li>{@link OkHttp3ClientHttpRequestFactory}</li>
+   * <li>{@link JettyClientHttpRequestFactory}</li>
+   * <li>{@link SimpleClientHttpRequestFactory}</li>
+   * </ol>
    *
    * @param settings the settings to apply
    * @return a new {@link ClientHttpRequestFactory}
