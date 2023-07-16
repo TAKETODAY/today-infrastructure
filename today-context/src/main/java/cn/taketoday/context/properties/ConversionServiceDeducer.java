@@ -47,8 +47,8 @@ class ConversionServiceDeducer {
 
   private final ApplicationContext context;
 
-  ConversionServiceDeducer(ApplicationContext applicationContext) {
-    this.context = applicationContext;
+  ConversionServiceDeducer(ApplicationContext context) {
+    this.context = context;
   }
 
   @Nullable
@@ -57,8 +57,8 @@ class ConversionServiceDeducer {
       return Collections.singletonList(
               context.getBean(ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
     }
-    if (this.context instanceof ConfigurableApplicationContext) {
-      return getConversionServices((ConfigurableApplicationContext) this.context);
+    if (context instanceof ConfigurableApplicationContext configurableContext) {
+      return getConversionServices(configurableContext);
     }
     return null;
   }
@@ -86,8 +86,8 @@ class ConversionServiceDeducer {
 
   private boolean hasUserDefinedConfigurationServiceBean() {
     String beanName = ConfigurableApplicationContext.CONVERSION_SERVICE_BEAN_NAME;
-    return this.context.containsBean(beanName)
-            && this.context.getAutowireCapableBeanFactory().isTypeMatch(beanName, ConversionService.class);
+    return context.containsBean(beanName)
+            && context.getAutowireCapableBeanFactory().isTypeMatch(beanName, ConversionService.class);
   }
 
   private static class ConverterBeans {
