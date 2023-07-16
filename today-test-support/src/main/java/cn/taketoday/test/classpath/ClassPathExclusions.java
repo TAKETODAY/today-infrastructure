@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +60,6 @@ public @interface ClassPathExclusions {
    * {@code "hibernate-validator-*.jar"} can be used.
    *
    * @return the exclusion patterns
-   * @since 3.2.0
    */
   @AliasFor("value")
   String[] files() default {};
@@ -72,7 +68,6 @@ public @interface ClassPathExclusions {
    * One or more packages that should be excluded from the classpath.
    *
    * @return the excluded packages
-   * @since 3.2.0
    */
   String[] packages() default {};
 

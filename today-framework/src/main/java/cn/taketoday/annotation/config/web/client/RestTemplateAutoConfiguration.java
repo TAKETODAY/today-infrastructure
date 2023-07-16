@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +25,6 @@ import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.NoneNestedConditions;
-import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.client.RestTemplate;
@@ -45,13 +39,13 @@ import cn.taketoday.web.client.config.RestTemplateRequestCustomizer;
 @DisableAllDependencyInjection
 @ConditionalOnClass(RestTemplate.class)
 @AutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
-@Conditional(RestTemplateAutoConfiguration.NotReactiveWebApplicationCondition.class)
+@Conditional(NotReactiveWebApplicationCondition.class)
 public class RestTemplateAutoConfiguration {
 
   @Lazy
   @Component
   @ConditionalOnMissingBean
-  public RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
+  static RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
           ObjectProvider<HttpMessageConverters> messageConverters,
           ObjectProvider<RestTemplateCustomizer> restTemplateCustomizers,
           ObjectProvider<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
@@ -66,21 +60,9 @@ public class RestTemplateAutoConfiguration {
   @Lazy
   @Component
   @ConditionalOnMissingBean
-  public RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
+  static RestTemplateBuilder restTemplateBuilder(RestTemplateBuilderConfigurer restTemplateBuilderConfigurer) {
     RestTemplateBuilder builder = new RestTemplateBuilder();
     return restTemplateBuilderConfigurer.configure(builder);
   }
 
-  static class NotReactiveWebApplicationCondition extends NoneNestedConditions {
-
-    NotReactiveWebApplicationCondition() {
-      super(ConfigurationPhase.PARSE_CONFIGURATION);
-    }
-
-    @ConditionalOnWebApplication(type = Type.REACTIVE)
-    private static class ReactiveWebApplication {
-
-    }
-
-  }
 }

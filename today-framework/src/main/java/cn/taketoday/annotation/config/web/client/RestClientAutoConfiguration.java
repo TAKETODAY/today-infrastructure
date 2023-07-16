@@ -1,0 +1,71 @@
+/*
+ * Copyright 2017 - 2023 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+
+package cn.taketoday.annotation.config.web.client;
+
+import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
+import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.Scope;
+import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
+import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
+import cn.taketoday.http.converter.HttpMessageConverters;
+import cn.taketoday.web.client.RestClient;
+import cn.taketoday.web.client.config.ClientHttpRequestFactories;
+import cn.taketoday.web.client.config.ClientHttpRequestFactorySettings;
+import cn.taketoday.web.client.config.RestClientCustomizer;
+
+/**
+ * {@link EnableAutoConfiguration Auto-configuration} for {@link RestClient}.
+ * <p>
+ * This will produce a {@link cn.taketoday.web.client.RestClient.Builder
+ * RestClient.Builder} bean with the {@code prototype} scope, meaning each injection point
+ * will receive a newly cloned instance of the builder.
+ *
+ * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
+ */
+@AutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
+@ConditionalOnClass(RestClient.class)
+@Conditional(NotReactiveWebApplicationCondition.class)
+public class RestClientAutoConfiguration {
+
+  @Bean
+  @ConditionalOnMissingBean
+  @Order(Ordered.LOWEST_PRECEDENCE)
+  static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
+          ObjectProvider<HttpMessageConverters> messageConverters) {
+    return new HttpMessageConvertersRestClientCustomizer(messageConverters.getIfUnique());
+  }
+
+  @Bean
+  @Scope("prototype")
+  @ConditionalOnMissingBean
+  static RestClient.Builder restClientBuilder(ObjectProvider<RestClientCustomizer> customizerProvider) {
+    RestClient.Builder builder = RestClient.builder()
+            .requestFactory(ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS));
+    customizerProvider.orderedStream().forEach((customizer) -> customizer.customize(builder));
+    return builder;
+  }
+
+}
