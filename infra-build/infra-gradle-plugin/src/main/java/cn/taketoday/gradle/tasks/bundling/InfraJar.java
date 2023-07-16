@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ public abstract class InfraJar extends Jar implements InfraArchive {
 
   private final InfraArchiveSupport support;
 
-  private final CopySpec bootInfSpec;
+  private final CopySpec appInfSpec;
 
   private final LayeredSpec layered;
 
@@ -81,20 +81,20 @@ public abstract class InfraJar extends Jar implements InfraArchive {
   public InfraJar() {
     this.support = new InfraArchiveSupport(LAUNCHER, new LibrarySpec(), new ZipCompressionResolver());
     Project project = getProject();
-    this.bootInfSpec = project.copySpec().into("APP-INF");
+    this.appInfSpec = project.copySpec().into("APP-INF");
     this.layered = project.getObjects().newInstance(LayeredSpec.class);
-    configureBootInfSpec(this.bootInfSpec);
-    getMainSpec().with(this.bootInfSpec);
+    configureAppInfSpec(this.appInfSpec);
+    getMainSpec().with(this.appInfSpec);
     this.projectName = project.provider(project::getName);
     this.projectVersion = project.provider(project::getVersion);
     this.resolvedDependencies = new ResolvedDependencies(project);
   }
 
-  private void configureBootInfSpec(CopySpec bootInfSpec) {
-    bootInfSpec.into("classes", fromCallTo(this::classpathDirectories));
-    bootInfSpec.into("lib", fromCallTo(this::classpathFiles)).eachFile(this.support::excludeNonZipFiles);
-    this.support.moveModuleInfoToRoot(bootInfSpec);
-    moveMetaInfToRoot(bootInfSpec);
+  private void configureAppInfSpec(CopySpec appInfSpec) {
+    appInfSpec.into("classes", fromCallTo(this::classpathDirectories));
+    appInfSpec.into("lib", fromCallTo(this::classpathFiles)).eachFile(this.support::excludeNonZipFiles);
+    this.support.moveModuleInfoToRoot(appInfSpec);
+    moveMetaInfToApp(appInfSpec);
   }
 
   private Iterable<File> classpathDirectories() {
@@ -109,7 +109,7 @@ public abstract class InfraJar extends Jar implements InfraArchive {
     return (this.classpath != null) ? this.classpath.filter(filter) : Collections.emptyList();
   }
 
-  private void moveMetaInfToRoot(CopySpec spec) {
+  private void moveMetaInfToApp(CopySpec spec) {
     spec.eachFile((file) -> {
       String path = file.getRelativeSourcePath().getPathString();
       if (path.startsWith("META-INF/") && !path.equals("META-INF/aop.xml") && !path.endsWith(".kotlin_module")
@@ -224,9 +224,9 @@ public abstract class InfraJar extends Jar implements InfraArchive {
    * @return a {@code CopySpec} for {@code APP-INF}
    */
   @Internal
-  public CopySpec getBootInf() {
+  public CopySpec getAppInf() {
     CopySpec child = getProject().copySpec();
-    this.bootInfSpec.with(child);
+    this.appInfSpec.with(child);
     return child;
   }
 
@@ -238,10 +238,10 @@ public abstract class InfraJar extends Jar implements InfraArchive {
    * @return the {@code CopySpec} for {@code APP-INF} that was passed to the
    * {@code Action}
    */
-  public CopySpec bootInf(Action<CopySpec> action) {
-    CopySpec bootInf = getBootInf();
-    action.execute(bootInf);
-    return bootInf;
+  public CopySpec appInf(Action<CopySpec> action) {
+    CopySpec appInf = getAppInf();
+    action.execute(appInf);
+    return appInf;
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ class InfraJarTests extends AbstractInfraArchiveTests<InfraJar> {
   void contentCanBeAddedToBootInfUsingCopySpecFromGetter() throws IOException {
     InfraJar infraJar = getTask();
     infraJar.getMainClass().set("com.example.Application");
-    infraJar.getBootInf().into("test").from(new File("build.gradle").getAbsolutePath());
+    infraJar.getAppInf().into("test").from(new File("build.gradle").getAbsolutePath());
     infraJar.copy();
     try (JarFile jarFile = new JarFile(infraJar.getArchiveFile().get().getAsFile())) {
       assertThat(jarFile.getJarEntry("APP-INF/test/build.gradle")).isNotNull();
@@ -63,7 +63,7 @@ class InfraJarTests extends AbstractInfraArchiveTests<InfraJar> {
   void contentCanBeAddedToBootInfUsingCopySpecAction() throws IOException {
     InfraJar infraJar = getTask();
     infraJar.getMainClass().set("com.example.Application");
-    infraJar.bootInf((copySpec) -> copySpec.into("test").from(new File("build.gradle").getAbsolutePath()));
+    infraJar.appInf((copySpec) -> copySpec.into("test").from(new File("build.gradle").getAbsolutePath()));
     infraJar.copy();
     try (JarFile jarFile = new JarFile(infraJar.getArchiveFile().get().getAsFile())) {
       assertThat(jarFile.getJarEntry("APP-INF/test/build.gradle")).isNotNull();

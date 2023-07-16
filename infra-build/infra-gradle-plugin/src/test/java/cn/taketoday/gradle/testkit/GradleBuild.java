@@ -118,7 +118,6 @@ public class GradleBuild {
             new File("build/classes/java/main"),
             new File("build/resources/main"),
             new File(pathOfJarContaining(ClassUtils.class)),
-            new File(pathOfJarContaining(Assert.class)),
             new File(pathOfJarContaining(ApplicationAotProcessor.class)),
             new File(pathOfJarContaining(LaunchScript.class)),
             new File(pathOfJarContaining(DependencyManagementPlugin.class)),

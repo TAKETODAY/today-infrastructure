@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +40,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+
+import cn.taketoday.lang.Version;
 
 /**
  * Support class for implementations of {@link InfraArchive}.
@@ -111,16 +110,15 @@ class InfraArchiveSupport {
   }
 
   private String determineInfraVersion() {
-    String version = getClass().getPackage().getImplementationVersion();
-    return (version != null) ? version : "unknown";
+    return Version.get().implementationVersion();
   }
 
   CopyAction createCopyAction(Jar jar, ResolvedDependencies resolvedDependencies) {
     return createCopyAction(jar, resolvedDependencies, null, null);
   }
 
-  CopyAction createCopyAction(Jar jar, ResolvedDependencies resolvedDependencies, LayerResolver layerResolver,
-          String layerToolsLocation) {
+  CopyAction createCopyAction(Jar jar, ResolvedDependencies resolvedDependencies,
+          LayerResolver layerResolver, String layerToolsLocation) {
     File output = jar.getArchiveFile().get().getAsFile();
     Manifest manifest = jar.getManifest();
     boolean preserveFileTimestamps = jar.isPreserveFileTimestamps();
@@ -138,7 +136,7 @@ class InfraArchiveSupport {
   }
 
   private boolean isUsingDefaultLoader(Jar jar) {
-    return DEFAULT_LAUNCHER_CLASSES.contains(jar.getManifest().getAttributes().get("Main-Class"));
+    return DEFAULT_LAUNCHER_CLASSES.contains(String.valueOf(jar.getManifest().getAttributes().get("Main-Class")));
   }
 
   LaunchScriptConfiguration getLaunchScript() {

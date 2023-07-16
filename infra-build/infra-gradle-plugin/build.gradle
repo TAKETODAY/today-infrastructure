@@ -26,16 +26,15 @@ configurations {
 
 dependencies {
 
-  optional(project(":today-core"))
-  optional(project(":today-test-support"))
-  optional(project(":infra-build:infra-app-loader"))
-  optional(project(":infra-build:infra-app-loader-tools"))
+  implementation(project(":today-core"))
+  implementation(project(":today-test-support"))
+  implementation(project(":infra-build:infra-app-loader"))
+  implementation(project(":infra-build:infra-app-loader-tools"))
+  implementation project(":infra-build:infra-buildpack-platform")
+  implementation 'org.apache.commons:commons-compress'
+  implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
 
   optional('org.graalvm.buildtools:native-gradle-plugin:0.9.23')
-
-  implementation project(":infra-build:infra-buildpack-platform")
-  implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
-  implementation 'org.apache.commons:commons-compress:1.21'
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-framework"))
