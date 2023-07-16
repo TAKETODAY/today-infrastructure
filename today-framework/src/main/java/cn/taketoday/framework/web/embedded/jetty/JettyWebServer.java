@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +51,7 @@ import cn.taketoday.util.StringUtils;
  * @author Eddú Meléndez
  * @author Brian Clozel
  * @author Kristine Jetzke
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JettyReactiveWebServerFactory
  * @since 4.0
  */
@@ -179,7 +177,7 @@ public class JettyWebServer implements WebServer {
         }
         this.started = true;
         LoggerFactory.getLogger(JettyWebServer.class)
-                .info("Jetty started on port(s) {} with context path '{}'", getActualPortsDescription(), getContextPath());
+                .info(getStartedLogMessage());
       }
       catch (WebServerException ex) {
         stopSilently();
