@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +34,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.framework.test.mock.mockito.example.ExampleService;
 import cn.taketoday.framework.test.mock.mockito.example.FailingExampleService;
 import cn.taketoday.framework.test.mock.mockito.example.RealExampleService;
@@ -77,11 +75,36 @@ class MockitoPostProcessorTests {
   }
 
   @Test
-  void canMockBeanProducedByFactoryBeanWithObjectTypeAttribute() {
+  void canMockBeanProducedByFactoryBeanWithStringObjectTypeAttribute() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     MockitoPostProcessor.register(context);
     RootBeanDefinition factoryBeanDefinition = new RootBeanDefinition(TestFactoryBean.class);
     factoryBeanDefinition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, SomeInterface.class.getName());
+    context.registerBeanDefinition("beanToBeMocked", factoryBeanDefinition);
+    context.register(MockedFactoryBean.class);
+    context.refresh();
+    assertThat(Mockito.mockingDetails(context.getBean("beanToBeMocked")).isMock()).isTrue();
+  }
+
+  @Test
+  void canMockBeanProducedByFactoryBeanWithClassObjectTypeAttribute() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    MockitoPostProcessor.register(context);
+    RootBeanDefinition factoryBeanDefinition = new RootBeanDefinition(TestFactoryBean.class);
+    factoryBeanDefinition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, SomeInterface.class);
+    context.registerBeanDefinition("beanToBeMocked", factoryBeanDefinition);
+    context.register(MockedFactoryBean.class);
+    context.refresh();
+    assertThat(Mockito.mockingDetails(context.getBean("beanToBeMocked")).isMock()).isTrue();
+  }
+
+  @Test
+  void canMockBeanProducedByFactoryBeanWithResolvableTypeObjectTypeAttribute() {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    MockitoPostProcessor.register(context);
+    RootBeanDefinition factoryBeanDefinition = new RootBeanDefinition(TestFactoryBean.class);
+    ResolvableType objectType = ResolvableType.forClass(SomeInterface.class);
+    factoryBeanDefinition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, objectType);
     context.registerBeanDefinition("beanToBeMocked", factoryBeanDefinition);
     context.register(MockedFactoryBean.class);
     context.refresh();

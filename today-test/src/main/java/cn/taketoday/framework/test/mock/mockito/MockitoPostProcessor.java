@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.framework.test.mock.mockito;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -256,13 +254,15 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
     return candidates;
   }
 
-  private Set<String> getExistingBeans(ConfigurableBeanFactory beanFactory, ResolvableType type) {
-    Set<String> beans = new LinkedHashSet<>(beanFactory.getBeanNamesForType(type, true, false));
-    String typeName = type.resolve(Object.class).getName();
+  private Set<String> getExistingBeans(ConfigurableBeanFactory beanFactory, ResolvableType resolvableType) {
+    Set<String> beans = new LinkedHashSet<>(beanFactory.getBeanNamesForType(resolvableType, true, false));
+    Class<?> type = resolvableType.resolve(Object.class);
+    String typeName = type.getName();
     for (String beanName : beanFactory.getBeanNamesForType(FactoryBean.class, true, false)) {
       beanName = BeanFactoryUtils.transformedBeanName(beanName);
       BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
-      if (typeName.equals(beanDefinition.getAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE))) {
+      Object attribute = beanDefinition.getAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE);
+      if (resolvableType.equals(attribute) || type.equals(attribute) || typeName.equals(attribute)) {
         beans.add(beanName);
       }
     }
