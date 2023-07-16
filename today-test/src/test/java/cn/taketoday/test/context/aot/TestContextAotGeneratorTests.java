@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -354,14 +351,24 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "cn/taketoday/context/event/EventListenerMethodProcessor__TestContext001_BeanDefinitions.java",
           "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterSharedConfigTests__TestContext001_ApplicationContextInitializer.java",
           "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterSharedConfigTests__TestContext001_BeanFactoryRegistrations.java",
+          "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterSharedConfigTests__TestContext001_ManagementApplicationContextInitializer.java",
+          "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterSharedConfigTests__TestContext001_ManagementBeanFactoryRegistrations.java",
           "cn/taketoday/test/context/aot/samples/basic/BasicTestConfiguration__TestContext001_BeanDefinitions.java",
+          "cn/taketoday/test/context/aot/samples/management/ManagementConfiguration__TestContext001_BeanDefinitions.java",
+          "cn/taketoday/test/context/aot/samples/management/ManagementMessageService__TestContext001_ManagementBeanDefinitions.java",
+
           // BasicInfraJupiterTests -- not generated b/c already generated for BasicInfraJupiterSharedConfigTests.
           // BasicInfraJupiterTests.NestedTests
           "cn/taketoday/context/event/DefaultEventListenerFactory__TestContext002_BeanDefinitions.java",
           "cn/taketoday/context/event/EventListenerMethodProcessor__TestContext002_BeanDefinitions.java",
           "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_ApplicationContextInitializer.java",
           "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_BeanFactoryRegistrations.java",
+          "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_ManagementApplicationContextInitializer.java",
+          "cn/taketoday/test/context/aot/samples/basic/BasicInfraJupiterTests_NestedTests__TestContext002_ManagementBeanFactoryRegistrations.java",
           "cn/taketoday/test/context/aot/samples/basic/BasicTestConfiguration__TestContext002_BeanDefinitions.java",
+          "cn/taketoday/test/context/aot/samples/management/ManagementConfiguration__TestContext002_BeanDefinitions.java",
+          "cn/taketoday/test/context/aot/samples/management/ManagementMessageService__TestContext002_ManagementBeanDefinitions.java",
+
           // BasicInfraVintageTests
           "cn/taketoday/context/event/DefaultEventListenerFactory__TestContext003_BeanDefinitions.java",
           "cn/taketoday/context/event/EventListenerMethodProcessor__TestContext003_BeanDefinitions.java",

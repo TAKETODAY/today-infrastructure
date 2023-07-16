@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.test.context.aot.samples.basic;
 
 import org.junit.jupiter.api.Nested;
+
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
@@ -28,49 +26,50 @@ import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.aot.samples.common.MessageService;
+import cn.taketoday.test.context.aot.samples.management.ManagementConfiguration;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.test.context.TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Sam Brannen
  * @since 4.0
  */
-@JUnitConfig(BasicTestConfiguration.class)
+@JUnitConfig({ BasicTestConfiguration.class, ManagementConfiguration.class })
 @TestExecutionListeners(listeners = BasicInfraJupiterTests.DummyTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
 @TestPropertySource(properties = "test.engine = jupiter")
 public class BasicInfraJupiterTests {
 
-	@org.junit.jupiter.api.Test
-	void test(@Autowired ApplicationContext context, @Autowired MessageService messageService,
-			@Value("${test.engine}") String testEngine) {
-		assertThat(messageService.generateMessage()).isEqualTo("Hello, AOT!");
-		assertThat(testEngine).isEqualTo("jupiter");
-		assertThat(context.getEnvironment().getProperty("test.engine"))
-			.as("@TestPropertySource").isEqualTo("jupiter");
-	}
+  @org.junit.jupiter.api.Test
+  void test(@Autowired ApplicationContext context, @Autowired MessageService messageService,
+          @Value("${test.engine}") String testEngine) {
+    assertThat(messageService.generateMessage()).isEqualTo("Hello, AOT!");
+    assertThat(testEngine).isEqualTo("jupiter");
+    assertThat(context.getEnvironment().getProperty("test.engine"))
+            .as("@TestPropertySource").isEqualTo("jupiter");
+  }
 
-	@Nested
-	@TestPropertySource(properties = "foo=bar")
-	@ActiveProfiles(resolver = SpanishActiveProfilesResolver.class)
-	public class NestedTests {
+  @Nested
+  @TestPropertySource(properties = "foo=bar")
+  @ActiveProfiles(resolver = SpanishActiveProfilesResolver.class)
+  public class NestedTests {
 
-		@org.junit.jupiter.api.Test
-		void test(@Autowired ApplicationContext context, @Autowired MessageService messageService,
-				@Value("${test.engine}") String testEngine, @Value("${foo}") String foo) {
-			assertThat(messageService.generateMessage()).isEqualTo("¡Hola, AOT!");
-			assertThat(foo).isEqualTo("bar");
-			assertThat(testEngine).isEqualTo("jupiter");
-			assertThat(context.getEnvironment().getProperty("test.engine"))
-				.as("@TestPropertySource").isEqualTo("jupiter");
-		}
+    @org.junit.jupiter.api.Test
+    void test(@Autowired ApplicationContext context, @Autowired MessageService messageService,
+            @Value("${test.engine}") String testEngine, @Value("${foo}") String foo) {
+      assertThat(messageService.generateMessage()).isEqualTo("¡Hola, AOT!");
+      assertThat(foo).isEqualTo("bar");
+      assertThat(testEngine).isEqualTo("jupiter");
+      assertThat(context.getEnvironment().getProperty("test.engine"))
+              .as("@TestPropertySource").isEqualTo("jupiter");
+    }
 
-	}
+  }
 
-	public static class DummyTestExecutionListener extends AbstractTestExecutionListener {
-	}
+  public static class DummyTestExecutionListener extends AbstractTestExecutionListener {
+  }
 
 }
 

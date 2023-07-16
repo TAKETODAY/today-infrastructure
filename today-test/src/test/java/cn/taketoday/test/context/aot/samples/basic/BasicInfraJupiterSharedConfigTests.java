@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.aot.samples.common.MessageService;
+import cn.taketoday.test.context.aot.samples.management.ManagementConfiguration;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  * @since 4.0
  */
-@JUnitConfig(BasicTestConfiguration.class)
+@JUnitConfig({ BasicTestConfiguration.class, ManagementConfiguration.class })
 @TestPropertySource(properties = "test.engine = jupiter")
 public class BasicInfraJupiterSharedConfigTests {
 

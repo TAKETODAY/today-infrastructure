@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +17,6 @@
 
 package cn.taketoday.aot.generate;
 
-import cn.taketoday.javapoet.ClassName;
-import cn.taketoday.javapoet.TypeSpec;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -30,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import cn.taketoday.javapoet.ClassName;
+import cn.taketoday.javapoet.TypeSpec;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -41,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see GeneratedClass
  * @since 4.0
  */
@@ -210,8 +207,16 @@ public class GeneratedClasses {
     }
   }
 
-  GeneratedClasses withFeatureNamePrefix(String name) {
-    return new GeneratedClasses(this.classNameGenerator.withFeatureNamePrefix(name),
+  /**
+   * Create a new {@link GeneratedClasses} instance using the specified feature
+   * name prefix to qualify generated class names for a dedicated round of code
+   * generation.
+   *
+   * @param featureNamePrefix the feature name prefix to use
+   * @return a new instance for the specified feature name prefix
+   */
+  GeneratedClasses withFeatureNamePrefix(String featureNamePrefix) {
+    return new GeneratedClasses(this.classNameGenerator.withFeatureNamePrefix(featureNamePrefix),
             this.classes, this.classesByOwner);
   }
 

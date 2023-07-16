@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,9 +28,16 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import org.junit.platform.launcher.listeners.TestExecutionSummary.Failure;
 import org.opentest4j.MultipleFailuresError;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.aot.generate.GeneratedFiles.Kind;
 import cn.taketoday.aot.generate.InMemoryGeneratedFiles;
+import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.test.generate.CompilerFiles;
 import cn.taketoday.core.test.tools.CompileWithForkedClassLoader;
 import cn.taketoday.core.test.tools.TestCompiler;
@@ -41,12 +45,6 @@ import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterImportedConf
 import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
 import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterTests;
 import cn.taketoday.test.context.aot.samples.basic.BasicInfraVintageTests;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
@@ -88,7 +86,7 @@ class AotIntegrationTests extends AbstractAotTests {
 
     // AOT BUILD-TIME: PROCESSING
     InMemoryGeneratedFiles generatedFiles = new InMemoryGeneratedFiles();
-    TestContextAotGenerator generator = new TestContextAotGenerator(generatedFiles);
+    var generator = new TestContextAotGenerator(generatedFiles, new RuntimeHints(), true);
     generator.processAheadOfTime(testClasses);
 
     List<String> sourceFiles = generatedFiles.getGeneratedFiles(Kind.SOURCE).keySet().stream().toList();

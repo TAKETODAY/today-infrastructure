@@ -34,6 +34,7 @@ import cn.taketoday.lang.Assert;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DefaultGenerationContext implements GenerationContext {
@@ -93,9 +94,18 @@ public class DefaultGenerationContext implements GenerationContext {
     this.runtimeHints = runtimeHints;
   }
 
-  private DefaultGenerationContext(DefaultGenerationContext existing, String name) {
-    int sequence = existing.sequenceGenerator.computeIfAbsent(name, key -> new AtomicInteger()).getAndIncrement();
-    String featureName = (sequence > 0 ? name + sequence : name);
+  /**
+   * Create a new {@link DefaultGenerationContext} instance based on the
+   * supplied {@code existing} context and feature name.
+   *
+   * @param existing the existing context upon which to base the new one
+   * @param featureName the feature name to use
+   */
+  protected DefaultGenerationContext(DefaultGenerationContext existing, String featureName) {
+    int sequence = existing.sequenceGenerator.computeIfAbsent(featureName, key -> new AtomicInteger()).getAndIncrement();
+    if (sequence > 0) {
+      featureName += sequence;
+    }
     this.sequenceGenerator = existing.sequenceGenerator;
     this.generatedClasses = existing.generatedClasses.withFeatureNamePrefix(featureName);
     this.generatedFiles = existing.generatedFiles;

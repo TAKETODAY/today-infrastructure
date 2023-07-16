@@ -15,35 +15,23 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.test.context.aot.samples.basic;
+package cn.taketoday.test.context.aot.samples.management;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.test.context.aot.samples.common.DefaultMessageService;
 import cn.taketoday.test.context.aot.samples.common.MessageService;
-import cn.taketoday.test.context.aot.samples.common.SpanishMessageService;
-import cn.taketoday.test.context.aot.samples.management.Managed;
 
 /**
+ * {@link MessageService} implemented in a different package.
+ *
+ * <p>See <a href="https://github.com/spring-projects/spring-framework/issues/30861">gh-30861</a>.
+ *
  * @author Sam Brannen
  * @since 4.0
  */
-@Configuration(proxyBeanMethods = false)
-class BasicTestConfiguration {
+class ManagementMessageService implements MessageService {
 
-  @Bean
-  @Profile("default")
-  @Managed
-  MessageService defaultMessageService() {
-    return new DefaultMessageService();
-  }
-
-  @Bean
-  @Profile("spanish")
-  @Managed
-  MessageService spanishMessageService() {
-    return new SpanishMessageService();
+  @Override
+  public String generateMessage() {
+    return "Hello, Management!";
   }
 
 }
