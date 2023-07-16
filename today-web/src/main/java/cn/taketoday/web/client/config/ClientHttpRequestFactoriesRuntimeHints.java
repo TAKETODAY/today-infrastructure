@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
@@ -65,6 +63,10 @@ class ClientHttpRequestFactoriesRuntimeHints implements RuntimeHintsRegistrar {
       typeHint.onReachableType(TypeReference.of(ClientHttpRequestFactories.OKHTTP_CLIENT_CLASS));
       registerReflectionHints(hints, OkHttp3ClientHttpRequestFactory.class);
     });
+    hints.registerTypeIfPresent(classLoader, ClientHttpRequestFactories.JETTY_CLIENT_CLASS, (typeHint) -> {
+      typeHint.onReachableType(TypeReference.of(ClientHttpRequestFactories.JETTY_CLIENT_CLASS));
+      registerReflectionHints(hints, JettyClientHttpRequestFactory.class, long.class);
+    });
     hints.registerType(SimpleClientHttpRequestFactory.class, (typeHint) -> {
       typeHint.onReachableType(HttpURLConnection.class);
       registerReflectionHints(hints, SimpleClientHttpRequestFactory.class);
@@ -73,8 +75,13 @@ class ClientHttpRequestFactoriesRuntimeHints implements RuntimeHintsRegistrar {
 
   private void registerReflectionHints(ReflectionHints hints,
           Class<? extends ClientHttpRequestFactory> requestFactoryType) {
+    registerReflectionHints(hints, requestFactoryType, int.class);
+  }
+
+  private void registerReflectionHints(ReflectionHints hints,
+          Class<? extends ClientHttpRequestFactory> requestFactoryType, Class<?> readTimeoutType) {
     registerMethod(hints, requestFactoryType, "setConnectTimeout", int.class);
-    registerMethod(hints, requestFactoryType, "setReadTimeout", int.class);
+    registerMethod(hints, requestFactoryType, "setReadTimeout", readTimeoutType);
   }
 
   private void registerMethod(ReflectionHints hints, Class<? extends ClientHttpRequestFactory> requestFactoryType,

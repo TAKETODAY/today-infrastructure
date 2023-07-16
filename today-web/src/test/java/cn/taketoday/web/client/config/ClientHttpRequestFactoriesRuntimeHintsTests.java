@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.aot.hint.predicate.ReflectionHintsPredicates;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.util.ReflectionUtils;
@@ -73,6 +71,17 @@ class ClientHttpRequestFactoriesRuntimeHintsTests {
     assertThat(reflection.onMethod(method(OkHttp3ClientHttpRequestFactory.class, "setReadTimeout", int.class)))
             .accepts(hints);
     assertThat(hints.reflection().getTypeHint(OkHttp3ClientHttpRequestFactory.class).methods()).hasSize(2);
+  }
+
+  @Test
+  void shouldRegisterJettyClientHints() {
+    RuntimeHints hints = new RuntimeHints();
+    new ClientHttpRequestFactoriesRuntimeHints().registerHints(hints, getClass().getClassLoader());
+    ReflectionHintsPredicates reflection = RuntimeHintsPredicates.reflection();
+    assertThat(reflection.onMethod(method(JettyClientHttpRequestFactory.class, "setConnectTimeout", int.class)))
+            .accepts(hints);
+    assertThat(reflection.onMethod(method(JettyClientHttpRequestFactory.class, "setReadTimeout", long.class)))
+            .accepts(hints);
   }
 
   @Test
