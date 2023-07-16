@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,7 +152,7 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
     // As of Hibernate 5.2, Hibernate can fully integrate with the WebSphere
     // transaction manager on its own.
     else if (!runningOnWebSphere()) {
-      configureSpringJtaPlatform(vendorProperties, jtaTransactionManager);
+      configureInfraJtaPlatform(vendorProperties, jtaTransactionManager);
     }
   }
 
@@ -175,7 +172,7 @@ class HibernateJpaConfiguration extends JpaBaseConfiguration {
             getClass().getClassLoader());
   }
 
-  private void configureSpringJtaPlatform(
+  private void configureInfraJtaPlatform(
           Map<String, Object> vendorProperties, JtaTransactionManager jtaTransactionManager) {
     try {
       vendorProperties.put(JTA_PLATFORM, new HibernateJtaPlatform(jtaTransactionManager));

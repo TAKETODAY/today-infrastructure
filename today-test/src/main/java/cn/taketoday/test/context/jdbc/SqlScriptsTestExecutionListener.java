@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +74,7 @@ import static cn.taketoday.core.io.ResourceLoader.CLASSPATH_URL_PREFIX;
  * value of the {@link Sql#executionPhase executionPhase} flag.
  *
  * <p>Scripts and inlined statements will be executed without a transaction,
- * within an existing Spring-managed transaction, or within an isolated transaction,
+ * within an existing Infra-managed transaction, or within an isolated transaction,
  * depending on the configured value of {@link SqlConfig#transactionMode} and the
  * presence of a transaction manager.
  *

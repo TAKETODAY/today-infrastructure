@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +33,7 @@ public class TestUtils {
   /**
    * Uses nested {@link cn.taketoday.beans.DirectFieldAccessor}s to obtain a
    * property using dotted notation to traverse fields; e.g. "foo.bar.baz" will obtain a
-   * reference to the baz field of the bar field of foo. Adopted from Spring
+   * reference to the baz field of the bar field of foo. Adopted from Infra
    * Integration.
    *
    * @param root The object.

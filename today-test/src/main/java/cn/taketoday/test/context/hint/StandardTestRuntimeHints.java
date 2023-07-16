@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,7 @@ import static cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy.TYPE
 
 /**
  * {@link TestRuntimeHintsRegistrar} implementation that registers run-time hints
- * for standard functionality in the <em>Spring TestContext Framework</em>.
+ * for standard functionality in the <em>Infra TestContext Framework</em>.
  *
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

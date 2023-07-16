@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -451,11 +448,10 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
           isAbstract = TRUE_VALUE.equals(val);
         }
         else if (SCOPE_KEY.equals(property)) {
-          // Spring 2.0 style
           scope = ((String) entry.getValue()).strip();
         }
         else if (SINGLETON_KEY.equals(property)) {
-          // Spring 1.2 style
+          // Infra 1.2 style
           String val = ((String) entry.getValue()).strip();
           scope = StringUtils.isEmpty(val) || TRUE_VALUE.equals(val) ?
                   BeanDefinition.SCOPE_SINGLETON : BeanDefinition.SCOPE_PROTOTYPE;

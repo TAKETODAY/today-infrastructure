@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,7 +109,7 @@ import java.lang.annotation.Target;
  * if you need to apply its behavior at multiple levels.
  *
  * <p>This feature requires the presence of {@code aspectjweaver} on the classpath.
- * While that dependency is optional for {@code spring-aop} in general, it is required
+ * While that dependency is optional for {@code today-aop} in general, it is required
  * for {@code @EnableAspectJAutoProxy} and its underlying facilities.
  *
  * @author Chris Beams

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -278,9 +275,9 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
    * executing the actual test method in a separate thread. Thus, the net
    * effect is that {@code @Before} and {@code @After} methods will be
    * executed in the same thread as the test method. As a consequence,
-   * JUnit-specified timeouts will work fine in combination with Spring
+   * JUnit-specified timeouts will work fine in combination with Infra
    * transactions. However, JUnit-specific timeouts still differ from
-   * Spring-specific timeouts in that the former execute in a separate
+   * Infra-specific timeouts in that the former execute in a separate
    * thread while the latter simply execute in the main thread (like regular
    * tests).
    *
@@ -389,17 +386,17 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   @SuppressWarnings("deprecation")
   protected Statement withPotentialTimeout(FrameworkMethod frameworkMethod, Object testInstance, Statement next) {
     Statement statement = null;
-    long springTimeout = getInfraTimeout(frameworkMethod);
+    long infraTimeout = getInfraTimeout(frameworkMethod);
     long junitTimeout = getJUnitTimeout(frameworkMethod);
-    if (springTimeout > 0 && junitTimeout > 0) {
+    if (infraTimeout > 0 && junitTimeout > 0) {
       String msg = String.format("Test method [%s] has been configured with Framework's @Timed(millis=%s) and " +
               "JUnit's @Test(timeout=%s) annotations, but only one declaration of a 'timeout' is " +
-              "permitted per test method.", frameworkMethod.getMethod(), springTimeout, junitTimeout);
+              "permitted per test method.", frameworkMethod.getMethod(), infraTimeout, junitTimeout);
       logger.error(msg);
       throw new IllegalStateException(msg);
     }
-    else if (springTimeout > 0) {
-      statement = new FailOnTimeout(next, springTimeout);
+    else if (infraTimeout > 0) {
+      statement = new FailOnTimeout(next, infraTimeout);
     }
     else if (junitTimeout > 0) {
       statement = org.junit.internal.runners.statements.FailOnTimeout.builder().withTimeout(junitTimeout, TimeUnit.MILLISECONDS).build(next);
@@ -423,7 +420,7 @@ public class JUnit4ClassRunner extends BlockJUnit4ClassRunner {
   }
 
   /**
-   * Retrieve the configured Spring-specific {@code timeout} from the
+   * Retrieve the configured Infra-specific {@code timeout} from the
    * {@link Timed @Timed} annotation
    * on the supplied {@linkplain FrameworkMethod test method}.
    *

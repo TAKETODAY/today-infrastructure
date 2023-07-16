@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * {@code EnabledIfCondition} is an {@link org.junit.jupiter.api.extension.ExecutionCondition}
- * that supports the {@link EnabledIf @EnabledIf} annotation when using the <em>Spring
+ * that supports the {@link EnabledIf @EnabledIf} annotation when using the <em>Infra
  * TestContext Framework</em> in conjunction with JUnit 5's <em>Jupiter</em> programming model.
  *
  * <p>Any attempt to use the {@code EnabledIfCondition} without the presence of

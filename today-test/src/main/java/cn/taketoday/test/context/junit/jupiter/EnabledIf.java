@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +95,7 @@ public @interface EnabledIf {
    * <ul>
    * <li>Spring Expression Language (SpEL) expression &mdash; for example:
    * <pre style="code">@EnabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")</pre>
-   * <li>Placeholder for a property available in the Spring
+   * <li>Placeholder for a property available in the Infra
    * {@link cn.taketoday.core.env.Environment Environment} &mdash; for example:
    * <pre style="code">@EnabledIf("${smoke.tests.enabled}")</pre>
    * <li>Text literal &mdash; for example:

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +121,7 @@ public @interface TestPropertySource {
    * &mdash; for example, {@code "classpath:/com/example/test.properties"}
    * or {@code "file:/path/to/file.xml"}.
    * <h3>Path Resource Semantics</h3>
-   * <p>Each path will be interpreted as a Spring
+   * <p>Each path will be interpreted as a Infra
    * {@link cn.taketoday.core.io.Resource Resource}. A plain path
    * &mdash; for example, {@code "test.properties"} &mdash; will be treated as a
    * classpath resource that is <em>relative</em> to the package in which the
@@ -211,7 +208,7 @@ public @interface TestPropertySource {
 
   /**
    * <em>Inlined properties</em> in the form of <em>key-value</em> pairs that
-   * should be added to the Spring
+   * should be added to the Infra
    * {@link cn.taketoday.core.env.Environment Environment} before the
    * {@code ApplicationContext} is loaded for the test. All key-value pairs
    * will be added to the enclosing {@code Environment} as a single test

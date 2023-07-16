@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +37,7 @@ import cn.taketoday.web.socket.WebSocketSession;
  * {@link WebSocketHandler} class to create for each connection, and then pass it to any
  * API method that expects a {@link WebSocketHandler}.
  *
- * <p>If initializing the target {@link WebSocketHandler} type requires a Spring
+ * <p>If initializing the target {@link WebSocketHandler} type requires a Infra
  * BeanFactory, then the {@link #setBeanFactory(BeanFactory)} property accordingly. Simply
  * declaring this class as a Infra bean will do that. Otherwise, {@link WebSocketHandler}
  * instances of the target type will be created using the default constructor.

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +42,7 @@ public abstract class AopTestUtils {
 
   /**
    * Get the <em>target</em> object of the supplied {@code candidate} object.
-   * <p>If the supplied {@code candidate} is a Spring
+   * <p>If the supplied {@code candidate} is a Infra
    * {@linkplain AopUtils#isAopProxy proxy}, the target of the proxy will
    * be returned; otherwise, the {@code candidate} will be returned
    * <em>as is</em>.
@@ -79,7 +76,7 @@ public abstract class AopTestUtils {
    * Get the ultimate <em>target</em> object of the supplied {@code candidate}
    * object, unwrapping not only a top-level proxy but also any number of
    * nested proxies.
-   * <p>If the supplied {@code candidate} is a Spring
+   * <p>If the supplied {@code candidate} is a Infra
    * {@linkplain AopUtils#isAopProxy proxy}, the ultimate target of all
    * nested proxies will be returned; otherwise, the {@code candidate}
    * will be returned <em>as is</em>.

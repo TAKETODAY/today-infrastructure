@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,7 +109,7 @@ public class SQLErrorCodesFactory {
         bdr.loadBeanDefinitions(resource);
       }
       else {
-        log.info("Default sql-error-codes.xml not found (should be included in spring-jdbc jar)");
+        log.info("Default sql-error-codes.xml not found (should be included in today-jdbc jar)");
       }
 
       // Load custom SQL error codes, overriding defaults.

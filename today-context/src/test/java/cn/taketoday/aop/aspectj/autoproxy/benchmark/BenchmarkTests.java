@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +61,7 @@ public class BenchmarkTests {
 
   @Test
   public void testRepeatedAroundAdviceInvocationsWithSpringAop() {
-    testRepeatedAroundAdviceInvocations(SPRING_AOP_CONTEXT, getCount(), "Spring AOP");
+    testRepeatedAroundAdviceInvocations(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   @Test
@@ -74,7 +71,7 @@ public class BenchmarkTests {
 
   @Test
   public void testRepeatedBeforeAdviceInvocationsWithSpringAop() {
-    testBeforeAdviceWithoutJoinPoint(SPRING_AOP_CONTEXT, getCount(), "Spring AOP");
+    testBeforeAdviceWithoutJoinPoint(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   @Test
@@ -84,7 +81,7 @@ public class BenchmarkTests {
 
   @Test
   public void testRepeatedAfterReturningAdviceInvocationsWithSpringAop() {
-    testAfterReturningAdviceWithoutJoinPoint(SPRING_AOP_CONTEXT, getCount(), "Spring AOP");
+    testAfterReturningAdviceWithoutJoinPoint(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   @Test
@@ -94,7 +91,7 @@ public class BenchmarkTests {
 
   @Test
   public void testRepeatedMixWithSpringAop() {
-    testMix(SPRING_AOP_CONTEXT, getCount(), "Spring AOP");
+    testMix(SPRING_AOP_CONTEXT, getCount(), "Infra AOP");
   }
 
   /**

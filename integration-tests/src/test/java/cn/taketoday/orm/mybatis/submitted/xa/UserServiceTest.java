@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +68,7 @@ class UserServiceTest {
 
   // TODO when the outer JTA tx is rolledback,
   // SqlSession should be rolledback but it is committed
-  // because Spring calls beforeCommmit from its TX interceptor
+  // because Infra calls beforeCommmit from its TX interceptor
   // then, the JTA TX may be rolledback.
   @Test
   void testRollbackWithExistingTx() throws Exception {

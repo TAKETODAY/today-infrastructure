@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
-  ~
-  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~ Copyright 2017 - 2023 the original author or authors.
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -32,7 +29,7 @@
     <xsd:documentation><![CDATA[
 	Defines the configuration elements for the Infra 's application
 	context support. Effects the activation of various configuration styles
-	for the containing Spring ApplicationContext.
+	for the containing Infra ApplicationContext.
 		]]></xsd:documentation>
   </xsd:annotation>
 
@@ -40,7 +37,7 @@
     <xsd:attribute name="location" type="xsd:string">
       <xsd:annotation>
         <xsd:documentation><![CDATA[
-	The location of the properties file to resolve placeholders against, as a Spring
+	The location of the properties file to resolve placeholders against, as a Infra
 	resource location: a URL, a "classpath:" pseudo URL, or a relative file path.
 	Multiple locations may be specified, separated by commas. If neither location nor
 	properties-ref is specified, placeholders will be resolved against system properties.
@@ -112,7 +109,7 @@
 	"local properties", if any, and against the Infra environment's current set of
 	PropertySources.
 
-	Note that as of Spring 3.1 the system-properties-mode attribute has been removed in
+  the system-properties-mode attribute has been removed in
 	favor of the more flexible PropertySources mechanism. However, applications may
 	continue to use the 3.0 (and older) versions of the spring-context schema in order
 	to preserve system-properties-mode behavior. In this case, the traditional
@@ -232,7 +229,7 @@
     <xsd:annotation>
       <xsd:documentation><![CDATA[
 	Scans the classpath for annotated components that will be auto-registered as
-	Spring beans. By default, the Spring-provided @Component, @Repository, @Service,
+	Infra beans. By default, the Infra-provided @Component, @Repository, @Service,
 	@Controller, @RestController, @ControllerAdvice, and @Configuration stereotypes
 	will be detected.
 
@@ -351,7 +348,7 @@
   <xsd:element name="load-time-weaver">
     <xsd:annotation>
       <xsd:documentation><![CDATA[
-	Activates a Spring LoadTimeWeaver for this application context, available as
+	Activates a Infra LoadTimeWeaver for this application context, available as
 	a bean with the name "loadTimeWeaver". Any bean that implements the
 	LoadTimeWeaverAware interface will then receive the LoadTimeWeaver reference
 	automatically; for example, Framework's JPA bootstrap support.
@@ -365,7 +362,7 @@
 	by default if a "META-INF/aop.xml" resource is present in the classpath.
 
 	This also activates the current application context for applying dependency
-	injection to non-managed classes that are instantiated outside of the Spring
+	injection to non-managed classes that are instantiated outside of the Infra
 	bean factory (typically classes annotated with the @Configurable annotation).
 	This will only happen if the AnnotationBeanConfigurerAspect is on the classpath
 	(i.e. spring-aspects.jar), effectively activating "spring-configured" by default.
@@ -399,14 +396,14 @@
             <xsd:enumeration value="on">
               <xsd:annotation>
                 <xsd:documentation><![CDATA[
-	Switches Spring-based AspectJ load-time weaving on.
+	Switches Infra-based AspectJ load-time weaving on.
 								]]></xsd:documentation>
               </xsd:annotation>
             </xsd:enumeration>
             <xsd:enumeration value="off">
               <xsd:annotation>
                 <xsd:documentation><![CDATA[
-	Switches Spring-based AspectJ load-time weaving off.
+	Switches Infra-based AspectJ load-time weaving off.
 								]]></xsd:documentation>
               </xsd:annotation>
             </xsd:enumeration>
@@ -429,7 +426,7 @@
     <xsd:annotation>
       <xsd:documentation source="java:cn.taketoday.beans.factory.aspectj.AnnotationBeanConfigurerAspect"><![CDATA[
 	Signals the current application context to apply dependency injection
-	to non-managed classes that are instantiated outside of the Spring bean
+	to non-managed classes that are instantiated outside of the Infra bean
 	factory (typically classes annotated with the @Configurable annotation).
 			]]></xsd:documentation>
     </xsd:annotation>
@@ -441,8 +438,8 @@
   <xsd:element name="mbean-export">
     <xsd:annotation>
       <xsd:documentation source="java:cn.taketoday.jmx.export.annotation.AnnotationMBeanExporter"><![CDATA[
-	Activates default exporting of MBeans by detecting standard MBeans in the Spring
-	context as well as @ManagedResource annotations on Spring-defined beans.
+	Activates default exporting of MBeans by detecting standard MBeans in the Infra
+	context as well as @ManagedResource annotations on Infra-defined beans.
 
 	The resulting MBeanExporter bean is defined under the name "mbeanExporter".
 	Alternatively, consider defining a custom AnnotationMBeanExporter bean explicitly.

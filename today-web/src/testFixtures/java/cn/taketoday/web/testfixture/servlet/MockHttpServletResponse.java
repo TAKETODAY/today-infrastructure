@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -534,7 +531,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return all values for the given header as a List of Strings.
    * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
-   * As of Spring 3.1, it returns a List of stringified values for Servlet 3.0 compatibility.
+   * it returns a List of stringified values for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValues(String)} for raw Object access.
    *
    * @param name the name of the header

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,7 +185,7 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
     private String deduceBasePath() {
       ApplicationType webApplicationType = deduceFromApplicationContext(this.applicationContext.getClass());
       if (webApplicationType == ApplicationType.REACTIVE_WEB) {
-        return this.applicationContext.getEnvironment().getProperty("spring.webflux.base-path");
+        return this.applicationContext.getEnvironment().getProperty("infra.webflux.base-path");
       }
       else if (webApplicationType == ApplicationType.SERVLET_WEB) {
         return ((WebApplicationContext) this.applicationContext).getServletContext().getContextPath();

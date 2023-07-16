@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,10 +30,6 @@ import cn.taketoday.lang.Nullable;
  * or via constructors that provide a default supplier as a fallback. This is
  * particularly useful for method reference suppliers, falling back to a default
  * supplier for a method that returned {@code null} and caching the result.
- *
- * <p>
- * From spring
- * </p>
  *
  * @param <T> the type of results supplied by this supplier
  * @author Juergen Hoeller

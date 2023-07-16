@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import java.util.Set;
  * e.g. {@code $ user.dir}. Default values can be supplied using the ":" separator between
  * key and value.
  * <p>
- * Adapted from Spring.
+ * Adapted from Infra.
  *
  * @author Juergen Hoeller
  * @author Rob Harrop

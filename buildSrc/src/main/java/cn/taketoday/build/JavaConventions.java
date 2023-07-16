@@ -36,7 +36,7 @@ import java.util.List;
 import cn.taketoday.build.optional.OptionalDependenciesPlugin;
 
 /**
- * {@link Plugin} that applies conventions for compiling Java sources in Spring Framework.
+ * {@link Plugin} that applies conventions for compiling Java sources in Infra Framework.
  *
  * @author Brian Clozel
  * @author Sam Brannen

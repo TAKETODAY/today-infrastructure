@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2017 - 2023 the original author or authors.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  -->
+
 <xsd:schema xmlns="http://www.springframework.org/schema/lang"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:beans="http://www.springframework.org/schema/beans"
@@ -32,7 +49,7 @@
   <xsd:element name="groovy">
     <xsd:annotation>
       <xsd:documentation><![CDATA[
-	A Spring bean backed by a Groovy class definition.
+	A Infra bean backed by a Groovy class definition.
 			]]></xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
@@ -47,7 +64,7 @@
   <xsd:element name="bsh">
     <xsd:annotation>
       <xsd:documentation><![CDATA[
-	A Spring bean backed by a BeanShell script.
+	A Infra bean backed by a BeanShell script.
 			]]></xsd:documentation>
     </xsd:annotation>
     <xsd:complexType>
@@ -62,7 +79,7 @@
   <xsd:element name="std">
     <xsd:annotation>
       <xsd:documentation><![CDATA[
-	A Spring bean backed by a standard JSR-223 based script.
+	A Infra bean backed by a standard JSR-223 based script.
 	Supports JavaScript, Groovy, JRuby and other JSR-223 compliant engines.
 			]]></xsd:documentation>
     </xsd:annotation>
@@ -99,7 +116,7 @@
               <xsd:documentation><![CDATA[
 	Dynamic language-backed bean definitions can have zero or more properties.
 	Property elements correspond to JavaBean setter methods exposed
-	by the bean classes. Spring supports primitives, references to other
+	by the bean classes. Infra supports primitives, references to other
 	beans in the same or related factories, lists, maps and properties.
 							]]></xsd:documentation>
             </xsd:annotation>

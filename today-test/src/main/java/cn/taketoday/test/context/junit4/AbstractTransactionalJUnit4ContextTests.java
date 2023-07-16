@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +51,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * Abstract {@linkplain Transactional transactional} extension of
  * {@link AbstractJUnit4ContextTests} which adds convenience functionality
  * for JDBC access. Expects a {@link DataSource} bean and a
- * {@link PlatformTransactionManager} bean to be defined in the Spring
+ * {@link PlatformTransactionManager} bean to be defined in the Infra
  * {@linkplain ApplicationContext application context}.
  *
  * <p>This class exposes a {@link JdbcTemplate} and provides an easy way to
@@ -69,7 +66,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  *
  * <p>This class serves only as a convenience for extension.
  * <ul>
- * <li>If you do not wish for your test classes to be tied to a Spring-specific
+ * <li>If you do not wish for your test classes to be tied to a Infra-specific
  * class hierarchy, you may configure your own custom test classes by using
  * {@link InfraRunner}, {@link ContextConfiguration @ContextConfiguration},
  * {@link TestExecutionListeners @TestExecutionListeners}, etc.</li>

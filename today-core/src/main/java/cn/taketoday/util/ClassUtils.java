@@ -401,7 +401,7 @@ public abstract class ClassUtils {
    * Furthermore, it is also capable of resolving nested class names in Java source
    * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
    * <p>
-   * use default class loader, from spring
+   * use default class loader
    *
    * @param name the name of the Class
    * @return a class instance for the supplied name

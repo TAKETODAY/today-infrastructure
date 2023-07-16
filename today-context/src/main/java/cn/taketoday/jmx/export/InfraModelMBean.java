@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +38,7 @@ import javax.management.modelmbean.RequiredModelMBean;
  * @see RequiredModelMBean
  * @since 4.0
  */
-public class SpringModelMBean extends RequiredModelMBean {
+public class InfraModelMBean extends RequiredModelMBean {
 
   /**
    * Stores the {@link ClassLoader} to use for invocations. Defaults
@@ -50,20 +47,20 @@ public class SpringModelMBean extends RequiredModelMBean {
   private ClassLoader managedResourceClassLoader = Thread.currentThread().getContextClassLoader();
 
   /**
-   * Construct a new SpringModelMBean instance with an empty {@link ModelMBeanInfo}.
+   * Construct a new InfraModelMBean instance with an empty {@link ModelMBeanInfo}.
    *
    * @see RequiredModelMBean#RequiredModelMBean()
    */
-  public SpringModelMBean() throws MBeanException, RuntimeOperationsException {
+  public InfraModelMBean() throws MBeanException, RuntimeOperationsException {
     super();
   }
 
   /**
-   * Construct a new SpringModelMBean instance with the given {@link ModelMBeanInfo}.
+   * Construct a new InfraModelMBean instance with the given {@link ModelMBeanInfo}.
    *
    * @see RequiredModelMBean#RequiredModelMBean(ModelMBeanInfo)
    */
-  public SpringModelMBean(ModelMBeanInfo mbi) throws MBeanException, RuntimeOperationsException {
+  public InfraModelMBean(ModelMBeanInfo mbi) throws MBeanException, RuntimeOperationsException {
     super(mbi);
   }
 

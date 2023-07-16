@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,7 +138,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
    */
   private ClassLoader determineClassLoader(@Nullable ClassLoader classLoader) {
     if (classLoader == null) {
-      // JDK bootstrap loader -> use spring-aop ClassLoader instead.
+      // JDK bootstrap loader -> use today-aop ClassLoader instead.
       return getClass().getClassLoader();
     }
     if (classLoader.getParent() == null) {
@@ -150,8 +147,8 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
       ClassLoader aopParent = aopClassLoader.getParent();
       while (aopParent != null) {
         if (classLoader == aopParent) {
-          // Suggested ClassLoader is ancestor of spring-aop ClassLoader
-          // -> use spring-aop ClassLoader itself instead.
+          // Suggested ClassLoader is ancestor of today-aop ClassLoader
+          // -> use today-aop ClassLoader itself instead.
           return aopClassLoader;
         }
         aopParent = aopParent.getParent();

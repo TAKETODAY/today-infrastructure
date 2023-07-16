@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,7 @@ import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.orm.jpa.vendor.Database;
 
 /**
- * External configuration properties for a JPA EntityManagerFactory created by Spring.
+ * External configuration properties for a JPA EntityManagerFactory created by Infra.
  *
  * @author Dave Syer
  * @author Andy Wilkinson

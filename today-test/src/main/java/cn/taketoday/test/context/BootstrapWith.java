@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +50,7 @@ import java.lang.annotation.Target;
 public @interface BootstrapWith {
 
   /**
-   * The {@link TestContextBootstrapper} to use to bootstrap the <em>Spring
+   * The {@link TestContextBootstrapper} to use to bootstrap the <em>Infra
    * TestContext Framework</em>.
    */
   Class<? extends TestContextBootstrapper> value() default TestContextBootstrapper.class;

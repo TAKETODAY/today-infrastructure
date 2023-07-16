@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +27,12 @@ import javax.net.ServerSocketFactory;
  * Simple utility for finding available TCP ports on {@code localhost} for use in
  * integration testing scenarios.
  *
- * <p>{@code SocketUtils} was removed from the public API in {@code spring-core}
- * in Spring Framework 6.0 and reintroduced as {@code TestSocketUtils}, which is
- * made available to all tests in Spring Framework's test suite as a Gradle
+ * <p>{@code SocketUtils} was removed from the public API in {@code today-core}
+ * and reintroduced as {@code TestSocketUtils}, which is
+ * made available to all tests in Infra test suite as a Gradle
  * <em>test fixture</em>.
  *
- * <p>{@code SocketUtils} was introduced in Spring Framework 4.0, primarily to
+ * <p>{@code SocketUtils} was introduced in Infra primarily to
  * assist in writing integration tests which start an external server on an
  * available random port. However, these utilities make no guarantee about the
  * subsequent availability of a given port and are therefore unreliable. Instead

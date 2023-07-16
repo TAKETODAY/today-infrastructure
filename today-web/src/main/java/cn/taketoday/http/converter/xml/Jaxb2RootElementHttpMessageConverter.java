@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +56,7 @@ import jakarta.xml.bind.annotation.XmlType;
  * {@link XmlType}, and write classes annotated with {@link XmlRootElement},
  * or subclasses thereof.
  *
- * <p>Note: When using Infra Marshaller/Unmarshaller abstractions from {@code spring-oxm},
+ * <p>Note: When using Infra Marshaller/Unmarshaller abstractions from {@code today-oxm},
  * you should use the {@link MarshallingHttpMessageConverter} instead.
  *
  * @author Arjen Poutsma

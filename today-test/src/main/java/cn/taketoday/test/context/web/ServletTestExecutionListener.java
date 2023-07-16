@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,7 @@ import jakarta.servlet.ServletContext;
 
 /**
  * {@code TestExecutionListener} which provides mock Servlet API support to
- * {@link WebApplicationContext WebServletApplicationContext} loaded by the <em>Spring
+ * {@link WebApplicationContext WebServletApplicationContext} loaded by the <em>Infra
  * TestContext Framework</em>.
  *
  * <p>Specifically, {@code ServletTestExecutionListener} sets up thread-local

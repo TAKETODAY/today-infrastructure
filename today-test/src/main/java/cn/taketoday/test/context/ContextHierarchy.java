@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +60,7 @@ import java.lang.annotation.Target;
  * <h4>Class Hierarchy with Implicit Parent Context</h4>
  * <p>The following test classes define a context hierarchy within a test class
  * hierarchy. {@code AbstractWebTests} declares the configuration for a root
- * {@code WebApplicationContext} in a Spring-powered web application. Note,
+ * {@code WebApplicationContext} in a Infra-powered web application. Note,
  * however, that {@code AbstractWebTests} does not declare {@code @ContextHierarchy};
  * consequently, subclasses of {@code AbstractWebTests} can optionally participate
  * in a context hierarchy or follow the standard semantics for {@code @ContextConfiguration}.
@@ -80,10 +77,10 @@ import java.lang.annotation.Target;
  * &#064;ContextConfiguration("file:src/main/webapp/WEB-INF/applicationContext.xml")
  * public abstract class AbstractWebTests {}
  *
- * &#064;ContextHierarchy(&#064;ContextConfiguration("/spring/soap-ws-config.xml"))
+ * &#064;ContextHierarchy(&#064;ContextConfiguration("/today/soap-ws-config.xml"))
  * public class SoapWebServiceTests extends AbstractWebTests {}
  *
- * &#064;ContextHierarchy(&#064;ContextConfiguration("/spring/rest-ws-config.xml"))
+ * &#064;ContextHierarchy(&#064;ContextConfiguration("/today/rest-ws-config.xml"))
  * public class RestWebServiceTests extends AbstractWebTests {}</pre>
  *
  * <h4>Class Hierarchy with Merged Context Hierarchy Configuration</h4>

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,13 +57,13 @@ import cn.taketoday.util.StringUtils;
  * <p><em>Test-managed transactions</em> are transactions that are managed
  * declaratively via this listener or programmatically via
  * {@link TestTransaction}. Such transactions should not be confused with
- * <em>Spring-managed transactions</em> (i.e., those managed directly
+ * <em>Infra-managed transactions</em> (i.e., those managed directly
  * by Infra within the {@code ApplicationContext} loaded for tests) or
  * <em>application-managed transactions</em> (i.e., those managed
  * programmatically within application code that is invoked via tests).
- * Spring-managed and application-managed transactions will typically
+ * Infra-managed and application-managed transactions will typically
  * participate in test-managed transactions; however, caution should be
- * taken if Spring-managed or application-managed transactions are
+ * taken if Infra-managed or application-managed transactions are
  * configured with any propagation type other than
  * {@link cn.taketoday.transaction.annotation.Propagation#REQUIRED REQUIRED}
  * or {@link cn.taketoday.transaction.annotation.Propagation#SUPPORTS SUPPORTS}.
@@ -109,7 +106,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <h3>Configuring a Transaction Manager</h3>
  * <p>{@code TransactionalTestExecutionListener} expects a
- * {@link PlatformTransactionManager} bean to be defined in the Spring
+ * {@link PlatformTransactionManager} bean to be defined in the Infra
  * {@code ApplicationContext} for the test. In case there are multiple
  * instances of {@code PlatformTransactionManager} within the test's
  * {@code ApplicationContext}, a <em>qualifier</em> may be declared via

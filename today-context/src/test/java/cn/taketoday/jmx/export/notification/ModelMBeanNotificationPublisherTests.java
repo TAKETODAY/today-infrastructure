@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,7 @@ import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
 
-import cn.taketoday.jmx.export.SpringModelMBean;
+import cn.taketoday.jmx.export.InfraModelMBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -49,25 +46,25 @@ public class ModelMBeanNotificationPublisherTests {
   @Test
   public void testCtorWithNullObjectName() throws Exception {
     assertThatIllegalArgumentException().isThrownBy(() ->
-            new ModelMBeanNotificationPublisher(new SpringModelMBean(), null, this));
+            new ModelMBeanNotificationPublisher(new InfraModelMBean(), null, this));
   }
 
   @Test
   public void testCtorWithNullManagedResource() throws Exception {
     assertThatIllegalArgumentException().isThrownBy(() ->
-            new ModelMBeanNotificationPublisher(new SpringModelMBean(), createObjectName(), null));
+            new ModelMBeanNotificationPublisher(new InfraModelMBean(), createObjectName(), null));
   }
 
   @Test
   public void testSendNullNotification() throws Exception {
     NotificationPublisher publisher
-            = new ModelMBeanNotificationPublisher(new SpringModelMBean(), createObjectName(), this);
+            = new ModelMBeanNotificationPublisher(new InfraModelMBean(), createObjectName(), this);
     assertThatIllegalArgumentException().isThrownBy(() ->
             publisher.sendNotification(null));
   }
 
   public void testSendVanillaNotification() throws Exception {
-    StubSpringModelMBean mbean = new StubSpringModelMBean();
+    StubInfraModelMBean mbean = new StubInfraModelMBean();
     Notification notification = new Notification("network.alarm.router", mbean, 1872);
     ObjectName objectName = createObjectName();
 
@@ -80,7 +77,7 @@ public class ModelMBeanNotificationPublisherTests {
   }
 
   public void testSendAttributeChangeNotification() throws Exception {
-    StubSpringModelMBean mbean = new StubSpringModelMBean();
+    StubInfraModelMBean mbean = new StubInfraModelMBean();
     Notification notification = new AttributeChangeNotification(mbean, 1872, System.currentTimeMillis(), "Shall we break for some tea?", "agree", "java.lang.Boolean", Boolean.FALSE, Boolean.TRUE);
     ObjectName objectName = createObjectName();
 
@@ -95,7 +92,7 @@ public class ModelMBeanNotificationPublisherTests {
   }
 
   public void testSendAttributeChangeNotificationWhereSourceIsNotTheManagedResource() throws Exception {
-    StubSpringModelMBean mbean = new StubSpringModelMBean();
+    StubInfraModelMBean mbean = new StubInfraModelMBean();
     Notification notification = new AttributeChangeNotification(this, 1872, System.currentTimeMillis(), "Shall we break for some tea?", "agree", "java.lang.Boolean", Boolean.FALSE, Boolean.TRUE);
     ObjectName objectName = createObjectName();
 
@@ -113,11 +110,11 @@ public class ModelMBeanNotificationPublisherTests {
     return ObjectName.getInstance("foo:type=bar");
   }
 
-  private static class StubSpringModelMBean extends SpringModelMBean {
+  private static class StubInfraModelMBean extends InfraModelMBean {
 
     private Notification actualNotification;
 
-    public StubSpringModelMBean() throws MBeanException, RuntimeOperationsException {
+    public StubInfraModelMBean() throws MBeanException, RuntimeOperationsException {
     }
 
     public Notification getActualNotification() {

@@ -90,7 +90,7 @@ public final class ConfigurationPropertiesBean {
   }
 
   /**
-   * Return the actual Spring bean instance.
+   * Return the actual Infra bean instance.
    *
    * @return the bean instance
    */

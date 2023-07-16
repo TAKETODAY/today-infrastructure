@@ -32,7 +32,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 /**
  * Configuration class that mimics AOT support for child management
  * contexts in
- * {@code org.springframework.boot.actuate.autoconfigure.web.server.ChildManagementContextInitializer}.
+ * {@code ChildManagementContextInitializer}.
  *
  * <p>See <a href="https://github.com/spring-projects/spring-framework/issues/30861">gh-30861</a>.
  *

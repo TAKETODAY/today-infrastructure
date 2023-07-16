@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +37,7 @@ public @interface Component {
 
   /**
    * The value may indicate a suggestion for a logical component name,
-   * to be turned into a Spring bean in case of an autodetected component.
+   * to be turned into a Infra bean in case of an autodetected component.
    *
    * @return the suggested component name, if any (or empty String otherwise)
    */

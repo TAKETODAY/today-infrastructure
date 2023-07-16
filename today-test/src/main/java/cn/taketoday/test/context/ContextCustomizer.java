@@ -22,7 +22,7 @@ import cn.taketoday.test.context.support.AbstractContextLoader;
 
 /**
  * Strategy interface for customizing {@link ConfigurableApplicationContext
- * application contexts} that are created and managed by the <em>Spring
+ * application contexts} that are created and managed by the <em>Infra
  * TestContext Framework</em>.
  *
  * <p>Customizers are created by {@link ContextCustomizerFactory} implementations.

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,7 +149,7 @@ public class AspectJAutoProxyCreatorTests {
     assertThat(shouldBeWeaved.getName()).isEqualTo("Adrian");
     assertThat(mrv.invocations).isEqualTo(0);
     assertThat(shouldBeWeaved.getAge()).isEqualTo((34 * mrv.getMultiple()));
-    assertThat(tba.count).as("Spring advisor must be invoked").isEqualTo(2);
+    assertThat(tba.count).as("Infra advisor must be invoked").isEqualTo(2);
     assertThat(mrv.invocations).as("Must be able to hold state in aspect").isEqualTo(1);
   }
 

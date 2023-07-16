@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +32,7 @@ import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.junit4.InfraRunner;
 
 /**
- * Annotation that can be used to apply Mockito spies to a Spring
+ * Annotation that can be used to apply Mockito spies to a Infra
  * {@link ApplicationContext}. Can be used as a class level annotation or on fields in
  * either {@code @Configuration} classes, or test classes that are
  * {@link RunWith @RunWith} the {@link InfraRunner}.

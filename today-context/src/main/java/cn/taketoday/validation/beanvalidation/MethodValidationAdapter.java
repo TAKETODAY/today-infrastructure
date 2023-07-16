@@ -163,7 +163,7 @@ public class MethodValidationAdapter implements MethodValidator {
    * Configure a resolver to determine the name of an {@code @Valid} method
    * parameter to use for its {@link BindingResult}. This allows aligning with
    * a higher level programming model such as to resolve the name of an
-   * {@code @ModelAttribute} method parameter in Spring MVC.
+   * {@code @ModelAttribute} method parameter in Infra MVC.
    * <p>By default, the object name is resolved through:
    * <ul>
    * <li>{@link MethodParameter#getParameterName()} for input parameters

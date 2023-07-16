@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,18 +48,18 @@ import cn.taketoday.test.context.junit4.statements.RunPrepareTestInstanceCallbac
  * annotations.
  *
  * <p>In contrast to the {@link JUnit4ClassRunner
- * SpringJUnit4ClassRunner}, Framework's rule-based JUnit support has the advantage
+ * JUnit4ClassRunner}, Framework's rule-based JUnit support has the advantage
  * that it is independent of any {@link org.junit.runner.Runner Runner} and
  * can therefore be combined with existing alternative runners like JUnit's
  * {@code Parameterized} or third-party runners such as the {@code MockitoJUnitRunner}.
  *
- * <p>In order to achieve the same functionality as the {@code SpringJUnit4ClassRunner},
+ * <p>In order to achieve the same functionality as the {@code JUnit4ClassRunner},
  * however, a {@code ApplicationMethodRule} must be combined with a {@link InfraClassRule},
  * since {@code ApplicationMethodRule} only supports the instance-level and method-level
- * features of the {@code SpringJUnit4ClassRunner}.
+ * features of the {@code JUnit4ClassRunner}.
  *
  * <h3>Example Usage</h3>
- * <pre><code> public class ExampleSpringIntegrationTest {
+ * <pre><code> public class ExampleInfraIntegrationTest {
  *
  *    &#064;ClassRule
  *    public static final ApplicationClassRule applicationClassRule = new ApplicationClassRule();

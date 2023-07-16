@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,12 +39,12 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
   /**
    * Add filters mapped to any request (i.e. "/*"). For example:
    * <pre class="code">
-   * mockMvcBuilder.addFilters(springSecurityFilterChain);
+   * mockMvcBuilder.addFilters(infraSecurityFilterChain);
    * </pre>
    * <p>It is the equivalent of the following web.xml configuration:
    * <pre class="code">
    * &lt;filter-mapping&gt;
-   *     &lt;filter-name&gt;springSecurityFilterChain&lt;/filter-name&gt;
+   *     &lt;filter-name&gt;infraSecurityFilterChain&lt;/filter-name&gt;
    *     &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
    * &lt;/filter-mapping&gt;
    * </pre>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ import cn.taketoday.util.ExceptionUtils;
  *
  * <p>
  * The initialization above makes sure to register {@code MyConfiguration} for all tests
- * and set the {@code spring.foo} property to {@code bar} unless specified otherwise.
+ * and set the {@code today.foo} property to {@code bar} unless specified otherwise.
  * <p>
  * Based on the configuration above, a specific test can simulate what will happen when
  * the context runs, perhaps with overridden property values:

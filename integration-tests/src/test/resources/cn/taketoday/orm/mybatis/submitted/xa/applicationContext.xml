@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2022 All Rights Reserved.
-  ~
-  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~ Copyright 2017 - 2023 the original author or authors.
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -45,7 +42,7 @@
     </constructor-arg>
   </bean>
 
-  <!-- Construct Atomikos UserTransactionManager, needed to configure Spring -->
+  <!-- Construct Atomikos UserTransactionManager, needed to configure Infra -->
   <bean id="transactionManager" class="com.atomikos.icatch.jta.UserTransactionManager"
       init-method="init" destroy-method="close" depends-on="userTransactionService">
 
@@ -58,13 +55,13 @@
     <property name="forceShutdown" value="false" />
   </bean>
 
-  <!-- Also use Atomikos UserTransactionImp, needed to configure Spring -->
+  <!-- Also use Atomikos UserTransactionImp, needed to configure Infra -->
   <bean id="userTransaction" class="com.atomikos.icatch.jta.UserTransactionImp"
       depends-on="userTransactionService">
     <property name="transactionTimeout" value="300" />
   </bean>
 
-  <!-- Configure the Spring framework to use JTA transactions from Atomikos -->
+  <!-- Configure the Infra framework to use JTA transactions from Atomikos -->
   <bean id="JtaTransactionManager"
       class="cn.taketoday.transaction.jta.JtaTransactionManager"
       depends-on="userTransactionService">
