@@ -19,10 +19,8 @@ dependencies {
   implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
-
+  implementation "org.apache.maven:maven-artifact:3.6.3"
   implementation 'cn.taketoday:today-core:4.0.0-Draft.3'
-
-
 }
 
 gradlePlugin {
@@ -30,6 +28,10 @@ gradlePlugin {
     apiDiffPlugin {
       id = "cn.taketoday.build.api-diff"
       implementationClass = "cn.taketoday.build.api.ApiDiffPlugin"
+    }
+    bomPlugin {
+      id = "cn.taketoday.bom"
+      implementationClass = "cn.taketoday.build.bom.BomPlugin"
     }
     conventionsPlugin {
       id = "cn.taketoday.build.conventions"
