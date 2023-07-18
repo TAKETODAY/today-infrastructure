@@ -21,7 +21,7 @@ dependencies {
   optional("org.apache.groovy:groovy")
   optional("org.apache-extras.beanshell:bsh")
   optional("org.crac:crac")
-  optional("org.hibernate:hibernate-validator")
+  optional("org.hibernate.validator:hibernate-validator")
   optional("org.reactivestreams:reactive-streams")
   optional("io.projectreactor:reactor-core")
   optional("javax.annotation:javax.annotation-api")

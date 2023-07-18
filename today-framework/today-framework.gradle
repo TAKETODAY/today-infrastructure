@@ -53,7 +53,7 @@ dependencies {
   optional 'io.undertow:undertow-servlet'
   optional 'org.eclipse.jetty.http2:http2-server'
   optional 'org.eclipse.jetty:jetty-alpn-server'
-  optional 'org.hibernate:hibernate-validator'
+  optional 'org.hibernate.validator:hibernate-validator'
   optional 'org.apache.tomcat.embed:tomcat-embed-websocket'
   optional 'io.undertow:undertow-websockets-jsr'
   optional 'org.eclipse.jetty.websocket:websocket-jetty-server'

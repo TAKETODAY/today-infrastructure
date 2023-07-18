@@ -26,7 +26,7 @@ dependencies {
   implementation 'org.junit.platform:junit-platform-launcher:1.8.2'
 
   testImplementation 'commons-logging:commons-logging:1.2'
-  testImplementation 'org.hibernate:hibernate-validator'
+  testImplementation 'org.hibernate.validator:hibernate-validator'
 
   compileOnly 'com.datastax.oss:java-driver-core:4.14.0'
   compileOnly 'org.elasticsearch:elasticsearch:7.15.2'

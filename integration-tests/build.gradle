@@ -42,7 +42,7 @@ dependencies {
   testImplementation 'org.mybatis:mybatis:3.5.9'
   testImplementation 'javax.cache:cache-api'
   testImplementation 'org.yaml:snakeyaml'
-  testImplementation 'org.hibernate:hibernate-validator'
+  testImplementation 'org.hibernate.validator:hibernate-validator'
   testImplementation 'org.glassfish:jakarta.el'
   testImplementation 'org.awaitility:awaitility'
   testImplementation 'org.reactivestreams:reactive-streams'
