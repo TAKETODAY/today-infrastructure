@@ -4,8 +4,9 @@ description = "Infra Web"
 dependencies {
   api(project(":today-beans"))
   api(project(":today-core"))
+  api(project(":today-context"))
+  
   optional(project(":today-aop"))
-  optional(project(":today-context"))
   optional(project(":today-oxm"))
   optional("org.apache.groovy:groovy-templates")
   optional('io.micrometer:context-propagation')

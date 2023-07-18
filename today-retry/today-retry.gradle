@@ -6,8 +6,8 @@ or exponential backoff.
 """
 
 dependencies {
-  optional project(':today-core')
-  optional project(':today-context')
+  api project(':today-core')
+  api project(':today-context')
 
   testImplementation 'org.aspectj:aspectjrt'
   testImplementation 'org.aspectj:aspectjtools'
