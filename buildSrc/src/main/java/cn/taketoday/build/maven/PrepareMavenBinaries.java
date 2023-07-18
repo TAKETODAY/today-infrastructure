@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package cn.taketoday.build.maven;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.Input;
@@ -62,11 +63,11 @@ public class PrepareMavenBinaries extends DefaultTask {
 
   @TaskAction
   public void prepareBinaries() {
-    for (String version : this.versions) {
-      Configuration configuration = getProject().getConfigurations()
-              .detachedConfiguration(
-                      getProject().getDependencies().create("org.apache.maven:apache-maven:" + version + ":bin@zip"));
-      getProject().copy(copy -> copy.into(this.outputDir).from(getProject().zipTree(configuration.getSingleFile())));
+    Project project = getProject();
+    for (String version : versions) {
+      Configuration configuration = project.getConfigurations().detachedConfiguration(
+              project.getDependencies().create("org.apache.maven:apache-maven:" + version + ":bin@zip"));
+      project.copy(copy -> copy.into(this.outputDir).from(project.zipTree(configuration.getSingleFile())));
     }
   }
 

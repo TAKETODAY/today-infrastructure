@@ -35,16 +35,14 @@ import cn.taketoday.lang.Assert;
  *
  * @author Scott Frederick
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class SslContextFactory {
 
   private static final char[] NO_PASSWORD = {};
 
-  private static final String KEY_STORE_ALIAS = "spring-boot-docker";
-
-  public SslContextFactory() {
-  }
+  private static final String KEY_STORE_ALIAS = "infra-app-docker";
 
   /**
    * Create an {@link SSLContext} from files in the specified directory. The directory

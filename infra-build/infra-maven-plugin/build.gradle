@@ -1,12 +1,13 @@
 plugins {
-  id "cn.taketoday.integration-test"
   id "cn.taketoday.maven-plugin"
+  id "cn.taketoday.maven-repository"
+  id "cn.taketoday.integration-test"
 }
 
 description = "Maven plugin for Today Infrastructure Applications"
 
 configurations {
-  effectiveBom.extendsFrom(dependencyManagement)
+  effectiveBom
 }
 
 dependencies {
@@ -20,13 +21,11 @@ dependencies {
     exclude(group: "javax.inject", module: "javax.inject")
   }
 
-  implementation(project(":today-core"))
-  implementation(project(":today-context"))
-  implementation(project(":infra-build:infra-app-loader"))
-  implementation(project(":infra-build:infra-app-loader-tools"))
-
+  implementation project(":today-core")
+  implementation project(":today-context")
+  implementation project(":infra-build:infra-app-loader")
+  implementation project(":infra-build:infra-app-loader-tools")
   implementation project(":infra-build:infra-buildpack-platform")
-  implementation 'io.spring.gradle:dependency-management-plugin:1.1.0'
   implementation 'org.apache.commons:commons-compress:1.21'
 
   testImplementation(project(":today-test-support"))
@@ -40,8 +39,8 @@ dependencies {
   intTestImplementation(project(":infra-build:infra-app-loader"))
   intTestImplementation(project(":infra-build:infra-app-loader-tools"))
 
-//  mavenRepository(project(path: ":today-core", configuration: "mavenRepository"))
-//  mavenRepository(project(path: ":today-context", configuration: "mavenRepository"))
+  mavenRepository(project(path: ":today-core", configuration: "mavenRepository"))
+  mavenRepository(project(path: ":today-context", configuration: "mavenRepository"))
 //  mavenRepository(project(path: ":today-test-support", configuration: "mavenRepository"))
 //  mavenRepository(project(path: ":infra-build:infra-app-loader", configuration: "mavenRepository"))
 //  mavenRepository(project(path: ":infra-build:infra-app-loader-tools", configuration: "mavenRepository"))
@@ -65,22 +64,13 @@ dependencies {
 
   intTestImplementation project(":infra-build:infra-buildpack-platform")
 
-  versionProperties(dependencies.project(path: ":infra-platform", configuration: "effectiveBom"))
+  versionProperties(project(path: ":infra-platform", configuration: "effectiveBom"))
 
-//  afterEvaluate {
-//    configurations.forEach {
-//      println it.name
-//      it.getDependencies().configureEach {
-//        println it
-//      }
-//      println()
-//    }
-//  }
 }
 
 sourceSets {
   intTest {
-//    output.dir("${buildDir}/generated-resources", builtBy: "extractVersionProperties")
+    output.dir("${buildDir}/generated-resources", builtBy: "extractVersionProperties")
   }
 }
 

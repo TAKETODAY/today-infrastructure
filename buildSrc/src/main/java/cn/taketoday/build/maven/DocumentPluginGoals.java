@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +70,7 @@ public class DocumentPluginGoals extends DefaultTask {
   public void documentPluginGoals() throws IOException {
     Plugin plugin = this.parser.parse(this.pluginXml);
     writeOverview(plugin);
-    for (Mojo mojo : plugin.getMojos()) {
+    for (Mojo mojo : plugin.mojos) {
       documentMojo(plugin, mojo);
     }
   }
@@ -84,9 +81,9 @@ public class DocumentPluginGoals extends DefaultTask {
       writer.println("|===");
       writer.println("| Goal | Description");
       writer.println();
-      for (Mojo mojo : plugin.getMojos()) {
-        writer.printf("| <<goals-%s,%s:%s>>%n", mojo.getGoal(), plugin.getGoalPrefix(), mojo.getGoal());
-        writer.printf("| %s%n", mojo.getDescription());
+      for (Mojo mojo : plugin.mojos) {
+        writer.printf("| <<goals-%s,%s:%s>>%n", mojo.goal, plugin.goalPrefix, mojo.goal);
+        writer.printf("| %s%n", mojo.description);
         writer.println();
       }
       writer.println("|===");
@@ -94,16 +91,16 @@ public class DocumentPluginGoals extends DefaultTask {
   }
 
   private void documentMojo(Plugin plugin, Mojo mojo) throws IOException {
-    try (PrintWriter writer = new PrintWriter(new FileWriter(new File(this.outputDir, mojo.getGoal() + ".adoc")))) {
-      String sectionId = "goals-" + mojo.getGoal();
+    try (PrintWriter writer = new PrintWriter(new FileWriter(new File(this.outputDir, mojo.goal + ".adoc")))) {
+      String sectionId = "goals-" + mojo.goal;
       writer.println();
       writer.println();
       writer.printf("[[%s]]%n", sectionId);
-      writer.printf("= `%s:%s`%n", plugin.getGoalPrefix(), mojo.getGoal());
-      writer.printf("`%s:%s:%s`%n", plugin.getGroupId(), plugin.getArtifactId(), plugin.getVersion());
+      writer.printf("= `%s:%s`%n", plugin.goalPrefix, mojo.goal);
+      writer.printf("`%s:%s:%s`%n", plugin.groupId, plugin.artifactId, plugin.version);
       writer.println();
-      writer.println(mojo.getDescription());
-      List<Parameter> parameters = mojo.getParameters().stream().filter(Parameter::isEditable).toList();
+      writer.println(mojo.description);
+      List<Parameter> parameters = mojo.parameters.stream().filter(Parameter::isEditable).toList();
       List<Parameter> requiredParameters = parameters.stream().filter(Parameter::isRequired).toList();
       String parametersSectionId = sectionId + "-parameters";
       String detailsSectionId = parametersSectionId + "-details";
@@ -115,7 +112,7 @@ public class DocumentPluginGoals extends DefaultTask {
         writeParametersTable(writer, detailsSectionId, requiredParameters);
       }
       List<Parameter> optionalParameters = parameters.stream()
-              .filter((parameter) -> !parameter.isRequired())
+              .filter((parameter) -> !parameter.required)
               .toList();
       if (!optionalParameters.isEmpty()) {
         writer.println();
@@ -138,10 +135,10 @@ public class DocumentPluginGoals extends DefaultTask {
     writer.println("| Name | Type | Default");
     writer.println();
     for (Parameter parameter : parameters) {
-      String name = parameter.getName();
+      String name = parameter.name;
       writer.printf("| <<%s-%s,%s>>%n", detailsSectionId, name, name);
-      writer.printf("| `%s`%n", typeNameToJavadocLink(shortTypeName(parameter.getType()), parameter.getType()));
-      String defaultValue = parameter.getDefaultValue();
+      writer.printf("| `%s`%n", typeNameToJavadocLink(shortTypeName(parameter.type), parameter.type));
+      String defaultValue = parameter.defaultValue;
       if (defaultValue != null) {
         writer.printf("| `%s`%n", defaultValue);
       }
@@ -155,21 +152,21 @@ public class DocumentPluginGoals extends DefaultTask {
 
   private void writeParameterDetails(PrintWriter writer, List<Parameter> parameters, String sectionId) {
     for (Parameter parameter : parameters) {
-      String name = parameter.getName();
+      String name = parameter.name;
       writer.println();
       writer.println();
       writer.printf("[[%s-%s]]%n", sectionId, name);
       writer.printf("=== `%s`%n", name);
-      writer.println(parameter.getDescription());
+      writer.println(parameter.description);
       writer.println();
       writer.println("[cols=\"10h,90\"]");
       writer.println("|===");
       writer.println();
       writeDetail(writer, "Name", name);
-      writeDetail(writer, "Type", typeNameToJavadocLink(parameter.getType()));
-      writeOptionalDetail(writer, "Default value", parameter.getDefaultValue());
-      writeOptionalDetail(writer, "User property", parameter.getUserProperty());
-      writeOptionalDetail(writer, "Since", parameter.getSince());
+      writeDetail(writer, "Type", typeNameToJavadocLink(parameter.type));
+      writeOptionalDetail(writer, "Default value", parameter.defaultValue);
+      writeOptionalDetail(writer, "User property", parameter.userProperty);
+      writeOptionalDetail(writer, "Since", parameter.since);
       writer.println("|===");
     }
   }

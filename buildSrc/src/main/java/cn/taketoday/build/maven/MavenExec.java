@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,8 @@ package cn.taketoday.build.maven;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.PathSensitivity;
@@ -71,8 +70,8 @@ public class MavenExec extends JavaExec {
       try {
         args("--log-file", logFile.toFile().getAbsolutePath());
         super.exec();
-        if (this.log.isInfoEnabled()) {
-          Files.readAllLines(logFile).forEach(this.log::info);
+        if (log.isInfoEnabled()) {
+          Files.readAllLines(logFile).forEach(log::info);
         }
       }
       catch (ExecException ex) {
@@ -92,14 +91,13 @@ public class MavenExec extends JavaExec {
       return existing;
     }
     return project.getConfigurations().create("maven", (maven) -> {
-      maven.getDependencies().add(project.getDependencies().create("org.apache.maven:maven-embedder:3.6.3"));
-      maven.getDependencies().add(project.getDependencies().create("org.apache.maven:maven-compat:3.6.3"));
-      maven.getDependencies().add(project.getDependencies().create("org.slf4j:slf4j-simple:1.7.5"));
-      maven.getDependencies()
-              .add(project.getDependencies()
-                      .create("org.apache.maven.resolver:maven-resolver-connector-basic:1.4.1"));
-      maven.getDependencies()
-              .add(project.getDependencies().create("org.apache.maven.resolver:maven-resolver-transport-http:1.4.1"));
+      DependencyHandler dependencies = project.getDependencies();
+      DependencySet mvnDepends = maven.getDependencies();
+      mvnDepends.add(dependencies.create("org.apache.maven:maven-embedder:3.6.3"));
+      mvnDepends.add(dependencies.create("org.apache.maven:maven-compat:3.6.3"));
+      mvnDepends.add(dependencies.create("org.slf4j:slf4j-simple:1.7.5"));
+      mvnDepends.add(dependencies.create("org.apache.maven.resolver:maven-resolver-connector-basic:1.4.1"));
+      mvnDepends.add(dependencies.create("org.apache.maven.resolver:maven-resolver-transport-http:1.4.1"));
     });
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.build.maven;
 
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
@@ -43,7 +42,6 @@ import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
-import org.gradle.api.publish.maven.tasks.GenerateMavenPom;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.JavaExec;
@@ -62,7 +60,6 @@ import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.StandardJavadocDocletOptions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -70,7 +67,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -83,9 +79,6 @@ import java.util.function.BiConsumer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -95,7 +88,6 @@ import cn.taketoday.build.DeployedPlugin;
 import cn.taketoday.build.IntegrationTestPlugin;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.FileCopyUtils;
 import io.spring.javaformat.formatter.FileEdit;
 import io.spring.javaformat.formatter.FileFormatter;
 
@@ -116,7 +108,6 @@ public class MavenPluginPlugin implements Plugin<Project> {
     project.getPlugins().apply(DeployedPlugin.class);
     project.getPlugins().apply(MavenRepositoryPlugin.class);
     project.getPlugins().apply(IntegrationTestPlugin.class);
-    effectiveBomArtifact(project);
 
     Jar jarTask = (Jar) project.getTasks().getByName(JavaPlugin.JAR_TASK_NAME);
     configurePomPackaging(project);
@@ -306,45 +297,6 @@ public class MavenPluginPlugin implements Plugin<Project> {
                     .map(dir -> dir.file("extracted-versions.properties")));
   }
 
-  public void effectiveBomArtifact(Project project) {
-    Configuration effectiveBomConfiguration = project.getConfigurations().create("effectiveBom");
-    project.getTasks()
-            .matching((task) -> task.getName().equals(DeployedPlugin.GENERATE_POM_TASK_NAME))
-            .all((task) -> {
-              Sync syncBom = project.getTasks().create("syncBom", Sync.class);
-              syncBom.dependsOn(task);
-              File generatedBomDir = new File(project.getBuildDir(), "generated/bom");
-              syncBom.setDestinationDir(generatedBomDir);
-              syncBom.from(((GenerateMavenPom) task).getDestination(), (pom) -> pom.rename((name) -> "pom.xml"));
-              try {
-                String settingsXmlContent = FileCopyUtils
-                        .copyToString(new InputStreamReader(
-                                getClass().getClassLoader().getResourceAsStream("effective-bom-settings.xml"),
-                                StandardCharsets.UTF_8))
-                        .replace("localRepositoryPath",
-                                new File(project.getBuildDir(), "local-m2-repository").getAbsolutePath());
-                syncBom.from(project.getResources().getText().fromString(settingsXmlContent),
-                        (settingsXml) -> settingsXml.rename((name) -> "settings.xml"));
-              }
-              catch (IOException ex) {
-                throw new GradleException("Failed to prepare settings.xml", ex);
-              }
-              MavenExec generateEffectiveBom = project.getTasks()
-                      .create("generateEffectiveBom", MavenExec.class);
-              generateEffectiveBom.setProjectDir(generatedBomDir);
-              File effectiveBom = new File(project.getBuildDir(),
-                      "generated/effective-bom/" + project.getName() + "-effective-bom.xml");
-              generateEffectiveBom.args("--settings", "settings.xml", "help:effective-pom",
-                      "-Doutput=" + effectiveBom);
-              generateEffectiveBom.dependsOn(syncBom);
-              generateEffectiveBom.getOutputs().file(effectiveBom);
-              generateEffectiveBom.doLast(new StripUnrepeatableOutputAction(effectiveBom));
-              project.getArtifacts()
-                      .add(effectiveBomConfiguration.getName(), effectiveBom,
-                              (artifact) -> artifact.builtBy(generateEffectiveBom));
-            });
-  }
-
   public static class FormatHelpMojoSource extends DefaultTask {
 
     private Task generator;
@@ -473,7 +425,7 @@ public class MavenPluginPlugin implements Plugin<Project> {
 
     private final RegularFileProperty destination;
 
-    private FileCollection effectiveBoms;
+    private Configuration effectiveBoms;
 
     public ExtractVersionProperties() {
       this.destination = getProject().getObjects().fileProperty();
@@ -485,7 +437,7 @@ public class MavenPluginPlugin implements Plugin<Project> {
       return this.effectiveBoms;
     }
 
-    public void setEffectiveBoms(FileCollection effectiveBoms) {
+    public void setEffectiveBoms(Configuration effectiveBoms) {
       this.effectiveBoms = effectiveBoms;
     }
 
@@ -496,13 +448,13 @@ public class MavenPluginPlugin implements Plugin<Project> {
 
     @TaskAction
     public void extractVersionProperties() {
-      System.err.println("extractVersionProperties");
       EffectiveBom effectiveBom = new EffectiveBom(this.effectiveBoms.getSingleFile());
       Properties versions = extractVersionProperties(effectiveBom);
       writeProperties(versions);
     }
 
     private void writeProperties(Properties versions) {
+      getLogger().info("write properties: {}", versions);
       File outputFile = this.destination.getAsFile().get();
       outputFile.getParentFile().mkdirs();
       try (Writer writer = new FileWriter(outputFile)) {
@@ -516,13 +468,11 @@ public class MavenPluginPlugin implements Plugin<Project> {
     private Properties extractVersionProperties(EffectiveBom effectiveBom) {
       Properties versions = CollectionUtils.createSortedProperties(true);
       versions.setProperty("project.version", effectiveBom.version());
-      effectiveBom.property("log4j2.version", versions::setProperty);
+      versions.setProperty("today-infra.version", effectiveBom.version());
       effectiveBom.property("maven-jar-plugin.version", versions::setProperty);
       effectiveBom.property("maven-war-plugin.version", versions::setProperty);
       effectiveBom.property("build-helper-maven-plugin.version", versions::setProperty);
-      effectiveBom.property("today-infra.version", versions::setProperty);
       effectiveBom.property("jakarta-servlet.version", versions::setProperty);
-      effectiveBom.property("kotlin.version", versions::setProperty);
       effectiveBom.property("assertj.version", versions::setProperty);
       effectiveBom.property("junit-jupiter.version", versions::setProperty);
       return versions;
@@ -572,41 +522,6 @@ public class MavenPluginPlugin implements Plugin<Project> {
       }
       catch (XPathExpressionException ex) {
         throw new IllegalStateException(ex);
-      }
-    }
-
-  }
-
-  private static final class StripUnrepeatableOutputAction implements Action<Task> {
-
-    private final File effectiveBom;
-
-    private StripUnrepeatableOutputAction(File xmlFile) {
-      this.effectiveBom = xmlFile;
-    }
-
-    @Override
-    public void execute(Task task) {
-      try {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(this.effectiveBom);
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        NodeList comments = (NodeList) xpath.evaluate("//comment()", document, XPathConstants.NODESET);
-        for (int i = 0; i < comments.getLength(); i++) {
-          org.w3c.dom.Node comment = comments.item(i);
-          comment.getParentNode().removeChild(comment);
-        }
-        org.w3c.dom.Node build = (org.w3c.dom.Node) xpath.evaluate("/project/build", document,
-                XPathConstants.NODE);
-        build.getParentNode().removeChild(build);
-        org.w3c.dom.Node reporting = (org.w3c.dom.Node) xpath.evaluate("/project/reporting", document,
-                XPathConstants.NODE);
-        reporting.getParentNode().removeChild(reporting);
-        TransformerFactory.newInstance()
-                .newTransformer()
-                .transform(new DOMSource(document), new StreamResult(this.effectiveBom));
-      }
-      catch (Exception ex) {
-        throw new TaskExecutionException(task, ex);
       }
     }
 

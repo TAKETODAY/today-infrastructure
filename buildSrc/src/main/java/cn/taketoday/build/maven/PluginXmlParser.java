@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -166,15 +163,15 @@ class PluginXmlParser {
 
   static final class Plugin {
 
-    private final String groupId;
+    public final String groupId;
 
-    private final String artifactId;
+    public final String artifactId;
 
-    private final String version;
+    public final String version;
 
-    private final String goalPrefix;
+    public final String goalPrefix;
 
-    private final List<Mojo> mojos;
+    public final List<Mojo> mojos;
 
     private Plugin(String groupId, String artifactId, String version, String goalPrefix, List<Mojo> mojos) {
       this.groupId = groupId;
@@ -184,35 +181,15 @@ class PluginXmlParser {
       this.mojos = mojos;
     }
 
-    String getGroupId() {
-      return this.groupId;
-    }
-
-    String getArtifactId() {
-      return this.artifactId;
-    }
-
-    String getVersion() {
-      return this.version;
-    }
-
-    String getGoalPrefix() {
-      return this.goalPrefix;
-    }
-
-    List<Mojo> getMojos() {
-      return this.mojos;
-    }
-
   }
 
   static final class Mojo {
 
-    private final String goal;
+    public final String goal;
 
-    private final String description;
+    public final String description;
 
-    private final List<Parameter> parameters;
+    public final List<Parameter> parameters;
 
     private Mojo(String goal, String description, List<Parameter> parameters) {
       this.goal = goal;
@@ -220,37 +197,25 @@ class PluginXmlParser {
       this.parameters = parameters;
     }
 
-    String getGoal() {
-      return this.goal;
-    }
-
-    String getDescription() {
-      return this.description;
-    }
-
-    List<Parameter> getParameters() {
-      return this.parameters;
-    }
-
   }
 
   static final class Parameter {
 
-    private final String name;
+    public final String name;
 
-    private final String type;
+    public final String type;
 
-    private final boolean required;
+    public final boolean required;
 
-    private final boolean editable;
+    public final boolean editable;
 
-    private final String description;
+    public final String description;
 
-    private final String defaultValue;
+    public final String defaultValue;
 
-    private final String userProperty;
+    public final String userProperty;
 
-    private final String since;
+    public final String since;
 
     private Parameter(String name, String type, boolean required, boolean editable, String description,
             String defaultValue, String userProperty, String since) {
@@ -264,36 +229,12 @@ class PluginXmlParser {
       this.since = since;
     }
 
-    String getName() {
-      return this.name;
-    }
-
-    String getType() {
-      return this.type;
-    }
-
     boolean isRequired() {
       return this.required;
     }
 
     boolean isEditable() {
       return this.editable;
-    }
-
-    String getDescription() {
-      return this.description;
-    }
-
-    String getDefaultValue() {
-      return this.defaultValue;
-    }
-
-    String getUserProperty() {
-      return this.userProperty;
-    }
-
-    String getSince() {
-      return this.since;
     }
 
   }
