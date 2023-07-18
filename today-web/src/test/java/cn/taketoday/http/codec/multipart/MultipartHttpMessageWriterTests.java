@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,12 +33,12 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
+import cn.taketoday.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.MultipartBodyBuilder;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
-import cn.taketoday.http.codec.json.AbstractLeakCheckingTests;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpResponse;

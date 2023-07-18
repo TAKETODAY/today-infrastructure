@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +41,7 @@ import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.codec.CodecException;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.testfixture.codec.AbstractDecoderTests;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.Pojo;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView1;

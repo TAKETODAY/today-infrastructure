@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +24,8 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
+import cn.taketoday.core.testfixture.io.buffer.LeakAwareDataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.codec.json.LeakAwareDataBufferFactory;
 import cn.taketoday.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.publisher.Flux;
