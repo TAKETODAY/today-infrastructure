@@ -31,7 +31,7 @@
 		<plugins>
 			<plugin>
 				<groupId>cn.taketoday</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
+				<artifactId>infra-maven-plugin</artifactId>
 				<version>@project.version@</version>
 				<executions>
 					<execution>

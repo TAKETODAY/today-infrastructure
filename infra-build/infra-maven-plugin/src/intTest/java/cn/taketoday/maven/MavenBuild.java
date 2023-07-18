@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,9 @@ class MavenBuild {
 
   private File createTempDirectory() {
     try {
-      return Files.createTempDirectory("maven-build").toFile().getCanonicalFile();
+      File file = Files.createTempDirectory("maven-build").toFile();
+      file.deleteOnExit();
+      return file.getCanonicalFile();
     }
     catch (IOException ex) {
       throw new IllegalStateException(ex);

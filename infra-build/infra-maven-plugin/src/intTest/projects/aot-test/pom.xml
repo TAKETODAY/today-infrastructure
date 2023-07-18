@@ -46,7 +46,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cn.taketoday</groupId>
-			<artifactId>spring-boot</artifactId>
+			<artifactId>today-framework</artifactId>
 			<version>@project.version@</version>
 		</dependency>
 		<dependency>
@@ -63,7 +63,7 @@
 		</dependency>
 		<dependency>
 			<groupId>cn.taketoday</groupId>
-			<artifactId>spring-boot-test</artifactId>
+			<artifactId>today-test</artifactId>
 			<version>@project.version@</version>
 			<scope>test</scope>
 		</dependency>
