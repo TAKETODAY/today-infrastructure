@@ -1,10 +1,8 @@
 apply plugin: "signing"
 apply plugin: "maven-publish"
 
-ext {
-  repoUsername = System.getProperty("repoUsername")
-  repoPassword = System.getProperty("repoPassword")
-}
+String repoUsername = System.getProperty("repoUsername")
+String repoPassword = System.getProperty("repoPassword")
 
 publishing {
   publications {
@@ -57,12 +55,12 @@ publishing {
   repositories {
     maven {
       url = version.endsWith('SNAPSHOT')
-              ? 'https://oss.sonatype.org/content/repositories/snapshots/'
-              : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+          ? 'https://oss.sonatype.org/content/repositories/snapshots/'
+          : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 
       credentials {
-        username = project.repoUsername
-        password = project.repoPassword
+        username = repoUsername
+        password = repoPassword
       }
     }
   }
