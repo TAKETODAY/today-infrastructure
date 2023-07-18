@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,17 +17,18 @@
 
 package cn.taketoday.context.annotation.config;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.beans.factory.support.GenericBeanDefinition;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -68,11 +66,11 @@ public abstract class AutoConfigurationPackages {
   }
 
   /**
-   * Return the autoconfiguration base packages for the given bean factory.
+   * Return the auto-configuration base packages for the given bean factory.
    *
    * @param beanFactory the source bean factory
-   * @return a list of autoconfiguration packages
-   * @throws IllegalStateException if autoconfiguration is not enabled
+   * @return a list of auto-configuration packages
+   * @throws IllegalStateException if auto-configuration is not enabled
    */
   public static List<String> get(BeanFactory beanFactory) {
     try {
@@ -96,12 +94,29 @@ public abstract class AutoConfigurationPackages {
    * @param packageNames the package names to set
    */
   public static void register(BeanDefinitionRegistry registry, String... packageNames) {
-    if (registry.containsBeanDefinition(BEAN_NAME)
-            && registry.getBeanDefinition(BEAN_NAME) instanceof BasePackagesBeanDefinition definition) {
-      definition.addBasePackages(packageNames);
+    if (registry.containsBeanDefinition(BEAN_NAME)) {
+      addBasePackages(registry.getBeanDefinition(BEAN_NAME), packageNames);
     }
     else {
-      registry.registerBeanDefinition(BEAN_NAME, new BasePackagesBeanDefinition(packageNames));
+      RootBeanDefinition beanDefinition = new RootBeanDefinition(BasePackages.class);
+      beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      addBasePackages(beanDefinition, packageNames);
+      registry.registerBeanDefinition(BEAN_NAME, beanDefinition);
+    }
+  }
+
+  private static void addBasePackages(BeanDefinition beanDefinition, String[] additionalBasePackages) {
+    ConstructorArgumentValues constructorArgumentValues = beanDefinition.getConstructorArgumentValues();
+    if (constructorArgumentValues.hasIndexedArgumentValue(0)) {
+      String[] existingPackages = (String[]) constructorArgumentValues.getIndexedArgumentValue(0, String[].class)
+              .getValue();
+      constructorArgumentValues.addIndexedArgumentValue(0,
+              Stream.concat(Stream.of(existingPackages), Stream.of(additionalBasePackages))
+                      .distinct()
+                      .toArray(String[]::new));
+    }
+    else {
+      constructorArgumentValues.addIndexedArgumentValue(0, additionalBasePackages);
     }
   }
 
@@ -113,7 +128,7 @@ public abstract class AutoConfigurationPackages {
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BootstrapContext context) {
-      String[] packageNames = StringUtils.toStringArray(new PackageImports(metadata).getPackageNames());
+      String[] packageNames = StringUtils.toStringArray(new PackageImports(metadata).packageNames);
       register(context.getRegistry(), packageNames);
     }
 
@@ -129,7 +144,7 @@ public abstract class AutoConfigurationPackages {
    */
   private static final class PackageImports {
 
-    private final List<String> packageNames;
+    public final List<String> packageNames;
 
     PackageImports(AnnotationMetadata metadata) {
       var annotation = metadata.getAnnotation(AutoConfigurationPackage.class);
@@ -142,10 +157,6 @@ public abstract class AutoConfigurationPackages {
         packageNames.add(ClassUtils.getPackageName(metadata.getClassName()));
       }
       this.packageNames = packageNames;
-    }
-
-    List<String> getPackageNames() {
-      return this.packageNames;
     }
 
     @Override
@@ -177,7 +188,7 @@ public abstract class AutoConfigurationPackages {
 
     private boolean loggedBasePackageInfo;
 
-    BasePackages(LinkedHashSet<String> names) {
+    BasePackages(String... names) {
       ArrayList<String> packages = new ArrayList<>();
       for (String name : names) {
         if (StringUtils.hasText(name)) {
@@ -206,26 +217,6 @@ public abstract class AutoConfigurationPackages {
         this.loggedBasePackageInfo = true;
       }
       return packages;
-    }
-
-  }
-
-  static final class BasePackagesBeanDefinition extends GenericBeanDefinition {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final LinkedHashSet<String> basePackages = new LinkedHashSet<>();
-
-    BasePackagesBeanDefinition(String... basePackages) {
-      setBeanClass(BasePackages.class);
-      setRole(ROLE_INFRASTRUCTURE);
-      setEnableDependencyInjection(false);
-      addBasePackages(basePackages);
-      setInstanceSupplier(() -> new BasePackages(this.basePackages));
-    }
-
-    private void addBasePackages(String[] additionalBasePackages) {
-      CollectionUtils.addAll(basePackages, additionalBasePackages);
     }
 
   }
