@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +17,13 @@
 
 package cn.taketoday.beans.factory.config;
 
+import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.core.Constants;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.PlaceholderResolver;
@@ -72,7 +70,15 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
    */
   public static final int SYSTEM_PROPERTIES_MODE_OVERRIDE = 2;
 
-  private static final Constants constants = new Constants(PropertyPlaceholderConfigurer.class);
+  /**
+   * Map of constant names to constant values for the system properties mode
+   * constants defined in this class.
+   */
+  private static final Map<String, Integer> constants = Map.of(
+          "SYSTEM_PROPERTIES_MODE_NEVER", SYSTEM_PROPERTIES_MODE_NEVER,
+          "SYSTEM_PROPERTIES_MODE_FALLBACK", SYSTEM_PROPERTIES_MODE_FALLBACK,
+          "SYSTEM_PROPERTIES_MODE_OVERRIDE", SYSTEM_PROPERTIES_MODE_OVERRIDE
+  );
 
   private int systemPropertiesMode = SYSTEM_PROPERTIES_MODE_FALLBACK;
 
@@ -86,7 +92,10 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
    * @see #setSystemPropertiesMode
    */
   public void setSystemPropertiesModeName(String constantName) throws IllegalArgumentException {
-    this.systemPropertiesMode = constants.asNumber(constantName).intValue();
+    Assert.hasText(constantName, "'constantName' must not be null or blank");
+    Integer mode = constants.get(constantName);
+    Assert.notNull(mode, "Only system properties mode constants allowed");
+    this.systemPropertiesMode = mode;
   }
 
   /**
