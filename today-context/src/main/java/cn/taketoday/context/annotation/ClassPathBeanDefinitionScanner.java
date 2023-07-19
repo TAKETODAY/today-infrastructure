@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,8 +142,8 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * definition profile metadata
    * @see #setResourceLoader
    */
-  public ClassPathBeanDefinitionScanner(
-          BeanDefinitionRegistry registry, boolean useDefaultFilters, Environment environment) {
+  public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry,
+          boolean useDefaultFilters, Environment environment) {
     this(registry, useDefaultFilters, environment,
             registry instanceof ResourceLoader ? (ResourceLoader) registry : null);
   }
@@ -166,8 +163,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * definition profile metadata
    * @param resourceLoader the {@link ResourceLoader} to use
    */
-  public ClassPathBeanDefinitionScanner(
-          BeanDefinitionRegistry registry, boolean useDefaultFilters,
+  public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, boolean useDefaultFilters,
           Environment environment, @Nullable ResourceLoader resourceLoader) {
 
     Assert.notNull(registry, "BeanDefinitionRegistry must not be null");

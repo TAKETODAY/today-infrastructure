@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,15 +55,14 @@ class ComponentScanAnnotationParser {
   public Set<BeanDefinitionHolder> parse(MergedAnnotation<ComponentScan> componentScan, String declaringClass) {
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(
             context.getRegistry(), componentScan.getBoolean("useDefaultFilters"),
-            context.getEnvironment()
+            context.getEnvironment(), context.getResourceLoader()
     );
 
     Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 
-    boolean useInheritedPopulator = BeanNameGenerator.class == generatorClass;
-    scanner.setBeanNameGenerator(
-            useInheritedPopulator ? context.getBeanNameGenerator()
-                                  : BeanUtils.newInstance(generatorClass));
+    scanner.setBeanNameGenerator(BeanNameGenerator.class == generatorClass
+                                 ? context.getBeanNameGenerator()
+                                 : BeanUtils.newInstance(generatorClass));
 
     ScopedProxyMode scopedProxyMode = componentScan.getEnum("scopedProxy", ScopedProxyMode.class);
     if (scopedProxyMode != ScopedProxyMode.DEFAULT) {
@@ -120,6 +116,7 @@ class ComponentScanAnnotationParser {
       }
     });
 
+    scanner.setMetadataReaderFactory(context.getMetadataReaderFactory());
     return scanner.collectHolders(StringUtils.toStringArray(basePackages));
   }
 

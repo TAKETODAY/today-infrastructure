@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,10 +108,12 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * Return the ResourceLoader that this component provider uses.
    */
   public final PatternResourceLoader getResourceLoader() {
-    if (this.resourcePatternResolver == null) {
-      this.resourcePatternResolver = new PathMatchingPatternResourceLoader();
+    PatternResourceLoader resourceLoader = this.resourcePatternResolver;
+    if (resourceLoader == null) {
+      resourceLoader = new PathMatchingPatternResourceLoader();
+      this.resourcePatternResolver = resourceLoader;
     }
-    return this.resourcePatternResolver;
+    return resourceLoader;
   }
 
   /**
@@ -132,10 +131,12 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * Return the MetadataReaderFactory used by this component provider.
    */
   public final MetadataReaderFactory getMetadataReaderFactory() {
-    if (this.metadataReaderFactory == null) {
-      this.metadataReaderFactory = new CachingMetadataReaderFactory();
+    MetadataReaderFactory metadataReaderFactory = this.metadataReaderFactory;
+    if (metadataReaderFactory == null) {
+      metadataReaderFactory = new CachingMetadataReaderFactory(getResourceLoader());
+      this.metadataReaderFactory = metadataReaderFactory;
     }
-    return this.metadataReaderFactory;
+    return metadataReaderFactory;
   }
 
   /**
@@ -189,10 +190,10 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * Clear the local metadata cache, if any, removing all cached class metadata.
    */
   public void clearCache() {
-    if (this.metadataReaderFactory instanceof CachingMetadataReaderFactory) {
+    if (metadataReaderFactory instanceof CachingMetadataReaderFactory caching) {
       // Clear cache in externally provided MetadataReaderFactory; this is a no-op
       // for a shared cache since it'll be cleared by the ApplicationContext.
-      ((CachingMetadataReaderFactory) this.metadataReaderFactory).clearCache();
+      caching.clearCache();
     }
   }
 
