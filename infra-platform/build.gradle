@@ -100,8 +100,7 @@ bom {
           "cache2k-config",
           "cache2k-core",
           "cache2k-jcache",
-          "cache2k-micrometer",
-          "cache2k-spring"
+          "cache2k-micrometer"
       ]
     }
   }
