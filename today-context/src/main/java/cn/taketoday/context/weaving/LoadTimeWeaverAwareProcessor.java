@@ -25,7 +25,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 

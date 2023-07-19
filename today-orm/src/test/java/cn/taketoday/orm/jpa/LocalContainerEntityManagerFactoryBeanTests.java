@@ -29,7 +29,7 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.OptimisticLockingFailureException;
-import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
+import cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver;
 import cn.taketoday.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.interceptor.DefaultTransactionAttribute;

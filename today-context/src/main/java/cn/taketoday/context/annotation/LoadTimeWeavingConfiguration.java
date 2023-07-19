@@ -25,7 +25,7 @@ import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 import cn.taketoday.context.weaving.AspectJWeavingEnabler;
 import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
 import cn.taketoday.core.annotation.MergedAnnotation;

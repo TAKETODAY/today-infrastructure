@@ -372,7 +372,7 @@
 			]]></xsd:documentation>
       <xsd:appinfo>
         <tool:annotation>
-          <tool:exports type="cn.taketoday.instrument.LoadTimeWeaver" />
+          <tool:exports type="cn.taketoday.instrument.classloading.LoadTimeWeaver" />
         </tool:annotation>
       </xsd:appinfo>
     </xsd:annotation>
@@ -385,7 +385,7 @@
           <xsd:appinfo>
             <tool:annotation>
               <tool:expected-type type="java.lang.Class" />
-              <tool:assignable-to type="cn.taketoday.instrument.LoadTimeWeaver" />
+              <tool:assignable-to type="cn.taketoday.instrument.classloading.LoadTimeWeaver" />
             </tool:annotation>
           </xsd:appinfo>
         </xsd:annotation>

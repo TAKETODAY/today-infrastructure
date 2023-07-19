@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 import cn.taketoday.context.weaving.DefaultContextLoadTimeWeaver;
 
 /**

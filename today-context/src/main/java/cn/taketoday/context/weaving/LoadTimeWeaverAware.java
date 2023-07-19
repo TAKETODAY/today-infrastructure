@@ -22,7 +22,7 @@ package cn.taketoday.context.weaving;
 
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.context.ApplicationContextAware;
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 
 /**
  * Interface to be implemented by any object that wishes to be notified

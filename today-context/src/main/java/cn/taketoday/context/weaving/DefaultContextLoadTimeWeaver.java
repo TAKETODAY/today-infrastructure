@@ -24,11 +24,11 @@ import java.lang.instrument.ClassFileTransformer;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
+import cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver;
 import cn.taketoday.instrument.InstrumentationSavingAgent;
-import cn.taketoday.instrument.LoadTimeWeaver;
-import cn.taketoday.instrument.ReflectiveLoadTimeWeaver;
-import cn.taketoday.instrument.TomcatLoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.ReflectiveLoadTimeWeaver;
+import cn.taketoday.instrument.classloading.TomcatLoadTimeWeaver;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;

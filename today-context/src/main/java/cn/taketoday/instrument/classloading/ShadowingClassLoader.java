@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +15,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.instrument;
+package cn.taketoday.instrument.classloading;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +41,7 @@ import cn.taketoday.util.StringUtils;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Costin Leau
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #addTransformer
  * @see cn.taketoday.core.OverridingClassLoader
  * @since 4.0

@@ -29,8 +29,8 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.instrument.InstrumentationLoadTimeWeaver;
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
 

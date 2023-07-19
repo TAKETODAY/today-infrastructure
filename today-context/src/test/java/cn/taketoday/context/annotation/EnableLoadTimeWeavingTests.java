@@ -26,7 +26,7 @@ import java.lang.instrument.ClassFileTransformer;
 
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
 import cn.taketoday.context.support.StandardApplicationContext;
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;

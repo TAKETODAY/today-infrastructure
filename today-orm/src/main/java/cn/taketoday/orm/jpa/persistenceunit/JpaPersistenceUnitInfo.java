@@ -21,8 +21,8 @@
 package cn.taketoday.orm.jpa.persistenceunit;
 
 import cn.taketoday.core.DecoratingClassLoader;
-import cn.taketoday.instrument.LoadTimeWeaver;
-import cn.taketoday.instrument.SimpleThrowawayClassLoader;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.SimpleThrowawayClassLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;

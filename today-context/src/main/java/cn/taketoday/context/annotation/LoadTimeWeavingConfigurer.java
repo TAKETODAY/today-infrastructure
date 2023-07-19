@@ -20,7 +20,7 @@
 
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.instrument.LoadTimeWeaver;
+import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 
 /**

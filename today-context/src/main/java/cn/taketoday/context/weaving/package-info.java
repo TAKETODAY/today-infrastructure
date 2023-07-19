@@ -20,7 +20,7 @@
 
 /**
  * Load-time weaving support for a Framework application context, building on Framework's
- * {@link cn.taketoday.instrument.LoadTimeWeaver} abstraction.
+ * {@link cn.taketoday.instrument.classloading.LoadTimeWeaver} abstraction.
  */
 @NonNullApi
 @NonNullFields
