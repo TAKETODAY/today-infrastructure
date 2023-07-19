@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
 
   @Override
   protected ClassLoader createClassLoader(Iterator<Archive> archives) throws Exception {
-    List<URL> urls = new ArrayList<>(guessClassPathSize());
+    ArrayList<URL> urls = new ArrayList<>(guessClassPathSize());
     while (archives.hasNext()) {
       urls.add(archives.next().getUrl());
     }
@@ -150,7 +150,6 @@ public abstract class ExecutableArchiveLauncher extends Launcher {
    *
    * @param entry the entry to check
    * @return {@code true} if the entry is a candidate for further searching
-   * @since 4.0
    */
   protected boolean isSearchCandidate(Archive.Entry entry) {
     if (getArchiveEntryPathPrefix() == null) {

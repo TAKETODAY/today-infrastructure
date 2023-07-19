@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import cn.taketoday.app.loader.archive.Archive;
 import cn.taketoday.app.loader.archive.ExplodedArchive;
@@ -69,7 +68,7 @@ public abstract class Launcher {
    * @throws Exception if the classloader cannot be created
    */
   protected ClassLoader createClassLoader(Iterator<Archive> archives) throws Exception {
-    List<URL> urls = new ArrayList<>(50);
+    ArrayList<URL> urls = new ArrayList<>(50);
     while (archives.hasNext()) {
       urls.add(archives.next().getUrl());
     }

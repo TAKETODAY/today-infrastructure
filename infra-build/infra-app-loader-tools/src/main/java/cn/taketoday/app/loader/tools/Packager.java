@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,7 +261,7 @@ public abstract class Packager {
   }
 
   private void writeLayerIndex(AbstractJarWriter writer, Layers layers) throws IOException {
-    String name = this.layout.getLayersIndexFileLocation();
+    String name = getLayout().getLayersIndexFileLocation();
     if (StringUtils.isNotEmpty(name)) {
       Layer layer = layers.getLayer(name);
       this.layersIndex.add(layer, name);
@@ -299,7 +299,7 @@ public abstract class Packager {
   private Manifest buildManifest(JarFile source) throws IOException {
     Manifest manifest = createInitialManifest(source);
     addMainAndStartAttributes(source, manifest);
-    addBootAttributes(manifest.getMainAttributes());
+    addInfraAttributes(manifest.getMainAttributes());
     return manifest;
   }
 
@@ -393,12 +393,12 @@ public abstract class Packager {
     return factories.get(0);
   }
 
-  private void addBootAttributes(Attributes attributes) {
+  private void addInfraAttributes(Attributes attributes) {
     attributes.putValue(INFRA_VERSION_ATTRIBUTE, getClass().getPackage().getImplementationVersion());
-    addBootAttributesForLayout(attributes);
+    addAttributesForLayout(attributes);
   }
 
-  private void addBootAttributesForLayout(Attributes attributes) {
+  private void addAttributesForLayout(Attributes attributes) {
     Layout layout = getLayout();
     if (layout instanceof RepackagingLayout repackagingLayout) {
       attributes.putValue(INFRA_CLASSES_ATTRIBUTE, repackagingLayout.getRepackagedClassesLocation());
@@ -406,14 +406,14 @@ public abstract class Packager {
     else {
       attributes.putValue(INFRA_CLASSES_ATTRIBUTE, layout.getClassesLocation());
     }
-    putIfHasLength(attributes, INFRA_LIB_ATTRIBUTE, getLayout().getLibraryLocation("", LibraryScope.COMPILE));
+    putIfHasLength(attributes, INFRA_LIB_ATTRIBUTE, layout.getLibraryLocation("", LibraryScope.COMPILE));
     putIfHasLength(attributes, INFRA_CLASSPATH_INDEX_ATTRIBUTE, layout.getClasspathIndexFileLocation());
     if (isLayered()) {
       putIfHasLength(attributes, INFRA_LAYERS_INDEX_ATTRIBUTE, layout.getLayersIndexFileLocation());
     }
   }
 
-  private void putIfHasLength(Attributes attributes, String name, String value) {
+  private void putIfHasLength(Attributes attributes, String name, @Nullable String value) {
     if (StringUtils.isNotEmpty(value)) {
       attributes.putValue(name, value);
     }
@@ -512,7 +512,7 @@ public abstract class Packager {
     private final Function<JarEntry, Library> libraryLookup;
 
     PackagedLibraries(Libraries libraries, boolean ensureReproducibleBuild) throws IOException {
-      this.libraries = (ensureReproducibleBuild) ? new TreeMap<>() : new LinkedHashMap<>();
+      this.libraries = ensureReproducibleBuild ? new TreeMap<>() : new LinkedHashMap<>();
       libraries.doWithLibraries(library -> {
         if (isZip(library::openStream)) {
           addLibrary(library);

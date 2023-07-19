@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ public final class JarModeLauncher {
 
   public static void main(String[] args) {
     String mode = System.getProperty("jarmode");
-//    List<JarMode> candidates = TodayStrategies.find(JarMode.class, ClassUtils.getDefaultClassLoader());
     List<JarMode> candidates = TodayStrategies.find(JarMode.class);
     for (JarMode candidate : candidates) {
       if (candidate.accepts(mode)) {

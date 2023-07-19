@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -353,7 +352,7 @@ public class PropertiesLauncher extends Launcher {
     if (customLoaderClassName == null) {
       return super.createClassLoader(archives);
     }
-    Set<URL> urls = new LinkedHashSet<>();
+    LinkedHashSet<URL> urls = new LinkedHashSet<>();
     while (archives.hasNext()) {
       urls.add(archives.next().getUrl());
     }
