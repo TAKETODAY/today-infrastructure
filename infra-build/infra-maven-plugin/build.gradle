@@ -11,11 +11,8 @@ configurations {
 }
 
 dependencies {
-  optional 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
-  optional 'org.apache.maven.shared:file-management:1.2.1'
-  optional 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
+
   optional "org.apache.maven:maven-plugin-api:3.0"
-  optional 'org.sonatype.plexus:plexus-build-api:0.0.7'
   optional("org.apache.maven.plugins:maven-shade-plugin:3.5.0") {
     exclude(group: "javax.enterprise", module: "cdi-api")
     exclude(group: "javax.inject", module: "javax.inject")
@@ -27,6 +24,10 @@ dependencies {
   implementation project(":infra-build:infra-app-loader-tools")
   implementation project(":infra-build:infra-buildpack-platform")
   implementation 'org.apache.commons:commons-compress:1.21'
+  implementation 'org.sonatype.plexus:plexus-build-api:0.0.7'
+  implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
+  implementation 'org.apache.maven.shared:file-management:1.2.1'
+  implementation 'org.apache.maven.shared:maven-common-artifact-filters:3.2.0'
 
   testImplementation(project(":today-test-support"))
   testImplementation("org.testcontainers:testcontainers")
