@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +23,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
-import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.web.context.async.CallableProcessingInterceptor;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
@@ -53,15 +48,15 @@ public class AsyncSupportConfigurer {
   private final List<DeferredResultProcessingInterceptor> deferredResultInterceptors = new ArrayList<>();
 
   /**
-   * The provided task executor is used to:
+   * The provided task executor is used for the following:
    * <ol>
    * <li>Handle {@link Callable} controller method return values.
    * <li>Perform blocking writes when streaming to the response
    * through a reactive (e.g. Reactor, RxJava) controller method return value.
    * </ol>
-   * <p>By default only a {@link SimpleAsyncTaskExecutor} is used. However when
-   * using the above two use cases, it's recommended to configure an executor
-   * backed by a thread pool such as {@link ThreadPoolTaskExecutor}.
+   * <p>If your application has controllers with such return types, please
+   * configure an {@link AsyncTaskExecutor} as the one used by default is not
+   * suitable for production under load.
    *
    * @param taskExecutor the task executor instance to use by default
    */
