@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +27,6 @@ import java.util.concurrent.RejectedExecutionException;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
-import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -83,8 +79,6 @@ public final class WebAsyncManager {
 
   private static final TimeoutAsyncProcessingInterceptor timeoutInterceptor =
           new TimeoutAsyncProcessingInterceptor();
-
-  private static Boolean taskExecutorWarning = true;
 
   private AsyncWebRequest asyncRequest;
 
@@ -292,9 +286,6 @@ public final class WebAsyncManager {
     if (executor != null) {
       this.taskExecutor = executor;
     }
-    else {
-      logExecutorWarning();
-    }
 
     var interceptors = new ArrayList<CallableProcessingInterceptor>();
     interceptors.add(webAsyncTask.getInterceptor());
@@ -354,27 +345,6 @@ public final class WebAsyncManager {
       Object result = interceptorChain.applyPostProcess(requestContext, callable, ex);
       setConcurrentResultAndDispatch(result);
       throw ex;
-    }
-  }
-
-  private void logExecutorWarning() {
-    if (taskExecutorWarning && logger.isWarnEnabled()) {
-      synchronized(DEFAULT_TASK_EXECUTOR) {
-        AsyncTaskExecutor executor = this.taskExecutor;
-        if (taskExecutorWarning &&
-                (executor instanceof SimpleAsyncTaskExecutor || executor instanceof SyncTaskExecutor)) {
-          String executorTypeName = executor.getClass().getSimpleName();
-          logger.warn("""
-                  !!!
-                  An Executor is required to handle java.util.concurrent.Callable return values.
-                  Please, configure a TaskExecutor in the MVC config under "async support".
-                  The {} currently in use is not suitable under load.
-                  -------------------------------
-                  Request URI: '{}'
-                  !!!""", executorTypeName, formatRequestUri());
-          taskExecutorWarning = false;
-        }
-      }
     }
   }
 

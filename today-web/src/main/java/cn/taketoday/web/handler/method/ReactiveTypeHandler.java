@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +35,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.MediaType;
@@ -77,7 +73,6 @@ final class ReactiveTypeHandler {
   private static final long STREAMING_TIMEOUT_VALUE = -1;
   private static final MediaType WILDCARD_SUBTYPE_SUFFIXED_BY_NDJSON = MediaType.valueOf("application/*+x-ndjson");
 
-  private boolean taskExecutorWarning;
   private final TaskExecutor taskExecutor;
   private final ReactiveAdapterRegistry adapterRegistry;
   private final ContentNegotiationManager contentNegotiationManager;
@@ -98,8 +93,6 @@ final class ReactiveTypeHandler {
     this.adapterRegistry = registry;
     this.taskExecutor = executor;
     this.contentNegotiationManager = manager;
-    this.taskExecutorWarning =
-            executor instanceof SimpleAsyncTaskExecutor || executor instanceof SyncTaskExecutor;
   }
 
   /**
@@ -133,13 +126,11 @@ final class ReactiveTypeHandler {
       Collection<MediaType> mediaTypes = getMediaTypes(request);
       if (mediaTypes.stream().anyMatch(MediaType.TEXT_EVENT_STREAM::includes)
               || ServerSentEvent.class.isAssignableFrom(elementClass)) {
-        logExecutorWarning(returnType);
         var emitter = new SseEmitter(STREAMING_TIMEOUT_VALUE);
         new SseEmitterSubscriber(emitter, taskExecutor).connect(adapter, returnValue);
         return emitter;
       }
       if (CharSequence.class.isAssignableFrom(elementClass)) {
-        logExecutorWarning(returnType);
         Optional<MediaType> mediaType = mediaTypes.stream()
                 .filter(MimeType::isConcrete)
                 .findFirst();
@@ -149,7 +140,6 @@ final class ReactiveTypeHandler {
       }
       MediaType streamingResponseType = findConcreteStreamingMediaType(mediaTypes);
       if (streamingResponseType != null) {
-        logExecutorWarning(returnType);
         ResponseBodyEmitter emitter = getEmitter(streamingResponseType);
         new JsonEmitterSubscriber(emitter, this.taskExecutor).connect(adapter, returnValue);
         return emitter;
@@ -226,31 +216,6 @@ final class ReactiveTypeHandler {
         outputMessage.setContentType(mediaType.toString());
       }
     };
-  }
-
-  @SuppressWarnings("ConstantConditions")
-  private void logExecutorWarning(MethodParameter returnType) {
-    if (taskExecutorWarning && log.isWarnEnabled()) {
-      synchronized(this) {
-        if (taskExecutorWarning) {
-          log.warn("""
-                          !!!
-                          Streaming through a reactive type requires an Executor to write to the response.
-                          Please, configure a TaskExecutor in the MVC config under "async support".
-                          The {} currently in use is not suitable under load.
-                          -------------------------------
-                          Controller:\t{}
-                          Method:\t\t{}
-                          Returning:\t{}
-                          !!!""",
-                  taskExecutor.getClass().getSimpleName(),
-                  returnType.getContainingClass().getName(),
-                  returnType.getMethod().getName(),
-                  ResolvableType.forMethodParameter(returnType));
-          this.taskExecutorWarning = false;
-        }
-      }
-    }
   }
 
   private abstract static class AbstractEmitterSubscriber implements Subscriber<Object>, Runnable {

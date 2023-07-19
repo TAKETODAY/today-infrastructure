@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +24,9 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -37,8 +35,8 @@ import cn.taketoday.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/3 22:26
  */
-@Experimental
 public class WebAsyncManagerFactory {
+  private static final Logger log = LoggerFactory.getLogger(WebAsyncManagerFactory.class);
 
   private CallableProcessingInterceptor[] callableInterceptors = new CallableProcessingInterceptor[0];
 
@@ -47,7 +45,7 @@ public class WebAsyncManagerFactory {
   @Nullable
   private Long asyncRequestTimeout;
 
-  private AsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor("MvcAsync");
+  private AsyncTaskExecutor taskExecutor = new MvcSimpleAsyncTaskExecutor();
 
   // Async
 
@@ -114,6 +112,38 @@ public class WebAsyncManagerFactory {
       return factory;
     }
     return new WebAsyncManagerFactory();
+  }
+
+  /**
+   * A default MVC AsyncTaskExecutor that warns if used.
+   */
+  @SuppressWarnings("serial")
+  private static class MvcSimpleAsyncTaskExecutor extends SimpleAsyncTaskExecutor {
+
+    private static boolean taskExecutorWarning = true;
+
+    public MvcSimpleAsyncTaskExecutor() {
+      super("MvcAsync");
+    }
+
+    @Override
+    public void execute(Runnable task) {
+      if (taskExecutorWarning && log.isWarnEnabled()) {
+        synchronized(this) {
+          if (taskExecutorWarning) {
+            log.warn("""
+                    !!!
+                    Performing asynchronous handling through the default Web MVC SimpleAsyncTaskExecutor.
+                    This executor is not suitable for production use under load.
+                    Please, configure an AsyncTaskExecutor through the WebMvc config.
+                    -------------------------------
+                    !!!""");
+            taskExecutorWarning = false;
+          }
+        }
+      }
+      super.execute(task);
+    }
   }
 
 }
