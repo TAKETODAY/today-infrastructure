@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,9 @@ package cn.taketoday.beans.factory.xml;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -33,10 +32,12 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * @author Rick Evans
@@ -45,95 +46,85 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class XmlBeanDefinitionReaderTests {
 
+  private final SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+
+  private final XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
+
   @Test
-  public void setParserClassSunnyDay() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
-    new XmlBeanDefinitionReader(registry).setDocumentReaderClass(DefaultBeanDefinitionDocumentReader.class);
+  void setReaderClass() {
+    assertThatNoException().isThrownBy(() -> reader.setDocumentReaderClass(DefaultBeanDefinitionDocumentReader.class));
   }
 
   @Test
-  public void withOpenInputStream() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withInputStreamResourceWithoutExplicitValidationMode() {
     Resource resource = new InputStreamResource(getClass().getResourceAsStream("test.xml"));
-    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
-            new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource));
+    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() -> reader.loadBeanDefinitions(resource));
   }
 
   @Test
-  public void withOpenInputStreamAndExplicitValidationMode() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withInputStreamResourceAndExplicitValidationMode() {
     Resource resource = new InputStreamResource(getClass().getResourceAsStream("test.xml"));
-    XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
     reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD);
     reader.loadBeanDefinitions(resource);
-    testBeanDefinitions(registry);
+    assertBeanDefinitions(registry);
   }
 
   @Test
-  public void withImport() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withImport() {
     Resource resource = new ClassPathResource("import.xml", getClass());
-    new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
-    testBeanDefinitions(registry);
+    reader.loadBeanDefinitions(resource);
+    assertBeanDefinitions(registry);
   }
 
   @Test
-  public void withWildcardImport() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withWildcardImport() {
     Resource resource = new ClassPathResource("importPattern.xml", getClass());
-    new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
-    testBeanDefinitions(registry);
+    reader.loadBeanDefinitions(resource);
+    assertBeanDefinitions(registry);
   }
 
   @Test
-  public void withInputSource() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withInputSourceWithoutExplicitValidationMode() {
     InputSource resource = new InputSource(getClass().getResourceAsStream("test.xml"));
-    assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(() ->
-            new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource));
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> reader.loadBeanDefinitions(resource))
+            .withMessageStartingWith("Unable to determine validation mode for [resource loaded through SAX InputSource]:");
   }
 
   @Test
-  public void withInputSourceAndExplicitValidationMode() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withInputSourceAndExplicitValidationMode() {
     InputSource resource = new InputSource(getClass().getResourceAsStream("test.xml"));
-    XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
     reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD);
     reader.loadBeanDefinitions(resource);
-    testBeanDefinitions(registry);
+    assertBeanDefinitions(registry);
   }
 
   @Test
-  public void withFreshInputStream() {
-    SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+  void withClassPathResource() {
     Resource resource = new ClassPathResource("test.xml", getClass());
-    new XmlBeanDefinitionReader(registry).loadBeanDefinitions(resource);
-    testBeanDefinitions(registry);
+    reader.loadBeanDefinitions(resource);
+    assertBeanDefinitions(registry);
   }
 
-  private void testBeanDefinitions(BeanDefinitionRegistry registry) {
+  private void assertBeanDefinitions(BeanDefinitionRegistry registry) {
     assertThat(registry.getBeanDefinitionCount()).isEqualTo(24);
-    assertThat(registry.getBeanDefinitionNames().length).isEqualTo(24);
-    assertThat(Arrays.asList(registry.getBeanDefinitionNames()).contains("rod")).isTrue();
-    assertThat(Arrays.asList(registry.getBeanDefinitionNames()).contains("aliased")).isTrue();
+    assertThat(registry.getBeanDefinitionNames()).hasSize(24);
+    assertThat(registry.getBeanDefinitionNames()).contains("rod", "aliased");
     assertThat(registry.containsBeanDefinition("rod")).isTrue();
     assertThat(registry.containsBeanDefinition("aliased")).isTrue();
     assertThat(registry.getBeanDefinition("rod").getBeanClassName()).isEqualTo(TestBean.class.getName());
     assertThat(registry.getBeanDefinition("aliased").getBeanClassName()).isEqualTo(TestBean.class.getName());
     assertThat(registry.isAlias("youralias")).isTrue();
-    String[] aliases = registry.getAliases("aliased");
-    assertThat(aliases.length).isEqualTo(2);
-    assertThat(ObjectUtils.containsElement(aliases, "myalias")).isTrue();
-    assertThat(ObjectUtils.containsElement(aliases, "youralias")).isTrue();
+    assertThat(registry.getAliases("aliased")).containsExactly("myalias", "youralias");
   }
 
   @Test
-  public void dtdValidationAutodetect() {
+  void dtdValidationAutodetect() {
     doTestValidation("validateWithDtd.xml");
   }
 
   @Test
-  public void xsdValidationAutodetect() {
+  void xsdValidationAutodetect() {
     doTestValidation("validateWithXsd.xml");
   }
 
@@ -141,8 +132,31 @@ public class XmlBeanDefinitionReaderTests {
     StandardBeanFactory factory = new StandardBeanFactory();
     Resource resource = new ClassPathResource(resourceName, getClass());
     new XmlBeanDefinitionReader(factory).loadBeanDefinitions(resource);
-    TestBean bean = (TestBean) factory.getBean("testBean");
-    assertThat(bean).isNotNull();
+    assertThat((TestBean) factory.getBean("testBean")).isNotNull();
+  }
+
+  @Test
+  void setValidationModeNameToUnsupportedValues() {
+    assertThatIllegalArgumentException().isThrownBy(() -> reader.setValidationModeName(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> reader.setValidationModeName("   "));
+    assertThatIllegalArgumentException().isThrownBy(() -> reader.setValidationModeName("bogus"));
+  }
+
+  /**
+   * This test effectively verifies that the internal 'constants' map is properly
+   * configured for all VALIDATION_ constants defined in {@link XmlBeanDefinitionReader}.
+   */
+  @Test
+  void setValidationModeNameToAllSupportedValues() {
+    streamValidationModeConstants()
+            .map(Field::getName)
+            .forEach(name -> assertThatNoException().as(name).isThrownBy(() -> reader.setValidationModeName(name)));
+  }
+
+  private static Stream<Field> streamValidationModeConstants() {
+    return Arrays.stream(XmlBeanDefinitionReader.class.getFields())
+            .filter(ReflectionUtils::isPublicStaticFinal)
+            .filter(field -> field.getName().startsWith("VALIDATION_"));
   }
 
 }

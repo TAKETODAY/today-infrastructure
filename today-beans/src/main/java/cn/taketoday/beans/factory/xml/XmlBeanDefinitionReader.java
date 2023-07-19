@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import org.xml.sax.SAXParseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,7 +42,6 @@ import cn.taketoday.beans.factory.parsing.ReaderEventListener;
 import cn.taketoday.beans.factory.parsing.SourceExtractor;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinitionReader;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
-import cn.taketoday.core.Constants;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.io.EncodedResource;
@@ -103,8 +100,16 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    */
   public static final int VALIDATION_XSD = XmlValidationModeDetector.VALIDATION_XSD;
 
-  /** Constants instance for this class. */
-  private static final Constants constants = new Constants(XmlBeanDefinitionReader.class);
+  /**
+   * Map of constant names to constant values for the validation constants defined
+   * in this class.
+   */
+  private static final Map<String, Integer> constants = Map.of(
+          "VALIDATION_NONE", VALIDATION_NONE,
+          "VALIDATION_AUTO", VALIDATION_AUTO,
+          "VALIDATION_DTD", VALIDATION_DTD,
+          "VALIDATION_XSD", VALIDATION_XSD
+  );
 
   private int validationMode = VALIDATION_AUTO;
 
@@ -164,7 +169,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    * @see #setValidationMode
    */
   public void setValidationModeName(String validationModeName) {
-    setValidationMode(constants.asNumber(validationModeName).intValue());
+    Assert.hasText(validationModeName, "'validationModeName' must not be null or blank");
+    Integer mode = constants.get(validationModeName);
+    Assert.notNull(mode, "Only validation mode constants allowed");
+    setValidationMode(mode);
   }
 
   /**
