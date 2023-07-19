@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -268,7 +268,7 @@ public abstract class BuildImageMojo extends AbstractPackagerMojo {
   }
 
   private TarArchive getApplicationContent(Owner owner, Libraries libraries, ImagePackager imagePackager) {
-    ImagePackager packager = getConfiguredPackager(() -> imagePackager);
+    ImagePackager packager = configurePackager(imagePackager);
     return new PackagedTarArchive(owner, libraries, packager);
   }
 

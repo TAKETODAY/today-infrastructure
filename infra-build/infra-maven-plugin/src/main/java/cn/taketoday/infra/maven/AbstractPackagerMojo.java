@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -125,11 +124,10 @@ public abstract class AbstractPackagerMojo extends AbstractDependencyFilterMojo 
    * Return a {@link Packager} configured for this MOJO.
    *
    * @param <P> the packager type
-   * @param supplier a packager supplier
+   * @param packager a packager
    * @return a configured packager
    */
-  protected <P extends Packager> P getConfiguredPackager(Supplier<P> supplier) {
-    P packager = supplier.get();
+  protected <P extends Packager> P configurePackager(P packager) {
     packager.setLayoutFactory(getLayoutFactory());
     packager.addMainClassTimeoutWarningListener(new LoggingMainClassTimeoutWarningListener(this::getLog));
     packager.setMainClass(this.mainClass);

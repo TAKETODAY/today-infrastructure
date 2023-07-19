@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -232,7 +232,13 @@ public class RepackageMojo extends AbstractPackagerMojo {
   }
 
   private Repackager getRepackager(File source) {
-    return getConfiguredPackager(() -> new Repackager(source));
+    if (source == null) {
+      getLog().error("'package' should run before 'repackage'");
+      throw new IllegalStateException("'mvn package' should run before 'repackage'");
+    }
+    else {
+      return configurePackager(new Repackager(source));
+    }
   }
 
   private LaunchScript getLaunchScript() throws IOException {
