@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
@@ -28,7 +26,6 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.nio.file.InvalidPathException;
 
-import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,20 +69,6 @@ public class ResourceUtilsTest {
     resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/ignore/jar-prefix");
     assertThat(resource.exists()).isFalse();
 
-//    resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/today.strategies");
-//    assertThat(resource.exists()).isTrue();
-//    assertThat(StreamUtils.copyToString(resource.getInputStream())).isNotEmpty();
-
-    resource = ResourceUtils.getResource("jar:file://" + userDir + "/src/test/resources/test.jar!/META-INF/");
-//        System.err.println(resource);
-
-    if (resource instanceof JarEntryResource) {
-      JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative("/maven/cn.taketoday/today-expression/pom.properties");
-      if (jarEntryResource.exists()) {
-        System.out.println(StreamUtils.copyToString(jarEntryResource.getInputStream()));
-      }
-      System.err.println(jarEntryResource);
-    }
     // location is empty
     final Resource classpath = ResourceUtils.getResource("");
     assert classpath.createRelative("info.properties").exists();
@@ -99,16 +82,6 @@ public class ResourceUtilsTest {
       System.err.println(e);
     }
     ResourceUtils.getResource("info.properties");
-
-//        final Resource resource2 = ResourceUtils.getResource("info"); // ConfigurationException
-
-    // getResource(URL)
-
-//        final Resource taketoday = ResourceUtils.getResource(new URL("https://taketoday.cn"));
-//
-//        assert taketoday.exists();
-//        assert StreamUtils.copyToString(taketoday.getInputStream()) != null;
-//        System.err.println(StreamUtils.copyToString(taketoday.getInputStream()));
 
   }
 

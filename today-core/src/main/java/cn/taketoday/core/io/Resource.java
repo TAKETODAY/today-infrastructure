@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.io;
 
 import java.io.File;
@@ -33,17 +31,29 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 
 /**
- * Interface for a resource descriptor that abstracts from the actual type of
- * underlying resource, such as a file or class path resource.
+ * Interface for a resource descriptor that abstracts from the actual
+ * type of underlying resource, such as a file or class path resource.
  *
- * <p>
- * An InputStream can be opened for every resource if it exists in physical
- * form, but a URL or File handle can just be returned for certain resources.
- * The actual behavior is implementation-specific.
+ * <p>An InputStream can be opened for every resource if it exists in
+ * physical form, but a URL or File handle can just be returned for
+ * certain resources. The actual behavior is implementation-specific.
  *
- * @author TODAY <br>
- * 2019-05-14 19:55
- * @since 2.1.6
+ * @author Juergen Hoeller
+ * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #getInputStream()
+ * @see #getURL()
+ * @see #getURI()
+ * @see #getFile()
+ * @see WritableResource
+ * @see ContextResource
+ * @see UrlResource
+ * @see FileUrlResource
+ * @see FileSystemResource
+ * @see ClassPathResource
+ * @see ByteArrayResource
+ * @see InputStreamResource
+ * @since 2.1.6 2019-05-14 19:55
  */
 public interface Resource extends InputStreamSource {
   Resource[] EMPTY_ARRAY = {};

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
-import cn.taketoday.core.io.JarEntryResource;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -136,8 +132,7 @@ public abstract class ResourceUtils {
   }
 
   public static Resource getResource(URL url) {
-    String protocol = url.getProtocol();
-    if (URL_PROTOCOL_FILE.equals(protocol)) {
+    if (ResourceUtils.URL_PROTOCOL_FILE.equals(url.getProtocol())) {
       try {
         // URI decoding for special characters such as spaces.
         return new FileSystemResource(ResourceUtils.toURI(url).getSchemeSpecificPart());
@@ -147,10 +142,9 @@ public abstract class ResourceUtils {
         return new FileSystemResource(url.getFile());
       }
     }
-    if (URL_PROTOCOL_JAR.equals(protocol)) {
-      return new JarEntryResource(url);
+    else {
+      return new UrlResource(url);
     }
-    return new UrlResource(url);
   }
 
   /**
