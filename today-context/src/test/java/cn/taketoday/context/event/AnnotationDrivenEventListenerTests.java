@@ -120,7 +120,7 @@ class AnnotationDrivenEventListenerTests {
   @Test
   void simpleEventXmlConfig() {
     this.context = new ClassPathXmlApplicationContext(
-            "org/springframework/context/event/simple-event-configuration.xml");
+            "cn/taketoday/context/event/simple-event-configuration.xml");
 
     TestEvent event = new TestEvent(this, "test");
     TestEventListener listener = this.context.getBean(TestEventListener.class);

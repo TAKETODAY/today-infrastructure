@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,11 +26,9 @@ import java.lang.annotation.Target;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.aot.hint.annotation.Reflective;
-import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.interceptor.CacheResolver;
 import cn.taketoday.cache.interceptor.KeyGenerator;
-import cn.taketoday.cache.interceptor.SimpleCacheResolver;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
@@ -61,6 +56,7 @@ import cn.taketoday.core.annotation.AliasFor;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see CacheConfig
  * @since 4.0
  */
@@ -84,16 +80,15 @@ public @interface Cacheable {
    *
    * @see #value
    * @see CacheConfig#cacheNames
-   * @since 4.0
    */
   @AliasFor("value")
   String[] cacheNames() default {};
 
   /**
-   * Expression Language (SpEL) expression for computing the key dynamically.
+   * Spring Expression Language (SpEL) expression for computing the key dynamically.
    * <p>Default is {@code ""}, meaning all method parameters are considered as a key,
    * unless a custom {@link #keyGenerator} has been configured.
-   * <p>The EL expression evaluates against a dedicated context that provides the
+   * <p>The SpEL expression evaluates against a dedicated context that provides the
    * following meta-data:
    * <ul>
    * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
@@ -123,13 +118,13 @@ public @interface Cacheable {
    * is set already.
    * <p>Mutually exclusive with the {@link #cacheResolver}  attribute.
    *
-   * @see SimpleCacheResolver
+   * @see cn.taketoday.cache.interceptor.SimpleCacheResolver
    * @see CacheConfig#cacheManager
    */
   String cacheManager() default "";
 
   /**
-   * The bean name of the custom {@link CacheResolver}
+   * The bean name of the custom {@link cn.taketoday.cache.interceptor.CacheResolver}
    * to use.
    *
    * @see CacheConfig#cacheResolver
@@ -137,7 +132,7 @@ public @interface Cacheable {
   String cacheResolver() default "";
 
   /**
-   * Expression Language (SpEL) expression used for making the method
+   * Spring Expression Language (SpEL) expression used for making the method
    * caching conditional. Cache the result if the condition evaluates to
    * {@code true}.
    * <p>Default is {@code ""}, meaning the method result is always cached.
@@ -157,13 +152,13 @@ public @interface Cacheable {
   String condition() default "";
 
   /**
-   * Expression Language (SpEL) expression used to veto method caching.
+   * Spring Expression Language (SpEL) expression used to veto method caching.
    * Veto caching the result if the condition evaluates to {@code true}.
    *
    * <p>Unlike {@link #condition}, this expression is evaluated after the method
    * has been called and can therefore refer to the {@code result}.
    * <p>Default is {@code ""}, meaning that caching is never vetoed.
-   * <p>The EL expression evaluates against a dedicated context that provides the
+   * <p>The SpEL expression evaluates against a dedicated context that provides the
    * following meta-data:
    * <ul>
    * <li>{@code #result} for a reference to the result of the method invocation. For
@@ -178,8 +173,6 @@ public @interface Cacheable {
    * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
    * can also be accessed by name if that information is available.</li>
    * </ul>
-   *
-   * @since 4.0
    */
   String unless() default "";
 
@@ -192,12 +185,11 @@ public @interface Cacheable {
    * <li>Only one cache may be specified</li>
    * <li>No other cache-related operation can be combined</li>
    * </ol>
-   * This is effectively a hint and the actual cache provider that you are
-   * using may not support it in a synchronized fashion. Check your provider
-   * documentation for more details on the actual semantics.
+   * This is effectively a hint and the chosen cache provider might not actually
+   * support it in a synchronized fashion. Check your provider documentation for
+   * more details on the actual semantics.
    *
-   * @see Cache#get(Object, Callable)
-   * @since 4.0
+   * @see cn.taketoday.cache.Cache#get(Object, Callable)
    */
   boolean sync() default false;
 

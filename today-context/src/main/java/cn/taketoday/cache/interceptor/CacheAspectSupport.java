@@ -308,23 +308,23 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   /**
-   * Return a bean with the specified name and type. Used to resolve services that
-   * are referenced by name in a {@link CacheOperation}.
+   * Retrieve a bean with the specified name and type.
+   * Used to resolve services that are referenced by name in a {@link CacheOperation}.
    *
-   * @param beanName the name of the bean, as defined by the operation
-   * @param expectedType type for the bean
-   * @return the bean matching that name
+   * @param name the name of the bean, as defined by the cache operation
+   * @param serviceType the type expected by the operation's service reference
+   * @return the bean matching the expected type, qualified by the given name
    * @throws cn.taketoday.beans.factory.NoSuchBeanDefinitionException if such bean does not exist
    * @see CacheOperation#getKeyGenerator()
    * @see CacheOperation#getCacheManager()
    * @see CacheOperation#getCacheResolver()
    */
-  protected <T> T getBean(String beanName, Class<T> expectedType) {
+  protected <T> T getBean(String name, Class<T> serviceType) {
     if (this.beanFactory == null) {
       throw new IllegalStateException(
-              "BeanFactory must be set on cache aspect for " + expectedType.getSimpleName() + " retrieval");
+              "BeanFactory must be set on cache aspect for " + serviceType.getSimpleName() + " retrieval");
     }
-    return BeanFactoryAnnotationUtils.qualifiedBeanOfType(this.beanFactory, expectedType, beanName);
+    return BeanFactoryAnnotationUtils.qualifiedBeanOfType(this.beanFactory, serviceType, name);
   }
 
   /**
@@ -640,21 +640,21 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       if (syncEnabled) {
         if (this.contexts.size() > 1) {
           throw new IllegalStateException(
-                  "@Cacheable(sync=true) cannot be combined with other cache operations on '" + method + "'");
+                  "A sync=true operation cannot be combined with other cache operations on '" + method + "'");
         }
         if (cacheOperationContexts.size() > 1) {
           throw new IllegalStateException(
-                  "Only one @Cacheable(sync=true) entry is allowed on '" + method + "'");
+                  "Only one sync=true operation is allowed on '" + method + "'");
         }
         CacheOperationContext cacheOperationContext = cacheOperationContexts.iterator().next();
-        CacheableOperation operation = (CacheableOperation) cacheOperationContext.getOperation();
+        CacheOperation operation = cacheOperationContext.getOperation();
         if (cacheOperationContext.getCaches().size() > 1) {
           throw new IllegalStateException(
-                  "@Cacheable(sync=true) only allows a single cache on '" + operation + "'");
+                  "A sync=true operation is restricted to a single cache on '" + operation + "'");
         }
-        if (StringUtils.hasText(operation.getUnless())) {
+        if (operation instanceof CacheableOperation cacheable && StringUtils.hasText(cacheable.getUnless())) {
           throw new IllegalStateException(
-                  "@Cacheable(sync=true) does not support unless attribute on '" + operation + "'");
+                  "A sync=true operation does not support the unless attribute on '" + operation + "'");
         }
         return true;
       }
