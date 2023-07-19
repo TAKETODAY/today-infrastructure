@@ -20,8 +20,8 @@
 
 package org.test;
 
-import cm.taketoday.framework.Application;
-import cm.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.Application;
+import cn.taketoday.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 public class SampleApplication {

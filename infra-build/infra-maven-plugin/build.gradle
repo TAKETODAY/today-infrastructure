@@ -40,12 +40,6 @@ dependencies {
   intTestImplementation(project(":infra-build:infra-app-loader"))
   intTestImplementation(project(":infra-build:infra-app-loader-tools"))
 
-  mavenRepository(project(path: ":today-core", configuration: "mavenRepository"))
-  mavenRepository(project(path: ":today-context", configuration: "mavenRepository"))
-//  mavenRepository(project(path: ":today-test-support", configuration: "mavenRepository"))
-//  mavenRepository(project(path: ":infra-build:infra-app-loader", configuration: "mavenRepository"))
-//  mavenRepository(project(path: ":infra-build:infra-app-loader-tools", configuration: "mavenRepository"))
-
   intTestImplementation("org.assertj:assertj-core")
   intTestImplementation("org.junit.jupiter:junit-jupiter")
   intTestImplementation("org.testcontainers:testcontainers")
@@ -91,3 +85,15 @@ javadoc {
 prepareMavenBinaries {
   versions "3.9.0", "3.8.5", "3.6.3"
 }
+
+//tasks.register('populateIntTestMavenRepository', Sync) {
+//  it.setDestinationDir(file("$buildDir/int-test-maven-repository"));
+//  CopySpec copySpec = project.copySpec()
+//  copySpec.from(configurations.intTestRuntimeClasspath)
+//  copySpec.from(file("$buildDir/maven-repository"))
+////  copySpec.from(runtimeClasspathMavenRepository)
+//
+//  it.with(copySpec)
+//
+//  it.dependsOn('publishMavenPublicationToProjectRepository');
+//}

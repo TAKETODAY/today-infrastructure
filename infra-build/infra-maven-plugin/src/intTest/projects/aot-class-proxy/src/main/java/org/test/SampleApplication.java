@@ -31,7 +31,7 @@ import cn.taketoday.scheduling.annotation.EnableAsync;
 public class SampleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SampleApplication.class, args);
+		Application.run(SampleApplication.class, args);
 	}
 
 }

@@ -36,7 +36,7 @@ public class SampleApplication {
     MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
     ObjectName name = new ObjectName(
             "cn.taketoday.app:type=Admin,name=InfraApplication");
-    SpringApplicationAdmin mbean = new SpringApplicationAdmin();
+    ApplicationAdmin mbean = new ApplicationAdmin();
     mbs.registerMBean(mbean, name);
 
     // Flag the app as ready
@@ -55,7 +55,7 @@ public class SampleApplication {
     }
   }
 
-  public interface SpringApplicationAdminMXBean {
+  public interface ApplicationAdminMXBean {
 
     boolean isReady();
 
@@ -63,7 +63,7 @@ public class SampleApplication {
 
   }
 
-  static class SpringApplicationAdmin implements SpringApplicationAdminMXBean {
+  static class ApplicationAdmin implements ApplicationAdminMXBean {
 
     private boolean ready;
 

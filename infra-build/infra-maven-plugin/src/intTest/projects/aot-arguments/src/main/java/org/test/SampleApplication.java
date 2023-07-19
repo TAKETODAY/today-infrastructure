@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Import;
 public class SampleApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(SampleApplication.class, args);
+    Application.run(SampleApplication.class, args);
   }
 
 }

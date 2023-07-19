@@ -35,7 +35,7 @@ import cn.taketoday.stereotype.Service;
 public class SampleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SampleApplication.class, args);
+		Application.run(SampleApplication.class, args);
 	}
 
 	static class SampleApplicationRuntimeHints implements RuntimeHintsRegistrar {

@@ -156,7 +156,7 @@ public class MavenPluginPlugin implements Plugin<Project> {
   private CopySpec copyIntTestMavenRepositoryFiles(Project project,
           RuntimeClasspathMavenRepository runtimeClasspathMavenRepository) {
     CopySpec copySpec = project.copySpec();
-    copySpec.from(project.getConfigurations().getByName(MavenRepositoryPlugin.MAVEN_REPOSITORY_CONFIGURATION_NAME));
+//    copySpec.from(project.getConfigurations().getByName(MavenRepositoryPlugin.MAVEN_REPOSITORY_CONFIGURATION_NAME));
     copySpec.from(new File(project.getBuildDir(), "maven-repository"));
     copySpec.from(runtimeClasspathMavenRepository);
     return copySpec;
@@ -353,11 +353,10 @@ public class MavenPluginPlugin implements Plugin<Project> {
 
     @Override
     public void execute(ComponentMetadataContext context) {
-      context.getDetails()
-              .maybeAddVariant("compileWithMetadata", "compile", (variant) -> configureVariant(context, variant));
-      context.getDetails()
-              .maybeAddVariant("apiElementsWithMetadata", "apiElements",
-                      variant -> configureVariant(context, variant));
+      context.getDetails().maybeAddVariant("compileWithMetadata", "compile",
+              variant -> configureVariant(context, variant));
+      context.getDetails().maybeAddVariant("apiElementsWithMetadata", "apiElements",
+              variant -> configureVariant(context, variant));
     }
 
     private void configureVariant(ComponentMetadataContext context, VariantMetadata variant) {
@@ -397,7 +396,8 @@ public class MavenPluginPlugin implements Plugin<Project> {
 
     @TaskAction
     public void createRepository() {
-      for (ResolvedArtifactResult result : this.runtimeClasspath.getIncoming().getArtifacts()) {
+      System.out.println("createRepository");
+      for (ResolvedArtifactResult result : getRuntimeClasspath().getIncoming().getArtifacts()) {
         if (result.getId().getComponentIdentifier() instanceof ModuleComponentIdentifier identifier) {
           String fileName = result.getFile()
                   .getName()

@@ -24,22 +24,22 @@ import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationCode;
-import cn.taketoday.beans.factory.config.ConfigurableListableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 
 class ResourceRegisteringAotProcessor implements BeanFactoryInitializationAotProcessor {
 
-	@Override
-	public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableListableBeanFactory beanFactory) {
-		return new BeanFactoryInitializationAotContribution() {
+  @Override
+  public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
+    return new BeanFactoryInitializationAotContribution() {
 
-			@Override
-			public void applyTo(GenerationContext generationContext,
-					BeanFactoryInitializationCode beanFactoryInitializationCode) {
-				generationContext.getGeneratedFiles().addResourceFile("generated-resource", "content");
-				generationContext.getGeneratedFiles().addResourceFile("nested/generated-resource", "nested content");
-			}
+      @Override
+      public void applyTo(GenerationContext generationContext,
+              BeanFactoryInitializationCode beanFactoryInitializationCode) {
+        generationContext.getGeneratedFiles().addResourceFile("generated-resource", "content");
+        generationContext.getGeneratedFiles().addResourceFile("nested/generated-resource", "nested content");
+      }
 
-		};
-	}
+    };
+  }
 
 }
