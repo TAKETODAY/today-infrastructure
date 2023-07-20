@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,64 +36,64 @@ import cn.taketoday.aot.hint.TypeReference;
  */
 public class ProxyHintsWriterTests {
 
-	@Test
-	void empty() throws JSONException {
-		ProxyHints hints = new ProxyHints();
-		assertEquals("[]", hints);
-	}
+  @Test
+  void empty() throws JSONException {
+    ProxyHints hints = new ProxyHints();
+    assertEquals("[]", hints);
+  }
 
-	@Test
-	void shouldWriteOneEntry() throws JSONException {
-		ProxyHints hints = new ProxyHints();
-		hints.registerJdkProxy(Function.class);
-		assertEquals("""
-				[
-					{ "interfaces": [ "java.util.function.Function" ] }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteOneEntry() throws JSONException {
+    ProxyHints hints = new ProxyHints();
+    hints.registerJdkProxy(Function.class);
+    assertEquals("""
+            [
+            	{ "interfaces": [ "java.util.function.Function" ] }
+            ]""", hints);
+  }
 
-	@Test
-	void shouldWriteMultipleEntries() throws JSONException {
-		ProxyHints hints = new ProxyHints();
-		hints.registerJdkProxy(Function.class);
-		hints.registerJdkProxy(Function.class, Consumer.class);
-		assertEquals("""
-				[
-					{ "interfaces": [ "java.util.function.Function" ] },
-					{ "interfaces": [ "java.util.function.Function", "java.util.function.Consumer" ] }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteMultipleEntries() throws JSONException {
+    ProxyHints hints = new ProxyHints();
+    hints.registerJdkProxy(Function.class);
+    hints.registerJdkProxy(Function.class, Consumer.class);
+    assertEquals("""
+            [
+            	{ "interfaces": [ "java.util.function.Function" ] },
+            	{ "interfaces": [ "java.util.function.Function", "java.util.function.Consumer" ] }
+            ]""", hints);
+  }
 
-	@Test
-	void shouldWriteInnerClass() throws JSONException {
-		ProxyHints hints = new ProxyHints();
-		hints.registerJdkProxy(Inner.class);
-		assertEquals("""
-				[
-					{ "interfaces": [ "cn.taketoday.aot.nativex.ProxyHintsWriterTests$Inner" ] }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteInnerClass() throws JSONException {
+    ProxyHints hints = new ProxyHints();
+    hints.registerJdkProxy(Inner.class);
+    assertEquals("""
+            [
+            	{ "interfaces": [ "cn.taketoday.aot.nativex.ProxyHintsWriterTests$Inner" ] }
+            ]""", hints);
+  }
 
-	@Test
-	void shouldWriteCondition() throws JSONException {
-		ProxyHints hints = new ProxyHints();
-		hints.registerJdkProxy(builder -> builder.proxiedInterfaces(Function.class)
-				.onReachableType(TypeReference.of("org.example.Test")));
-		assertEquals("""
-				[
-					{ "condition": { "typeReachable": "org.example.Test"}, "interfaces": [ "java.util.function.Function" ] }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteCondition() throws JSONException {
+    ProxyHints hints = new ProxyHints();
+    hints.registerJdkProxy(builder -> builder.proxiedInterfaces(Function.class)
+            .onReachableType(TypeReference.of("org.example.Test")));
+    assertEquals("""
+            [
+            	{ "condition": { "typeReachable": "org.example.Test"}, "interfaces": [ "java.util.function.Function" ] }
+            ]""", hints);
+  }
 
-	private void assertEquals(String expectedString, ProxyHints hints) throws JSONException {
-		StringWriter out = new StringWriter();
-		BasicJsonWriter writer = new BasicJsonWriter(out, "\t");
-		ProxyHintsWriter.INSTANCE.write(writer, hints);
-		JSONAssert.assertEquals(expectedString, out.toString(), JSONCompareMode.NON_EXTENSIBLE);
-	}
+  private void assertEquals(String expectedString, ProxyHints hints) throws JSONException {
+    StringWriter out = new StringWriter();
+    BasicJsonWriter writer = new BasicJsonWriter(out, "\t");
+    ProxyHintsWriter.write(writer, hints);
+    JSONAssert.assertEquals(expectedString, out.toString(), JSONCompareMode.NON_EXTENSIBLE);
+  }
 
-	interface Inner {
+  interface Inner {
 
-	}
+  }
 
 }

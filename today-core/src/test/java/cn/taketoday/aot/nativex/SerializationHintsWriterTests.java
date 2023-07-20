@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,48 +35,48 @@ import cn.taketoday.core.env.Environment;
  */
 public class SerializationHintsWriterTests {
 
-	@Test
-	void shouldWriteEmptyHint() throws JSONException {
-		SerializationHints hints = new SerializationHints();
-		assertEquals("[]", hints);
-	}
+  @Test
+  void shouldWriteEmptyHint() throws JSONException {
+    SerializationHints hints = new SerializationHints();
+    assertEquals("[]", hints);
+  }
 
-	@Test
-	void shouldWriteSingleHint() throws JSONException {
-		SerializationHints hints = new SerializationHints().registerType(TypeReference.of(String.class));
-		assertEquals("""
-				[
-					{ "name": "java.lang.String" }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteSingleHint() throws JSONException {
+    SerializationHints hints = new SerializationHints().registerType(TypeReference.of(String.class));
+    assertEquals("""
+            [
+            	{ "name": "java.lang.String" }
+            ]""", hints);
+  }
 
-	@Test
-	void shouldWriteMultipleHints() throws JSONException {
-		SerializationHints hints = new SerializationHints()
-				.registerType(TypeReference.of(String.class))
-				.registerType(TypeReference.of(Environment.class));
-		assertEquals("""
-				[
-					{ "name": "java.lang.String" },
-					{ "name": "cn.taketoday.core.env.Environment" }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteMultipleHints() throws JSONException {
+    SerializationHints hints = new SerializationHints()
+            .registerType(TypeReference.of(String.class))
+            .registerType(TypeReference.of(Environment.class));
+    assertEquals("""
+            [
+            	{ "name": "java.lang.String" },
+            	{ "name": "cn.taketoday.core.env.Environment" }
+            ]""", hints);
+  }
 
-	@Test
-	void shouldWriteSingleHintWithCondition() throws JSONException {
-		SerializationHints hints = new SerializationHints().registerType(TypeReference.of(String.class),
-				builder -> builder.onReachableType(TypeReference.of("org.example.Test")));
-		assertEquals("""
-				[
-					{ "condition": { "typeReachable": "org.example.Test" }, "name": "java.lang.String" }
-				]""", hints);
-	}
+  @Test
+  void shouldWriteSingleHintWithCondition() throws JSONException {
+    SerializationHints hints = new SerializationHints().registerType(TypeReference.of(String.class),
+            builder -> builder.onReachableType(TypeReference.of("org.example.Test")));
+    assertEquals("""
+            [
+            	{ "condition": { "typeReachable": "org.example.Test" }, "name": "java.lang.String" }
+            ]""", hints);
+  }
 
-	private void assertEquals(String expectedString, SerializationHints hints) throws JSONException {
-		StringWriter out = new StringWriter();
-		BasicJsonWriter writer = new BasicJsonWriter(out, "\t");
-		SerializationHintsWriter.INSTANCE.write(writer, hints);
-		JSONAssert.assertEquals(expectedString, out.toString(), JSONCompareMode.NON_EXTENSIBLE);
-	}
+  private void assertEquals(String expectedString, SerializationHints hints) throws JSONException {
+    StringWriter out = new StringWriter();
+    BasicJsonWriter writer = new BasicJsonWriter(out, "\t");
+    SerializationHintsWriter.write(writer, hints);
+    JSONAssert.assertEquals(expectedString, out.toString(), JSONCompareMode.NON_EXTENSIBLE);
+  }
 
 }
