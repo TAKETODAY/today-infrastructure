@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,49 +37,48 @@ import cn.taketoday.lang.Nullable;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/Resources/">Accessing Resources in Native Images</a>
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
  * @since 4.0
  */
 class ResourceHintsWriter {
 
-  public static final ResourceHintsWriter INSTANCE = new ResourceHintsWriter();
-
-  public void write(BasicJsonWriter writer, ResourceHints hints) {
+  public static void write(BasicJsonWriter writer, ResourceHints hints) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     addIfNotEmpty(attributes, "resources", toAttributes(hints));
     handleResourceBundles(attributes, hints.resourceBundleHints());
     writer.writeObject(attributes);
   }
 
-  private Map<String, Object> toAttributes(ResourceHints hint) {
+  private static Map<String, Object> toAttributes(ResourceHints hint) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     addIfNotEmpty(attributes, "includes", hint.resourcePatternHints().map(ResourcePatternHints::getIncludes)
-            .flatMap(List::stream).distinct().map(this::toAttributes).toList());
+            .flatMap(List::stream).distinct().map(ResourceHintsWriter::toAttributes).toList());
     addIfNotEmpty(attributes, "excludes", hint.resourcePatternHints().map(ResourcePatternHints::getExcludes)
-            .flatMap(List::stream).distinct().map(this::toAttributes).toList());
+            .flatMap(List::stream).distinct().map(ResourceHintsWriter::toAttributes).toList());
     return attributes;
   }
 
-  private void handleResourceBundles(Map<String, Object> attributes, Stream<ResourceBundleHint> ressourceBundles) {
-    addIfNotEmpty(attributes, "bundles", ressourceBundles.map(this::toAttributes).toList());
+  private static void handleResourceBundles(Map<String, Object> attributes, Stream<ResourceBundleHint> ressourceBundles) {
+    addIfNotEmpty(attributes, "bundles", ressourceBundles.map(ResourceHintsWriter::toAttributes).toList());
   }
 
-  private Map<String, Object> toAttributes(ResourceBundleHint hint) {
+  private static Map<String, Object> toAttributes(ResourceBundleHint hint) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, hint);
     attributes.put("name", hint.getBaseName());
     return attributes;
   }
 
-  private Map<String, Object> toAttributes(ResourcePatternHint hint) {
+  private static Map<String, Object> toAttributes(ResourcePatternHint hint) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, hint);
     attributes.put("pattern", hint.toRegex().toString());
     return attributes;
   }
 
-  private void addIfNotEmpty(Map<String, Object> attributes, String name, @Nullable Object value) {
+  private static void addIfNotEmpty(Map<String, Object> attributes, String name, @Nullable Object value) {
     if (value instanceof Collection<?> collection) {
       if (!collection.isEmpty()) {
         attributes.put(name, value);
@@ -98,7 +94,7 @@ class ResourceHintsWriter {
     }
   }
 
-  private void handleCondition(Map<String, Object> attributes, ConditionalHint hint) {
+  private static void handleCondition(Map<String, Object> attributes, ConditionalHint hint) {
     if (hint.getReachableType() != null) {
       Map<String, Object> conditionAttributes = new LinkedHashMap<>();
       conditionAttributes.put("typeReachable", hint.getReachableType());

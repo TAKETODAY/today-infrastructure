@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,7 @@ import cn.taketoday.aot.hint.SerializationHints;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Janne Valkealahti
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
  * @since 4.0
  */
@@ -74,27 +72,27 @@ public abstract class NativeConfigurationWriter {
 
   private void writeSerializationHints(SerializationHints hints) {
     writeTo("serialization-config.json", writer ->
-            SerializationHintsWriter.INSTANCE.write(writer, hints));
+            SerializationHintsWriter.write(writer, hints));
   }
 
   private void writeProxyHints(ProxyHints hints) {
     writeTo("proxy-config.json", writer ->
-            ProxyHintsWriter.INSTANCE.write(writer, hints));
+            ProxyHintsWriter.write(writer, hints));
   }
 
   private void writeReflectionHints(ReflectionHints hints) {
-    writeTo("reflect-config.json", writer ->
-            ReflectionHintsWriter.INSTANCE.write(writer, hints));
+    writeTo("reflect-config.json",
+            writer -> ReflectionHintsWriter.write(writer, hints));
   }
 
   private void writeResourceHints(ResourceHints hints) {
     writeTo("resource-config.json", writer ->
-            ResourceHintsWriter.INSTANCE.write(writer, hints));
+            ResourceHintsWriter.write(writer, hints));
   }
 
   private void writeJniHints(ReflectionHints hints) {
     writeTo("jni-config.json", writer ->
-            ReflectionHintsWriter.INSTANCE.write(writer, hints));
+            ReflectionHintsWriter.write(writer, hints));
   }
 
 }

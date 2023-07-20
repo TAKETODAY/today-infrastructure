@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,25 +32,24 @@ import cn.taketoday.aot.hint.SerializationHints;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
  * @since 4.0
  */
 class SerializationHintsWriter {
 
-  public static final SerializationHintsWriter INSTANCE = new SerializationHintsWriter();
-
-  public void write(BasicJsonWriter writer, SerializationHints hints) {
-    writer.writeArray(hints.javaSerializationHints().map(this::toAttributes).toList());
+  public static void write(BasicJsonWriter writer, SerializationHints hints) {
+    writer.writeArray(hints.javaSerializationHints().map(SerializationHintsWriter::toAttributes).toList());
   }
 
-  private Map<String, Object> toAttributes(JavaSerializationHint serializationHint) {
+  private static Map<String, Object> toAttributes(JavaSerializationHint serializationHint) {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, serializationHint);
     attributes.put("name", serializationHint.getType());
     return attributes;
   }
 
-  private void handleCondition(Map<String, Object> attributes, ConditionalHint hint) {
+  private static void handleCondition(Map<String, Object> attributes, ConditionalHint hint) {
     if (hint.getReachableType() != null) {
       Map<String, Object> conditionAttributes = new LinkedHashMap<>();
       conditionAttributes.put("typeReachable", hint.getReachableType());

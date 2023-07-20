@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,20 +37,18 @@ import cn.taketoday.aot.hint.ProxyHints;
  */
 class ProxyHintsWriter {
 
-  public static final ProxyHintsWriter INSTANCE = new ProxyHintsWriter();
-
-  public void write(BasicJsonWriter writer, ProxyHints hints) {
-    writer.writeArray(hints.jdkProxyHints().map(this::toAttributes).toList());
+  public static void write(BasicJsonWriter writer, ProxyHints hints) {
+    writer.writeArray(hints.jdkProxyHints().map(ProxyHintsWriter::toAttributes).toList());
   }
 
-  private Map<String, Object> toAttributes(JdkProxyHint hint) {
+  private static Map<String, Object> toAttributes(JdkProxyHint hint) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     handleCondition(attributes, hint);
     attributes.put("interfaces", hint.getProxiedInterfaces());
     return attributes;
   }
 
-  private void handleCondition(Map<String, Object> attributes, JdkProxyHint hint) {
+  private static void handleCondition(Map<String, Object> attributes, JdkProxyHint hint) {
     if (hint.getReachableType() != null) {
       Map<String, Object> conditionAttributes = new LinkedHashMap<>();
       conditionAttributes.put("typeReachable", hint.getReachableType());
