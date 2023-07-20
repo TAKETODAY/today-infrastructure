@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +43,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -125,7 +124,8 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
 
   private void process(String beanName, Class<?> targetType, List<EventListenerFactory> factories) {
     if (!this.nonAnnotatedClasses.contains(targetType)
-            && AnnotationUtils.isCandidateClass(targetType, EventListener.class)) {
+            && AnnotationUtils.isCandidateClass(targetType, EventListener.class)
+            && !isInfraContainerClass(targetType)) {
       Set<Method> annotatedMethods = null;
       try {
         annotatedMethods = MethodIntrospector.filterMethods(
@@ -163,6 +163,16 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
         }
       }
     }
+  }
+
+  /**
+   * Determine whether the given class is an {@code cn.taketoday}
+   * bean class that is not annotated as a user or test {@link Component}...
+   * which indicates that there is no {@link EventListener} to be found there.
+   */
+  private static boolean isInfraContainerClass(Class<?> clazz) {
+    return clazz.getName().startsWith("cn.taketoday.")
+            && !AnnotatedElementUtils.isAnnotated(ClassUtils.getUserClass(clazz), Component.class);
   }
 
 }
