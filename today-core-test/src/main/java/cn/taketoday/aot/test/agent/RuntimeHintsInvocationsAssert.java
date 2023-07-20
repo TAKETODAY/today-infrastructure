@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,16 +17,16 @@
 
 package cn.taketoday.aot.test.agent;
 
+import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.ListAssert;
+import org.assertj.core.error.BasicErrorMessageFactory;
+import org.assertj.core.error.ErrorMessageFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.ListAssert;
-import org.assertj.core.error.BasicErrorMessageFactory;
-import org.assertj.core.error.ErrorMessageFactory;
 
 import cn.taketoday.aot.agent.RecordedInvocation;
 import cn.taketoday.aot.hint.RuntimeHints;
@@ -42,6 +39,7 @@ import cn.taketoday.lang.TodayStrategies;
  * {@link RuntimeHintsInvocations}.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class RuntimeHintsInvocationsAssert extends AbstractAssert<RuntimeHintsInvocationsAssert, RuntimeHintsInvocations> {
@@ -57,7 +55,7 @@ public class RuntimeHintsInvocationsAssert extends AbstractAssert<RuntimeHintsIn
     return this;
   }
 
-  public RuntimeHintsInvocationsAssert withTodayStrategiesRegistrars(String location) {
+  public RuntimeHintsInvocationsAssert withStrategiesRegistrars(String location) {
     List<RuntimeHintsRegistrar> registrars = TodayStrategies.forLocation(location).load(RuntimeHintsRegistrar.class);
     this.configurers.add(hints -> registrars.forEach(registrar -> registrar.registerHints(hints, getClass().getClassLoader())));
     return this;
