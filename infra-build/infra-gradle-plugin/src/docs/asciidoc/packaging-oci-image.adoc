@@ -6,7 +6,7 @@ Images can be built using the `infraBuildImage` task.
 NOTE: For security reasons, images build and run as non-root users.
 See the {buildpacks-reference}/reference/spec/platform-api/#users[CNB specification] for more details.
 
-The task is automatically created when the `java` or `war` plugin is applied and is an instance of {infra-build-image-javadoc}[`BootBuildImage`].
+The task is automatically created when the `java` or `war` plugin is applied and is an instance of {infra-build-image-javadoc}[`InfraBuildImage`].
 
 
 

@@ -13,7 +13,7 @@ When Gradle's {java-plugin}[`java` plugin] is applied to a project, the Infra pl
    The jar will contain everything on the runtime classpath of the main source set; classes are packaged in `APP-INF/classes` and jars are packaged in `APP-INF/lib`
 2. Configures the `assemble` task to depend on the `infraJar` task.
 3. Configures the `jar` task to use `plain` as the convention for its archive classifier.
-4. Creates a {infra-build-image-javadoc}[`BootBuildImage`] task named `infraBuildImage` that will create a OCI image using a https://buildpacks.io[buildpack].
+4. Creates a {infra-build-image-javadoc}[`InfraBuildImage`] task named `infraBuildImage` that will create a OCI image using a https://buildpacks.io[buildpack].
 5. Creates a {infra-run-javadoc}[`InfraRun`] task named `infraRun` that can be used to run your application using the `main` source set to find its main method and provide its runtime classpath.
 6. Creates a {infra-run-javadoc}['InfraRun`] task named `infraTestRun` that can be used to run your application using the `test` source set to find its main method and provide its runtime classpath.
 7. Creates a configuration named `infraArchives` that contains the artifact produced by the `infraJar` task.

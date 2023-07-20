@@ -1,0 +1,21 @@
+apply plugin: 'java-library'
+apply plugin: 'cn.taketoday.build.conventions'
+apply plugin: 'cn.taketoday.build.optional-dependencies'
+apply from: "$rootDir/gradle/publications.gradle"
+
+javadoc {
+  enabled = false
+}
+
+jar {
+  manifest.attributes["Infra-App-Jar-Type"] = 'dependencies-starter'
+  manifest.attributes["Implementation-Version"] = project.version
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+    }
+  }
+}

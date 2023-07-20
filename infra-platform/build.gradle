@@ -4,8 +4,6 @@ apply plugin: 'java-platform'
 apply plugin: "cn.taketoday.bom"
 apply from: "$rootDir/gradle/publications.gradle"
 
-group = "cn.taketoday"
-
 javaPlatform {
   allowDependencies()
 }

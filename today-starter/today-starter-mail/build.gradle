@@ -1,0 +1,8 @@
+description = "Starter for using Java Mail and Infra email sending support"
+
+dependencies {
+  api project(':today-starter')
+  api project(':today-context')
+  api 'org.eclipse.angus:jakarta.mail'
+
+}

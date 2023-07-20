@@ -3,11 +3,12 @@ description = "TODAY Infrastructure (Bill of Materials)"
 apply plugin: 'java-platform'
 apply from: "$rootDir/gradle/publications.gradle"
 
-group = "cn.taketoday"
-
 dependencies {
   constraints {
     parent.moduleProjects.sort { "$it.name" }.each {
+      api it
+    }
+    parent.starterProjects.sort { "$it.name" }.each {
       api it
     }
   }
