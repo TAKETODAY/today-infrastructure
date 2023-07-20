@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractRequestExpectationManager implements RequestExpectationManager {
@@ -111,15 +109,14 @@ public abstract class AbstractRequestExpectationManager implements RequestExpect
   }
 
   /**
-   * As of 5.0.3 subclasses should implement this method instead of
-   * {@link #validateRequestInternal(ClientHttpRequest)} in order to match the
+   * subclasses should implement this method instead of
+   * {@code #validateRequestInternal(ClientHttpRequest)} in order to match the
    * request to an expectation, leaving the call to create the response as a separate step
    * (to be invoked by this class).
    *
    * @param request the current request
    * @return the matched expectation with its request count updated via
    * {@link RequestExpectation#incrementAndValidate()}.
-   * @since 4.0
    */
   protected RequestExpectation matchRequest(ClientHttpRequest request) throws IOException {
     throw new UnsupportedOperationException(

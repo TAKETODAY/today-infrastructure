@@ -33,6 +33,7 @@ dependencies {
   optional("org.freemarker:freemarker")
   optional 'ch.qos.logback:logback-classic'
 
+  testImplementation("org.eclipse.angus:jakarta.mail")
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation(project(":today-core-test"))
