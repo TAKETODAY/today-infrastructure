@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration.DockerHostConfiguration;
 import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
 import cn.taketoday.buildpack.platform.docker.configuration.ResolvedDockerHost;
 import cn.taketoday.buildpack.platform.io.IOConsumer;
@@ -32,6 +33,7 @@ import cn.taketoday.buildpack.platform.io.IOConsumer;
  *
  * @author Phillip Webb
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface HttpTransport {
@@ -101,7 +103,7 @@ public interface HttpTransport {
    * @param dockerHost the Docker host information
    * @return a {@link HttpTransport} instance
    */
-  static HttpTransport create(DockerHost dockerHost) {
+  static HttpTransport create(DockerHostConfiguration dockerHost) {
     ResolvedDockerHost host = ResolvedDockerHost.from(dockerHost);
     HttpTransport remote = RemoteHttpClientTransport.createIfPossible(host);
     return (remote != null) ? remote : LocalHttpClientTransport.create(host);

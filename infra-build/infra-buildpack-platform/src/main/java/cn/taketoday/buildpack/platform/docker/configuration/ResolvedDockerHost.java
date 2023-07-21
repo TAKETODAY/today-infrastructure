@@ -17,17 +17,20 @@
 
 package cn.taketoday.buildpack.platform.docker.configuration;
 
+import com.sun.jna.Platform;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import com.sun.jna.Platform;
-
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration.DockerHostConfiguration;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfigurationMetadata.DockerContext;
 import cn.taketoday.buildpack.platform.system.Environment;
 
 /**
  * Resolves a {@link DockerHost} from the environment, configuration, or using defaults.
  *
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ResolvedDockerHost extends DockerHost {
@@ -43,6 +46,12 @@ public class ResolvedDockerHost extends DockerHost {
   private static final String DOCKER_TLS_VERIFY = "DOCKER_TLS_VERIFY";
 
   private static final String DOCKER_CERT_PATH = "DOCKER_CERT_PATH";
+
+  private static final String DOCKER_CONTEXT = "DOCKER_CONTEXT";
+
+  ResolvedDockerHost(String address) {
+    super(address);
+  }
 
   ResolvedDockerHost(String address, boolean secure, String certificatePath) {
     super(address, secure, certificatePath);
@@ -67,11 +76,20 @@ public class ResolvedDockerHost extends DockerHost {
     }
   }
 
-  public static ResolvedDockerHost from(DockerHost dockerHost) {
+  public static ResolvedDockerHost from(DockerHostConfiguration dockerHost) {
     return from(Environment.SYSTEM, dockerHost);
   }
 
-  static ResolvedDockerHost from(Environment environment, DockerHost dockerHost) {
+  static ResolvedDockerHost from(Environment environment, DockerHostConfiguration dockerHost) {
+    DockerConfigurationMetadata config = DockerConfigurationMetadata.from(environment);
+    if (environment.get(DOCKER_CONTEXT) != null) {
+      DockerContext context = config.forContext(environment.get(DOCKER_CONTEXT));
+      return new ResolvedDockerHost(context.getDockerHost(), context.isTlsVerify(), context.getTlsPath());
+    }
+    if (dockerHost != null && dockerHost.getContext() != null) {
+      DockerContext context = config.forContext(dockerHost.getContext());
+      return new ResolvedDockerHost(context.getDockerHost(), context.isTlsVerify(), context.getTlsPath());
+    }
     if (environment.get(DOCKER_HOST) != null) {
       return new ResolvedDockerHost(environment.get(DOCKER_HOST), isTrue(environment.get(DOCKER_TLS_VERIFY)),
               environment.get(DOCKER_CERT_PATH));
@@ -80,7 +98,11 @@ public class ResolvedDockerHost extends DockerHost {
       return new ResolvedDockerHost(dockerHost.getAddress(), dockerHost.isSecure(),
               dockerHost.getCertificatePath());
     }
-    return new ResolvedDockerHost(Platform.isWindows() ? WINDOWS_NAMED_PIPE_PATH : DOMAIN_SOCKET_PATH, false, null);
+    if (config.getContext().getDockerHost() != null) {
+      DockerContext context = config.getContext();
+      return new ResolvedDockerHost(context.getDockerHost(), context.isTlsVerify(), context.getTlsPath());
+    }
+    return new ResolvedDockerHost(Platform.isWindows() ? WINDOWS_NAMED_PIPE_PATH : DOMAIN_SOCKET_PATH);
   }
 
   private static boolean isTrue(String value) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +21,12 @@ import org.gradle.api.GradleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
-import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
 
 import java.io.File;
 import java.util.Base64;
 
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration.DockerHostConfiguration;
 import cn.taketoday.gradle.junit.GradleProjectBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,10 +69,11 @@ class DockerSpecTests {
     this.dockerSpec.getTlsVerify().set(true);
     this.dockerSpec.getCertPath().set("/tmp/ca-cert");
     DockerConfiguration dockerConfiguration = this.dockerSpec.asDockerConfiguration();
-    DockerHost host = dockerConfiguration.getHost();
+    DockerHostConfiguration host = dockerConfiguration.getHost();
     assertThat(host.getAddress()).isEqualTo("docker.example.com");
     assertThat(host.isSecure()).isTrue();
     assertThat(host.getCertificatePath()).isEqualTo("/tmp/ca-cert");
+    assertThat(host.getContext()).isNull();
     assertThat(dockerConfiguration.isBindHostToBuilder()).isFalse();
     assertThat(this.dockerSpec.asDockerConfiguration().getBuilderRegistryAuthentication()).isNull();
     assertThat(decoded(dockerConfiguration.getPublishRegistryAuthentication().getAuthHeader()))
@@ -89,8 +87,27 @@ class DockerSpecTests {
   void asDockerConfigurationWithHostConfigurationNoTlsVerify() {
     this.dockerSpec.getHost().set("docker.example.com");
     DockerConfiguration dockerConfiguration = this.dockerSpec.asDockerConfiguration();
-    DockerHost host = dockerConfiguration.getHost();
+    DockerHostConfiguration host = dockerConfiguration.getHost();
     assertThat(host.getAddress()).isEqualTo("docker.example.com");
+    assertThat(host.isSecure()).isFalse();
+    assertThat(host.getCertificatePath()).isNull();
+    assertThat(host.getContext()).isNull();
+    assertThat(dockerConfiguration.isBindHostToBuilder()).isFalse();
+    assertThat(this.dockerSpec.asDockerConfiguration().getBuilderRegistryAuthentication()).isNull();
+    assertThat(decoded(dockerConfiguration.getPublishRegistryAuthentication().getAuthHeader()))
+            .contains("\"username\" : \"\"")
+            .contains("\"password\" : \"\"")
+            .contains("\"email\" : \"\"")
+            .contains("\"serveraddress\" : \"\"");
+  }
+
+  @Test
+  void asDockerConfigurationWithContextConfiguration() {
+    this.dockerSpec.getContext().set("test-context");
+    DockerConfiguration dockerConfiguration = this.dockerSpec.asDockerConfiguration();
+    DockerHostConfiguration host = dockerConfiguration.getHost();
+    assertThat(host.getContext()).isEqualTo("test-context");
+    assertThat(host.getAddress()).isNull();
     assertThat(host.isSecure()).isFalse();
     assertThat(host.getCertificatePath()).isNull();
     assertThat(dockerConfiguration.isBindHostToBuilder()).isFalse();
@@ -103,11 +120,19 @@ class DockerSpecTests {
   }
 
   @Test
+  void asDockerConfigurationWithHostAndContextFails() {
+    this.dockerSpec.getContext().set("test-context");
+    this.dockerSpec.getHost().set("docker.example.com");
+    assertThatExceptionOfType(GradleException.class).isThrownBy(this.dockerSpec::asDockerConfiguration)
+            .withMessageContaining("Invalid Docker configuration");
+  }
+
+  @Test
   void asDockerConfigurationWithBindHostToBuilder() {
     this.dockerSpec.getHost().set("docker.example.com");
     this.dockerSpec.getBindHostToBuilder().set(true);
     DockerConfiguration dockerConfiguration = this.dockerSpec.asDockerConfiguration();
-    DockerHost host = dockerConfiguration.getHost();
+    DockerHostConfiguration host = dockerConfiguration.getHost();
     assertThat(host.getAddress()).isEqualTo("docker.example.com");
     assertThat(host.isSecure()).isFalse();
     assertThat(host.getCertificatePath()).isNull();

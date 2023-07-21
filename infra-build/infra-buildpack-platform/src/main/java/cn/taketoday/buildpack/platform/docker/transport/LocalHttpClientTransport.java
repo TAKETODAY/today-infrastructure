@@ -17,29 +17,28 @@
 
 package cn.taketoday.buildpack.platform.docker.transport;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-
 import com.sun.jna.Platform;
 
 import org.apache.hc.client5.http.DnsResolver;
-import org.apache.hc.client5.http.SchemePortResolver;
+import org.apache.hc.client5.http.HttpRoute;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.routing.HttpRoutePlanner;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import cn.taketoday.buildpack.platform.docker.configuration.ResolvedDockerHost;
 import cn.taketoday.buildpack.platform.socket.DomainSocket;
@@ -50,29 +49,27 @@ import cn.taketoday.buildpack.platform.socket.NamedPipeSocket;
  *
  * @author Phillip Webb
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class LocalHttpClientTransport extends HttpClientTransport {
 
-  private static final HttpHost LOCAL_DOCKER_HOST;
+  private static final String DOCKER_SCHEME = "docker";
 
-  static {
-    try {
-      LOCAL_DOCKER_HOST = HttpHost.create("docker://localhost");
-    }
-    catch (URISyntaxException ex) {
-      throw new RuntimeException("Error creating local Docker host address", ex);
-    }
-  }
+  private static final int DEFAULT_DOCKER_PORT = 2376;
 
-  private LocalHttpClientTransport(HttpClient client) {
-    super(client, LOCAL_DOCKER_HOST);
+  private static final HttpHost LOCAL_DOCKER_HOST = new HttpHost(DOCKER_SCHEME, "localhost", DEFAULT_DOCKER_PORT);
+
+  private LocalHttpClientTransport(HttpClient client, HttpHost host) {
+    super(client, host);
   }
 
   static LocalHttpClientTransport create(ResolvedDockerHost dockerHost) {
     HttpClientBuilder builder = HttpClients.custom();
     builder.setConnectionManager(new LocalConnectionManager(dockerHost.getAddress()));
-    builder.setSchemePortResolver(new LocalSchemePortResolver());
-    return new LocalHttpClientTransport(builder.build());
+    builder.setRoutePlanner(new LocalRoutePlanner());
+    HttpHost host = new HttpHost(DOCKER_SCHEME, dockerHost.getAddress());
+    return new LocalHttpClientTransport(builder.build(), host);
   }
 
   /**
@@ -86,7 +83,7 @@ final class LocalHttpClientTransport extends HttpClientTransport {
 
     private static Registry<ConnectionSocketFactory> getRegistry(String host) {
       RegistryBuilder<ConnectionSocketFactory> builder = RegistryBuilder.create();
-      builder.register("docker", new LocalConnectionSocketFactory(host));
+      builder.register(DOCKER_SCHEME, new LocalConnectionSocketFactory(host));
       return builder.build();
     }
 
@@ -141,20 +138,13 @@ final class LocalHttpClientTransport extends HttpClientTransport {
   }
 
   /**
-   * {@link SchemePortResolver} for local Docker.
+   * {@link HttpRoutePlanner} for local Docker.
    */
-  private static class LocalSchemePortResolver implements SchemePortResolver {
-
-    private static final int DEFAULT_DOCKER_PORT = 2376;
+  private static class LocalRoutePlanner implements HttpRoutePlanner {
 
     @Override
-    public int resolve(HttpHost host) {
-      Args.notNull(host, "HTTP host");
-      String name = host.getSchemeName();
-      if ("docker".equals(name)) {
-        return DEFAULT_DOCKER_PORT;
-      }
-      return -1;
+    public HttpRoute determineRoute(HttpHost target, HttpContext context) {
+      return new HttpRoute(LOCAL_DOCKER_HOST);
     }
 
   }

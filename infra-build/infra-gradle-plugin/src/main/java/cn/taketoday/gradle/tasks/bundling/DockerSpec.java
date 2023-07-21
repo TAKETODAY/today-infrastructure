@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +24,10 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
-import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
 
 import javax.inject.Inject;
+
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
 
 /**
  * Encapsulates Docker configuration options.
@@ -57,6 +55,10 @@ public abstract class DockerSpec {
     this.builderRegistry = builderRegistry;
     this.publishRegistry = publishRegistry;
   }
+
+  @Input
+  @Optional
+  public abstract Property<String> getContext();
 
   @Input
   @Optional
@@ -133,7 +135,15 @@ public abstract class DockerSpec {
   }
 
   private DockerConfiguration customizeHost(DockerConfiguration dockerConfiguration) {
+    String context = getContext().getOrNull();
     String host = getHost().getOrNull();
+    if (context != null && host != null) {
+      throw new GradleException(
+              "Invalid Docker configuration, either context or host can be provided but not both");
+    }
+    if (context != null) {
+      return dockerConfiguration.withContext(context);
+    }
     if (host != null) {
       return dockerConfiguration.withHost(host, getTlsVerify().get(), getCertPath().getOrNull());
     }

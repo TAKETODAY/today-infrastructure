@@ -40,8 +40,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration.DockerHostConfiguration;
 import cn.taketoday.buildpack.platform.docker.transport.HttpTransport;
+import cn.taketoday.buildpack.platform.docker.transport.HttpTransport.Response;
 import cn.taketoday.buildpack.platform.docker.type.ContainerConfig;
 import cn.taketoday.buildpack.platform.docker.type.ContainerContent;
 import cn.taketoday.buildpack.platform.docker.type.ContainerReference;
@@ -97,7 +98,7 @@ public class DockerApi {
    *
    * @param dockerHost the Docker daemon host information
    */
-  public DockerApi(DockerHost dockerHost) {
+  public DockerApi(DockerHostConfiguration dockerHost) {
     this(HttpTransport.create(dockerHost));
   }
 
@@ -202,7 +203,7 @@ public class DockerApi {
       DigestCaptureUpdateListener digestCapture = new DigestCaptureUpdateListener();
       listener.onStart();
       try {
-        try (HttpTransport.Response response = http().post(createUri, registryAuth)) {
+        try (Response response = http().post(createUri, registryAuth)) {
           jsonStream().get(response.getContent(), PullImageUpdateEvent.class, (event) -> {
             digestCapture.onUpdate(event);
             listener.onUpdate(event);
@@ -231,7 +232,7 @@ public class DockerApi {
       ErrorCaptureUpdateListener errorListener = new ErrorCaptureUpdateListener();
       listener.onStart();
       try {
-        try (HttpTransport.Response response = http().post(pushUri, registryAuth)) {
+        try (Response response = http().post(pushUri, registryAuth)) {
           jsonStream().get(response.getContent(), PushImageUpdateEvent.class, (event) -> {
             errorListener.onUpdate(event);
             listener.onUpdate(event);
@@ -257,7 +258,7 @@ public class DockerApi {
       StreamCaptureUpdateListener streamListener = new StreamCaptureUpdateListener();
       listener.onStart();
       try {
-        try (HttpTransport.Response response = http().post(loadUri, "application/x-tar", archive::writeTo)) {
+        try (Response response = http().post(loadUri, "application/x-tar", archive::writeTo)) {
           jsonStream().get(response.getContent(), LoadImageUpdateEvent.class, (event) -> {
             streamListener.onUpdate(event);
             listener.onUpdate(event);
@@ -297,12 +298,13 @@ public class DockerApi {
      * @param exports a consumer to receive the layer tar file paths (file can only be
      * accessed during the callback)
      * @throws IOException on IO error
+     * @since 2.7.10
      */
     public void exportLayerFiles(ImageReference reference, IOBiConsumer<String, Path> exports) throws IOException {
       Assert.notNull(reference, "Reference must not be null");
       Assert.notNull(exports, "Exports must not be null");
       URI saveUri = buildUrl("/images/" + reference + "/get");
-      HttpTransport.Response response = http().get(saveUri);
+      Response response = http().get(saveUri);
       ImageArchiveManifest manifest = null;
       Map<String, Path> layerFiles = new HashMap<>();
       try (TarArchiveInputStream tar = new TarArchiveInputStream(response.getContent())) {
@@ -352,7 +354,7 @@ public class DockerApi {
     public Image inspect(ImageReference reference) throws IOException {
       Assert.notNull(reference, "Reference must not be null");
       URI imageUri = buildUrl("/images/" + reference + "/json");
-      try (HttpTransport.Response response = http().get(imageUri)) {
+      try (Response response = http().get(imageUri)) {
         return Image.of(response.getContent());
       }
     }
@@ -415,7 +417,7 @@ public class DockerApi {
 
     private ContainerReference createContainer(ContainerConfig config) throws IOException {
       URI createUri = buildUrl("/containers/create");
-      try (HttpTransport.Response response = http().post(createUri, "application/json", config::writeTo)) {
+      try (Response response = http().post(createUri, "application/json", config::writeTo)) {
         return ContainerReference
                 .of(SharedObjectMapper.get().readTree(response.getContent()).at("/Id").asText());
       }
@@ -452,7 +454,7 @@ public class DockerApi {
       URI uri = buildUrl("/containers/" + reference + "/logs", params);
       listener.onStart();
       try {
-        try (HttpTransport.Response response = http().get(uri)) {
+        try (Response response = http().get(uri)) {
           LogUpdateEvent.readAll(response.getContent(), listener::onUpdate);
         }
       }
@@ -471,7 +473,7 @@ public class DockerApi {
     public ContainerStatus wait(ContainerReference reference) throws IOException {
       Assert.notNull(reference, "Reference must not be null");
       URI uri = buildUrl("/containers/" + reference + "/wait");
-      HttpTransport.Response response = http().post(uri);
+      Response response = http().post(uri);
       return ContainerStatus.of(response.getContent());
     }
 

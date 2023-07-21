@@ -42,7 +42,7 @@ import cn.taketoday.buildpack.platform.docker.DockerApi;
 import cn.taketoday.buildpack.platform.docker.DockerApi.ContainerApi;
 import cn.taketoday.buildpack.platform.docker.DockerApi.ImageApi;
 import cn.taketoday.buildpack.platform.docker.DockerApi.VolumeApi;
-import cn.taketoday.buildpack.platform.docker.configuration.DockerHost;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration.DockerHostConfiguration;
 import cn.taketoday.buildpack.platform.docker.configuration.ResolvedDockerHost;
 import cn.taketoday.buildpack.platform.docker.type.Binding;
 import cn.taketoday.buildpack.platform.docker.type.ContainerConfig;
@@ -248,7 +248,8 @@ class LifecycleTests {
     given(this.docker.container().create(any(), any())).willAnswer(answerWithGeneratedContainerId());
     given(this.docker.container().wait(any())).willReturn(ContainerStatus.of(0, null));
     BuildRequest request = getTestRequest();
-    createLifecycle(request, ResolvedDockerHost.from(new DockerHost("tcp://192.168.1.2:2376"))).execute();
+    createLifecycle(request, ResolvedDockerHost.from(DockerHostConfiguration.forAddress("tcp://192.168.1.2:2376")))
+            .execute();
     assertPhaseWasRun("creator", withExpectedConfig("lifecycle-creator-inherit-remote.json"));
     assertThat(this.out.toString()).contains("Successfully built image 'docker.io/library/my-application:latest'");
   }
@@ -259,7 +260,8 @@ class LifecycleTests {
     given(this.docker.container().create(any(), any())).willAnswer(answerWithGeneratedContainerId());
     given(this.docker.container().wait(any())).willReturn(ContainerStatus.of(0, null));
     BuildRequest request = getTestRequest();
-    createLifecycle(request, ResolvedDockerHost.from(new DockerHost("/var/alt.sock"))).execute();
+    createLifecycle(request, ResolvedDockerHost.from(DockerHostConfiguration.forAddress("/var/alt.sock")))
+            .execute();
     assertPhaseWasRun("creator", withExpectedConfig("lifecycle-creator-inherit-local.json"));
     assertThat(this.out.toString()).contains("Successfully built image 'docker.io/library/my-application:latest'");
   }
