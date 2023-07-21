@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +15,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.infra.maven;
+package cn.taketoday.lang;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,15 +28,12 @@ import java.util.jar.JarFile;
 /**
  * Extracts version information for a Class.
  *
- * @author Andy Wilkinson
- * @author Scott Frederick
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @see Package#getImplementationVersion()
+ * @see Attributes.Name#IMPLEMENTATION_VERSION
+ * @since 4.0 2023/7/21 17:52
  */
-final class VersionExtractor {
-
-  private VersionExtractor() {
-  }
+public abstract class VersionExtractor {
 
   /**
    * Return the version information for the provided {@link Class}.
@@ -47,7 +41,8 @@ final class VersionExtractor {
    * @param cls the Class to retrieve the version for
    * @return the version, or {@code null} if a version can not be extracted
    */
-  static String forClass(Class<?> cls) {
+  @Nullable
+  public static String forClass(Class<?> cls) {
     String implementationVersion = cls.getPackage().getImplementationVersion();
     if (implementationVersion != null) {
       return implementationVersion;

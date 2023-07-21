@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +15,27 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
+package cn.taketoday.lang;
+
+import org.junit.jupiter.api.Test;
+
+import jakarta.annotation.PostConstruct;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
- * Shared utility classes.
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/7/21 18:02
  */
-package cn.taketoday.gradle.util;
+class VersionExtractorTests {
+
+  @Test
+  void forClass() {
+    String version = VersionExtractor.forClass(VersionExtractorTests.class);
+    assertThat(version).isNull();
+
+    version = VersionExtractor.forClass(PostConstruct.class);
+    assertThat(version).isNotNull();
+  }
+
+}

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.env;
 
 import java.util.LinkedHashMap;
@@ -25,6 +23,7 @@ import java.util.Properties;
 
 /**
  * Mutable MapPropertySource
+ *
  * <p>
  * Simple {@link PropertySource} implementation for modify property. Accepts
  * a user-provided {@link Map} object, or if omitted during construction,
@@ -102,7 +101,7 @@ public class MutableMapPropertySource extends MapPropertySource {
    * Convenient synonym for {@link #setProperty} that returns the current instance.
    * Useful for method chaining and fluent-style use.
    *
-   * @return this {@link MockPropertySource} instance
+   * @return this {@link MutableMapPropertySource} instance
    */
   public MutableMapPropertySource withProperty(String name, Object value) {
     this.setProperty(name, value);

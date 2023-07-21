@@ -134,8 +134,9 @@ public class InfraApplicationPlugin implements Plugin<Project> {
             new WarPluginAction(singlePublishedArtifact), new DependencyManagementPluginAction(),
             new ApplicationPluginAction(), new NativeImagePluginAction());
     for (PluginApplicationAction action : actions) {
-      withPluginClassOfAction(action,
-              (pluginClass) -> project.getPlugins().withType(pluginClass, (plugin) -> action.execute(project)));
+      withPluginClassOfAction(action, pluginClass -> project.getPlugins().withType(pluginClass, plugin -> {
+        action.execute(project);
+      }));
     }
   }
 

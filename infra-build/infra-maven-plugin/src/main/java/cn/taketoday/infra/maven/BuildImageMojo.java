@@ -24,16 +24,6 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
-import cn.taketoday.buildpack.platform.build.AbstractBuildLog;
-import cn.taketoday.buildpack.platform.build.BuildLog;
-import cn.taketoday.buildpack.platform.build.BuildRequest;
-import cn.taketoday.buildpack.platform.build.Builder;
-import cn.taketoday.buildpack.platform.build.Creator;
-import cn.taketoday.buildpack.platform.build.PullPolicy;
-import cn.taketoday.buildpack.platform.docker.TotalProgressEvent;
-import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
-import cn.taketoday.buildpack.platform.io.Owner;
-import cn.taketoday.buildpack.platform.io.TarArchive;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +39,17 @@ import cn.taketoday.app.loader.tools.EntryWriter;
 import cn.taketoday.app.loader.tools.ImagePackager;
 import cn.taketoday.app.loader.tools.LayoutFactory;
 import cn.taketoday.app.loader.tools.Libraries;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.buildpack.platform.build.AbstractBuildLog;
+import cn.taketoday.buildpack.platform.build.BuildLog;
+import cn.taketoday.buildpack.platform.build.BuildRequest;
+import cn.taketoday.buildpack.platform.build.Builder;
+import cn.taketoday.buildpack.platform.build.Creator;
+import cn.taketoday.buildpack.platform.build.PullPolicy;
+import cn.taketoday.buildpack.platform.docker.TotalProgressEvent;
+import cn.taketoday.buildpack.platform.docker.configuration.DockerConfiguration;
+import cn.taketoday.buildpack.platform.io.Owner;
+import cn.taketoday.buildpack.platform.io.TarArchive;
+import cn.taketoday.lang.Version;
 
 /**
  * Package an application into an OCI image using a buildpack.
@@ -299,16 +299,7 @@ public abstract class BuildImageMojo extends AbstractPackagerMojo {
   }
 
   private BuildRequest customize(BuildRequest request) {
-    request = customizeCreator(request);
-    return request;
-  }
-
-  private BuildRequest customizeCreator(BuildRequest request) {
-    String infraVersion = VersionExtractor.forClass(BuildImageMojo.class);
-    if (StringUtils.hasText(infraVersion)) {
-      request = request.withCreator(Creator.withVersion(infraVersion));
-    }
-    return request;
+    return request.withCreator(Creator.withVersion(Version.instance.implementationVersion()));
   }
 
   /**

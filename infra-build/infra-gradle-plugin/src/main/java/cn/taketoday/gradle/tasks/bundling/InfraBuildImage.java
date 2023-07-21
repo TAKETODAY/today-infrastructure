@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,11 @@ import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.options.Option;
 import org.gradle.work.DisableCachingByDefault;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import cn.taketoday.buildpack.platform.build.BuildRequest;
 import cn.taketoday.buildpack.platform.build.Builder;
 import cn.taketoday.buildpack.platform.build.BuildpackReference;
@@ -44,12 +49,7 @@ import cn.taketoday.buildpack.platform.docker.type.Binding;
 import cn.taketoday.buildpack.platform.docker.type.ImageName;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.io.ZipFileTarArchive;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import cn.taketoday.gradle.util.VersionExtractor;
+import cn.taketoday.lang.Version;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -374,11 +374,7 @@ public abstract class InfraBuildImage extends DefaultTask {
   }
 
   private BuildRequest customizeCreator(BuildRequest request) {
-    String infraVersion = VersionExtractor.forClass(InfraBuildImage.class);
-    if (StringUtils.hasText(infraVersion)) {
-      return request.withCreator(Creator.withVersion(infraVersion));
-    }
-    return request;
+    return request.withCreator(Creator.withVersion(Version.instance.implementationVersion()));
   }
 
   private BuildRequest customizePullPolicy(BuildRequest request) {
