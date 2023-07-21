@@ -19,7 +19,7 @@ dependencies {
   optional 'jakarta.servlet:jakarta.servlet-api'
   optional 'mysql:mysql-connector-java'
   optional 'org.glassfish.external:opendmk_jmxremote_optional_jar'
-  optional 'org.apache.tomcat.embed:tomcat-embed-jasper:10.1.8'
+  optional 'org.apache.tomcat.embed:tomcat-embed-jasper'
   optional 'io.projectreactor:reactor-test'
   optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
   optional 'org.xmlunit:xmlunit-assertj'
@@ -35,8 +35,6 @@ dependencies {
   optional 'jakarta.json.bind:jakarta.json.bind-api'
   optional 'jakarta.resource:jakarta.resource-api'
   optional 'org.aspectj:aspectjweaver'
-  optional 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
-  optional 'jakarta.servlet.jsp:jakarta.servlet.jsp-api'
   optional 'jakarta.annotation:jakarta.annotation-api'
   optional 'jakarta.inject:jakarta.inject-api'
   optional 'jakarta.websocket:jakarta.websocket-api'
@@ -74,6 +72,9 @@ dependencies {
   optional 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
   optional 'com.oracle.database.jdbc:ucp:21.7.0.0'
 
+//  compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api'
+//  compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))
   testImplementation(project(":today-context"))
@@ -105,7 +106,6 @@ dependencies {
   testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
   testImplementation 'org.eclipse.jetty:jetty-http'
   testImplementation 'org.eclipse.jetty:jetty-client'
-  testImplementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
   testImplementation 'org.eclipse.jetty:jetty-alpn-server'
   testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
   testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
@@ -113,7 +113,6 @@ dependencies {
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
-  testImplementation 'org.eclipse.jetty:apache-jsp'
   testImplementation 'io.undertow:undertow-servlet'
   testImplementation 'jakarta.websocket:jakarta.websocket-api'
   testImplementation 'org.apache.tomcat.embed:tomcat-embed-websocket'

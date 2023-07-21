@@ -1,7 +1,6 @@
 plugins {
-  id "maven-publish"
   id "java-gradle-plugin"
-  id "com.gradle.plugin-publish" version "1.2.0"
+  //id "com.gradle.plugin-publish" version "1.2.0"
 }
 
 description = "TODAY Infrastructure Applications Gradle Plugins"
@@ -48,6 +47,8 @@ dependencies {
 }
 
 gradlePlugin {
+  website = "https://github.com/TAKETODAY/today-infrastructure"
+  vcsUrl = "https://github.com/TAKETODAY/today-infrastructure"
   plugins {
     infraPlugin {
       id = "cn.taketoday.application"
