@@ -19,7 +19,7 @@ publishing {
 		}
 	}
 	publications {
-		bootJava(MavenPublication) {
+		infraJava(MavenPublication) {
 			artifact infraJar
 		}
 	}

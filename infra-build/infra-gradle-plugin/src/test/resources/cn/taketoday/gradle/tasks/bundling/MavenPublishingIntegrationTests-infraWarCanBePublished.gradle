@@ -20,7 +20,7 @@ publishing {
 		}
 	}
 	publications {
-		bootWeb(MavenPublication) {
+		infraWeb(MavenPublication) {
 			artifact infraWar
 		}
 	}
