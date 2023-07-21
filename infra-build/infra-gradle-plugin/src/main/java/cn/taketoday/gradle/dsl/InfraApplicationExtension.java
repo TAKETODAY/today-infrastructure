@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,14 +47,14 @@ public class InfraApplicationExtension {
   private final Property<String> mainClass;
 
   /**
-   * Creates a new {@code InfraApplicationPluginExtension} that is associated with the given
+   * Creates a new {@code InfraApplicationExtension} that is associated with the given
    * {@code project}.
    *
    * @param project the project
    */
   public InfraApplicationExtension(Project project) {
     this.project = project;
-    this.mainClass = this.project.getObjects().property(String.class);
+    this.mainClass = project.getObjects().property(String.class);
   }
 
   /**

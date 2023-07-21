@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +31,7 @@ import cn.taketoday.gradle.dsl.InfraApplicationExtension;
 import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.bundling.InfraWar;
-import cn.taketoday.gradle.util.VersionExtractor;
+import cn.taketoday.lang.Version;
 
 /**
  * Gradle plugin for Infra.
@@ -49,7 +46,7 @@ import cn.taketoday.gradle.util.VersionExtractor;
  */
 public class InfraApplicationPlugin implements Plugin<Project> {
 
-  private static final String INFRA_VERSION = VersionExtractor.forClass(DependencyManagementPluginAction.class);
+  private static final String INFRA_VERSION = Version.instance.implementationVersion();
 
   /**
    * The name of the {@link Configuration} that contains Infra archives.

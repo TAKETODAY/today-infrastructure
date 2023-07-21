@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +62,7 @@ class WarPluginAction implements PluginApplicationAction {
   public void execute(Project project) {
     classifyWarTask(project);
     TaskProvider<InfraWar> infraWar = configureInfraWarTask(project);
-    configureBootBuildImageTask(project, infraWar);
+    configureInfraBuildImageTask(project, infraWar);
     configureArtifactPublication(infraWar);
   }
 
@@ -116,7 +113,7 @@ class WarPluginAction implements PluginApplicationAction {
     return configurations.getByName(WarPlugin.PROVIDED_RUNTIME_CONFIGURATION_NAME);
   }
 
-  private void configureBootBuildImageTask(Project project, TaskProvider<InfraWar> infraWar) {
+  private void configureInfraBuildImageTask(Project project, TaskProvider<InfraWar> infraWar) {
     project.getTasks()
             .named(InfraApplicationPlugin.INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class)
             .configure((buildImage) -> buildImage.getArchiveFile().set(infraWar.get().getArchiveFile()));

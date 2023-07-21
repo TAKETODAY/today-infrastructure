@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
 import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 
+import static cn.taketoday.gradle.plugin.InfraApplicationPlugin.INFRA_BUILD_IMAGE_TASK_NAME;
+import static cn.taketoday.gradle.plugin.InfraApplicationPlugin.INFRA_JAR_TASK_NAME;
+
 /**
  * {@link Action} that is executed in response to the {@link NativeImagePlugin} being
  * applied.
@@ -66,7 +69,7 @@ class NativeImagePluginAction implements PluginApplicationAction {
       configureTestNativeBinaryClasspath(sourceSets, graalVmExtension);
       configureGraalVmReachabilityExtension(graalVmExtension);
       copyReachabilityMetadataToInfraJar(project);
-      configureBootBuildImageToProduceANativeImage(project);
+      configureInfraBuildImageToProduceANativeImage(project);
       configureJarManifestNativeAttribute(project);
     });
   }
@@ -109,23 +112,20 @@ class NativeImagePluginAction implements PluginApplicationAction {
   }
 
   private void copyReachabilityMetadataToInfraJar(Project project) {
-    project.getTasks()
-            .named(InfraApplicationPlugin.INFRA_JAR_TASK_NAME, InfraJar.class)
-            .configure((infraJar) -> infraJar.from(project.getTasks().named("collectReachabilityMetadata")));
+    project.getTasks().named(INFRA_JAR_TASK_NAME, InfraJar.class)
+            .configure(infraJar -> infraJar.from(project.getTasks().named("collectReachabilityMetadata")));
   }
 
-  private void configureBootBuildImageToProduceANativeImage(Project project) {
-    project.getTasks()
-            .named(InfraApplicationPlugin.INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class)
-            .configure((infraBuildImage) -> {
-              infraBuildImage.getBuilder().convention("paketobuildpacks/builder:tiny");
-              infraBuildImage.getEnvironment().put("BP_NATIVE_IMAGE", "true");
-            });
+  private void configureInfraBuildImageToProduceANativeImage(Project project) {
+    project.getTasks().named(INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class).configure(infraBuildImage -> {
+      infraBuildImage.getBuilder().convention("paketobuildpacks/builder:tiny");
+      infraBuildImage.getEnvironment().put("BP_NATIVE_IMAGE", "true");
+    });
   }
 
   private void configureJarManifestNativeAttribute(Project project) {
     project.getTasks()
-            .named(InfraApplicationPlugin.INFRA_JAR_TASK_NAME, InfraJar.class)
+            .named(INFRA_JAR_TASK_NAME, InfraJar.class)
             .configure(this::addNativeProcessedAttribute);
   }
 
