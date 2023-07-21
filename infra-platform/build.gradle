@@ -741,6 +741,7 @@ dependencies {
     api 'mysql:mysql-connector-java:8.0.28'
     api 'org.postgresql:postgresql:42.4.1'
     api("net.minidev:json-smart:2.4.10")
+    api 'net.java.dev.jna:jna-platform:5.13.0'
   }
 }
 

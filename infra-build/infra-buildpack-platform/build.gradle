@@ -22,7 +22,7 @@ dependencies {
   api("com.fasterxml.jackson.core:jackson-databind")
   api("org.apache.httpcomponents.client5:httpclient5")
   api("org.apache.commons:commons-compress")
-  api("net.java.dev.jna:jna-platform:5.7.0")
+  api("net.java.dev.jna:jna-platform")
   api("org.tomlj:tomlj:1.0.0")
   implementation(project(":today-aop"))
 
