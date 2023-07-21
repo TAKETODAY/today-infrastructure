@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,7 +160,7 @@ public class MockAsyncContext implements AsyncContext {
    * Java config or the XML namespace, as well as be overridden per request on
    * {@link cn.taketoday.web.context.async.DeferredResult DeferredResult}
    * or on
-   * {@link cn.taketoday.web.servlet.mvc.method.annotation.SseEmitter SseEmitter}.
+   * {@link cn.taketoday.web.handler.method.SseEmitter SseEmitter}.
    *
    * @param timeout the timeout value to use.
    * @see AsyncContext#setTimeout(long)

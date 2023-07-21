@@ -34,7 +34,6 @@ import cn.taketoday.util.ClassUtils;
  * @see BasicJsonParser
  * @see JacksonJsonParser
  * @see GsonJsonParser
- * @see YamlJsonParser
  * @since 4.0
  */
 public interface JsonParser {

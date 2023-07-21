@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +23,7 @@ import cn.taketoday.test.context.support.AbstractDelegatingSmartContextLoader;
 /**
  * {@code WebDelegatingSmartContextLoader} is a concrete implementation of
  * {@link AbstractDelegatingSmartContextLoader} that delegates to a
- * {@link GenericXmlWebContextLoader} (or a {@link GenericGroovyXmlWebContextLoader} if
- * Groovy is present on the classpath) and an {@link AnnotationConfigWebContextLoader}.
+ * {@link GenericXmlWebContextLoader} and an {@link AnnotationConfigWebContextLoader}.
  *
  * @author Sam Brannen
  * @see SmartContextLoader

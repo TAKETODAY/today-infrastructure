@@ -32,6 +32,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
