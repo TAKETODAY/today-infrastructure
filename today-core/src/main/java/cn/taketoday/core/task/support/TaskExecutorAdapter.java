@@ -97,11 +97,6 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   }
 
   @Override
-  public void execute(Runnable task, long startTimeout) {
-    execute(task);
-  }
-
-  @Override
   public Future<?> submit(Runnable task) {
     try {
       if (this.taskDecorator == null &&

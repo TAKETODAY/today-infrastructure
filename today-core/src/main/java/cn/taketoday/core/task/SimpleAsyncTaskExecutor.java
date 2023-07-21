@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.task;
 
 import java.io.Serializable;
@@ -76,6 +74,9 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   @Nullable
   private TaskDecorator taskDecorator;
 
+  @Nullable
+  private VirtualThreadDelegate virtualThreadDelegate;
+
   /**
    * Create a new SimpleAsyncTaskExecutor with default thread name prefix.
    */
@@ -99,6 +100,15 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    */
   public SimpleAsyncTaskExecutor(@Nullable ThreadFactory threadFactory) {
     this.threadFactory = threadFactory;
+  }
+
+  /**
+   * Switch this executor to virtual threads. Requires Java 21 or higher.
+   * <p>The default is {@code false}, indicating platform threads.
+   * Set this flag to {@code true} in order to create virtual threads instead.
+   */
+  public void setVirtualThreads(boolean virtual) {
+    this.virtualThreadDelegate = virtual ? new VirtualThreadDelegate() : null;
   }
 
   /**
@@ -246,14 +256,21 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    * @see #setThreadFactory
    * @see #createThread
    * @see Thread#start()
+   * @see #setVirtualThreads
    */
   protected void doExecute(Runnable task) {
-    ThreadFactory threadFactory = this.threadFactory;
-    if (threadFactory != null) {
-      threadFactory.newThread(task).start();
+    VirtualThreadDelegate virtualThreadDelegate = this.virtualThreadDelegate;
+    if (virtualThreadDelegate != null) {
+      virtualThreadDelegate.startVirtualThread(nextThreadName(), task);
     }
     else {
-      createThread(task).start();
+      ThreadFactory threadFactory = this.threadFactory;
+      if (threadFactory != null) {
+        threadFactory.newThread(task).start();
+      }
+      else {
+        createThread(task).start();
+      }
     }
   }
 

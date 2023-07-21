@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.task;
 
 import java.util.concurrent.Executor;
@@ -28,7 +26,14 @@ import java.util.concurrent.Executor;
  * <p>Implementations can use all sorts of different execution strategies,
  * such as: synchronous, asynchronous, using a thread pool, and more.
  *
+ * <p>Equivalent to Java's {@link java.util.concurrent.Executor} interface,
+ * so that clients may declare a dependency on an {@code Executor} and receive
+ * any {@code TaskExecutor} implementation. This interface remains separate from
+ * the standard {@code Executor} interface primarily for backwards compatibility
+ * with older APIs that depend on the {@code TaskExecutor} interface.
+ *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Executor
  * @since 4.0
  */

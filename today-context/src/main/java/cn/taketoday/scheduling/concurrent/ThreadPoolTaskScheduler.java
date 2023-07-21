@@ -297,11 +297,6 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public void execute(Runnable task, long startTimeout) {
-    execute(task);
-  }
-
-  @Override
   public Future<?> submit(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {

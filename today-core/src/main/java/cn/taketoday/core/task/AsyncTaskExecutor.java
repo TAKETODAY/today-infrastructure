@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import cn.taketoday.util.concurrent.FutureUtils;
 
 /**
  * Extended interface for asynchronous {@link TaskExecutor} implementations,
- * offering an overloaded {@link #execute(Runnable, long)} variant with a start
- * timeout parameter as well support for {@link Callable}.
+ * offering support for {@link java.util.concurrent.Callable}.
  *
  * <p>Note: The {@link java.util.concurrent.Executors} class includes a set of
  * methods that can convert some other common closure-like objects, for example,
@@ -43,6 +41,7 @@ import cn.taketoday.util.concurrent.FutureUtils;
  * @see SimpleAsyncTaskExecutor
  * @see Callable
  * @see java.util.concurrent.Executors
+ * @see cn.taketoday.scheduling.SchedulingTaskExecutor
  * @since 4.0
  */
 public interface AsyncTaskExecutor extends TaskExecutor {
@@ -65,27 +64,41 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * of the timeout (i.e. it cannot be started in time)
    * @throws TaskRejectedException if the given task was not accepted
    */
-  void execute(Runnable task, long startTimeout);
+  default void execute(Runnable task, long startTimeout) {
+    execute(task);
+  }
 
   /**
    * Submit a Runnable task for execution, receiving a Future representing that task.
    * The Future will return a {@code null} result upon completion.
+   * <p>this method comes with a default implementation that delegates
+   * to {@link #execute(Runnable)}.
    *
    * @param task the {@code Runnable} to execute (never {@code null})
    * @return a Future representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  Future<?> submit(Runnable task);
+  default Future<?> submit(Runnable task) {
+    FutureTask<Object> future = new FutureTask<>(task, null);
+    execute(future);
+    return future;
+  }
 
   /**
    * Submit a Callable task for execution, receiving a Future representing that task.
    * The Future will return the Callable's result upon completion.
+   * <p>this method comes with a default implementation that delegates
+   * to {@link #execute(Runnable)}.
    *
    * @param task the {@code Callable} to execute (never {@code null})
    * @return a Future representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  <T> Future<T> submit(Callable<T> task);
+  default <T> Future<T> submit(Callable<T> task) {
+    FutureTask<T> future = new FutureTask<>(task);
+    execute(future, TIMEOUT_INDEFINITE);
+    return future;
+  }
 
   /**
    * Submit a {@code Runnable} task for execution, receiving a {@code CompletableFuture}
