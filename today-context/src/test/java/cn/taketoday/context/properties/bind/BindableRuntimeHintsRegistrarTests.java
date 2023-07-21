@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +38,7 @@ import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.properties.BoundConfigurationProperties;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.BaseProperties.InheritedNested;
 import cn.taketoday.core.env.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -242,6 +240,21 @@ class BindableRuntimeHintsRegistrarTests {
     assertThat(runtimeHints.reflection().typeHints()).singleElement()
             .satisfies(javaBeanBinding(PackagePrivateGettersAndSetters.class, "getAlpha", "setAlpha", "getBravo",
                     "setBravo"));
+  }
+
+  @Test
+  void registerHintsWhenHasInheritedNestedProperties() {
+    RuntimeHints runtimeHints = registerHints(ExtendingProperties.class);
+    assertThat(runtimeHints.reflection().typeHints()).hasSize(3);
+    assertThat(runtimeHints.reflection().getTypeHint(BaseProperties.class)).satisfies((entry) -> {
+      assertThat(entry.getMemberCategories()).isEmpty();
+      assertThat(entry.methods()).extracting(ExecutableHint::getName)
+              .containsExactlyInAnyOrder("getInheritedNested", "setInheritedNested");
+    });
+    assertThat(runtimeHints.reflection().getTypeHint(ExtendingProperties.class))
+            .satisfies(javaBeanBinding(ExtendingProperties.class, "getBravo", "setBravo"));
+    assertThat(runtimeHints.reflection().getTypeHint(InheritedNested.class))
+            .satisfies(javaBeanBinding(InheritedNested.class, "getAlpha", "setAlpha"));
   }
 
   private Consumer<TypeHint> javaBeanBinding(Class<?> type, String... expectedMethods) {
@@ -662,6 +675,48 @@ class BindableRuntimeHintsRegistrarTests {
 
       }
 
+    }
+
+  }
+
+  public abstract static class BaseProperties {
+
+    private InheritedNested inheritedNested;
+
+    public InheritedNested getInheritedNested() {
+      return this.inheritedNested;
+    }
+
+    public void setInheritedNested(InheritedNested inheritedNested) {
+      this.inheritedNested = inheritedNested;
+    }
+
+    public static class InheritedNested {
+
+      private String alpha;
+
+      public String getAlpha() {
+        return this.alpha;
+      }
+
+      public void setAlpha(String alpha) {
+        this.alpha = alpha;
+      }
+
+    }
+
+  }
+
+  public static class ExtendingProperties extends BaseProperties {
+
+    private String bravo;
+
+    public String getBravo() {
+      return this.bravo;
+    }
+
+    public void setBravo(String bravo) {
+      this.bravo = bravo;
     }
 
   }
