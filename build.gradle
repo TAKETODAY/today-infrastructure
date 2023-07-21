@@ -88,9 +88,9 @@ configure([rootProject] + javaProjects) {
       "https://jakarta.ee/specifications/platform/9/apidocs/",
       "https://docs.jboss.org/hibernate/orm/5.6/javadocs/",
       "https://www.eclipse.org/aspectj/doc/released/aspectj5rt-api/",
-      "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.14.1/",
-      "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.14.1/",
-      "https://www.javadoc.io/doc/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.14.1/",
+      "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/2.15.2/",
+      "https://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/2.15.2/",
+      "https://www.javadoc.io/doc/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.15.2/",
       "https://hc.apache.org/httpcomponents-client-5.2.x/current/httpclient5/apidocs/",
 
   ] as String[]
