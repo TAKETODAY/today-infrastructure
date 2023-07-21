@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,25 +42,26 @@ import cn.taketoday.util.StringUtils;
  * {@code ApplicationContext}, at which point all command line arguments become available
  * through the {@link Environment#getProperty(String)} family of methods. For example:
  *
- * <pre class="code">
+ * <pre>{@code
  * public static void main(String[] args) {
  *     CommandLinePropertySource clps = ...;
  *     StandardApplicationContext ctx = new StandardApplicationContext();
  *     ctx.getEnvironment().getPropertySources().addFirst(clps);
  *     ctx.importBeans(AppConfig.class);
  *     ctx.refresh();
+ * }
  * }</pre>
  *
  * With the bootstrap logic above, the {@code AppConfig} class may {@code @Inject} the
  * {@code Environment} and query it directly for properties:
  *
- * <pre class="code">
- * &#064;Configuration
+ * <pre>{@code
+ * @Configuration
  * public class AppConfig {
  *
- *     &#064;Inject Environment env;
+ *     @Inject Environment env;
  *
- *     &#064;Bean
+ *     @Bean
  *     public DataSource dataSource() {
  *         MyVendorDataSource dataSource = new MyVendorDataSource();
  *         dataSource.setHostname(env.getProperty("db.hostname", "localhost"));
@@ -72,6 +70,7 @@ import cn.taketoday.util.StringUtils;
  *         // ...
  *         return dataSource;
  *     }
+ * }
  * }</pre>
  *
  * Because the {@code CommandLinePropertySource} was added to the {@code Environment}'s
@@ -86,8 +85,8 @@ import cn.taketoday.util.StringUtils;
  * annotation may be used to inject these properties, given that a {@link
  * PropertySourcesPropertyResolver} bean has been registered For example:
  *
- * <pre class="code">
- * &#064;Component
+ * <pre>{@code
+ * @Component
  * public class MyComponent {
  *
  *     &#064;Value("my.property:defaultVal")
@@ -98,7 +97,7 @@ import cn.taketoday.util.StringUtils;
  *     }
  *
  *     // ...
- * }</pre>
+ * }}</pre>
  *
  * <h3>Working with option arguments</h3>
  *
@@ -107,12 +106,12 @@ import cn.taketoday.util.StringUtils;
  * {@link PropertySource#containsProperty(String)} methods. For example, given the
  * following command line:
  *
- * <pre class="code">--o1=v1 --o2</pre>
+ * <pre>{@code --o1=v1 --o2}</pre>
  *
  * 'o1' and 'o2' are treated as "option arguments", and the following assertions would
  * evaluate true:
  *
- * <pre class="code">
+ * <pre>{@code
  * CommandLinePropertySource<?> ps = ...
  * assert ps.containsProperty("o1") == true;
  * assert ps.containsProperty("o2") == true;
@@ -120,7 +119,7 @@ import cn.taketoday.util.StringUtils;
  * assert ps.getProperty("o1").equals("v1");
  * assert ps.getProperty("o2").equals("");
  * assert ps.getProperty("o3") == null;
- * </pre>
+ * }</pre>
  *
  * Note that the 'o2' option has no argument, but {@code getProperty("o2")} resolves to
  * empty string ({@code ""}) as opposed to {@code null}, while {@code getProperty("o3")}
@@ -145,13 +144,13 @@ import cn.taketoday.util.StringUtils;
  * in conjunction with the {@link Environment} and its built-in {@code
  * ConversionService}. Consider the following example:
  *
- * <pre class="code">--o1=v1 --o2=v2 /path/to/file1 /path/to/file2</pre>
+ * <pre>{@code --o1=v1 --o2=v2 /path/to/file1 /path/to/file2 }</pre>
  *
  * In this example, "o1" and "o2" would be considered "option arguments", while the two
  * filesystem paths qualify as "non-option arguments".  As such, the following assertions
  * will evaluate true:
  *
- * <pre class="code">
+ * <pre>{@code
  * CommandLinePropertySource<?> ps = ...
  * assert ps.containsProperty("o1") == true;
  * assert ps.containsProperty("o2") == true;
@@ -159,18 +158,18 @@ import cn.taketoday.util.StringUtils;
  * assert ps.getProperty("o1").equals("v1");
  * assert ps.getProperty("o2").equals("v2");
  * assert ps.getProperty("nonOptionArgs").equals("/path/to/file1,/path/to/file2");
- * </pre>
+ * }</pre>
  *
  * <p>As mentioned above, when used in conjunction with the {@code Environment}
  * abstraction, this comma-delimited string may easily be converted to a String array or
  * list:
  *
- * <pre class="code">
+ * <pre>{@code
  * Environment env = applicationContext.getEnvironment();
  * String[] nonOptionArgs = env.getProperty("nonOptionArgs", String[].class);
  * assert nonOptionArgs[0].equals("/path/to/file1");
  * assert nonOptionArgs[1].equals("/path/to/file2");
- * </pre>
+ * }</pre>
  *
  * <p>The name of the special "non-option arguments" property may be customized through
  * the {@link #setNonOptionArgsPropertyName(String)} method. Doing so is recommended as
@@ -178,7 +177,7 @@ import cn.taketoday.util.StringUtils;
  * paths are being specified as non-option arguments, it is likely preferable to refer to
  * these as something like "file.locations" than the default of "nonOptionArgs":
  *
- * <pre class="code">
+ * <pre>{@code
  * public static void main(String[] args) {
  *     CommandLinePropertySource clps = ...;
  *     clps.setNonOptionArgsPropertyName("file.locations");
@@ -187,6 +186,7 @@ import cn.taketoday.util.StringUtils;
  *     ctx.getEnvironment().getPropertySources().addFirst(clps);
  *     ctx.importBeans(AppConfig.class);
  *     ctx.refresh();
+ * }
  * }</pre>
  *
  * <h3>Limitations</h3>

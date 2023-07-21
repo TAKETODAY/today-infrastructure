@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,20 +45,22 @@ import cn.taketoday.util.StringUtils;
  * an empty string.
  *
  * <h4>Valid examples of option arguments</h4>
- * <pre class="code">
+ * <pre>{@code
  * --foo
  * --foo=
  * --foo=""
  * --foo=bar
  * --foo="bar then baz"
- * --foo=bar,baz,biz</pre>
+ * --foo=bar,baz,biz
+ * }</pre>
  *
  * <h4>Invalid examples of option arguments</h4>
- * <pre class="code">
+ * <pre>{@code
  * -foo
  * --foo bar
  * --foo = bar
- * --foo=bar --foo=baz --foo=biz</pre>
+ * --foo=bar --foo=baz --foo=biz
+ * }</pre>
  *
  * <h3>Working with non-option arguments</h3>
  * <p>Any and all arguments specified at the command line without the "{@code --}"
@@ -69,10 +68,11 @@ import cn.taketoday.util.StringUtils;
  * through the {@link CommandLineArgs#getNonOptionArgs()} method.
  *
  * <h3>Typical usage</h3>
- * <pre class="code">
+ * <pre>{@code
  * public static void main(String[] args) {
  *     PropertySource<?> ps = new SimpleCommandLinePropertySource(args);
  *     // ...
+ * }
  * }</pre>
  *
  * See {@link CommandLinePropertySource} for complete general usage examples.
@@ -85,6 +85,7 @@ import cn.taketoday.util.StringUtils;
  * choice.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see CommandLinePropertySource
  * @see JOptCommandLinePropertySource
  * @since 4.0

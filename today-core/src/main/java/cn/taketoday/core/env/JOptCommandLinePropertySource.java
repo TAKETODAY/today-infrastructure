@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +37,7 @@ import joptsimple.OptionSpec;
  * supplied to the {@code main} method, and create a {@link JOptCommandLinePropertySource}
  * using the resulting {@code OptionSet} object:
  *
- * <pre class="code">
+ * <pre> {@code
  * public static void main(String[] args) {
  *     OptionParser parser = new OptionParser();
  *     parser.accepts("option1");
@@ -48,6 +45,7 @@ import joptsimple.OptionSpec;
  *     OptionSet options = parser.parse(args);
  *     PropertySource<?> ps = new JOptCommandLinePropertySource(options);
  *     // ...
+ * }
  * }</pre>
  *
  * See {@link CommandLinePropertySource} for complete general usage examples.
