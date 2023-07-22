@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +50,7 @@ import jakarta.servlet.ServletException;
  * configured)</li>
  * <li>trace - The exception stack trace (if configured)</li>
  * <li>path - The URL path when the exception was raised</li>
+ * <li>requestId - Unique ID associated with the current request</li>
  * </ul>
  *
  * @author Phillip Webb
@@ -78,6 +76,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     addPath(context, errorAttributes);
     addStatus(errorAttributes, context);
     addErrorDetails(errorAttributes, context, options);
+    errorAttributes.put("requestId", context.getRequestId());
     return errorAttributes;
   }
 
