@@ -1,0 +1,24 @@
+description = "Netty Demo"
+
+dependencies {
+
+  implementation project(":web-api")
+  implementation 'cn.taketoday:today-starter-web'
+  implementation 'cn.taketoday:today-starter-netty'
+
+  implementation 'ch.qos.logback:logback-classic'
+  compileOnly 'org.projectlombok:lombok'
+}
+
+compileJava {
+  options.encoding = 'UTF-8'
+  options.compilerArgs << '-parameters'
+
+}
+
+infraBuildImage {
+//  pullPolicy = "IF_NOT_PRESENT"
+  applicationDirectory = "/application"
+  network = "host"
+//  createdDate = Instant.now().toString()
+}

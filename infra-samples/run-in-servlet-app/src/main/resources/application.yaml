@@ -5,7 +5,7 @@
 ########################################################
 
 app:
-  name: netty-app-demo
+  name: servlet-app-demo
 
 infra:
   output:

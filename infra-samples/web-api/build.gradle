@@ -1,0 +1,26 @@
+description = "Samples Web API"
+
+apply plugin: "java-library"
+
+dependencies {
+
+  api 'cn.taketoday:today-web'
+  api 'cn.taketoday:today-websocket'
+  api 'ch.qos.logback:logback-classic'
+  api 'com.fasterxml.jackson.core:jackson-databind'
+  api 'org.yaml:snakeyaml'
+
+  compileOnly 'org.projectlombok:lombok'
+  annotationProcessor 'org.projectlombok:lombok:1.18.28'
+
+}
+
+infraJar {
+  enabled = false
+}
+
+compileJava {
+  options.encoding = 'UTF-8'
+  options.compilerArgs << '-parameters'
+
+}

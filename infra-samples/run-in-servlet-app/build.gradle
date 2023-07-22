@@ -1,0 +1,27 @@
+import java.time.LocalDateTime
+
+description = "Samples run in servlet"
+
+dependencies {
+  implementation project(":web-api")
+
+  implementation 'cn.taketoday:today-starter-web'
+  implementation 'cn.taketoday:today-starter-tomcat'
+  implementation 'cn.taketoday:today-starter-websocket'
+
+  compileOnly 'org.projectlombok:lombok'
+}
+
+
+compileJava {
+  options.encoding = 'UTF-8'
+  options.compilerArgs << '-parameters'
+
+}
+
+infraBuildImage {
+//  pullPolicy = "IF_NOT_PRESENT"
+  applicationDirectory = "/application"
+  network = "host"
+  createdDate = LocalDateTime.now().toString()
+}

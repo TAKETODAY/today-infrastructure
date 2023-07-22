@@ -1,0 +1,43 @@
+plugins {
+  id 'de.undercouch.download' version '5.4.0'
+//  id 'org.graalvm.buildtools.native' version '0.9.23'
+}
+
+configure(subprojects) {
+  group = "cn.taketoday.samples"
+
+  apply plugin: 'java'
+  apply plugin: "cn.taketoday.application"
+  apply plugin: 'io.spring.dependency-management'
+
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+
+  repositories {
+    mavenLocal()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://maven.aliyun.com/repository/public" }
+    mavenCentral()
+  }
+
+  dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.junit.platform:junit-platform-suite-api")
+    testImplementation("org.mockito:mockito-core")
+    testImplementation("org.mockito:mockito-junit-jupiter")
+    testImplementation("junit:junit")
+    testImplementation("org.assertj:assertj-core")
+    testImplementation 'org.projectlombok:lombok'
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.28")
+
+    // Pull in the latest JUnit 5 Launcher API to ensure proper support in IDEs.
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.junit.platform:junit-platform-suite-engine")
+  }
+}
+
+configure(rootProject) {
+  description = "Infrastructure Samples"
+}
