@@ -45,10 +45,12 @@ include 'integration-tests'
 include 'today-test-support'
 include 'today-context-indexer'
 
+// Starters
 file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {
   include "today-starter:${it.name}"
 }
 
+// Build helper
 file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
   include "infra-build:${it.name}"
 }
