@@ -18,8 +18,7 @@
 package cn.taketoday.web.handler.function;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Serial;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
@@ -61,10 +60,9 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextDecorator;
 import cn.taketoday.web.bind.WebDataBinder;
-import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.Multipart;
-import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
@@ -73,6 +71,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  *
  * @author Arjen Poutsma
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class DefaultServerRequest implements ServerRequest {
@@ -474,52 +473,22 @@ class DefaultServerRequest implements ServerRequest {
     }
   }
 
-  @SuppressWarnings("serial")
-  static class CheckNotModifiedResponse extends RequestContext {
-    private final HttpHeaders headers = HttpHeaders.create();
-    private final RequestContext context;
+  static class CheckNotModifiedResponse extends RequestContextDecorator {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private int status = 200;
 
+    private final HttpHeaders headers = HttpHeaders.create();
+
     protected CheckNotModifiedResponse(RequestContext context) {
-      super(null);
-      this.context = context;
+      super(context);
     }
 
     @Override
     public HttpHeaders responseHeaders() {
       return headers;
-    }
-
-    @Override
-    public HttpMethod getMethod() {
-      return context.getMethod();
-    }
-
-    @Override
-    public String getMethodValue() {
-      return context.getMethodValue();
-    }
-
-    @Nullable
-    @Override
-    public HttpCookie getCookie(String name) {
-      return context.getCookie(name);
-    }
-
-    @Override
-    public HttpHeaders requestHeaders() {
-      return context.requestHeaders();
-    }
-
-    @Override
-    public <T> T nativeRequest() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Nullable
-    @Override
-    public <T> T unwrapRequest(Class<T> requestClass) {
-      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -530,111 +499,6 @@ class DefaultServerRequest implements ServerRequest {
     @Override
     public int getStatus() {
       return this.status;
-    }
-
-    @Override
-    public void sendError(int sc) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void sendError(int sc, String msg) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected OutputStream doGetOutputStream() throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getRequestTimeMillis() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getScheme() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getServerName() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getServerPort() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected String doGetRequestURI() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getRequestURL() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected String doGetQueryString() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected HttpCookie[] doGetCookies() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected String doGetMethod() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getRemoteAddress() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getContentLength() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected InputStream doGetInputStream() throws IOException {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected MultipartRequest createMultipartRequest() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected AsyncWebRequest createAsyncWebRequest() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getContentType() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected HttpHeaders createRequestHeaders() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isCommitted() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void sendRedirect(String location) throws IOException {
-
     }
 
   }

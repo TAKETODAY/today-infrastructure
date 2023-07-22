@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +79,17 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
+  public String getRequestId() {
+    return getDelegate().getRequestId();
+  }
+
+  @Nullable
+  @Override
+  protected String initId() {
+    return getDelegate().initId();
+  }
+
+  @Override
   public ApplicationContext getApplicationContext() {
     return getDelegate().getApplicationContext();
   }
@@ -122,7 +130,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetContextPath() {
+  protected String doGetContextPath() {
     return getDelegate().doGetContextPath();
   }
 
@@ -157,7 +165,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetRequestURI() {
+  protected String doGetRequestURI() {
     return getDelegate().doGetRequestURI();
   }
 
@@ -172,7 +180,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetQueryString() {
+  protected String doGetQueryString() {
     return getDelegate().doGetQueryString();
   }
 
@@ -182,7 +190,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public HttpCookie[] doGetCookies() {
+  protected HttpCookie[] doGetCookies() {
     return getDelegate().doGetCookies();
   }
 
@@ -218,12 +226,12 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Map<String, String[]> doGetParameters() {
+  protected Map<String, String[]> doGetParameters() {
     return getDelegate().doGetParameters();
   }
 
   @Override
-  public void postGetParameters(MultiValueMap<String, String> parameters) {
+  protected void postGetParameters(MultiValueMap<String, String> parameters) {
     getDelegate().postGetParameters(parameters);
   }
 
@@ -245,7 +253,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String doGetMethod() {
+  protected String doGetMethod() {
     return getDelegate().doGetMethod();
   }
 
@@ -275,7 +283,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public InputStream doGetInputStream() throws IOException {
+  protected InputStream doGetInputStream() throws IOException {
     return getDelegate().doGetInputStream();
   }
 
@@ -285,7 +293,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public BufferedReader doGetReader() throws IOException {
+  protected BufferedReader doGetReader() throws IOException {
     return getDelegate().doGetReader();
   }
 
@@ -315,7 +323,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Locale doGetLocale() {
+  protected Locale doGetLocale() {
     return getDelegate().doGetLocale();
   }
 
@@ -400,7 +408,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public OutputStream doGetOutputStream() throws IOException {
+  protected OutputStream doGetOutputStream() throws IOException {
     return getDelegate().doGetOutputStream();
   }
 
@@ -410,7 +418,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public PrintWriter doGetWriter() throws IOException {
+  protected PrintWriter doGetWriter() throws IOException {
     return getDelegate().doGetWriter();
   }
 

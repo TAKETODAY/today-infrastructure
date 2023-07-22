@@ -195,6 +195,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   private long requestCompletedTimeMillis;
 
+  @Nullable
+  private String id;
+
   protected RequestContext(ApplicationContext context) {
     this.applicationContext = context;
   }
@@ -228,6 +231,35 @@ public abstract class RequestContext extends AttributeAccessorSupport
       return requestCompletedTimeMillis - getRequestTimeMillis();
     }
     return System.currentTimeMillis() - getRequestTimeMillis();
+  }
+
+  /**
+   * Obtain a unique identifier string for this request.
+   * <p>
+   * There is no defined format for this string. The format is implementation dependent.
+   *
+   * @return A unique identifier for the request
+   * @since 4.0
+   */
+  public String getRequestId() {
+    String id = this.id;
+    if (id == null) {
+      id = initId();
+      if (id == null) {
+        id = ObjectUtils.getIdentityHexString(this);
+        this.id = id;
+      }
+    }
+    return id;
+  }
+
+  /**
+   * Obtain the request id to use, or {@code null} in which case the Object
+   * identity of this request instance is used.
+   */
+  @Nullable
+  protected String initId() {
+    return null;
   }
 
   // --- request

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,9 +65,8 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
    * are supposed to be exposed (if this is non-null, only the beans in this
    * Set are eligible for exposure as attributes)
    */
-  public ContextExposingRequestContext(
-          RequestContext originalRequest, ApplicationContext context,
-          @Nullable Set<String> exposedContextBeanNames) {
+  public ContextExposingRequestContext(RequestContext originalRequest,
+          ApplicationContext context, @Nullable Set<String> exposedContextBeanNames) {
     super(originalRequest);
     Assert.notNull(context, "WebApplicationContext is required");
     this.webApplicationContext = context;
@@ -80,6 +76,7 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
   /**
    * Return the WebApplicationContext that this request runs in.
    */
+  @Override
   public ApplicationContext getApplicationContext() {
     return this.webApplicationContext;
   }
