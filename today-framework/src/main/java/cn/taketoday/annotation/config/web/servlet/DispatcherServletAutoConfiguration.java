@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,8 +108,8 @@ public class DispatcherServletAutoConfiguration {
   @Component(name = DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME)
   @ConditionalOnBean(value = DispatcherServlet.class, name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
   static DispatcherServletRegistrationBean dispatcherServletRegistration(
-          DispatcherServlet dispatcherServlet, WebMvcProperties webMvcProperties,
-          @Nullable MultipartConfigFactory multipartConfigFactory) {
+          @Nullable MultipartConfigFactory multipartConfigFactory,
+          DispatcherServlet dispatcherServlet, WebMvcProperties webMvcProperties) {
 
     var servlet = webMvcProperties.getServlet();
     var registration = new DispatcherServletRegistrationBean(dispatcherServlet, servlet.getPath());

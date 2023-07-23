@@ -101,7 +101,6 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  @Deprecated
   public String methodName() {
     return requestContext.getMethodValue();
   }

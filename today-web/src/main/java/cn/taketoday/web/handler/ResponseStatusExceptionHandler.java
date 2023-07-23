@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,8 +138,8 @@ public class ResponseStatusExceptionHandler
    * @param statusCode the HTTP status code
    * @param reason the associated reason (may be {@code null} or empty)
    */
-  protected Object applyStatusAndReason(
-          int statusCode, @Nullable String reason, RequestContext request) throws IOException {
+  protected Object applyStatusAndReason(int statusCode,
+          @Nullable String reason, RequestContext request) throws IOException {
 
     if (StringUtils.isEmpty(reason)) {
       request.sendError(statusCode);

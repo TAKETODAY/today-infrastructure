@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,17 +49,18 @@ public abstract class AbstractErrorController implements ErrorController {
     this(errorAttributes, null);
   }
 
-  public AbstractErrorController(ErrorAttributes errorAttributes, List<ErrorViewResolver> errorViewResolvers) {
+  public AbstractErrorController(ErrorAttributes errorAttributes,
+          @Nullable List<ErrorViewResolver> errorViewResolvers) {
     Assert.notNull(errorAttributes, "ErrorAttributes is required");
     this.errorAttributes = errorAttributes;
     this.errorViewResolvers = sortErrorViewResolvers(errorViewResolvers);
   }
 
-  private List<ErrorViewResolver> sortErrorViewResolvers(List<ErrorViewResolver> resolvers) {
-    List<ErrorViewResolver> sorted = new ArrayList<>();
+  private List<ErrorViewResolver> sortErrorViewResolvers(@Nullable List<ErrorViewResolver> resolvers) {
+    ArrayList<ErrorViewResolver> sorted = new ArrayList<>();
     if (resolvers != null) {
       sorted.addAll(resolvers);
-      AnnotationAwareOrderComparator.sortIfNecessary(sorted);
+      AnnotationAwareOrderComparator.sort(sorted);
     }
     return sorted;
   }

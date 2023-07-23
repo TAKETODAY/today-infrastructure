@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +19,8 @@ package cn.taketoday.framework.web.servlet.support;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,9 +66,13 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
   private static final Set<Class<?>> CLIENT_ABORT_EXCEPTIONS;
 
   static {
-    Set<Class<?>> clientAbortExceptions = new HashSet<>();
-    addClassIfPresent(clientAbortExceptions, "org.apache.catalina.connector.ClientAbortException");
-    CLIENT_ABORT_EXCEPTIONS = Collections.unmodifiableSet(clientAbortExceptions);
+    Class<Object> loaded = ClassUtils.load("org.apache.catalina.connector.ClientAbortException");
+    if (loaded != null) {
+      CLIENT_ABORT_EXCEPTIONS = Set.of(loaded);
+    }
+    else {
+      CLIENT_ABORT_EXCEPTIONS = Collections.emptySet();
+    }
   }
 
   private String global;
@@ -283,18 +282,8 @@ public class ErrorPageFilter implements Filter, ErrorPageRegistry, Ordered {
   }
 
   @Override
-  public void destroy() { }
-
-  @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE + 1;
-  }
-
-  private static void addClassIfPresent(Collection<Class<?>> collection, String className) {
-    try {
-      collection.add(ClassUtils.forName(className, null));
-    }
-    catch (Throwable ignored) { }
   }
 
   private static class ErrorWrapperResponse extends HttpServletResponseWrapper {
