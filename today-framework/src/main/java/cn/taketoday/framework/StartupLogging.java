@@ -68,7 +68,7 @@ final class StartupLogging {
 
   private CharSequence getStartingMessage() {
     StringBuilder message = new StringBuilder();
-    message.append("Starting ");
+    message.append("Starting");
     appendAotMode(message);
     appendApplicationName(message);
     appendVersion(message, this.sourceClass);
@@ -81,7 +81,7 @@ final class StartupLogging {
 
   private CharSequence getStartedMessage(Duration timeTakenToStartup) {
     StringBuilder message = new StringBuilder();
-    message.append("Started ");
+    message.append("Started");
     appendApplicationName(message);
     message.append(" in ");
     message.append(timeTakenToStartup.toMillis() / 1000.0);
@@ -104,7 +104,7 @@ final class StartupLogging {
 
   private void appendApplicationName(StringBuilder message) {
     String name = sourceClass != null ? ClassUtils.getShortName(this.sourceClass) : "application";
-    message.append(name);
+    append(message, null, name);
   }
 
   private void appendVersion(StringBuilder message, @Nullable Class<?> source) {
