@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,8 +42,7 @@ public class MissingWebServerFactoryBeanException extends NoSuchBeanDefinitionEx
    * @param webServerFactoryClass the class of the WebServerFactory that was missing
    * @param webApplicationType the type of the web application
    */
-  public MissingWebServerFactoryBeanException(
-          Class<? extends WebServerApplicationContext> webServerApplicationContextClass,
+  public MissingWebServerFactoryBeanException(Class<? extends WebServerApplicationContext> webServerApplicationContextClass,
           Class<? extends WebServerFactory> webServerFactoryClass, ApplicationType webApplicationType) {
     super(webServerFactoryClass, String.format("Unable to start %s due to missing %s bean",
             webServerApplicationContextClass.getSimpleName(), webServerFactoryClass.getSimpleName()));
