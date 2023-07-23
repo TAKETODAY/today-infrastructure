@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +93,7 @@ public class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)
-  public DefaultErrorAttributes errorAttributes() {
+  public static DefaultErrorAttributes errorAttributes() {
     return new DefaultErrorAttributes();
   }
 
@@ -192,6 +189,7 @@ public class ErrorMvcAutoConfiguration {
       Object timestamp = model.get("timestamp");
       Object message = model.get("message");
       Object trace = model.get("trace");
+      Object requestId = model.get("requestId");
 
       if (request.getContentType() == null) {
         request.setContentType(getContentType());
@@ -199,8 +197,9 @@ public class ErrorMvcAutoConfiguration {
 
       builder.append("<html><body><h1>Whitelabel Error Page</h1>")
               .append("<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
-              .append("<div id='created'>").append(timestamp).append("</div>")
-              .append("<div>There was an unexpected error (type=").append(htmlEscape(model.get("error")))
+              .append("<div id='created'>").append(timestamp).append("</div><div>[")
+              .append(requestId)
+              .append("]There was an unexpected error (type=").append(htmlEscape(model.get("error")))
               .append(", status=").append(htmlEscape(model.get("status"))).append(").</div>");
       if (message != null) {
         builder.append("<div>").append(htmlEscape(message)).append("</div>");
