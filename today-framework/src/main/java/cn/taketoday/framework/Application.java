@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,8 +32,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.aot.AotDetector;
+import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
@@ -47,12 +47,14 @@ import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
+import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
@@ -507,7 +509,9 @@ public class Application {
    * @see #setApplicationContextFactory(ApplicationContextFactory)
    */
   protected ConfigurableApplicationContext createApplicationContext() {
-    return applicationContextFactory.create(this.applicationType);
+    ConfigurableApplicationContext context = applicationContextFactory.create(applicationType);
+    Assert.state(context != null, "No suitable ConfigurableApplicationContext");
+    return context;
   }
 
   protected void prepareStartup(ApplicationArguments arguments) {
@@ -549,10 +553,17 @@ public class Application {
       context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
     }
 
-    // Load the sources
-    Set<Object> sources = getAllSources();
-    Assert.notEmpty(sources, "Sources must not be empty");
-    load(context, sources.toArray());
+    if (CollectionUtils.isNotEmpty(defaultProperties)) {
+      context.addBeanFactoryPostProcessor(new PropertySourceOrderingBeanFactoryPostProcessor(context));
+    }
+
+    if (!AotDetector.useGeneratedArtifacts()) {
+      // Load the sources
+      Set<Object> sources = getAllSources();
+      Assert.notEmpty(sources, "Sources must not be empty");
+      load(context, sources.toArray());
+    }
+
     listeners.contextLoaded(context);
   }
 
@@ -709,8 +720,7 @@ public class Application {
    *
    * @param applicationContextFactory the factory for the context
    */
-  public void setApplicationContextFactory(
-          @Nullable ApplicationContextFactory applicationContextFactory) {
+  public void setApplicationContextFactory(@Nullable ApplicationContextFactory applicationContextFactory) {
     this.applicationContextFactory =
             applicationContextFactory != null
             ? applicationContextFactory : ApplicationContextFactory.DEFAULT;
@@ -1547,6 +1557,30 @@ public class Application {
     private ApplicationStartupListener getRunListener(Application application) {
       application.addPrimarySources(this.sources);
       return null;
+    }
+
+  }
+
+  /**
+   * {@link BeanFactoryPostProcessor} to re-order our property sources below any
+   * {@code @PropertySource} items added by the {@link ConfigurationClassPostProcessor}.
+   */
+  private static class PropertySourceOrderingBeanFactoryPostProcessor implements BeanFactoryPostProcessor, Ordered {
+
+    private final ConfigurableApplicationContext context;
+
+    PropertySourceOrderingBeanFactoryPostProcessor(ConfigurableApplicationContext context) {
+      this.context = context;
+    }
+
+    @Override
+    public int getOrder() {
+      return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    @Override
+    public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
+      DefaultPropertiesPropertySource.moveToEnd(context.getEnvironment());
     }
 
   }

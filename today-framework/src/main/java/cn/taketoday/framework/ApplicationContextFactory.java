@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +17,22 @@
 
 package cn.taketoday.framework;
 
+import java.util.List;
 import java.util.function.Supplier;
 
+import cn.taketoday.aot.AotDetector;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.framework.web.context.GenericWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
+import cn.taketoday.framework.web.reactive.context.ReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import cn.taketoday.framework.web.servlet.context.ServletWebServerApplicationContext;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Strategy interface for creating the {@link ConfigurableApplicationContext} used by a
@@ -44,20 +49,7 @@ public interface ApplicationContextFactory {
    * A default {@link ApplicationContextFactory} implementation that will create an
    * appropriate context for the {@link ApplicationType}.
    */
-  ApplicationContextFactory DEFAULT = (applicationType) -> {
-    try {
-      return switch (applicationType) {
-        case NETTY_WEB -> new AnnotationConfigWebServerApplicationContext();
-        case SERVLET_WEB -> new AnnotationConfigServletWebServerApplicationContext();
-        case REACTIVE_WEB -> new AnnotationConfigReactiveWebServerApplicationContext();
-        default -> new AnnotationConfigApplicationContext();
-      };
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException("Unable create a default ApplicationContext instance, "
-              + "you may need a custom ApplicationContextFactory", ex);
-    }
-  };
+  ApplicationContextFactory DEFAULT = new Default();
 
   /**
    * Creates the {@link ConfigurableApplicationContext application context} for a
@@ -66,6 +58,7 @@ public interface ApplicationContextFactory {
    * @param type the application type
    * @return the newly created application context
    */
+  @Nullable
   ConfigurableApplicationContext create(ApplicationType type);
 
   /**
@@ -89,7 +82,52 @@ public interface ApplicationContextFactory {
    * @return the factory that will instantiate the context class
    */
   static ApplicationContextFactory from(Supplier<ConfigurableApplicationContext> supplier) {
-    return (applicationType) -> supplier.get();
+    return applicationType -> supplier.get();
+  }
+
+  /**
+   * Default ApplicationContextFactory
+   */
+  class Default implements ApplicationContextFactory {
+
+    @Override
+    public ConfigurableApplicationContext create(ApplicationType applicationType) {
+      List<ApplicationContextFactory> factories = TodayStrategies.find(ApplicationContextFactory.class);
+      for (ApplicationContextFactory factory : factories) {
+        ConfigurableApplicationContext context = factory.create(applicationType);
+        if (context != null) {
+          return context;
+        }
+      }
+
+      // fallback to defaults
+      if (applicationType == ApplicationType.NETTY_WEB) {
+        if (AotDetector.useGeneratedArtifacts()) {
+          return new GenericWebServerApplicationContext();
+        }
+        return new AnnotationConfigWebServerApplicationContext();
+      }
+      else if (applicationType == ApplicationType.REACTIVE_WEB) {
+        if (AotDetector.useGeneratedArtifacts()) {
+          return new ReactiveWebServerApplicationContext();
+        }
+        return new AnnotationConfigReactiveWebServerApplicationContext();
+      }
+      else if (applicationType == ApplicationType.SERVLET_WEB) {
+        if (AotDetector.useGeneratedArtifacts()) {
+          return new ServletWebServerApplicationContext();
+        }
+        return new AnnotationConfigServletWebServerApplicationContext();
+      }
+      else {
+        if (AotDetector.useGeneratedArtifacts()) {
+          return new GenericApplicationContext();
+        }
+        return new AnnotationConfigApplicationContext();
+      }
+
+    }
+
   }
 
 }

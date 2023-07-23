@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.time.Duration;
 
+import cn.taketoday.aot.AotDetector;
 import cn.taketoday.core.ApplicationHome;
 import cn.taketoday.core.ApplicationPid;
 import cn.taketoday.lang.Assert;
@@ -71,6 +69,7 @@ final class StartupLogging {
   private CharSequence getStartingMessage() {
     StringBuilder message = new StringBuilder();
     message.append("Starting ");
+    appendAotMode(message);
     appendApplicationName(message);
     appendVersion(message, this.sourceClass);
     appendJavaVersion(message);
@@ -95,6 +94,12 @@ final class StartupLogging {
       // No JVM time available
     }
     return message;
+  }
+
+  private void appendAotMode(StringBuilder message) {
+    if (AotDetector.useGeneratedArtifacts()) {
+      message.append("AOT-processed");
+    }
   }
 
   private void appendApplicationName(StringBuilder message) {

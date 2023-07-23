@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.framework.test.context;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import cn.taketoday.aot.AotDetector;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -39,15 +37,21 @@ import cn.taketoday.util.ReflectionUtils;
  * directly on test classes.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ImportsContextCustomizer
+ * @since 4.0
  */
 class ImportsContextCustomizerFactory implements ContextCustomizerFactory {
 
   @Override
   public ContextCustomizer createContextCustomizer(Class<?> testClass,
           List<ContextConfigurationAttributes> configAttributes) {
-    AnnotationDescriptor<Import> descriptor = TestContextAnnotationUtils.findAnnotationDescriptor(testClass,
-            Import.class);
+    if (AotDetector.useGeneratedArtifacts()) {
+      return null;
+    }
+
+    AnnotationDescriptor<Import> descriptor = TestContextAnnotationUtils.findAnnotationDescriptor(
+            testClass, Import.class);
     if (descriptor != null) {
       assertHasNoBeanMethods(descriptor.getRootDeclaringClass());
       return new ImportsContextCustomizer(descriptor.getRootDeclaringClass());
