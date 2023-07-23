@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +55,7 @@ public interface TransactionFactory {
   /**
    * Determine whether the underlying transaction manager supports XA transactions
    * managed by a resource adapter (i.e. without explicit XA resource enlistment).
-   * <p>Typically {@code false}. Checked by
-   * {@link cn.taketoday.jca.endpoint.AbstractMessageEndpointFactory}
-   * in order to differentiate between invalid configuration and valid
-   * ResourceAdapter-managed transactions.
+   * <p>Typically {@code false}.
    *
    * @see jakarta.resource.spi.ResourceAdapter#endpointActivation
    * @see jakarta.resource.spi.endpoint.MessageEndpointFactory#isDeliveryTransacted

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,9 +117,9 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * sources using {@link PropertySources#addLast(PropertySource)} such that
    * further subclasses may call {@code super.customizePropertySources()} with
    * predictable results. For example:
-   * <pre class="code">
+   * <pre> {@code
    * public class Level1Environment extends AbstractEnvironment {
-   *     &#064;Override
+   *     @Override
    *     protected void customizePropertySources(PropertySources propertySources) {
    *         super.customizePropertySources(propertySources); // no-op from base class
    *         propertySources.addLast(new PropertySourceA(...));
@@ -131,29 +128,29 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * }
    *
    * public class Level2Environment extends Level1Environment {
-   *     &#064;Override
+   *     @Override
    *     protected void customizePropertySources(PropertySources propertySources) {
    *         super.customizePropertySources(propertySources); // add all from superclass
    *         propertySources.addLast(new PropertySourceC(...));
    *         propertySources.addLast(new PropertySourceD(...));
    *     }
    * }
-   * </pre>
+   * }</pre>
    * In this arrangement, properties will be resolved against sources A, B, C, D in that
    * order. That is to say that property source "A" has precedence over property source
    * "D". If the {@code Level2Environment} subclass wished to give property sources C
    * and D higher precedence than A and B, it could simply call
    * {@code super.customizePropertySources} after, rather than before adding its own:
-   * <pre class="code">
+   * <pre> {@code
    * public class Level2Environment extends Level1Environment {
-   *     &#064;Override
+   *     @Override
    *     protected void customizePropertySources(PropertySources propertySources) {
    *         propertySources.addLast(new PropertySourceC(...));
    *         propertySources.addLast(new PropertySourceD(...));
    *         super.customizePropertySources(propertySources); // add all from superclass
    *     }
    * }
-   * </pre>
+   * }</pre>
    * The search order is now C, D, A, B as desired.
    *
    * <p>Beyond these recommendations, subclasses may use any of the {@code add&#42;},
@@ -164,7 +161,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    *
    * <p>Note that clients of any {@link ConfigurableEnvironment} may further customize
    * property sources via the {@link #getPropertySources()} accessor, typically within
-   * an {@link cn.taketoday.web.config.WebApplicationInitializer}. For example:
+   * an {@link cn.taketoday.context.ApplicationContextInitializer}. For example:
    * <pre class="code">
    * ConfigurableEnvironment env = new StandardEnvironment();
    * env.getPropertySources().addLast(new PropertySourceX(...));

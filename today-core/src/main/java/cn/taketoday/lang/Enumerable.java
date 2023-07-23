@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +98,7 @@ public interface Enumerable<V> extends Descriptive {
    * @param <T> enum type
    * @param <V> enumeration value type
    * @param defaultValue default value
-   * @see #of(Class, V)
+   * @see #of(Class, Object)
    */
   static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value, Supplier<T> defaultValue) {
     return find(enumerable, value).orElseGet(defaultValue);
@@ -111,7 +108,7 @@ public interface Enumerable<V> extends Descriptive {
    * @param defaultValue default value
    * @param <T> enum type
    * @param <V> enumeration value type
-   * @see #of(Class, V)
+   * @see #of(Class, Object)
    */
   static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value, T defaultValue) {
     return find(enumerable, value).orElse(defaultValue);
