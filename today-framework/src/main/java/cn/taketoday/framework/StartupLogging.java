@@ -98,7 +98,7 @@ final class StartupLogging {
 
   private void appendAotMode(StringBuilder message) {
     if (AotDetector.useGeneratedArtifacts()) {
-      message.append("AOT-processed");
+      append(message, null, "AOT-processed");
     }
   }
 
