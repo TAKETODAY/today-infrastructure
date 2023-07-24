@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.lang.Assert;
@@ -33,8 +31,7 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  *
  * @author TODAY 2019-07-02 21:34
  */
-public class NettyChannelInitializer
-    extends ChannelInitializer<SocketChannel> implements ChannelHandler {
+public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
   private final NettyChannelHandler nettyChannelHandler;
 
@@ -99,10 +96,10 @@ public class NettyChannelInitializer
   protected void initChannel(final SocketChannel ch) {
 
     ch.pipeline()
-        .addLast("HttpServerCodec", new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders))
-        .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
-        .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-        .addLast("ReactiveChannelHandler", nettyChannelHandler);
+            .addLast("HttpServerCodec", new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders))
+            .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
+            .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
+            .addLast("ReactiveChannelHandler", nettyChannelHandler);
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,12 +53,11 @@ public interface AotApplicationContextInitializer extends ApplicationContextInit
    * @return a new {@link AotApplicationContextInitializer} instance
    */
   static AotApplicationContextInitializer forInitializerClasses(String... initializerClassNames) {
-
     Assert.noNullElements(initializerClassNames, "'initializerClassNames' must not contain null elements");
     return applicationContext -> initialize(applicationContext, initializerClassNames);
   }
 
-  private static <C extends ConfigurableApplicationContext> void initialize(
+  static <C extends ConfigurableApplicationContext> void initialize(
           C applicationContext, String... initializerClassNames) {
     Logger logger = LoggerFactory.getLogger(AotApplicationContextInitializer.class);
     ClassLoader classLoader = applicationContext.getClassLoader();
