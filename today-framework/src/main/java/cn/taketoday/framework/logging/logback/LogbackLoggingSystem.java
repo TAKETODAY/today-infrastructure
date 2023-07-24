@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +44,10 @@ import ch.qos.logback.core.status.Status;
 import ch.qos.logback.core.status.StatusUtil;
 import ch.qos.logback.core.util.StatusListenerConfigHelper;
 import ch.qos.logback.core.util.StatusPrinter;
+import cn.taketoday.aot.AotDetector;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -75,7 +76,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class LogbackLoggingSystem extends AbstractLoggingSystem {
+public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanFactoryInitializationAotProcessor {
 
   private static final String CONFIGURATION_FILE_PROPERTY = "logback.configurationFile";
 
@@ -167,7 +168,11 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem {
     if (isAlreadyInitialized(loggerContext)) {
       return;
     }
-    super.initialize(startupContext, configLocation, logFile);
+
+    if (!initializeFromAotGeneratedArtifactsIfPossible(startupContext, logFile)) {
+      super.initialize(startupContext, configLocation, logFile);
+    }
+
     loggerContext.putObject(Environment.class.getName(), startupContext.getEnvironment());
     loggerContext.getTurboFilterList().remove(FILTER);
     markAsInitialized(loggerContext);
@@ -175,6 +180,24 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem {
       getLogger(LogbackLoggingSystem.class.getName())
               .warn("Ignoring '{}' system property. Please use 'logging.config' instead.", CONFIGURATION_FILE_PROPERTY);
     }
+  }
+
+  private boolean initializeFromAotGeneratedArtifactsIfPossible(@Nullable LoggingStartupContext startupContext, LogFile logFile) {
+    if (!AotDetector.useGeneratedArtifacts()) {
+      return false;
+    }
+    if (startupContext != null) {
+      applySystemProperties(startupContext.getEnvironment(), logFile);
+    }
+    LoggerContext loggerContext = getLoggerContext();
+    stopAndReset(loggerContext);
+    InfraJoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
+    configurator.setContext(loggerContext);
+    boolean configuredUsingAotGeneratedArtifacts = configurator.configureUsingAotGeneratedArtifacts();
+    if (configuredUsingAotGeneratedArtifacts) {
+      reportConfigurationErrorsIfNecessary(loggerContext);
+    }
+    return configuredUsingAotGeneratedArtifacts;
   }
 
   @Override
@@ -382,6 +405,16 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem {
   @Override
   protected String getDefaultLogCorrelationPattern() {
     return "%correlationId";
+  }
+
+  @Override
+  public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
+    String key = BeanFactoryInitializationAotContribution.class.getName();
+    LoggerContext context = getLoggerContext();
+    BeanFactoryInitializationAotContribution contribution = (BeanFactoryInitializationAotContribution) context
+            .getObject(key);
+    context.removeObject(key);
+    return contribution;
   }
 
   /**

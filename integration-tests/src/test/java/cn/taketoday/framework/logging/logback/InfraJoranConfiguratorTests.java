@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.framework.logging.LoggingStartupContext;
 import cn.taketoday.framework.test.system.CapturedOutput;
@@ -208,6 +206,25 @@ class InfraJoranConfiguratorTests {
     assertThat(this.context.getProperty("MYCHECK")).isNull();
   }
 
+  @Test
+  void addsAotContributionToContextDuringAotProcessing() throws Exception {
+    withSystemProperty("infra.aot.processing", "true", () -> {
+      initialize("property.xml");
+      Object contribution = this.context.getObject(BeanFactoryInitializationAotContribution.class.getName());
+      assertThat(contribution).isNotNull();
+    });
+  }
+
+  private void withSystemProperty(String name, String value, Action action) throws Exception {
+    System.setProperty(name, value);
+    try {
+      action.perform();
+    }
+    finally {
+      System.clearProperty(name);
+    }
+  }
+
   private void doTestNestedProfile(boolean expected, String... profiles) throws JoranException {
     this.environment.setActiveProfiles(profiles);
     initialize("nested.xml");
@@ -224,6 +241,12 @@ class InfraJoranConfiguratorTests {
   private void initialize(String config) throws JoranException {
     this.configurator.setContext(this.context);
     this.configurator.doConfigure(getClass().getResourceAsStream(config));
+  }
+
+  private interface Action {
+
+    void perform() throws Exception;
+
   }
 
 }

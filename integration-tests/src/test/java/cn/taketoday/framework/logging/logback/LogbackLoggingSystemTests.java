@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,7 @@ import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import ch.qos.logback.core.util.StatusPrinter;
+import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.framework.logging.AbstractLoggingSystemTests;
@@ -649,6 +647,22 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.logger.info("Hello world");
     LayoutWrappingEncoder<?> encoder = (LayoutWrappingEncoder<?>) getConsoleAppender().getEncoder();
     assertThat(encoder.getCharset()).isEqualTo(StandardCharsets.UTF_16);
+  }
+
+  @Test
+  void whenContextHasNoAotContributionThenProcessAheadOfTimeReturnsNull() {
+    BeanFactoryInitializationAotContribution contribution = this.loggingSystem.processAheadOfTime(null);
+    assertThat(contribution).isNull();
+  }
+
+  @Test
+  void whenContextHasAotContributionThenProcessAheadOfTimeClearsAndReturnsIt() {
+    LoggerContext context = ((LoggerContext) LoggerFactory.getILoggerFactory());
+    context.putObject(BeanFactoryInitializationAotContribution.class.getName(),
+            mock(BeanFactoryInitializationAotContribution.class));
+    BeanFactoryInitializationAotContribution contribution = this.loggingSystem.processAheadOfTime(null);
+    assertThat(context.getObject(BeanFactoryInitializationAotContribution.class.getName())).isNull();
+    assertThat(contribution).isNotNull();
   }
 
   @Test
