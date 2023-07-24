@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -471,18 +468,6 @@ public class TodayStrategies {
     this.strategies = strategies;
   }
 
-  public static void readStrategies(
-          MultiValueMap<String, String> strategies, String strategyKey, String value) {
-    // split as string list
-    List<String> strategyValues = StringUtils.splitAsList(value);
-    for (String strategyValue : strategyValues) {
-      strategyValue = strategyValue.trim(); // trim whitespace
-      if (StringUtils.isNotEmpty(strategyValue)) {
-        strategies.add(strategyKey, strategyValue);
-      }
-    }
-  }
-
   /**
    * @param strategies output
    * @param properties input
@@ -492,7 +477,14 @@ public class TodayStrategies {
       Object key = entry.getKey();
       Object value = entry.getValue();
       if (key != null && value != null) {
-        readStrategies(strategies, key.toString(), value.toString());
+        // split as string list
+        List<String> strategyValues = StringUtils.splitAsList(value.toString());
+        for (String strategyValue : strategyValues) {
+          strategyValue = strategyValue.trim(); // trim whitespace
+          if (StringUtils.isNotEmpty(strategyValue)) {
+            strategies.add(key.toString(), strategyValue);
+          }
+        }
       }
     }
   }
@@ -1179,8 +1171,7 @@ public class TodayStrategies {
      * @param exceptionFactory strategy used to create the exception
      * @return a new {@link FailureHandler} instance
      */
-    static FailureHandler throwing(
-            BiFunction<String, Throwable, ? extends RuntimeException> exceptionFactory) {
+    static FailureHandler throwing(BiFunction<String, Throwable, ? extends RuntimeException> exceptionFactory) {
       return handleMessage((messageSupplier, failure) -> {
         throw exceptionFactory.apply(messageSupplier.get(), failure);
       });
