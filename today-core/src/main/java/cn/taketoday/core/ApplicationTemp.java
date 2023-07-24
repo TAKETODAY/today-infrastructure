@@ -26,8 +26,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
@@ -46,7 +44,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class ApplicationTemp {
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
-          "app.temp-prefix", "today-");
+          "app.temp-prefix", ApplicationTemp.class.getName());
 
   @Nullable
   private final Class<?> sourceClass;
@@ -132,7 +130,7 @@ public class ApplicationTemp {
     if (sourceClass != null) {
       return sourceClass.getName();
     }
-    return TEMP_SUB_DIR + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    return TEMP_SUB_DIR;
   }
 
   private Path createDirectory(Path path) {
