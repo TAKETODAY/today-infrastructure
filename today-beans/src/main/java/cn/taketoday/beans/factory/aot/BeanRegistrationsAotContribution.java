@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanRegistrationsAotProcessor
  * @since 4.0
  */
@@ -86,7 +84,7 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
           GenerationContext generationContext, BeanRegistrationsCode beanRegistrationsCode) {
 
     method.addJavadoc("Register the bean definitions.");
-    method.addModifiers(Modifier.PUBLIC);
+    method.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
     method.addParameter(StandardBeanFactory.class, BEAN_FACTORY_PARAMETER_NAME);
     CodeBlock.Builder code = CodeBlock.builder();
     this.registrations.forEach((registeredBean, registration) -> {
@@ -102,7 +100,7 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
 
   private void generateRegisterAliasesMethod(MethodSpec.Builder method) {
     method.addJavadoc("Register the aliases.");
-    method.addModifiers(Modifier.PUBLIC);
+    method.addModifiers(Modifier.PUBLIC, Modifier.STATIC);
     method.addParameter(StandardBeanFactory.class, BEAN_FACTORY_PARAMETER_NAME);
     CodeBlock.Builder code = CodeBlock.builder();
     this.registrations.forEach((registeredBean, registration) -> {

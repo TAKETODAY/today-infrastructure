@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -551,18 +548,13 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
     private CodeBlock generateAddPostProcessorCode(Map<String, String> mappings) {
       CodeBlock.Builder code = CodeBlock.builder();
-      code.addStatement("$T $L = new $T<>()", STRING_STRING_MAP,
-              MAPPINGS_VARIABLE, HashMap.class);
-      mappings.forEach((type, from) -> code.addStatement("$L.put($S, $S)",
-              MAPPINGS_VARIABLE, type, from));
-      code.addStatement("$T $L = new $T($T.class)", RootBeanDefinition.class,
-              BEAN_DEFINITION_VARIABLE, RootBeanDefinition.class, ImportAwareAotBeanPostProcessor.class);
-      code.addStatement("$L.setRole($T.ROLE_INFRASTRUCTURE)",
-              BEAN_DEFINITION_VARIABLE, BeanDefinition.class);
-      code.addStatement("$L.setInstanceSupplier(() -> new $T($L))",
-              BEAN_DEFINITION_VARIABLE, ImportAwareAotBeanPostProcessor.class, MAPPINGS_VARIABLE);
-      code.addStatement("$L.registerBeanDefinition($S, $L)",
-              BEAN_FACTORY_VARIABLE, BEAN_NAME, BEAN_DEFINITION_VARIABLE);
+      code.addStatement("$T $L = new $T<>()", STRING_STRING_MAP, MAPPINGS_VARIABLE, HashMap.class);
+      mappings.forEach((type, from) -> code.addStatement("$L.put($S, $S)", MAPPINGS_VARIABLE, type, from));
+      code.addStatement("$T $L = new $T($T.class)", RootBeanDefinition.class, BEAN_DEFINITION_VARIABLE,
+              RootBeanDefinition.class, ImportAwareAotBeanPostProcessor.class);
+      code.addStatement("$L.setRole($T.ROLE_INFRASTRUCTURE)", BEAN_DEFINITION_VARIABLE, BeanDefinition.class);
+      code.addStatement("$L.setInstanceSupplier(() -> new $T($L))", BEAN_DEFINITION_VARIABLE, ImportAwareAotBeanPostProcessor.class, MAPPINGS_VARIABLE);
+      code.addStatement("$L.registerBeanDefinition($S, $L)", BEAN_FACTORY_VARIABLE, BEAN_NAME, BEAN_DEFINITION_VARIABLE);
       return code.build();
     }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,10 +95,8 @@ class ApplicationContextInitializationCodeGenerator implements BeanFactoryInitia
     CodeBlock.Builder code = CodeBlock.builder();
     code.addStatement("$T $L = $L.unwrapFactory(StandardBeanFactory.class)",
             StandardBeanFactory.class, BEAN_FACTORY_VARIABLE, APPLICATION_CONTEXT_VARIABLE);
-    code.addStatement("$L.setAutowireCandidateResolver(new $T())",
-            BEAN_FACTORY_VARIABLE, ContextAnnotationAutowireCandidateResolver.class);
-    code.addStatement("$L.setDependencyComparator($T.INSTANCE)",
-            BEAN_FACTORY_VARIABLE, AnnotationAwareOrderComparator.class);
+    code.addStatement("$L.setAutowireCandidateResolver(new $T())", BEAN_FACTORY_VARIABLE, ContextAnnotationAutowireCandidateResolver.class);
+    code.addStatement("$L.setDependencyComparator($T.INSTANCE)", BEAN_FACTORY_VARIABLE, AnnotationAwareOrderComparator.class);
     code.add(generateActiveProfilesInitializeCode());
     ArgumentCodeGenerator argCodeGenerator = createInitializerMethodArgumentCodeGenerator();
     for (MethodReference initializer : this.initializers) {

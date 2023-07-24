@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,6 @@
 package cn.taketoday.beans.factory.aot;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import cn.taketoday.beans.factory.aot.BeanRegistrationsAotContribution.Registration;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -36,6 +32,7 @@ import cn.taketoday.lang.Nullable;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class BeanRegistrationsAotProcessor implements BeanFactoryInitializationAotProcessor {
@@ -43,9 +40,8 @@ class BeanRegistrationsAotProcessor implements BeanFactoryInitializationAotProce
   @Override
   @Nullable
   public BeanRegistrationsAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
-    BeanDefinitionMethodGeneratorFactory beanDefinitionMethodGeneratorFactory =
-            new BeanDefinitionMethodGeneratorFactory(beanFactory);
-    Map<BeanRegistrationKey, Registration> registrations = new LinkedHashMap<>();
+    var beanDefinitionMethodGeneratorFactory = new BeanDefinitionMethodGeneratorFactory(beanFactory);
+    var registrations = new LinkedHashMap<BeanRegistrationKey, Registration>();
 
     for (String beanName : beanFactory.getBeanDefinitionNames()) {
       RegisteredBean registeredBean = RegisteredBean.of(beanFactory, beanName);
