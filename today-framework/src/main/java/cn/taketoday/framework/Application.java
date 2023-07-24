@@ -48,12 +48,14 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
+import cn.taketoday.context.aot.AotApplicationContextInitializer;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.env.CommandLinePropertySource;
@@ -197,6 +199,8 @@ public class Application {
 
   private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
 
+  private final ApplicationTemp applicationTemp;
+
   private boolean headless = true;
   private boolean logStartupInfo = true;
   private boolean registerShutdownHook = true;
@@ -242,6 +246,7 @@ public class Application {
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
     this.applicationType = ApplicationType.forClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
+    this.applicationTemp = new ApplicationTemp(mainApplicationClass);
     this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);
     setInitializers(TodayStrategies.find(ApplicationContextInitializer.class));
     setListeners(TodayStrategies.find(ApplicationListener.class));
@@ -315,6 +320,7 @@ public class Application {
     DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 
     bootstrapContext.register(Application.class, InstanceSupplier.of(this));
+    bootstrapContext.register(ApplicationTemp.class, InstanceSupplier.of(applicationTemp));
     bootstrapContext.register(ApplicationArguments.class, InstanceSupplier.of(arguments));
 
     // prepare startup
@@ -403,12 +409,13 @@ public class Application {
    * from TodayStrategies, {@link #startupListeners} ,{@link ApplicationHook}
    */
   private ApplicationStartupListeners getStartupListeners(
-          DefaultBootstrapContext bootstrapContext, ApplicationArguments arguments) {
+          BootstrapContext bootstrapContext, ApplicationArguments arguments) {
     var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
             parameters -> {
               parameters.add(Application.class, this);
               parameters.add(Logger.class, getApplicationLog());
               parameters.add(ApplicationArguments.class, arguments);
+              parameters.add(ApplicationTemp.class, applicationTemp);
               parameters.add(String[].class, arguments.getSourceArgs());
               parameters.add(BootstrapRegistry.class, bootstrapContext);
               parameters.add(ConfigurableBootstrapContext.class, bootstrapContext);
@@ -524,6 +531,7 @@ public class Application {
   {
     context.setEnvironment(environment);
     postProcessApplicationContext(context);
+    addAotGeneratedInitializerIfNecessary(initializers);
     applyInitializers(context);
     listeners.contextPrepared(context);
     bootstrapContext.close(context);
@@ -536,6 +544,7 @@ public class Application {
     // Add specific singleton beans
     ConfigurableBeanFactory beanFactory = context.getBeanFactory();
     beanFactory.registerSingleton(this);
+    beanFactory.registerSingleton(applicationTemp);
     beanFactory.registerSingleton(ApplicationArguments.BEAN_NAME, arguments);
 
     if (printedBanner != null) {
@@ -565,6 +574,20 @@ public class Application {
     }
 
     listeners.contextLoaded(context);
+  }
+
+  private void addAotGeneratedInitializerIfNecessary(List<ApplicationContextInitializer> initializers) {
+    if (AotDetector.useGeneratedArtifacts()) {
+      List<ApplicationContextInitializer> aotInitializers = new ArrayList<>(
+              initializers.stream().filter(AotApplicationContextInitializer.class::isInstance).toList());
+      if (aotInitializers.isEmpty()) {
+        Assert.state(mainApplicationClass != null, "No mainApplicationClass");
+        String initializerClassName = mainApplicationClass.getName() + "__ApplicationContextInitializer";
+        aotInitializers.add(AotApplicationContextInitializer.forInitializerClasses(initializerClassName));
+      }
+      initializers.removeAll(aotInitializers);
+      initializers.addAll(0, aotInitializers);
+    }
   }
 
   /**
@@ -1021,17 +1044,20 @@ public class Application {
 
   /**
    * Sets the {@link ApplicationStartupListener}s that will be applied to the
-   * {@link #getStartupListeners(DefaultBootstrapContext, ApplicationArguments)}
+   * {@link #getStartupListeners}
    *
    * @param listeners the listeners to add
    */
   public void addStartupListeners(ApplicationStartupListener... listeners) {
+    if (startupListeners == null) {
+      startupListeners = new ArrayList<>();
+    }
     CollectionUtils.addAll(startupListeners, listeners);
   }
 
   /**
    * Sets the {@link ApplicationStartupListener}s that will be applied to the
-   * {@link #getStartupListeners(DefaultBootstrapContext, ApplicationArguments)}
+   * {@link #getStartupListeners}
    *
    * @param listeners the startup listeners to set
    */
@@ -1360,19 +1386,18 @@ public class Application {
    * {@link #run(Class, String...) run} method instead.
    *
    * @param args command line arguments
-   * @throws Exception if the application cannot be started
    * @see Application#run(Class[], String[])
    * @see Application#run(Class, String...)
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     Application.run(Constant.EMPTY_CLASSES, args);
   }
 
-  public static ApplicationBuilder builder(Class<?>... sources) {
+  public static ApplicationBuilder forBuilder(Class<?>... sources) {
     return ApplicationBuilder.from(sources);
   }
 
-  public static ApplicationBuilder builder(ResourceLoader resourceLoader, Class<?>... sources) {
+  public static ApplicationBuilder forBuilder(ResourceLoader resourceLoader, Class<?>... sources) {
     return ApplicationBuilder.from(resourceLoader, sources);
   }
 

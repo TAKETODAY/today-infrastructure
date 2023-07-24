@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +74,7 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
+import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -259,7 +257,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
       addDefaultServlet(context);
     }
     if (shouldRegisterJspServlet()) {
-      addJspServlet(context);
+      addJspServlet(context, getJsp());
       context.addBean(new JasperInitializer(context), true);
     }
     addLocaleMappings(context);
@@ -356,13 +354,13 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    *
    * @param context the jetty {@link WebAppContext}
    */
-  protected final void addJspServlet(WebAppContext context) {
+  protected final void addJspServlet(WebAppContext context, JspProperties jsp) {
     Assert.notNull(context, "Context must not be null");
     ServletHolder holder = new ServletHolder();
     holder.setName("jsp");
-    holder.setClassName(getJsp().getClassName());
+    holder.setClassName(jsp.getClassName());
     holder.setInitParameter("fork", "false");
-    holder.setInitParameters(getJsp().getInitParameters());
+    holder.setInitParameters(jsp.getInitParameters());
     holder.setInitOrder(3);
     context.getServletHandler().addServlet(holder);
     ServletMapping mapping = new ServletMapping();

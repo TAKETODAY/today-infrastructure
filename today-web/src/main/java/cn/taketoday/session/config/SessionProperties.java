@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +23,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.core.ApplicationHome;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 
 /**
  * Session properties.
@@ -39,6 +39,9 @@ import cn.taketoday.lang.Nullable;
  */
 @ConfigurationProperties(prefix = "server.session", ignoreUnknownFields = true)
 public class SessionProperties {
+
+  private static final String SESSION_TEMP_DIR = TodayStrategies.getProperty(
+          "server.session.temp-dir", "server-sessions");
 
   @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
@@ -141,6 +144,42 @@ public class SessionProperties {
 
   public CookieProperties getCookie() {
     return this.cookie;
+  }
+
+  public File getValidStoreDir(@Nullable ApplicationTemp applicationTemp) {
+    return getValidStoreDir(applicationTemp, true);
+  }
+
+  public File getValidStoreDir(@Nullable ApplicationTemp applicationTemp, boolean mkdirs) {
+    return getValidStoreDir(applicationTemp, storeDir, mkdirs);
+  }
+
+  public static File getValidStoreDir(@Nullable ApplicationTemp applicationTemp, @Nullable File dir, boolean mkdirs) {
+    if (dir == null) {
+      if (applicationTemp != null) {
+        return applicationTemp.getDir(SESSION_TEMP_DIR);
+      }
+      return ApplicationTemp.getTemporalDirectory(null, SESSION_TEMP_DIR);
+    }
+    if (!dir.isAbsolute()) {
+      dir = new File(new ApplicationHome().getDir(), dir.getPath());
+    }
+    if (!dir.exists() && mkdirs) {
+      dir.mkdirs();
+    }
+    assertDirectory(mkdirs, dir);
+    return dir;
+  }
+
+  private static void assertDirectory(boolean mkdirs, File dir) {
+    if (mkdirs && !dir.exists()) {
+      throw new IllegalStateException("Session dir " + dir + " does not exist");
+    }
+
+    if (dir.isFile()) {
+      throw new IllegalStateException("Session dir " + dir + " points to a file");
+    }
+
   }
 
 }

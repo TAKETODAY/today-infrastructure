@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.annotation.config.web.reactive;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.reactive.server.ConfigurableReactiveWebServerFactory;
@@ -44,6 +42,9 @@ public class ReactiveWebServerFactoryCustomizer
   @Nullable
   private final SslBundles sslBundles;
 
+  @Nullable
+  private final ApplicationTemp applicationTemp;
+
   private final ServerProperties serverProperties;
 
   /**
@@ -51,8 +52,8 @@ public class ReactiveWebServerFactoryCustomizer
    *
    * @param serverProperties the server properties
    */
-  public ReactiveWebServerFactoryCustomizer(ServerProperties serverProperties) {
-    this(serverProperties, null);
+  public ReactiveWebServerFactoryCustomizer(ServerProperties serverProperties, @Nullable SslBundles sslBundles) {
+    this(serverProperties, sslBundles, null);
   }
 
   /**
@@ -61,9 +62,11 @@ public class ReactiveWebServerFactoryCustomizer
    * @param serverProperties the server properties
    * @param sslBundles the SSL bundles
    */
-  public ReactiveWebServerFactoryCustomizer(ServerProperties serverProperties, @Nullable SslBundles sslBundles) {
+  public ReactiveWebServerFactoryCustomizer(ServerProperties serverProperties,
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
     this.serverProperties = serverProperties;
     this.sslBundles = sslBundles;
+    this.applicationTemp = applicationTemp;
   }
 
   @Override
@@ -75,6 +78,8 @@ public class ReactiveWebServerFactoryCustomizer
   public void customize(ConfigurableReactiveWebServerFactory factory) {
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
     map.from(sslBundles).to(factory::setSslBundles);
+    map.from(applicationTemp).to(factory::setApplicationTemp);
+
     map.from(serverProperties::getSsl).to(factory::setSsl);
     map.from(serverProperties::getPort).to(factory::setPort);
     map.from(serverProperties::getHttp2).to(factory::setHttp2);

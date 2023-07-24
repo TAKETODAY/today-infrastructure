@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,11 +24,15 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.core.ApplicationTemp;
+import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.netty.FastRequestThreadLocal;
@@ -41,6 +42,7 @@ import cn.taketoday.framework.web.netty.NettyRequestConfig;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactory;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.PropertyMapper;
 import cn.taketoday.web.RequestContextHolder;
@@ -56,6 +58,7 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
  */
 @AutoConfiguration
 @DisableAllDependencyInjection
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.NETTY)
 @EnableConfigurationProperties(ServerProperties.class)
 public class NettyWebServerFactoryAutoConfiguration {
@@ -77,11 +80,15 @@ public class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
-          NettyChannelInitializer nettyChannelInitializer) {
+          NettyChannelInitializer nettyChannelInitializer,
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.setNettyChannelInitializer(nettyChannelInitializer);
 
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
+    map.from(sslBundles).to(factory::setSslBundles);
+    map.from(applicationTemp).to(factory::setApplicationTemp);
+
     map.from(serverProperties::getSsl).to(factory::setSsl);
     map.from(serverProperties::getPort).to(factory::setPort);
     map.from(serverProperties::getHttp2).to(factory::setHttp2);

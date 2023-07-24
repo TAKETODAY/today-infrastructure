@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -66,14 +64,14 @@ import cn.taketoday.util.CollectionUtils;
 public class ReactiveWebServerFactoryAutoConfiguration {
 
   @Component
-  public ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(
-          ServerProperties serverProperties, @Nullable SslBundles sslBundles) {
-    return new ReactiveWebServerFactoryCustomizer(serverProperties, sslBundles);
+  static ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(
+          ServerProperties serverProperties, @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
+    return new ReactiveWebServerFactoryCustomizer(serverProperties, sslBundles, applicationTemp);
   }
 
   @Component
   @ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
-  public TomcatReactiveWebServerFactoryCustomizer tomcatReactiveWebServerFactoryCustomizer(
+  static TomcatReactiveWebServerFactoryCustomizer tomcatReactiveWebServerFactoryCustomizer(
           ServerProperties serverProperties) {
     return new TomcatReactiveWebServerFactoryCustomizer(serverProperties);
   }
@@ -81,7 +79,7 @@ public class ReactiveWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
-  public ForwardedHeaderTransformer forwardedHeaderTransformer() {
+  static ForwardedHeaderTransformer forwardedHeaderTransformer() {
     return new ForwardedHeaderTransformer();
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +30,7 @@ import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -78,17 +76,17 @@ import jakarta.servlet.ServletRequest;
 public class ServletWebServerFactoryAutoConfiguration {
 
   @Component
-  public ServletWebServerFactoryCustomizer servletWebServerFactoryCustomizer(
-          ServerProperties serverProperties,
+  static ServletWebServerFactoryCustomizer servletWebServerFactoryCustomizer(
           List<WebListenerRegistrar> webListenerRegistrars,
+          ServerProperties serverProperties, @Nullable ApplicationTemp applicationTemp,
           List<CookieSameSiteSupplier> cookieSameSiteSuppliers, @Nullable SslBundles sslBundles) {
     return new ServletWebServerFactoryCustomizer(serverProperties,
-            webListenerRegistrars, cookieSameSiteSuppliers, sslBundles);
+            webListenerRegistrars, cookieSameSiteSuppliers, sslBundles, applicationTemp);
   }
 
   @Component
   @ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
-  public TomcatServletWebServerFactoryCustomizer tomcatServletWebServerFactoryCustomizer(
+  static TomcatServletWebServerFactoryCustomizer tomcatServletWebServerFactoryCustomizer(
           ServerProperties serverProperties) {
     return new TomcatServletWebServerFactoryCustomizer(serverProperties);
   }

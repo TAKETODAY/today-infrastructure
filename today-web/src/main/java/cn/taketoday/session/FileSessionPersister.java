@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +26,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.session.config.SessionStoreDirectory;
+import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -61,6 +59,9 @@ public class FileSessionPersister implements SessionPersister {
   @Nullable
   private File directory;
 
+  @Nullable
+  private ApplicationTemp applicationTemp;
+
   private final SessionRepository repository;
 
   /**
@@ -81,6 +82,15 @@ public class FileSessionPersister implements SessionPersister {
    */
   public void setDirectory(@Nullable File directory) {
     this.directory = directory;
+  }
+
+  /**
+   * Set the app temp provider for this SessionPersister.
+   *
+   * @param applicationTemp The app temp provider
+   */
+  public void setApplicationTemp(@Nullable ApplicationTemp applicationTemp) {
+    this.applicationTemp = applicationTemp;
   }
 
   /**
@@ -217,7 +227,7 @@ public class FileSessionPersister implements SessionPersister {
   private File directory() {
     File directory = this.directory;
     if (directory == null) {
-      directory = SessionStoreDirectory.getValid(null);
+      directory = SessionProperties.getValidStoreDir(applicationTemp, null, true);
       this.directory = directory;
     }
     return directory;

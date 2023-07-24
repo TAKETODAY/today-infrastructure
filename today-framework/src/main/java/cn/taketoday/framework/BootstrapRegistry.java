@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A simple object registry that is available during startup and {@link Environment}
@@ -134,7 +132,7 @@ public interface BootstrapRegistry {
     default InstanceSupplier<T> withScope(Scope scope) {
       Assert.notNull(scope, "Scope must not be null");
       InstanceSupplier<T> parent = this;
-      return new InstanceSupplier<T>() {
+      return new InstanceSupplier<>() {
 
         @Override
         public T get(BootstrapContext context) {
@@ -158,7 +156,7 @@ public interface BootstrapRegistry {
      * @return a new {@link InstanceSupplier}
      */
     static <T> InstanceSupplier<T> of(T instance) {
-      return (registry) -> instance;
+      return registry -> instance;
     }
 
     /**
@@ -169,8 +167,8 @@ public interface BootstrapRegistry {
      * @param supplier the supplier that will provide the instance
      * @return a new {@link InstanceSupplier}
      */
-    static <T> InstanceSupplier<T> from(Supplier<T> supplier) {
-      return (registry) -> (supplier != null) ? supplier.get() : null;
+    static <T> InstanceSupplier<T> from(@Nullable Supplier<T> supplier) {
+      return registry -> supplier != null ? supplier.get() : null;
     }
 
   }

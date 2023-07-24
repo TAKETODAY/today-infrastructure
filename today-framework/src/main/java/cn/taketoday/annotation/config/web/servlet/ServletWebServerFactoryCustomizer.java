@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.annotation.config.web.servlet;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.server.ServerProperties;
@@ -45,7 +43,7 @@ import cn.taketoday.util.PropertyMapper;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/27 21:57
  */
-public class ServletWebServerFactoryCustomizer
+class ServletWebServerFactoryCustomizer
         implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>, Ordered {
 
   private final ServerProperties serverProperties;
@@ -57,23 +55,21 @@ public class ServletWebServerFactoryCustomizer
 
   private final SslBundles sslBundles;
 
-  public ServletWebServerFactoryCustomizer(ServerProperties serverProperties) {
-    this(serverProperties, Collections.emptyList());
-  }
+  private final ApplicationTemp applicationTemp;
 
-  public ServletWebServerFactoryCustomizer(ServerProperties serverProperties,
-          List<WebListenerRegistrar> webListenerRegistrars) {
-    this(serverProperties, webListenerRegistrars, null, null);
+  ServletWebServerFactoryCustomizer(ServerProperties serverProperties) {
+    this(serverProperties, Collections.emptyList(), null, null, null);
   }
 
   ServletWebServerFactoryCustomizer(ServerProperties serverProperties,
           List<WebListenerRegistrar> webListenerRegistrars,
           @Nullable List<CookieSameSiteSupplier> cookieSameSiteSuppliers,
-          @Nullable SslBundles sslBundles) {
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
     this.sslBundles = sslBundles;
     this.serverProperties = serverProperties;
     this.webListenerRegistrars = webListenerRegistrars;
     this.cookieSameSiteSuppliers = cookieSameSiteSuppliers;
+    this.applicationTemp = applicationTemp;
   }
 
   @Override
@@ -101,6 +97,7 @@ public class ServletWebServerFactoryCustomizer
     map.from(serverProperties.getShutdown()).to(factory::setShutdown);
 
     map.from(sslBundles).to(factory::setSslBundles);
+    map.from(applicationTemp).to(factory::setApplicationTemp);
 
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);

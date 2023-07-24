@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +67,7 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
+import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
@@ -250,7 +248,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
       addDefaultServlet(context);
     }
     if (shouldRegisterJspServlet()) {
-      addJspServlet(context);
+      addJspServlet(context, getJsp());
       addJasperInitializer(context);
     }
     context.addLifecycleListener(new StaticResourceConfigurer(context));
@@ -297,12 +295,12 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     context.addServletMappingDecoded("/", "default");
   }
 
-  private void addJspServlet(Context context) {
+  private void addJspServlet(Context context, JspProperties jsp) {
     Wrapper jspServlet = context.createWrapper();
     jspServlet.setName("jsp");
-    jspServlet.setServletClass(getJsp().getClassName());
+    jspServlet.setServletClass(jsp.getClassName());
     jspServlet.addInitParameter("fork", "false");
-    getJsp().getInitParameters().forEach(jspServlet::addInitParameter);
+    jsp.getInitParameters().forEach(jspServlet::addInitParameter);
     jspServlet.setLoadOnStartup(3);
     context.addChild(jspServlet);
     context.addServletMappingDecoded("*.jsp", "jsp");

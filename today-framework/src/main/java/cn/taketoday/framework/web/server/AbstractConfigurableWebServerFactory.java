@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +18,12 @@
 package cn.taketoday.framework.web.server;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.lang.Assert;
@@ -70,6 +66,8 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   private String serverHeader;
 
   private Shutdown shutdown = Shutdown.IMMEDIATE;
+
+  private ApplicationTemp applicationTemp = new ApplicationTemp();
 
   /**
    * Create a new {@link AbstractConfigurableWebServerFactory} instance.
@@ -197,6 +195,16 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     return this.shutdown;
   }
 
+  @Override
+  public void setApplicationTemp(ApplicationTemp applicationTemp) {
+    Assert.notNull(applicationTemp, "ApplicationTemp is required");
+    this.applicationTemp = applicationTemp;
+  }
+
+  public ApplicationTemp getApplicationTemp() {
+    return applicationTemp;
+  }
+
   /**
    * Return the {@link SslBundle} that should be used with this server.
    *
@@ -213,15 +221,9 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    * @return the temp dir for given server.
    */
   protected final File createTempDir(String prefix) {
-    try {
-      File tempDir = Files.createTempDirectory(prefix + "." + getPort() + ".").toFile();
-      tempDir.deleteOnExit();
-      return tempDir;
-    }
-    catch (IOException ex) {
-      throw new WebServerException(
-              "Unable to create tempDir. java.io.tmpdir is set to " + System.getProperty("java.io.tmpdir"), ex);
-    }
+    File tempDir = applicationTemp.getDir(prefix + "-" + getPort());
+    tempDir.deleteOnExit();
+    return tempDir;
   }
 
 }

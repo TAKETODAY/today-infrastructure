@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +41,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
-import cn.taketoday.session.config.SessionStoreDirectory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
@@ -62,6 +58,7 @@ import jakarta.servlet.SessionTrackingMode;
  * @author Ivan Sopov
  * @author Eddú Meléndez
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractServletWebServerFactory extends AbstractConfigurableWebServerFactory
@@ -233,6 +230,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   @Override
   public void setSession(SessionProperties session) {
+    Assert.notNull(session, "SessionProperties is required");
     this.session = session;
   }
 
@@ -323,7 +321,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   }
 
   protected final File getValidSessionStoreDir(boolean mkdirs) {
-    return SessionStoreDirectory.getValid(session.getStoreDir(), mkdirs);
+    return session.getValidStoreDir(getApplicationTemp(), mkdirs);
   }
 
   @Override
@@ -343,7 +341,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
     @Override
     public void onStartup(ServletContext servletContext) {
-      if (session.getTrackingModes() != null) {
+      if (CollectionUtils.isNotEmpty(session.getTrackingModes())) {
         servletContext.setSessionTrackingModes(unwrap(session.getTrackingModes()));
       }
       configureSessionCookie(servletContext.getSessionCookieConfig());

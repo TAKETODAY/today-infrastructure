@@ -33,12 +33,9 @@ public final class JarModeLauncher {
 
   static final String DISABLE_SYSTEM_EXIT = JarModeLauncher.class.getName() + ".DISABLE_SYSTEM_EXIT";
 
-  private JarModeLauncher() {
-  }
-
   public static void main(String[] args) {
     String mode = System.getProperty("jarmode");
-    List<JarMode> candidates = TodayStrategies.find(JarMode.class);
+    List<JarMode> candidates = TodayStrategies.find(JarMode.class, ClassUtils.getDefaultClassLoader());
     for (JarMode candidate : candidates) {
       if (candidate.accepts(mode)) {
         candidate.run(mode, args);

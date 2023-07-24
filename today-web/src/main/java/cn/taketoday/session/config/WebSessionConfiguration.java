@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.CookieSessionIdResolver;
 import cn.taketoday.session.DefaultSessionManager;
@@ -142,7 +140,7 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @ConditionalOnMissingBean(SessionRepository.class)
   static SessionRepository sessionRepository(SessionProperties properties,
           SessionEventDispatcher eventDispatcher, SessionIdGenerator idGenerator,
-          @Nullable SessionPersister sessionPersister) {
+          @Nullable SessionPersister sessionPersister, @Nullable ApplicationTemp applicationTemp) {
     var repository = new InMemorySessionRepository(eventDispatcher, idGenerator);
     repository.setMaxSessions(properties.getMaxSessions());
     repository.setSessionMaxIdleTime(properties.getTimeout());
@@ -150,8 +148,9 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
     if (properties.isPersistent() || sessionPersister != null) {
       if (sessionPersister == null) {
         var filePersister = new FileSessionPersister(repository);
-        File validDirectory = SessionStoreDirectory.getValid(properties.getStoreDir());
+        File validDirectory = properties.getValidStoreDir(applicationTemp);
         filePersister.setDirectory(validDirectory);
+        filePersister.setApplicationTemp(applicationTemp);
         sessionPersister = filePersister;
       }
       return new PersistenceSessionRepository(sessionPersister, repository);
