@@ -410,6 +410,11 @@ class WebAsyncManagerTests {
     public void execute(Runnable task) {
       task.run();
     }
+
+    @Override
+    public void execute(Runnable task, long startTimeout) {
+      task.run();
+    }
   }
 
 }
