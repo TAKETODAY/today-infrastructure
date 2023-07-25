@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis;
 
 import java.io.Serial;
@@ -31,6 +29,7 @@ import cn.taketoday.dao.UncategorizedDataAccessException;
  * wrapper class to bring everything under a single hierarchy will be easier for client code to handle.
  *
  * @author Hunter Presnall
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("squid:MaximumInheritanceDepth") // It is the intended design

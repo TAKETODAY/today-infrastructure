@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis;
 
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
@@ -78,48 +76,63 @@ import cn.taketoday.util.StringUtils;
  * @author Eduardo Macarron
  * @author Eddú Meléndez
  * @author Kazuki Shimizu
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setConfigLocation
  * @see #setDataSource
  * @since 4.0
  */
-public class SqlSessionFactoryBean
-        implements FactoryBean<SqlSessionFactory>, InitializingBean, ApplicationListener<ContextRefreshedEvent> {
+public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
+        InitializingBean, ApplicationListener<ContextRefreshedEvent> {
 
   private static final Logger log = LoggerFactory.getLogger(SqlSessionFactoryBean.class);
 
+  @Nullable
   private Resource configLocation;
 
+  @Nullable
   private Configuration configuration;
 
+  @Nullable
   private Resource[] mapperLocations;
 
+  @Nullable
   private DataSource dataSource;
 
+  @Nullable
   private TransactionFactory transactionFactory;
 
+  @Nullable
   private Properties configurationProperties;
 
   private SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
 
+  @Nullable
   private SqlSessionFactory sqlSessionFactory;
 
   private String environment = SqlSessionFactoryBean.class.getSimpleName();
 
   private boolean failFast;
 
+  @Nullable
   private Interceptor[] plugins;
 
+  @Nullable
   private TypeHandler<?>[] typeHandlers;
 
+  @Nullable
   private String typeHandlersPackage;
 
+  @Nullable
   @SuppressWarnings("rawtypes")
   private Class<? extends TypeHandler> defaultEnumTypeHandler;
 
+  @Nullable
   private Class<?>[] typeAliases;
 
+  @Nullable
   private String typeAliasesPackage;
 
+  @Nullable
   private Class<?> typeAliasesSuperType;
 
   @Nullable
@@ -132,17 +145,22 @@ public class SqlSessionFactoryBean
   @Nullable
   private DatabaseIdProvider databaseIdProvider;
 
+  @Nullable
   private Class<? extends VFS> vfs;
 
+  @Nullable
   private Cache cache;
 
+  @Nullable
   private ObjectFactory objectFactory;
 
+  @Nullable
   private ObjectWrapperFactory objectWrapperFactory;
 
   @Nullable
   private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 
+  @Nullable
   private ClassPathScanningComponentProvider componentProvider;
 
   /**
@@ -292,8 +310,8 @@ public class SqlSessionFactoryBean
    *
    * @param defaultEnumTypeHandler The default type handler class for enum
    */
-  public void setDefaultEnumTypeHandler(
-          @SuppressWarnings("rawtypes") Class<? extends TypeHandler> defaultEnumTypeHandler) {
+  @SuppressWarnings("rawtypes")
+  public void setDefaultEnumTypeHandler(Class<? extends TypeHandler> defaultEnumTypeHandler) {
     this.defaultEnumTypeHandler = defaultEnumTypeHandler;
   }
 
@@ -650,9 +668,9 @@ public class SqlSessionFactoryBean
    */
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    if (failFast) {
+    if (failFast && sqlSessionFactory != null) {
       // fail-fast -> check all statements are completed
-      this.sqlSessionFactory.getConfiguration().getMappedStatementNames();
+      sqlSessionFactory.getConfiguration().getMappedStatementNames();
     }
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis;
 
 import org.apache.ibatis.session.ExecutorType;
@@ -35,11 +33,13 @@ import cn.taketoday.transaction.support.ResourceHolderSupport;
  *
  * @author Hunter Presnall
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class SqlSessionHolder extends ResourceHolderSupport {
 
   private final SqlSession sqlSession;
+
   private final ExecutorType executorType;
 
   @Nullable
@@ -52,8 +52,7 @@ public final class SqlSessionHolder extends ResourceHolderSupport {
    * @param executorType the {@code ExecutorType} has to be hold.
    * @param exceptionTranslator the {@code PersistenceExceptionTranslator} has to be hold.
    */
-  public SqlSessionHolder(
-          SqlSession sqlSession, ExecutorType executorType,
+  public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType,
           @Nullable PersistenceExceptionTranslator exceptionTranslator) {
     Assert.notNull(sqlSession, "SqlSession must not be null");
     Assert.notNull(executorType, "ExecutorType must not be null");

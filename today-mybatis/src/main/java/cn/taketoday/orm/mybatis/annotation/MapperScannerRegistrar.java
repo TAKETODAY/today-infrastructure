@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis.annotation;
 
 import java.lang.annotation.Annotation;
@@ -46,6 +44,7 @@ import cn.taketoday.util.StringUtils;
  * @author Michael Lanyon
  * @author Eduardo Macarron
  * @author Putthiphong Boonphong
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MapperFactoryBean
  * @see ClassPathMapperScanner
  * @since 4.0
@@ -157,8 +156,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
       if (annotation.isPresent()) {
 
         int i = 0;
-        MergedAnnotation<MapperScan>[] mapperScans = annotation.getAnnotationArray(
-                MergedAnnotation.VALUE, MapperScan.class);
+        var mapperScans = annotation.getAnnotationArray(MergedAnnotation.VALUE, MapperScan.class);
         for (MergedAnnotation<MapperScan> mapperScan : mapperScans) {
           registerBeanDefinitions(importingClassMetadata, mapperScan, context.getRegistry(),
                   generateBaseBeanName(importingClassMetadata, i++));

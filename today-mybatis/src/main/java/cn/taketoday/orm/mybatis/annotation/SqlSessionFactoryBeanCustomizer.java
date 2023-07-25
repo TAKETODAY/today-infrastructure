@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,8 @@ package cn.taketoday.orm.mybatis.annotation;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 
 /**
- * Callback interface that can be customized a {@link SqlSessionFactoryBean} object generated on auto-configuration.
+ * Callback interface that can be customized a {@link SqlSessionFactoryBean}
+ * object generated on auto-configuration.
  *
  * @author Kazuki Shimizu
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

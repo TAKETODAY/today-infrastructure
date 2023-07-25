@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,6 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -60,6 +56,7 @@ import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -98,9 +95,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
   private final ObjectProvider<SqlSessionFactoryBeanCustomizer> sqlSessionFactoryBeanCustomizers;
 
   @SuppressWarnings("rawtypes")
-  public MybatisAutoConfiguration(
-          MybatisProperties properties,
-          ResourceLoader resourceLoader,
+  public MybatisAutoConfiguration(MybatisProperties properties, ResourceLoader resourceLoader,
           ObjectProvider<Interceptor[]> interceptorsProvider,
           ObjectProvider<DatabaseIdProvider> databaseIdProvider,
           ObjectProvider<TypeHandler[]> typeHandlersProvider,
@@ -132,7 +127,8 @@ public class MybatisAutoConfiguration implements InitializingBean {
     }
   }
 
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
     SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
     factory.setDataSource(dataSource);
@@ -198,8 +194,9 @@ public class MybatisAutoConfiguration implements InitializingBean {
     }
   }
 
-  @MissingBean
-  public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+  @Component
+  @ConditionalOnMissingBean
+  SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
     ExecutorType executorType = properties.getExecutorType();
     if (executorType != null) {
       return new SqlSessionTemplate(sqlSessionFactory, executorType);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis.mapper;
 
 import org.apache.ibatis.executor.ErrorContext;
@@ -30,12 +28,12 @@ import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.support.SqlSessionDaoSupport;
 
 /**
- * BeanFactory that enables injection of MyBatis mapper interfaces. It can be set up with a SqlSessionFactory or a
- * pre-configured SqlSessionTemplate.
+ * BeanFactory that enables injection of MyBatis mapper interfaces. It can
+ * be set up with a SqlSessionFactory or a pre-configured SqlSessionTemplate.
  * <p>
  * Sample configuration:
  *
- * <pre class="code">
+ * <pre>
  * {@code
  *   <bean id="baseMapper" class="mapper.MapperFactoryBean" abstract="true" lazy-init="true">
  *     <property name="sqlSessionFactory" ref="sqlSessionFactory" />
@@ -54,6 +52,7 @@ import cn.taketoday.orm.mybatis.support.SqlSessionDaoSupport;
  * Note that this factory can only inject <em>interfaces</em>, not concrete classes.
  *
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SqlSessionTemplate
  * @since 4.0
  */
@@ -76,12 +75,12 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
   @Override
   protected void checkDaoConfig() {
     super.checkDaoConfig();
-    Assert.notNull(this.mapperInterface, "Property 'mapperInterface' is required");
+    Assert.notNull(mapperInterface, "Property 'mapperInterface' is required");
 
     Configuration configuration = getSqlSession().getConfiguration();
-    if (this.addToConfig && !configuration.hasMapper(this.mapperInterface)) {
+    if (addToConfig && !configuration.hasMapper(mapperInterface)) {
       try {
-        configuration.addMapper(this.mapperInterface);
+        configuration.addMapper(mapperInterface);
       }
       catch (Exception e) {
         log.error("Error while adding the mapper '{}' to configuration.", mapperInterface, e);
@@ -98,7 +97,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
    */
   @Override
   public T getObject() throws Exception {
-    return getSqlSession().getMapper(this.mapperInterface);
+    return getSqlSession().getMapper(mapperInterface);
   }
 
   /**
@@ -106,7 +105,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
    */
   @Override
   public Class<T> getObjectType() {
-    return this.mapperInterface;
+    return mapperInterface;
   }
 
   /**

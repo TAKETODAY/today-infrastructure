@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis.annotation;
 
 import java.lang.annotation.Annotation;
@@ -34,44 +32,48 @@ import cn.taketoday.orm.mybatis.mapper.MapperFactoryBean;
 import cn.taketoday.orm.mybatis.mapper.MapperScannerConfigurer;
 
 /**
- * Use this annotation to register MyBatis mapper interfaces when using Java Config. It performs when same work as
+ * Use this annotation to register MyBatis mapper interfaces
+ * when using Java Config. It performs when same work as
  * {@link MapperScannerConfigurer} via {@link MapperScannerRegistrar}.
  *
  * <p>
- * Either {@link #basePackageClasses} or {@link #basePackages} (or its alias {@link #value}) may be specified to define
- * specific packages to scan. Since 2.0.4, If specific packages are not defined, scanning will occur from the package of
+ * Either {@link #basePackageClasses} or {@link #basePackages}
+ * (or its alias {@link #value}) may be specified to define
+ * specific packages to scan. Since 2.0.4, If specific packages
+ * are not defined, scanning will occur from the package of
  * the class that declares this annotation.
  *
  * <p>
  * Configuration example:
  * </p>
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;MapperScan("cn.taketoday.orm.mybatis.sample.mapper")
+ * <pre>{@code
+ * @Configuration
+ * @MapperScan("cn.taketoday.orm.mybatis.sample.mapper")
  * public class AppConfig {
  *
- *   &#064;Bean
+ *   @Bean
  *   public DataSource dataSource() {
  *     return new EmbeddedDatabaseBuilder().addScript("schema.sql").build();
  *   }
  *
- *   &#064;Bean
+ *   @Bean
  *   public DataSourceTransactionManager transactionManager() {
  *     return new DataSourceTransactionManager(dataSource());
  *   }
  *
- *   &#064;Bean
+ *   @Bean
  *   public SqlSessionFactory sqlSessionFactory() throws Exception {
  *     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
  *     sessionFactory.setDataSource(dataSource());
  *     return sessionFactory.getObject();
  *   }
  * }
- * </pre>
+ * }</pre>
  *
  * @author Michael Lanyon
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MapperScannerRegistrar
  * @see MapperFactoryBean
  * @since 4.0

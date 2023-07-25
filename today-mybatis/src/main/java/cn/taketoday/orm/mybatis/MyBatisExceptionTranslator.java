@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,7 +90,10 @@ public class MyBatisExceptionTranslator implements PersistenceExceptionTranslato
       if (e.getCause() instanceof SQLException se) {
         this.initExceptionTranslator();
         String task = e.getMessage() + "\n";
-        DataAccessException dae = this.exceptionTranslator.translate(task, null, se);
+        DataAccessException dae = null;
+        if (exceptionTranslator != null) {
+          dae = exceptionTranslator.translate(task, null, se);
+        }
         return dae != null ? dae : new UncategorizedSQLException(task, null, se);
       }
       else if (e.getCause() instanceof TransactionException) {

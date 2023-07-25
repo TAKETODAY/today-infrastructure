@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis;
 
 import org.apache.ibatis.cursor.Cursor;
@@ -65,8 +63,7 @@ import static org.apache.ibatis.reflection.ExceptionUtil.unwrapThrowable;
  * memory savings by doing this. This pattern can be used in
  * Infra configuration files as follows:
  *
- * <pre class="code">
- * {@code
+ * <pre>{@code
  * <bean id="sqlSessionTemplate" class="cn.taketoday.orm.mybatis.SqlSessionTemplate">
  *   <constructor-arg ref="sqlSessionFactory" />
  * </bean>
@@ -84,7 +81,9 @@ import static org.apache.ibatis.reflection.ExceptionUtil.unwrapThrowable;
 public class SqlSessionTemplate implements SqlSession, DisposableBean {
 
   private final ExecutorType executorType;
+
   private final SqlSessionFactory sqlSessionFactory;
+
   @Nullable
   private final PersistenceExceptionTranslator exceptionTranslator;
 
@@ -119,9 +118,8 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    * @param executorType an executor type on session
    * @param exceptionTranslator a translator of exception
    */
-  public SqlSessionTemplate(
-          SqlSessionFactory sqlSessionFactory,
-          ExecutorType executorType, @Nullable PersistenceExceptionTranslator exceptionTranslator) {
+  public SqlSessionTemplate(SqlSessionFactory sqlSessionFactory, ExecutorType executorType,
+          @Nullable PersistenceExceptionTranslator exceptionTranslator) {
 
     Assert.notNull(executorType, "Property 'executorType' is required");
     Assert.notNull(sqlSessionFactory, "Property 'sqlSessionFactory' is required");

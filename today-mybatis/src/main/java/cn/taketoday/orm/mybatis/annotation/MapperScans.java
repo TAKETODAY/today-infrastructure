@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis.annotation;
 
 import java.lang.annotation.Documented;
@@ -31,11 +29,13 @@ import cn.taketoday.context.annotation.Import;
  * The Container annotation that aggregates several {@link MapperScan} annotations.
  *
  * <p>
- * Can be used natively, declaring several nested {@link MapperScan} annotations. Can also be used in conjunction with
- * Java 8's support for repeatable annotations, where {@link MapperScan} can simply be declared several times on the
+ * Can be used natively, declaring several nested {@link MapperScan} annotations.
+ * Can also be used in conjunction with Java 8's support for repeatable annotations,
+ * where {@link MapperScan} can simply be declared several times on the
  * same method, implicitly generating this container annotation.
  *
  * @author Kazuki Shimizu
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MapperScan
  * @since 4.0
  */
@@ -44,5 +44,6 @@ import cn.taketoday.context.annotation.Import;
 @Documented
 @Import(MapperScannerRegistrar.RepeatingRegistrar.class)
 public @interface MapperScans {
+
   MapperScan[] value();
 }

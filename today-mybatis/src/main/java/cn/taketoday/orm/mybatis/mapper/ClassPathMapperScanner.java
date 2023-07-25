@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.orm.mybatis.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -46,14 +44,16 @@ import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.util.StringUtils;
 
 /**
- * A {@link ClassPathBeanDefinitionScanner} that registers Mappers by {@code basePackage}, {@code annotationClass}, or
- * {@code markerInterface}. If an {@code annotationClass} and/or {@code markerInterface} is specified, only the
+ * A {@link ClassPathBeanDefinitionScanner} that registers Mappers by
+ * {@code basePackage}, {@code annotationClass}, or {@code markerInterface}.
+ * If an {@code annotationClass} and/or {@code markerInterface} is specified, only the
  * specified types will be searched (searching for all interfaces will be disabled).
  * <p>
  * This functionality was previously a private class of {@link MapperScannerConfigurer}
  *
  * @author Hunter Presnall
  * @author Eduardo Macarron
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MapperFactoryBean
  * @since 4.0
  */
@@ -198,9 +198,6 @@ public class ClassPathMapperScanner {
    * processed to set them as MapperFactoryBeans
    */
   public void scan(String... basePackages) {
-//    if (beanDefinitions.isEmpty()) {
-//      log.warn("No MyBatis mapper was found in '{}' package. Please check your configuration.", Arrays.toString(basePackages));
-//    }
     delegate.scan(this::postProcessBeanDefinition, basePackages);
   }
 
@@ -281,22 +278,6 @@ public class ClassPathMapperScanner {
   protected boolean isCandidateComponent(AnnotationMetadata metadata) {
     return metadata.isInterface() && metadata.isIndependent();
   }
-
-//
-//  /**
-//   * {@inheritDoc}
-//   */
-//  @Override
-//  protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) {
-//    if (super.checkCandidate(beanName, beanDefinition)) {
-//      return true;
-//    }
-//    else {
-//      log.warn("Skipping MapperFactoryBean with name '{}' and '{}' mapperInterface. Bean already defined with the same name!",
-//              beanName, beanDefinition.getBeanClassName());
-//      return false;
-//    }
-//  }
 
   public ClassPathBeanDefinitionScanner getScanner() {
     return delegate;
