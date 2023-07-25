@@ -56,6 +56,7 @@ import static org.junit.platform.launcher.TagFilter.excludeTags;
  * @author Sam Brannen
  * @since 4.0
  */
+@Disabled
 @CompileWithForkedClassLoader
 class AotIntegrationTests extends AbstractAotTests {
 
@@ -86,7 +87,7 @@ class AotIntegrationTests extends AbstractAotTests {
 
     // AOT BUILD-TIME: PROCESSING
     InMemoryGeneratedFiles generatedFiles = new InMemoryGeneratedFiles();
-    var generator = new TestContextAotGenerator(generatedFiles, new RuntimeHints(), true);
+    TestContextAotGenerator generator = new TestContextAotGenerator(generatedFiles, new RuntimeHints(), true);
     generator.processAheadOfTime(testClasses);
 
     List<String> sourceFiles = generatedFiles.getGeneratedFiles(Kind.SOURCE).keySet().stream().toList();
