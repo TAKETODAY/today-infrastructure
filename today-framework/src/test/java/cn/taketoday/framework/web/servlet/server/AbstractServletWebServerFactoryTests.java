@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,15 +34,12 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.TrustStrategy;
 import org.apache.hc.core5.util.TimeValue;
-import org.apache.jasper.EmbeddedServletOptions;
-import org.apache.jasper.servlet.JspServlet;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.http2.client.HTTP2Client;
 import org.eclipse.jetty.http2.client.http.HttpClientTransportOverHTTP2;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -132,7 +126,7 @@ import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
-import cn.taketoday.test.util.ReflectionTestUtils;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.test.web.servlet.ExampleFilter;
 import cn.taketoday.test.web.servlet.ExampleServlet;
@@ -180,6 +174,7 @@ import static org.mockito.Mockito.times;
  */
 @DirtiesUrlFactories
 @ExtendWith(OutputCaptureExtension.class)
+@ClassPathExclusions("tomcat-embed-jasper*")
 public abstract class AbstractServletWebServerFactoryTests {
 
   @TempDir
@@ -682,14 +677,6 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  void disableJspServletRegistration() throws Exception {
-    AbstractServletWebServerFactory factory = getFactory();
-    factory.getJsp().setRegistered(false);
-    this.webServer = factory.getWebServer();
-    assertThat(getJspServlet()).isNull();
-  }
-
-  @Test
   void cannotReadClassPathFiles() throws Exception {
     AbstractServletWebServerFactory factory = getFactory();
     this.webServer = factory.getWebServer(exampleServletRegistration());
@@ -1077,28 +1064,6 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer();
     assertThat(getCharset(Locale.GERMAN)).isEqualTo(StandardCharsets.UTF_8);
     assertThat(getCharset(Locale.ITALIAN)).isNull();
-  }
-
-  @Test
-  void jspServletInitParameters() throws Exception {
-    Map<String, String> initParameters = new HashMap<>();
-    initParameters.put("a", "alpha");
-    AbstractServletWebServerFactory factory = getFactory();
-    factory.getJsp().setInitParameters(initParameters);
-    this.webServer = factory.getWebServer();
-    Assumptions.assumeFalse(getJspServlet() == null);
-    JspServlet jspServlet = getJspServlet();
-    assertThat(jspServlet.getInitParameter("a")).isEqualTo("alpha");
-  }
-
-  @Test
-  void jspServletIsNotInDevelopmentModeByDefault() throws Exception {
-    AbstractServletWebServerFactory factory = getFactory();
-    this.webServer = factory.getWebServer();
-    Assumptions.assumeFalse(getJspServlet() == null);
-    JspServlet jspServlet = getJspServlet();
-    EmbeddedServletOptions options = (EmbeddedServletOptions) ReflectionTestUtils.getField(jspServlet, "options");
-    assertThat(options.getDevelopment()).isFalse();
   }
 
   @Test
@@ -1508,8 +1473,6 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   protected abstract AbstractServletWebServerFactory getFactory();
-
-  protected abstract org.apache.jasper.servlet.JspServlet getJspServlet() throws Exception;
 
   protected ServletContextInitializer exampleServletRegistration() {
     return new ServletRegistrationBean<>(new ExampleServlet(), "/hello");

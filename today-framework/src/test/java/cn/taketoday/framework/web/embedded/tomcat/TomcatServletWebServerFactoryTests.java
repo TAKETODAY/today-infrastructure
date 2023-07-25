@@ -17,7 +17,6 @@
 
 package cn.taketoday.framework.web.embedded.tomcat;
 
-import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
@@ -28,7 +27,6 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.AprLifecycleListener;
 import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.core.StandardWrapper;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.util.CharsetMapper;
 import org.apache.catalina.valves.RemoteIpValve;
@@ -81,7 +79,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.util.FileSystemUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -110,7 +107,6 @@ import static org.mockito.Mockito.mock;
  * @author Dave Syer
  * @author Stephane Nicoll
  */
-@ClassPathExclusions("tomcat-embed-jasper*")
 class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactoryTests {
 
   @Override
@@ -637,18 +633,6 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     Object response = request.get();
     assertThat(response).isInstanceOf(HttpResponse.class);
     this.webServer.stop();
-  }
-
-  @Override
-  protected JspServlet getJspServlet() throws ServletException {
-    Tomcat tomcat = ((TomcatWebServer) this.webServer).getTomcat();
-    Container container = tomcat.getHost().findChildren()[0];
-    StandardWrapper standardWrapper = (StandardWrapper) container.findChild("jsp");
-    if (standardWrapper == null) {
-      return null;
-    }
-    standardWrapper.load();
-    return (JspServlet) standardWrapper.getServlet();
   }
 
   @Override

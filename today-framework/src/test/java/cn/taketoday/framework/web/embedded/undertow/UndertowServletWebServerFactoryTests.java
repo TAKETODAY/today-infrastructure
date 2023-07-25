@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,6 @@
 package cn.taketoday.framework.web.embedded.undertow;
 
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.jasper.servlet.JspServlet;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
@@ -287,11 +283,6 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
             .isThrownBy(() -> testRestrictedSSLProtocolsAndCipherSuites(new String[] { "TLSv1.1" },
                     new String[] { "TLS_RSA_WITH_AES_128_CBC_SHA256" }))
             .isInstanceOfAny(SSLException.class, SocketException.class);
-  }
-
-  @Override
-  protected JspServlet getJspServlet() {
-    return null; // Undertow does not support JSPs
   }
 
   private void awaitFile(File file) {

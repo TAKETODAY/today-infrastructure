@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.jasper.servlet.JspServlet;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
@@ -36,7 +32,6 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -110,18 +105,6 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
       connector.setPort(port);
       server.addConnector(connector);
     });
-  }
-
-  @Override
-  protected JspServlet getJspServlet() throws Exception {
-    WebAppContext context = findWebAppContext((JettyWebServer) this.webServer);
-    ServletHolder holder = context.getServletHandler().getServlet("jsp");
-    if (holder == null) {
-      return null;
-    }
-    holder.start();
-    holder.initialize();
-    return (JspServlet) holder.getServlet();
   }
 
   @Override
