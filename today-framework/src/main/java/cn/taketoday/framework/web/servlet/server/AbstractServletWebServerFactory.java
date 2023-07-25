@@ -78,7 +78,6 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   private List<ServletContextInitializer> initializers = new ArrayList<>();
 
-  @Nullable
   private JspProperties jspConfig = new JspProperties();
 
   private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
@@ -214,13 +213,13 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     CollectionUtils.addAll(this.initializers, initializers);
   }
 
-  @Nullable
   public JspProperties getJsp() {
     return this.jspConfig;
   }
 
   @Override
   public void setJsp(@Nullable JspProperties jsp) {
+    Assert.notNull(jsp, "JspProperties is required");
     this.jspConfig = jsp;
   }
 
