@@ -79,6 +79,8 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.test.classpath.ClassPathExclusions;
+import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.FileSystemUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -562,6 +564,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   }
 
   @Test
+  @ClassPathOverrides("org.apache.tomcat.embed:tomcat-embed-jasper:10.1.11")
   void registerJspServletWithDefaultLoadOnStartup() {
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0);
     factory.addInitializers((context) -> context.addServlet("manually-registered-jsp-servlet", JspServlet.class));
