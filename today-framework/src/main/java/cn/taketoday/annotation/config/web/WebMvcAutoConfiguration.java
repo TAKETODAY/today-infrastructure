@@ -37,6 +37,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
@@ -128,23 +129,22 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   private final WebProperties webProperties;
   private final WebMvcProperties mvcProperties;
 
+  @Nullable
   private final WebMvcRegistrations mvcRegistrations;
+
   private final CompositeWebMvcConfigurer webMvcConfigurers;
   private final ObjectProvider<HttpMessageConverters> messageConvertersProvider;
   private final ObjectProvider<ResourceHandlerRegistrationCustomizer> registrationCustomizersProvider;
 
-  public WebMvcAutoConfiguration(
-          BeanFactory beanFactory,
-          WebProperties webProperties,
-          WebMvcProperties mvcProperties,
-          List<WebMvcConfigurer> mvcConfigurers,
-          ObjectProvider<WebMvcRegistrations> mvcRegistrations,
+  public WebMvcAutoConfiguration(BeanFactory beanFactory, WebProperties webProperties,
+          WebMvcProperties mvcProperties, List<WebMvcConfigurer> mvcConfigurers,
+          @Nullable WebMvcRegistrations mvcRegistrations,
           ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
           ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
-    this.mvcRegistrations = mvcRegistrations.getIfUnique();
+    this.mvcRegistrations = mvcRegistrations;
     this.webMvcConfigurers = new CompositeWebMvcConfigurer(mvcConfigurers);
     this.messageConvertersProvider = messageConvertersProvider;
     this.registrationCustomizersProvider = customizers;
@@ -380,13 +380,13 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     Resources resourceProperties = webProperties.getResources();
-    if (!resourceProperties.isAddMappings()) {
-      log.debug("Default resource handling disabled");
-      return;
+    if (resourceProperties.isAddMappings()) {
+      addResourceHandler(registry, mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
+      addResourceHandler(registry, mvcProperties.getStaticPathPattern(), resourceProperties.getStaticLocations());
     }
-    addResourceHandler(registry, mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
-    addResourceHandler(registry, mvcProperties.getStaticPathPattern(), resourceProperties.getStaticLocations());
-
+    else {
+      log.debug("Default resource handling disabled");
+    }
     // User maybe override
     webMvcConfigurers.addResourceHandlers(registry);
   }
@@ -413,6 +413,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     registrationCustomizersProvider.ifAvailable(customizer -> customizer.customize(registration));
   }
 
+  @Lazy
   @Component
   @ConditionalOnEnabledResourceChain
   static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
