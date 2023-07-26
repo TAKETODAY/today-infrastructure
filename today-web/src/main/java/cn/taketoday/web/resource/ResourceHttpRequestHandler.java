@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,8 +103,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   private static final String URL_RESOURCE_CHARSET_PREFIX = "[charset=";
 
-  protected static final NotFoundHandler defaultNotFoundHandler = new NotFoundHandler();
-
   private final ArrayList<String> locationValues = new ArrayList<>(4);
 
   private final ArrayList<Resource> locationResources = new ArrayList<>(4);
@@ -147,7 +142,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   private StringValueResolver embeddedValueResolver;
 
-  private HttpRequestHandler notFoundHandler = defaultNotFoundHandler;
+  private HttpRequestHandler notFoundHandler = NotFoundHandler.instance;
 
   public ResourceHttpRequestHandler() {
     super(HttpMethod.GET.name(), HttpMethod.HEAD.name());
@@ -383,12 +378,13 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   /**
    * Set not found handler
    * <p>
-   * handle resource not found
+   * handle if resource not found
    *
-   * @param notFoundHandler HttpRequestHandler
+   * @param notFoundHandler HttpRequestHandler can be null
+   * @see NotFoundHandler#instance
    */
   public void setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
-    this.notFoundHandler = notFoundHandler == null ? defaultNotFoundHandler : notFoundHandler;
+    this.notFoundHandler = notFoundHandler == null ? NotFoundHandler.instance : notFoundHandler;
   }
 
   @Override

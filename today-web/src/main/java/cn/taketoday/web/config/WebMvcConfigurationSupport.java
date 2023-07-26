@@ -599,16 +599,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
 
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) { }
 
-  /**
-   * default {@link NotFoundHandler} to handle request-url not found
-   */
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnMissingBean(NotFoundHandler.class)
-  public NotFoundHandler notFoundHandler() {
-    return new NotFoundHandler();
-  }
-
   // HandlerExceptionHandler
 
   /**
@@ -803,7 +793,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Nullable
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public HandlerMapping resourceHandlerMapping(NotFoundHandler notFoundHandler,
+  public HandlerMapping resourceHandlerMapping(@Nullable NotFoundHandler notFoundHandler,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
     var context = obtainApplicationContext();
     var registry = new ResourceHandlerRegistry(context, contentNegotiationManager);

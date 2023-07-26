@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +35,7 @@ import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
 /**
  * Stores registrations of resource handlers for serving static resources such
- * as images, css files and others through Framework MVC including setting cache
+ * as images, css files and others through Web MVC including setting cache
  * headers optimized for efficient loading in a web browser. Resources can be
  * served out of locations under web application root, from the classpath, and
  * others.
@@ -123,9 +120,8 @@ public class ResourceHandlerRegistry {
    * configured in the MVC application context.
    * <p>The default value used is {@code Integer.MAX_VALUE-1}.
    */
-  public ResourceHandlerRegistry setOrder(int order) {
+  public void setOrder(int order) {
     this.order = order;
-    return this;
   }
 
   /**
@@ -135,9 +131,8 @@ public class ResourceHandlerRegistry {
    *
    * @param notFoundHandler HttpRequestHandler
    */
-  public ResourceHandlerRegistry setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
+  public void setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
     this.notFoundHandler = notFoundHandler;
-    return this;
   }
 
   /**

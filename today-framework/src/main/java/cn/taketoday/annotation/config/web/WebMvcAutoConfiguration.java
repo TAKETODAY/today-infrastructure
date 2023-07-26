@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +21,6 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
@@ -389,26 +385,20 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       return;
     }
     addResourceHandler(registry, mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
-    addResourceHandler(registry, mvcProperties.getStaticPathPattern(), (registration) -> {
-      registration.addResourceLocations(resourceProperties.getStaticLocations());
-    });
+    addResourceHandler(registry, mvcProperties.getStaticPathPattern(), resourceProperties.getStaticLocations());
 
+    // User maybe override
     webMvcConfigurers.addResourceHandlers(registry);
   }
 
   private void addResourceHandler(ResourceHandlerRegistry registry, String pattern, String... locations) {
-    addResourceHandler(registry, pattern, registration -> registration.addResourceLocations(locations));
-  }
-
-  private void addResourceHandler(ResourceHandlerRegistry registry,
-          String pattern, Consumer<ResourceHandlerRegistration> customizer) {
     if (registry.hasMappingForPattern(pattern)) {
       return;
     }
     Resources resourceProperties = webProperties.getResources();
 
     ResourceHandlerRegistration registration = registry.addResourceHandler(pattern);
-    customizer.accept(registration);
+    registration.addResourceLocations(locations);
     registration.setCachePeriod(getSeconds(resourceProperties.getCache().getPeriod()));
     registration.setCacheControl(resourceProperties.getCache().getHttpCacheControl());
     registration.setUseLastModified(resourceProperties.getCache().isUseLastModified());
