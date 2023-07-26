@@ -2,6 +2,7 @@
   <configuration default="false" name="NettyDemoApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="cn.taketoday.samples.NettyDemoApplication" />
     <module name="infra-samples.netty-app.main" />
+    <option name="PROGRAM_PARAMETERS" value="--infra.profiles.active=dev" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="cn.taketoday.samples.*" />

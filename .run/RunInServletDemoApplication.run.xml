@@ -2,6 +2,7 @@
   <configuration default="false" name="RunInServletDemoApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="cn.taketoday.samples.RunInServletDemoApplication" />
     <module name="infra-samples.run-in-servlet-app.main" />
+    <option name="PROGRAM_PARAMETERS" value="--infra.profiles.active=dev" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="cn.taketoday.samples.*" />
