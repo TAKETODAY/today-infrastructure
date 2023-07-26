@@ -138,13 +138,13 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   public WebMvcAutoConfiguration(BeanFactory beanFactory, WebProperties webProperties,
           WebMvcProperties mvcProperties, List<WebMvcConfigurer> mvcConfigurers,
-          @Nullable WebMvcRegistrations mvcRegistrations,
+          ObjectProvider<WebMvcRegistrations> mvcRegistrations,
           ObjectProvider<ResourceHandlerRegistrationCustomizer> customizers,
           ObjectProvider<HttpMessageConverters> messageConvertersProvider) {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
     this.webProperties = webProperties;
-    this.mvcRegistrations = mvcRegistrations;
+    this.mvcRegistrations = mvcRegistrations.getIfUnique();
     this.webMvcConfigurers = new CompositeWebMvcConfigurer(mvcConfigurers);
     this.messageConvertersProvider = messageConvertersProvider;
     this.registrationCustomizersProvider = customizers;
