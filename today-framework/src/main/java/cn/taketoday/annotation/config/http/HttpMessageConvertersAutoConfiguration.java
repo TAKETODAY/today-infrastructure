@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +28,14 @@ import cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.ImportRuntimeHints;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.NoneNestedConditions;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
@@ -76,6 +75,7 @@ import cn.taketoday.stereotype.Component;
         GsonHttpMessageConvertersConfiguration.class,
         JsonbHttpMessageConvertersConfiguration.class
 })
+@ImportRuntimeHints(HttpMessageConvertersAutoConfiguration.Hints.class)
 public class HttpMessageConvertersAutoConfiguration {
   static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";
 
@@ -137,6 +137,14 @@ public class HttpMessageConvertersAutoConfiguration {
     @ConditionalOnWebApplication(type = Type.REACTIVE)
     private static class ReactiveWebApplication {
 
+    }
+
+  }
+
+  static class Hints extends BindableRuntimeHintsRegistrar {
+
+    Hints() {
+      super(EncodingProperties.class);
     }
 
   }

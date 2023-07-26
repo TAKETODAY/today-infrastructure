@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,8 @@ import java.nio.charset.StandardCharsets;
 import cn.taketoday.annotation.config.gson.GsonAutoConfiguration;
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -41,6 +40,7 @@ import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ContextConsumer;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
+import cn.taketoday.framework.web.server.EncodingProperties;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
@@ -94,8 +94,9 @@ class HttpMessageConvertersAutoConfigurationTests {
 
   @Test
   void jacksonXmlConverterWithBuilder() {
-    this.contextRunner.withUserConfiguration(JacksonObjectMapperBuilderConfig.class).run(assertConverter(
-            MappingJackson2XmlHttpMessageConverter.class, "mappingJackson2XmlHttpMessageConverter"));
+    this.contextRunner.withUserConfiguration(JacksonObjectMapperBuilderConfig.class)
+            .run(assertConverter(MappingJackson2XmlHttpMessageConverter.class,
+                    "mappingJackson2XmlHttpMessageConverter"));
   }
 
   @Test
@@ -273,6 +274,18 @@ class HttpMessageConvertersAutoConfigurationTests {
               assertThat(context).hasSingleBean(HttpMessageConverters.class);
               assertThat(context).doesNotHaveBean(ServerProperties.class);
             });
+  }
+
+  @Test
+  void shouldRegisterHints() {
+    RuntimeHints hints = new RuntimeHints();
+    new HttpMessageConvertersAutoConfiguration.Hints().registerHints(hints, getClass().getClassLoader());
+    assertThat(RuntimeHintsPredicates.reflection().onType(EncodingProperties.class)).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "getCharset")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "setCharset")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "isForce")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "setForce")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "shouldForce")).rejects(hints);
   }
 
   private ApplicationContextRunner allOptionsRunner() {
