@@ -32,6 +32,13 @@ dependencies {
   jacocoAggregation project(':today-web')
   jacocoAggregation project(':today-websocket')
   jacocoAggregation project(':integration-tests')
+
+  jacocoAggregation project(':infra-build:infra-app-loader')
+  jacocoAggregation project(':infra-build:infra-app-loader-tools')
+  jacocoAggregation project(':infra-build:infra-buildpack-platform')
+  jacocoAggregation project(':infra-build:infra-jarmode-layertools')
+  jacocoAggregation project(':infra-build:infra-maven-plugin')
+  jacocoAggregation project(':infra-build:infra-gradle-plugin')
 }
 
 reporting {
