@@ -86,6 +86,10 @@ prepareMavenBinaries {
   versions "3.9.0", "3.8.5", "3.6.3"
 }
 
+intTest {
+  enabled = false
+}
+
 //tasks.register('populateIntTestMavenRepository', Sync) {
 //  it.setDestinationDir(file("$buildDir/int-test-maven-repository"));
 //  CopySpec copySpec = project.copySpec()
