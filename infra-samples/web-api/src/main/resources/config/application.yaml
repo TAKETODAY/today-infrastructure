@@ -1,3 +1,6 @@
+---
+app.config.activate.on-profile: dev
+
 web:
   mvc:
     logRequestDetails: true
