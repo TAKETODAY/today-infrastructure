@@ -111,7 +111,7 @@ public class DispatcherHandler extends InfraHandler {
     initReturnValueHandler(context);
     initExceptionHandler(context);
     initNotFoundHandler(context);
-    initRequestHandledListeners(context);
+    initRequestCompletedListeners(context);
     initWebAsyncManagerFactory(context);
   }
 
@@ -194,14 +194,14 @@ public class DispatcherHandler extends InfraHandler {
    *
    * @see RequestCompletedListener
    */
-  private void initRequestHandledListeners(ApplicationContext context) {
+  private void initRequestCompletedListeners(ApplicationContext context) {
     var matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(
             context, RequestCompletedListener.class, true, false);
     var handlers = new ArrayList<>(matchingBeans.values());
     AnnotationAwareOrderComparator.sort(handlers);
 
-    addRequestHandledActions(handlers);
-    addRequestHandledActions(RequestContext::requestCompleted);
+    addRequestCompletedActions(handlers);
+    addRequestCompletedActions(RequestContext::requestCompleted);
   }
 
   /**
@@ -554,7 +554,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param array RequestHandledListener array
    * @since 4.0
    */
-  public void addRequestHandledActions(@Nullable RequestCompletedListener... array) {
+  public void addRequestCompletedActions(@Nullable RequestCompletedListener... array) {
     requestCompletedActions.add(array);
   }
 
@@ -564,7 +564,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param list RequestHandledListener list
    * @since 4.0
    */
-  public void addRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
+  public void addRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
     requestCompletedActions.addAll(list);
   }
 
@@ -574,7 +574,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param list RequestHandledListener list
    * @since 4.0
    */
-  public void setRequestHandledActions(@Nullable Collection<RequestCompletedListener> list) {
+  public void setRequestCompletedActions(@Nullable Collection<RequestCompletedListener> list) {
     requestCompletedActions.set(list);
   }
 
