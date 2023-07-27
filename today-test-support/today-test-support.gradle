@@ -28,7 +28,7 @@ dependencies {
   testImplementation 'commons-logging:commons-logging:1.2'
   testImplementation 'org.hibernate.validator:hibernate-validator'
 
-  compileOnly 'com.datastax.oss:java-driver-core:4.14.0'
+  compileOnly 'com.datastax.oss:java-driver-core'
   compileOnly 'org.elasticsearch:elasticsearch:7.15.2'
 }
 
