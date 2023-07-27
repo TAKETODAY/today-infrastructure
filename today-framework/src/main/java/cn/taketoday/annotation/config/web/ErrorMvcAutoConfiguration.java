@@ -107,7 +107,7 @@ public class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-  public ErrorPageCustomizer errorPageCustomizer(DispatcherServletPath dispatcherServletPath) {
+  ErrorPageCustomizer errorPageCustomizer(DispatcherServletPath dispatcherServletPath) {
     return new ErrorPageCustomizer(serverProperties, dispatcherServletPath);
   }
 

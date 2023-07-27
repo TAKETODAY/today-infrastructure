@@ -17,8 +17,8 @@
 
 package cn.taketoday.validation.beanvalidation;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -54,16 +54,16 @@ class MethodValidationAdapterTests {
 
   private final MethodValidationAdapter validationAdapter = new MethodValidationAdapter();
 
-  private final Locale originalLocale = Locale.getDefault();
+  private static final Locale originalLocale = Locale.getDefault();
 
-  @BeforeEach
-  void setDefaultLocaleToEnglish() {
+  @BeforeAll
+  static void setDefaultLocaleToEnglish() {
     Locale.setDefault(Locale.ENGLISH);
   }
 
-  @AfterEach
-  void resetDefaultLocale() {
-    Locale.setDefault(this.originalLocale);
+  @AfterAll
+  static void resetDefaultLocale() {
+    Locale.setDefault(originalLocale);
   }
 
   @Test
