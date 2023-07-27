@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,7 +182,7 @@ public class ParameterResolvingStrategies
    * @param idx index of the element to replace
    * @param strategy strategy to be stored at the specified position
    * @return the element previously at the specified position
-   * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= size())
+   * @throws IndexOutOfBoundsException if the index is out of range {@code (index < 0 || index >= size())}
    */
   public ParameterResolvingStrategy set(int idx, ParameterResolvingStrategy strategy) {
     return strategies.set(idx, strategy);
@@ -213,6 +210,13 @@ public class ParameterResolvingStrategies
    * predicate.  Errors or runtime exceptions thrown during iteration or by
    * the predicate are relayed to the caller.
    *
+   * <p>
+   * The default implementation traverses all elements of the collection using
+   * its {@link List#iterator()}.  Each matching element is removed using
+   * {@link Iterator#remove()}.  If the collection's iterator does not
+   * support removal then an {@code UnsupportedOperationException} will be
+   * thrown on the first matching element.
+   *
    * @param filter a predicate which returns {@code true} for elements to be
    * removed
    * @return {@code true} if any elements were removed
@@ -221,12 +225,6 @@ public class ParameterResolvingStrategies
    * from this collection.  Implementations may throw this exception if a
    * matching element cannot be removed or if, in general, removal is not
    * supported.
-   * @implSpec The default implementation traverses all elements of the collection using
-   * its {@link List#iterator()}.  Each matching element is removed using
-   * {@link Iterator#remove()}.  If the collection's iterator does not
-   * support removal then an {@code UnsupportedOperationException} will be
-   * thrown on the first matching element.
-   * @since 4.0
    */
   public boolean removeIf(Predicate<ParameterResolvingStrategy> filter) {
     return strategies.removeIf(filter);

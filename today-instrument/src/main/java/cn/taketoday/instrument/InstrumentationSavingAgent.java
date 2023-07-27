@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,14 +55,14 @@ public final class InstrumentationSavingAgent {
    * <p>Note that this agent class will typically not be available in the classpath
    * unless the agent is actually specified on JVM startup. If you intend to do
    * conditional checking with respect to agent availability, consider using
-   * {@link cn.taketoday.instrument.InstrumentationLoadTimeWeaver#getInstrumentation()}
+   * {@link cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver#getInstrumentation()}
    * instead - which will work without the agent class in the classpath as well.
    *
    * @return the {@code Instrumentation} instance previously saved when
    * the {@link #premain} or {@link #agentmain} methods was called by the JVM;
    * will be {@code null} if this class was not used as Java agent when this
    * JVM was started or it wasn't installed as agent using the Attach API.
-   * @see cn.taketoday.instrument.InstrumentationLoadTimeWeaver#getInstrumentation()
+   * @see cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver#getInstrumentation()
    */
 //  @Nullable
   public static Instrumentation getInstrumentation() {
