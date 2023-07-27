@@ -127,7 +127,9 @@ public class NettyWebServerFactoryAutoConfiguration {
   static NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig) {
     String location = multipartConfig.getLocation();
     var factory = new DefaultHttpDataFactory(location != null);
-    factory.setMaxLimit(multipartConfig.getMaxRequestSize().toBytes());
+    if (multipartConfig.getMaxRequestSize() != null) {
+      factory.setMaxLimit(multipartConfig.getMaxRequestSize().toBytes());
+    }
     if (location != null) {
       factory.setBaseDir(location);
     }

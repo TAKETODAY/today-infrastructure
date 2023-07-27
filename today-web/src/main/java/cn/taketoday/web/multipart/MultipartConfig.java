@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.web.multipart;
 import java.util.Objects;
 
 import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.DataSize;
 
 /**
@@ -42,18 +40,25 @@ import cn.taketoday.util.DataSize;
  * you may specify numeric values using {@literal long} values or using more readable
  * {@link DataSize} variants.
  *
- * @author TODAY 2019-07-11 22:47
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-11 22:47
  */
 public class MultipartConfig {
 
   /*** temp file upload location */
+  @Nullable
   private String location;
 
   /**
    * Maximum size of a single uploaded file.
    */
+  @Nullable
   private DataSize maxFileSize = DataSize.ofMegabytes(512); // every single file
+
+  @Nullable
   private DataSize maxRequestSize = DataSize.ofGigabytes(1); // total size in every single request
+
+  @Nullable
   private DataSize fileSizeThreshold = DataSize.ofBytes(0); // cache
 
   /**
@@ -61,7 +66,7 @@ public class MultipartConfig {
    *
    * @param fileSizeThreshold the file size threshold
    */
-  public void setFileSizeThreshold(DataSize fileSizeThreshold) {
+  public void setFileSizeThreshold(@Nullable DataSize fileSizeThreshold) {
     this.fileSizeThreshold = fileSizeThreshold;
   }
 
@@ -70,7 +75,7 @@ public class MultipartConfig {
    *
    * @param location the location
    */
-  public void setLocation(String location) {
+  public void setLocation(@Nullable String location) {
     this.location = location;
   }
 
@@ -79,7 +84,7 @@ public class MultipartConfig {
    *
    * @param maxFileSize the maximum file size
    */
-  public void setMaxFileSize(DataSize maxFileSize) {
+  public void setMaxFileSize(@Nullable DataSize maxFileSize) {
     this.maxFileSize = maxFileSize;
   }
 
@@ -88,22 +93,26 @@ public class MultipartConfig {
    *
    * @param maxRequestSize the maximum request size
    */
-  public void setMaxRequestSize(DataSize maxRequestSize) {
+  public void setMaxRequestSize(@Nullable DataSize maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
   }
 
+  @Nullable
   public String getLocation() {
     return location;
   }
 
+  @Nullable
   public DataSize getMaxRequestSize() {
     return maxRequestSize;
   }
 
+  @Nullable
   public DataSize getMaxFileSize() {
     return maxFileSize;
   }
 
+  @Nullable
   public DataSize getFileSizeThreshold() {
     return fileSizeThreshold;
   }
