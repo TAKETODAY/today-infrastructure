@@ -54,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +62,8 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ResourceLoaderAware;
@@ -77,8 +80,10 @@ import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletException;
@@ -102,6 +107,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  * @author Eddú Meléndez
  * @author Venil Noronha
  * @author Henri Kerola
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setPort(int)
  * @see #setConfigurations(Collection)
  * @see JettyWebServer
@@ -137,8 +143,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   /**
    * Create a new {@link JettyServletWebServerFactory} instance.
    */
-  public JettyServletWebServerFactory() {
-  }
+  public JettyServletWebServerFactory() { }
 
   /**
    * Create a new {@link JettyServletWebServerFactory} that listens for requests using
@@ -202,7 +207,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   private AbstractConnector createConnector(InetSocketAddress address, Server server) {
     HttpConfiguration httpConfiguration = new HttpConfiguration();
     httpConfiguration.setSendServerVersion(false);
-    List<ConnectionFactory> connectionFactories = new ArrayList<>();
+    ArrayList<ConnectionFactory> connectionFactories = new ArrayList<>();
     connectionFactories.add(new HttpConnectionFactory(httpConfiguration));
     if (Http2.isEnabled(getHttp2())) {
       connectionFactories.add(new HTTP2CServerConnectionFactory(httpConfiguration));
@@ -245,7 +250,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   protected final void configureWebAppContext(WebAppContext context, ServletContextInitializer... initializers) {
     Assert.notNull(context, "Context must not be null");
     context.clearAliasChecks();
-    context.setTempDirectory(getTempDirectory());
+    context.setTempDirectory(getApplicationTemp().getDir("jetty"));
     if (this.resourceLoader != null) {
       context.setClassLoader(this.resourceLoader.getClassLoader());
     }
@@ -291,23 +296,18 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   }
 
   private void addLocaleMappings(WebAppContext context) {
-    getLocaleCharsetMappings()
-            .forEach((locale, charset) -> context.addLocaleEncoding(locale.toString(), charset.toString()));
-  }
-
-  @Nullable
-  private File getTempDirectory() {
-    String temp = System.getProperty("java.io.tmpdir");
-    return (temp != null) ? new File(temp) : null;
+    for (Map.Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
+      context.addLocaleEncoding(entry.getKey().toString(), entry.getValue().toString());
+    }
   }
 
   private void configureDocumentRoot(WebAppContext handler) {
-    File root = getValidDocumentRoot();
-    File docBase = (root != null) ? root : createTempDir("jetty-docbase");
+    File docBase = getDocBase();
     try {
       ArrayList<Resource> resources = new ArrayList<>();
-      Resource rootResource = docBase.isDirectory() ? Resource.newResource(docBase.getCanonicalFile())
-                                                    : JarResource.newJarResource(Resource.newResource(docBase));
+      Resource rootResource = docBase.isDirectory()
+                              ? Resource.newResource(docBase.getCanonicalFile())
+                              : JarResource.newJarResource(Resource.newResource(docBase));
       resources.add(rootResource);
       for (URL resourceJarUrl : getUrlsOfJarsWithMetaInfResources()) {
         Resource resource = createResource(resourceJarUrl);
@@ -320,6 +320,15 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     catch (Exception ex) {
       throw new IllegalStateException(ex);
     }
+  }
+
+  @NonNull
+  private File getDocBase() {
+    File root = getValidDocumentRoot();
+    if (root != null) {
+      return root;
+    }
+    return createTempDir("jetty-docbase");
   }
 
   private Resource createResource(URL url) throws Exception {
@@ -603,12 +612,14 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
       servletHandler.addListener(holder);
     }
 
-    @SuppressWarnings("unchecked")
     private Class<? extends EventListener> loadClass(WebAppContext context, String className)
             throws ClassNotFoundException {
       ClassLoader classLoader = context.getClassLoader();
-      classLoader = (classLoader != null) ? classLoader : getClass().getClassLoader();
-      return (Class<? extends EventListener>) classLoader.loadClass(className);
+      if (classLoader == null) {
+        classLoader = getClass().getClassLoader();
+      }
+
+      return ClassUtils.forName(className, classLoader);
     }
 
   }

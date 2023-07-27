@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,8 @@ import org.eclipse.jetty.server.Server;
  * {@link JettyServerCustomizer} to add {@link ForwardedRequestCustomizer}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class ForwardHeadersCustomizer implements JettyServerCustomizer {
 
@@ -38,9 +37,8 @@ class ForwardHeadersCustomizer implements JettyServerCustomizer {
     ForwardedRequestCustomizer customizer = new ForwardedRequestCustomizer();
     for (Connector connector : server.getConnectors()) {
       for (ConnectionFactory connectionFactory : connector.getConnectionFactories()) {
-        if (connectionFactory instanceof HttpConfiguration.ConnectionFactory) {
-          ((HttpConfiguration.ConnectionFactory) connectionFactory).getHttpConfiguration()
-                  .addCustomizer(customizer);
+        if (connectionFactory instanceof HttpConfiguration.ConnectionFactory factory) {
+          factory.getHttpConfiguration().addCustomizer(customizer);
         }
       }
     }
