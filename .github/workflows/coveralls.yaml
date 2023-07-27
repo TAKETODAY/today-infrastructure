@@ -62,5 +62,5 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          file: '/infra-build/infra-code-coverage/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml'
+          file: 'infra-build/infra-code-coverage/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml'
           format: jacoco
