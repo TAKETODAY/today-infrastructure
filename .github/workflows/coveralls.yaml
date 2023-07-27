@@ -22,25 +22,25 @@ on:
   push:
     branches: [ master ]
     paths-ignore:
-      - 'docs/**/*.css'
-      - 'docs/**/*.html'
-      - 'docs/**/*.ico'
-      - 'docs/**/*.md'
-      - 'docs/**/*.adoc'
-      - 'docs/**/*.png'
-      - 'docs/**/*.svg'
+      - 'infra-docs/**/*.css'
+      - 'infra-docs/**/*.html'
+      - 'infra-docs/**/*.ico'
+      - 'infra-docs/**/*.md'
+      - 'infra-docs/**/*.adoc'
+      - 'infra-docs/**/*.png'
+      - 'infra-docs/**/*.svg'
       - 'README.md'
 
   pull_request:
     branches: [ master ]
     paths-ignore:
-      - 'docs/**/*.css'
-      - 'docs/**/*.html'
-      - 'docs/**/*.ico'
-      - 'docs/**/*.md'
-      - 'docs/**/*.adoc'
-      - 'docs/**/*.png'
-      - 'docs/**/*.svg'
+      - 'infra-docs/**/*.css'
+      - 'infra-docs/**/*.html'
+      - 'infra-docs/**/*.ico'
+      - 'infra-docs/**/*.md'
+      - 'infra-docs/**/*.adoc'
+      - 'infra-docs/**/*.png'
+      - 'infra-docs/**/*.svg'
       - 'README.md'
 
 jobs:

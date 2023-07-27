@@ -1,3 +1,4 @@
+//file:noinspection ConfigurationAvoidance
 import java.time.LocalDateTime
 
 apply plugin: 'java-library'
@@ -76,5 +77,7 @@ publishing {
 }
 
 // Disable publication of test fixture artifacts.
-components.java.withVariantsFromConfiguration(configurations.testFixturesApiElements) { skip() }
-components.java.withVariantsFromConfiguration(configurations.testFixturesRuntimeElements) { skip() }
+if (configurations.findByName("testFixturesApiElements") != null) {
+  components.java.withVariantsFromConfiguration(configurations.testFixturesApiElements) { skip() }
+  components.java.withVariantsFromConfiguration(configurations.testFixturesRuntimeElements) { skip() }
+}

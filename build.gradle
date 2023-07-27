@@ -18,6 +18,15 @@ ext {
       project(":infra-build:infra-code-coverage"),
       project(":infra-bom"), project(":infra-build"), project(":infra-platform"),
   ]
+  testFixturesProjects = [
+      project(":today-core"),
+      project(":today-aop"),
+      project(":today-beans"),
+      project(":today-context"),
+      project(":today-jcache"),
+      project(":today-web"),
+      project(":today-tx")
+  ] as Set
 }
 
 configure(allprojects) {
@@ -55,9 +64,12 @@ configure(allprojects) {
 configure([rootProject] + javaProjects) {
   apply plugin: "java"
   apply plugin: 'jacoco'
-  apply plugin: "java-test-fixtures"
   apply plugin: 'cn.taketoday.build.conventions'
   apply from: "${rootDir}/gradle/toolchains.gradle"
+
+  if (testFixturesProjects.contains(it)) {
+    apply plugin: "java-test-fixtures"
+  }
 
   jacocoTestReport {
     enabled = false
