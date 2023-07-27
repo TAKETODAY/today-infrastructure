@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +23,14 @@ import org.apache.catalina.startup.Tomcat;
 
 import java.io.File;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.http.server.reactive.ServletHttpHandlerAdapter;
 import cn.taketoday.http.server.reactive.TomcatHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 
 /**
  * @author Rossen Stoyanchev
+ * @since 4.0
  */
 public class TomcatHttpServer extends AbstractHttpServer {
 
@@ -48,11 +47,9 @@ public class TomcatHttpServer extends AbstractHttpServer {
   /**
    * Create a new Tomcat HTTP server using the {@code java.io.tmpdir} JVM
    * system property as the {@code baseDir}.
-   *
-   * @since 4.0
    */
   public TomcatHttpServer() {
-    this(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath());
+    this(ApplicationTemp.instance.getDir().getAbsolutePath());
   }
 
   public TomcatHttpServer(String baseDir) {
@@ -82,7 +79,7 @@ public class TomcatHttpServer extends AbstractHttpServer {
 
     ServletHttpHandlerAdapter servlet = initServletAdapter();
 
-    File base = new File(System.getProperty("java.io.tmpdir"));
+    File base = ApplicationTemp.instance.getDir();
     Context rootContext = tomcatServer.addContext(this.contextPath, base.getAbsolutePath());
     Tomcat.addServlet(rootContext, "httpHandlerServlet", servlet).setAsyncSupported(true);
     rootContext.addServletMappingDecoded(this.servletMapping, "httpHandlerServlet");

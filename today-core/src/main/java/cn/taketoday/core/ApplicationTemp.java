@@ -46,6 +46,8 @@ public class ApplicationTemp {
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
           "app.temp-prefix", ApplicationTemp.class.getName());
 
+  public static final ApplicationTemp instance = new ApplicationTemp();
+
   @Nullable
   private final Class<?> sourceClass;
 
@@ -90,25 +92,6 @@ public class ApplicationTemp {
    */
   public File getDir(String subDir) {
     return createDirectory(getPath().resolve(subDir)).toFile();
-  }
-
-  /**
-   * Return a sub-directory of the application temp.
-   *
-   * @param subDir the sub-directory name
-   * @return a sub-directory
-   */
-  public static File getTemporalDirectory(@Nullable Class<?> startupClass, @Nullable String subDir) {
-    return new ApplicationTemp(startupClass).getDir(subDir);
-  }
-
-  /**
-   * Return the directory to be used for application specific temp files.
-   *
-   * @return the application temp directory
-   */
-  public static File getBaseTemporalDirectory(@Nullable Class<?> startupClass) {
-    return new ApplicationTemp(startupClass).getDir();
   }
 
   private Path getPath() {

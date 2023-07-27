@@ -20,6 +20,7 @@ package cn.taketoday.session.config;
 import java.io.File;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
@@ -156,10 +157,7 @@ public class SessionProperties {
 
   public static File getValidStoreDir(@Nullable ApplicationTemp applicationTemp, @Nullable File dir, boolean mkdirs) {
     if (dir == null) {
-      if (applicationTemp != null) {
-        return applicationTemp.getDir(SESSION_TEMP_DIR);
-      }
-      return ApplicationTemp.getTemporalDirectory(null, SESSION_TEMP_DIR);
+      return Objects.requireNonNullElse(applicationTemp, ApplicationTemp.instance).getDir(SESSION_TEMP_DIR);
     }
     if (!dir.isAbsolute()) {
       dir = new File(new ApplicationHome().getDir(), dir.getPath());

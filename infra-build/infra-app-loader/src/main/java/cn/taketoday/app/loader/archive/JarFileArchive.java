@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.Manifest;
 
 import cn.taketoday.app.loader.jar.JarFile;
+import cn.taketoday.core.ApplicationTemp;
 
 /**
  * {@link Archive} implementation backed by a {@link JarFile}.
@@ -137,7 +138,7 @@ public class JarFileArchive implements Archive {
 
   private Path getTempUnpackDirectory() {
     if (this.tempUnpackDirectory == null) {
-      Path tempDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
+      Path tempDirectory = ApplicationTemp.instance.getDir().toPath();
       this.tempUnpackDirectory = createUnpackDirectory(tempDirectory);
     }
     return this.tempUnpackDirectory;

@@ -67,7 +67,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
 
   private Shutdown shutdown = Shutdown.IMMEDIATE;
 
-  private ApplicationTemp applicationTemp = new ApplicationTemp();
+  private ApplicationTemp applicationTemp = ApplicationTemp.instance;
 
   /**
    * Create a new {@link AbstractConfigurableWebServerFactory} instance.
