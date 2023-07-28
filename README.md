@@ -39,6 +39,54 @@
 
 ## 🛠️ 安装
 
+### Gradle
+
+[settings.gradle](./infra-samples/settings.gradle)
+
+```groovy
+buildscript {
+  repositories {
+    mavenLocal()
+    maven {
+      url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "cn.taketoday:infra-gradle-plugin:4.0.0-Draft.4-SNAPSHOT"
+  }
+}
+
+```
+
+[build.gradle](./infra-samples/build.gradle)
+
+```groovy
+apply plugin: "java"
+apply plugin: 'cn.taketoday.application'
+apply plugin: 'io.spring.dependency-management' // 有了该插件可以自动导入 infra-dependencies
+
+repositories {
+  mavenLocal()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://maven.aliyun.com/repository/public" }
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'cn.taketoday:ip2region-java:1.0-SNAPSHOT'
+  implementation 'cn.taketoday:today-starter-netty'
+  implementation 'cn.taketoday:today-starter-json'
+  implementation 'cn.taketoday:today-starter-web'
+  
+}
+
+```
+
+具体工程可以参见 [infra-samples](./infra-samples)
+
+### Maven
 ```xml
 <dependency>
   <groupId>cn.taketoday</groupId>
