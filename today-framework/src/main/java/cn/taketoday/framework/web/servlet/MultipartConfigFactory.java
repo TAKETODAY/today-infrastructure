@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.framework.web.servlet;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.multipart.MultipartConfig;
 import jakarta.servlet.MultipartConfigElement;
@@ -53,7 +51,7 @@ public class MultipartConfigFactory extends MultipartConfig {
    * @param defaultValue the default value if the size is {@code null} or negative
    * @return the amount of bytes to use
    */
-  private long convertToBytes(DataSize size, int defaultValue) {
+  private static long convertToBytes(@Nullable DataSize size, int defaultValue) {
     if (size != null && !size.isNegative()) {
       return size.toBytes();
     }
