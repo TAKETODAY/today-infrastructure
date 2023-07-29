@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Default {@link ServerResponse.BodyBuilder} implementation.
@@ -204,6 +205,15 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
             .headers(headers -> headers.putAll(this.headers))
             .cookies(cookies -> cookies.addAll(this.cookies))
             .modelAttributes(model)
+            .build();
+  }
+
+  @Override
+  public ServerResponse render(ModelAndView modelAndView) {
+    return new ModelAndViewRenderingResponseBuilder(modelAndView)
+            .status(this.statusCode)
+            .headers(headers -> headers.putAll(this.headers))
+            .cookies(cookies -> cookies.addAll(this.cookies))
             .build();
   }
 

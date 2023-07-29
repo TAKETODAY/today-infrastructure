@@ -388,7 +388,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void sendError(HttpStatusCode code, String msg) throws IOException {
+  public void sendError(HttpStatusCode code, @Nullable String msg) throws IOException {
     getDelegate().sendError(code, msg);
   }
 
@@ -398,7 +398,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void sendError(int sc, String msg) throws IOException {
+  public void sendError(int sc, @Nullable String msg) throws IOException {
     getDelegate().sendError(sc, msg);
   }
 

@@ -23,11 +23,15 @@ import java.util.Map;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.view.ModelAndView;
+import jakarta.servlet.RequestDispatcher;
 
 /**
  * Abstract base class for error {@link Controller @Controller} implementations.
@@ -43,16 +47,20 @@ public abstract class AbstractErrorController implements ErrorController {
 
   private final ErrorAttributes errorAttributes;
 
+  private final ErrorProperties errorProperties;
+
   private final List<ErrorViewResolver> errorViewResolvers;
 
-  public AbstractErrorController(ErrorAttributes errorAttributes) {
-    this(errorAttributes, null);
+  public AbstractErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties) {
+    this(errorAttributes, errorProperties, null);
   }
 
   public AbstractErrorController(ErrorAttributes errorAttributes,
-          @Nullable List<ErrorViewResolver> errorViewResolvers) {
+          ErrorProperties errorProperties, @Nullable List<ErrorViewResolver> errorViewResolvers) {
     Assert.notNull(errorAttributes, "ErrorAttributes is required");
+    Assert.notNull(errorProperties, "ErrorProperties is required");
     this.errorAttributes = errorAttributes;
+    this.errorProperties = errorProperties;
     this.errorViewResolvers = sortErrorViewResolvers(errorViewResolvers);
   }
 
@@ -65,8 +73,8 @@ public abstract class AbstractErrorController implements ErrorController {
     return sorted;
   }
 
-  protected Map<String, Object> getErrorAttributes(RequestContext request, ErrorAttributeOptions options) {
-    return this.errorAttributes.getErrorAttributes(request, options);
+  protected Map<String, Object> getErrorAttributes(RequestContext request, MediaType mediaType) {
+    return this.errorAttributes.getErrorAttributes(request, getErrorAttributeOptions(request, mediaType));
   }
 
   protected boolean getTraceParameter(RequestContext request) {
@@ -90,7 +98,18 @@ public abstract class AbstractErrorController implements ErrorController {
   }
 
   protected HttpStatus getStatus(RequestContext request) {
-    // TODO statusCode 获取问题
+    if (ServletDetector.runningInServlet(request)) {
+      Integer statusCode = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+      if (statusCode == null) {
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+      }
+      try {
+        return HttpStatus.valueOf(statusCode);
+      }
+      catch (Exception ex) {
+        return HttpStatus.INTERNAL_SERVER_ERROR;
+      }
+    }
     int statusCode = request.getStatus();
     try {
       return HttpStatus.valueOf(statusCode);
@@ -110,16 +129,86 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return a specific {@link ModelAndView} or {@code null} if the default should be
    * used
    */
-  @Nullable
-  protected Object resolveErrorView(RequestContext request,
-          HttpStatus status, Map<String, Object> model) {
+  protected ModelAndView resolveErrorView(RequestContext request,
+          HttpStatusCode status, Map<String, Object> model) {
     for (ErrorViewResolver resolver : errorViewResolvers) {
-      Object view = resolver.resolveErrorView(request, status, model);
+      ModelAndView view = resolver.resolveErrorView(request, status, model);
       if (view != null) {
         return view;
       }
     }
-    return null;
+    return new ModelAndView("error", model);
+  }
+
+  protected ErrorAttributeOptions getErrorAttributeOptions(RequestContext request, MediaType mediaType) {
+    ErrorAttributeOptions options = ErrorAttributeOptions.defaults();
+    if (errorProperties.isIncludeException()) {
+      options = options.including(ErrorAttributeOptions.Include.EXCEPTION);
+    }
+    if (isIncludeStackTrace(request, mediaType)) {
+      options = options.including(ErrorAttributeOptions.Include.STACK_TRACE);
+    }
+    if (isIncludeMessage(request, mediaType)) {
+      options = options.including(ErrorAttributeOptions.Include.MESSAGE);
+    }
+    if (isIncludeBindingErrors(request, mediaType)) {
+      options = options.including(ErrorAttributeOptions.Include.BINDING_ERRORS);
+    }
+    return options;
+  }
+
+  /**
+   * Determine if the stacktrace attribute should be included.
+   *
+   * @param request the source request
+   * @param produces the media type produced (or {@code MediaType.ALL})
+   * @return if the stacktrace attribute should be included
+   */
+  protected boolean isIncludeStackTrace(RequestContext request, MediaType produces) {
+    return switch (getErrorProperties().getIncludeStacktrace()) {
+      case ALWAYS -> true;
+      case ON_PARAM -> getTraceParameter(request);
+      default -> false;
+    };
+  }
+
+  /**
+   * Determine if the message attribute should be included.
+   *
+   * @param request the source request
+   * @param produces the media type produced (or {@code MediaType.ALL})
+   * @return if the message attribute should be included
+   */
+  protected boolean isIncludeMessage(RequestContext request, MediaType produces) {
+    return switch (getErrorProperties().getIncludeMessage()) {
+      case ALWAYS -> true;
+      case ON_PARAM -> getMessageParameter(request);
+      default -> false;
+    };
+  }
+
+  /**
+   * Determine if the errors attribute should be included.
+   *
+   * @param request the source request
+   * @param produces the media type produced (or {@code MediaType.ALL})
+   * @return if the errors attribute should be included
+   */
+  protected boolean isIncludeBindingErrors(RequestContext request, MediaType produces) {
+    return switch (getErrorProperties().getIncludeBindingErrors()) {
+      case ALWAYS -> true;
+      case ON_PARAM -> getErrorsParameter(request);
+      default -> false;
+    };
+  }
+
+  /**
+   * Provide access to the error properties.
+   *
+   * @return the error properties
+   */
+  protected ErrorProperties getErrorProperties() {
+    return this.errorProperties;
   }
 
 }

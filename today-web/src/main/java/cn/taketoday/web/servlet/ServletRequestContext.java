@@ -355,7 +355,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
   }
 
   @Override
-  public void sendError(int sc, String msg) throws IOException {
+  public void sendError(int sc, @Nullable String msg) throws IOException {
     response.sendError(sc, msg);
   }
 

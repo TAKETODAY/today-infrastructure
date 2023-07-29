@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.view.ModelAndView;
 
 /**
  * Rendering-specific subtype of {@link ServerResponse} that exposes model and template data.
@@ -69,6 +67,16 @@ public interface RenderingResponse extends ServerResponse {
    */
   static Builder create(String name) {
     return new DefaultRenderingResponseBuilder(name);
+  }
+
+  /**
+   * Create a builder with the given template name.
+   *
+   * @param view the name of the template to render
+   * @return the created builder
+   */
+  static ViewBuilder create(ModelAndView view) {
+    return new ModelAndViewRenderingResponseBuilder(view);
   }
 
   /**
@@ -176,6 +184,77 @@ public interface RenderingResponse extends ServerResponse {
      * @return this builder
      */
     Builder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
+
+    /**
+     * Build the response.
+     *
+     * @return the built response
+     */
+    RenderingResponse build();
+  }
+
+  /**
+   * Defines a builder for {@code RenderingResponse}.
+   */
+  interface ViewBuilder {
+
+    /**
+     * Add the given header value(s) under the given name.
+     *
+     * @param headerName the header name
+     * @param headerValues the header value(s)
+     * @return this builder
+     * @see HttpHeaders#add(String, String)
+     */
+    ViewBuilder header(String headerName, String... headerValues);
+
+    /**
+     * Manipulate this response's headers with the given consumer. The
+     * headers provided to the consumer are "live", so that the consumer can be used to
+     * {@linkplain HttpHeaders#set(String, String) overwrite} existing header values,
+     * {@linkplain HttpHeaders#remove(Object) remove} values, or use any of the other
+     * {@link HttpHeaders} methods.
+     *
+     * @param headersConsumer a function that consumes the {@code HttpHeaders}
+     * @return this builder
+     */
+    ViewBuilder headers(Consumer<HttpHeaders> headersConsumer);
+
+    /**
+     * Set the HTTP status.
+     *
+     * @param status the response status
+     * @return this builder
+     */
+    ViewBuilder status(HttpStatusCode status);
+
+    /**
+     * Set the HTTP status.
+     *
+     * @param status the response status
+     * @return this builder
+     */
+    ViewBuilder status(int status);
+
+    /**
+     * Add the given cookie to the response.
+     *
+     * @param cookie the cookie to add
+     * @return this builder
+     */
+    ViewBuilder cookie(HttpCookie cookie);
+
+    /**
+     * Manipulate this response's cookies with the given consumer. The
+     * cookies provided to the consumer are "live", so that the consumer can be used to
+     * {@linkplain MultiValueMap#set(Object, Object) overwrite} existing cookies,
+     * {@linkplain MultiValueMap#remove(Object) remove} cookies, or use any of the other
+     * {@link MultiValueMap} methods.
+     *
+     * @param cookiesConsumer a function that consumes the cookies
+     * @return this builder
+     */
+    ViewBuilder cookies(Consumer<MultiValueMap<String, HttpCookie>> cookiesConsumer);
 
     /**
      * Build the response.

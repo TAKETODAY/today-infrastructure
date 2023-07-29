@@ -59,7 +59,7 @@ import cn.taketoday.web.util.UriBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ServerRequest {
+public interface ServerRequest extends ServerResponse.Context {
 
   /**
    * Get the HTTP method.
@@ -121,6 +121,7 @@ public interface ServerRequest {
   /**
    * Get the readers used to convert the body of this request.
    */
+  @Override
   List<HttpMessageConverter<?>> messageConverters();
 
   /**

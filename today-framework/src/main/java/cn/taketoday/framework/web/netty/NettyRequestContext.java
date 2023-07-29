@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.DefaultHttpHeaders;
@@ -76,7 +76,10 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.util.ReferenceCountUtil;
 
 /**
- * @author TODAY 2019-07-04 21:24
+ * Netty Request context
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-04 21:24
  */
 public class NettyRequestContext extends RequestContext {
 
@@ -91,8 +94,6 @@ public class NettyRequestContext extends RequestContext {
 
   @Nullable
   private InterfaceHttpPostRequestDecoder requestDecoder;
-
-  private final String uri; // none null
 
   private final NettyRequestConfig config;
 
@@ -110,23 +111,20 @@ public class NettyRequestContext extends RequestContext {
    */
   private final HttpHeaders nettyResponseHeaders;
 
-  private final int queryStringIndex; // for optimize
+  @Nullable
+  private Integer queryStringIndex;
 
   @Nullable
   private InetSocketAddress inetSocketAddress;
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
-  public NettyRequestContext(
-          ApplicationContext context, ChannelHandlerContext ctx,
+  public NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config) {
     super(context);
     this.config = config;
     this.request = request;
     this.channelContext = ctx;
-    String uri = request.uri();
-    this.uri = uri;
-    this.queryStringIndex = uri.indexOf('?');
     this.nettyResponseHeaders =
             config.isSingleFieldHeaders()
             ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
@@ -174,7 +172,8 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected final String doGetRequestURI() {
-    int index = queryStringIndex;
+    String uri = request.uri();
+    int index = queryStringIndex(uri);
     if (index == -1) {
       return uri;
     }
@@ -185,13 +184,23 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public final String doGetQueryString() {
-    int index = queryStringIndex;
+    String uri = request.uri();
+    int index = queryStringIndex(uri);
     if (index == -1) {
       return Constant.BLANK;
     }
     else {
       return uri.substring(index + 1);
     }
+  }
+
+  private int queryStringIndex(String uri) {
+    Integer index = queryStringIndex;
+    if (index == null) {
+      index = uri.indexOf('?');
+      this.queryStringIndex = index;
+    }
+    return index;
   }
 
   @Override
@@ -235,7 +244,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected NettyHttpHeaders createResponseHeaders() {
+  protected cn.taketoday.http.HttpHeaders createResponseHeaders() {
     return new NettyHttpHeaders(nettyResponseHeaders);
   }
 
@@ -331,9 +340,9 @@ public class NettyRequestContext extends RequestContext {
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
-      Supplier<ByteBuf> bodyFactory = config.getResponseBodyFactory();
+      Function<RequestContext, ByteBuf> bodyFactory = config.getResponseBodyFactory();
       if (bodyFactory != null) {
-        responseBody = bodyFactory.get(); // may null
+        responseBody = bodyFactory.apply(this); // may null
       }
       if (responseBody == null) {
         // fallback
@@ -557,14 +566,16 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void sendError(int sc) {
-    this.status = HttpResponseStatus.valueOf(sc);
-    commit();
+  public void sendError(int sc) throws IOException {
+    sendError(sc, null);
   }
 
   @Override
-  public void sendError(int sc, String msg) {
-    this.status = HttpResponseStatus.valueOf(sc, msg);
+  public void sendError(int sc, @Nullable String msg) throws IOException {
+    reset();
+    this.status = HttpResponseStatus.valueOf(sc);
+    config.getSendErrorHandler().handleError(this, msg);
+
     commit();
   }
 

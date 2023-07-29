@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,7 @@ package cn.taketoday.framework.web.error;
 
 import java.util.Map;
 
-import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
@@ -46,6 +43,6 @@ public interface ErrorViewResolver {
    * @return a resolved {@link ModelAndView} or {@code null}
    */
   @Nullable
-  Object resolveErrorView(RequestContext request, HttpStatus status, Map<String, Object> model);
+  ModelAndView resolveErrorView(RequestContext request, HttpStatusCode status, Map<String, Object> model);
 
 }

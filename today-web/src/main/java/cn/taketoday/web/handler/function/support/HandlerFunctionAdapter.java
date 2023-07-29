@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,7 @@
 
 package cn.taketoday.web.handler.function.support;
 
-import java.util.List;
-
 import cn.taketoday.core.Ordered;
-import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -85,7 +79,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     }
 
     if (serverResponse != null) {
-      return serverResponse.writeTo(context, new ServerRequestContext(serverRequest));
+      return serverResponse.writeTo(context, serverRequest);
     }
     else {
       return NONE_RETURN_VALUE;
@@ -114,17 +108,4 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     }
   }
 
-  private static class ServerRequestContext implements ServerResponse.Context {
-
-    private final ServerRequest serverRequest;
-
-    public ServerRequestContext(ServerRequest serverRequest) {
-      this.serverRequest = serverRequest;
-    }
-
-    @Override
-    public List<HttpMessageConverter<?>> messageConverters() {
-      return this.serverRequest.messageConverters();
-    }
-  }
 }

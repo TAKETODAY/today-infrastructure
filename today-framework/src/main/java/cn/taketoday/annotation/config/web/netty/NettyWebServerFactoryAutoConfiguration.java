@@ -40,6 +40,7 @@ import cn.taketoday.framework.web.netty.NettyChannelHandler;
 import cn.taketoday.framework.web.netty.NettyChannelInitializer;
 import cn.taketoday.framework.web.netty.NettyRequestConfig;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
+import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Nullable;
@@ -124,7 +125,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig) {
+  static NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
     String location = multipartConfig.getLocation();
     var factory = new DefaultHttpDataFactory(location != null);
     if (multipartConfig.getMaxRequestSize() != null) {
@@ -133,7 +134,9 @@ public class NettyWebServerFactoryAutoConfiguration {
     if (location != null) {
       factory.setBaseDir(location);
     }
-    return new NettyRequestConfig(factory);
+    NettyRequestConfig config = new NettyRequestConfig(factory);
+    config.setSendErrorHandler(sendErrorHandler);
+    return config;
   }
 
   @Component

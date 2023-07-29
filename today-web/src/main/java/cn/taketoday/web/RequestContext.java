@@ -1625,7 +1625,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @throws IllegalStateException If the response was committed
    * @since 4.0
    */
-  public void sendError(HttpStatusCode code, String msg) throws IOException {
+  public void sendError(HttpStatusCode code, @Nullable String msg) throws IOException {
     sendError(code.value(), msg);
   }
 
@@ -1681,7 +1681,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @throws IOException If an input or output exception occurs
    * @throws IllegalStateException If the response was committed
    */
-  public abstract void sendError(int sc, String msg) throws IOException;
+  public abstract void sendError(int sc, @Nullable String msg) throws IOException;
 
   /**
    * Returns a {@link OutputStream} suitable for writing binary data in the

@@ -544,7 +544,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    public void sendError(int sc, String msg) throws IOException {
+    public void sendError(int sc, @Nullable String msg) throws IOException {
       throw new UnsupportedOperationException();
     }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +28,10 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.template.TemplateAvailabilityProviders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatus.Series;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
@@ -80,30 +79,29 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
    * Create a new {@link DefaultErrorViewResolver} instance.
    *
    * @param applicationContext the source application context
-   * @param resources resource properties
+   * @param resourceProperties resource properties
    */
-  public DefaultErrorViewResolver(ApplicationContext applicationContext, Resources resources) {
-    Assert.notNull(applicationContext, "ApplicationContext is required");
-    Assert.notNull(resources, "Resources is required");
-    this.applicationContext = applicationContext;
-    this.resources = resources;
-    this.templateAvailabilityProviders = new TemplateAvailabilityProviders(applicationContext);
+  public DefaultErrorViewResolver(ApplicationContext applicationContext, Resources resourceProperties) {
+    this(applicationContext, resourceProperties, new TemplateAvailabilityProviders(applicationContext));
   }
 
   DefaultErrorViewResolver(ApplicationContext applicationContext,
           Resources resourceProperties, TemplateAvailabilityProviders providers) {
-    Assert.notNull(applicationContext, "ApplicationContext is required");
     Assert.notNull(resourceProperties, "Resources is required");
+    Assert.notNull(applicationContext, "ApplicationContext is required");
     this.applicationContext = applicationContext;
     this.resources = resourceProperties;
     this.templateAvailabilityProviders = providers;
   }
 
   @Override
-  public Object resolveErrorView(RequestContext request, HttpStatus status, Map<String, Object> model) {
-    Object view = resolve(String.valueOf(status.value()), model);
-    if (view == null && SERIES_VIEWS.containsKey(status.series())) {
-      view = resolve(SERIES_VIEWS.get(status.series()), model);
+  public ModelAndView resolveErrorView(RequestContext request, HttpStatusCode status, Map<String, Object> model) {
+    ModelAndView view = resolve(String.valueOf(status.value()), model);
+    if (view == null) {
+      HttpStatus.Series series = HttpStatus.Series.resolve(status.value());
+      if (SERIES_VIEWS.containsKey(series)) {
+        view = resolve(SERIES_VIEWS.get(series), model);
+      }
     }
     return view;
   }
@@ -157,7 +155,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
     }
 
     @Override
-    public void render(Map<String, ?> model, RequestContext request) throws Exception {
+    public void render(@Nullable Map<String, ?> model, RequestContext request) throws Exception {
       request.setContentType(getContentType());
       FileCopyUtils.copy(resource.getInputStream(), request.getOutputStream());
     }

@@ -29,7 +29,6 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A {@link HandlerExceptionHandler HandlerExceptionHandler} that uses
@@ -131,8 +130,8 @@ public class ResponseStatusExceptionHandler
   /**
    * Apply the resolved status code and reason to the response.
    * <p>The default implementation sends a response error using
-   * {@link HttpServletResponse#sendError(int)} or
-   * {@link HttpServletResponse#sendError(int, String)} if there is a reason
+   * {@link RequestContext#sendError(int)} or
+   * {@link RequestContext#sendError(int, String)} if there is a reason
    * and then returns an empty ModelAndView.
    *
    * @param statusCode the HTTP status code
@@ -140,16 +139,14 @@ public class ResponseStatusExceptionHandler
    */
   protected Object applyStatusAndReason(int statusCode,
           @Nullable String reason, RequestContext request) throws IOException {
-
-    if (StringUtils.isEmpty(reason)) {
-      request.sendError(statusCode);
+    if (StringUtils.hasText(reason)) {
+      if (messageSource != null) {
+        reason = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
+      }
+      request.sendError(statusCode, reason);
     }
     else {
-      String resolvedReason =
-              messageSource != null
-              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
-              : reason;
-      request.sendError(statusCode, resolvedReason);
+      request.sendError(statusCode);
     }
     return NONE_RETURN_VALUE;
   }

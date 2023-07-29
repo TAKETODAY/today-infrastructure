@@ -47,6 +47,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
@@ -582,6 +583,15 @@ public interface ServerResponse {
      * @return the built response
      */
     ServerResponse render(String name, Map<String, ?> model);
+
+    /**
+     * Render the template with the given {@code ModelAndView}.
+     *
+     * @param modelAndView the model and view used to render the template
+     * @return the built response
+     */
+    ServerResponse render(ModelAndView modelAndView);
+
   }
 
   /**

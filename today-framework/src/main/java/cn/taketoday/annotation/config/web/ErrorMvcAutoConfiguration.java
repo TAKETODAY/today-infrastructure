@@ -17,12 +17,12 @@
 
 package cn.taketoday.annotation.config.web;
 
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.annotation.config.web.servlet.DispatcherServletPath;
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -33,7 +33,6 @@ import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
@@ -50,6 +49,8 @@ import cn.taketoday.framework.web.error.DefaultErrorViewResolver;
 import cn.taketoday.framework.web.error.ErrorAttributes;
 import cn.taketoday.framework.web.error.ErrorController;
 import cn.taketoday.framework.web.error.ErrorViewResolver;
+import cn.taketoday.framework.web.netty.DefaultSendErrorHandler;
+import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.ErrorPageRegistrar;
 import cn.taketoday.framework.web.server.ErrorPageRegistry;
@@ -61,7 +62,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.DispatcherHandler;
-import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.util.HtmlUtils;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.View;
@@ -98,11 +99,20 @@ public class ErrorMvcAutoConfiguration {
   }
 
   @Component
+  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
   public BasicErrorController basicErrorController(
-          ErrorAttributes errorAttributes, ObjectProvider<ErrorViewResolver> errorViewResolvers) {
-    return new BasicErrorController(errorAttributes,
-            serverProperties.getError(), errorViewResolvers.orderedList());
+          ErrorAttributes errorAttributes, List<ErrorViewResolver> errorViewResolvers) {
+    return new BasicErrorController(errorAttributes, serverProperties.getError(), errorViewResolvers);
+  }
+
+  @Component
+  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.NETTY)
+  @ConditionalOnMissingBean(value = SendErrorHandler.class, search = SearchStrategy.CURRENT)
+  DefaultSendErrorHandler sendErrorHandler(ErrorAttributes errorAttributes,
+          List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
+    return new DefaultSendErrorHandler(errorAttributes,
+            serverProperties.getError(), errorViewResolvers, returnValueHandler);
   }
 
   @Component
@@ -121,7 +131,6 @@ public class ErrorMvcAutoConfiguration {
   static class DefaultErrorViewResolverConfiguration {
 
     @Component
-    @ConditionalOnBean(DispatcherServlet.class)
     @ConditionalOnMissingBean(ErrorViewResolver.class)
     DefaultErrorViewResolver conventionErrorViewResolver(
             ApplicationContext applicationContext, WebProperties webProperties) {

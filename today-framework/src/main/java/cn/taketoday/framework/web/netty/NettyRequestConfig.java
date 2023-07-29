@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +19,12 @@ package cn.taketoday.framework.web.netty;
 
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpVersion;
@@ -68,7 +66,7 @@ public class NettyRequestConfig {
   private int bodyInitialSize = 64;
 
   @Nullable
-  private Supplier<ByteBuf> responseBodyFactory;
+  private Function<RequestContext, ByteBuf> responseBodyFactory;
 
   /**
    * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
@@ -79,6 +77,8 @@ public class NettyRequestConfig {
   private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
   private HttpDataFactory httpDataFactory;
+
+  private SendErrorHandler sendErrorHandler;
 
   public NettyRequestConfig() {
     this(new DefaultHttpDataFactory(true));
@@ -141,12 +141,12 @@ public class NettyRequestConfig {
     return cookieEncoder;
   }
 
-  public void setResponseBodyFactory(@Nullable Supplier<ByteBuf> factory) {
+  public void setResponseBodyFactory(@Nullable Function<RequestContext, ByteBuf> factory) {
     this.responseBodyFactory = factory;
   }
 
   @Nullable
-  public Supplier<ByteBuf> getResponseBodyFactory() {
+  public Function<RequestContext, ByteBuf> getResponseBodyFactory() {
     return responseBodyFactory;
   }
 
@@ -196,4 +196,13 @@ public class NettyRequestConfig {
     Assert.notNull(httpDataFactory, "HttpDataFactory is required");
     this.httpDataFactory = httpDataFactory;
   }
+
+  public void setSendErrorHandler(SendErrorHandler sendErrorHandler) {
+    this.sendErrorHandler = sendErrorHandler;
+  }
+
+  public SendErrorHandler getSendErrorHandler() {
+    return sendErrorHandler;
+  }
+
 }

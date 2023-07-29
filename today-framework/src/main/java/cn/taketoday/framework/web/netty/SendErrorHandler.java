@@ -15,12 +15,19 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-/**
- * Provides the types that make up Infra functional web framework.
- */
-@NonNullApi
-@NonNullFields
-package cn.taketoday.web.handler.function;
+package cn.taketoday.framework.web.netty;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import java.io.IOException;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.RequestContext;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see RequestContext#sendError
+ * @since 4.0 2023/7/27 18:01
+ */
+public interface SendErrorHandler {
+
+  void handleError(RequestContext request, @Nullable String message) throws IOException;
+}
