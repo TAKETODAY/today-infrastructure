@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -55,6 +54,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Brian Clozel
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2">rfc7234 section 5.2.2</a>
  * @see <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching">
  * HTTP caching - Google developers reference</a>
@@ -64,6 +64,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class CacheControl {
 
+  @Nullable
   private Duration maxAge;
 
   private boolean noCache = false;
@@ -80,10 +81,13 @@ public class CacheControl {
 
   private boolean proxyRevalidate = false;
 
+  @Nullable
   private Duration staleWhileRevalidate;
 
+  @Nullable
   private Duration staleIfError;
 
+  @Nullable
   private Duration sMaxAge;
 
   private boolean immutable = false;
@@ -361,9 +365,10 @@ public class CacheControl {
    *
    * @return the header value, or {@code null} if no directive was added
    */
+  @Nullable
   public String getHeaderValue() {
     String headerValue = toHeaderValue();
-    return (StringUtils.hasText(headerValue) ? headerValue : null);
+    return StringUtils.hasText(headerValue) ? headerValue : null;
   }
 
   /**
@@ -413,7 +418,7 @@ public class CacheControl {
   }
 
   private void appendDirective(StringBuilder builder, String value) {
-    if (builder.length() > 0) {
+    if (!builder.isEmpty()) {
       builder.append(", ");
     }
     builder.append(value);

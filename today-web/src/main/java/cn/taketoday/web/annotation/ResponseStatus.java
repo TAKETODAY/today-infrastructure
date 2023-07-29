@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,8 +52,8 @@ import cn.taketoday.lang.Constant;
  *
  * @author Arjen Poutsma
  * @author Sam Brannen
- * @author TODAY <br>
- * 2018-12-08 15:10
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-12-08 15:10
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -74,8 +71,8 @@ public @interface ResponseStatus {
    * <p>Default is {@link HttpStatus#INTERNAL_SERVER_ERROR}, which should
    * typically be changed to something more appropriate.
    *
-   * @see jakarta.servlet.http.HttpServletResponse#setStatus(int)
-   * @see jakarta.servlet.http.HttpServletResponse#sendError(int)
+   * @see cn.taketoday.web.RequestContext#setStatus(int)
+   * @see cn.taketoday.web.RequestContext#sendError(int)
    * @since 3.0
    */
   @AliasFor("value")
@@ -86,7 +83,7 @@ public @interface ResponseStatus {
    * <p>Defaults to an empty string which will be ignored. Set the reason to a
    * non-empty value to have it used for the response.
    *
-   * @see jakarta.servlet.http.HttpServletResponse#sendError(int, String)
+   * @see cn.taketoday.web.RequestContext#sendError(int, String)
    * @since 3.0
    */
   String reason() default Constant.BLANK;

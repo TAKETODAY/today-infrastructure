@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +52,6 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.US;
 
 /**
  * A data structure representing HTTP request or response headers, mapping String header names
@@ -77,8 +73,8 @@ import static java.util.Locale.US;
  * @author Juergen Hoeller
  * @author Josh Long
  * @author Sam Brannen
- * @author TODAY 2020-01-28 17:15
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2020-01-28 17:15
  */
 public abstract class HttpHeaders
         implements /*Iterable<String>,*/ MultiValueMap<String, String>, Serializable {
@@ -534,7 +530,8 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
    * 7.1.1.1 of RFC 7231</a>
    */
-  public static final DateTimeFormatter DATE_FORMATTER = ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", US).withZone(GMT);
+  public static final DateTimeFormatter DATE_FORMATTER =
+          ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).withZone(GMT);
 
   /**
    * Date formats with time zone as specified in the HTTP RFC to use for parsing.
@@ -542,10 +539,10 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
    * 7.1.1.1 of RFC 7231</a>
    */
-  public static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] { //
-          DateTimeFormatter.RFC_1123_DATE_TIME, //
-          ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", US), //
-          ofPattern("EEE MMM dd HH:mm:ss yyyy", US).withZone(GMT)
+  public static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] {
+          DateTimeFormatter.RFC_1123_DATE_TIME,
+          ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
+          ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.US).withZone(GMT)
   };
 
   /**
@@ -607,7 +604,8 @@ public abstract class HttpHeaders
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
     return StringUtils.isNotEmpty(value)
-           ? Locale.LanguageRange.parse(value) : Collections.emptyList();
+           ? Locale.LanguageRange.parse(value)
+           : Collections.emptyList();
   }
 
   /**
