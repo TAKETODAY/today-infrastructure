@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +22,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 
+import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.lang.Nullable;
+
 /**
  * Configuration properties for server HTTP encoding.
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see StringHttpMessageConverter
  * @since 4.0
  */
 public class EncodingProperties {
@@ -47,25 +49,9 @@ public class EncodingProperties {
   private Charset charset = DEFAULT_CHARSET;
 
   /**
-   * Whether to force the encoding to the configured charset on HTTP requests and
-   * responses.
-   */
-  private Boolean force;
-
-  /**
-   * Whether to force the encoding to the configured charset on HTTP requests. Defaults
-   * to true when "force" has not been specified.
-   */
-  private Boolean forceRequest;
-
-  /**
-   * Whether to force the encoding to the configured charset on HTTP responses.
-   */
-  private Boolean forceResponse;
-
-  /**
    * Locale in which to encode mapping.
    */
+  @Nullable
   private Map<Locale, Charset> mapping;
 
   public Charset getCharset() {
@@ -76,63 +62,13 @@ public class EncodingProperties {
     this.charset = charset;
   }
 
-  public boolean isForce() {
-    return Boolean.TRUE.equals(this.force);
-  }
-
-  public void setForce(boolean force) {
-    this.force = force;
-  }
-
-  public boolean isForceRequest() {
-    return Boolean.TRUE.equals(this.forceRequest);
-  }
-
-  public void setForceRequest(boolean forceRequest) {
-    this.forceRequest = forceRequest;
-  }
-
-  public boolean isForceResponse() {
-    return Boolean.TRUE.equals(this.forceResponse);
-  }
-
-  public void setForceResponse(boolean forceResponse) {
-    this.forceResponse = forceResponse;
-  }
-
+  @Nullable
   public Map<Locale, Charset> getMapping() {
     return this.mapping;
   }
 
-  public void setMapping(Map<Locale, Charset> mapping) {
+  public void setMapping(@Nullable Map<Locale, Charset> mapping) {
     this.mapping = mapping;
-  }
-
-  public boolean shouldForce(Type type) {
-    Boolean force = (type != Type.REQUEST) ? this.forceResponse : this.forceRequest;
-    if (force == null) {
-      force = this.force;
-    }
-    if (force == null) {
-      force = (type == Type.REQUEST);
-    }
-    return force;
-  }
-
-  /**
-   * Type of HTTP message to consider for encoding configuration.
-   */
-  public enum Type {
-
-    /**
-     * HTTP request message.
-     */
-    REQUEST,
-    /**
-     * HTTP response message.
-     */
-    RESPONSE
-
   }
 
 }

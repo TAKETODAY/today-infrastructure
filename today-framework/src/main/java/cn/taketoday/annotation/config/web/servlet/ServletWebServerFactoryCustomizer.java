@@ -84,11 +84,12 @@ class ServletWebServerFactoryCustomizer
     map.from(serverProperties::getSession).to(factory::setSession);
     map.from(serverProperties::getAddress).to(factory::setAddress);
 
-    map.from(serverProperties.getServlet()::getContextPath).to(factory::setContextPath);
-    map.from(serverProperties.getServlet()::getApplicationDisplayName).to(factory::setDisplayName);
-    map.from(serverProperties.getServlet()::isRegisterDefaultServlet).to(factory::setRegisterDefaultServlet);
-    map.from(serverProperties.getServlet()::getJsp).to(factory::setJsp);
-    map.from(serverProperties.getServlet()::getContextParameters).to(factory::setInitParameters);
+    ServerProperties.Servlet servlet = serverProperties.getServlet();
+    map.from(servlet::getContextPath).to(factory::setContextPath);
+    map.from(servlet::getApplicationDisplayName).to(factory::setDisplayName);
+    map.from(servlet::isRegisterDefaultServlet).to(factory::setRegisterDefaultServlet);
+    map.from(servlet::getJsp).to(factory::setJsp);
+    map.from(servlet::getContextParameters).to(factory::setInitParameters);
 
     map.from(serverProperties::getSsl).to(factory::setSsl);
     map.from(serverProperties::getCompression).to(factory::setCompression);
@@ -98,6 +99,7 @@ class ServletWebServerFactoryCustomizer
 
     map.from(sslBundles).to(factory::setSslBundles);
     map.from(applicationTemp).to(factory::setApplicationTemp);
+    map.from(serverProperties.getEncoding().getMapping()).to(factory::setLocaleCharsetMappings);
 
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);
