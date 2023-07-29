@@ -51,10 +51,6 @@ public abstract class AbstractErrorController implements ErrorController {
 
   private final List<ErrorViewResolver> errorViewResolvers;
 
-  public AbstractErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties) {
-    this(errorAttributes, errorProperties, null);
-  }
-
   public AbstractErrorController(ErrorAttributes errorAttributes,
           ErrorProperties errorProperties, @Nullable List<ErrorViewResolver> errorViewResolvers) {
     Assert.notNull(errorAttributes, "ErrorAttributes is required");
