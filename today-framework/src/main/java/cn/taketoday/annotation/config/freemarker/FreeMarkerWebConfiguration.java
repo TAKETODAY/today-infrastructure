@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.annotation.config.freemarker;
 
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -66,9 +64,10 @@ class FreeMarkerWebConfiguration extends AbstractFreeMarkerConfiguration {
   @Component
   @ConditionalOnMissingBean(name = "freeMarkerViewResolver")
   @ConditionalOnProperty(name = "freemarker.enabled", matchIfMissing = true)
-  FreeMarkerViewResolver freeMarkerViewResolver() {
+  FreeMarkerViewResolver freeMarkerViewResolver(WebMvcProperties mvcProperties) {
     FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
     properties.applyToMvcViewResolver(resolver);
+    mvcProperties.getView().applyTo(resolver);
     return resolver;
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +35,11 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 
 /**
@@ -58,6 +57,7 @@ import cn.taketoday.web.servlet.WebApplicationObjectSupport;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setAttributes
  * @see #setAttributesMap
  * @see #renderMergedOutputModel
@@ -89,6 +89,8 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
   @Nullable
   private String beanName;
+
+  private boolean exposeOutputRedirectModel = false;
 
   /**
    * Set the content type for this view.
@@ -311,6 +313,18 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   }
 
   /**
+   * set {@link #exposeOutputRedirectModel} to determine if all 'output'
+   * RedirectModel should be put into model
+   *
+   * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
+   * will be put to current view
+   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
+   */
+  public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
+    this.exposeOutputRedirectModel = exposeOutputRedirectModel;
+  }
+
+  /**
    * Prepares the view given the specified model, merging it with static
    * attributes and a RequestContext attribute, if necessary.
    * Delegates to renderMergedOutputModel for the actual rendering.
@@ -335,8 +349,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * Creates a combined output Map (never {@code null}) that includes dynamic values and static attributes.
    * Dynamic values take precedence over static attributes.
    */
-  protected Map<String, Object> createMergedOutputModel(
-          @Nullable Map<String, ?> model, RequestContext context) {
+  protected Map<String, Object> createMergedOutputModel(@Nullable Map<String, ?> model, RequestContext context) {
 
     // Consolidate static and dynamic model attributes.
     Map<String, Object> staticAttributes = getStaticAttributes();
@@ -368,6 +381,29 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
     // Expose RequestContext?
     if (requestContextAttribute != null) {
       mergedModel.put(requestContextAttribute, context);
+    }
+
+    if (exposeOutputRedirectModel) {
+      // put all output RedirectModel
+      RedirectModel output = RequestContextUtils.getOutputRedirectModel(context);
+      if (output != null) {
+        mergedModel.putAll(output.asMap());
+      }
+    }
+
+    // Model from BindingContext
+    BindingContext binding = context.getBinding();
+    if (binding != null) {
+      try {
+        binding.updateModel(context);
+      }
+      catch (Throwable e) {
+        throw new ViewRenderingException("View model update failed", e);
+      }
+      if (binding.hasModel()) {
+        // injected arguments Model
+        mergedModel.putAll(binding.getModel());
+      }
     }
 
     return mergedModel;
@@ -434,8 +470,8 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param context current HTTP request context
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception;
+  protected abstract void renderMergedOutputModel(Map<String, Object> model, RequestContext context)
+          throws Exception;
 
   /**
    * Expose the model objects in the given map as request attributes.

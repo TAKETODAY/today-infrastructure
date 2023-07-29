@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.DefaultMessageCodesResolver;
+import cn.taketoday.web.view.UrlBasedViewResolver;
 
 /**
  * @author Phillip Webb
@@ -283,40 +281,60 @@ public class WebMvcProperties {
   public static class View {
 
     /**
-     * Framework MVC view prefix.
+     * Web MVC view prefix.
      */
+    @Nullable
     private String prefix;
 
     /**
-     * Framework MVC view suffix.
+     * Web MVC view suffix.
      */
+    @Nullable
     private String suffix;
 
-    private boolean putAllOutputRedirectModel = true;
+    private boolean exposeOutputRedirectModel = false;
 
-    public String getPrefix() {
-      return this.prefix;
-    }
-
-    public void setPrefix(String prefix) {
+    public void setPrefix(@Nullable String prefix) {
       this.prefix = prefix;
     }
 
-    public String getSuffix() {
-      return this.suffix;
-    }
-
-    public void setSuffix(String suffix) {
+    public void setSuffix(@Nullable String suffix) {
       this.suffix = suffix;
     }
 
-    public void setPutAllOutputRedirectModel(boolean putAllOutputRedirectModel) {
-      this.putAllOutputRedirectModel = putAllOutputRedirectModel;
+    public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
+      this.exposeOutputRedirectModel = exposeOutputRedirectModel;
     }
 
-    public boolean isPutAllOutputRedirectModel() {
-      return putAllOutputRedirectModel;
+    @Nullable
+    public String getPrefix() {
+      return prefix;
     }
+
+    @Nullable
+    public String getSuffix() {
+      return suffix;
+    }
+
+    public boolean isExposeOutputRedirectModel() {
+      return exposeOutputRedirectModel;
+    }
+
+    /**
+     * apply this properties to {@code viewResolver}
+     *
+     * @param viewResolver viewResolver
+     */
+    public void applyTo(UrlBasedViewResolver viewResolver) {
+      if (prefix != null) {
+        viewResolver.setPrefix(prefix);
+      }
+      if (suffix != null) {
+        viewResolver.setSuffix(suffix);
+      }
+      viewResolver.setExposeOutputRedirectModel(exposeOutputRedirectModel);
+    }
+
   }
 
   public static class Contentnegotiation {

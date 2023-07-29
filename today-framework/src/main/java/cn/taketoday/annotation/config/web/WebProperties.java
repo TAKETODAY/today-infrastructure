@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,8 +182,7 @@ public class WebProperties {
        * specified settings are present.
        */
       public Boolean getEnabled() {
-        return getEnabled(getStrategy().getFixed().isEnabled(), getStrategy().getContent().isEnabled(),
-                this.enabled);
+        return getEnabled(strategy.fixed.enabled, strategy.content.enabled, enabled);
       }
 
       public boolean hasBeenCustomized() {
@@ -407,12 +403,11 @@ public class WebProperties {
         map.from(cachecontrol::getCachePublic).whenTrue().toCall(control::cachePublic);
         map.from(cachecontrol::getCachePrivate).whenTrue().toCall(control::cachePrivate);
         map.from(cachecontrol::getProxyRevalidate).whenTrue().toCall(control::proxyRevalidate);
-        map.from(cachecontrol::getStaleWhileRevalidate).whenNonNull()
-                .to((duration) -> control.staleWhileRevalidate(duration.getSeconds(), TimeUnit.SECONDS));
-        map.from(cachecontrol::getStaleIfError).whenNonNull()
-                .to((duration) -> control.staleIfError(duration.getSeconds(), TimeUnit.SECONDS));
-        map.from(cachecontrol::getSMaxAge).whenNonNull()
-                .to((duration) -> control.sMaxAge(duration.getSeconds(), TimeUnit.SECONDS));
+
+        map.from(cachecontrol::getSMaxAge).whenNonNull().to(duration -> control.sMaxAge(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol::getStaleIfError).whenNonNull().to(duration -> control.staleIfError(duration.getSeconds(), TimeUnit.SECONDS));
+        map.from(cachecontrol::getStaleWhileRevalidate).whenNonNull().to(duration -> control.staleWhileRevalidate(duration.getSeconds(), TimeUnit.SECONDS));
+
         // check if cacheControl remained untouched
         if (control.getHeaderValue() == null) {
           return null;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.servlet.view.InternalResourceView;
 
@@ -141,6 +140,8 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   private String[] viewNames;
 
   private int order = Ordered.LOWEST_PRECEDENCE;
+
+  private boolean exposeOutputRedirectModel = false;
 
   /**
    * Set the view class that should be used to create views.
@@ -407,6 +408,18 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   }
 
   /**
+   * set {@link #exposeOutputRedirectModel} to determine if all 'output'
+   * RedirectModel should be put into model
+   *
+   * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
+   * will be put to current view
+   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
+   */
+  public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
+    this.exposeOutputRedirectModel = exposeOutputRedirectModel;
+  }
+
+  /**
    * Specify the order value for this ViewResolver bean.
    * <p>The default value is {@code Ordered.LOWEST_PRECEDENCE}, meaning non-ordered.
    *
@@ -580,6 +593,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
       view.setExposedContextBeanNames(exposedContextBeanNames);
     }
 
+    view.setExposeOutputRedirectModel(exposeOutputRedirectModel);
     return view;
   }
 

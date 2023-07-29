@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +17,12 @@
 
 package cn.taketoday.web.view;
 
-import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.LocaleResolver;
@@ -51,8 +47,6 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   @Nullable
   private LocaleResolver localeResolver;
-
-  private boolean putAllOutputRedirectModel = false;
 
   public ViewReturnValueHandler(ViewResolver viewResolver) {
     this(viewResolver, null);
@@ -136,32 +130,36 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * rendering a view from {@code viewName}
    *
    * @param context current HTTP request context
+   * @param viewName View to render
+   * @throws ViewRenderingException If view rendering failed
+   */
+  public void renderView(RequestContext context, String viewName, @Nullable Map<String, Object> model) {
+    View view = resolveViewName(context, viewName, null);
+    renderView(context, view, model);
+  }
+
+  /**
+   * rendering a view from {@code viewName}
+   *
+   * @param context current HTTP request context
    * @param viewRef ViewRef to render
    * @throws ViewRenderingException If view rendering failed
    */
   public void renderView(RequestContext context, ViewRef viewRef) {
-    Locale locale = viewRef.getLocale();
-    String viewName = viewRef.getViewName();
-    if (locale == null) {
-      locale = getLocale(context);
-    }
+    View view = resolveViewName(context, viewRef.getViewName(), viewRef.getLocale());
+    renderView(context, view);
+  }
 
-    View view = resolveViewName(locale, viewName);
-    if (view == null) {
-      HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
-      if (matchingMetadata != null) {
-        Object handler = matchingMetadata.getHandler();
-        throw new ViewRenderingException(
-                "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
-      }
-      else {
-        throw new ViewRenderingException(
-                "Could not resolve view with name '" + viewName + "'");
-      }
-    }
-    else {
-      renderView(context, view);
-    }
+  /**
+   * rendering a view from {@code viewName}
+   *
+   * @param context current HTTP request context
+   * @param viewRef ViewRef to render
+   * @throws ViewRenderingException If view rendering failed
+   */
+  public void renderView(RequestContext context, ViewRef viewRef, @Nullable Map<String, Object> model) {
+    View view = resolveViewName(context, viewRef.getViewName(), viewRef.getLocale());
+    renderView(context, view, model);
   }
 
   /**
@@ -190,14 +188,15 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     return request.getLocale();
   }
 
-  @Nullable
-  private View resolveViewName(Locale locale, String viewName) {
-    try {
-      return viewResolver.resolveViewName(viewName, locale);
-    }
-    catch (Exception e) {
-      throw new ViewRenderingException("Could not resolve view with name '" + viewName + "'", e);
-    }
+  /**
+   * rendering a {@link View}
+   *
+   * @param context current HTTP request context
+   * @param view View to render
+   * @throws ViewRenderingException If view rendering failed
+   */
+  public void renderView(RequestContext context, View view) {
+    renderView(context, view, null);
   }
 
   /**
@@ -207,31 +206,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param view View to render
    * @throws ViewRenderingException If view rendering failed
    */
-  public void renderView(RequestContext context, View view) {
-    LinkedHashMap<String, Object> model = new LinkedHashMap<>();
-
-    if (putAllOutputRedirectModel) {
-      // put all output RedirectModel
-      RedirectModel output = RequestContextUtils.getOutputRedirectModel(context);
-      if (output != null) {
-        model.putAll(output.asMap());
-      }
-    }
-
-    // Model from BindingContext
-    BindingContext binding = context.getBinding();
-    if (binding != null) {
-      try {
-        binding.updateModel(context);
-      }
-      catch (Throwable e) {
-        throw new ViewRenderingException("View model update failed", e);
-      }
-      if (binding.hasModel()) {
-        // injected arguments Model
-        model.putAll(binding.getModel());
-      }
-    }
+  public void renderView(RequestContext context, View view, @Nullable Map<String, Object> model) {
     try {
       // do rendering
       view.render(model, context);
@@ -239,18 +214,6 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     catch (Exception e) {
       throw new ViewRenderingException("View '" + view + "' render failed", e);
     }
-  }
-
-  /**
-   * set {@link #putAllOutputRedirectModel} to determine if all 'output'
-   * RedirectModel should be put into model
-   *
-   * @param putAllOutputRedirectModel If true, all 'output' RedirectModel
-   * will be put to current view
-   * @see RequestContextUtils#getOutputRedirectModel(RequestContext)
-   */
-  public void setPutAllOutputRedirectModel(boolean putAllOutputRedirectModel) {
-    this.putAllOutputRedirectModel = putAllOutputRedirectModel;
   }
 
   /**
@@ -268,12 +231,53 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
+   * Returns LocaleResolver
+   *
+   * @return LocaleResolver
+   */
+  @Nullable
+  public LocaleResolver getLocaleResolver() {
+    return localeResolver;
+  }
+
+  /**
    * Returns ViewResolver
    *
    * @return ViewResolver
    */
   public ViewResolver getViewResolver() {
     return viewResolver;
+  }
+
+  private View resolveViewName(RequestContext context, String viewName, @Nullable Locale locale) {
+    if (locale == null) {
+      locale = getLocale(context);
+    }
+
+    View view = resolveViewName(locale, viewName);
+    if (view == null) {
+      HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        Object handler = matchingMetadata.getHandler();
+        throw new ViewRenderingException(
+                "Could not resolve view with name '" + viewName + "' in handler '" + handler + "'");
+      }
+      else {
+        throw new ViewRenderingException(
+                "Could not resolve view with name '" + viewName + "'");
+      }
+    }
+    return view;
+  }
+
+  @Nullable
+  private View resolveViewName(Locale locale, String viewName) {
+    try {
+      return viewResolver.resolveViewName(viewName, locale);
+    }
+    catch (Exception e) {
+      throw new ViewRenderingException("Could not resolve view with name '" + viewName + "'", e);
+    }
   }
 
 }
