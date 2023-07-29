@@ -5,6 +5,7 @@ dependencies {
   implementation project(":web-api")
   implementation 'cn.taketoday:today-starter-web'
   implementation 'cn.taketoday:today-starter-netty'
+  implementation 'cn.taketoday:today-starter-freemarker'
 
   implementation 'ch.qos.logback:logback-classic'
   compileOnly 'org.projectlombok:lombok'

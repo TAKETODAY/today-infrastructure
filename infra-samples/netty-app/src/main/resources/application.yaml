@@ -18,3 +18,25 @@ logging:
   level:
     web: trace
     root: info
+
+server:
+  error:
+    includeBindingErrors: on_param
+    includeStacktrace: on_param
+    includeMessage: on_param
+
+freemarker:
+  cache: false
+  settings:
+    classic_compatible: true
+    date_format: yyyy-MM-dd
+    datetime_format: yyyy-MM-dd HH:mm:ss
+    default_encoding: UTF-8
+    locale: UTF-8
+    log_template_exceptions: false
+    number_format: 0.####
+    tag_syntax: auto_detect
+    template_exception_handler: ignore
+    template_update_delay: 0
+    time_format: HH:mm:ss
+    url_escaping_charset: UTF-8
