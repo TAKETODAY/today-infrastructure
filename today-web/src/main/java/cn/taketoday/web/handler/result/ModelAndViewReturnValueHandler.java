@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.result;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.ViewRenderingException;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 
 /**
  * Handles return values of type {@link ModelAndView}
  *
- * @author TODAY 2019-07-14 01:14
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-14 01:14
  */
 public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueHandler {
 
@@ -56,7 +55,7 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
   public void handleReturnValue(
           RequestContext context, Object handler, Object returnValue) throws Exception {
     if (returnValue instanceof ModelAndView modelAndView) {
-      handle(context, modelAndView);
+      renderView(context, modelAndView);
     }
   }
 
@@ -65,26 +64,22 @@ public class ModelAndViewReturnValueHandler implements HandlerMethodReturnValueH
    *
    * @since 2.3.3
    */
-  public final void handle(RequestContext context, @Nullable ModelAndView mv) throws Exception {
+  public final void renderView(RequestContext context, @Nullable ModelAndView mv) throws ViewRenderingException {
     if (mv != null) {
-      View view = mv.getView();
-      String viewName = mv.getViewName();
-
-      BindingContext bindingContext = context.getBinding();
-      if (bindingContext != null) {
-        bindingContext.addAllAttributes(mv.getModel());
-      }
-
       if (mv.getStatus() != null) {
         context.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
         context.setStatus(mv.getStatus().value());
       }
 
+      String viewName = mv.getViewName();
       if (viewName != null) {
-        delegate.renderView(context, viewName);
+        delegate.renderView(context, viewName, mv.getModel());
       }
-      else if (view != null) {
-        delegate.renderView(context, view);
+      else {
+        View view = mv.getView();
+        if (view != null) {
+          delegate.renderView(context, view, mv.getModel());
+        }
       }
     }
   }
