@@ -69,7 +69,8 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
       }
 
       if (ViewRef.class.isAssignableFrom(rawReturnType)
-              || View.class.isAssignableFrom(rawReturnType)) {
+              || View.class.isAssignableFrom(rawReturnType)
+              || ModelAndView.class.isAssignableFrom(rawReturnType)) {
         return true;
       }
     }
@@ -80,7 +81,8 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return returnValue instanceof CharSequence
             || returnValue instanceof View
-            || returnValue instanceof ViewRef;
+            || returnValue instanceof ViewRef
+            || returnValue instanceof ModelAndView;
   }
 
   /**
@@ -101,6 +103,34 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     }
     else if (returnValue instanceof View view) {
       renderView(context, view);
+    }
+    else if (returnValue instanceof ModelAndView mv) {
+      renderView(context, mv);
+    }
+  }
+
+  // renderView
+
+  /**
+   * Resolve {@link ModelAndView} return type
+   */
+  public void renderView(RequestContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
+    if (mv != null) {
+      if (mv.getStatus() != null) {
+        request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
+        request.setStatus(mv.getStatus());
+      }
+
+      String viewName = mv.getViewName();
+      if (viewName != null) {
+        renderView(request, viewName, mv.getModel());
+      }
+      else {
+        View view = mv.getView();
+        if (view != null) {
+          renderView(request, view, mv.getModel());
+        }
+      }
     }
   }
 
@@ -123,7 +153,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @throws ViewRenderingException If view rendering failed
    */
   public void renderView(RequestContext context, String viewName) {
-    renderView(context, ViewRef.forViewName(viewName));
+    renderView(context, viewName, null);
   }
 
   /**

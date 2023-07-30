@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +135,11 @@ class DefaultMvcResult implements MvcResult {
   @Nullable
   public ModelAndView getModelAndView() {
     if (modelAndView == null) {
-      if (requestContext.hasBinding()) {
+      Object attribute = requestContext.getAttribute(MODEL_AND_VIEW_ATTRIBUTE);
+      if (attribute instanceof ModelAndView view) {
+        this.modelAndView = view;
+      }
+      else if (requestContext.hasBinding()) {
         BindingContext bindingContext = requestContext.binding();
         if (bindingContext.hasModelAndView()) {
           ModelAndView modelAndView = bindingContext.getModelAndView();

@@ -31,7 +31,6 @@ import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
-import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
 import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
 import cn.taketoday.web.view.SessionRedirectModelManager;
@@ -179,7 +178,6 @@ class ReturnValueHandlerManagerTests {
     manager.setViewReturnValueHandler(new ViewReturnValueHandler(new FreeMarkerViewResolver()));
     manager.registerDefaultHandlers();
 
-    assertThat(manager.contains(ModelAndViewReturnValueHandler.class)).isTrue();
     assertThat(manager.contains(VoidReturnValueHandler.class)).isTrue();
     assertThat(manager.contains(HttpHeadersReturnValueHandler.class)).isTrue();
     assertThat(manager.contains(HttpStatusReturnValueHandler.class)).isTrue();

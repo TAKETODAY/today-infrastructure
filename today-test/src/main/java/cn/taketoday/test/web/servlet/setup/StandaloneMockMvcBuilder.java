@@ -73,9 +73,11 @@ import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewRef;
+import cn.taketoday.web.view.ViewRenderingException;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
@@ -589,9 +591,21 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     @Override
-    public void renderView(RequestContext context, View view, Map<String, Object> model) {
+    public void renderView(RequestContext context, View view, @Nullable Map<String, Object> model) {
       super.renderView(context, view, model);
       context.setAttribute(MvcResult.VIEW_ATTRIBUTE, view);
+    }
+
+    @Override
+    public void renderView(RequestContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
+      super.renderView(request, mv);
+      request.setAttribute(MvcResult.MODEL_AND_VIEW_ATTRIBUTE, mv);
+    }
+
+    @Override
+    public void renderView(RequestContext context, String viewName) {
+      super.renderView(context, viewName);
+      context.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, viewName);
     }
 
     @Override

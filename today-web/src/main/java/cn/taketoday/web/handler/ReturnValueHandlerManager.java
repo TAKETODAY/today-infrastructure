@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +52,6 @@ import cn.taketoday.web.handler.result.CallableMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.DeferredResultReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
-import cn.taketoday.web.handler.result.ModelAndViewReturnValueHandler;
 import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.RenderedImageReturnValueHandler;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
@@ -71,8 +67,8 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  *
  * @author TODAY 2019-12-28 13:47
  */
-public class ReturnValueHandlerManager
-        extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler {
+public class ReturnValueHandlerManager extends ApplicationObjectSupport
+        implements ArraySizeTrimmer, ReturnValueHandler {
 
   private final ArrayList<ReturnValueHandler> handlers = new ArrayList<>(8);
 
@@ -286,12 +282,10 @@ public class ReturnValueHandlerManager
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();
     var imageHandler = getRenderedImageHandler();
-    var modelAndViewHandler = new ModelAndViewReturnValueHandler(viewHandler);
 
     internalHandlers.add(imageHandler);
     internalHandlers.add(viewHandler);
-    internalHandlers.add(new VoidReturnValueHandler(modelAndViewHandler));
-    internalHandlers.add(modelAndViewHandler);
+    internalHandlers.add(new VoidReturnValueHandler(viewHandler));
     internalHandlers.add(new HttpStatusReturnValueHandler());
     internalHandlers.add(new HttpHeadersReturnValueHandler());
     internalHandlers.add(new CallableMethodReturnValueHandler());
@@ -307,8 +301,7 @@ public class ReturnValueHandlerManager
     handlers.add(imageHandler);
     handlers.add(viewHandler);
 
-    handlers.add(new VoidReturnValueHandler(modelAndViewHandler));
-    handlers.add(modelAndViewHandler);
+    handlers.add(new VoidReturnValueHandler(viewHandler));
     handlers.add(new HttpStatusReturnValueHandler());
     handlers.add(new HttpHeadersReturnValueHandler());
     handlers.add(new CallableMethodReturnValueHandler());

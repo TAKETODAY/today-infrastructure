@@ -74,6 +74,7 @@ import cn.taketoday.web.util.UriUtils;
  * @author Sam Brannen
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setContextRelative
  * @see #setHttp10Compatible
  * @see #setExposeModelAttributes
@@ -223,8 +224,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * Set the encoding scheme for this view.
    * <p>Default is the request's encoding scheme
    * (which is UTF-8 if not specified otherwise).
-   *
-   * @since 4.0
    */
   public void setEncoding(@Nullable Charset charset) {
     this.encoding = charset;
@@ -290,9 +289,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @see #sendRedirect
    */
   @Override
-  protected void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws IOException {
-
+  protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws IOException {
     String targetUrl = createTargetUrl(model, request);
 
     // Save RedirectModel
@@ -357,9 +354,8 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param currentUriVariables current request URI variables to use
    * @param encodingScheme the encoding scheme to use
    */
-  protected StringBuilder replaceUriTemplateVariables(
-          String targetUrl, Map<String, Object> model,
-          Map<String, String> currentUriVariables, Charset encodingScheme) {
+  protected StringBuilder replaceUriTemplateVariables(String targetUrl,
+          Map<String, Object> model, Map<String, String> currentUriVariables, Charset encodingScheme) {
 
     StringBuilder result = new StringBuilder();
     Matcher matcher = URI_TEMPLATE_VARIABLE_PATTERN.matcher(targetUrl);
@@ -427,7 +423,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    */
   protected void appendQueryProperties(
           StringBuilder targetUrl, Map<String, Object> model, Charset encodingScheme) {
-
     // Extract anchor fragment, if any.
     String fragment = null;
     int anchorIndex = targetUrl.indexOf("#");
@@ -577,8 +572,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the target URL to redirect to
    * @throws IOException if thrown by response methods
    */
-  protected void sendRedirect(
-          RequestContext context, String targetUrl) throws IOException {
+  protected void sendRedirect(RequestContext context, String targetUrl) throws IOException {
     HttpStatusCode httpStatus = getHttpStatus(context, targetUrl);
     if (httpStatus != null) {
       context.setStatus(httpStatus);

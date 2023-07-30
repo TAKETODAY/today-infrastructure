@@ -24,6 +24,7 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.ViewReturnValueHandler;
 
 /**
  * for {@link Void} or void type
@@ -31,11 +32,11 @@ import cn.taketoday.web.view.ModelAndView;
  * @author TODAY 2019-07-14 00:53
  */
 public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
-  private final ModelAndViewReturnValueHandler returnValueHandler;
+  private final ViewReturnValueHandler delegate;
 
-  public VoidReturnValueHandler(ModelAndViewReturnValueHandler returnValueHandler) {
-    Assert.notNull(returnValueHandler, "ModelAndViewReturnValueHandler must not be null");
-    this.returnValueHandler = returnValueHandler;
+  public VoidReturnValueHandler(ViewReturnValueHandler delegate) {
+    Assert.notNull(delegate, "ViewReturnValueHandler is required");
+    this.delegate = delegate;
   }
 
   @Override
@@ -58,13 +59,13 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    */
   @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context,
+          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     BindingContext bindingContext = context.getBinding();
     if (bindingContext != null && bindingContext.hasModelAndView()) {
       ModelAndView modelAndView = bindingContext.getModelAndView();
       // user constructed a ModelAndView hold in context
-      returnValueHandler.renderView(context, modelAndView);
+      delegate.renderView(context, modelAndView);
     }
   }
 
