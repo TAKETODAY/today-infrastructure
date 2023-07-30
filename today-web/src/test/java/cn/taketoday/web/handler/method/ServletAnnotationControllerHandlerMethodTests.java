@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +69,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.format.annotation.DateTimeFormat;
-import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.format.support.FormattingConversionServiceFactoryBean;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -2962,37 +2958,41 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
   static class TestViewResolver implements ViewResolver {
 
+    @Nullable
     @Override
-    public View resolveViewName(final String viewName, Locale locale) throws Exception {
-      return (model, context) -> {
-        TestBean tb = (TestBean) model.get("testBean");
-        if (tb == null) {
-          tb = (TestBean) model.get("myCommand");
-        }
-        if (tb.getName() != null && tb.getName().endsWith("myDefaultName")) {
-          assertThat(tb.getDate().getYear()).isEqualTo(107);
-        }
-        Errors errors = (Errors) model.get(BindingResult.MODEL_KEY_PREFIX + "testBean");
-        if (errors == null) {
-          errors = (Errors) model.get(BindingResult.MODEL_KEY_PREFIX + "myCommand");
-        }
-        if (errors.hasFieldErrors("date")) {
-          throw new IllegalStateException();
-        }
-        if (model.containsKey("ITestBean")) {
-          boolean condition = model.get(BindingResult.MODEL_KEY_PREFIX + "ITestBean") instanceof Errors;
-          assertThat(condition).isTrue();
-        }
-        List<TestBean> testBeans = (List<TestBean>) model.get("testBeanList");
-        if (errors.hasFieldErrors("age")) {
-          context.getWriter()
-                  .write(viewName + "-" + tb.getName() + "-" + errors.getFieldError("age").getCode() +
-                          "-" + testBeans.get(0).getName() + "-" + model.get("myKey") +
-                          (model.containsKey("yourKey") ? "-" + model.get("yourKey") : ""));
-        }
-        else {
-          context.getWriter().write(viewName + "-" + tb.getName() + "-" + tb.getAge() + "-" +
-                  errors.getFieldValue("name") + "-" + errors.getFieldValue("age"));
+    public View resolveViewName(String viewName, Locale locale) throws Exception {
+      return new AbstractView() {
+        @Override
+        protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
+          TestBean tb = (TestBean) model.get("testBean");
+          if (tb == null) {
+            tb = (TestBean) model.get("myCommand");
+          }
+          if (tb.getName() != null && tb.getName().endsWith("myDefaultName")) {
+            assertThat(tb.getDate().getYear()).isEqualTo(107);
+          }
+          Errors errors = (Errors) model.get(BindingResult.MODEL_KEY_PREFIX + "testBean");
+          if (errors == null) {
+            errors = (Errors) model.get(BindingResult.MODEL_KEY_PREFIX + "myCommand");
+          }
+          if (errors.hasFieldErrors("date")) {
+            throw new IllegalStateException();
+          }
+          if (model.containsKey("ITestBean")) {
+            boolean condition = model.get(BindingResult.MODEL_KEY_PREFIX + "ITestBean") instanceof Errors;
+            assertThat(condition).isTrue();
+          }
+          List<TestBean> testBeans = (List<TestBean>) model.get("testBeanList");
+          if (errors.hasFieldErrors("age")) {
+            request.getWriter()
+                    .write(viewName + "-" + tb.getName() + "-" + errors.getFieldError("age").getCode() +
+                            "-" + testBeans.get(0).getName() + "-" + model.get("myKey") +
+                            (model.containsKey("yourKey") ? "-" + model.get("yourKey") : ""));
+          }
+          else {
+            request.getWriter().write(viewName + "-" + tb.getName() + "-" + tb.getAge() + "-" +
+                    errors.getFieldValue("name") + "-" + errors.getFieldValue("age"));
+          }
         }
       };
     }
@@ -3006,9 +3006,13 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
     @Override
     public View resolveViewName(String viewName, Locale locale) {
-      return (model, request) -> {
-        request.setAttribute("viewName", viewName);
-        setAttribute(request, "model", model);
+      return new AbstractView() {
+
+        @Override
+        protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
+          request.setAttribute("viewName", viewName);
+          setAttribute(request, "model", model);
+        }
       };
     }
   }
