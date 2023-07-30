@@ -8,6 +8,7 @@ dependencies {
   implementation 'cn.taketoday:today-starter-web'
   implementation 'cn.taketoday:today-starter-tomcat'
   implementation 'cn.taketoday:today-starter-websocket'
+  implementation 'cn.taketoday:today-starter-freemarker'
 
   compileOnly 'org.projectlombok:lombok'
 }
