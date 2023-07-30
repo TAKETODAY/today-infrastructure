@@ -106,7 +106,6 @@ public class BasicErrorController extends AbstractErrorController implements Sen
     }
     else {
       if (status != HttpStatus.NO_CONTENT) {
-        request.setContentType(MediaType.APPLICATION_JSON);
         return getErrorAttributes(request, MediaType.ALL);
       }
       return HttpRequestHandler.NONE_RETURN_VALUE;
