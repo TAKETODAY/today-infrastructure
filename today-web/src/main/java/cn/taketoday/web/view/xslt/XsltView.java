@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,7 +232,7 @@ public class XsltView extends AbstractUrlBasedView {
 
   @Override
   protected void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     Templates templates = this.cachedTemplates;
     if (templates == null) {
@@ -243,15 +240,15 @@ public class XsltView extends AbstractUrlBasedView {
     }
 
     Transformer transformer = createTransformer(templates);
-    configureTransformer(model, context, transformer);
-    configureResponse(model, context, transformer);
+    configureTransformer(model, request, transformer);
+    configureResponse(model, request, transformer);
     Source source = null;
     try {
       source = locateSource(model);
       if (source == null) {
         throw new IllegalArgumentException("Unable to locate Source object in model: " + model);
       }
-      transformer.transform(source, createResult(context));
+      transformer.transform(source, createResult(request));
     }
     finally {
       closeSourceIfNecessary(source);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,19 +57,19 @@ public abstract class AbstractXlsView extends AbstractView {
    */
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     // Create a fresh workbook instance for this render step.
-    Workbook workbook = createWorkbook(model, context);
+    Workbook workbook = createWorkbook(model, request);
 
     // Delegate to application-provided document code.
-    buildExcelDocument(model, workbook, context);
+    buildExcelDocument(model, workbook, request);
 
     // Set the content type.
-    context.setContentType(getContentType());
+    request.setContentType(getContentType());
 
     // Flush byte array to servlet output stream.
-    renderWorkbook(workbook, context);
+    renderWorkbook(workbook, request);
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,18 +59,18 @@ public abstract class AbstractPdfStamperView extends AbstractUrlBasedView {
 
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     // IE workaround: write into byte array first.
     ByteArrayOutputStream baos = createTemporaryOutputStream();
 
     PdfReader reader = readPdfResource();
     PdfStamper stamper = new PdfStamper(reader, baos);
-    mergePdfDocument(model, stamper, context);
+    mergePdfDocument(model, stamper, request);
     stamper.close();
 
     // Flush to HTTP response.
-    writeToResponse(context, baos);
+    writeToResponse(request, baos);
   }
 
   /**

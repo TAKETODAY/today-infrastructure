@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,19 +52,19 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
 
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     T wireFeed = newFeed();
-    buildFeedMetadata(model, wireFeed, context);
-    buildFeedEntries(model, wireFeed, context);
+    buildFeedMetadata(model, wireFeed, request);
+    buildFeedEntries(model, wireFeed, request);
 
-    setResponseContentType(context);
+    setResponseContentType(request);
     if (StringUtils.isBlank(wireFeed.getEncoding())) {
       wireFeed.setEncoding(Constant.DEFAULT_ENCODING);
     }
 
     WireFeedOutput feedOutput = new WireFeedOutput();
-    OutputStream out = context.getOutputStream();
+    OutputStream out = request.getOutputStream();
     feedOutput.output(wireFeed, new OutputStreamWriter(out, wireFeed.getEncoding()));
     out.flush();
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +67,7 @@ public abstract class AbstractPdfView extends AbstractView {
 
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     // IE workaround: write into byte array first.
     ByteArrayOutputStream baos = createTemporaryOutputStream();
@@ -78,16 +75,16 @@ public abstract class AbstractPdfView extends AbstractView {
     // Apply preferences and build metadata.
     Document document = newDocument();
     PdfWriter writer = newWriter(document, baos);
-    prepareWriter(model, writer, context);
-    buildPdfMetadata(model, document, context);
+    prepareWriter(model, writer, request);
+    buildPdfMetadata(model, document, request);
 
     // Build PDF document.
     document.open();
-    buildPdfDocument(model, document, writer, context);
+    buildPdfDocument(model, document, writer, request);
     document.close();
 
     // Flush to HTTP response.
-    writeToResponse(context, baos);
+    writeToResponse(request, baos);
   }
 
   /**

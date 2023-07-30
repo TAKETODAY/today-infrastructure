@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,7 +153,7 @@ public abstract class AbstractJackson2View extends AbstractView {
 
   @Override
   protected void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     ByteArrayOutputStream temporaryStream = null;
     OutputStream stream;
@@ -166,14 +163,14 @@ public abstract class AbstractJackson2View extends AbstractView {
       stream = temporaryStream;
     }
     else {
-      stream = context.getOutputStream();
+      stream = request.getOutputStream();
     }
 
-    Object value = filterAndWrapModel(model, context);
+    Object value = filterAndWrapModel(model, request);
     writeContent(stream, value);
 
     if (temporaryStream != null) {
-      writeToResponse(context, temporaryStream);
+      writeToResponse(request, temporaryStream);
     }
   }
 

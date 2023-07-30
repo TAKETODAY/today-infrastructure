@@ -144,17 +144,17 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    */
   @Override
   protected void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     // Expose the model object as request attributes.
-    exposeModelAsRequestAttributes(model, context);
+    exposeModelAsRequestAttributes(model, request);
 
     // Determine the path for the request dispatcher.
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
-    HttpServletResponse servletResponse = ServletUtils.getServletResponse(context);
+    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
 
     // Expose helpers as request attributes, if any.
-    exposeHelpers(servletRequest, context);
+    exposeHelpers(servletRequest, request);
 
     String dispatcherPath = prepareForRendering(servletRequest, servletResponse);
     // Obtain a RequestDispatcher for the target resource (typically a JSP).
@@ -166,7 +166,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
 
     // If already included or response already committed, perform include, else forward.
     if (useInclude(servletRequest, servletResponse)) {
-      context.setContentType(getContentType());
+      request.setContentType(getContentType());
       if (log.isDebugEnabled()) {
         log.debug("Including [{}]", getUrl());
       }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,18 +91,18 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 
   @Override
   protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
+          Map<String, Object> model, RequestContext request) throws Exception {
 
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
-      Iterator<String> en = context.attributeNames();
+      Iterator<String> en = request.attributeNames();
       while (en.hasNext()) {
         String attribute = en.next();
         if (model.containsKey(attribute) && !allowRequestOverride) {
           throw new ViewRenderingException("Cannot expose request attribute '" + attribute +
                   "' because of an existing model object of the same name");
         }
-        Object attributeValue = context.getAttribute(attribute);
+        Object attributeValue = request.getAttribute(attribute);
         if (log.isDebugEnabled()) {
           exposed = exposed != null ? exposed : new LinkedHashMap<>();
           exposed.put(attribute, attributeValue);
@@ -118,16 +115,16 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
     }
 
     if (exposeSessionAttributes) {
-      exposeSessionAttributes(model, context);
+      exposeSessionAttributes(model, request);
     }
 
-    applyContentType(context);
+    applyContentType(request);
 
     if (log.isDebugEnabled()) {
       log.debug("Rendering [{}]", getUrl());
     }
 
-    renderMergedTemplateModel(model, context);
+    renderMergedTemplateModel(model, request);
   }
 
   private void exposeSessionAttributes(Map<String, Object> model, RequestContext context) {

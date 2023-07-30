@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +98,7 @@ public class MarshallingView extends AbstractView {
   }
 
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, RequestContext context) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
 
     Object toBeMarshalled = locateToBeMarshalled(model);
     if (toBeMarshalled == null) {
@@ -112,9 +109,9 @@ public class MarshallingView extends AbstractView {
     ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
     this.marshaller.marshal(toBeMarshalled, new StreamResult(baos));
 
-    setResponseContentType(context);
-    context.setContentLength(baos.size());
-    baos.writeTo(context.getOutputStream());
+    setResponseContentType(request);
+    request.setContentLength(baos.size());
+    baos.writeTo(request.getOutputStream());
   }
 
   /**

@@ -467,10 +467,10 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param model combined output Map (never {@code null}),
    * with dynamic values taking precedence over static attributes
-   * @param context current HTTP request context
+   * @param request current HTTP request context
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedOutputModel(Map<String, Object> model, RequestContext context)
+  protected abstract void renderMergedOutputModel(Map<String, Object> model, RequestContext request)
           throws Exception;
 
   /**
