@@ -31,12 +31,14 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.MimeTypeUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.util.WebUtils;
 
 /**
  * Basic global error {@link Controller @Controller}, rendering {@link ErrorAttributes}.
@@ -91,23 +93,21 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   private Object handleRequest(RequestContext request, @Nullable String message) {
+    if (StringUtils.hasText(message)) {
+      request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, message);
+    }
+
     HttpStatus status = getStatus(request);
     request.setStatus(status);
     if (ifAcceptsTextHtml(request)) {
       Map<String, Object> model = getErrorAttributes(request, MediaType.TEXT_HTML);
       request.setContentType("text/html;charset=UTF-8");
-      if (message != null) {
-        model.put("message", message);
-      }
       return resolveErrorView(request, status, model);
     }
     else {
       if (status != HttpStatus.NO_CONTENT) {
         request.setContentType(MediaType.APPLICATION_JSON);
-        Map<String, Object> error = getErrorAttributes(request, MediaType.ALL);
-        if (message != null) {
-          error.put("message", message);
-        }
+        return getErrorAttributes(request, MediaType.ALL);
       }
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }

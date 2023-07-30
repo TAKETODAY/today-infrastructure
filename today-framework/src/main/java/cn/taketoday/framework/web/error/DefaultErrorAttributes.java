@@ -164,6 +164,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    * not empty:
    * <ol>
    * <li>Value of the {@link RequestDispatcher#ERROR_MESSAGE} request attribute.
+   * <li>Value of the {@link WebUtils#ERROR_MESSAGE_ATTRIBUTE} request attribute.
    * <li>Message of the given {@code error}.
    * <li>{@code No message available}.
    * </ol>
@@ -175,10 +176,16 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   protected String getMessage(RequestContext request, Throwable error) {
     if (ServletDetector.runningInServlet(request)) {
       Object attribute = getAttribute(request, RequestDispatcher.ERROR_MESSAGE);
-      if (attribute instanceof String message) {
+      if (attribute instanceof String message && StringUtils.hasText(message)) {
         return message;
       }
     }
+
+    Object attribute = getAttribute(request, WebUtils.ERROR_MESSAGE_ATTRIBUTE);
+    if (attribute instanceof String message && StringUtils.hasText(message)) {
+      return message;
+    }
+
     if (error != null && StringUtils.hasText(error.getMessage())) {
       return error.getMessage();
     }

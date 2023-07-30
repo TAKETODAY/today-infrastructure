@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 
+import cn.taketoday.core.Conventions;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -48,7 +49,12 @@ import cn.taketoday.web.multipart.Multipart;
  * @since 4.0
  */
 public abstract class WebUtils {
-  public static final String ERROR_EXCEPTION_ATTRIBUTE = WebUtils.class.getName() + "-context-throwable";
+
+  public static final String ERROR_MESSAGE_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          WebUtils.class, "error-message");
+
+  public static final String ERROR_EXCEPTION_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          WebUtils.class, "error-exception");
 
   /**
    * Prefix of the charset clause in a content type String: ";charset=".
