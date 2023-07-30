@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler;
 
 import java.util.ArrayList;
@@ -217,8 +215,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @throws IllegalStateException if there is a conflicting handler registered
    * @since 4.0
    */
-  protected void registerHandler(
-          String[] urlPaths, String beanName) throws BeansException, IllegalStateException {
+  protected void registerHandler(String[] urlPaths, String beanName) throws BeansException, IllegalStateException {
     Assert.notNull(urlPaths, "URL path array must not be null");
     for (String urlPath : urlPaths) {
       registerHandler(urlPath, beanName);

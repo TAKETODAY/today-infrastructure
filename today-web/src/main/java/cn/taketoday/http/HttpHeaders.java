@@ -1168,7 +1168,7 @@ public abstract class HttpHeaders
    * Set the (new) entity tag of the body, as specified by the {@code ETag}
    * header.
    */
-  public void setETag(String etag) {
+  public void setETag(@Nullable String etag) {
     if (etag != null) {
       Assert.isTrue(etag.startsWith("\"") || etag.startsWith("W/"), "Invalid ETag: does not start with W/ or \"");
       Assert.isTrue(etag.endsWith("\""), "Invalid ETag: does not end with \"");
@@ -1234,7 +1234,7 @@ public abstract class HttpHeaders
    * host header will only contain the
    * {@linkplain InetSocketAddress#getHostString() host name}.
    */
-  public void setHost(InetSocketAddress host) {
+  public void setHost(@Nullable InetSocketAddress host) {
     if (host != null) {
       String value = host.getHostString();
       int port = host.getPort();
@@ -1862,7 +1862,7 @@ public abstract class HttpHeaders
    * @see #set(String, String)
    */
   @Override
-  public abstract void add(String headerName, String headerValue);
+  public abstract void add(String headerName, @Nullable String headerValue);
 
   @Override
   public abstract void set(String headerName, @Nullable String headerValue);

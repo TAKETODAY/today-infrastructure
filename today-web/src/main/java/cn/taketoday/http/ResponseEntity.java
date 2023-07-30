@@ -83,7 +83,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @param body the entity body
    * @param status the status code
    */
-  public ResponseEntity(T body, HttpStatusCode status) {
+  public ResponseEntity(@Nullable T body, HttpStatusCode status) {
     this(body, null, status);
   }
 
@@ -93,7 +93,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @param headers the entity headers
    * @param status the status code
    */
-  public ResponseEntity(MultiValueMap<String, String> headers, HttpStatusCode status) {
+  public ResponseEntity(@Nullable MultiValueMap<String, String> headers, HttpStatusCode status) {
     this(null, headers, status);
   }
 
@@ -104,7 +104,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @param headers the entity headers
    * @param status the status code
    */
-  public ResponseEntity(@Nullable T body, MultiValueMap<String, String> headers, HttpStatusCode status) {
+  public ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, HttpStatusCode status) {
     super(body, headers);
     Assert.notNull(status, "HttpStatusCode is required");
     this.status = status;
@@ -130,7 +130,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
    * @param headers the entity headers
    * @param status the status code (as {@code HttpStatusCode} or as {@code Integer} value)
    */
-  private ResponseEntity(T body, MultiValueMap<String, String> headers, Object status) {
+  private ResponseEntity(@Nullable T body, @Nullable MultiValueMap<String, String> headers, Object status) {
     super(body, headers);
     Assert.notNull(status, "HttpStatusCode is required");
     this.status = status;
@@ -184,10 +184,10 @@ public class ResponseEntity<T> extends HttpEntity<T> {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder("<");
-    builder.append(status.toString());
-    if (status instanceof HttpStatus status) {
+    builder.append(status);
+    if (status instanceof HttpStatus s) {
       builder.append(' ');
-      builder.append(status.getReasonPhrase());
+      builder.append(s.getReasonPhrase());
     }
     builder.append(',');
     T body = getBody();
@@ -361,7 +361,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
      * @return this builder
      * @see HttpHeaders#add(String, String)
      */
-    B headers(HttpHeaders headers);
+    B headers(@Nullable HttpHeaders headers);
 
     /**
      * Manipulate this entity's headers with the given consumer. The
@@ -521,7 +521,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    public BodyBuilder headers(HttpHeaders headers) {
+    public BodyBuilder headers(@Nullable HttpHeaders headers) {
       if (headers != null) {
         this.headers.addAll(headers);
       }
@@ -553,7 +553,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    public BodyBuilder eTag(String etag) {
+    public BodyBuilder eTag(@Nullable String etag) {
       if (etag != null) {
         if (!etag.startsWith("\"") && !etag.startsWith("W/\"")) {
           etag = "\"" + etag;
@@ -608,7 +608,7 @@ public class ResponseEntity<T> extends HttpEntity<T> {
     }
 
     @Override
-    public <T> ResponseEntity<T> body(T body) {
+    public <T> ResponseEntity<T> body(@Nullable T body) {
       return new ResponseEntity<>(body, this.headers, this.statusCode);
     }
   }

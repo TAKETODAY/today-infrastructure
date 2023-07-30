@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.SmartList;
@@ -81,12 +79,12 @@ public class DefaultHttpHeaders extends HttpHeaders {
   }
 
   @Override
-  public void add(String headerName, String headerValue) {
+  public void add(String headerName, @Nullable String headerValue) {
     headers.add(headerName, headerValue);
   }
 
   @Override
-  public void set(String headerName, String headerValue) {
+  public void set(String headerName, @Nullable String headerValue) {
     headers.set(headerName, headerValue);
   }
 

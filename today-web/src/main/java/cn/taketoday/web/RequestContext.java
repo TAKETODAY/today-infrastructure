@@ -681,6 +681,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
+  @NonNull
+  @Override
   public String getMethodValue() {
     String method = this.method;
     if (method == null) {
@@ -1079,7 +1081,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>This will also transparently set the "Last-Modified" response header
    * and HTTP status when applicable.
    * <p>Typical usage:
-   * <pre class="code">
+   * <pre>{@code
    * public String myHandleMethod(RequestContext request, Model model) {
    *   long lastModified = // application-specific calculation
    *   if (request.checkNotModified(lastModified)) {
@@ -1089,6 +1091,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *   // further request processing, actually building content
    *   model.addAttribute(...);
    *   return "myViewName";
+   * }
    * }</pre>
    * <p>This method works with conditional GET/HEAD requests, but
    * also with conditional POST/PUT/DELETE requests.
@@ -1120,7 +1123,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>This will also transparently set the "ETag" response header
    * and HTTP status when applicable.
    * <p>Typical usage:
-   * <pre class="code">
+   * <pre>{@code
    * public String myHandleMethod(RequestContext request, Model model) {
    *   String eTag = // application-specific calculation
    *   if (request.checkNotModified(eTag)) {
@@ -1130,6 +1133,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *   // further request processing, actually building content
    *   model.addAttribute(...);
    *   return "myViewName";
+   * }
    * }</pre>
    * <p><strong>Note:</strong> you can use either
    * this {@code #checkNotModified(String)} method; or
@@ -1155,7 +1159,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <p>This will also transparently set the "ETag" and "Last-Modified"
    * response headers, and HTTP status when applicable.
    * <p>Typical usage:
-   * <pre class="code">
+   * <pre>{@code
    * public String myHandleMethod(RequestContext request, Model model) {
    *   String eTag = // application-specific calculation
    *   long lastModified = // application-specific calculation
@@ -1166,6 +1170,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *   // further request processing, actually building content
    *   model.addAttribute(...);
    *   return "myViewName";
+   * }
    * }</pre>
    * <p>This method works with conditional GET/HEAD requests, but
    * also with conditional POST/PUT/DELETE requests.

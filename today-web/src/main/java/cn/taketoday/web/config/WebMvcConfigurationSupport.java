@@ -657,8 +657,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * <li>{@link SimpleHandlerExceptionHandler} for resolving known Framework exception types
    * </ul>
    */
-  protected final void addDefaultHandlerExceptionHandlers(List<HandlerExceptionHandler> handlers,
-          AnnotationHandlerFactory handlerFactory) {
+  protected final void addDefaultHandlerExceptionHandlers(
+          List<HandlerExceptionHandler> handlers, AnnotationHandlerFactory handlerFactory) {
     var handler = createAnnotationExceptionHandler();
 
     if (this.applicationContext != null) {
