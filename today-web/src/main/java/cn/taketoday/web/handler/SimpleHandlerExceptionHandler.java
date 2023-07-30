@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,22 +136,14 @@ import cn.taketoday.web.util.WebUtils;
  * @see ResponseEntityExceptionHandler
  * @since 2020-03-29 21:01
  */
-public class SimpleHandlerExceptionHandler
-        extends AbstractHandlerExceptionHandler implements HandlerExceptionHandler {
-
-  /**
-   * Log category to use when no mapped handler is found for a request.
-   *
-   * @see #pageNotFoundLogger
-   */
-  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = NotFoundHandler.PAGE_NOT_FOUND_LOG_CATEGORY;
+public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandler implements HandlerExceptionHandler {
 
   /**
    * Additional logger to use when no mapped handler is found for a request.
    *
-   * @see #PAGE_NOT_FOUND_LOG_CATEGORY
+   * @see NotFoundHandler#PAGE_NOT_FOUND_LOG_CATEGORY
    */
-  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
+  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(NotFoundHandler.PAGE_NOT_FOUND_LOG_CATEGORY);
 
   /**
    * Sets the {@linkplain #setOrder(int) order} to {@link #LOWEST_PRECEDENCE}.
@@ -454,26 +443,21 @@ public class SimpleHandlerExceptionHandler
    * {@link RequestContext#sendError(int, String)}.
    *
    * @param errorResponse the exception to be handled
-   * @param context current HTTP request
+   * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
    * @throws IOException potentially thrown from {@link RequestContext#sendError}
    * @since 4.0
    */
   protected Object handleErrorResponse(ErrorResponse errorResponse,
-          RequestContext context, @Nullable Object handler) throws IOException {
+          RequestContext request, @Nullable Object handler) throws IOException {
 
-    if (!context.isCommitted()) {
+    if (!request.isCommitted()) {
       HttpHeaders headers = errorResponse.getHeaders();
-      context.mergeToResponse(headers);
+      request.mergeToResponse(headers);
 
       String message = errorResponse.getBody().getDetail();
-      if (message != null) {
-        context.sendError(errorResponse.getStatusCode(), message);
-      }
-      else {
-        context.sendError(errorResponse.getStatusCode());
-      }
+      request.sendError(errorResponse.getStatusCode(), message);
     }
     else {
       logger.warn("Ignoring exception, response committed. : {}", errorResponse);
@@ -584,8 +568,9 @@ public class SimpleHandlerExceptionHandler
 
   /**
    * Invoked to send a server error. Sets the status to 500 and also sets the
-   * request attribute "jakarta.servlet.error.exception" to the Exception.
+   * request attribute {@link WebUtils#ERROR_EXCEPTION_ATTRIBUTE} to the Exception.
    *
+   * @see WebUtils#ERROR_EXCEPTION_ATTRIBUTE
    * @since 4.0
    */
   protected void sendServerError(Exception ex, RequestContext request) throws IOException {
