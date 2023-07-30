@@ -41,6 +41,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
@@ -424,6 +425,11 @@ public abstract class DecoratingRequestContext extends RequestContext {
 
   @Override
   public void setContentType(String contentType) {
+    getDelegate().setContentType(contentType);
+  }
+
+  @Override
+  public void setContentType(MediaType contentType) {
     getDelegate().setContentType(contentType);
   }
 
