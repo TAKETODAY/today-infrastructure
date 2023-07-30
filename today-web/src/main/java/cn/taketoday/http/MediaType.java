@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
 import java.io.Serial;
@@ -49,11 +50,10 @@ import static java.util.Collections.singletonMap;
  * @author Sebastien Deleuze
  * @author Kazuki Shimizu
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-12-08 20:02
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.1"> HTTP 1.1:
  * Semantics and Content, section 3.1.1.1</a>
- * @since 2.1.7
+ * @since 2.1.7 2019-12-08 20:02
  */
 public class MediaType extends MimeType implements Serializable {
 

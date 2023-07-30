@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import java.nio.charset.StandardCharsets;
@@ -33,6 +31,7 @@ import java.util.Random;
 import java.util.function.BiPredicate;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Miscellaneous {@link MimeType} utility methods.
@@ -42,17 +41,17 @@ import cn.taketoday.lang.Assert;
  * @author Dimitrios Liapis
  * @author Brian Clozel
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-12-08 19:24
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-12-08 19:24
  */
 public abstract class MimeTypeUtils {
 
-  private static final byte[] BOUNDARY_CHARS = new byte[] { //
-          '-', '_', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', //
-          'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', //
-          'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', //
-          'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', //
-          'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' //
+  private static final byte[] BOUNDARY_CHARS = new byte[] {
+          '-', '_', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+          'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+          'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+          'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+          'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
   };
 
   /** Comparator used by {@link #sortBySpecificity(List)}. */
@@ -124,6 +123,7 @@ public abstract class MimeTypeUtils {
   private static final ConcurrentLruCache<String, MimeType> cachedMimeTypes = //
           new ConcurrentLruCache<>(64, MimeTypeUtils::parseMimeTypeInternal);
 
+  @Nullable
   private static volatile Random random;
 
   static {
@@ -197,7 +197,7 @@ public abstract class MimeTypeUtils {
         nextIndex++;
       }
       String parameter = mimeType.substring(index + 1, nextIndex).trim();
-      if (parameter.length() > 0) {
+      if (!parameter.isEmpty()) {
         if (parameters == null) {
           parameters = new LinkedHashMap<>(4);
         }
@@ -265,18 +265,14 @@ public abstract class MimeTypeUtils {
     final int length = mimeTypes.length();
     while (i < length) {
       switch (mimeTypes.charAt(i)) {
-        case '"':
-          inQuotes = !inQuotes;
-          break;
-        case ',':
+        case '"' -> inQuotes = !inQuotes;
+        case ',' -> {
           if (!inQuotes) {
             tokens.add(mimeTypes.substring(startIndex, i));
             startIndex = i + 1;
           }
-          break;
-        case '\\':
-          i++;
-          break;
+        }
+        case '\\' -> i++;
       }
       i++;
     }
@@ -303,39 +299,40 @@ public abstract class MimeTypeUtils {
     return builder.toString();
   }
 
-	/**
-	 * Sorts the given list of {@code MimeType} objects by
-	 * {@linkplain MimeType#isMoreSpecific(MimeType) specificity}.
-	 *
-	 * <p>Because of the computational cost, this method throws an exception
-	 * when the given list contains too many elements.
-	 * @param mimeTypes the list of mime types to be sorted
-	 * @throws IllegalArgumentException if {@code mimeTypes} contains more
-	 * than 50 elements
-	 * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1: Semantics
-	 * and Content, section 5.3.2</a>
-	 * @see MimeType#isMoreSpecific(MimeType)
-	 */
+  /**
+   * Sorts the given list of {@code MimeType} objects by
+   * {@linkplain MimeType#isMoreSpecific(MimeType) specificity}.
+   *
+   * <p>Because of the computational cost, this method throws an exception
+   * when the given list contains too many elements.
+   *
+   * @param mimeTypes the list of mime types to be sorted
+   * @throws IllegalArgumentException if {@code mimeTypes} contains more
+   * than 50 elements
+   * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1: Semantics
+   * and Content, section 5.3.2</a>
+   * @see MimeType#isMoreSpecific(MimeType)
+   */
   public static void sortBySpecificity(List<? extends MimeType> mimeTypes) {
-		Assert.notNull(mimeTypes, "'mimeTypes' must not be null");
-		Assert.isTrue(mimeTypes.size() <= 50, "Too many elements");
+    Assert.notNull(mimeTypes, "'mimeTypes' must not be null");
+    Assert.isTrue(mimeTypes.size() <= 50, "Too many elements");
 
-		bubbleSort(mimeTypes, MimeType::isLessSpecific);
-	}
+    bubbleSort(mimeTypes, MimeType::isLessSpecific);
+  }
 
-	static <T> void bubbleSort(List<T> list, BiPredicate<? super T, ? super T> swap) {
-		int len = list.size();
-		for (int i = 0; i < len; i++) {
-			for (int j = 1; j < len - i ; j++) {
-				T prev = list.get(j - 1);
-				T cur = list.get(j);
-				if (swap.test(prev, cur)) {
-					list.set(j, prev);
-					list.set(j - 1, cur);
-				}
-			}
-		}
-	}
+  static <T> void bubbleSort(List<T> list, BiPredicate<? super T, ? super T> swap) {
+    int len = list.size();
+    for (int i = 0; i < len; i++) {
+      for (int j = 1; j < len - i; j++) {
+        T prev = list.get(j - 1);
+        T cur = list.get(j);
+        if (swap.test(prev, cur)) {
+          list.set(j, prev);
+          list.set(j - 1, cur);
+        }
+      }
+    }
+  }
 
   /**
    * Lazily initialize the {@link SecureRandom} for

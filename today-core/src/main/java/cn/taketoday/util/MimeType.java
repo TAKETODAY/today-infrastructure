@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -201,7 +198,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     this.subtype = subtype.toLowerCase(Locale.ENGLISH);
 
     if (CollectionUtils.isNotEmpty(parameters)) {
-      LinkedCaseInsensitiveMap<String> map = new LinkedCaseInsensitiveMap<>(parameters.size(), Locale.ENGLISH);
+      var map = new LinkedCaseInsensitiveMap<String>(parameters.size(), Locale.ENGLISH);
       for (Map.Entry<String, String> entry : parameters.entrySet()) {
         String value = entry.getValue();
         String attribute = entry.getKey();
@@ -325,9 +322,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    */
   @Nullable
   public String getSubtypeSuffix() {
-    int suffixIndex = this.subtype.lastIndexOf('+');
-    if (suffixIndex != -1 && this.subtype.length() > suffixIndex) {
-      return this.subtype.substring(suffixIndex + 1);
+    int suffixIndex = subtype.lastIndexOf('+');
+    if (suffixIndex != -1) {
+      return subtype.substring(suffixIndex + 1);
     }
     return null;
   }
