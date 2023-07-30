@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,11 +47,9 @@ import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A convenient base class for {@link ControllerAdvice @ControllerAdvice} classes
@@ -532,24 +527,22 @@ public class ResponseEntityExceptionHandler {
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleExceptionInternal(
-          Exception ex, @Nullable Object body, HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
-
+  protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body,
+          HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
     if (ServletDetector.runningInServlet(request)) {
-      HttpServletResponse response = ServletUtils.getServletResponse(request);
-      if (response != null && response.isCommitted()) {
+      if (request.isCommitted()) {
         if (logger.isWarnEnabled()) {
           logger.warn("Response already committed. Ignoring: {}", ex.toString());
         }
         return null;
       }
       // set jakarta.servlet.error.exception to ex
-      if (statusCode.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+      if (HttpStatus.INTERNAL_SERVER_ERROR.equals(statusCode)) {
         request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, ex);
       }
     }
 
-    if (statusCode.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+    if (HttpStatus.INTERNAL_SERVER_ERROR.equals(statusCode)) {
       request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     }
 
@@ -572,8 +565,8 @@ public class ResponseEntityExceptionHandler {
    * @param request the current request
    * @return the {@code ResponseEntity} instance to use
    */
-  protected ResponseEntity<Object> createResponseEntity(
-          @Nullable Object body, HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
+  protected ResponseEntity<Object> createResponseEntity(@Nullable Object body,
+          HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
 
     return new ResponseEntity<>(body, headers, statusCode);
   }
