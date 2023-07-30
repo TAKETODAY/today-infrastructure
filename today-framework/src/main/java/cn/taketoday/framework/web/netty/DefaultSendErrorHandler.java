@@ -17,7 +17,7 @@
 
 package cn.taketoday.framework.web.netty;
 
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,60 +28,61 @@ import cn.taketoday.framework.web.error.ErrorViewResolver;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.handler.function.RequestPredicate;
-import cn.taketoday.web.handler.function.RouterFunction;
-import cn.taketoday.web.handler.function.RouterFunctions;
-import cn.taketoday.web.handler.function.ServerRequest;
-import cn.taketoday.web.handler.function.ServerResponse;
-import cn.taketoday.web.view.ModelAndView;
-
-import static cn.taketoday.web.handler.function.RequestPredicates.all;
-import static cn.taketoday.web.handler.function.RouterFunctions.route;
 
 /**
+ * Default SendErrorHandler
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/7/28 21:46
  */
 public class DefaultSendErrorHandler extends AbstractErrorController implements SendErrorHandler {
 
-  private static final MediaType TEXT_HTML_UTF8 = new MediaType("text", "html", StandardCharsets.UTF_8);
+  private final ReturnValueHandlerManager returnValueHandler;
 
-  final ReturnValueHandlerManager returnValueHandler;
-
-  private final RouterFunction<ServerResponse> errorRouterFunction =
-          route(acceptsTextHtml(), this::renderErrorView)
-                  .andRoute(all(), this::renderErrorResponse);
-
-  public DefaultSendErrorHandler(ErrorAttributes errorAttributes,
-          ErrorProperties errorProperties, List<ErrorViewResolver> errorViewResolvers,
-          ReturnValueHandlerManager returnValueHandler) {
+  public DefaultSendErrorHandler(ErrorAttributes errorAttributes, ErrorProperties errorProperties,
+          List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     super(errorAttributes, errorProperties, errorViewResolvers);
+    Assert.notNull(returnValueHandler, "ReturnValueHandlerManager is required");
     this.returnValueHandler = returnValueHandler;
   }
 
   @Override
-  public void handleError(RequestContext context, @Nullable String message) {
-    ServerRequest serverRequest = ServerRequest.create(context, returnValueHandler.getMessageConverters());
-    errorRouterFunction.route(serverRequest)
-            .ifPresent(handlerFunction -> {
-              context.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
-              try {
-                Object returnValue = handlerFunction.handle(serverRequest)
-                        .writeTo(context, serverRequest);
-                if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-                  returnValueHandler.handleReturnValue(context, null, returnValue);
-                }
-              }
-              catch (Throwable e) {
-                throw ExceptionUtils.sneakyThrow(e);
-              }
-            });
+  public void handleError(RequestContext request, @Nullable String message) {
+    Object returnValue = getReturnValue(request, message);
+    if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
+      try {
+        returnValueHandler.handleReturnValue(request, null, returnValue);
+      }
+      catch (Throwable e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
+    }
+  }
+
+  private Object getReturnValue(RequestContext request, @Nullable String message) {
+    if (ifAcceptsTextHtml(request)) {
+      Map<String, Object> error = getErrorAttributes(request, MediaType.TEXT_HTML);
+      if (message != null) {
+        error.put("message", message);
+      }
+      request.setContentType("text/html;charset=UTF-8");
+      return resolveErrorView(request, HttpStatusCode.valueOf(request.getStatus()), error);
+    }
+    else {
+      request.setContentType(MediaType.APPLICATION_JSON);
+      Map<String, Object> error = getErrorAttributes(request, MediaType.ALL);
+      if (message != null) {
+        error.put("message", message);
+      }
+      return error;
+    }
   }
 
   /**
@@ -89,52 +90,17 @@ public class DefaultSendErrorHandler extends AbstractErrorController implements 
    * {@code "text/html"} media type.
    * <p>
    * The "match-all" media type is not considered here.
-   *
-   * @return the request predicate
    */
-  protected RequestPredicate acceptsTextHtml() {
-    return serverRequest -> {
-      try {
-        List<MediaType> acceptedMediaTypes = serverRequest.headers().accept();
-        acceptedMediaTypes.removeIf(MediaType.ALL::equalsTypeAndSubtype);
-        MimeTypeUtils.sortBySpecificity(acceptedMediaTypes);
-        return acceptedMediaTypes.stream().anyMatch(MediaType.TEXT_HTML::isCompatibleWith);
-      }
-      catch (InvalidMediaTypeException ex) {
-        return false;
-      }
-    };
-  }
-
-  /**
-   * Render the error information as an HTML view.
-   *
-   * @param request the current request
-   * @return a HTTP response
-   */
-  protected ServerResponse renderErrorView(ServerRequest request) {
-    RequestContext context = request.requestContext();
-    Map<String, Object> error = getErrorAttributes(context, MediaType.TEXT_HTML);
-
-    int errorStatus = context.getStatus();
-    ModelAndView errorView = resolveErrorView(context, HttpStatusCode.valueOf(context.getStatus()), error);
-    return ServerResponse.status(errorStatus)
-            .contentType(TEXT_HTML_UTF8)
-            .render(errorView);
-  }
-
-  /**
-   * Render the error information as a JSON payload.
-   *
-   * @param request the current request
-   * @return a {@code Publisher} of the HTTP response
-   */
-  protected ServerResponse renderErrorResponse(ServerRequest request) {
-    RequestContext requestedContext = request.requestContext();
-    Map<String, Object> error = getErrorAttributes(requestedContext, MediaType.ALL);
-    return ServerResponse.status(requestedContext.getStatus())
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(error);
+  private static boolean ifAcceptsTextHtml(RequestContext context) {
+    try {
+      ArrayList<MediaType> acceptedMediaTypes = new ArrayList<>(context.getHeaders().getAccept());
+      acceptedMediaTypes.removeIf(MediaType.ALL::equalsTypeAndSubtype);
+      MimeTypeUtils.sortBySpecificity(acceptedMediaTypes);
+      return acceptedMediaTypes.stream().anyMatch(MediaType.TEXT_HTML::isCompatibleWith);
+    }
+    catch (InvalidMediaTypeException ex) {
+      return false;
+    }
   }
 
 }

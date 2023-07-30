@@ -179,7 +179,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
         return message;
       }
     }
-    if (error != null && StringUtils.isNotEmpty(error.getMessage())) {
+    if (error != null && StringUtils.hasText(error.getMessage())) {
       return error.getMessage();
     }
     return "No message available";

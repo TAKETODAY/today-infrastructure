@@ -45,11 +45,11 @@ import jakarta.servlet.RequestDispatcher;
  */
 public abstract class AbstractErrorController implements ErrorController {
 
-  private final ErrorAttributes errorAttributes;
+  protected final ErrorAttributes errorAttributes;
 
-  private final ErrorProperties errorProperties;
+  protected final ErrorProperties errorProperties;
 
-  private final List<ErrorViewResolver> errorViewResolvers;
+  protected final List<ErrorViewResolver> errorViewResolvers;
 
   public AbstractErrorController(ErrorAttributes errorAttributes,
           ErrorProperties errorProperties, @Nullable List<ErrorViewResolver> errorViewResolvers) {
@@ -125,8 +125,8 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return a specific {@link ModelAndView} or {@code null} if the default should be
    * used
    */
-  protected ModelAndView resolveErrorView(RequestContext request,
-          HttpStatusCode status, Map<String, Object> model) {
+  protected ModelAndView resolveErrorView(
+          RequestContext request, HttpStatusCode status, Map<String, Object> model) {
     for (ErrorViewResolver resolver : errorViewResolvers) {
       ModelAndView view = resolver.resolveErrorView(request, status, model);
       if (view != null) {
@@ -161,7 +161,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the stacktrace attribute should be included
    */
   protected boolean isIncludeStackTrace(RequestContext request, MediaType produces) {
-    return switch (getErrorProperties().getIncludeStacktrace()) {
+    return switch (errorProperties.getIncludeStacktrace()) {
       case ALWAYS -> true;
       case ON_PARAM -> getTraceParameter(request);
       default -> false;
@@ -176,7 +176,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the message attribute should be included
    */
   protected boolean isIncludeMessage(RequestContext request, MediaType produces) {
-    return switch (getErrorProperties().getIncludeMessage()) {
+    return switch (errorProperties.getIncludeMessage()) {
       case ALWAYS -> true;
       case ON_PARAM -> getMessageParameter(request);
       default -> false;
@@ -191,20 +191,11 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the errors attribute should be included
    */
   protected boolean isIncludeBindingErrors(RequestContext request, MediaType produces) {
-    return switch (getErrorProperties().getIncludeBindingErrors()) {
+    return switch (errorProperties.getIncludeBindingErrors()) {
       case ALWAYS -> true;
       case ON_PARAM -> getErrorsParameter(request);
       default -> false;
     };
-  }
-
-  /**
-   * Provide access to the error properties.
-   *
-   * @return the error properties
-   */
-  protected ErrorProperties getErrorProperties() {
-    return this.errorProperties;
   }
 
 }
