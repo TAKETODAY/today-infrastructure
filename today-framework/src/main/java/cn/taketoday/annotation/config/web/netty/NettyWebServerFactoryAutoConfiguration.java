@@ -17,6 +17,7 @@
 
 package cn.taketoday.annotation.config.web.netty;
 
+import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -57,11 +58,11 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/5 17:39
  */
-@AutoConfiguration
 @DisableAllDependencyInjection
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.NETTY)
 @EnableConfigurationProperties(ServerProperties.class)
+@AutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -134,9 +135,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     if (location != null) {
       factory.setBaseDir(location);
     }
-    NettyRequestConfig config = new NettyRequestConfig(factory);
-    config.setSendErrorHandler(sendErrorHandler);
-    return config;
+    return new NettyRequestConfig(factory, sendErrorHandler);
   }
 
   @Component

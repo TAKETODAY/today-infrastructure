@@ -49,8 +49,6 @@ import cn.taketoday.framework.web.error.DefaultErrorViewResolver;
 import cn.taketoday.framework.web.error.ErrorAttributes;
 import cn.taketoday.framework.web.error.ErrorController;
 import cn.taketoday.framework.web.error.ErrorViewResolver;
-import cn.taketoday.framework.web.netty.DefaultSendErrorHandler;
-import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.ErrorPageRegistrar;
 import cn.taketoday.framework.web.server.ErrorPageRegistry;
@@ -61,6 +59,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.util.HtmlUtils;
@@ -81,10 +80,10 @@ import cn.taketoday.web.view.View;
  */
 // Load before the main WebMvcAutoConfiguration so that the error View is available
 @ConditionalOnWebApplication
-@AutoConfiguration(before = WebMvcAutoConfiguration.class)
 @ConditionalOnClass({ DispatcherHandler.class })
+@AutoConfiguration(before = WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
-public class ErrorMvcAutoConfiguration {
+public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
 
   private final ServerProperties serverProperties;
 
@@ -99,19 +98,10 @@ public class ErrorMvcAutoConfiguration {
   }
 
   @Component
-  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
-  public BasicErrorController basicErrorController(
-          ErrorAttributes errorAttributes, List<ErrorViewResolver> errorViewResolvers) {
-    return new BasicErrorController(errorAttributes, serverProperties.getError(), errorViewResolvers);
-  }
-
-  @Component
-  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.NETTY)
-  @ConditionalOnMissingBean(value = SendErrorHandler.class, search = SearchStrategy.CURRENT)
-  DefaultSendErrorHandler sendErrorHandler(ErrorAttributes errorAttributes,
+  public BasicErrorController basicErrorController(ErrorAttributes errorAttributes,
           List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
-    return new DefaultSendErrorHandler(errorAttributes,
+    return new BasicErrorController(errorAttributes,
             serverProperties.getError(), errorViewResolvers, returnValueHandler);
   }
 

@@ -576,7 +576,7 @@ public class NettyRequestContext extends RequestContext {
     this.status = HttpResponseStatus.valueOf(sc);
     config.getSendErrorHandler().handleError(this, msg);
 
-    commit();
+//    commit();
   }
 
   @Override

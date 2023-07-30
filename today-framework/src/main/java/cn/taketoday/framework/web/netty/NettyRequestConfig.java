@@ -30,7 +30,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 
 /**
@@ -40,7 +39,8 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
  * User can use this class to customize {@link NettyRequestContext}
  * </p>
  *
- * @author TODAY 2021/3/30 17:46
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2021/3/30 17:46
  */
 public class NettyRequestConfig {
 
@@ -78,14 +78,12 @@ public class NettyRequestConfig {
 
   private HttpDataFactory httpDataFactory;
 
-  private SendErrorHandler sendErrorHandler;
+  private final SendErrorHandler sendErrorHandler;
 
-  public NettyRequestConfig() {
-    this(new DefaultHttpDataFactory(true));
-  }
-
-  public NettyRequestConfig(HttpDataFactory httpDataFactory) {
+  public NettyRequestConfig(HttpDataFactory httpDataFactory, SendErrorHandler sendErrorHandler) {
+    Assert.notNull(sendErrorHandler, "SendErrorHandler is required");
     setHttpDataFactory(httpDataFactory);
+    this.sendErrorHandler = sendErrorHandler;
   }
 
   /**
@@ -195,10 +193,6 @@ public class NettyRequestConfig {
   public void setHttpDataFactory(HttpDataFactory httpDataFactory) {
     Assert.notNull(httpDataFactory, "HttpDataFactory is required");
     this.httpDataFactory = httpDataFactory;
-  }
-
-  public void setSendErrorHandler(SendErrorHandler sendErrorHandler) {
-    this.sendErrorHandler = sendErrorHandler;
   }
 
   public SendErrorHandler getSendErrorHandler() {

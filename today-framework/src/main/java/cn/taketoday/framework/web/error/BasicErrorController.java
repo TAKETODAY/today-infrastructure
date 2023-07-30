@@ -17,19 +17,26 @@
 
 package cn.taketoday.framework.web.error;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 
 /**
  * Basic global error {@link Controller @Controller}, rendering {@link ErrorAttributes}.
@@ -48,18 +55,9 @@ import cn.taketoday.web.annotation.RequestMapping;
  * @since 4.0
  */
 @Controller
-@RequestMapping("${server.error.path:${error.path:/error}}")
-public class BasicErrorController extends AbstractErrorController {
+public class BasicErrorController extends AbstractErrorController implements SendErrorHandler {
 
-  /**
-   * Create a new {@link BasicErrorController} instance.
-   *
-   * @param errorAttributes the error attributes
-   * @param errorProperties configuration properties
-   */
-  public BasicErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties) {
-    this(errorAttributes, errorProperties, Collections.emptyList());
-  }
+  private final ReturnValueHandlerManager returnValueHandler;
 
   /**
    * Create a new {@link BasicErrorController} instance.
@@ -68,27 +66,69 @@ public class BasicErrorController extends AbstractErrorController {
    * @param errorProperties configuration properties
    * @param errorViewResolvers error view resolvers
    */
-  public BasicErrorController(ErrorAttributes errorAttributes,
-          ErrorProperties errorProperties, List<ErrorViewResolver> errorViewResolvers) {
+  public BasicErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties,
+          List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     super(errorAttributes, errorProperties, errorViewResolvers);
+    this.returnValueHandler = returnValueHandler;
   }
 
-  @RequestMapping(produces = MediaType.TEXT_HTML_VALUE)
-  public Object errorHtml(RequestContext request) {
-    HttpStatus status = getStatus(request);
-    var model = Collections.unmodifiableMap(getErrorAttributes(request, MediaType.TEXT_HTML));
-    request.setStatus(status);
-    return resolveErrorView(request, status, model);
+  @RequestMapping("${server.error.path:${error.path:/error}}")
+  public Object error(RequestContext request) {
+    return handleRequest(request, null);
   }
 
-  @RequestMapping
-  public ResponseEntity<Map<String, Object>> error(RequestContext request) {
-    HttpStatus status = getStatus(request);
-    if (status == HttpStatus.NO_CONTENT) {
-      return new ResponseEntity<>(status);
+  @Override
+  public void handleError(RequestContext request, @Nullable String message) {
+    Object returnValue = handleRequest(request, message);
+    if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
+      try {
+        returnValueHandler.handleReturnValue(request, null, returnValue);
+      }
+      catch (Throwable e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
     }
-    var body = getErrorAttributes(request, MediaType.ALL);
-    return new ResponseEntity<>(body, status);
+  }
+
+  private Object handleRequest(RequestContext request, @Nullable String message) {
+    HttpStatus status = getStatus(request);
+    request.setStatus(status);
+    if (ifAcceptsTextHtml(request)) {
+      Map<String, Object> model = getErrorAttributes(request, MediaType.TEXT_HTML);
+      request.setContentType("text/html;charset=UTF-8");
+      if (message != null) {
+        model.put("message", message);
+      }
+      return resolveErrorView(request, status, model);
+    }
+    else {
+      if (status != HttpStatus.NO_CONTENT) {
+        request.setContentType(MediaType.APPLICATION_JSON);
+        Map<String, Object> error = getErrorAttributes(request, MediaType.ALL);
+        if (message != null) {
+          error.put("message", message);
+        }
+      }
+      return HttpRequestHandler.NONE_RETURN_VALUE;
+    }
+  }
+
+  /**
+   * Predicate that checks whether the current request explicitly support
+   * {@code "text/html"} media type.
+   * <p>
+   * The "match-all" media type is not considered here.
+   */
+  static boolean ifAcceptsTextHtml(RequestContext context) {
+    try {
+      ArrayList<MediaType> acceptedMediaTypes = new ArrayList<>(context.getHeaders().getAccept());
+      acceptedMediaTypes.removeIf(MediaType.ALL::equalsTypeAndSubtype);
+      MimeTypeUtils.sortBySpecificity(acceptedMediaTypes);
+      return acceptedMediaTypes.stream().anyMatch(MediaType.TEXT_HTML::isCompatibleWith);
+    }
+    catch (InvalidMediaTypeException ex) {
+      return false;
+    }
   }
 
   @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
