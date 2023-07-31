@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Internal delegate for virtual thread handling on JDK 21.
- * This is a dummy version for reachability on JDK <21.
+ * This is a dummy version for reachability on JDK less than 21.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
