@@ -29,6 +29,7 @@ on:
       - 'infra-docs/**/*.adoc'
       - 'infra-docs/**/*.png'
       - 'infra-docs/**/*.svg'
+      - 'infra-samples/**'
       - 'README.md'
 
   pull_request:
@@ -41,6 +42,7 @@ on:
       - 'infra-docs/**/*.adoc'
       - 'infra-docs/**/*.png'
       - 'infra-docs/**/*.svg'
+      - 'infra-samples/**'
       - 'README.md'
 
 jobs:
