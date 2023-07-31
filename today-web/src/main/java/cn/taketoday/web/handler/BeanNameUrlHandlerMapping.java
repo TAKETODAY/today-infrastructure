@@ -70,7 +70,7 @@ public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMappin
       else {
         String path = resolveEmbeddedVariables(alias);
         if (path != null && path.startsWith("/")) {
-          urls.add(alias);
+          urls.add(path);
         }
       }
     }

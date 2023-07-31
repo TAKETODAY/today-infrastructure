@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +31,6 @@ import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.MessageSourceAware;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
-import cn.taketoday.lang.Nullable;
 
 /**
  * {@link BeanPostProcessor} implementation that supplies the {@code ApplicationContext},
@@ -68,14 +64,12 @@ final class ContextAwareProcessor implements InitializationBeanPostProcessor {
   /**
    * Create a new ApplicationContextAwareProcessor for the given context.
    */
-  ContextAwareProcessor(
-          ConfigurableApplicationContext applicationContext, BootstrapContext bootstrapContext) {
+  ContextAwareProcessor(ConfigurableApplicationContext applicationContext, BootstrapContext bootstrapContext) {
     this.context = applicationContext;
     this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext.getBeanFactory());
     this.bootstrapContext = bootstrapContext;
   }
 
-  @Nullable
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
     if (bean instanceof Aware) {
@@ -97,15 +91,14 @@ final class ContextAwareProcessor implements InitializationBeanPostProcessor {
     if (bean instanceof ApplicationEventPublisherAware aware) {
       aware.setApplicationEventPublisher(context);
     }
-
-    if (bean instanceof ApplicationContextAware aware) {
-      aware.setApplicationContext(context);
-    }
     if (bean instanceof MessageSourceAware aware) {
       aware.setMessageSource(context);
     }
     if (bean instanceof EmbeddedValueResolverAware aware) {
       aware.setEmbeddedValueResolver(this.embeddedValueResolver);
+    }
+    if (bean instanceof ApplicationContextAware aware) {
+      aware.setApplicationContext(context);
     }
   }
 
