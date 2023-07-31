@@ -26,6 +26,7 @@ import java.util.function.Supplier;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -34,6 +35,7 @@ import reactor.core.scheduler.Scheduler;
  * {@link DefaultPartHttpMessageReader#setMaxInMemorySize(int)}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class FileStorage {
@@ -114,10 +116,11 @@ abstract class FileStorage {
 
     private static Mono<Path> tempDirectory() {
       return Mono.fromCallable(() -> {
-        File directory = ApplicationTemp.createDirectory(IDENTIFIER);
+        File directory = ApplicationTemp.createDirectory(IDENTIFIER + StringUtils.getUUIDString());
         if (logger.isDebugEnabled()) {
           logger.debug("Created temporary storage directory: {}", directory);
         }
+        directory.deleteOnExit();
         return directory.toPath();
       }).cache();
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +57,7 @@ import reactor.core.scheduler.Schedulers;
  * to aggregate all parts into a Map.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements HttpMessageReader<Part> {
@@ -141,7 +139,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
    * does not exist
    */
   public void setFileStorageDirectory(Path fileStorageDirectory) throws IOException {
-    Assert.notNull(fileStorageDirectory, "FileStorageDirectory must not be null");
+    Assert.notNull(fileStorageDirectory, "FileStorageDirectory is required");
     this.fileStorage = FileStorage.fromPath(fileStorageDirectory);
   }
 
@@ -157,7 +155,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
    * @see Schedulers#newBoundedElastic
    */
   public void setBlockingOperationScheduler(Scheduler blockingOperationScheduler) {
-    Assert.notNull(blockingOperationScheduler, "FileCreationScheduler must not be null");
+    Assert.notNull(blockingOperationScheduler, "FileCreationScheduler is required");
     this.blockingOperationScheduler = blockingOperationScheduler;
   }
 
@@ -206,7 +204,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
   @Override
   public boolean canRead(ResolvableType elementType, @Nullable MediaType mediaType) {
     return Part.class.equals(elementType.toClass())
-            && mediaType == null || MediaType.MULTIPART_FORM_DATA.isCompatibleWith(mediaType);
+            && (mediaType == null || MediaType.MULTIPART_FORM_DATA.isCompatibleWith(mediaType));
   }
 
   @Override

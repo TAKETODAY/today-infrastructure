@@ -364,9 +364,9 @@ public class DefaultPartHttpMessageReaderTests {
       FilePart filePart = (FilePart) part;
       assertThat(filePart.filename()).isEqualTo(filename);
 
-      File file = ApplicationTemp.createDirectory("DefaultMultipartMessageReaderTests");
-      File tempFile = new File(file, "DefaultMultipartMessageReaderTests." + System.currentTimeMillis());
-      tempFile.deleteOnExit();
+      File directory = ApplicationTemp.createDirectory("DefaultMultipartMessageReaderTests");
+      File tempFile = new File(directory, "DefaultMultipartMessageReaderTests." + System.currentTimeMillis());
+      directory.deleteOnExit();
       filePart.transferTo(tempFile)
               .subscribe(null,
                       throwable -> {
