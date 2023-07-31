@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +42,9 @@ import cn.taketoday.web.HandlerMapping;
  * matches (given "/test" -&gt; registered "/t*"). For details on the pattern
  * options, see the {@link cn.taketoday.web.util.pattern.PathPattern} javadoc.
  *
+ * <p>
+ * Supports alias placeholder resolving
+ *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -66,6 +66,12 @@ public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMappin
     for (String alias : aliases) {
       if (alias.startsWith("/")) {
         urls.add(alias);
+      }
+      else {
+        String path = resolveEmbeddedVariables(alias);
+        if (path != null && path.startsWith("/")) {
+          urls.add(alias);
+        }
       }
     }
     return StringUtils.toStringArray(urls);
