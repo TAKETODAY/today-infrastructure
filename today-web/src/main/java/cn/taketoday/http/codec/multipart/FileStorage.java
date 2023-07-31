@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +17,13 @@
 
 package cn.taketoday.http.codec.multipart;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -115,11 +114,11 @@ abstract class FileStorage {
 
     private static Mono<Path> tempDirectory() {
       return Mono.fromCallable(() -> {
-        Path directory = Files.createTempDirectory(IDENTIFIER);
+        File directory = ApplicationTemp.createDirectory(IDENTIFIER);
         if (logger.isDebugEnabled()) {
           logger.debug("Created temporary storage directory: {}", directory);
         }
-        return directory;
+        return directory.toPath();
       }).cache();
     }
   }

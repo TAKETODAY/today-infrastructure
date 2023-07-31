@@ -156,4 +156,13 @@ public class ApplicationTemp {
     return tempDirectory;
   }
 
+  // Static
+
+  /**
+   * Using default instance to create temp directory
+   */
+  public static File createDirectory(String subDir) {
+    return instance.getDir(subDir);
+  }
+
 }

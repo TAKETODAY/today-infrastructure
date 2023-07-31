@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.reactivestreams.Subscription;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -39,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -365,8 +364,9 @@ public class DefaultPartHttpMessageReaderTests {
       FilePart filePart = (FilePart) part;
       assertThat(filePart.filename()).isEqualTo(filename);
 
-      Path tempFile = Files.createTempFile("DefaultMultipartMessageReaderTests", null);
-
+      File file = ApplicationTemp.createDirectory("DefaultMultipartMessageReaderTests");
+      File tempFile = new File(file, "DefaultMultipartMessageReaderTests." + System.currentTimeMillis());
+      tempFile.deleteOnExit();
       filePart.transferTo(tempFile)
               .subscribe(null,
                       throwable -> {
@@ -374,7 +374,7 @@ public class DefaultPartHttpMessageReaderTests {
                       },
                       () -> {
                         try {
-                          verifyContents(tempFile, contents);
+                          verifyContents(tempFile.toPath(), contents);
                         }
                         finally {
                           latch.countDown();

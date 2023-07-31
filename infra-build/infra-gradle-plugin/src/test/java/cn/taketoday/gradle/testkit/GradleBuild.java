@@ -31,8 +31,6 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.util.GradleVersion;
-import cn.taketoday.buildpack.platform.build.BuildRequest;
-import cn.taketoday.lang.Assert;
 import org.tomlj.Toml;
 
 import java.io.File;
@@ -41,7 +39,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,6 +49,8 @@ import java.util.Properties;
 import java.util.jar.JarFile;
 
 import cn.taketoday.app.loader.tools.LaunchScript;
+import cn.taketoday.buildpack.platform.build.BuildRequest;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.framework.ApplicationAotProcessor;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.FileCopyUtils;
@@ -105,7 +104,7 @@ public class GradleBuild {
   }
 
   void before() throws IOException {
-    this.projectDir = Files.createTempDirectory("gradle-").toFile();
+    this.projectDir = ApplicationTemp.createDirectory("gradle-");
   }
 
   void after() {

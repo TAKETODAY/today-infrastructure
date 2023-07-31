@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.util.FileSystemUtils;
 
 /**
@@ -172,7 +173,7 @@ public class PemFileWriter {
   private final Path tempDir;
 
   public PemFileWriter() throws IOException {
-    this.tempDir = Files.createTempDirectory("buildpack-platform-docker-ssl-tests");
+    this.tempDir = ApplicationTemp.createDirectory("buildpack-platform-docker-ssl-tests").toPath();
   }
 
   Path writeFile(String name, String... contents) throws IOException {

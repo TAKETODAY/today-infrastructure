@@ -21,8 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.FileSystemResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
@@ -97,7 +97,7 @@ public class InfraMockServletContext extends MockServletContext {
       try {
         if (this.emptyRootDirectory == null) {
           synchronized(this) {
-            File tempDirectory = Files.createTempDirectory("spr-servlet").toFile();
+            File tempDirectory = ApplicationTemp.createDirectory("spr-servlet");
             tempDirectory.deleteOnExit();
             this.emptyRootDirectory = tempDirectory;
           }

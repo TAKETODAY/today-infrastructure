@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +56,8 @@ import static org.assertj.core.api.Assertions.contentOf;
  *
  * @author Andy Wilkinson
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 class MavenBuild {
 
@@ -80,7 +83,7 @@ class MavenBuild {
 
   private File createTempDirectory() {
     try {
-      File file = Files.createTempDirectory("maven-build").toFile();
+      File file = ApplicationTemp.createDirectory("maven-build");
       file.deleteOnExit();
       return file.getCanonicalFile();
     }
