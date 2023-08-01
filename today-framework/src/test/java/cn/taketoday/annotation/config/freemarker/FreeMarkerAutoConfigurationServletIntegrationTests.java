@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import java.io.StringWriter;
 import java.util.Locale;
 
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
@@ -177,7 +175,8 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
+  @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class,
+          WebMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   static class BaseConfiguration {
 
   }

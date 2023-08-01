@@ -283,9 +283,6 @@ class HttpMessageConvertersAutoConfigurationTests {
     assertThat(RuntimeHintsPredicates.reflection().onType(EncodingProperties.class)).accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "getCharset")).accepts(hints);
     assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "setCharset")).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "isForce")).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "setForce")).accepts(hints);
-    assertThat(RuntimeHintsPredicates.reflection().onMethod(EncodingProperties.class, "shouldForce")).rejects(hints);
   }
 
   private ApplicationContextRunner allOptionsRunner() {

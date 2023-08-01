@@ -44,6 +44,7 @@ import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.ServerProperties.ForwardHeadersStrategy;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.mock.env.MockEnvironment;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.util.DataSize;
 
@@ -63,6 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Parviz Rozikov
  */
 @Execution(ExecutionMode.SAME_THREAD)
+@ClassPathExclusions("tomcat-embed-jasper*")
 class TomcatWebServerFactoryCustomizerTests {
 
   private MockEnvironment environment;
