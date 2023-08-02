@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +44,10 @@ import cn.taketoday.lang.Nullable;
  * is just meant to allow for framework-internal plug'n'play and for special
  * access to bean factory configuration methods.
  *
- * @author TODAY 2018-11-14 19:40
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Juergen Hoeller
  * @see BeanFactory
+ * @since 2018-11-14 19:40
  */
 public interface ConfigurableBeanFactory
         extends HierarchicalBeanFactory, SingletonBeanRegistry, AutowireCapableBeanFactory {
@@ -298,7 +300,7 @@ public interface ConfigurableBeanFactory
    * @since 4.0
    */
   @Nullable
-  String resolveEmbeddedValue(String value);
+  String resolveEmbeddedValue(@Nullable String value);
 
   /**
    * Add a new BeanPostProcessor that will get applied to beans created

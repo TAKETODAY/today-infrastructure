@@ -46,7 +46,7 @@ public class EmbeddedValueResolver implements StringValueResolver {
 
   @Override
   @Nullable
-  public String resolveStringValue(String strVal) {
+  public String resolveStringValue(@Nullable String strVal) {
     return ObjectUtils.toString(expressionEvaluator.evaluate(strVal));
   }
 

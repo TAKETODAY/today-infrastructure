@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +44,7 @@ public class ExpressionEvaluator {
   }
 
   @Nullable
-  public Object evaluate(String expression) {
+  public Object evaluate(@Nullable String expression) {
     expression = beanFactory.resolveEmbeddedValue(expression);
     if (expression != null) {
       BeanExpressionResolver exprResolver = beanFactory.getBeanExpressionResolver();
@@ -60,7 +57,7 @@ public class ExpressionEvaluator {
 
   @Nullable
   @SuppressWarnings("unchecked")
-  public <T> T evaluate(String expression, Class<T> expectedType) {
+  public <T> T evaluate(@Nullable String expression, Class<T> expectedType) {
     expression = beanFactory.resolveEmbeddedValue(expression);
     Object evaluated;
     if (expression != null) {
