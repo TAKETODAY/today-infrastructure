@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.annotation.config.web.netty;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
@@ -43,7 +41,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner(this::createContext)
           .withConfiguration(AutoConfigurations.of(
-                  NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class))
+                  NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class))
           .withUserConfiguration(WebServerConfiguration.class);
 
   AnnotationConfigWebServerApplicationContext createContext() {

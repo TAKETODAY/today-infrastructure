@@ -36,11 +36,14 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextUtils;
 
 /**
+ * A {@link GenericWebServerApplicationContext} that can be used to bootstrap itself
+ * from a contained {@link WebServerFactory} bean.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/3 16:52
  */
-public class GenericWebServerApplicationContext
-        extends GenericApplicationContext implements ConfigurableWebServerApplicationContext {
+public class GenericWebServerApplicationContext extends GenericApplicationContext
+        implements ConfigurableWebServerApplicationContext {
 
   @Nullable
   private String serverNamespace;
@@ -112,7 +115,7 @@ public class GenericWebServerApplicationContext
     // Use bean names so that we don't consider the hierarchy
     StandardBeanFactory beanFactory = getBeanFactory();
     Set<String> beanNames = beanFactory.getBeanNamesForType(WebServerFactory.class);
-    if (beanNames.size() == 0) {
+    if (beanNames.isEmpty()) {
       throw new MissingWebServerFactoryBeanException(
               getClass(), WebServerFactory.class, ApplicationType.NETTY_WEB);
     }

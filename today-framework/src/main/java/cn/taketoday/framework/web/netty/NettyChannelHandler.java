@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.framework.web.netty;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
@@ -63,7 +61,9 @@ import io.netty.util.ReferenceCountUtil;
  *
  * @author TODAY 2019-07-04 21:50
  */
-public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler {
+public class NettyChannelHandler extends DispatcherHandler
+        implements ChannelInboundHandler, SmartInitializingSingleton {
+
   private static final boolean websocketPresent = ClassUtils.isPresent(
           "cn.taketoday.web.socket.Message", NettyChannelHandler.class.getClassLoader());
 
@@ -74,6 +74,10 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     Assert.notNull(context, "ApplicationContext is required");
     Assert.notNull(requestConfig, "NettyRequestConfig is required");
     this.requestConfig = requestConfig;
+  }
+
+  @Override
+  public void afterSingletonsInstantiated() {
     init();
   }
 

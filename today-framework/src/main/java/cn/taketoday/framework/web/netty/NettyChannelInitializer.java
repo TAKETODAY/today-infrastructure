@@ -29,7 +29,8 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 /**
  * Netty HTTP Channel Initializer
  *
- * @author TODAY 2019-07-02 21:34
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-02 21:34
  */
 public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
@@ -99,7 +100,7 @@ public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> i
             .addLast("HttpServerCodec", new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders))
             .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-            .addLast("ReactiveChannelHandler", nettyChannelHandler);
+            .addLast("NettyChannelHandler", nettyChannelHandler);
   }
 
   @Override
@@ -248,4 +249,5 @@ public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> i
   public int getMaxInitialLineLength() {
     return maxInitialLineLength;
   }
+
 }
