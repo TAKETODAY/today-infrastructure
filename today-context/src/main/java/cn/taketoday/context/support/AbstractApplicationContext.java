@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,6 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ExpressionEvaluator;
-import cn.taketoday.beans.factory.support.BeanFactoryAwareInstantiator;
 import cn.taketoday.beans.factory.support.DependencyInjector;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
@@ -134,7 +130,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Sam Brannen
  * @author Sebastien Deleuze
  * @author Brian Clozel
- * @author TODAY 2018-09-09 22:02
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #refreshBeanFactory
  * @see #getBeanFactory
  * @see cn.taketoday.beans.factory.config.BeanFactoryPostProcessor
@@ -142,11 +138,11 @@ import cn.taketoday.util.ReflectionUtils;
  * @see cn.taketoday.context.event.ApplicationEventMulticaster
  * @see cn.taketoday.context.ApplicationListener
  * @see cn.taketoday.context.MessageSource
- * @since January 21, 2001
+ * @since 2018-09-09 22:02
  */
 @SuppressWarnings({ "unchecked" })
-public abstract class AbstractApplicationContext
-        extends DefaultResourceLoader implements ConfigurableApplicationContext {
+public abstract class AbstractApplicationContext extends DefaultResourceLoader
+        implements ConfigurableApplicationContext {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -558,6 +554,7 @@ public abstract class AbstractApplicationContext
 
         // Reset 'active' flag.
         cancelRefresh(ex);
+
         // Propagate exception to caller.
         throw ex;
       }
@@ -669,7 +666,7 @@ public abstract class AbstractApplicationContext
    *
    * @param beanFactory the BeanFactory to configure
    */
-  public void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
+  protected void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
     log.debug("Preparing bean-factory: {}", beanFactory);
     // Tell the internal bean factory to use the context's class loader etc.
     ClassLoader classLoader = getClassLoader();
@@ -706,11 +703,10 @@ public abstract class AbstractApplicationContext
     beanFactory.registerResolvableDependency(ApplicationContext.class, this);
 
     // loading some outside beans
-    var strategies = TodayStrategies.find(
-            BeanDefinitionLoader.class, classLoader, BeanFactoryAwareInstantiator.from(beanFactory));
 
+    BootstrapContext bootstrapContext = getBootstrapContext();
+    var strategies = TodayStrategies.find(BeanDefinitionLoader.class, classLoader, bootstrapContext);
     if (!strategies.isEmpty()) {
-      BootstrapContext bootstrapContext = getBootstrapContext();
       for (BeanDefinitionLoader loader : strategies) {
         loader.loadBeanDefinitions(bootstrapContext);
       }
@@ -1287,23 +1283,9 @@ public abstract class AbstractApplicationContext
     return new String[0];
   }
 
-  // ArgumentsResolverProvider
-
   @Override
   public DependencyInjector getInjector() {
     return getBeanFactory().getInjector();
-  }
-
-  // @since 2.1.7
-  // ---------------------------
-
-  public List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
-    return factoryPostProcessors;
-  }
-
-  // since 4.0
-  public void addFactoryPostProcessors(BeanFactoryPostProcessor... postProcessors) {
-    CollectionUtils.addAll(factoryPostProcessors, postProcessors);
   }
 
   //---------------------------------------------------------------------
@@ -1328,11 +1310,6 @@ public abstract class AbstractApplicationContext
   }
 
   // lifecycleProcessor
-
-  // @since 4.0
-  public void setLifecycleProcessor(@Nullable LifecycleProcessor lifecycleProcessor) {
-    this.lifecycleProcessor = lifecycleProcessor;
-  }
 
   /**
    * Initialize the LifecycleProcessor.
@@ -1559,8 +1536,8 @@ public abstract class AbstractApplicationContext
    */
   protected void finishBeanFactoryInitialization(ConfigurableBeanFactory beanFactory) {
     // Initialize conversion service for this context.
-    if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-            beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+    if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME)
+            && beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
       beanFactory.setConversionService(
               beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
     }
@@ -1573,7 +1550,8 @@ public abstract class AbstractApplicationContext
     }
 
     // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
-    Set<String> weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
+    Set<String> weaverAwareNames = beanFactory.getBeanNamesForType(
+            LoadTimeWeaverAware.class, false, false);
     for (String weaverAwareName : weaverAwareNames) {
       getBean(weaverAwareName);
     }
