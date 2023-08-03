@@ -21,8 +21,20 @@ import cn.taketoday.context.BootstrapContext;
 
 /**
  * load bean definitions
+ * <p>
+ * instantiate the class may implement any of the following
+ * {@link cn.taketoday.beans.factory.Aware Aware} interfaces
+ * <ul>
+ * <li>{@link cn.taketoday.context.EnvironmentAware}</li>
+ * <li>{@link cn.taketoday.beans.factory.BeanFactoryAware}</li>
+ * <li>{@link cn.taketoday.beans.factory.BeanClassLoaderAware}</li>
+ * <li>{@link cn.taketoday.context.ResourceLoaderAware}</li>
+ * <li>{@link cn.taketoday.context.BootstrapContextAware}</li>
+ * <li>{@link cn.taketoday.context.ApplicationContextAware}</li>
+ * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see BootstrapContext
  * @since 4.0 2018-06-23 11:18:22
  */
 public interface BeanDefinitionLoader {
