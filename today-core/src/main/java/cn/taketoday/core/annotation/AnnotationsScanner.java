@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +98,6 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
-  @SuppressWarnings("deprecation")
   private static <C, R> R processClass(C context, Class<?> source, SearchStrategy searchStrategy,
           Predicate<Class<?>> searchEnclosingClass, AnnotationsProcessor<C, R> processor) {
 
@@ -240,7 +236,6 @@ abstract class AnnotationsScanner {
   }
 
   @Nullable
-  @SuppressWarnings("deprecation")
   private static <C, R> R processMethod(C context, Method source,
           SearchStrategy searchStrategy, AnnotationsProcessor<C, R> processor) {
 
@@ -512,7 +507,6 @@ abstract class AnnotationsScanner {
     return (type.getName().startsWith("java.") || type == Ordered.class);
   }
 
-  @SuppressWarnings("deprecation")
   private static boolean isWithoutHierarchy(AnnotatedElement source, SearchStrategy searchStrategy,
           Predicate<Class<?>> searchEnclosingClass) {
 
