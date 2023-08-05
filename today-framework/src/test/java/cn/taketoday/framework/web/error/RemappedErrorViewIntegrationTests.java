@@ -38,6 +38,7 @@ import cn.taketoday.framework.web.server.ErrorPageRegistry;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.classpath.ClassPathExclusions;
+import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.web.annotation.RequestMapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "web.mvc.servlet.path:/infra/")
 @DirtiesContext
+@DirtiesUrlFactories
 @ClassPathExclusions("tomcat-embed-jasper*")
 class RemappedErrorViewIntegrationTests {
 

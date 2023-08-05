@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +25,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import cn.taketoday.framework.web.servlet.mock.MockFilter;
-
+import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import jakarta.servlet.Filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,62 +35,63 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  */
+@DirtiesUrlFactories
 class FilterRegistrationIntegrationTests {
 
-	private AnnotationConfigServletWebServerApplicationContext context;
+  private AnnotationConfigServletWebServerApplicationContext context;
 
-	@AfterEach
-	void cleanUp() {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
+  @AfterEach
+  void cleanUp() {
+    if (this.context != null) {
+      this.context.close();
+    }
+  }
 
-	@Test
-	void normalFiltersAreRegistered() {
-		load(FilterConfiguration.class);
-		assertThat(this.context.getServletContext().getFilterRegistrations()).hasSize(1);
-	}
+  @Test
+  void normalFiltersAreRegistered() {
+    load(FilterConfiguration.class);
+    assertThat(this.context.getServletContext().getFilterRegistrations()).hasSize(1);
+  }
 
-	@Test
-	void scopedTargetFiltersAreNotRegistered() {
-		load(ScopedTargetFilterConfiguration.class);
-		assertThat(this.context.getServletContext().getFilterRegistrations()).isEmpty();
-	}
+  @Test
+  void scopedTargetFiltersAreNotRegistered() {
+    load(ScopedTargetFilterConfiguration.class);
+    assertThat(this.context.getServletContext().getFilterRegistrations()).isEmpty();
+  }
 
-	private void load(Class<?> configuration) {
-		this.context = new AnnotationConfigServletWebServerApplicationContext(ContainerConfiguration.class,
-				configuration);
-	}
+  private void load(Class<?> configuration) {
+    this.context = new AnnotationConfigServletWebServerApplicationContext(ContainerConfiguration.class,
+            configuration);
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class ContainerConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class ContainerConfiguration {
 
-		@Bean
-		TomcatServletWebServerFactory webServerFactory() {
-			return new TomcatServletWebServerFactory(0);
-		}
+    @Bean
+    TomcatServletWebServerFactory webServerFactory() {
+      return new TomcatServletWebServerFactory(0);
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class ScopedTargetFilterConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class ScopedTargetFilterConfiguration {
 
-		@Bean(name = "scopedTarget.myFilter")
-		Filter myFilter() {
-			return new MockFilter();
-		}
+    @Bean(name = "scopedTarget.myFilter")
+    Filter myFilter() {
+      return new MockFilter();
+    }
 
-	}
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	static class FilterConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  static class FilterConfiguration {
 
-		@Bean
-		Filter myFilter() {
-			return new MockFilter();
-		}
+    @Bean
+    Filter myFilter() {
+      return new MockFilter();
+    }
 
-	}
+  }
 
 }
