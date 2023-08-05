@@ -72,27 +72,28 @@ class JasperInitializer extends AbstractLifeCycle {
 
   @Override
   protected void doStart() throws Exception {
-    if (this.initializer == null) {
+    ServletContainerInitializer initializer = this.initializer;
+    if (initializer == null) {
       return;
     }
-    if (ClassUtils.isPresent("org.apache.catalina.webresources.TomcatURLStreamHandlerFactory",
-            getClass().getClassLoader())) {
-      TomcatURLStreamHandlerFactory.register();
-    }
-    else {
-      try {
+    try {
+      if (ClassUtils.isPresent("org.apache.catalina.webresources.TomcatURLStreamHandlerFactory",
+              getClass().getClassLoader())) {
+        TomcatURLStreamHandlerFactory.register();
+      }
+      else {
         URL.setURLStreamHandlerFactory(new WarUrlStreamHandlerFactory());
       }
-      catch (Error ex) {
-        // Ignore
-      }
+    }
+    catch (Error ex) {
+      // Ignore
     }
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     try {
       Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
       try {
         setExtendedListenerTypes(true);
-        this.initializer.onStartup(null, this.context.getServletContext());
+        initializer.onStartup(null, this.context.getServletContext());
       }
       finally {
         setExtendedListenerTypes(false);
