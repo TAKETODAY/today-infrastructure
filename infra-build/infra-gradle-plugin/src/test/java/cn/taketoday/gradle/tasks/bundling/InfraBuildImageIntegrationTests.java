@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.condition.OS;
 import cn.taketoday.buildpack.platform.docker.DockerApi;
@@ -65,6 +66,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisabledIfDockerUnavailable
 @DisabledOnOs(os = { OS.LINUX, OS.MAC }, architecture = "aarch64",
               disabledReason = "The builder image has no ARM support")
+@Disabled("Disabled until differences between running locally and in CI can be diagnosed")
 class InfraBuildImageIntegrationTests {
 
   GradleBuild gradleBuild;
