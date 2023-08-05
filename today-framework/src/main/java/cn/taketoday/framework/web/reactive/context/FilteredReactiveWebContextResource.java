@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,7 @@ import java.io.InputStream;
 
 import cn.taketoday.core.io.AbstractResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.support.ServletContextResource;
 
 /**
@@ -55,7 +52,7 @@ class FilteredReactiveWebContextResource extends AbstractResource {
 
   @Override
   public Resource createRelative(String relativePath) throws IOException {
-    String pathToUse = ResourceUtils.getRelativePath(this.path, relativePath);
+    String pathToUse = StringUtils.applyRelativePath(this.path, relativePath);
     return new FilteredReactiveWebContextResource(pathToUse);
   }
 

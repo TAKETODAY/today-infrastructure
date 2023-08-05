@@ -37,25 +37,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourceUtilsTest {
 
   @Test
-  public void testGetRelativePath() throws IOException {
-    final String relativePath = ResourceUtils.getRelativePath("D:/java/", "1.txt");
-    final String relativePath1 = ResourceUtils.getRelativePath("D:/java", "1.txt");
-    final String relativePath2 = ResourceUtils.getRelativePath("D:/java/2.txt", "1.txt");
-
-    System.err.println(relativePath);
-    assert relativePath.equals("D:/java/1.txt");
-
-    System.err.println(relativePath1);
-    assert relativePath1.equals("D:/1.txt");
-
-    System.err.println(relativePath2);
-    assert relativePath2.equals("D:/java/1.txt");
-
-    assert ResourceUtils.getRelativePath("index", "TODAY").equals("TODAY");
-
-  }
-
-  @Test
   public void testGetResource() throws IOException {
 
 //		final Resource resource = ResourceUtils.getResource("/META-INF/maven/cn.taketoday/today-expression/pom.properties");

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,11 +209,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation creates a ServletContextResource, applying the given path
    * relative to the path of the underlying file of this resource descriptor.
    *
-   * @see cn.taketoday.util.ResourceUtils#getRelativePath(String, String)
+   * @see cn.taketoday.util.StringUtils#applyRelativePath(String, String)
    */
   @Override
   public Resource createRelative(String relativePath) {
-    String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
+    String pathToUse = StringUtils.applyRelativePath(path, relativePath);
     return new ServletContextResource(servletContext, pathToUse);
   }
 

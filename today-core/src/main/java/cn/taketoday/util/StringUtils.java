@@ -87,7 +87,7 @@ public abstract class StringUtils {
   //---------------------------------------------------------------------
 
   public static boolean isEmpty(@Nullable CharSequence str) {
-    return str == null || str.length() == 0;
+    return str == null || str.isEmpty();
   }
 
   public static boolean isNotEmpty(@Nullable CharSequence str) {
@@ -338,7 +338,7 @@ public abstract class StringUtils {
       if (trimTokens) {
         token = token.trim();
       }
-      if (!ignoreEmptyTokens || token.length() > 0) {
+      if (!ignoreEmptyTokens || !token.isEmpty()) {
         tokens.add(token);
       }
     }
@@ -696,8 +696,7 @@ else */
    * @param builder The {@link StringBuilder} append to
    * @throws IOException If an I/O error occurs
    */
-  public static void appendLine(
-          final BufferedReader reader, final StringBuilder builder) throws IOException {
+  public static void appendLine(BufferedReader reader, StringBuilder builder) throws IOException {
     String line;
     while ((line = reader.readLine()) != null) {
       builder.append(line);
@@ -880,7 +879,7 @@ else */
     }
     final char[] chars = str.toCharArray();
     chars[0] = capitalize ? Character.toUpperCase(firstChar) : Character.toLowerCase(firstChar);
-    return new String(chars, 0, chars.length);
+    return new String(chars);
   }
 
   /**
@@ -1178,6 +1177,29 @@ else */
     return path.substring(0, extIndex);
   }
 
+  /**
+   * Apply the given relative path to the given Java resource path,
+   * assuming standard Java folder separation (i.e. "/" separators).
+   *
+   * @param path the path to start from (usually a full file path)
+   * @param relativePath the relative path to apply
+   * (relative to the full file path above)
+   * @return the full file path that results from applying the relative path
+   */
+  public static String applyRelativePath(String path, String relativePath) {
+    int separatorIndex = path.lastIndexOf(FOLDER_SEPARATOR_CHAR);
+    if (separatorIndex != -1) {
+      String newPath = path.substring(0, separatorIndex);
+      if (!relativePath.startsWith(FOLDER_SEPARATOR)) {
+        newPath += FOLDER_SEPARATOR_CHAR;
+      }
+      return newPath + relativePath;
+    }
+    else {
+      return relativePath;
+    }
+  }
+
   //
 
   /**
@@ -1321,6 +1343,7 @@ else */
    * @see java.lang.Character#isWhitespace
    * @since 3.0
    */
+  @Nullable
   public static String trimWhitespace(@Nullable String str) {
     if (str == null || str.isEmpty()) {
       return str;
@@ -1537,7 +1560,7 @@ else */
    * @since 4.0
    */
   public static boolean matchesFirst(@Nullable String str, char charToMatch) {
-    return str != null && str.length() != 0 && str.charAt(0) == charToMatch;
+    return str != null && !str.isEmpty() && str.charAt(0) == charToMatch;
   }
 
   /**
@@ -1572,7 +1595,7 @@ else */
     if (!localeValue.contains("_") && !localeValue.contains(" ")) {
       validateLocalePart(localeValue);
       Locale resolved = Locale.forLanguageTag(localeValue);
-      if (resolved.getLanguage().length() > 0) {
+      if (!resolved.getLanguage().isEmpty()) {
         return resolved;
       }
     }
@@ -1596,8 +1619,8 @@ else */
    * @since 3.0
    */
   @Nullable
-  public static Locale parseLocaleString(String localeString) {
-    if (localeString.equals("")) {
+  public static Locale parseLocaleString(@Nullable String localeString) {
+    if (localeString == null || localeString.isEmpty()) {
       return null;
     }
     String delimiter = "_";

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -481,6 +479,20 @@ class StringUtilsTests {
     assertThat(StringUtils.stripFilenameExtension("/home/user/.m2/settings/myfile")).isEqualTo("/home/user/.m2/settings/myfile");
     assertThat(StringUtils.stripFilenameExtension("/home/user/.m2/settings/myfile.")).isEqualTo("/home/user/.m2/settings/myfile");
     assertThat(StringUtils.stripFilenameExtension("/home/user/.m2/settings/myfile.txt")).isEqualTo("/home/user/.m2/settings/myfile");
+  }
+
+  @Test
+  public void applyRelativePath() throws IOException {
+    final String relativePath = StringUtils.applyRelativePath("D:/java/", "1.txt");
+    final String relativePath1 = StringUtils.applyRelativePath("D:/java", "1.txt");
+    final String relativePath2 = StringUtils.applyRelativePath("D:/java/2.txt", "1.txt");
+
+    assert relativePath.equals("D:/java/1.txt");
+    assert relativePath1.equals("D:/1.txt");
+    assert relativePath2.equals("D:/java/1.txt");
+
+    assert StringUtils.applyRelativePath("index", "TODAY").equals("TODAY");
+
   }
 
   @Test

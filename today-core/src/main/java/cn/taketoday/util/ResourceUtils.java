@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import java.io.File;
@@ -155,35 +156,6 @@ public abstract class ResourceUtils {
    */
   public static Resource getResource(File file) {
     return new FileSystemResource(file);
-  }
-
-  /**
-   * Create a new relative path from a file path.
-   * <p>
-   * Note: When building relative path, it makes a difference whether the
-   * specified resource base path here ends with a slash or not. In the case of
-   * "C:/dir1/", relative paths will be built underneath that root: e.g. relative
-   * path "dir2" -> "C:/dir1/dir2". In the case of "C:/dir1", relative paths will
-   * apply at the same directory level: relative path "dir2" -> "C:/dir2".
-   *
-   * @return the full file path that results from applying the relative path
-   */
-  public static String getRelativePath(String path, String relativePath) {
-    int separatorIndex = path.lastIndexOf(PATH_SEPARATOR);
-    if (separatorIndex > 0) {
-      if (StringUtils.isNotEmpty(relativePath)) {
-        StringBuilder newPath = new StringBuilder(path.substring(0, separatorIndex));
-        if (relativePath.charAt(0) != PATH_SEPARATOR) {
-          newPath.append(PATH_SEPARATOR);
-        }
-        newPath.append(relativePath);
-        return newPath.toString();
-      }
-      else {
-        return path.substring(0, separatorIndex);
-      }
-    }
-    return relativePath;
   }
 
   // @since 2.1.7
@@ -557,7 +529,7 @@ public abstract class ResourceUtils {
   public static URL toRelativeURL(URL root, String relativePath) throws MalformedURLException {
     // # can appear in filenames, java.net.URL should not treat it as a fragment
     relativePath = StringUtils.replace(relativePath, "#", "%23");
-    return toURL(getRelativePath(root.toString(), relativePath));
+    return toURL(StringUtils.applyRelativePath(root.toString(), relativePath));
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import java.io.InputStream;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -92,7 +88,7 @@ public class ModuleResource extends AbstractResource {
 
   @Override
   public Resource createRelative(String relativePath) {
-    String pathToUse = ResourceUtils.getRelativePath(this.path, relativePath);
+    String pathToUse = StringUtils.applyRelativePath(this.path, relativePath);
     return new ModuleResource(this.module, pathToUse);
   }
 

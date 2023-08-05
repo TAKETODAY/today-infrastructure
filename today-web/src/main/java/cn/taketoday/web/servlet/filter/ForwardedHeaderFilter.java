@@ -32,7 +32,6 @@ import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.util.ForwardedHeaderUtils;
@@ -446,7 +445,7 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
       if (path != null) {
         // Relative to Servlet container root or to current request
         path = path.startsWith(FOLDER_SEPARATOR) ? path :
-               ResourceUtils.getRelativePath(this.request.getRequestURI(), path);
+               StringUtils.applyRelativePath(this.request.getRequestURI(), path);
       }
 
       ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(this.request);
