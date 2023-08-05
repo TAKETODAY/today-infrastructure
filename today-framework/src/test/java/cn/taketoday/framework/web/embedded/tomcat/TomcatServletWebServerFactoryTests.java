@@ -79,7 +79,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.FileSystemUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
