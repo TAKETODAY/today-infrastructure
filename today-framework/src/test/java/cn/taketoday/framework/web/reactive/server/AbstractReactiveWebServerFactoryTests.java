@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +60,7 @@ import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.reactive.function.client.WebClient;
@@ -91,6 +89,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Brian Clozel
  * @author Scott Frederick
  */
+@ClassPathExclusions("tomcat-embed-jasper*")
 public abstract class AbstractReactiveWebServerFactoryTests {
 
   protected WebServer webServer;

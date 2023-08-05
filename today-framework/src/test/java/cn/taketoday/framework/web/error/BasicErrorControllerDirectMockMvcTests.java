@@ -29,6 +29,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.net.URL;
 
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
@@ -45,17 +46,16 @@ import cn.taketoday.framework.test.util.ApplicationContextTestUtils;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
+import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import jakarta.servlet.ServletException;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link BasicErrorController} using {@link MockMvc} but not
@@ -73,6 +73,7 @@ class BasicErrorControllerDirectMockMvcTests {
 
   @AfterEach
   void close() {
+    ReflectionTestUtils.setField(URL.class, "factory", null);
     ApplicationContextTestUtils.closeAll(this.wac);
   }
 
@@ -105,11 +106,12 @@ class BasicErrorControllerDirectMockMvcTests {
   }
 
   @Test
-  void errorPageNotAvailableWithWhitelabelDisabled() {
+  void errorPageNotAvailableWithWhitelabelDisabled() throws Exception {
     setup((ConfigurableWebApplicationContext) new Application(WebMvcIncludedConfiguration.class)
             .run("--server.port=0", "--server.error.whitelabel.enabled=false"));
-    assertThatExceptionOfType(ServletException.class)
-            .isThrownBy(() -> this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML)));
+
+    this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
+            .andExpect(status().is(500));
   }
 
   @Test

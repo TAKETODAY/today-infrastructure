@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatWebServer;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.mock.env.MockEnvironment;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
+@ClassPathExclusions("tomcat-embed-jasper*")
 class TomcatServletWebServerFactoryCustomizerTests {
 
   private TomcatServletWebServerFactoryCustomizer customizer;
