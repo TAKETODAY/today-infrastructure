@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +48,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ContextLoaderListener;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -92,12 +88,13 @@ import jakarta.servlet.ServletException;
  * @author Phillip Webb
  * @author Dave Syer
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationConfigServletWebServerApplicationContext
  * @see ServletWebServerFactory
  * @since 4.0
  */
 public class ServletWebServerApplicationContext extends GenericWebApplicationContext
-        implements ConfigurableWebServerApplicationContext, ConfigurableWebApplicationContext {
+        implements ConfigurableWebServerApplicationContext, ServletContextInitializer {
 
   /**
    * Constant value for the DispatcherServlet bean name. A Servlet bean with this name
@@ -187,7 +184,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     ServletContext servletContext = getServletContext();
     if (webServer == null && servletContext == null) {
       ServletWebServerFactory factory = getWebServerFactory();
-      webServer = factory.getWebServer(getSelfInitializer());
+      webServer = factory.getWebServer(this);
 
       StandardBeanFactory beanFactory = getBeanFactory();
       beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(this, webServer));
@@ -197,7 +194,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     }
     else if (servletContext != null) {
       try {
-        getSelfInitializer().onStartup(servletContext);
+        onStartup(servletContext);
       }
       catch (ServletException ex) {
         throw new ApplicationContextException("Cannot initialize servlet context", ex);
@@ -217,7 +214,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     // Use bean names so that we don't consider the hierarchy
     StandardBeanFactory beanFactory = getBeanFactory();
     Set<String> beanNames = beanFactory.getBeanNamesForType(ServletWebServerFactory.class);
-    if (beanNames.size() == 0) {
+    if (beanNames.isEmpty()) {
       throw new MissingWebServerFactoryBeanException(
               getClass(), ServletWebServerFactory.class, ApplicationType.SERVLET_WEB);
     }
@@ -229,17 +226,15 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
   }
 
   /**
-   * Returns the {@link ServletContextInitializer} that will be used to complete the
+   * The self initializer
+   * <p>
+   * the {@link ServletContextInitializer} that will be used to complete the
    * setup of this {@link WebApplicationContext}.
    *
-   * @return the self initializer
    * @see #prepareWebApplicationContext(ServletContext)
    */
-  private ServletContextInitializer getSelfInitializer() {
-    return this::selfInitialize;
-  }
-
-  private void selfInitialize(ServletContext servletContext) throws ServletException {
+  @Override
+  public void onStartup(ServletContext servletContext) throws ServletException {
     prepareWebApplicationContext(servletContext);
     WebApplicationContextUtils.registerEnvironmentBeans(getBeanFactory(), servletContext);
     for (ServletContextInitializer beans : getServletContextInitializerBeans()) {

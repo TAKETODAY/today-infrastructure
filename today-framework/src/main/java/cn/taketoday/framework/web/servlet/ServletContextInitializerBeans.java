@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,17 +72,16 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
   private final List<ServletContextInitializer> sortedList;
 
   @SafeVarargs
-  @SuppressWarnings("varargs")
-  public ServletContextInitializerBeans(
-          BeanFactory beanFactory, Class<? extends ServletContextInitializer>... initializerTypes) {
+  @SuppressWarnings({ "varargs", "unchecked" })
+  public ServletContextInitializerBeans(BeanFactory beanFactory,
+          Class<? extends ServletContextInitializer>... initializerTypes) {
     this.initializers = MultiValueMap.forLinkedHashMap();
-    addServletContextInitializerBeans(beanFactory, initializerTypes.length != 0
-                                                   ? initializerTypes
-                                                   : new Class[] { ServletContextInitializer.class });
+    addServletContextInitializerBeans(beanFactory,
+            initializerTypes.length != 0 ? initializerTypes : new Class[] { ServletContextInitializer.class });
     addAdaptableBeans(beanFactory);
     this.sortedList = initializers.values()
             .stream()
-            .flatMap((value) -> value.stream().sorted(AnnotationAwareOrderComparator.INSTANCE)).toList();
+            .flatMap(value -> value.stream().sorted(AnnotationAwareOrderComparator.INSTANCE)).toList();
     logMappings(initializers);
   }
 
@@ -97,8 +93,8 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
     }
   }
 
-  private void addServletContextInitializerBean(
-          String beanName, ServletContextInitializer initializer, BeanFactory beanFactory) {
+  private void addServletContextInitializerBean(String beanName,
+          ServletContextInitializer initializer, BeanFactory beanFactory) {
     if (initializer instanceof ServletRegistrationBean<?> registrationBean) {
       Servlet source = registrationBean.getServlet();
       addServletContextInitializerBean(Servlet.class, beanName, initializer, beanFactory, source);
@@ -159,13 +155,13 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
     return beans.isEmpty() ? null : beans.get(0).getValue();
   }
 
-  protected <T> void addAsRegistrationBean(
-          BeanFactory beanFactory, Class<T> type, MultipartConfigElement multipartConfig) {
+  protected <T> void addAsRegistrationBean(BeanFactory beanFactory,
+          Class<T> type, MultipartConfigElement multipartConfig) {
     addAsRegistrationBean(beanFactory, type, type, multipartConfig);
   }
 
-  private <T, B extends T> void addAsRegistrationBean(
-          BeanFactory beanFactory, Class<T> type, Class<B> beanType, MultipartConfigElement multipartConfig) {
+  private <T, B extends T> void addAsRegistrationBean(BeanFactory beanFactory,
+          Class<T> type, Class<B> beanType, MultipartConfigElement multipartConfig) {
 
     var entries = getOrderedBeansOfType(beanFactory, beanType, seen);
     for (Entry<String, B> entry : entries) {
@@ -185,8 +181,8 @@ public class ServletContextInitializerBeans extends AbstractCollection<ServletCo
     }
   }
 
-  RegistrationBean createRegistrationBean(
-          String name, Object source, int totalNumberOfSourceBeans, MultipartConfigElement multipartConfig) {
+  RegistrationBean createRegistrationBean(String name, Object source,
+          int totalNumberOfSourceBeans, MultipartConfigElement multipartConfig) {
     if (source instanceof Servlet servlet) {
       String url = totalNumberOfSourceBeans != 1 ? "/" + name + "/" : "/";
       if (name.equals(DISPATCHER_SERVLET_NAME)) {
