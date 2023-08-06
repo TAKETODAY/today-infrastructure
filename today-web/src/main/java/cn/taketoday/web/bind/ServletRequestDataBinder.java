@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,6 +113,9 @@ public class ServletRequestDataBinder extends WebDataBinder {
    * @see #bind(cn.taketoday.beans.PropertyValues)
    */
   public void bind(ServletRequest request) {
+    if (shouldNotBindPropertyValues()) {
+      return;
+    }
     PropertyValues mpvs = new ServletRequestParameterPropertyValues(request);
     if (StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.MULTIPART_FORM_DATA_VALUE)) {
       HttpServletRequest httpServletRequest = ServletUtils.getNativeRequest(request, HttpServletRequest.class);

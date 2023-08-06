@@ -1051,7 +1051,19 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #doBind(cn.taketoday.beans.PropertyValues)
    */
   public void bind(PropertyValues pvs) {
+    if (shouldNotBindPropertyValues()) {
+      return;
+    }
     doBind(pvs);
+  }
+
+  /**
+   * Whether to not bind parameters to properties. Returns "true" if
+   * {@link #isDeclarativeBinding()} is on, and
+   * {@link #setAllowedFields(String...) allowedFields} are not configured.
+   */
+  protected boolean shouldNotBindPropertyValues() {
+    return isDeclarativeBinding() && ObjectUtils.isEmpty(this.allowedFields);
   }
 
   /**

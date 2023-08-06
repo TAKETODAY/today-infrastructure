@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +45,9 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
   private boolean autoGrowNestedPaths = true;
 
   private boolean directFieldAccess = false;
+
+  @Nullable
+  private Boolean declarativeBinding;
 
   @Nullable
   private MessageCodesResolver messageCodesResolver;
@@ -103,6 +103,21 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
    */
   public boolean isDirectFieldAccess() {
     return this.directFieldAccess;
+  }
+
+  /**
+   * Set whether to bind only fields intended for binding as described in
+   * {@link cn.taketoday.validation.DataBinder#setDeclarativeBinding}.
+   */
+  public void setDeclarativeBinding(boolean declarativeBinding) {
+    this.declarativeBinding = declarativeBinding;
+  }
+
+  /**
+   * Return whether to bind only fields intended for binding.
+   */
+  public boolean isDeclarativeBinding() {
+    return (this.declarativeBinding != null ? this.declarativeBinding : false);
   }
 
   /**
@@ -202,6 +217,9 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
     binder.setAutoGrowNestedPaths(autoGrowNestedPaths);
     if (directFieldAccess) {
       binder.initDirectFieldAccess();
+    }
+    if (declarativeBinding != null) {
+      binder.setDeclarativeBinding(declarativeBinding);
     }
     if (messageCodesResolver != null) {
       binder.setMessageCodesResolver(messageCodesResolver);
