@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,42 +32,41 @@ import cn.taketoday.lang.Assert;
  * of an application, and supports the encapsulation of validation
  * logic as a first-class citizen in its own right.
  *
- * <p>Find below a simple but complete {@code Validator}
- * implementation, which validates that the various {@link String}
- * properties of a {@code UserLogin} instance are not empty
- * (that is they are not {@code null} and do not consist
+ * <p>Implementations can be created via the static factory methods
+ * {@link #forInstanceOf(Class, BiConsumer)} or
+ * {@link #forType(Class, BiConsumer)}.
+ * Below is a simple but complete {@code Validator} that validates that the
+ * various {@link String} properties of a {@code UserLogin} instance are not
+ * empty (they are not {@code null} and do not consist
  * wholly of whitespace), and that any password that is present is
  * at least {@code 'MINIMUM_PASSWORD_LENGTH'} characters in length.
  *
- * <pre class="code">public class UserLoginValidator implements Validator {
+ * <pre>{@code
+ *   Validator userLoginValidator = Validator.forInstance(UserLogin.class, (login, errors) -> {
+ *   ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userName", "field.required");
+ *   ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "field.required");
+ *   if (login.getPassword() != null
+ *         && login.getPassword().trim().length() < MINIMUM_PASSWORD_LENGTH) {
+ *      errors.rejectValue("password", "field.min.length",
+ *            new Object[]{Integer.valueOf(MINIMUM_PASSWORD_LENGTH)},
+ *            "The password must be at least [" + MINIMUM_PASSWORD_LENGTH + "] characters in length.");
+ *   }
+ * });
+ * }
+ * </pre>
  *
- *    private static final int MINIMUM_PASSWORD_LENGTH = 6;
- *
- *    public boolean supports(Class clazz) {
- *       return UserLogin.class.isAssignableFrom(clazz);
- *    }
- *
- *    public void validate(Object target, Errors errors) {
- *       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "userName", "field.required");
- *       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "password", "field.required");
- *       UserLogin login = (UserLogin) target;
- *       if (login.getPassword() != null
- *             &amp;&amp; login.getPassword().trim().length() &lt; MINIMUM_PASSWORD_LENGTH) {
- *          errors.rejectValue("password", "field.min.length",
- *                new Object[]{Integer.valueOf(MINIMUM_PASSWORD_LENGTH)},
- *                "The password must be at least [" + MINIMUM_PASSWORD_LENGTH + "] characters in length.");
- *       }
- *    }
- * }</pre>
- *
- * <p>See also the Framework reference manual for a fuller discussion of
- * the {@code Validator} interface and its role in an enterprise
- * application.
+ * <p>See also the Spring reference manual for a fuller discussion of the
+ * {@code Validator} interface and its role in an enterprise application.
  *
  * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Toshiaki Maki
+ * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SmartValidator
  * @see Errors
  * @see ValidationUtils
+ * @see DataBinder#setValidator
  * @since 4.0
  */
 public interface Validator {
@@ -92,17 +88,43 @@ public interface Validator {
   boolean supports(Class<?> clazz);
 
   /**
-   * Validate the supplied {@code target} object, which must be
-   * of a {@link Class} for which the {@link #supports(Class)} method
-   * typically has (or would) return {@code true}.
+   * Validate the given {@code target} object which must be of a
+   * {@link Class} for which the {@link #supports(Class)} method
+   * typically has returned (or would return) {@code true}.
    * <p>The supplied {@link Errors errors} instance can be used to report
-   * any resulting validation errors.
+   * any resulting validation errors, typically as part of a larger
+   * binding process which this validator is meant to participate in.
+   * Binding errors have typically been pre-registered with the
+   * {@link Errors errors} instance before this invocation already.
    *
    * @param target the object that is to be validated
    * @param errors contextual state about the validation process
    * @see ValidationUtils
    */
   void validate(Object target, Errors errors);
+
+  /**
+   * Validate the given {@code target} object individually.
+   * <p>Delegates to the common {@link #validate(Object, Errors)} method.
+   * The returned {@link Errors errors} instance can be used to report
+   * any resulting validation errors for the specific target object, e.g.
+   * {@code if (validator.validateObject(target).hasErrors()) ...} or
+   * {@code validator.validateObject(target).failOnError(IllegalStateException::new));}.
+   * <p>Note: This validation call comes with limitations in the {@link Errors}
+   * implementation used, in particular no support for nested paths.
+   * If this is insufficient for your purposes, call the regular
+   * {@link #validate(Object, Errors)} method with a binding-capable
+   * {@link Errors} implementation such as {@link BeanPropertyBindingResult}.
+   *
+   * @param target the object that is to be validated
+   * @return resulting errors from the validation of the given object
+   * @see SimpleErrors
+   */
+  default Errors validateObject(Object target) {
+    Errors errors = new SimpleErrors(target);
+    validate(target, errors);
+    return errors;
+  }
 
   /**
    * Return a {@code Validator} that checks whether the target object
