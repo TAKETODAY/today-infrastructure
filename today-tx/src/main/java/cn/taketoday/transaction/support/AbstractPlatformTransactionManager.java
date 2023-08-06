@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +22,9 @@ import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
-import cn.taketoday.core.Constants;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -113,8 +111,15 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    */
   public static final int SYNCHRONIZATION_NEVER = 2;
 
-  /** Constants instance for AbstractPlatformTransactionManager. */
-  private static final Constants constants = new Constants(AbstractPlatformTransactionManager.class);
+  /**
+   * Map of constant names to constant values for the transaction synchronization
+   * constants defined in this class.
+   */
+  static final Map<String, Integer> constants = Map.of(
+          "SYNCHRONIZATION_ALWAYS", SYNCHRONIZATION_ALWAYS,
+          "SYNCHRONIZATION_ON_ACTUAL_TRANSACTION", SYNCHRONIZATION_ON_ACTUAL_TRANSACTION,
+          "SYNCHRONIZATION_NEVER", SYNCHRONIZATION_NEVER
+  );
 
   protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -140,7 +145,10 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
    * @see #SYNCHRONIZATION_ALWAYS
    */
   public final void setTransactionSynchronizationName(String constantName) {
-    setTransactionSynchronization(constants.asNumber(constantName).intValue());
+    Assert.hasText(constantName, "'constantName' must not be null or blank");
+    Integer transactionSynchronization = constants.get(constantName);
+    Assert.notNull(transactionSynchronization, "Only transaction synchronization constants allowed");
+    this.transactionSynchronization = transactionSynchronization;
   }
 
   /**
@@ -485,11 +493,10 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
       if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
         Integer currentIsolationLevel = TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();
         if (currentIsolationLevel == null || currentIsolationLevel != definition.getIsolationLevel()) {
-          Constants isoConstants = DefaultTransactionDefinition.constants;
           throw new IllegalTransactionStateException("Participating transaction with definition [" +
                   definition + "] specifies isolation level which is incompatible with existing transaction: " +
                   (currentIsolationLevel != null ?
-                   isoConstants.toCode(currentIsolationLevel, DefaultTransactionDefinition.PREFIX_ISOLATION) :
+                   DefaultTransactionDefinition.getIsolationLevelName(currentIsolationLevel) :
                    "(unknown)"));
         }
       }
