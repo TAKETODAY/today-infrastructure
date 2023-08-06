@@ -44,7 +44,7 @@ public class MockServletWebServerFactory extends AbstractServletWebServerFactory
   }
 
   public MockServletWebServer getWebServer() {
-    return getWebServer(new ServletContextInitializer[0]);
+    return webServer;
   }
 
   public ServletContext getServletContext() {
