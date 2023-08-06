@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -151,6 +148,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   @Nullable
   private ExtendedTypeConverter typeConverter;
 
+  private boolean declarativeBinding = false;
+
   private boolean ignoreUnknownFields = true;
 
   private boolean ignoreInvalidFields = false;
@@ -167,6 +166,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   @Nullable
   private String[] requiredFields;
+
+  @Nullable
+  private NameResolver nameResolver;
 
   @Nullable
   private ConversionService conversionService;
@@ -424,6 +426,27 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   /**
+   * Set whether to bind only fields explicitly intended for binding including:
+   * <ul>
+   * <li>Constructor binding via {@link #construct}.
+   * <li>Property binding with configured
+   * {@link #setAllowedFields(String...) allowedFields}.
+   * </ul>
+   * <p>Default is "false". Turn this on to limit binding to constructor
+   * parameters and allowed fields.
+   */
+  public void setDeclarativeBinding(boolean declarativeBinding) {
+    this.declarativeBinding = declarativeBinding;
+  }
+
+  /**
+   * Return whether to bind only fields intended for binding.
+   */
+  public boolean isDeclarativeBinding() {
+    return this.declarativeBinding;
+  }
+
+  /**
    * Set whether to ignore unknown fields, that is, whether to ignore bind
    * parameters that do not have corresponding fields in the target object.
    * <p>Default is "true". Turn this off to enforce that all bind parameters
@@ -592,6 +615,27 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   @Nullable
   public String[] getRequiredFields() {
     return this.requiredFields;
+  }
+
+  /**
+   * Configure a resolver to determine the name of the value to bind to a
+   * constructor parameter in {@link #construct}.
+   * <p>If not configured, or if the name cannot be resolved, by default
+   * {@link cn.taketoday.core.DefaultParameterNameDiscoverer} is used.
+   *
+   * @param nameResolver the resolver to use
+   */
+  public void setNameResolver(NameResolver nameResolver) {
+    this.nameResolver = nameResolver;
+  }
+
+  /**
+   * Return the {@link #setNameResolver configured} name resolver for
+   * constructor parameters.
+   */
+  @Nullable
+  public NameResolver getNameResolver() {
+    return this.nameResolver;
   }
 
   /**
@@ -896,11 +940,19 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
       HashSet<String> failedParamNames = new HashSet<>(4);
 
       for (int i = 0; i < paramNames.length; i++) {
-        String paramPath = nestedPath + paramNames[i];
+        MethodParameter param = MethodParameter.forFieldAwareConstructor(ctor, i, paramNames[i]);
+        String lookupName = null;
+        if (this.nameResolver != null) {
+          lookupName = this.nameResolver.resolveName(param);
+        }
+        if (lookupName == null) {
+          lookupName = paramNames[i];
+        }
+
+        String paramPath = nestedPath + lookupName;
         Class<?> paramType = paramTypes[i];
         Object value = valueResolver.resolveValue(paramPath, paramType);
 
-        MethodParameter param = MethodParameter.forFieldAwareConstructor(ctor, i, paramNames[i]);
         if (value == null && !BeanUtils.isSimpleValueType(param.nestedIfOptional().getNestedParameterType())) {
           ResolvableType type = ResolvableType.forMethodParameter(param);
           args[i] = createObject(type, paramPath + ".", valueResolver);
@@ -1192,17 +1244,37 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   /**
-   * Contract to resolve a value in {@link #construct(ValueResolver)}.
+   * Strategy to determine the name of the value to bind to a method parameter.
+   * Supported on constructor parameters with {@link #construct constructor
+   * binding} which performs lookups via {@link ValueResolver#resolveValue}.
+   */
+  public interface NameResolver {
+
+    /**
+     * Return the name to use for the given method parameter, or {@code null}
+     * if unresolved. For constructor parameters, the name is determined via
+     * {@link cn.taketoday.core.DefaultParameterNameDiscoverer} if
+     * unresolved.
+     */
+    @Nullable
+    String resolveName(MethodParameter parameter);
+
+  }
+
+  /**
+   * Strategy for {@link #construct constructor binding} to look up the values
+   * to bind to a given constructor parameter.
    */
   @FunctionalInterface
   public interface ValueResolver {
 
     /**
-     * Look up the value for a constructor argument.
+     * Resolve the value for the given name and target parameter type.
      *
-     * @param name the argument name
-     * @param type the argument type
-     * @return the resolved value, possibly {@code null}
+     * @param name the name to use for the lookup, possibly a nested path
+     * for constructor parameters on nested objects
+     * @param type the target type, based on the constructor parameter type
+     * @return the resolved value, possibly {@code null} if none found
      */
     @Nullable
     Object resolveValue(String name, Class<?> type);

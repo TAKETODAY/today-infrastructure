@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.bind.WebDataBinder;
+import cn.taketoday.web.bind.support.BindParamNameResolver;
 import cn.taketoday.web.bind.support.SessionStatus;
 import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
@@ -129,6 +127,7 @@ public class BindingContext {
   public WebDataBinder createBinder(RequestContext request,
           @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
     WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
+    dataBinder.setNameResolver(new BindParamNameResolver());
 
     if (target == null && targetType != null) {
       dataBinder.setTargetType(targetType);
