@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,11 @@
 package cn.taketoday.cache.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.Supplier;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.support.AbstractValueAdaptingCache;
@@ -37,6 +37,10 @@ import cn.taketoday.lang.Nullable;
  * <p>Useful for testing or simple caching scenarios, typically in combination
  * with {@link SimpleCacheManager} or
  * dynamically through {@link ConcurrentMapCacheManager}.
+ *
+ * <p>Supports the  {@link #retrieve(Object)} and {@link #retrieve(Object, Supplier)}
+ * operations in a best-effort fashion, relying on default {@link CompletableFuture}
+ * execution (typically within the JVM's {@link ForkJoinPool#commonPool()}).
  *
  * <p><b>Note:</b> As {@link ConcurrentHashMap} (the default implementation used)
  * does not allow for {@code null} values to be stored, this class will replace
@@ -156,6 +160,20 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
         throw new ValueRetrievalException(key, valueLoader, ex);
       }
     }));
+  }
+
+  @Override
+  @Nullable
+  public CompletableFuture<?> retrieve(Object key) {
+    Object value = lookup(key);
+    return value != null ? CompletableFuture.completedFuture(fromStoreValue(value)) : null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
+    return CompletableFuture.supplyAsync(() ->
+            (T) fromStoreValue(this.store.computeIfAbsent(key, k -> toStoreValue(valueLoader.get().join()))));
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,8 @@
 
 package cn.taketoday.cache.support;
 
+import com.github.benmanes.caffeine.cache.AsyncCache;
+import com.github.benmanes.caffeine.cache.AsyncCacheLoader;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.CaffeineSpec;
@@ -30,6 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
@@ -49,13 +49,17 @@ import cn.taketoday.util.ObjectUtils;
  * A {@link CaffeineSpec}-compliant expression value can also be applied
  * via the {@link #setCacheSpecification "cacheSpecification"} bean property.
  *
- * <p>Requires Caffeine 2.1 or higher.
+ * <p>Supports the {@link Cache#retrieve(Object)} and
+ * {@link Cache#retrieve(Object, Supplier)} operations through Caffeine's
+ * {@link AsyncCache}, when configured via {@link #setAsyncCacheMode}.
+ *
+ * <p>Requires Caffeine 3.0 or higher.
  *
  * @author Ben Manes
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @author Sam Brannen
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see CaffeineCache
  * @since 2020-08-15 20:05
  */
@@ -64,15 +68,17 @@ public class CaffeineCacheManager implements CacheManager {
   private Caffeine<Object, Object> cacheBuilder;
 
   @Nullable
-  private CacheLoader<Object, Object> cacheLoader;
+  private AsyncCacheLoader<Object, Object> cacheLoader;
+
+  private boolean asyncCacheMode = false;
 
   private boolean allowNullValues = true;
 
   private boolean dynamic = true;
 
-  private final Map<String, Cache> cacheMap = new ConcurrentHashMap<>(16);
+  private final ConcurrentHashMap<String, Cache> cacheMap = new ConcurrentHashMap<>(16);
 
-  private final Collection<String> customCacheNames = new CopyOnWriteArrayList<>();
+  private final CopyOnWriteArrayList<String> customCacheNames = new CopyOnWriteArrayList<>();
 
   /**
    * Construct a dynamic CaffeineCacheManager,
@@ -176,6 +182,47 @@ public class CaffeineCacheManager implements CacheManager {
   }
 
   /**
+   * Set the Caffeine AsyncCacheLoader to use for building each individual
+   * {@link CaffeineCache} instance, turning it into a LoadingCache.
+   * <p>This implicitly switches the {@link #setAsyncCacheMode "asyncCacheMode"}
+   * flag to {@code true}.
+   *
+   * @see #createAsyncCaffeineCache
+   * @see Caffeine#buildAsync(AsyncCacheLoader)
+   * @see com.github.benmanes.caffeine.cache.LoadingCache
+   * @since 4.0
+   */
+  public void setAsyncCacheLoader(AsyncCacheLoader<Object, Object> cacheLoader) {
+    if (!ObjectUtils.nullSafeEquals(this.cacheLoader, cacheLoader)) {
+      this.cacheLoader = cacheLoader;
+      this.asyncCacheMode = true;
+      refreshCommonCaches();
+    }
+  }
+
+  /**
+   * Set the common cache type that this cache manager builds to async.
+   * This applies to {@link #setCacheNames} as well as on-demand caches.
+   * <p>Individual cache registrations (such as {@link #registerCustomCache(String, AsyncCache)}
+   * and {@link #registerCustomCache(String, com.github.benmanes.caffeine.cache.Cache)}
+   * are not dependent on this setting.
+   * <p>By default, this cache manager builds regular native Caffeine caches.
+   * To switch to async caches which can also be used through the synchronous API
+   * but come with support for {@code Cache#retrieve}, set this flag to {@code true}.
+   *
+   * @see Caffeine#buildAsync()
+   * @see Cache#retrieve(Object)
+   * @see Cache#retrieve(Object, Supplier)
+   * @since 4.0
+   */
+  public void setAsyncCacheMode(boolean asyncCacheMode) {
+    if (this.asyncCacheMode != asyncCacheMode) {
+      this.asyncCacheMode = asyncCacheMode;
+      refreshCommonCaches();
+    }
+  }
+
+  /**
    * Specify whether to accept and convert {@code null} values for all caches
    * in this cache manager.
    * <p>Default is "true", despite Caffeine itself not supporting {@code null} values.
@@ -225,9 +272,31 @@ public class CaffeineCacheManager implements CacheManager {
    *
    * @param name the name of the cache
    * @param cache the custom Caffeine Cache instance to register
-   * @see #adaptCaffeineCache
+   * @see #adaptCaffeineCache(String, com.github.benmanes.caffeine.cache.Cache)
    */
   public void registerCustomCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
+    this.customCacheNames.add(name);
+    this.cacheMap.put(name, adaptCaffeineCache(name, cache));
+  }
+
+  /**
+   * Register the given Caffeine AsyncCache instance with this cache manager,
+   * adapting it to Infra cache API for exposure through {@link #getCache}.
+   * Any number of such custom caches may be registered side by side.
+   * <p>This allows for custom settings per cache (as opposed to all caches
+   * sharing the common settings in the cache manager's configuration) and
+   * is typically used with the Caffeine builder API:
+   * {@code registerCustomCache("myCache", Caffeine.newBuilder().maximumSize(10).buildAsync())}
+   * <p>Note that any other caches, whether statically specified through
+   * {@link #setCacheNames} or dynamically built on demand, still operate
+   * with the common settings in the cache manager's configuration.
+   *
+   * @param name the name of the cache
+   * @param cache the custom Caffeine AsyncCache instance to register
+   * @see #adaptCaffeineCache(String, AsyncCache)
+   * @since 4.0
+   */
+  public void registerCustomCache(String name, AsyncCache<Object, Object> cache) {
     this.customCacheNames.add(name);
     this.cacheMap.put(name, adaptCaffeineCache(name, cache));
   }
@@ -247,6 +316,21 @@ public class CaffeineCacheManager implements CacheManager {
   }
 
   /**
+   * Adapt the given new Caffeine AsyncCache instance to Infra {@link Cache}
+   * abstraction for the specified cache name.
+   *
+   * @param name the name of the cache
+   * @param cache the Caffeine AsyncCache instance
+   * @return the Infra CaffeineCache adapter (or a decorator thereof)
+   * @see CaffeineCache#CaffeineCache(String, AsyncCache, boolean)
+   * @see #isAllowNullValues()
+   * @since 4.0
+   */
+  protected Cache adaptCaffeineCache(String name, AsyncCache<Object, Object> cache) {
+    return new CaffeineCache(name, cache, isAllowNullValues());
+  }
+
+  /**
    * Build a common {@link CaffeineCache} instance for the specified cache name,
    * using the common Caffeine configuration specified on this cache manager.
    * <p>Delegates to {@link #adaptCaffeineCache} as the adaptation method to
@@ -259,7 +343,8 @@ public class CaffeineCacheManager implements CacheManager {
    * @see #createNativeCaffeineCache
    */
   protected Cache createCaffeineCache(String name) {
-    return adaptCaffeineCache(name, createNativeCaffeineCache(name));
+    return (this.asyncCacheMode ? adaptCaffeineCache(name, createAsyncCaffeineCache(name)) :
+            adaptCaffeineCache(name, createNativeCaffeineCache(name)));
   }
 
   /**
@@ -271,7 +356,30 @@ public class CaffeineCacheManager implements CacheManager {
    * @see #createCaffeineCache
    */
   protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache(String name) {
-    return (this.cacheLoader != null ? this.cacheBuilder.build(this.cacheLoader) : this.cacheBuilder.build());
+    if (this.cacheLoader != null) {
+      if (this.cacheLoader instanceof CacheLoader<Object, Object> regularCacheLoader) {
+        return this.cacheBuilder.build(regularCacheLoader);
+      }
+      else {
+        throw new IllegalStateException(
+                "Cannot create regular Caffeine Cache with async-only cache loader: " + this.cacheLoader);
+      }
+    }
+    return this.cacheBuilder.build();
+  }
+
+  /**
+   * Build a common Caffeine AsyncCache instance for the specified cache name,
+   * using the common Caffeine configuration specified on this cache manager.
+   *
+   * @param name the name of the cache
+   * @return the Caffeine AsyncCache instance
+   * @see #createCaffeineCache
+   * @since 4.0
+   */
+  protected AsyncCache<Object, Object> createAsyncCaffeineCache(String name) {
+    return (this.cacheLoader != null ? this.cacheBuilder.buildAsync(this.cacheLoader) :
+            this.cacheBuilder.buildAsync());
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,8 @@
 package cn.taketoday.cache.jcache;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Assert;
@@ -43,6 +42,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @author Stas Volsky
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionAwareCacheManagerProxy
  * @since 4.0
  */
@@ -92,6 +92,17 @@ public class TransactionAwareCacheDecorator implements Cache {
   @Nullable
   public <T> T get(Object key, Callable<T> valueLoader) {
     return this.targetCache.get(key, valueLoader);
+  }
+
+  @Override
+  @Nullable
+  public CompletableFuture<?> retrieve(Object key) {
+    return this.targetCache.retrieve(key);
+  }
+
+  @Override
+  public <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
+    return this.targetCache.retrieve(key, valueLoader);
   }
 
   @Override

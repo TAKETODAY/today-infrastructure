@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +24,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.cache.annotation.CacheEvict;
 import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.annotation.Caching;
@@ -44,10 +43,11 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.lang.Nullable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -61,7 +61,7 @@ import static org.mockito.Mockito.verify;
 public class CacheReproTests {
 
   @Test
-  public void spr11124MultipleAnnotations() {
+  void spr11124MultipleAnnotations() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr11124Config.class);
     Spr11124Service bean = context.getBean(Spr11124Service.class);
     bean.single(2);
@@ -72,7 +72,7 @@ public class CacheReproTests {
   }
 
   @Test
-  public void spr11249PrimitiveVarargs() {
+  void spr11249PrimitiveVarargs() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr11249Config.class);
     Spr11249Service bean = context.getBean(Spr11249Service.class);
     Object result = bean.doSomething("op", 2, 3);
@@ -81,7 +81,7 @@ public class CacheReproTests {
   }
 
   @Test
-  public void spr11592GetSimple() {
+  void spr11592GetSimple() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr11592Config.class);
     Spr11592Service bean = context.getBean(Spr11592Service.class);
     Cache cache = context.getBean("cache", Cache.class);
@@ -98,7 +98,7 @@ public class CacheReproTests {
   }
 
   @Test
-  public void spr11592GetNeverCache() {
+  void spr11592GetNeverCache() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr11592Config.class);
     Spr11592Service bean = context.getBean(Spr11592Service.class);
     Cache cache = context.getBean("cache", Cache.class);
@@ -115,7 +115,7 @@ public class CacheReproTests {
   }
 
   @Test
-  public void spr13081ConfigNoCacheNameIsRequired() {
+  void spr13081ConfigNoCacheNameIsRequired() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr13081Config.class);
     MyCacheResolver cacheResolver = context.getBean(MyCacheResolver.class);
     Spr13081Service bean = context.getBean(Spr13081Service.class);
@@ -123,37 +123,41 @@ public class CacheReproTests {
     assertThat(cacheResolver.getCache("foo").get("foo")).isNull();
     Object result = bean.getSimple("foo");  // cache name = id
     assertThat(cacheResolver.getCache("foo").get("foo").get()).isEqualTo(result);
+
+    context.close();
   }
 
   @Test
-  public void spr13081ConfigFailIfCacheResolverReturnsNullCacheName() {
+  void spr13081ConfigFailIfCacheResolverReturnsNullCacheName() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr13081Config.class);
     Spr13081Service bean = context.getBean(Spr13081Service.class);
 
-    assertThatIllegalStateException().isThrownBy(() ->
-                    bean.getSimple(null))
+    assertThatIllegalStateException().isThrownBy(() -> bean.getSimple(null))
             .withMessageContaining(MyCacheResolver.class.getName());
+    context.close();
   }
 
   @Test
-  public void spr14230AdaptsToOptional() {
+  void spr14230AdaptsToOptional() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr14230Config.class);
     Spr14230Service bean = context.getBean(Spr14230Service.class);
     Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
 
     TestBean tb = new TestBean("tb1");
     bean.insertItem(tb);
-    assertThat(bean.findById("tb1").get()).isSameAs(tb);
+    assertThat(bean.findById("tb1")).containsSame(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb);
 
     cache.clear();
     TestBean tb2 = bean.findById("tb1").get();
     assertThat(tb2).isNotSameAs(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb2);
+
+    context.close();
   }
 
   @Test
-  public void spr14853AdaptsToOptionalWithSync() {
+  void spr14853AdaptsToOptionalWithSync() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr14853Config.class);
     Spr14853Service bean = context.getBean(Spr14853Service.class);
     Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
@@ -167,10 +171,156 @@ public class CacheReproTests {
     TestBean tb2 = bean.findById("tb1").get();
     assertThat(tb2).isNotSameAs(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb2);
+
+    context.close();
   }
 
   @Test
-  public void spr15271FindsOnInterfaceWithInterfaceProxy() {
+  void spr14235AdaptsToCompletableFuture() {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Spr14235Config.class, Spr14235FutureService.class);
+    Spr14235FutureService bean = context.getBean(Spr14235FutureService.class);
+    Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
+
+    TestBean tb = bean.findById("tb1").join();
+    assertThat(bean.findById("tb1").join()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    bean.clear().join();
+    TestBean tb2 = bean.findById("tb1").join();
+    assertThat(tb2).isNotSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb2);
+
+    bean.clear().join();
+    bean.insertItem(tb).join();
+    assertThat(bean.findById("tb1").join()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    context.close();
+  }
+
+  @Test
+  void spr14235AdaptsToCompletableFutureWithSync() throws Exception {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Spr14235Config.class, Spr14235FutureServiceSync.class);
+    Spr14235FutureServiceSync bean = context.getBean(Spr14235FutureServiceSync.class);
+    Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
+
+    TestBean tb = bean.findById("tb1").get();
+    assertThat(bean.findById("tb1").get()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    cache.clear();
+    TestBean tb2 = bean.findById("tb1").get();
+    assertThat(tb2).isNotSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb2);
+
+    cache.clear();
+    bean.insertItem(tb);
+    assertThat(bean.findById("tb1").get()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    context.close();
+  }
+
+  @Test
+  void spr14235AdaptsToReactorMono() {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Spr14235Config.class, Spr14235MonoService.class);
+    Spr14235MonoService bean = context.getBean(Spr14235MonoService.class);
+    Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
+
+    TestBean tb = bean.findById("tb1").block();
+    assertThat(bean.findById("tb1").block()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    bean.clear().block();
+    TestBean tb2 = bean.findById("tb1").block();
+    assertThat(tb2).isNotSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb2);
+
+    bean.clear().block();
+    bean.insertItem(tb).block();
+    assertThat(bean.findById("tb1").block()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    context.close();
+  }
+
+  @Test
+  void spr14235AdaptsToReactorMonoWithSync() {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Spr14235Config.class, Spr14235MonoServiceSync.class);
+    Spr14235MonoServiceSync bean = context.getBean(Spr14235MonoServiceSync.class);
+    Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
+
+    TestBean tb = bean.findById("tb1").block();
+    assertThat(bean.findById("tb1").block()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    cache.clear();
+    TestBean tb2 = bean.findById("tb1").block();
+    assertThat(tb2).isNotSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb2);
+
+    cache.clear();
+    bean.insertItem(tb);
+    assertThat(bean.findById("tb1").block()).isSameAs(tb);
+    assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    context.close();
+  }
+
+  @Test
+  void spr14235AdaptsToReactorFlux() {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Spr14235Config.class, Spr14235FluxService.class);
+    Spr14235FluxService bean = context.getBean(Spr14235FluxService.class);
+    Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
+
+    List<TestBean> tb = bean.findById("tb1").collectList().block();
+    assertThat(bean.findById("tb1").collectList().block()).isEqualTo(tb);
+    assertThat(cache.get("tb1").get()).isEqualTo(tb);
+
+    bean.clear().blockLast();
+    List<TestBean> tb2 = bean.findById("tb1").collectList().block();
+    assertThat(tb2).isNotEqualTo(tb);
+    assertThat(cache.get("tb1").get()).isEqualTo(tb2);
+
+    bean.clear().blockLast();
+    bean.insertItem("tb1", tb).blockLast();
+    assertThat(bean.findById("tb1").collectList().block()).isEqualTo(tb);
+    assertThat(cache.get("tb1").get()).isEqualTo(tb);
+
+    context.close();
+  }
+
+  @Test
+  void spr14235AdaptsToReactorFluxWithSync() {
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(Spr14235Config.class, Spr14235FluxServiceSync.class);
+    Spr14235FluxServiceSync bean = context.getBean(Spr14235FluxServiceSync.class);
+    Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
+
+    List<TestBean> tb = bean.findById("tb1").collectList().block();
+    assertThat(bean.findById("tb1").collectList().block()).isEqualTo(tb);
+    assertThat(cache.get("tb1").get()).isEqualTo(tb);
+
+    cache.clear();
+    List<TestBean> tb2 = bean.findById("tb1").collectList().block();
+    assertThat(tb2).isNotEqualTo(tb);
+    assertThat(cache.get("tb1").get()).isEqualTo(tb2);
+
+    cache.clear();
+    bean.insertItem("tb1", tb);
+    assertThat(bean.findById("tb1").collectList().block()).isEqualTo(tb);
+    assertThat(cache.get("tb1").get()).isEqualTo(tb);
+
+    context.close();
+  }
+
+  @Test
+  void spr15271FindsOnInterfaceWithInterfaceProxy() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr15271ConfigA.class);
     Spr15271Interface bean = context.getBean(Spr15271Interface.class);
     Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
@@ -179,10 +329,12 @@ public class CacheReproTests {
     bean.insertItem(tb);
     assertThat(bean.findById("tb1").get()).isSameAs(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    context.close();
   }
 
   @Test
-  public void spr15271FindsOnInterfaceWithCglibProxy() {
+  void spr15271FindsOnInterfaceWithCglibProxy() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Spr15271ConfigB.class);
     Spr15271Interface bean = context.getBean(Spr15271Interface.class);
     Cache cache = context.getBean(CacheManager.class).getCache("itemCache");
@@ -191,6 +343,8 @@ public class CacheReproTests {
     bean.insertItem(tb);
     assertThat(bean.findById("tb1").get()).isSameAs(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    context.close();
   }
 
   @Configuration
@@ -279,7 +433,7 @@ public class CacheReproTests {
     @Bean
     public Cache cache() {
       Cache cache = new ConcurrentMapCache("cache");
-      return spy(cache);
+      return Mockito.spy(cache);
     }
 
     @Bean
@@ -371,6 +525,113 @@ public class CacheReproTests {
     @Bean
     public Spr14230Service service() {
       return new Spr14230Service();
+    }
+  }
+
+  public static class Spr14235FutureService {
+
+    @Cacheable(value = "itemCache")
+    public CompletableFuture<TestBean> findById(String id) {
+      return CompletableFuture.completedFuture(new TestBean(id));
+    }
+
+    @CachePut(cacheNames = "itemCache", key = "#item.name")
+    public CompletableFuture<TestBean> insertItem(TestBean item) {
+      return CompletableFuture.completedFuture(item);
+    }
+
+    @CacheEvict(cacheNames = "itemCache", allEntries = true)
+    public CompletableFuture<Void> clear() {
+      return CompletableFuture.completedFuture(null);
+    }
+  }
+
+  public static class Spr14235FutureServiceSync {
+
+    @Cacheable(value = "itemCache", sync = true)
+    public CompletableFuture<TestBean> findById(String id) {
+      return CompletableFuture.completedFuture(new TestBean(id));
+    }
+
+    @CachePut(cacheNames = "itemCache", key = "#item.name")
+    public TestBean insertItem(TestBean item) {
+      return item;
+    }
+  }
+
+  public static class Spr14235MonoService {
+
+    @Cacheable(value = "itemCache")
+    public Mono<TestBean> findById(String id) {
+      return Mono.just(new TestBean(id));
+    }
+
+    @CachePut(cacheNames = "itemCache", key = "#item.name")
+    public Mono<TestBean> insertItem(TestBean item) {
+      return Mono.just(item);
+    }
+
+    @CacheEvict(cacheNames = "itemCache", allEntries = true)
+    public Mono<Void> clear() {
+      return Mono.empty();
+    }
+  }
+
+  public static class Spr14235MonoServiceSync {
+
+    @Cacheable(value = "itemCache", sync = true)
+    public Mono<TestBean> findById(String id) {
+      return Mono.just(new TestBean(id));
+    }
+
+    @CachePut(cacheNames = "itemCache", key = "#item.name")
+    public TestBean insertItem(TestBean item) {
+      return item;
+    }
+  }
+
+  public static class Spr14235FluxService {
+
+    private int counter = 0;
+
+    @Cacheable(value = "itemCache")
+    public Flux<TestBean> findById(String id) {
+      return Flux.just(new TestBean(id), new TestBean(id + (counter++)));
+    }
+
+    @CachePut(cacheNames = "itemCache", key = "#id")
+    public Flux<TestBean> insertItem(String id, List<TestBean> item) {
+      return Flux.fromIterable(item);
+    }
+
+    @CacheEvict(cacheNames = "itemCache", allEntries = true)
+    public Flux<Void> clear() {
+      return Flux.empty();
+    }
+  }
+
+  public static class Spr14235FluxServiceSync {
+
+    private int counter = 0;
+
+    @Cacheable(value = "itemCache", sync = true)
+    public Flux<TestBean> findById(String id) {
+      return Flux.just(new TestBean(id), new TestBean(id + (counter++)));
+    }
+
+    @CachePut(cacheNames = "itemCache", key = "#id")
+    public List<TestBean> insertItem(String id, List<TestBean> item) {
+      return item;
+    }
+  }
+
+  @Configuration
+  @EnableCaching
+  public static class Spr14235Config {
+
+    @Bean
+    public CacheManager cacheManager() {
+      return new ConcurrentMapCacheManager();
     }
   }
 

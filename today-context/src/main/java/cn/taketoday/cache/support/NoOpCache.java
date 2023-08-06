@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,8 @@
 package cn.taketoday.cache.support;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Assert;
@@ -81,6 +80,17 @@ public class NoOpCache implements Cache {
     catch (Exception ex) {
       throw new ValueRetrievalException(key, valueLoader, ex);
     }
+  }
+
+  @Override
+  @Nullable
+  public CompletableFuture<?> retrieve(Object key) {
+    return null;
+  }
+
+  @Override
+  public <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
+    return valueLoader.get();
   }
 
   @Override
