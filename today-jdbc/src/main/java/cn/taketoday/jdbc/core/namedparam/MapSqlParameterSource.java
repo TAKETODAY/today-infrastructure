@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +39,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #addValue(String, Object)
  * @see #addValue(String, Object, int)
  * @see #registerSqlType
@@ -92,8 +90,8 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
   public MapSqlParameterSource addValue(String paramName, @Nullable Object value) {
     Assert.notNull(paramName, "Parameter name must not be null");
     this.values.put(paramName, value);
-    if (value instanceof SqlParameterValue) {
-      registerSqlType(paramName, ((SqlParameterValue) value).getSqlType());
+    if (value instanceof SqlParameterValue sqlParameterValue) {
+      registerSqlType(paramName, sqlParameterValue.getSqlType());
     }
     return this;
   }
@@ -145,12 +143,19 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
         String key = entry.getKey();
         Object value = entry.getValue();
         this.values.put(key, value);
-        if (value instanceof SqlParameterValue) {
-          registerSqlType(key, ((SqlParameterValue) value).getSqlType());
+        if (value instanceof SqlParameterValue sqlParameterValue) {
+          registerSqlType(key, sqlParameterValue.getSqlType());
         }
       }
     }
     return this;
+  }
+
+  /**
+   * Return whether this parameter source has been configured with any values.
+   */
+  public boolean hasValues() {
+    return !this.values.isEmpty();
   }
 
   /**

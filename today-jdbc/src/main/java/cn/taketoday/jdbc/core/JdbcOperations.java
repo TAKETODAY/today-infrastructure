@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,12 +36,20 @@ import cn.taketoday.lang.Nullable;
  * <p>Alternatively, the standard JDBC infrastructure can be mocked.
  * However, mocking this interface constitutes significantly less work.
  * As an alternative to a mock objects approach to testing data access code,
- * consider the powerful integration testing support provided via the <em>
- * TestContext Framework</em>, in the {@code today-test} artifact.
+ * consider the powerful integration testing support provided via the
+ * <em>Infra TestContext Framework</em>, in the {@code today-test} artifact.
+ *
+ * <p>there is a unified JDBC access facade available in
+ * the form of {@link cn.taketoday.jdbc.core.simple.JdbcClient}.</b>
+ * {@code JdbcClient} provides a fluent API style for common JDBC queries/updates
+ * with flexible use of indexed or named parameters. It delegates to
+ * {@code JdbcOperations}/{@code NamedParameterJdbcOperations} for actual execution.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JdbcTemplate
+ * @see cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcOperations
  * @since 4.0
  */
 public interface JdbcOperations {

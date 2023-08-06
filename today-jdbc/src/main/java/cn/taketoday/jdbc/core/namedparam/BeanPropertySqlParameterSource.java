@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,22 +22,25 @@ import java.util.ArrayList;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.beans.NotReadablePropertyException;
-import cn.taketoday.reflect.PropertyAccessor;
 import cn.taketoday.jdbc.core.StatementCreatorUtils;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.reflect.PropertyAccessor;
 import cn.taketoday.util.StringUtils;
 
 /**
  * {@link SqlParameterSource} implementation that obtains parameter values
  * from bean properties of a given JavaBean object. The names of the bean
- * properties have to match the parameter names.
+ * properties have to match the parameter names. Supports components of
+ * record classes as well, with accessor methods matching parameter names.
  *
- * <p>Uses a Framework BeanWrapper for bean property access underneath.
+ * <p>Uses Infra {@link BeanWrapper} for bean property access underneath.
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see NamedParameterJdbcTemplate
+ * @see SimplePropertySqlParameterSource
  * @since 4.0
  */
 public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {

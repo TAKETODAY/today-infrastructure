@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,17 +53,23 @@ import cn.taketoday.util.ConcurrentLruCache;
  *
  * <p>This class delegates to a wrapped {@link #getJdbcOperations() JdbcTemplate}
  * once the substitution from named parameters to JDBC style '?' placeholders is
- * done at execution time. It also allows for expanding a {@link List}
+ * done at execution time. It also allows for expanding a {@link java.util.List}
  * of values to the appropriate number of placeholders.
  *
- * <p>The underlying {@link cn.taketoday.jdbc.core.JdbcTemplate} is
+ * <p>An instance of this template class is thread-safe once configured.
+ * The underlying {@link cn.taketoday.jdbc.core.JdbcTemplate} is
  * exposed to allow for convenient access to the traditional
  * {@link cn.taketoday.jdbc.core.JdbcTemplate} methods.
  *
- * <p><b>NOTE: An instance of this class is thread-safe once configured.</b>
+ * <p>there is a unified JDBC access facade available in
+ * the form of {@link cn.taketoday.jdbc.core.simple.JdbcClient}.</b>
+ * {@code JdbcClient} provides a fluent API style for common JDBC queries/updates
+ * with flexible use of indexed or named parameters. It delegates to a
+ * {@code JdbcTemplate}/{@code NamedParameterJdbcTemplate} for actual execution.
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see NamedParameterJdbcOperations
  * @see cn.taketoday.jdbc.core.JdbcTemplate
  * @since 4.0

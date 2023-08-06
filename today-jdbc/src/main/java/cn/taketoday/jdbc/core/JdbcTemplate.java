@@ -62,8 +62,7 @@ import cn.taketoday.util.StringUtils;
  * It executes core JDBC workflow, leaving application code to provide SQL
  * and extract results. This class executes SQL queries or updates, initiating
  * iteration over ResultSets and catching JDBC exceptions and translating
- * them to the generic, more informative exception hierarchy defined in the
- * {@code cn.taketoday.dao} package.
+ * them to the common {@code cn.taketoday.dao} exception hierarchy.
  *
  * <p>Code using this class need only implement callback interfaces, giving
  * them a clearly defined contract. The {@link PreparedStatementCreator} callback
@@ -72,7 +71,8 @@ import cn.taketoday.util.StringUtils;
  * values from a ResultSet. See also {@link PreparedStatementSetter} and
  * {@link RowMapper} for two popular alternative callback interfaces.
  *
- * <p>Can be used within a service implementation via direct instantiation
+ * <p>An instance of this template class is thread-safe once configured.
+ * Can be used within a service implementation via direct instantiation
  * with a DataSource reference, or get prepared in an application context
  * and given to services as bean reference. Note: The DataSource should
  * always be configured as a bean in the application context, in the first case
@@ -85,12 +85,17 @@ import cn.taketoday.util.StringUtils;
  * <p>All SQL operations performed by this class are logged at debug level,
  * using "cn.taketoday.jdbc.core.JdbcTemplate" as log category.
  *
- * <p><b>NOTE: An instance of this class is thread-safe once configured.</b>
+ * <p>there is a unified JDBC access facade available in
+ * the form of {@link cn.taketoday.jdbc.core.simple.JdbcClient}.</b>
+ * {@code JdbcClient} provides a fluent API style for common JDBC queries/updates
+ * with flexible use of indexed or named parameters. It delegates to a
+ * {@code JdbcTemplate}/{@code NamedParameterJdbcTemplate} for actual execution.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Thomas Risberg
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see JdbcOperations
  * @see PreparedStatementCreator
  * @see PreparedStatementSetter
  * @see CallableStatementCreator
@@ -100,6 +105,7 @@ import cn.taketoday.util.StringUtils;
  * @see RowCallbackHandler
  * @see RowMapper
  * @see cn.taketoday.jdbc.support.SQLExceptionTranslator
+ * @see cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcTemplate
  * @since 4.0
  */
 public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, InitializingBean {
