@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Random;
 import java.util.jar.JarFile;
 
 import cn.taketoday.app.loader.tools.LaunchScript;
@@ -70,6 +71,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @since 4.0
  */
 public class GradleBuild {
+  static final Random random = new Random();
 
   private final Dsl dsl;
 
@@ -104,7 +106,8 @@ public class GradleBuild {
   }
 
   void before() throws IOException {
-    this.projectDir = ApplicationTemp.createDirectory("gradle-");
+
+    this.projectDir = ApplicationTemp.createDirectory("gradle-" + random.nextInt(Integer.MAX_VALUE));
   }
 
   void after() {

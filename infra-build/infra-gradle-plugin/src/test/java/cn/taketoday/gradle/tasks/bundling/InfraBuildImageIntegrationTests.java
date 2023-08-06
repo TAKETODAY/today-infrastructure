@@ -23,16 +23,8 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.condition.OS;
-import cn.taketoday.buildpack.platform.docker.DockerApi;
-import cn.taketoday.buildpack.platform.docker.DockerApi.ImageApi;
-import cn.taketoday.buildpack.platform.docker.DockerApi.VolumeApi;
-import cn.taketoday.buildpack.platform.docker.type.Image;
-import cn.taketoday.buildpack.platform.docker.type.ImageReference;
-import cn.taketoday.buildpack.platform.docker.type.VolumeName;
-import cn.taketoday.buildpack.platform.io.FilePermissions;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -48,6 +40,13 @@ import java.time.OffsetDateTime;
 import java.util.Random;
 import java.util.Set;
 
+import cn.taketoday.buildpack.platform.docker.DockerApi;
+import cn.taketoday.buildpack.platform.docker.DockerApi.ImageApi;
+import cn.taketoday.buildpack.platform.docker.DockerApi.VolumeApi;
+import cn.taketoday.buildpack.platform.docker.type.Image;
+import cn.taketoday.buildpack.platform.docker.type.ImageReference;
+import cn.taketoday.buildpack.platform.docker.type.VolumeName;
+import cn.taketoday.buildpack.platform.io.FilePermissions;
 import cn.taketoday.gradle.junit.GradleCompatibility;
 import cn.taketoday.gradle.testkit.GradleBuild;
 import cn.taketoday.test.junit.DisabledOnOs;
@@ -66,7 +65,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisabledIfDockerUnavailable
 @DisabledOnOs(os = { OS.LINUX, OS.MAC }, architecture = "aarch64",
               disabledReason = "The builder image has no ARM support")
-@Disabled("Disabled until differences between running locally and in CI can be diagnosed")
 class InfraBuildImageIntegrationTests {
 
   GradleBuild gradleBuild;

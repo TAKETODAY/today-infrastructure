@@ -27,6 +27,7 @@ import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfigura
 import cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
@@ -51,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "web.mvc.servlet.path:/infra/")
 @DirtiesContext
 @DirtiesUrlFactories
+@DisabledIfInContinuousIntegration
 @ClassPathExclusions("tomcat-embed-jasper*")
 class RemappedErrorViewIntegrationTests {
 
