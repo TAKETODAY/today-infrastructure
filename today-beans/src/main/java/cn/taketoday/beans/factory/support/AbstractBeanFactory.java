@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -344,6 +341,11 @@ public abstract class AbstractBeanFactory
       catch (BeansException e) {
         cleanupAfterBeanCreationFailure(beanName);
         throw e;
+      }
+      finally {
+        if (!isCacheBeanMetadata()) {
+          clearMergedBeanDefinition(beanName);
+        }
       }
     }
     else if (beanInstance == NullValue.INSTANCE) {
@@ -1951,7 +1953,7 @@ public abstract class AbstractBeanFactory
 
         // Cache the merged bean definition for the time being
         // (it might still get re-merged later on in order to pick up metadata changes)
-        if (containingBd == null && isCacheBeanMetadata()) {
+        if (containingBd == null && (isCacheBeanMetadata() || isBeanEligibleForMetadataCaching(beanName))) {
           this.mergedBeanDefinitions.put(beanName, mbd);
         }
       }
@@ -1974,6 +1976,9 @@ public abstract class AbstractBeanFactory
         mbd.resolvedTargetType = previous.resolvedTargetType;
         mbd.factoryMethodReturnType = previous.factoryMethodReturnType;
         mbd.factoryMethodToIntrospect = previous.factoryMethodToIntrospect;
+      }
+      if (previous.hasMethodOverrides()) {
+        mbd.setMethodOverrides(new MethodOverrides(previous.getMethodOverrides()));
       }
     }
   }

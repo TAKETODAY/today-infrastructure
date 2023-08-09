@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,7 +54,6 @@ public class LookupAnnotationTests {
   @Test
   public void testWithoutConstructorArg() {
     AbstractBean bean = (AbstractBean) beanFactory.getBean("abstractBean");
-    assertThat(bean).isNotNull();
     Object expected = bean.get();
     assertThat(expected.getClass()).isEqualTo(TestBean.class);
     assertThat(beanFactory.getBean(BeanConsumer.class).abstractBean).isSameAs(bean);
@@ -66,7 +62,6 @@ public class LookupAnnotationTests {
   @Test
   public void testWithOverloadedArg() {
     AbstractBean bean = (AbstractBean) beanFactory.getBean("abstractBean");
-    assertThat(bean).isNotNull();
     TestBean expected = bean.get("haha");
     assertThat(expected.getClass()).isEqualTo(TestBean.class);
     assertThat(expected.getName()).isEqualTo("haha");
@@ -76,7 +71,6 @@ public class LookupAnnotationTests {
   @Test
   public void testWithOneConstructorArg() {
     AbstractBean bean = (AbstractBean) beanFactory.getBean("abstractBean");
-    assertThat(bean).isNotNull();
     TestBean expected = bean.getOneArgument("haha");
     assertThat(expected.getClass()).isEqualTo(TestBean.class);
     assertThat(expected.getName()).isEqualTo("haha");
@@ -86,7 +80,6 @@ public class LookupAnnotationTests {
   @Test
   public void testWithTwoConstructorArg() {
     AbstractBean bean = (AbstractBean) beanFactory.getBean("abstractBean");
-    assertThat(bean).isNotNull();
     TestBean expected = bean.getTwoArguments("haha", 72);
     assertThat(expected.getClass()).isEqualTo(TestBean.class);
     assertThat(expected.getName()).isEqualTo("haha");
@@ -97,16 +90,14 @@ public class LookupAnnotationTests {
   @Test
   public void testWithThreeArgsShouldFail() {
     AbstractBean bean = (AbstractBean) beanFactory.getBean("abstractBean");
-    assertThat(bean).isNotNull();
     assertThatExceptionOfType(AbstractMethodError.class).as("TestBean has no three arg constructor").isThrownBy(() ->
-            bean.getThreeArguments("name", 1, 2));
+        bean.getThreeArguments("name", 1, 2));
     assertThat(beanFactory.getBean(BeanConsumer.class).abstractBean).isSameAs(bean);
   }
 
   @Test
   public void testWithEarlyInjection() {
     AbstractBean bean = beanFactory.getBean("beanConsumer", BeanConsumer.class).abstractBean;
-    assertThat(bean).isNotNull();
     Object expected = bean.get();
     assertThat(expected.getClass()).isEqualTo(TestBean.class);
     assertThat(beanFactory.getBean(BeanConsumer.class).abstractBean).isSameAs(bean);
@@ -119,7 +110,6 @@ public class LookupAnnotationTests {
     beanFactory.registerBeanDefinition("testBean", tbd);
 
     AbstractBean bean = beanFactory.getBean("beanConsumer", BeanConsumer.class).abstractBean;
-    assertThat(bean).isNotNull();
     Object expected = bean.get();
     assertThat(expected).isNull();
     assertThat(beanFactory.getBean(BeanConsumer.class).abstractBean).isSameAs(bean);
@@ -132,7 +122,36 @@ public class LookupAnnotationTests {
     beanFactory.registerBeanDefinition("floatStore", new RootBeanDefinition(FloatStore.class));
 
     NumberBean bean = (NumberBean) beanFactory.getBean("numberBean");
-    assertThat(bean).isNotNull();
+    assertThat(beanFactory.getBean(DoubleStore.class)).isSameAs(bean.getDoubleStore());
+    assertThat(beanFactory.getBean(FloatStore.class)).isSameAs(bean.getFloatStore());
+  }
+
+  @Test
+  public void testSingletonWithoutMetadataCaching() {
+    beanFactory.setCacheBeanMetadata(false);
+
+    beanFactory.registerBeanDefinition("numberBean", new RootBeanDefinition(NumberBean.class));
+    beanFactory.registerBeanDefinition("doubleStore", new RootBeanDefinition(DoubleStore.class));
+    beanFactory.registerBeanDefinition("floatStore", new RootBeanDefinition(FloatStore.class));
+
+    NumberBean bean = (NumberBean) beanFactory.getBean("numberBean");
+    assertThat(beanFactory.getBean(DoubleStore.class)).isSameAs(bean.getDoubleStore());
+    assertThat(beanFactory.getBean(FloatStore.class)).isSameAs(bean.getFloatStore());
+  }
+
+  @Test
+  public void testPrototypeWithoutMetadataCaching() {
+    beanFactory.setCacheBeanMetadata(false);
+
+    beanFactory.registerBeanDefinition("numberBean", new RootBeanDefinition(NumberBean.class, BeanDefinition.SCOPE_PROTOTYPE, null));
+    beanFactory.registerBeanDefinition("doubleStore", new RootBeanDefinition(DoubleStore.class));
+    beanFactory.registerBeanDefinition("floatStore", new RootBeanDefinition(FloatStore.class));
+
+    NumberBean bean = (NumberBean) beanFactory.getBean("numberBean");
+    assertThat(beanFactory.getBean(DoubleStore.class)).isSameAs(bean.getDoubleStore());
+    assertThat(beanFactory.getBean(FloatStore.class)).isSameAs(bean.getFloatStore());
+
+    bean = (NumberBean) beanFactory.getBean("numberBean");
     assertThat(beanFactory.getBean(DoubleStore.class)).isSameAs(bean.getDoubleStore());
     assertThat(beanFactory.getBean(FloatStore.class)).isSameAs(bean.getFloatStore());
   }
