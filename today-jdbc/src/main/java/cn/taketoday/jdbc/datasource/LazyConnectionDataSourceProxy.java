@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +24,11 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.core.Constants;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -78,13 +76,22 @@ import cn.taketoday.logging.LoggerFactory;
  * to retrieve the native JDBC Connection.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSourceTransactionManager
  * @since 4.0
  */
 public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
 
-  /** Constants instance for TransactionDefinition. */
-  private static final Constants constants = new Constants(Connection.class);
+  /**
+   * Map of constant names to constant values for the isolation constants
+   * defined in {@link java.sql.Connection}.
+   */
+  static final Map<String, Integer> constants = Map.of(
+      "TRANSACTION_READ_UNCOMMITTED", Connection.TRANSACTION_READ_UNCOMMITTED,
+      "TRANSACTION_READ_COMMITTED", Connection.TRANSACTION_READ_COMMITTED,
+      "TRANSACTION_REPEATABLE_READ", Connection.TRANSACTION_REPEATABLE_READ,
+      "TRANSACTION_SERIALIZABLE", Connection.TRANSACTION_SERIALIZABLE
+  );
 
   private static final Logger logger = LoggerFactory.getLogger(LazyConnectionDataSourceProxy.class);
 
@@ -129,17 +136,19 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    * Set the default transaction isolation level to expose when no target Connection
    * has been fetched yet (when the actual JDBC Connection default is not known yet).
    * <p>This property accepts the int constant value (e.g. 8) as defined in the
-   * {@link Connection} interface; it is mainly intended for programmatic
+   * {@link java.sql.Connection} interface; it is mainly intended for programmatic
    * use. Consider using the "defaultTransactionIsolationName" property for setting
-   * the value by name (e.g. "TRANSACTION_SERIALIZABLE").
+   * the value by name (for example, {@code "TRANSACTION_SERIALIZABLE"}).
    * <p>If not specified, the default gets determined by checking a target
    * Connection on startup. If that check fails, the default will be determined
    * lazily on first access of a Connection.
    *
    * @see #setDefaultTransactionIsolationName
-   * @see Connection#setTransactionIsolation
+   * @see java.sql.Connection#setTransactionIsolation
    */
   public void setDefaultTransactionIsolation(int defaultTransactionIsolation) {
+    Assert.isTrue(constants.containsValue(defaultTransactionIsolation),
+        "Only values of transaction isolation constants allowed");
     this.defaultTransactionIsolation = defaultTransactionIsolation;
   }
 
@@ -155,7 +164,10 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    * @see Connection#TRANSACTION_SERIALIZABLE
    */
   public void setDefaultTransactionIsolationName(String constantName) {
-    setDefaultTransactionIsolation(constants.asNumber(constantName).intValue());
+    Assert.hasText(constantName, "'constantName' must not be null or blank");
+    Integer defaultTransactionIsolation = constants.get(constantName);
+    Assert.notNull(defaultTransactionIsolation, "Only transaction isolation constants allowed");
+    this.defaultTransactionIsolation = defaultTransactionIsolation;
   }
 
   @Override
@@ -224,9 +236,9 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
   @Override
   public Connection getConnection() throws SQLException {
     return (Connection) Proxy.newProxyInstance(
-            ConnectionProxy.class.getClassLoader(),
-            new Class<?>[] { ConnectionProxy.class },
-            new LazyConnectionInvocationHandler());
+        ConnectionProxy.class.getClassLoader(),
+        new Class<?>[] { ConnectionProxy.class },
+        new LazyConnectionInvocationHandler());
   }
 
   /**
@@ -243,9 +255,9 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
     return (Connection) Proxy.newProxyInstance(
-            ConnectionProxy.class.getClassLoader(),
-            new Class<?>[] { ConnectionProxy.class },
-            new LazyConnectionInvocationHandler(username, password));
+        ConnectionProxy.class.getClassLoader(),
+        new Class<?>[] { ConnectionProxy.class },
+        new LazyConnectionInvocationHandler(username, password));
   }
 
   /**
@@ -422,8 +434,8 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
             logger.debug("Could not set JDBC Connection read-only", ex);
           }
         }
-        if (this.transactionIsolation != null &&
-                !this.transactionIsolation.equals(defaultTransactionIsolation())) {
+        if (this.transactionIsolation != null
+            && !this.transactionIsolation.equals(defaultTransactionIsolation())) {
           this.target.setTransactionIsolation(this.transactionIsolation);
         }
         if (this.autoCommit != null && this.autoCommit != this.target.getAutoCommit()) {
