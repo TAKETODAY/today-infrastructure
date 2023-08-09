@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +25,6 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.core.annotation.Order;
-import cn.taketoday.transaction.PlatformTransactionManager;
 
 /**
  * An {@link EventListener} that is invoked according to a {@link TransactionPhase}.
@@ -39,16 +34,17 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * unless the {@link #fallbackExecution} flag is explicitly set. If a transaction is
  * running, the event is handled according to its {@code TransactionPhase}.
  *
- * <p>Adding {@link Order @Order} to your annotated
+ * <p>Adding {@link cn.taketoday.core.annotation.Order @Order} to your annotated
  * method allows you to prioritize that listener amongst other listeners running before
  * or after transaction completion.
  *
- * <p><b>NOTE: Transactional event listeners only work with thread-bound transactions
- * managed by a {@link PlatformTransactionManager
- * PlatformTransactionManager}.</b> A reactive transaction managed by a
- * {@link cn.taketoday.transaction.ReactiveTransactionManager ReactiveTransactionManager}
- * uses the Reactor context instead of thread-local variables, so from the perspective of
- * an event listener, there is no compatible active transaction that it can participate in.
+ * <p>Transactional event listeners can work with thread-bound transactions managed
+ * by a {@link cn.taketoday.transaction.PlatformTransactionManager} as well as reactive
+ * transactions managed by a {@link cn.taketoday.transaction.ReactiveTransactionManager}.
+ * For the former, listeners are guaranteed to see the current thread-bound transaction.
+ * Since the latter uses the Reactor context instead of thread-local variables, the transaction
+ * context needs to be included in the published event instance as the event source:
+ * see {@link cn.taketoday.transaction.reactive.TransactionalEventPublisher}.
  *
  * <p><strong>WARNING:</strong> if the {@code TransactionPhase} is set to
  * {@link TransactionPhase#AFTER_COMMIT AFTER_COMMIT} (the default),
@@ -64,6 +60,7 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @author Stephane Nicoll
  * @author Sam Brannen
  * @author Oliver Drotbohm
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionalApplicationListener
  * @see TransactionalApplicationListenerMethodAdapter
  * @since 4.0
@@ -104,7 +101,7 @@ public @interface TransactionalEventListener {
   Class<?>[] event() default {};
 
   /**
-   * Framework Expression Language (SpEL) attribute used for making the event
+   * Spring Expression Language (SpEL) attribute used for making the event
    * handling conditional.
    * <p>The default is {@code ""}, meaning the event is always handled.
    *

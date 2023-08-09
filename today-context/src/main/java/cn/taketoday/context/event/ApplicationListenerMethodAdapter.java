@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.event;
 
 import org.reactivestreams.Subscriber;
@@ -49,6 +47,7 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -71,14 +70,14 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @author Stephane Nicoll
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY 2021/11/5 11:51
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/5 11:51
  */
 public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered {
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
   private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", ApplicationListenerMethodAdapter.class.getClassLoader());
+      "org.reactivestreams.Publisher", ApplicationListenerMethodAdapter.class.getClassLoader());
 
   private final Method method;
 
@@ -120,8 +119,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     this.declaredEventTypes = resolveDeclaredEventTypes(method, annotation);
 
     this.condition = annotation.getValue("condition", String.class)
-            .filter(StringUtils::hasText)
-            .orElse(null);
+        .filter(StringUtils::hasText)
+        .orElse(null);
 
     if (annotation.isPresent()) {
       String id = annotation.getString("id");
@@ -130,7 +129,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
     MergedAnnotation<Order> order = annotations.get(Order.class);
     this.order = order.getValue(Integer.class)
-            .orElse(Ordered.LOWEST_PRECEDENCE);
+        .orElse(Ordered.LOWEST_PRECEDENCE);
 
   }
 
@@ -140,11 +139,11 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   private static List<ResolvableType> resolveDeclaredEventTypes(
-          Method method, @Nullable MergedAnnotation<EventListener> ann) {
+      Method method, @Nullable MergedAnnotation<EventListener> ann) {
     int count = method.getParameterCount();
     if (count > 1) {
       throw new IllegalStateException(
-              "Maximum one parameter is allowed for event listener method: " + method);
+          "Maximum one parameter is allowed for event listener method: " + method);
     }
     if (ann != null) {
       Class<?>[] classes = ann.getClassArray("event");
@@ -159,7 +158,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
     if (count == 0) {
       throw new IllegalStateException(
-              "Event parameter is mandatory for event listener method: " + method);
+          "Event parameter is mandatory for event listener method: " + method);
     }
     return Collections.singletonList(ResolvableType.forParameter(method, 0));
   }
@@ -246,7 +245,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     if (condition != null) {
       Assert.notNull(this.evaluator, "EventExpressionEvaluator is required");
       return this.evaluator.condition(
-              condition, event, this.targetMethod, this.methodKey, args, context);
+          condition, event, this.targetMethod, this.methodKey, args, context);
     }
     return true;
   }
@@ -268,7 +267,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     }
     Class<?> declaredEventClass = declaredEventType.toClass();
     if (!ApplicationEvent.class.isAssignableFrom(declaredEventClass)
-            && event instanceof PayloadApplicationEvent) {
+        && event instanceof PayloadApplicationEvent) {
       Object payload = ((PayloadApplicationEvent<?>) event).getPayload();
       if (declaredEventClass.isInstance(payload)) {
         return new Object[] { payload };
@@ -289,7 +288,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     for (ResolvableType declaredEventType : this.declaredEventTypes) {
       Class<?> eventClass = declaredEventType.toClass();
       if (!ApplicationEvent.class.isAssignableFrom(eventClass) &&
-              payloadType != null && declaredEventType.isAssignableFrom(payloadType)) {
+          payloadType != null && declaredEventType.isAssignableFrom(payloadType)) {
         return declaredEventType;
       }
       if (eventClass.isInstance(event)) {
@@ -334,7 +333,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   @Override
-  @Nullable
+  @NonNull
   public String getListenerId() {
     String id = this.listenerId;
     if (id == null) {
@@ -437,9 +436,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     Class<?> targetBeanClass = targetBean.getClass();
     if (!methodDeclaringClass.isAssignableFrom(targetBeanClass)) {
       String msg = "The event listener method class '" + methodDeclaringClass.getName() +
-              "' is not an instance of the actual bean class '" +
-              targetBeanClass.getName() + "'. If the bean requires proxying " +
-              "(e.g. due to @Transactional), please use class-based proxying.";
+          "' is not an instance of the actual bean class '" +
+          targetBeanClass.getName() + "'. If the bean requires proxying " +
+          "(e.g. due to @Transactional), please use class-based proxying.";
       throw new IllegalStateException(getInvocationErrorMessage(targetBean, msg, args));
     }
   }
@@ -479,7 +478,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * Reactive Streams Subscriber for publishing follow-up events.
    */
   private record EventPublicationSubscriber(ApplicationListenerMethodAdapter listener)
-          implements Subscriber<Object> {
+      implements Subscriber<Object> {
 
     @Override
     public void onSubscribe(Subscription s) {

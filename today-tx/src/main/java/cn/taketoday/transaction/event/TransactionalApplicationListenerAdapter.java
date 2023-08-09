@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +23,6 @@ import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.transaction.support.SynchronizationInfo;
-import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
  * {@link TransactionalApplicationListener} adapter that delegates the processing of
@@ -37,13 +32,14 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  *
  * @param <E> the specific {@code ApplicationEvent} subclass to listen to
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionalApplicationListener
  * @see TransactionalEventListener
  * @see TransactionalApplicationListenerMethodAdapter
  * @since 4.0
  */
 public class TransactionalApplicationListenerAdapter<E extends ApplicationEvent>
-        implements TransactionalApplicationListener<E>, Ordered {
+    implements TransactionalApplicationListener<E>, Ordered {
 
   private String listenerId = "";
 
@@ -126,11 +122,7 @@ public class TransactionalApplicationListenerAdapter<E extends ApplicationEvent>
 
   @Override
   public void onApplicationEvent(E event) {
-    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
-    if (info.isSynchronizationActive() && info.isActualTransactionActive()) {
-      info.registerSynchronization(
-              new TransactionalApplicationListenerSynchronization<>(event, this, this.callbacks));
-    }
+    TransactionalApplicationListenerSynchronization.register(event, this, this.callbacks);
   }
 
 }

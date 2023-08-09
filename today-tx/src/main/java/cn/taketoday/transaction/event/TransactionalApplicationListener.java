@@ -24,7 +24,6 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.PayloadApplicationEvent;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.transaction.PlatformTransactionManager;
 
 /**
  * An {@link ApplicationListener} that is invoked according to a {@link TransactionPhase}.
@@ -34,12 +33,13 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * allows you to prioritize that listener amongst other listeners running before or after
  * transaction completion.
  *
- * <p><b>NOTE: Transactional event listeners only work with thread-bound transactions
- * managed by a {@link PlatformTransactionManager
- * PlatformTransactionManager}.</b> A reactive transaction managed by a
- * {@link cn.taketoday.transaction.ReactiveTransactionManager ReactiveTransactionManager}
- * uses the Reactor context instead of thread-local variables, so from the perspective of
- * an event listener, there is no compatible active transaction that it can participate in.
+ * <p>Transactional event listeners can work with thread-bound transactions managed
+ * by a {@link cn.taketoday.transaction.PlatformTransactionManager} as well as reactive
+ * transactions managed by a {@link cn.taketoday.transaction.ReactiveTransactionManager}.
+ * For the former, listeners are guaranteed to see the current thread-bound transaction.
+ * Since the latter uses the Reactor context instead of thread-local variables, the transaction
+ * context needs to be included in the published event instance as the event source:
+ * see {@link cn.taketoday.transaction.reactive.TransactionalEventPublisher}.
  *
  * @param <E> the specific {@code ApplicationEvent} subclass to listen to
  * @author Juergen Hoeller

@@ -28,8 +28,6 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.transaction.support.SynchronizationInfo;
-import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 
 /**
  * {@link GenericApplicationListener} adapter that delegates the processing of
@@ -43,13 +41,14 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionalEventListener
  * @see TransactionalApplicationListener
  * @see TransactionalApplicationListenerAdapter
  * @since 4.0
  */
-public class TransactionalApplicationListenerMethodAdapter
-        extends ApplicationListenerMethodAdapter implements TransactionalApplicationListener<ApplicationEvent> {
+public class TransactionalApplicationListenerMethodAdapter extends ApplicationListenerMethodAdapter
+    implements TransactionalApplicationListener<ApplicationEvent> {
 
   private static final Logger log = LoggerFactory.getLogger(TransactionalApplicationListenerMethodAdapter.class);
 
@@ -67,7 +66,7 @@ public class TransactionalApplicationListenerMethodAdapter
   public TransactionalApplicationListenerMethodAdapter(String beanName, Class<?> targetClass, Method method) {
     super(beanName, targetClass, method);
     TransactionalEventListener eventAnn =
-            AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
+        AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
     if (eventAnn == null) {
       throw new IllegalStateException("No TransactionalEventListener annotation found on method: " + method);
     }
@@ -93,10 +92,10 @@ public class TransactionalApplicationListenerMethodAdapter
 
   @Override
   public void onApplicationEvent(ApplicationEvent event) {
-    SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
-    if (info.isSynchronizationActive() && info.isActualTransactionActive()) {
-      info.registerSynchronization(
-              new TransactionalApplicationListenerSynchronization<>(event, this, this.callbacks));
+    if (TransactionalApplicationListenerSynchronization.register(event, this, this.callbacks)) {
+      if (log.isDebugEnabled()) {
+        log.debug("Registered transaction synchronization for {}", event);
+      }
     }
     else if (this.annotation.fallbackExecution()) {
       if (this.annotation.phase() == TransactionPhase.AFTER_ROLLBACK && log.isWarnEnabled()) {
