@@ -20,7 +20,9 @@ package cn.taketoday.orm.hibernate5;
 import org.hibernate.resource.beans.container.spi.BeanContainer;
 import org.hibernate.resource.beans.container.spi.ContainedBean;
 import org.hibernate.resource.beans.spi.BeanInstanceProducer;
+import org.hibernate.type.spi.TypeBootstrapContext;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeansException;
@@ -68,6 +70,7 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
  * integration will be registered out of the box.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LocalSessionFactoryBean#setBeanFactory
  * @see LocalSessionFactoryBuilder#setBeanContainer
  * @see cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean#setJpaPropertyMap
@@ -80,12 +83,12 @@ public final class HibernateBeanContainer implements BeanContainer {
 
   private final ConfigurableBeanFactory beanFactory;
 
-  private final ConcurrentReferenceHashMap<Object, HibernateContainedBean<?>> beanCache = new ConcurrentReferenceHashMap<>();
+  private final Map<Object, HibernateContainedBean<?>> beanCache = new ConcurrentReferenceHashMap<>();
 
   /**
-   * Instantiate a new FrameworkBeanContainer for the given bean factory.
+   * Instantiate a new HibernateBeanContainer for the given bean factory.
    *
-   * @param beanFactory the Framework bean factory to delegate to
+   * @param beanFactory the Infra bean factory to delegate to
    */
   public HibernateBeanContainer(ConfigurableBeanFactory beanFactory) {
     Assert.notNull(beanFactory, "ConfigurableBeanFactory is required");
@@ -94,8 +97,9 @@ public final class HibernateBeanContainer implements BeanContainer {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <B> ContainedBean<B> getBean(Class<B> beanType,
-          LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
+  public <B> ContainedBean<B> getBean(
+      Class<B> beanType, LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
+
     HibernateContainedBean<?> bean;
     if (lifecycleOptions.canUseCachedReferences()) {
       bean = this.beanCache.get(beanType);
@@ -112,8 +116,8 @@ public final class HibernateBeanContainer implements BeanContainer {
 
   @Override
   @SuppressWarnings("unchecked")
-  public <B> ContainedBean<B> getBean(String name, Class<B> beanType,
-          LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
+  public <B> ContainedBean<B> getBean(
+      String name, Class<B> beanType, LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
 
     HibernateContainedBean<?> bean;
     if (lifecycleOptions.canUseCachedReferences()) {
@@ -136,21 +140,21 @@ public final class HibernateBeanContainer implements BeanContainer {
   }
 
   private HibernateContainedBean<?> createBean(
-          Class<?> beanType, LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
+      Class<?> beanType, LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
 
     try {
       if (lifecycleOptions.useJpaCompliantCreation()) {
         return new HibernateContainedBean<>(
-                this.beanFactory.createBean(beanType, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR),
-                this.beanFactory::destroyBean);
+            this.beanFactory.createBean(beanType),
+            this.beanFactory::destroyBean);
       }
       else {
-        return new HibernateContainedBean<>(beanFactory.getBean(beanType));
+        return new HibernateContainedBean<>(this.beanFactory.getBean(beanType));
       }
     }
     catch (BeansException ex) {
       log.debug("Falling back to Hibernate's default producer after bean creation failure for {}: {}",
-              beanType, ex.toString());
+          beanType, ex.toString());
       try {
         return new HibernateContainedBean<>(fallbackProducer.produceBeanInstance(beanType));
       }
@@ -168,23 +172,47 @@ public final class HibernateBeanContainer implements BeanContainer {
     }
   }
 
-  private HibernateContainedBean<?> createBean(String name, Class<?> beanType,
-          LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
+  private HibernateContainedBean<?> createBean(
+      String name, Class<?> beanType, LifecycleOptions lifecycleOptions, BeanInstanceProducer fallbackProducer) {
+
     try {
       if (lifecycleOptions.useJpaCompliantCreation()) {
-        Object bean = beanFactory.autowire(beanType, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
-        beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO);
-        beanFactory.applyBeanPropertyValues(bean, name);
-        bean = beanFactory.initializeBean(bean, name);
-        return new HibernateContainedBean<>(bean, beanInstance -> beanFactory.destroyBean(name, beanInstance));
+        Object bean = null;
+        if (fallbackProducer instanceof TypeBootstrapContext) {
+          // Special Hibernate type construction rules, including TypeBootstrapContext resolution.
+          bean = fallbackProducer.produceBeanInstance(name, beanType);
+        }
+        if (this.beanFactory.containsBean(name)) {
+          if (bean == null) {
+            bean = this.beanFactory.autowire(beanType, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false);
+          }
+          this.beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
+          this.beanFactory.applyBeanPropertyValues(bean, name);
+          bean = this.beanFactory.initializeBean(bean, name);
+          return new HibernateContainedBean<>(bean, beanInstance -> this.beanFactory.destroyBean(name, beanInstance));
+        }
+        else if (bean != null) {
+          // No bean found by name but constructed with TypeBootstrapContext rules
+          this.beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
+          bean = this.beanFactory.initializeBean(bean, name);
+          return new HibernateContainedBean<>(bean, this.beanFactory::destroyBean);
+        }
+        else {
+          // No bean found by name -> construct by type using createBean
+          return new HibernateContainedBean<>(
+              this.beanFactory.createBean(beanType),
+              this.beanFactory::destroyBean);
+        }
       }
       else {
-        return new HibernateContainedBean<>(beanFactory.getBean(name, beanType));
+        return (this.beanFactory.containsBean(name) ?
+                new HibernateContainedBean<>(this.beanFactory.getBean(name, beanType)) :
+                new HibernateContainedBean<>(this.beanFactory.getBean(beanType)));
       }
     }
     catch (BeansException ex) {
       log.debug("Falling back to Hibernate's default producer after bean creation failure for {} with name '{}': {}",
-              name, beanType, ex.toString());
+          name, beanType, ex.toString());
       try {
         return new HibernateContainedBean<>(fallbackProducer.produceBeanInstance(name, beanType));
       }
