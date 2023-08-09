@@ -87,8 +87,8 @@ public class XmlBeanDefinitionReaderTests {
   void withInputSourceWithoutExplicitValidationMode() {
     InputSource resource = new InputSource(getClass().getResourceAsStream("test.xml"));
     assertThatExceptionOfType(BeanDefinitionStoreException.class)
-            .isThrownBy(() -> reader.loadBeanDefinitions(resource))
-            .withMessageStartingWith("Unable to determine validation mode for [resource loaded through SAX InputSource]:");
+        .isThrownBy(() -> reader.loadBeanDefinitions(resource))
+        .withMessageStartingWith("Unable to determine validation mode for [resource loaded through SAX InputSource]:");
   }
 
   @Test
@@ -149,14 +149,24 @@ public class XmlBeanDefinitionReaderTests {
   @Test
   void setValidationModeNameToAllSupportedValues() {
     streamValidationModeConstants()
-            .map(Field::getName)
-            .forEach(name -> assertThatNoException().as(name).isThrownBy(() -> reader.setValidationModeName(name)));
+        .map(Field::getName)
+        .forEach(name -> assertThatNoException().as(name).isThrownBy(() -> reader.setValidationModeName(name)));
+  }
+
+  @Test
+  void setValidationMode() {
+    assertThatIllegalArgumentException().isThrownBy(() -> reader.setValidationMode(999));
+
+    assertThatNoException().isThrownBy(() -> reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_NONE));
+    assertThatNoException().isThrownBy(() -> reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_AUTO));
+    assertThatNoException().isThrownBy(() -> reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD));
+    assertThatNoException().isThrownBy(() -> reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_XSD));
   }
 
   private static Stream<Field> streamValidationModeConstants() {
     return Arrays.stream(XmlBeanDefinitionReader.class.getFields())
-            .filter(ReflectionUtils::isPublicStaticFinal)
-            .filter(field -> field.getName().startsWith("VALIDATION_"));
+        .filter(ReflectionUtils::isPublicStaticFinal)
+        .filter(field -> field.getName().startsWith("VALIDATION_"));
   }
 
 }
