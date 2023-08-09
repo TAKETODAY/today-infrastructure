@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadFactory;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see SimpleAsyncTaskExecutor
+ * @see SimpleAsyncTaskExecutor#setVirtualThreads(boolean)
  * @since 4.0
  */
 public class VirtualThreadTaskExecutor implements AsyncTaskExecutor {

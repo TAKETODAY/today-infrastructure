@@ -24,8 +24,6 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.beans.factory.DisposableBean;
@@ -86,16 +84,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
   @Nullable
   private ExecutorService executor;
 
-  private final ReentrantLock pauseLock = new ReentrantLock();
-
-  private final Condition unpaused = this.pauseLock.newCondition();
-
-  private volatile boolean paused;
-
-  private int executingTaskCount = 0;
-
   @Nullable
-  private Runnable stopCallback;
+  private ExecutorLifecycleDelegate lifecycleDelegate;
 
   /**
    * Set the ThreadFactory to use for the ExecutorService's thread pool.
@@ -126,7 +116,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    * Set the RejectedExecutionHandler to use for the ExecutorService.
    * Default is the ExecutorService's default abort policy.
    *
-   * @see ThreadPoolExecutor.AbortPolicy
+   * @see java.util.concurrent.ThreadPoolExecutor.AbortPolicy
    */
   public void setRejectedExecutionHandler(@Nullable RejectedExecutionHandler rejectedExecutionHandler) {
     this.rejectedExecutionHandler =
@@ -136,7 +126,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
   /**
    * Set whether to accept further tasks after the application context close phase
    * has begun.
-   * <p>Default is {@code false} as of 6.1, triggering an early soft shutdown of
+   * <p>Default is {@code false}, triggering an early soft shutdown of
    * the executor and therefore rejecting any further task submissions. Switch this
    * to {@code true} in order to let other components submit tasks even during their
    * own destruction callbacks, at the expense of a longer shutdown phase.
@@ -263,6 +253,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
       setThreadNamePrefix(this.beanName + "-");
     }
     this.executor = initializeExecutor(this.threadFactory, this.rejectedExecutionHandler);
+    this.lifecycleDelegate = new ExecutorLifecycleDelegate(this.executor);
   }
 
   /**
@@ -357,14 +348,14 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
       try {
         if (!executor.awaitTermination(this.awaitTerminationMillis, TimeUnit.MILLISECONDS)) {
           if (logger.isWarnEnabled()) {
-            logger.warn("Timed out while waiting for executor{}",
+            logger.warn("Timed out while waiting for executor" +
                     (this.beanName != null ? " '" + this.beanName + "'" : "") + " to terminate");
           }
         }
       }
       catch (InterruptedException ex) {
         if (logger.isWarnEnabled()) {
-          logger.warn("Interrupted while waiting for executor{}",
+          logger.warn("Interrupted while waiting for executor" +
                   (this.beanName != null ? " '" + this.beanName + "'" : "") + " to terminate");
         }
         Thread.currentThread().interrupt();
@@ -377,13 +368,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public void start() {
-    this.pauseLock.lock();
-    try {
-      this.paused = false;
-      this.unpaused.signalAll();
-    }
-    finally {
-      this.pauseLock.unlock();
+    if (lifecycleDelegate != null) {
+      lifecycleDelegate.start();
     }
   }
 
@@ -392,13 +378,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public void stop() {
-    this.pauseLock.lock();
-    try {
-      this.paused = true;
-      this.stopCallback = null;
-    }
-    finally {
-      this.pauseLock.unlock();
+    if (lifecycleDelegate != null) {
+      lifecycleDelegate.stop();
     }
   }
 
@@ -408,19 +389,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public void stop(Runnable callback) {
-    this.pauseLock.lock();
-    try {
-      this.paused = true;
-      if (this.executingTaskCount == 0) {
-        this.stopCallback = null;
-        callback.run();
-      }
-      else {
-        this.stopCallback = callback;
-      }
-    }
-    finally {
-      this.pauseLock.unlock();
+    if (lifecycleDelegate != null) {
+      lifecycleDelegate.stop(callback);
     }
   }
 
@@ -432,7 +402,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public boolean isRunning() {
-    return (this.executor != null && !this.executor.isShutdown() & !this.paused);
+    return lifecycleDelegate != null && lifecycleDelegate.isRunning();
   }
 
   /**
@@ -445,18 +415,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    * @see ThreadPoolExecutor#beforeExecute(Thread, Runnable)
    */
   protected void beforeExecute(Thread thread, Runnable task) {
-    this.pauseLock.lock();
-    try {
-      while (this.paused && this.executor != null && !this.executor.isShutdown()) {
-        this.unpaused.await();
-      }
-    }
-    catch (InterruptedException ex) {
-      thread.interrupt();
-    }
-    finally {
-      this.executingTaskCount++;
-      this.pauseLock.unlock();
+    if (lifecycleDelegate != null) {
+      lifecycleDelegate.beforeExecute(thread);
     }
   }
 
@@ -470,19 +430,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    * @see ThreadPoolExecutor#afterExecute(Runnable, Throwable)
    */
   protected void afterExecute(Runnable task, @Nullable Throwable ex) {
-    this.pauseLock.lock();
-    try {
-      this.executingTaskCount--;
-      if (this.executingTaskCount == 0) {
-        Runnable callback = this.stopCallback;
-        if (callback != null) {
-          callback.run();
-          this.stopCallback = null;
-        }
-      }
-    }
-    finally {
-      this.pauseLock.unlock();
+    if (lifecycleDelegate != null) {
+      lifecycleDelegate.afterExecute();
     }
   }
 
