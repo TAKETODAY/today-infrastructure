@@ -87,7 +87,7 @@ class AotIntegrationTests extends AbstractAotTests {
 
     // AOT BUILD-TIME: PROCESSING
     InMemoryGeneratedFiles generatedFiles = new InMemoryGeneratedFiles();
-    TestContextAotGenerator generator = new TestContextAotGenerator(generatedFiles, new RuntimeHints(), true);
+    TestContextAotGenerator generator = new TestContextAotGenerator(generatedFiles, new RuntimeHints());
     generator.processAheadOfTime(testClasses);
 
     List<String> sourceFiles = generatedFiles.getGeneratedFiles(Kind.SOURCE).keySet().stream().toList();
@@ -95,17 +95,17 @@ class AotIntegrationTests extends AbstractAotTests {
 
     // AOT BUILD-TIME: COMPILATION
     TestCompiler.forSystem().with(CompilerFiles.from(generatedFiles))
-            // .printFiles(System.out)
-            .compile(compiled ->
-                    // AOT RUN-TIME: EXECUTION
-                    runTestsInAotMode(5, List.of(
-                            BasicInfraJupiterSharedConfigTests.class,
-                            BasicInfraJupiterTests.class, // NestedTests get executed automatically
-                            // Run @Import tests AFTER the tests with otherwise identical config
-                            // in order to ensure that the other test classes are not accidentally
-                            // using the config for the @Import tests.
-                            BasicInfraJupiterImportedConfigTests.class,
-                            BasicInfraVintageTests.class)));
+        // .printFiles(System.out)
+        .compile(compiled ->
+            // AOT RUN-TIME: EXECUTION
+            runTestsInAotMode(5, List.of(
+                BasicInfraJupiterSharedConfigTests.class,
+                BasicInfraJupiterTests.class, // NestedTests get executed automatically
+                // Run @Import tests AFTER the tests with otherwise identical config
+                // in order to ensure that the other test classes are not accidentally
+                // using the config for the @Import tests.
+                BasicInfraJupiterImportedConfigTests.class,
+                BasicInfraVintageTests.class)));
   }
 
   @Disabled("Uncomment to run all Infra integration tests in `today-test`")
@@ -113,13 +113,13 @@ class AotIntegrationTests extends AbstractAotTests {
   void endToEndTestsForEntireInfraTestModule() {
     // AOT BUILD-TIME: CLASSPATH SCANNING
     List<Class<?>> testClasses =
-            // FYI: you can limit execution to a particular set of test classes as follows.
-            // List.of(DirtiesContextTransactionalTestNGInfraContextTests.class, ...);
-            createTestClassScanner()
-                    .scan()
-                    // FYI: you can limit execution to a particular package and its subpackages as follows.
-                    // .scan("cn.taketoday.test.context.junit.jupiter")
-                    .toList();
+        // FYI: you can limit execution to a particular set of test classes as follows.
+        // List.of(DirtiesContextTransactionalTestNGInfraContextTests.class, ...);
+        createTestClassScanner()
+            .scan()
+            // FYI: you can limit execution to a particular package and its subpackages as follows.
+            // .scan("cn.taketoday.test.context.junit.jupiter")
+            .toList();
 
     // AOT BUILD-TIME: PROCESSING
     InMemoryGeneratedFiles generatedFiles = new InMemoryGeneratedFiles();
@@ -128,10 +128,10 @@ class AotIntegrationTests extends AbstractAotTests {
 
     // AOT BUILD-TIME: COMPILATION
     TestCompiler.forSystem().with(CompilerFiles.from(generatedFiles))
-            // .printFiles(System.out)
-            .compile(compiled ->
-                    // AOT RUN-TIME: EXECUTION
-                    runTestsInAotMode(testClasses));
+        // .printFiles(System.out)
+        .compile(compiled ->
+            // AOT RUN-TIME: EXECUTION
+            runTestsInAotMode(testClasses));
   }
 
   private static void runTestsInAotMode(List<Class<?>> testClasses) {
@@ -143,8 +143,8 @@ class AotIntegrationTests extends AbstractAotTests {
       System.setProperty(AotDetector.AOT_ENABLED, "true");
 
       LauncherDiscoveryRequestBuilder builder = LauncherDiscoveryRequestBuilder.request()
-              .filters(ClassNameFilter.includeClassNamePatterns(".*Tests?$"))
-              .filters(excludeTags("failing-test-case"));
+          .filters(ClassNameFilter.includeClassNamePatterns(".*Tests?$"))
+          .filters(excludeTags("failing-test-case"));
       testClasses.forEach(testClass -> builder.selectors(selectClass(testClass)));
       LauncherDiscoveryRequest request = builder.build();
       SummaryGeneratingListener listener = new SummaryGeneratingListener();
