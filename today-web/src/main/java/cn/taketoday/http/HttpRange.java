@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +61,7 @@ public abstract class HttpRange {
     // Don't try to determine contentLength on InputStreamResource - cannot be read afterwards...
     // Note: custom InputStreamResource subclasses could provide a pre-calculated content length!
     Assert.isTrue(resource.getClass() != InputStreamResource.class,
-            "Cannot convert an InputStreamResource to a ResourceRegion");
+        "Cannot convert an InputStreamResource to a ResourceRegion");
     long contentLength = getLengthFor(resource);
     long start = getRangeStart(contentLength);
     long end = getRangeEnd(contentLength);
@@ -158,9 +155,9 @@ public abstract class HttpRange {
     Assert.hasLength(range, "Range String must not be empty");
     int dashIdx = range.indexOf('-');
     if (dashIdx > 0) {
-      long firstPos = Long.parseLong(range.substring(0, dashIdx));
+      long firstPos = Long.parseLong(range, 0, dashIdx, 10);
       if (dashIdx < range.length() - 1) {
-        Long lastPos = Long.parseLong(range.substring(dashIdx + 1));
+        Long lastPos = Long.parseLong(range, dashIdx + 1, range.length(), 10);
         return new ByteRange(firstPos, lastPos);
       }
       else {
@@ -168,7 +165,7 @@ public abstract class HttpRange {
       }
     }
     else if (dashIdx == 0) {
-      long suffixLength = Long.parseLong(range.substring(1));
+      long suffixLength = Long.parseLong(range, 1, range.length(), 10);
       return new SuffixByteRange(suffixLength);
     }
     else {
@@ -201,7 +198,7 @@ public abstract class HttpRange {
       }
       if (total >= length) {
         throw new IllegalArgumentException(
-                "The sum of all ranges (" + total + ") should be less than the resource length (" + length + ")");
+            "The sum of all ranges (" + total + ") should be less than the resource length (" + length + ")");
       }
     }
     return regions;
@@ -260,8 +257,8 @@ public abstract class HttpRange {
       }
       if (lastBytePos != null && lastBytePos < firstBytePos) {
         throw new IllegalArgumentException(
-                "firstBytePosition=" + firstBytePos
-                        + " should be less then or equal to lastBytePosition=" + lastBytePos);
+            "firstBytePosition=" + firstBytePos
+                + " should be less then or equal to lastBytePosition=" + lastBytePos);
       }
     }
 
@@ -289,13 +286,13 @@ public abstract class HttpRange {
         return false;
       }
       return (this.firstPos == otherRange.firstPos
-              && ObjectUtils.nullSafeEquals(this.lastPos, otherRange.lastPos));
+          && ObjectUtils.nullSafeEquals(this.lastPos, otherRange.lastPos));
     }
 
     @Override
     public int hashCode() {
       return (ObjectUtils.nullSafeHashCode(this.firstPos) * 31
-              + ObjectUtils.nullSafeHashCode(this.lastPos));
+          + ObjectUtils.nullSafeHashCode(this.lastPos));
     }
 
     @Override
