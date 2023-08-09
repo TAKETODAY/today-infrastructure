@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.web.resource;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,20 +25,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
+import cn.taketoday.http.converter.HttpMessageConverter;
+import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
+import cn.taketoday.web.handler.ResponseEntityExceptionHandler;
 import cn.taketoday.web.servlet.DispatcherServlet;
+import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,9 +62,9 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(
-            Arguments.arguments(true, "/cp"),
-            Arguments.arguments(true, "/fs"),
-            Arguments.arguments(true, "/url")
+        Arguments.arguments(true, "/cp"),
+        Arguments.arguments(true, "/fs"),
+        Arguments.arguments(true, "/url")
     );
   }
 
@@ -92,6 +96,34 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     assertThat(response.getStatus()).as(description).isEqualTo(200);
     assertThat(response.getContentType()).as(description).isEqualTo("text/css");
     assertThat(response.getContentAsString()).as(description).isEqualTo("h1 { color:red; }");
+  }
+
+  @Test
+  void testNoResourceFoundException() throws Exception {
+    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    context.setServletConfig(this.servletConfig);
+    context.register(WebConfig.class);
+    context.register(GlobalExceptionHandler.class);
+    context.refresh();
+
+    DispatcherServlet servlet = new DispatcherServlet();
+    servlet.setApplicationContext(context);
+    servlet.init(this.servletConfig);
+
+    MockHttpServletRequest request = initRequest("/cp/non-existing");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    servlet.service(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(404);
+//    assertThat(response.getContentType()).isEqualTo("application/problem+json");
+//    assertThat(response.getContentAsString()).isEqualTo("""
+//        {"type":"about:blank",\
+//        "title":"Not Found",\
+//        "status":404,\
+//        "detail":"No static resource non-existing.",\
+//        "instance":"/cp/non-existing"}\
+//        """);
   }
 
   private DispatcherServlet initDispatcherServlet(Class<?>... configClasses) {
@@ -144,6 +176,11 @@ public class ResourceHttpRequestHandlerIntegrationTests {
       }
     }
 
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+      converters.add(new MappingJackson2HttpMessageConverter());
+    }
+
     private String getPath(ClassPathResource resource) {
       try {
         return resource.getFile().getCanonicalPath().replace('\\', '/').replace("classes/java", "resources") + "/";
@@ -152,6 +189,10 @@ public class ResourceHttpRequestHandlerIntegrationTests {
         throw new IllegalStateException(ex);
       }
     }
+  }
+
+  @ControllerAdvice
+  private static class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
 }

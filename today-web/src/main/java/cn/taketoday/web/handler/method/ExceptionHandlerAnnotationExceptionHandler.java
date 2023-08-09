@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.method;
 
 import java.lang.reflect.Method;
@@ -36,6 +34,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.handler.AbstractActionMappingMethodExceptionHandler;
+import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -47,17 +46,17 @@ import cn.taketoday.web.handler.AbstractActionMappingMethodExceptionHandler;
  * @since 2.3.7
  */
 public class ExceptionHandlerAnnotationExceptionHandler
-        extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
+    extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
 
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
-          new ConcurrentHashMap<>(64);
+      new ConcurrentHashMap<>(64);
 
   private final LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
-          new LinkedHashMap<>();
+      new LinkedHashMap<>();
 
   // TODO optimise
   private final ConcurrentHashMap<Method, ActionMappingAnnotationHandler> exceptionHandlerMapping =
-          new ConcurrentHashMap<>(64);
+      new ConcurrentHashMap<>(64);
 
   @Nullable
   private ApplicationContext applicationContext;
@@ -67,7 +66,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
   @Nullable
   @Override
   protected Object handleInternal(
-          RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
+      RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
     var exHandler = lookupExceptionHandler(handlerMethod, target);
     if (exHandler == null) {
@@ -121,7 +120,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
    */
   @Nullable
   protected ActionMappingAnnotationHandler lookupExceptionHandler(
-          @Nullable HandlerMethod handlerMethod, Throwable exception) {
+      @Nullable HandlerMethod handlerMethod, Throwable exception) {
 
     Class<?> handlerType = null;
 
@@ -133,7 +132,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
       Method method = resolver.resolveMethod(exception);
       if (method != null) {
         return exceptionHandlerMapping.computeIfAbsent(method,
-                key -> getHandler(handlerMethod::getBean, key, handlerMethod.getBeanType()));
+            key -> getHandler(handlerMethod::getBean, key, handlerMethod.getBeanType()));
       }
       // For advice applicability check below (involving base packages, assignable types
       // and annotation presence), use target class instead of interface-based proxy.
@@ -149,7 +148,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
         Method method = resolver.resolveMethod(exception);
         if (method != null) {
           return exceptionHandlerMapping.computeIfAbsent(method,
-                  key -> getHandler(advice::resolveBean, key, advice.getBeanType()));
+              key -> getHandler(advice::resolveBean, key, advice.getBeanType()));
         }
       }
     }
@@ -158,13 +157,19 @@ public class ExceptionHandlerAnnotationExceptionHandler
   }
 
   private ActionMappingAnnotationHandler getHandler(
-          Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
+      Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
     return handlerFactory.create(handlerBean, method, errorHandlerType, null);
   }
 
   @Override
   protected boolean hasGlobalExceptionHandlers() {
     return !this.exceptionHandlerAdviceCache.isEmpty();
+  }
+
+  @Override
+  protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
+    return (handler instanceof ResourceHttpRequestHandler ?
+            hasGlobalExceptionHandlers() : super.shouldApplyTo(request, handler));
   }
 
   //

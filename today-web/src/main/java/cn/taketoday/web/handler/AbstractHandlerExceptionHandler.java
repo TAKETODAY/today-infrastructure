@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.LogFormatUtils;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
@@ -85,6 +83,25 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   public void setMappedHandlerClasses(Class<?>... mappedHandlerClasses) {
     this.mappedHandlerClasses = mappedHandlerClasses;
+  }
+
+  /**
+   * Add a mapped handler class.
+   */
+  public void addMappedHandlerClass(Class<?> mappedHandlerClass) {
+    this.mappedHandlerClasses =
+        (this.mappedHandlerClasses != null ?
+         ObjectUtils.addObjectToArray(this.mappedHandlerClasses, mappedHandlerClass) :
+         new Class<?>[] { mappedHandlerClass });
+  }
+
+  /**
+   * Return the {@link #setMappedHandlerClasses(Class[]) configured} mapped
+   * handler classes.
+   */
+  @Nullable
+  protected Class<?>[] getMappedHandlerClasses() {
+    return this.mappedHandlerClasses;
   }
 
   /**
@@ -260,6 +277,6 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   @Nullable
   protected abstract Object handleInternal(
-          RequestContext request, @Nullable Object handler, Throwable ex) throws Exception;
+      RequestContext request, @Nullable Object handler, Throwable ex) throws Exception;
 
 }
