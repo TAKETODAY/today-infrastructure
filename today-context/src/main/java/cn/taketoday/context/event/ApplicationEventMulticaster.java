@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,6 +91,7 @@ public interface ApplicationEventMulticaster {
    * e.g. checking {@link SmartApplicationListener#getListenerId()}
    * @see #addApplicationListener(ApplicationListener)
    * @see #removeApplicationListener(ApplicationListener)
+   * @since 5.3.5
    */
   void removeApplicationListeners(Predicate<ApplicationListener<?>> predicate);
 
@@ -107,6 +105,7 @@ public interface ApplicationEventMulticaster {
    * @param predicate the predicate to identify listener bean names to remove
    * @see #addApplicationListenerBean(String)
    * @see #removeApplicationListenerBean(String)
+   * @since 5.3.5
    */
   void removeApplicationListenerBeans(Predicate<String> predicate);
 
@@ -123,8 +122,11 @@ public interface ApplicationEventMulticaster {
    * Multicast the given application event to appropriate listeners.
    * <p>Consider using {@link #multicastEvent(ApplicationEvent, ResolvableType)}
    * if possible as it provides better support for generics-based events.
+   * <p>If a matching {@code ApplicationListener} does not support asynchronous
+   * execution, it must be run within the calling thread of this multicast call.
    *
    * @param event the event to multicast
+   * @see ApplicationListener#supportsAsyncExecution()
    */
   void multicastEvent(ApplicationEvent event);
 
@@ -132,9 +134,12 @@ public interface ApplicationEventMulticaster {
    * Multicast the given application event to appropriate listeners.
    * <p>If the {@code eventType} is {@code null}, a default type is built
    * based on the {@code event} instance.
+   * <p>If a matching {@code ApplicationListener} does not support asynchronous
+   * execution, it must be run within the calling thread of this multicast call.
    *
    * @param event the event to multicast
    * @param eventType the type of event (can be {@code null})
+   * @see ApplicationListener#supportsAsyncExecution()
    */
   void multicastEvent(ApplicationEvent event, @Nullable ResolvableType eventType);
 

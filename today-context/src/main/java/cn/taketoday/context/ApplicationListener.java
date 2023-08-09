@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +50,19 @@ public interface ApplicationListener<E extends ApplicationEvent> extends EventLi
    * @param event the event to respond to
    */
   void onApplicationEvent(E event);
+
+  /**
+   * Return whether this listener supports asynchronous execution.
+   *
+   * @return {@code true} if this listener instance can be executed asynchronously
+   * depending on the multicaster configuration (the default), or {@code false} if it
+   * needs to immediately run within the original thread which published the event
+   * @see cn.taketoday.context.event.SimpleApplicationEventMulticaster#setTaskExecutor
+   * @since 4.0
+   */
+  default boolean supportsAsyncExecution() {
+    return true;
+  }
 
   /**
    * Create a new {@code ApplicationListener} for the given payload consumer.

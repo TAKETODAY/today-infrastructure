@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,13 +44,14 @@ import cn.taketoday.transaction.PlatformTransactionManager;
  * @param <E> the specific {@code ApplicationEvent} subclass to listen to
  * @author Juergen Hoeller
  * @author Oliver Drotbohm
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionalEventListener
  * @see TransactionalApplicationListenerAdapter
  * @see #forPayload
  * @since 4.0
  */
 public interface TransactionalApplicationListener<E extends ApplicationEvent>
-        extends ApplicationListener<E>, Ordered {
+    extends ApplicationListener<E>, Ordered {
 
   /**
    * Return the execution order within transaction synchronizations.
@@ -64,6 +62,15 @@ public interface TransactionalApplicationListener<E extends ApplicationEvent>
   @Override
   default int getOrder() {
     return Ordered.LOWEST_PRECEDENCE;
+  }
+
+  /**
+   * Transaction-synchronized listeners do not support asynchronous execution,
+   * only their target listener ({@link #processEvent}) potentially does.
+   */
+  @Override
+  default boolean supportsAsyncExecution() {
+    return false;
   }
 
   /**
@@ -131,10 +138,10 @@ public interface TransactionalApplicationListener<E extends ApplicationEvent>
    * @see TransactionalApplicationListenerAdapter
    */
   static <T> TransactionalApplicationListener<PayloadApplicationEvent<T>> forPayload(
-          TransactionPhase phase, Consumer<T> consumer) {
+      TransactionPhase phase, Consumer<T> consumer) {
 
     TransactionalApplicationListenerAdapter<PayloadApplicationEvent<T>> listener =
-            new TransactionalApplicationListenerAdapter<>(event -> consumer.accept(event.getPayload()));
+        new TransactionalApplicationListenerAdapter<>(event -> consumer.accept(event.getPayload()));
     listener.setTransactionPhase(phase);
     return listener;
   }

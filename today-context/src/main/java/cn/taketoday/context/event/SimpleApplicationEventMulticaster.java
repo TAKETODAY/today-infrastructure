@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +46,9 @@ import cn.taketoday.util.ErrorHandler;
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setTaskExecutor
+ * @since 4.0
  */
 public class SimpleApplicationEventMulticaster extends AbstractApplicationEventMulticaster {
 
@@ -79,10 +78,14 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
    * to invoke each listener with.
    * <p>Default is equivalent to {@link cn.taketoday.core.task.SyncTaskExecutor},
    * executing all listeners synchronously in the calling thread.
-   * <p>Consider specifying an asynchronous task executor here to not block the
-   * caller until all listeners have been executed. However, note that asynchronous
-   * execution will not participate in the caller's thread context (class loader,
-   * transaction association) unless the TaskExecutor explicitly supports this.
+   * <p>Consider specifying an asynchronous task executor here to not block the caller
+   * until all listeners have been executed. However, note that asynchronous execution
+   * will not participate in the caller's thread context (class loader, transaction context)
+   * unless the TaskExecutor explicitly supports this.
+   * <p>{@link ApplicationListener} instances which declare no support for asynchronous
+   * execution ({@link ApplicationListener#supportsAsyncExecution()} always run within
+   * the original thread which published the event, e.g. the transaction-synchronized
+   * {@link cn.taketoday.transaction.event.TransactionalApplicationListener}.
    *
    * @see cn.taketoday.core.task.SyncTaskExecutor
    * @see cn.taketoday.core.task.SimpleAsyncTaskExecutor
@@ -138,7 +141,12 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     Executor executor = getTaskExecutor();
     if (executor != null) {
       for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
-        executor.execute(() -> invokeListener(listener, event));
+        if (listener.supportsAsyncExecution()) {
+          executor.execute(() -> invokeListener(listener, event));
+        }
+        else {
+          invokeListener(listener, event);
+        }
       }
     }
     else {
@@ -177,9 +185,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     catch (ClassCastException ex) {
       String msg = ex.getMessage();
       if (msg == null || matchesClassCastMessage(msg, event.getClass())
-              || (
-              event instanceof PayloadApplicationEvent pae
-                      && matchesClassCastMessage(msg, pae.getPayload().getClass()))
+          || (
+          event instanceof PayloadApplicationEvent pae
+              && matchesClassCastMessage(msg, pae.getPayload().getClass()))
       ) {
         // Possibly a lambda-defined listener which we could not resolve the generic event type for
         // -> let's suppress the exception.
@@ -211,6 +219,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     int moduleSeparatorIndex = classCastMessage.indexOf('/');
     // false Assuming an unrelated class cast failure...
     return moduleSeparatorIndex != -1
-            && classCastMessage.startsWith(eventClass.getName(), moduleSeparatorIndex + 1);
+        && classCastMessage.startsWith(eventClass.getName(), moduleSeparatorIndex + 1);
   }
 }

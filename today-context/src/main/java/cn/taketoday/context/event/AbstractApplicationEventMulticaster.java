@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,14 +55,14 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
- * @author Harry Yang
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getApplicationListeners(ApplicationEvent, ResolvableType)
  * @see SimpleApplicationEventMulticaster
  * @since 4.0
  */
 @SuppressWarnings({ "rawtypes" })
 public abstract class AbstractApplicationEventMulticaster
-        implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
+    implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
   private final DefaultListenerRetriever listenerRetriever = new DefaultListenerRetriever();
 
@@ -96,7 +93,7 @@ public abstract class AbstractApplicationEventMulticaster
   private ConfigurableBeanFactory getBeanFactory() {
     if (this.beanFactory == null) {
       throw new IllegalStateException("ApplicationEventMulticaster cannot retrieve listener beans " +
-              "because it is not associated with a BeanFactory");
+          "because it is not associated with a BeanFactory");
     }
     return this.beanFactory;
   }
@@ -187,7 +184,7 @@ public abstract class AbstractApplicationEventMulticaster
    * @see ApplicationListener
    */
   protected Collection<ApplicationListener<?>> getApplicationListeners(
-          ApplicationEvent event, ResolvableType eventType) {
+      ApplicationEvent event, ResolvableType eventType) {
 
     Object source = event.getSource();
     Class<?> sourceType = (source != null ? source.getClass() : null);
@@ -201,8 +198,8 @@ public abstract class AbstractApplicationEventMulticaster
     if (existingRetriever == null) {
       // Caching a new ListenerRetriever if possible
       if (this.beanClassLoader == null ||
-              (ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
-                      (sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
+          (ClassUtils.isCacheSafe(event.getClass(), this.beanClassLoader) &&
+              (sourceType == null || ClassUtils.isCacheSafe(sourceType, this.beanClassLoader)))) {
         newRetriever = new CachedListenerRetriever();
         existingRetriever = this.retrieverCache.putIfAbsent(cacheKey, newRetriever);
         if (existingRetriever != null) {
@@ -232,7 +229,7 @@ public abstract class AbstractApplicationEventMulticaster
    * @return the pre-filtered list of application listeners for the given event and source type
    */
   private Collection<ApplicationListener<?>> retrieveApplicationListeners(
-          ResolvableType eventType, @Nullable Class<?> sourceType, @Nullable CachedListenerRetriever retriever) {
+      ResolvableType eventType, @Nullable Class<?> sourceType, @Nullable CachedListenerRetriever retriever) {
 
     ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>();
     LinkedHashSet<ApplicationListener<?>> filteredListeners = retriever != null ? new LinkedHashSet<>() : null;
@@ -264,7 +261,7 @@ public abstract class AbstractApplicationEventMulticaster
         try {
           if (supportsEvent(beanFactory, listenerBeanName, eventType)) {
             ApplicationListener listener =
-                    beanFactory.getBean(listenerBeanName, ApplicationListener.class);
+                beanFactory.getBean(listenerBeanName, ApplicationListener.class);
             if (!allListeners.contains(listener) && supportsEvent(listener, eventType, sourceType)) {
               if (retriever != null) {
                 if (beanFactory.isSingleton(listenerBeanName)) {
@@ -324,12 +321,12 @@ public abstract class AbstractApplicationEventMulticaster
    * @see #supportsEvent(ApplicationListener, ResolvableType, Class)
    */
   private boolean supportsEvent(
-          ConfigurableBeanFactory beanFactory, String listenerBeanName, ResolvableType eventType) {
+      ConfigurableBeanFactory beanFactory, String listenerBeanName, ResolvableType eventType) {
 
     Class<?> listenerType = beanFactory.getType(listenerBeanName);
     if (listenerType == null
-            || GenericApplicationListener.class.isAssignableFrom(listenerType)
-            || SmartApplicationListener.class.isAssignableFrom(listenerType)) {
+        || GenericApplicationListener.class.isAssignableFrom(listenerType)
+        || SmartApplicationListener.class.isAssignableFrom(listenerType)) {
       return true;
     }
     if (!supportsEvent(listenerType, eventType)) {
@@ -378,10 +375,10 @@ public abstract class AbstractApplicationEventMulticaster
    * for the given event type
    */
   protected boolean supportsEvent(
-          ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
+      ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
     GenericApplicationListener smartListener
-            = listener instanceof GenericApplicationListener
-              ? (GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener);
+        = listener instanceof GenericApplicationListener
+          ? (GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener);
     return smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType);
   }
 
@@ -389,7 +386,7 @@ public abstract class AbstractApplicationEventMulticaster
    * Cache key for ListenerRetrievers, based on event type and source type.
    */
   private record ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType)
-          implements Comparable<ListenerCacheKey> {
+      implements Comparable<ListenerCacheKey> {
 
     private ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) {
       Assert.notNull(eventType, "Event type must not be null");
@@ -436,7 +433,7 @@ public abstract class AbstractApplicationEventMulticaster
       }
 
       ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>(
-              applicationListeners.size() + applicationListenerBeans.size());
+          applicationListeners.size() + applicationListenerBeans.size());
       allListeners.addAll(applicationListeners);
       if (!applicationListenerBeans.isEmpty()) {
         BeanFactory beanFactory = getBeanFactory();
@@ -467,14 +464,14 @@ public abstract class AbstractApplicationEventMulticaster
 
     public Collection<ApplicationListener<?>> getApplicationListeners() {
       ArrayList<ApplicationListener<?>> allListeners = new ArrayList<>(
-              applicationListeners.size() + applicationListenerBeans.size());
+          applicationListeners.size() + applicationListenerBeans.size());
       allListeners.addAll(applicationListeners);
       if (!applicationListenerBeans.isEmpty()) {
         BeanFactory beanFactory = getBeanFactory();
         for (String listenerBeanName : applicationListenerBeans) {
           try {
             ApplicationListener<?> listener =
-                    beanFactory.getBean(listenerBeanName, ApplicationListener.class);
+                beanFactory.getBean(listenerBeanName, ApplicationListener.class);
             if (!allListeners.contains(listener)) {
               allListeners.add(listener);
             }
