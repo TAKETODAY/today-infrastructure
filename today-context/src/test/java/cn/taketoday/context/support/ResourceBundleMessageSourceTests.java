@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.context.support;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -35,6 +33,7 @@ import cn.taketoday.core.i18n.LocaleContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -93,8 +92,8 @@ class ResourceBundleMessageSourceTests {
   }
 
   protected void doTestMessageAccess(
-          boolean reloadable, boolean fallbackToSystemLocale,
-          boolean expectGermanFallback, boolean useCodeAsDefaultMessage, boolean alwaysUseMessageFormat) {
+      boolean reloadable, boolean fallbackToSystemLocale,
+      boolean expectGermanFallback, boolean useCodeAsDefaultMessage, boolean alwaysUseMessageFormat) {
 
     StaticApplicationContext ac = new StaticApplicationContext();
     if (reloadable) {
@@ -108,13 +107,13 @@ class ResourceBundleMessageSourceTests {
     String[] basenames;
     if (reloadable) {
       basenames = new String[] {
-              "classpath:" + basepath + "messages",
-              "classpath:" + basepath + "more-messages" };
+          "classpath:" + basepath + "messages",
+          "classpath:" + basepath + "more-messages" };
     }
     else {
       basenames = new String[] {
-              basepath + "messages",
-              basepath + "more-messages" };
+          basepath + "messages",
+          basepath + "more-messages" };
     }
     pvs.add("basenames", basenames);
     if (!fallbackToSystemLocale) {
@@ -200,7 +199,7 @@ class ResourceBundleMessageSourceTests {
     }
     else {
       assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-              ac.getMessage("code4", null, Locale.GERMAN));
+          ac.getMessage("code4", null, Locale.GERMAN));
     }
   }
 
@@ -281,7 +280,7 @@ class ResourceBundleMessageSourceTests {
     ms.setDefaultEncoding("argh");
     ms.setFallbackToSystemLocale(false);
     assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-            ms.getMessage("code1", null, Locale.ENGLISH));
+        ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -361,7 +360,7 @@ class ResourceBundleMessageSourceTests {
     ms.setFileEncodings(fileCharsets);
     ms.setFallbackToSystemLocale(false);
     assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-            ms.getMessage("code1", null, Locale.ENGLISH));
+        ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -373,7 +372,7 @@ class ResourceBundleMessageSourceTests {
     fileCharsets.setProperty("cn/taketoday/context/support/messages", "unicode");
     ms.setFileEncodings(fileCharsets);
     assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-            ms.getMessage("code1", null, Locale.ENGLISH));
+        ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -419,6 +418,31 @@ class ResourceBundleMessageSourceTests {
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("", "", "POSIX"));
     assertThat(filenames.size()).isEqualTo(0);
+  }
+
+  @Test
+  void reloadableResourceBundleMessageSourceWithCustomFileExtensions() {
+    ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
+    ms.setBasename("cn/taketoday/context/support/messages");
+    ms.setFileExtensions(List.of(".toskip", ".custom"));
+    assertThat(ms.getMessage("code1", null, Locale.ENGLISH)).isEqualTo("message1");
+    assertThat(ms.getMessage("code2", null, Locale.GERMAN)).isEqualTo("nachricht2");
+  }
+
+  @Test
+  void reloadableResourceBundleMessageSourceWithEmptyCustomFileExtensions() {
+    ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
+    assertThatThrownBy(() -> ms.setFileExtensions(Collections.emptyList()))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("At least one file extension is required");
+  }
+
+  @Test
+  void reloadableResourceBundleMessageSourceWithInvalidCustomFileExtensions() {
+    ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
+    assertThatThrownBy(() -> ms.setFileExtensions(List.of("invalid")))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("File extension 'invalid' should start with '.'");
   }
 
   @Test

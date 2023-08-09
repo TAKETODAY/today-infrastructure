@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +22,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,7 +36,9 @@ import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.DefaultPropertiesPersister;
 import cn.taketoday.util.PropertiesPersister;
 import cn.taketoday.util.StringUtils;
@@ -78,6 +79,7 @@ import cn.taketoday.util.StringUtils;
  * this message source!
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setCacheSeconds
  * @see #setBasenames
  * @see #setDefaultEncoding
@@ -87,13 +89,14 @@ import cn.taketoday.util.StringUtils;
  * @see cn.taketoday.core.io.DefaultResourceLoader
  * @see ResourceBundleMessageSource
  * @see java.util.ResourceBundle
+ * @since 4.0
  */
 public class ReloadableResourceBundleMessageSource
-        extends AbstractResourceBasedMessageSource implements ResourceLoaderAware {
+    extends AbstractResourceBasedMessageSource implements ResourceLoaderAware {
 
-  private static final String PROPERTIES_SUFFIX = ".properties";
+  private static final String XML_EXTENSION = ".xml";
 
-  private static final String XML_SUFFIX = ".xml";
+  private List<String> fileExtensions = List.of(".properties", XML_EXTENSION);
 
   @Nullable
   private Properties fileEncodings;
@@ -112,6 +115,22 @@ public class ReloadableResourceBundleMessageSource
 
   // Cache to hold already loaded properties per filename
   private final ConcurrentMap<Locale, PropertiesHolder> cachedMergedProperties = new ConcurrentHashMap<>();
+
+  /**
+   * Set the list of supported file extensions.
+   * <p>The default is a list containing {@code .properties} and {@code .xml}.
+   *
+   * @param fileExtensions the file extensions (starts with a dot)
+   */
+  public void setFileExtensions(List<String> fileExtensions) {
+    Assert.isTrue(!CollectionUtils.isEmpty(fileExtensions), "At least one file extension is required");
+    for (String extension : fileExtensions) {
+      if (!extension.startsWith(".")) {
+        throw new IllegalArgumentException("File extension '" + extension + "' should start with '.'");
+      }
+    }
+    this.fileExtensions = Collections.unmodifiableList(fileExtensions);
+  }
 
   /**
    * Set per-file charsets to use for parsing properties files.
@@ -143,13 +162,13 @@ public class ReloadableResourceBundleMessageSource
 
   /**
    * Set the PropertiesPersister to use for parsing properties files.
-   * <p>The default is ResourcePropertiesPersister.
+   * <p>The default is {@code DefaultPropertiesPersister}.
    *
    * @see DefaultPropertiesPersister#INSTANCE
    */
   public void setPropertiesPersister(@Nullable PropertiesPersister propertiesPersister) {
     this.propertiesPersister =
-            (propertiesPersister != null ? propertiesPersister : DefaultPropertiesPersister.INSTANCE);
+        (propertiesPersister != null ? propertiesPersister : DefaultPropertiesPersister.INSTANCE);
   }
 
   /**
@@ -157,14 +176,14 @@ public class ReloadableResourceBundleMessageSource
    * <p>The default is a DefaultResourceLoader. Will get overridden by the
    * ApplicationContext if running in a context, as it implements the
    * ResourceLoaderAware interface. Can be manually overridden when
-   * running outside of an ApplicationContext.
+   * running outside an ApplicationContext.
    *
    * @see cn.taketoday.core.io.DefaultResourceLoader
    * @see ResourceLoaderAware
    */
   @Override
   public void setResourceLoader(@Nullable ResourceLoader resourceLoader) {
-    this.resourceLoader = resourceLoader != null ? resourceLoader : new DefaultResourceLoader();
+    this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
   }
 
   /**
@@ -278,7 +297,7 @@ public class ReloadableResourceBundleMessageSource
     }
 
     // Filenames for given Locale
-    ArrayList<String> filenames = new ArrayList<>(7);
+    List<String> filenames = new ArrayList<>(7);
     filenames.addAll(calculateFilenamesForLocale(basename, locale));
 
     // Filenames for default Locale, if any
@@ -326,18 +345,18 @@ public class ReloadableResourceBundleMessageSource
     StringBuilder temp = new StringBuilder(basename);
 
     temp.append('_');
-    if (language.length() > 0) {
+    if (!language.isEmpty()) {
       temp.append(language);
       result.add(0, temp.toString());
     }
 
     temp.append('_');
-    if (country.length() > 0) {
+    if (!country.isEmpty()) {
       temp.append(country);
       result.add(0, temp.toString());
     }
 
-    if (variant.length() > 0 && (language.length() > 0 || country.length() > 0)) {
+    if (!variant.isEmpty() && (!language.isEmpty() || !country.isEmpty())) {
       temp.append('_').append(variant);
       result.add(0, temp.toString());
     }
@@ -408,7 +427,6 @@ public class ReloadableResourceBundleMessageSource
     long refreshTimestamp = (getCacheMillis() < 0 ? -1 : System.currentTimeMillis());
 
     Resource resource = resolveResource(filename);
-
     if (resource.exists()) {
       long fileTimestamp = -1;
       if (getCacheMillis() >= 0) {
@@ -468,9 +486,9 @@ public class ReloadableResourceBundleMessageSource
    * JSON.
    * <p>The default implementation delegates to the configured
    * {@link #setResourceLoader(ResourceLoader) ResourceLoader} to resolve
-   * resources, first checking for an existing {@code Resource} with a
-   * {@code .properties} extension, and otherwise returning a {@code Resource}
-   * with a {@code .xml} extension.
+   * resources, checking in order for existing {@code Resource} with extensions defined
+   * by {@link #setFileExtensions(List)} ({@code .properties} and {@code .xml}
+   * by default).
    * <p>When overriding this method, {@link #loadProperties(Resource, String)}
    * <strong>must</strong> be capable of loading properties from any type of
    * {@code Resource} returned by this method. As a consequence, implementors
@@ -486,14 +504,16 @@ public class ReloadableResourceBundleMessageSource
    *
    * @param filename the bundle filename (basename + Locale)
    * @return the {@code Resource} to use
-   * @since 4.0
    */
   protected Resource resolveResource(String filename) {
-    Resource propertiesResource = resourceLoader.getResource(filename + PROPERTIES_SUFFIX);
-    if (propertiesResource.exists()) {
-      return propertiesResource;
+    Resource resource = null;
+    for (String fileExtension : this.fileExtensions) {
+      resource = this.resourceLoader.getResource(filename + fileExtension);
+      if (resource.exists()) {
+        return resource;
+      }
     }
-    return resourceLoader.getResource(filename + XML_SUFFIX);
+    return Objects.requireNonNull(resource);
   }
 
   /**
@@ -508,7 +528,7 @@ public class ReloadableResourceBundleMessageSource
     Properties props = newProperties();
     try (InputStream is = resource.getInputStream()) {
       String resourceFilename = resource.getName();
-      if (resourceFilename != null && resourceFilename.endsWith(XML_SUFFIX)) {
+      if (resourceFilename != null && resourceFilename.endsWith(XML_EXTENSION)) {
         if (logger.isDebugEnabled()) {
           logger.debug("Loading properties [{}]", resource.getName());
         }
@@ -569,8 +589,8 @@ public class ReloadableResourceBundleMessageSource
    */
   public void clearCacheIncludingAncestors() {
     clearCache();
-    if (getParentMessageSource() instanceof ReloadableResourceBundleMessageSource) {
-      ((ReloadableResourceBundleMessageSource) getParentMessageSource()).clearCacheIncludingAncestors();
+    if (getParentMessageSource() instanceof ReloadableResourceBundleMessageSource reloadableMsgSrc) {
+      reloadableMsgSrc.clearCacheIncludingAncestors();
     }
   }
 
@@ -598,7 +618,7 @@ public class ReloadableResourceBundleMessageSource
 
     /** Cache to hold already generated MessageFormats per message code. */
     private final ConcurrentMap<String, Map<Locale, MessageFormat>> cachedMessageFormats =
-            new ConcurrentHashMap<>();
+        new ConcurrentHashMap<>();
 
     public PropertiesHolder() {
       this.properties = null;
