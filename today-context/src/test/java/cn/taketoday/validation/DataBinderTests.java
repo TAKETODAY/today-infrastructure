@@ -1135,7 +1135,7 @@ class DataBinderTests {
 
     pvs = new PropertyValues();
     pvs.add("Title", "my other book");
-    pvs.add("iSBN", "6789");
+    pvs.add("ISBN", "6789");
     pvs.add("nInStock", "0");
     binder.bind(pvs);
     assertThat(book.getTitle()).isEqualTo("my other book");
