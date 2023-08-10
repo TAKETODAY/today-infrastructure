@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
@@ -48,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class ConversionServiceFactoryBeanTests {
 
   @Test
-  public void createDefaultConversionService() {
+  void createDefaultConversionService() {
     ConversionServiceFactoryBean factory = new ConversionServiceFactoryBean();
     factory.afterPropertiesSet();
     ConversionService service = factory.getObject();
@@ -56,9 +53,11 @@ public class ConversionServiceFactoryBeanTests {
   }
 
   @Test
-  public void createDefaultConversionServiceWithSupplements() {
+  void createDefaultConversionServiceWithSupplements() {
     ConversionServiceFactoryBean factory = new ConversionServiceFactoryBean();
     Set<Object> converters = new HashSet<>();
+    // The following String -> Foo Converter cannot be implemented as a lambda
+    // due to type erasure of the source and target types.
     converters.add(new Converter<String, Foo>() {
       @Override
       public Foo convert(String source) {
@@ -99,7 +98,7 @@ public class ConversionServiceFactoryBeanTests {
   }
 
   @Test
-  public void createDefaultConversionServiceWithInvalidSupplements() {
+  void createDefaultConversionServiceWithInvalidSupplements() {
     ConversionServiceFactoryBean factory = new ConversionServiceFactoryBean();
     Set<Object> converters = new HashSet<>();
     converters.add("bogus");
@@ -108,41 +107,42 @@ public class ConversionServiceFactoryBeanTests {
   }
 
   @Test
-  public void conversionServiceInApplicationContext() {
+  void conversionServiceInApplicationContext() {
     doTestConversionServiceInApplicationContext("conversionService.xml", ClassPathResource.class);
   }
 
   @Test
-  public void conversionServiceInApplicationContextWithResourceOverriding() {
+  void conversionServiceInApplicationContextWithResourceOverriding() {
     doTestConversionServiceInApplicationContext("conversionServiceWithResourceOverriding.xml", FileSystemResource.class);
   }
 
   private void doTestConversionServiceInApplicationContext(String fileName, Class<?> resourceClass) {
-    ApplicationContext ctx = new ClassPathXmlApplicationContext(fileName, getClass());
+    ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext(fileName, getClass());
     ResourceTestBean tb = ctx.getBean("resourceTestBean", ResourceTestBean.class);
     assertThat(resourceClass.isInstance(tb.getResource())).isTrue();
-    assertThat(tb.getResourceArray().length > 0).isTrue();
+    assertThat(tb.getResourceArray()).hasSize(1);
     assertThat(resourceClass.isInstance(tb.getResourceArray()[0])).isTrue();
-    assertThat(tb.getResourceMap().size() == 1).isTrue();
+    assertThat(tb.getResourceMap()).hasSize(1);
     assertThat(resourceClass.isInstance(tb.getResourceMap().get("key1"))).isTrue();
-    assertThat(tb.getResourceArrayMap().size() == 1).isTrue();
-    assertThat(tb.getResourceArrayMap().get("key1").length > 0).isTrue();
+    assertThat(tb.getResourceArrayMap()).hasSize(1);
+    assertThat(tb.getResourceArrayMap().get("key1")).isNotEmpty();
     assertThat(resourceClass.isInstance(tb.getResourceArrayMap().get("key1")[0])).isTrue();
+    ctx.close();
   }
 
-  public static class Foo {
+  static class Foo {
   }
 
-  public static class Bar {
+  static class Bar {
   }
 
-  public static class Baz {
+  static class Baz {
   }
 
-  public static class ComplexConstructorArgument {
+  static class ComplexConstructorArgument {
 
-    public ComplexConstructorArgument(Map<String, Class<?>> map) {
-      assertThat(!map.isEmpty()).isTrue();
+    ComplexConstructorArgument(Map<String, Class<?>> map) {
+      assertThat(map.isEmpty()).isFalse();
       assertThat(map.keySet().iterator().next()).isInstanceOf(String.class);
       assertThat(map.values().iterator().next()).isInstanceOf(Class.class);
     }

@@ -140,13 +140,17 @@ public class TypeConverterDelegate {
     if (editor != null || (requiredType != null && !ClassUtils.isAssignableValue(requiredType, convertedValue))) {
       if (typeDescriptor != null
               && requiredType != null
-              && convertedValue instanceof String
               && Collection.class.isAssignableFrom(requiredType)) {
         TypeDescriptor elementTypeDesc = typeDescriptor.getElementDescriptor();
         if (elementTypeDesc != null) {
           Class<?> elementType = elementTypeDesc.getType();
-          if (Class.class == elementType || Enum.class.isAssignableFrom(elementType)) {
-            convertedValue = StringUtils.commaDelimitedListToStringArray((String) convertedValue);
+          if (convertedValue instanceof String text) {
+            if (Class.class == elementType || Enum.class.isAssignableFrom(elementType)) {
+              convertedValue = StringUtils.commaDelimitedListToStringArray(text);
+            }
+            if (editor == null && String.class != elementType) {
+              editor = findDefaultEditor(elementType.arrayType());
+            }
           }
         }
       }
@@ -172,6 +176,17 @@ public class TypeConverterDelegate {
           }
           return (T) convertToTypedArray(convertedValue, propertyName, requiredType.getComponentType());
         }
+        else if (convertedValue.getClass().isArray()) {
+          if (Array.getLength(convertedValue) == 1) {
+            convertedValue = Array.get(convertedValue, 0);
+            standardConversion = true;
+          }
+          else if (Collection.class.isAssignableFrom(requiredType)) {
+            convertedValue = convertToTypedCollection(CollectionUtils.arrayToList(convertedValue),
+                    propertyName, requiredType, typeDescriptor);
+            standardConversion = true;
+          }
+        }
         else if (convertedValue instanceof Collection) {
           // Convert elements to target type, if determined.
           convertedValue = convertToTypedCollection(
@@ -182,10 +197,6 @@ public class TypeConverterDelegate {
           // Convert keys and values to respective target type, if determined.
           convertedValue = convertToTypedMap(
                   (Map<?, ?>) convertedValue, propertyName, requiredType, typeDescriptor);
-          standardConversion = true;
-        }
-        if (convertedValue.getClass().isArray() && Array.getLength(convertedValue) == 1) {
-          convertedValue = Array.get(convertedValue, 0);
           standardConversion = true;
         }
         if (String.class == requiredType && ClassUtils.isPrimitiveOrWrapper(convertedValue.getClass())) {
@@ -200,7 +211,7 @@ public class TypeConverterDelegate {
             }
             catch (NoSuchMethodException ex) {
               // proceed with field lookup
-              if (logger.isDebugEnabled()) {
+              if (logger.isTraceEnabled()) {
                 logger.trace("No String constructor found on type [{}]", requiredType.getName(), ex);
               }
             }
@@ -253,11 +264,9 @@ public class TypeConverterDelegate {
           msg.append(" for property '").append(propertyName).append('\'');
         }
         if (editor != null) {
-          msg.append(": PropertyEditor [")
-                  .append(editor.getClass().getName())
-                  .append("] returned inappropriate value of type '")
-                  .append(ClassUtils.getDescriptiveType(convertedValue))
-                  .append('\'');
+          msg.append(": PropertyEditor [").append(editor.getClass().getName()).append(
+                  "] returned inappropriate value of type '").append(
+                  ClassUtils.getDescriptiveType(convertedValue)).append('\'');
           throw new IllegalArgumentException(msg.toString());
         }
         else {
@@ -296,12 +305,12 @@ public class TypeConverterDelegate {
           convertedValue = enumField.get(null);
         }
         catch (ClassNotFoundException ex) {
-          if (logger.isDebugEnabled()) {
+          if (logger.isTraceEnabled()) {
             logger.trace("Enum class [{}] cannot be loaded", enumType, ex);
           }
         }
         catch (Throwable ex) {
-          if (logger.isDebugEnabled()) {
+          if (logger.isTraceEnabled()) {
             logger.trace("Field [{}] isn't an enum value for type [{}]", fieldName, enumType, ex);
           }
         }
@@ -318,7 +327,7 @@ public class TypeConverterDelegate {
         convertedValue = enumField.get(null);
       }
       catch (Throwable ex) {
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
           logger.trace("Field [{}] isn't an enum value", convertedValue, ex);
         }
       }
@@ -394,7 +403,7 @@ public class TypeConverterDelegate {
       // Convert String array to a comma-separated String.
       // Only applies if no PropertyEditor converted the String array before.
       // The CSV String will be passed into a PropertyEditor's setAsText method, if any.
-      if (logger.isDebugEnabled()) {
+      if (logger.isTraceEnabled()) {
         logger.trace("Converting String array to comma-delimited String [{}]", convertedValue);
       }
       convertedValue = StringUtils.arrayToCommaDelimitedString((String[]) convertedValue);
@@ -403,11 +412,10 @@ public class TypeConverterDelegate {
     if (convertedValue instanceof String) {
       if (editor != null) {
         // Use PropertyEditor's setAsText in case of a String value.
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
           logger.trace("Converting String to [{}] using property editor [{}]", requiredType, editor);
         }
-        String newTextValue = (String) convertedValue;
-        return doConvertTextValue(oldValue, newTextValue, editor);
+        return doConvertTextValue(oldValue, (String) convertedValue, editor);
       }
       else if (String.class == requiredType) {
         returnValue = convertedValue;
@@ -476,9 +484,7 @@ public class TypeConverterDelegate {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private Collection<?> convertToTypedCollection(
-          Collection<?> original, @Nullable String propertyName,
+  private Collection<?> convertToTypedCollection(Collection<?> original, @Nullable String propertyName,
           Class<?> requiredType, @Nullable TypeDescriptor typeDescriptor) {
 
     if (!Collection.class.isAssignableFrom(requiredType)) {
@@ -515,12 +521,11 @@ public class TypeConverterDelegate {
 
     Collection<Object> convertedCopy;
     try {
-      if (approximable) {
+      if (approximable && requiredType.isInstance(original)) {
         convertedCopy = CollectionUtils.createApproximateCollection(original, original.size());
       }
       else {
-        convertedCopy = (Collection<Object>)
-                ReflectionUtils.accessibleConstructor(requiredType).newInstance();
+        convertedCopy = CollectionUtils.createCollection(requiredType, original.size());
       }
     }
     catch (Throwable ex) {
@@ -551,9 +556,7 @@ public class TypeConverterDelegate {
     return originalAllowed ? original : convertedCopy;
   }
 
-  @SuppressWarnings("unchecked")
-  private Map<?, ?> convertToTypedMap(
-          Map<?, ?> original, @Nullable String propertyName,
+  private Map<?, ?> convertToTypedMap(Map<?, ?> original, @Nullable String propertyName,
           Class<?> requiredType, @Nullable TypeDescriptor typeDescriptor) {
 
     if (!Map.class.isAssignableFrom(requiredType)) {
@@ -572,7 +575,7 @@ public class TypeConverterDelegate {
     TypeDescriptor keyType = typeDescriptor != null ? typeDescriptor.getMapKeyDescriptor() : null;
     TypeDescriptor valueType = typeDescriptor != null ? typeDescriptor.getMapValueDescriptor() : null;
     if (keyType == null && valueType == null
-            && originalAllowed && !this.propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
+            && originalAllowed && !propertyEditorRegistry.hasCustomEditorForElement(null, propertyName)) {
       return original;
     }
 
@@ -589,11 +592,11 @@ public class TypeConverterDelegate {
 
     Map<Object, Object> convertedCopy;
     try {
-      if (approximable) {
+      if (approximable && requiredType.isInstance(original)) {
         convertedCopy = CollectionUtils.createApproximateMap(original, original.size());
       }
       else {
-        convertedCopy = (Map<Object, Object>) ReflectionUtils.accessibleConstructor(requiredType).newInstance();
+        convertedCopy = CollectionUtils.createMap(requiredType, original.size());
       }
     }
     catch (Throwable ex) {

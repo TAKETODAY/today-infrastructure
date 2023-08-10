@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,8 @@
 
 package cn.taketoday.context.support;
 
+import java.util.Set;
+
 import cn.taketoday.beans.factory.BeanCreationNotAllowedException;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.context.ApplicationContext;
@@ -35,70 +34,78 @@ import cn.taketoday.lang.Assert;
  */
 public class Service implements ApplicationContextAware, MessageSourceAware, DisposableBean {
 
-	private ApplicationContext applicationContext;
+  private ApplicationContext applicationContext;
 
-	private MessageSource messageSource;
+  private MessageSource messageSource;
 
-	private Resource[] resources;
+  private Resource[] resources;
 
-	private boolean properlyDestroyed = false;
+  private Set<Resource> resourceSet;
 
+  private boolean properlyDestroyed = false;
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
 
-	@Override
-	public void setMessageSource(MessageSource messageSource) {
-		if (this.messageSource != null) {
-			throw new IllegalArgumentException("MessageSource should not be set twice");
-		}
-		this.messageSource = messageSource;
-	}
+  @Override
+  public void setMessageSource(MessageSource messageSource) {
+    if (this.messageSource != null) {
+      throw new IllegalArgumentException("MessageSource should not be set twice");
+    }
+    this.messageSource = messageSource;
+  }
 
-	public MessageSource getMessageSource() {
-		return messageSource;
-	}
+  public MessageSource getMessageSource() {
+    return messageSource;
+  }
 
-	public void setResources(Resource[] resources) {
-		this.resources = resources;
-	}
+  public void setResources(Resource[] resources) {
+    this.resources = resources;
+  }
 
-	public Resource[] getResources() {
-		return resources;
-	}
+  public Resource[] getResources() {
+    return resources;
+  }
 
+  public void setResourceSet(Set<Resource> resourceSet) {
+    this.resourceSet = resourceSet;
+  }
 
-	@Override
-	public void destroy() {
-		this.properlyDestroyed = true;
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-				Assert.state(applicationContext.getBean("messageSource") instanceof StaticMessageSource,
-						"Invalid MessageSource bean");
-				try {
-					applicationContext.getBean("service2");
-					// Should have thrown BeanCreationNotAllowedException
-					properlyDestroyed = false;
-				}
-				catch (BeanCreationNotAllowedException ex) {
-					// expected
-				}
-			}
-		};
-		thread.start();
-		try {
-			thread.join();
-		}
-		catch (InterruptedException ex) {
-			Thread.currentThread().interrupt();
-		}
-	}
+  public Set<Resource> getResourceSet() {
+    return resourceSet;
+  }
 
-	public boolean isProperlyDestroyed() {
-		return properlyDestroyed;
-	}
+  @Override
+  public void destroy() {
+    this.properlyDestroyed = true;
+    Thread thread = new Thread() {
+      @Override
+      public void run() {
+        Assert.state(applicationContext.getBean("messageSource") instanceof StaticMessageSource,
+                "Invalid MessageSource bean");
+        try {
+          applicationContext.getBean("service2");
+          // Should have thrown BeanCreationNotAllowedException
+          properlyDestroyed = false;
+        }
+        catch (BeanCreationNotAllowedException ex) {
+          // expected
+        }
+      }
+    };
+    thread.start();
+    try {
+      thread.join();
+    }
+    catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  public boolean isProperlyDestroyed() {
+    return properlyDestroyed;
+  }
 
 }
