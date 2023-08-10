@@ -1403,6 +1403,29 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     return this.applicationListeners;
   }
 
+  /**
+   * Publish the given event to all listeners.
+   * <p>Note: Listeners get initialized after the MessageSource, to be able
+   * to access it within listener implementations. Thus, MessageSource
+   * implementations cannot publish events.
+   *
+   * @param event the event to publish (may be application-specific or a
+   * standard framework event)
+   */
+  @Override
+  public void publishEvent(ApplicationEvent event) {
+    publishEvent(event, null);
+  }
+
+  /**
+   * Publish the given event to all listeners.
+   * <p>Note: Listeners get initialized after the MessageSource, to be able
+   * to access it within listener implementations. Thus, MessageSource
+   * implementations cannot publish events.
+   *
+   * @param event the event to publish (may be an {@link ApplicationEvent}
+   * or a payload object to be turned into a {@link PayloadApplicationEvent})
+   */
   @Override
   public void publishEvent(Object event) {
     publishEvent(event, null);
