@@ -839,6 +839,15 @@ public class ResolvableType implements Serializable {
   }
 
   /**
+   * Convenience method that indicates {@link #resolved} status
+   *
+   * @see #resolve()
+   */
+  public boolean isResolved() {
+    return resolved != null;
+  }
+
+  /**
    * @since 4.0
    */
   public boolean is(Class<?> clazz) {
@@ -849,7 +858,7 @@ public class ResolvableType implements Serializable {
    * @since 4.0
    */
   public boolean isCollection() {
-    return CollectionUtils.isCollection(resolved);
+    return resolved != null && CollectionUtils.isCollection(resolved);
   }
 
   /**
