@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,8 @@
 package cn.taketoday.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.ArgumentMatchers;
 
 import java.io.Closeable;
@@ -112,6 +111,7 @@ import static org.mockito.Mockito.verify;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/6/20 12:45
  */
+@Execution(ExecutionMode.SAME_THREAD)
 class StandardBeanFactoryTests {
 
   private final StandardBeanFactory lbf = new StandardBeanFactory();
@@ -1931,6 +1931,17 @@ class StandardBeanFactoryTests {
     assertBeanNamesForType(FactoryBean.class, false, false);
   }
 
+  @Test
+    // gh-30987
+  void getBeanNamesForTypeWithFactoryBeanDefinedAsTargetType() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(TestRepositoryFactoryBean.class);
+    beanDefinition.setTargetType(ResolvableType.forClassWithGenerics(TestRepositoryFactoryBean.class,
+            CityRepository.class, Object.class, Object.class));
+    lbf.registerBeanDefinition("factoryBean", beanDefinition);
+    assertBeanNamesForType(TestRepositoryFactoryBean.class, true, false, "&factoryBean");
+    assertBeanNamesForType(CityRepository.class, true, false, "factoryBean");
+  }
+
   /**
    * Verifies that a dependency on a {@link FactoryBean} can <strong>not</strong>
    * be autowired <em>by name</em>, as &amp; is an illegal character in
@@ -2952,6 +2963,24 @@ class StandardBeanFactoryTests {
       throw new IllegalStateException();
     }
   }
+
+  public static class TestRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends Serializable>
+          extends RepositoryFactoryBeanSupport<T, S, ID> {
+
+    @Override
+    public T getObject() throws Exception {
+      throw new IllegalArgumentException("Should not be called");
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      throw new IllegalArgumentException("Should not be called");
+    }
+  }
+
+  public record City(String name) { }
+
+  public static class CityRepository implements Repository<City, Long> { }
 
   public static class LazyInitFactory implements FactoryBean<Object> {
 

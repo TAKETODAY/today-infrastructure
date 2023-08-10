@@ -1626,34 +1626,17 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   @Override
   protected ResolvableType getTypeForFactoryBean(String beanName, RootBeanDefinition merged, boolean allowInit) {
-    // Check if the bean merged itself has defined the type with an attribute
+    // Check if the bean definition itself has defined the type with an attribute
     ResolvableType result = getTypeForFactoryBeanFromAttributes(merged);
     if (result != ResolvableType.NONE) {
       return result;
     }
 
-    ResolvableType beanType = merged.hasBeanClass()
-                              ? ResolvableType.forClass(merged.getBeanClass())
-                              : ResolvableType.NONE;
-
-    // For instance supplied beans try the target type and bean class
+    // For instance supplied beans, try the target type and bean class immediately
     if (merged.getInstanceSupplier() != null) {
-      result = getFactoryBeanGeneric(merged.targetType);
-      if (result.resolve() != null) {
+      result = getFactoryBeanGeneric(merged);
+      if (result != null) {
         return result;
-      }
-      result = getFactoryBeanGeneric(beanType);
-      Class<?> resolved = result.resolve();
-      if (resolved != null) {
-        if (resolved == Object.class) {
-          if (!allowInit) {
-            // initialization not allowed, so return Object.class
-            return result;
-          }
-        }
-        else {
-          return result;
-        }
       }
     }
 
@@ -1669,9 +1652,8 @@ public abstract class AbstractAutowireCapableBeanFactory
 
         Class<?> factoryBeanClass;
         BeanDefinition factoryBeanDefinition = getBeanDefinition(factoryBeanName);
-        if (factoryBeanDefinition instanceof AbstractBeanDefinition &&
-                ((AbstractBeanDefinition) factoryBeanDefinition).hasBeanClass()) {
-          factoryBeanClass = ((AbstractBeanDefinition) factoryBeanDefinition).getBeanClass();
+        if (factoryBeanDefinition instanceof AbstractBeanDefinition abd && abd.hasBeanClass()) {
+          factoryBeanClass = abd.getBeanClass();
         }
         else {
           RootBeanDefinition factoryMerged = getMergedBeanDefinition(factoryBeanName, factoryBeanDefinition);
@@ -1680,7 +1662,7 @@ public abstract class AbstractAutowireCapableBeanFactory
 
         if (factoryBeanClass != null) {
           result = getTypeForFactoryBeanFromMethod(factoryBeanClass, factoryMethodName);
-          if (result.resolve() != null) {
+          if (result.isResolved()) {
             return result;
           }
         }
@@ -1713,11 +1695,33 @@ public abstract class AbstractAutowireCapableBeanFactory
       // static factory method signature or from class inheritance hierarchy...
       return getTypeForFactoryBeanFromMethod(merged.getBeanClass(), factoryMethodName);
     }
-    result = getFactoryBeanGeneric(beanType);
-    if (result.resolve() != null) {
+
+    // For regular beans, try the target type and bean class as fallback
+    if (merged.getInstanceSupplier() == null) {
+      result = getFactoryBeanGeneric(merged);
+      if (result != null) {
+        return result;
+      }
+    }
+
+    // FactoryBean type not resolvable
+    return ResolvableType.NONE;
+  }
+
+  @Nullable
+  private ResolvableType getFactoryBeanGeneric(RootBeanDefinition merged) {
+    ResolvableType result = getFactoryBeanGeneric(merged.targetType);
+    if (result.isResolved()) {
       return result;
     }
-    return ResolvableType.NONE;
+    if (!merged.hasBeanClass()) {
+      return null;
+    }
+    result = getFactoryBeanGeneric(ResolvableType.forClass(merged.getBeanClass()));
+    if (result.isResolved()) {
+      return result;
+    }
+    return null;
   }
 
   private ResolvableType getFactoryBeanGeneric(@Nullable ResolvableType type) {
