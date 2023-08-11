@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +42,7 @@ import cn.taketoday.web.annotation.RequestMapping;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ProducesRequestCondition extends AbstractRequestCondition<ProducesRequestCondition> {
@@ -53,7 +51,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 
   private static final ProducesRequestCondition EMPTY_CONDITION = new ProducesRequestCondition();
   private static final List<MediaTypeExpression> MEDIA_TYPE_ALL_LIST =
-          Collections.singletonList(new MediaTypeExpression(MediaType.ALL_VALUE));
+      Collections.singletonList(new MediaTypeExpression(MediaType.ALL_VALUE));
 
   private final List<MediaTypeExpression> expressions;
   private final ContentNegotiationManager contentNegotiationManager;
@@ -90,7 +88,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * @param manager used to determine requested media types
    */
   public ProducesRequestCondition(String[] produces, @Nullable String[] headers,
-          @Nullable ContentNegotiationManager manager) {
+      @Nullable ContentNegotiationManager manager) {
     var expressions = MediaTypeExpression.parse(HttpHeaders.ACCEPT, produces, headers);
     if (expressions.size() > 1) {
       Collections.sort(expressions);
@@ -262,7 +260,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     for (int i = 0; i < expressionsToCompare.size(); i++) {
       MediaType currentMediaType = expressionsToCompare.get(i).mediaType;
       if (mediaType.getType().equalsIgnoreCase(currentMediaType.getType())
-              && mediaType.getSubtype().equalsIgnoreCase(currentMediaType.getSubtype())) {
+          && mediaType.getSubtype().equalsIgnoreCase(currentMediaType.getSubtype())) {
         return i;
       }
     }
@@ -278,8 +276,8 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     return -1;
   }
 
-  private int compareMatchingMediaTypes(ProducesRequestCondition condition1, int index1,
-          ProducesRequestCondition condition2, int index2) {
+  private int compareMatchingMediaTypes(ProducesRequestCondition condition1,
+      int index1, ProducesRequestCondition condition2, int index2) {
 
     int result = 0;
     if (index1 != index2) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,9 +44,11 @@ import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.handler.condition.ConsumesRequestCondition;
+import cn.taketoday.web.service.annotation.HttpExchange;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +89,7 @@ class RequestMappingHandlerMappingTests {
   void resolveEmbeddedValuesInPatterns(RequestMappingHandlerMapping mapping) {
 
     mapping.setEmbeddedValueResolver(
-            value -> "/${pattern}/bar".equals(value) ? "/foo/bar" : value
+        value -> "/${pattern}/bar".equals(value) ? "/foo/bar" : value
     );
 
     String[] patterns = new String[] { "/foo", "/${pattern}/bar" };
@@ -104,7 +103,7 @@ class RequestMappingHandlerMappingTests {
 
     mapping.setEmbeddedValueResolver(value -> "/${prefix}".equals(value) ? "/api" : value);
     mapping.setPathPrefixes(Collections.singletonMap(
-            "/${prefix}", HandlerTypePredicate.forAnnotation(RestController.class)));
+        "/${prefix}", HandlerTypePredicate.forAnnotation(RestController.class)));
     mapping.afterPropertiesSet();
 
     Method method = UserController.class.getMethod("getUser");
@@ -139,12 +138,12 @@ class RequestMappingHandlerMappingTests {
   void resolveRequestMappingViaComposedAnnotation(RequestMappingHandlerMapping mapping) {
 
     RequestMappingInfo info = assertComposedAnnotationMapping(
-            mapping, "postJson", "/postJson", HttpMethod.POST);
+        mapping, "postJson", "/postJson", HttpMethod.POST);
 
     assertThat(info.getConsumesCondition().getConsumableMediaTypes().iterator().next().toString())
-            .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
     assertThat(info.getProducesCondition().getProducibleMediaTypes().iterator().next().toString())
-            .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
   }
 
   @Test
@@ -163,9 +162,9 @@ class RequestMappingHandlerMappingTests {
     wac.refresh();
     mapping.afterPropertiesSet();
     RequestMappingInfo result = mapping.getHandlerMethods().keySet().stream()
-            .filter(info -> info.getPatternValues().equals(Collections.singleton("/post")))
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("No /post"));
+        .filter(info -> info.getPatternValues().equals(Collections.singleton("/post")))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("No /post"));
 
     assertThat(result.getConsumesCondition().isBodyRequired()).isFalse();
   }
@@ -195,6 +194,56 @@ class RequestMappingHandlerMappingTests {
     assertComposedAnnotationMapping(HttpMethod.PATCH);
   }
 
+  @SuppressWarnings("DataFlowIssue")
+  @Test
+  void httpExchangeWithDefaultValues() throws NoSuchMethodException {
+    RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
+    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.afterPropertiesSet();
+
+    RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
+        HttpExchangeController.class.getMethod("defaultValuesExchange"),
+        HttpExchangeController.class);
+
+    assertThat(mappingInfo.getPathPatternsCondition().getPatterns())
+        .extracting(PathPattern::toString)
+        .containsOnly("/exchange");
+
+    assertThat(mappingInfo.getMethodsCondition().getMethods()).isEmpty();
+    assertThat(mappingInfo.getParamsCondition().getExpressions()).isEmpty();
+    assertThat(mappingInfo.getHeadersCondition().getExpressions()).isEmpty();
+    assertThat(mappingInfo.getConsumesCondition().getExpressions()).isEmpty();
+    assertThat(mappingInfo.getProducesCondition().getExpressions()).isEmpty();
+  }
+
+  @SuppressWarnings("DataFlowIssue")
+  @Test
+  void httpExchangeWithCustomValues() throws Exception {
+    RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
+    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.afterPropertiesSet();
+
+    RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
+        HttpExchangeController.class.getMethod("customValuesExchange"),
+        HttpExchangeController.class);
+
+    assertThat(mappingInfo.getPathPatternsCondition().getPatterns())
+        .extracting(PathPattern::toString)
+        .containsOnly("/exchange/custom");
+
+    assertThat(mappingInfo.getMethodsCondition().getMethods()).containsOnly(HttpMethod.POST);
+    assertThat(mappingInfo.getParamsCondition().getExpressions()).isEmpty();
+    assertThat(mappingInfo.getHeadersCondition().getExpressions()).isEmpty();
+
+    assertThat(mappingInfo.getConsumesCondition().getExpressions())
+        .extracting("mediaType")
+        .containsOnly(MediaType.APPLICATION_JSON);
+
+    assertThat(mappingInfo.getProducesCondition().getExpressions())
+        .extracting("mediaType")
+        .containsOnly(MediaType.valueOf("text/plain;charset=UTF-8"));
+  }
+
   private RequestMappingInfo assertComposedAnnotationMapping(HttpMethod requestMethod) throws Exception {
 
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
@@ -207,7 +256,7 @@ class RequestMappingHandlerMappingTests {
   }
 
   private RequestMappingInfo assertComposedAnnotationMapping(
-          RequestMappingHandlerMapping mapping, String methodName, String path, HttpMethod requestMethod) {
+      RequestMappingHandlerMapping mapping, String methodName, String path, HttpMethod requestMethod) {
 
     Class<?> clazz = ComposedAnnotationController.class;
     Method method = ReflectionUtils.getMethod(clazz, methodName, (Class<?>[]) null);
@@ -278,6 +327,18 @@ class RequestMappingHandlerMappingTests {
     public Principal getUser() {
       return mock(Principal.class);
     }
+  }
+
+  @RestController
+  @HttpExchange("/exchange")
+  static class HttpExchangeController {
+
+    @HttpExchange
+    public void defaultValuesExchange() { }
+
+    @HttpExchange(value = "/custom", accept = "text/plain;charset=UTF-8",
+                  method = "POST", contentType = "application/json")
+    public void customValuesExchange() { }
   }
 
   private static class Foo {
