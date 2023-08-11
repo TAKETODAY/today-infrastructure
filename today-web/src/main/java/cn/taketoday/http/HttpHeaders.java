@@ -878,7 +878,7 @@ public abstract class HttpHeaders
       String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
       ArrayList<HttpMethod> result = new ArrayList<>(tokens.length);
       for (String token : tokens) {
-        result.add(HttpMethod.from(token));
+        result.add(HttpMethod.resolve(token));
       }
       return EnumSet.copyOf(result);
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
 import java.util.HashMap;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.annotation.RequestMapping;
 
 /**
- * HTTP Request Methods
+ * Enumeration of HTTP request methods. Intended for use with the
+ * {@link RequestMapping#method()} attribute of the {@link RequestMapping} annotation.
  *
  * @author TODAY 2018-06-27 19:01:04
  * @version 2.0.0
@@ -59,7 +59,7 @@ public enum HttpMethod {
    * @since 4.0
    */
   @Nullable
-  public static HttpMethod from(@Nullable String method) {
+  public static HttpMethod resolve(@Nullable String method) {
     return method != null ? mappings.get(method) : null;
   }
 
