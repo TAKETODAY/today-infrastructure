@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +86,11 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
   @Override
   protected String readInternal(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException {
     Charset charset = getContentTypeCharset(inputMessage.getHeaders().getContentType());
-    return StreamUtils.copyToString(inputMessage.getBody(), charset);
+    long length = inputMessage.getHeaders().getContentLength();
+    byte[] bytes = (length >= 0 && length <= Integer.MAX_VALUE ?
+                    inputMessage.getBody().readNBytes((int) length) :
+                    inputMessage.getBody().readAllBytes());
+    return new String(bytes, charset);
   }
 
   @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +63,17 @@ public class StringHttpMessageConverterTests {
   public void read() throws IOException {
     String body = "Hello World";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
+    inputMessage.getHeaders().setContentType(TEXT_PLAIN_UTF_8);
+    String result = this.converter.read(String.class, inputMessage);
+
+    assertThat(result).as("Invalid result").isEqualTo(body);
+  }
+
+  @Test
+  void readWithContentLengthHeader() throws IOException {
+    String body = "Hello World";
+    MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
+    inputMessage.getHeaders().setContentLength(body.length());
     inputMessage.getHeaders().setContentType(TEXT_PLAIN_UTF_8);
     String result = this.converter.read(String.class, inputMessage);
 
