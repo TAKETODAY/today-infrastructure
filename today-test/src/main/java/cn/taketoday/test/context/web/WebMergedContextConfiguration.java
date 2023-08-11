@@ -106,10 +106,7 @@ public class WebMergedContextConfiguration extends MergedContextConfiguration {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent context
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @deprecated in favor of
-   * {@link #WebMergedContextConfiguration(Class, String[], Class[], Set, String[], List, String[], Set, String, ContextLoader, CacheAwareContextLoaderDelegate, MergedContextConfiguration)}
    */
-  @Deprecated
   public WebMergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations, @Nullable String[] propertySourceProperties,

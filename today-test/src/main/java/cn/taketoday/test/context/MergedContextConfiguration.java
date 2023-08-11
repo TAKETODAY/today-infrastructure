@@ -61,6 +61,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Sam Brannen
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContextConfiguration
  * @see ContextHierarchy
  * @see ActiveProfiles
@@ -157,7 +158,6 @@ public class MergedContextConfiguration implements Serializable {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @since 3.2.2
    */
   public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
@@ -203,10 +203,7 @@ public class MergedContextConfiguration implements Serializable {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @deprecated in favor of
-   * {@link #MergedContextConfiguration(Class, String[], Class[], Set, String[], List, String[], Set, ContextLoader, CacheAwareContextLoaderDelegate, MergedContextConfiguration)}
    */
-  @Deprecated
   public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations,
@@ -243,10 +240,7 @@ public class MergedContextConfiguration implements Serializable {
    * @param cacheAwareContextLoaderDelegate a cache-aware context loader
    * delegate with which to retrieve the parent {@code ApplicationContext}
    * @param parent the parent configuration or {@code null} if there is no parent
-   * @deprecated in favor of
-   * {@link #MergedContextConfiguration(Class, String[], Class[], Set, String[], List, String[], Set, ContextLoader, CacheAwareContextLoaderDelegate, MergedContextConfiguration)}
    */
-  @Deprecated
   public MergedContextConfiguration(Class<?> testClass, @Nullable String[] locations, @Nullable Class<?>[] classes,
       @Nullable Set<Class<? extends ApplicationContextInitializer>> contextInitializerClasses,
       @Nullable String[] activeProfiles, @Nullable String[] propertySourceLocations,
@@ -407,9 +401,7 @@ public class MergedContextConfiguration implements Serializable {
    *
    * @see TestPropertySource#locations
    * @see java.util.Properties
-   * @deprecated in favor of {@link #getPropertySourceDescriptors()}
    */
-  @Deprecated
   public String[] getPropertySourceLocations() {
     return this.propertySourceLocations;
   }
