@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -160,8 +158,7 @@ class ReactiveTypeHandlerTests {
     Sinks.One<String> emptySink = Sinks.one();
     testDeferredResultSubscriber(
             emptySink.asMono(), Mono.class, ResolvableType.forClass(String.class),
-            () -> emptySink.emitEmpty(Sinks.EmitFailureHandler.FAIL_FAST),
-            null);
+            () -> emptySink.emitEmpty(Sinks.EmitFailureHandler.FAIL_FAST), null);
 
     // RxJava Single
     AtomicReference<SingleEmitter<String>> ref2 = new AtomicReference<>();
@@ -432,6 +429,11 @@ class ReactiveTypeHandlerTests {
     @Override
     public void send(Object data, MediaType mediaType) throws IOException {
       this.values.add(data);
+    }
+
+    @Override
+    public void send(Collection<ResponseBodyEmitter.DataWithMediaType> items) throws IOException {
+      items.forEach(item -> this.values.add(item.data));
     }
 
     @Override

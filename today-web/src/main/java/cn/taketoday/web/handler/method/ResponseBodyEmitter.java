@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,8 @@
 package cn.taketoday.web.handler.method;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import cn.taketoday.http.MediaType;
@@ -76,7 +74,7 @@ public class ResponseBodyEmitter {
   private Handler handler;
 
   /** Store send data before handler is initialized. */
-  private final LinkedList<DataWithMediaType> earlySendAttempts = new LinkedList<>();
+  private final ArrayList<DataWithMediaType> earlySendAttempts = new ArrayList<>();
 
   /** Store successful completion before the handler is initialized. */
   private boolean complete;
@@ -132,12 +130,10 @@ public class ResponseBodyEmitter {
     this.handler = handler;
 
     try {
-      for (DataWithMediaType sendAttempt : this.earlySendAttempts) {
-        sendInternal(sendAttempt.data, sendAttempt.mediaType);
-      }
+      sendInternal(earlySendAttempts);
     }
     finally {
-      this.earlySendAttempts.clear();
+      earlySendAttempts.clear();
     }
 
     if (complete) {
@@ -204,13 +200,9 @@ public class ResponseBodyEmitter {
       throw new IllegalStateException("ResponseBodyEmitter has already completed" +
               (this.failure != null ? " with error: " + this.failure : ""));
     }
-    sendInternal(object, mediaType);
-  }
-
-  private void sendInternal(Object object, @Nullable MediaType mediaType) throws IOException {
-    if (handler != null) {
+    if (this.handler != null) {
       try {
-        handler.send(object, mediaType);
+        this.handler.send(object, mediaType);
       }
       catch (IOException ex) {
         this.sendFailed = true;
@@ -222,7 +214,46 @@ public class ResponseBodyEmitter {
       }
     }
     else {
-      earlySendAttempts.add(new DataWithMediaType(object, mediaType));
+      this.earlySendAttempts.add(new DataWithMediaType(object, mediaType));
+    }
+  }
+
+  /**
+   * Write a set of data and MediaType pairs in a batch.
+   * <p>Compared to {@link #send(Object, MediaType)}, this batches the write operations
+   * and flushes to the network at the end.
+   *
+   * @param items the object and media type pairs to write
+   * @throws IOException raised when an I/O error occurs
+   * @throws java.lang.IllegalStateException wraps any other errors
+   */
+  public synchronized void send(Collection<DataWithMediaType> items) throws IOException {
+    if (complete) {
+      throw new IllegalStateException("ResponseBodyEmitter has already completed" +
+              (this.failure != null ? " with error: " + this.failure : ""));
+    }
+    sendInternal(items);
+  }
+
+  private void sendInternal(Collection<DataWithMediaType> items) throws IOException {
+    if (items.isEmpty()) {
+      return;
+    }
+    if (this.handler != null) {
+      try {
+        this.handler.send(items);
+      }
+      catch (IOException ex) {
+        this.sendFailed = true;
+        throw ex;
+      }
+      catch (Throwable ex) {
+        this.sendFailed = true;
+        throw new IllegalStateException("Failed to send " + items, ex);
+      }
+    }
+    else {
+      this.earlySendAttempts.addAll(items);
     }
   }
 
@@ -308,7 +339,15 @@ public class ResponseBodyEmitter {
    */
   interface Handler {
 
+    /**
+     * Immediately write and flush the given data to the network.
+     */
     void send(Object data, @Nullable MediaType mediaType) throws IOException;
+
+    /**
+     * Immediately write all data items then flush to the network.
+     */
+    void send(Collection<DataWithMediaType> items) throws IOException;
 
     void complete();
 
@@ -325,7 +364,7 @@ public class ResponseBodyEmitter {
    * A simple holder of data to be written along with a MediaType hint for
    * selecting a message converter to write with.
    */
-  static class DataWithMediaType {
+  public static class DataWithMediaType {
     public final Object data;
 
     @Nullable

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +19,9 @@ package cn.taketoday.web.handler.method;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
@@ -76,12 +73,12 @@ public class SseEmitter extends ResponseBodyEmitter {
 
   /**
    * Send the object formatted as a single SSE "data" line. It's equivalent to:
-   * <pre>
+   * <pre>{@code
    * // static import of SseEmitter.*
    *
    * SseEmitter emitter = new SseEmitter();
    * emitter.send(event().data(myObject));
-   * </pre>
+   * }</pre>
    * <p>Please, see {@link ResponseBodyEmitter#send(Object) parent Javadoc}
    * for important notes on exception handling.
    *
@@ -96,12 +93,12 @@ public class SseEmitter extends ResponseBodyEmitter {
 
   /**
    * Send the object formatted as a single SSE "data" line. It's equivalent to:
-   * <pre>
+   * <pre>{@code
    * // static import of SseEmitter.*
    *
    * SseEmitter emitter = new SseEmitter();
    * emitter.send(event().data(myObject, MediaType.APPLICATION_JSON));
-   * </pre>
+   * }</pre>
    * <p>Please, see {@link ResponseBodyEmitter#send(Object) parent Javadoc}
    * for important notes on exception handling.
    *
@@ -116,21 +113,19 @@ public class SseEmitter extends ResponseBodyEmitter {
 
   /**
    * Send an SSE event prepared with the given builder. For example:
-   * <pre>
+   * <pre>{@code
    * // static import of SseEmitter
    * SseEmitter emitter = new SseEmitter();
    * emitter.send(event().name("update").id("1").data(myObject));
-   * </pre>
+   * }</pre>
    *
    * @param builder a builder for an SSE formatted event.
    * @throws IOException raised when an I/O error occurs
    */
   public void send(SseEventBuilder builder) throws IOException {
-    Set<DataWithMediaType> dataToSend = builder.build();
+    var dataToSend = builder.build();
     synchronized(this) {
-      for (DataWithMediaType entry : dataToSend) {
-        super.send(entry.data, entry.mediaType);
-      }
+      super.send(dataToSend);
     }
   }
 
@@ -182,7 +177,7 @@ public class SseEmitter extends ResponseBodyEmitter {
      * Return one or more Object-MediaType pairs to write via
      * {@link #send(Object, MediaType)}.
      */
-    Set<DataWithMediaType> build();
+    Collection<DataWithMediaType> build();
   }
 
   /**
@@ -190,7 +185,7 @@ public class SseEmitter extends ResponseBodyEmitter {
    */
   private static class SseEventBuilderImpl implements SseEventBuilder {
 
-    private final Set<DataWithMediaType> dataToSend = new LinkedHashSet<>(4);
+    private final ArrayList<DataWithMediaType> dataToSend = new ArrayList<>();
 
     @Nullable
     private StringBuilder sb;
@@ -250,7 +245,7 @@ public class SseEmitter extends ResponseBodyEmitter {
     }
 
     @Override
-    public Set<DataWithMediaType> build() {
+    public Collection<DataWithMediaType> build() {
       if (StringUtils.isEmpty(this.sb) && this.dataToSend.isEmpty()) {
         return Collections.emptySet();
       }

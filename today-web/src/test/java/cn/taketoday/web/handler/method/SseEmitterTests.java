@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +23,12 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Nullable;
 
 import static cn.taketoday.web.handler.method.SseEmitter.event;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +59,7 @@ class SseEmitterTests {
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(1, "foo");
     this.handler.assertObject(2, "\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
   }
 
   @Test
@@ -69,12 +69,14 @@ class SseEmitterTests {
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(1, "foo", MediaType.TEXT_PLAIN);
     this.handler.assertObject(2, "\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
   }
 
   @Test
   public void sendEventEmpty() throws Exception {
     this.emitter.send(event());
     this.handler.assertSentObjectCount(0);
+    this.handler.assertWriteCount(0);
   }
 
   @Test
@@ -84,6 +86,7 @@ class SseEmitterTests {
     this.handler.assertObject(0, "data:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(1, "foo");
     this.handler.assertObject(2, "\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
   }
 
   @Test
@@ -95,6 +98,7 @@ class SseEmitterTests {
     this.handler.assertObject(2, "\ndata:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(3, "bar");
     this.handler.assertObject(4, "\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
   }
 
   @Test
@@ -104,6 +108,7 @@ class SseEmitterTests {
     this.handler.assertObject(0, ":blah\nevent:test\nretry:5000\nid:1\ndata:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(1, "foo");
     this.handler.assertObject(2, "\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
   }
 
   @Test
@@ -115,16 +120,19 @@ class SseEmitterTests {
     this.handler.assertObject(2, "\ndata:", TEXT_PLAIN_UTF8);
     this.handler.assertObject(3, "bar");
     this.handler.assertObject(4, "\nevent:test\nretry:5000\nid:1\n\n", TEXT_PLAIN_UTF8);
+    this.handler.assertWriteCount(1);
   }
 
   private static class TestHandler implements ResponseBodyEmitter.Handler {
 
-    private List<Object> objects = new ArrayList<>();
+    private final List<Object> objects = new ArrayList<>();
 
-    private List<MediaType> mediaTypes = new ArrayList<>();
+    private final List<MediaType> mediaTypes = new ArrayList<>();
+
+    private int writeCount;
 
     public void assertSentObjectCount(int size) {
-      assertThat(this.objects.size()).isEqualTo(size);
+      assertThat(this.objects).hasSize(size);
     }
 
     public void assertObject(int index, Object object) {
@@ -132,15 +140,29 @@ class SseEmitterTests {
     }
 
     public void assertObject(int index, Object object, MediaType mediaType) {
-      assertThat(index <= this.objects.size()).isTrue();
+      assertThat(index).isLessThanOrEqualTo(this.objects.size());
       assertThat(this.objects.get(index)).isEqualTo(object);
       assertThat(this.mediaTypes.get(index)).isEqualTo(mediaType);
     }
 
+    public void assertWriteCount(int writeCount) {
+      assertThat(this.writeCount).isEqualTo(writeCount);
+    }
+
     @Override
-    public void send(Object data, MediaType mediaType) throws IOException {
+    public void send(Object data, @Nullable MediaType mediaType) throws IOException {
       this.objects.add(data);
       this.mediaTypes.add(mediaType);
+      this.writeCount++;
+    }
+
+    @Override
+    public void send(Collection<ResponseBodyEmitter.DataWithMediaType> items) throws IOException {
+      for (ResponseBodyEmitter.DataWithMediaType item : items) {
+        this.objects.add(item.data);
+        this.mediaTypes.add(item.mediaType);
+      }
+      this.writeCount++;
     }
 
     @Override

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.web.handler.method;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -38,7 +36,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -235,19 +232,29 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void send(Object data, @Nullable MediaType mediaType) throws IOException {
+      sendInternal(data, mediaType);
+      request.flush();
+    }
+
+    @Override
+    public void send(Collection<ResponseBodyEmitter.DataWithMediaType> items) throws IOException {
+      for (ResponseBodyEmitter.DataWithMediaType item : items) {
+        sendInternal(item.data, item.mediaType);
+      }
+      request.flush();
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void sendInternal(Object data, @Nullable MediaType mediaType) throws IOException {
       Class<?> dataClass = data.getClass();
       for (HttpMessageConverter converter : sseMessageConverters) {
         if (converter.canWrite(dataClass, mediaType)) {
-          LogFormatUtils.traceDebug(log, traceOn ->
-                  "Writing [" + LogFormatUtils.formatValue(data, !traceOn) + "]");
           converter.write(data, mediaType, request.asHttpOutputMessage());
-          request.flush();
           return;
         }
       }
-      throw new IllegalArgumentException("No suitable converter for " + dataClass);
+      throw new IllegalArgumentException("No suitable converter for " + data.getClass());
     }
 
     @Override
