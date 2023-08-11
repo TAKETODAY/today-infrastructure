@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -411,9 +409,9 @@ class MergedContextConfigurationTests {
   void equalsWithSameContextCustomizers() {
     Set<ContextCustomizer> customizers = Collections.singleton(mock(ContextCustomizer.class));
     MergedContextConfiguration mergedConfig1 = new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
-            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, null, null, customizers, loader, null, null);
+            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, List.of(), null, customizers, loader, null, null);
     MergedContextConfiguration mergedConfig2 = new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
-            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, null, null, customizers, loader, null, null);
+            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, List.of(), null, customizers, loader, null, null);
     assertThat(mergedConfig2).isEqualTo(mergedConfig1);
   }
 
@@ -426,9 +424,9 @@ class MergedContextConfigurationTests {
     Set<ContextCustomizer> customizers2 = Collections.singleton(mock(ContextCustomizer.class));
 
     MergedContextConfiguration mergedConfig1 = new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
-            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, null, null, customizers1, loader, null, null);
+            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, List.of(), null, customizers1, loader, null, null);
     MergedContextConfiguration mergedConfig2 = new MergedContextConfiguration(getClass(), EMPTY_STRING_ARRAY,
-            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, null, null, customizers2, loader, null, null);
+            EMPTY_CLASS_ARRAY, null, EMPTY_STRING_ARRAY, List.of(), null, customizers2, loader, null, null);
     assertThat(mergedConfig2).isNotEqualTo(mergedConfig1);
     assertThat(mergedConfig1).isNotEqualTo(mergedConfig2);
   }

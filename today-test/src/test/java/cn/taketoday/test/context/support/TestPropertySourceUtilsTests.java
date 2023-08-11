@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +22,16 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.annotation.AnnotationConfigurationException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.ByteArrayResource;
+import cn.taketoday.core.io.PropertySourceDescriptor;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.mock.env.MockPropertySource;
@@ -297,7 +297,9 @@ class TestPropertySourceUtilsTests {
     MergedTestPropertySources mergedPropertySources = buildMergedTestPropertySources(testClass);
     SoftAssertions.assertSoftly(softly -> {
       softly.assertThat(mergedPropertySources).isNotNull();
-      softly.assertThat(mergedPropertySources.getLocations()).isEqualTo(expectedLocations);
+      Stream<String> locations = mergedPropertySources.getPropertySourceDescriptors().stream()
+          .map(PropertySourceDescriptor::locations).flatMap(List::stream);
+      softly.assertThat(locations).containsExactly(expectedLocations);
       softly.assertThat(mergedPropertySources.getProperties()).isEqualTo(expectedProperties);
     });
   }

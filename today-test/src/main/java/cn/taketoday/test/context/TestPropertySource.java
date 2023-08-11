@@ -26,8 +26,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
-import cn.taketoday.test.context.support.AbstractGenericContextLoader;
-import cn.taketoday.test.context.web.AbstractGenericWebContextLoader;
+import cn.taketoday.core.io.PropertySourceFactory;
 
 /**
  * {@code @TestPropertySource} is a class-level annotation that is used to
@@ -64,10 +63,10 @@ import cn.taketoday.test.context.web.AbstractGenericWebContextLoader;
  * <p>{@code @TestPropertySource} is enabled if the configured
  * {@linkplain ContextConfiguration#loader context loader} honors it. Every
  * {@code SmartContextLoader} that is a subclass of either
- * {@link AbstractGenericContextLoader AbstractGenericContextLoader} or
- * {@link AbstractGenericWebContextLoader AbstractGenericWebContextLoader}
+ * {@link cn.taketoday.test.context.support.AbstractGenericContextLoader AbstractGenericContextLoader} or
+ * {@link cn.taketoday.test.context.web.AbstractGenericWebContextLoader AbstractGenericWebContextLoader}
  * provides automatic support for {@code @TestPropertySource}, and this includes
- * every {@code SmartContextLoader} provided by the TestContext Framework.
+ * every {@code SmartContextLoader} provided by the Infra TestContext Framework.
  *
  * <h3>Miscellaneous</h3>
  * <ul>
@@ -81,12 +80,13 @@ import cn.taketoday.test.context.web.AbstractGenericWebContextLoader;
  * annotation since the {@code locations} and {@code inheritLocations} attributes
  * of both annotations can lead to ambiguity during the attribute resolution
  * process.</li>
- * <li> this annotation will be inherited from an
+ * <li>This annotation will be inherited from an
  * enclosing test class by default. See
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.</li>
  * </ul>
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContextConfiguration
  * @see DynamicPropertySource
  * @see cn.taketoday.core.env.Environment
@@ -116,11 +116,12 @@ public @interface TestPropertySource {
    * {@code Environment}'s set of {@code PropertySources}. Each location
    * will be added to the enclosing {@code Environment} as its own property
    * source, in the order declared.
-   * <h3>Supported File Formats</h3>
-   * <p>Both traditional and XML-based properties file formats are supported
-   * &mdash; for example, {@code "classpath:/com/example/test.properties"}
-   * or {@code "file:/path/to/file.xml"}.
-   * <h3>Path Resource Semantics</h3>
+   * <h4>Supported File Formats</h4>
+   * <p>By default, both traditional and XML-based properties file formats are
+   * supported &mdash; for example, {@code "classpath:/com/example/test.properties"}
+   * or {@code "file:/path/to/file.xml"}. To support a different file format,
+   * configure an appropriate {@link #factory() PropertySourceFactory}.
+   * <h4>Path Resource Semantics</h4>
    * <p>Each path will be interpreted as a Infra
    * {@link cn.taketoday.core.io.Resource Resource}. A plain path
    * &mdash; for example, {@code "test.properties"} &mdash; will be treated as a
@@ -129,18 +130,17 @@ public @interface TestPropertySource {
    * <em>absolute</em> classpath resource, for example:
    * {@code "/org/example/test.xml"}. A path which references a
    * URL (e.g., a path prefixed with
-   * {@link cn.taketoday.core.io.ResourceLoader#CLASSPATH_URL_PREFIX classpath:},
+   * {@link cn.taketoday.util.ResourceUtils#CLASSPATH_URL_PREFIX classpath:},
    * {@link cn.taketoday.util.ResourceUtils#FILE_URL_PREFIX file:},
    * {@code http:}, etc.) will be loaded using the specified resource protocol.
    * Resource location wildcards (e.g. <code>*&#42;/*.properties</code>)
-   * are not permitted: each location must evaluate to exactly one
-   * {@code .properties} or {@code .xml} resource. Property placeholders
-   * in paths (i.e., <code>${...}</code>) will be
+   * are not permitted: each location must evaluate to exactly one properties
+   * resource. Property placeholders in paths (i.e., <code>${...}</code>) will be
    * {@linkplain cn.taketoday.core.env.Environment#resolveRequiredPlaceholders(String) resolved}
    * against the {@code Environment}.
-   * <h3>Default Properties File Detection</h3>
+   * <h4>Default Properties File Detection</h4>
    * <p>See the class-level Javadoc for a discussion on detection of defaults.
-   * <h3>Precedence</h3>
+   * <h4>Precedence</h4>
    * <p>Properties loaded from resource locations have lower precedence than
    * inlined {@link #properties}.
    * <p>This attribute may <strong>not</strong> be used in conjunction with
@@ -149,40 +149,45 @@ public @interface TestPropertySource {
    * @see #inheritLocations
    * @see #value
    * @see #properties
+   * @see #encoding
+   * @see #factory
    * @see cn.taketoday.core.env.PropertySource
    */
   @AliasFor("value")
   String[] locations() default {};
 
   /**
-   * Whether or not test property source {@link #locations} from superclasses
-   * should be <em>inherited</em>.
+   * Whether test property source {@link #locations} from superclasses
+   * and enclosing classes should be <em>inherited</em>.
    * <p>The default value is {@code true}, which means that a test class will
-   * <em>inherit</em> property source locations defined by a superclass.
-   * Specifically, the property source locations for a test class will be
-   * appended to the list of property source locations defined by a superclass.
-   * Thus, subclasses have the option of <em>extending</em> the list of test
-   * property source locations.
+   * <em>inherit</em> property source locations defined by a superclass or
+   * enclosing class. Specifically, the property source locations for a test
+   * class will be appended to the list of property source locations defined
+   * by a superclass or enclosing class. Thus, subclasses and nested classes
+   * have the option of <em>extending</em> the list of test property source
+   * locations.
    * <p>If {@code inheritLocations} is set to {@code false}, the property
    * source locations for the test class will <em>shadow</em> and effectively
-   * replace any property source locations defined by a superclass.
+   * replace any property source locations defined by a superclass or
+   * enclosing class.
    * <p>In the following example, the {@code ApplicationContext} for
    * {@code BaseTest} will be loaded using only the {@code "base.properties"}
    * file as a test property source. In contrast, the {@code ApplicationContext}
    * for {@code ExtendedTest} will be loaded using the {@code "base.properties"}
    * <strong>and</strong> {@code "extended.properties"} files as test property
    * source locations.
-   * <pre class="code">
-   * &#064;TestPropertySource(&quot;base.properties&quot;)
-   * &#064;ContextConfiguration
+   * <pre>{@code
+   * @TestPropertySource("base.properties")
+   * @ContextConfiguration
    * public class BaseTest {
    *   // ...
    * }
    *
-   * &#064;TestPropertySource(&quot;extended.properties&quot;)
-   * &#064;ContextConfiguration
+   * @TestPropertySource("extended.properties")
+   * @ContextConfiguration
    * public class ExtendedTest extends BaseTest {
    *   // ...
+   * }
    * }</pre>
    * <p>If {@code @TestPropertySource} is used as a <em>{@linkplain Repeatable
    * repeatable}</em> annotation, the following special rules apply.
@@ -213,7 +218,7 @@ public @interface TestPropertySource {
    * {@code ApplicationContext} is loaded for the test. All key-value pairs
    * will be added to the enclosing {@code Environment} as a single test
    * {@code PropertySource} with the highest precedence.
-   * <h3>Supported Syntax</h3>
+   * <h4>Supported Syntax</h4>
    * <p>The supported syntax for key-value pairs is the same as the
    * syntax defined for entries in a Java
    * {@linkplain java.util.Properties#load(java.io.Reader) properties file}:
@@ -222,7 +227,7 @@ public @interface TestPropertySource {
    * <li>{@code "key:value"}</li>
    * <li>{@code "key value"}</li>
    * </ul>
-   * <h3>Precedence</h3>
+   * <h4>Precedence</h4>
    * <p>Properties declared via this attribute have higher precedence than
    * properties loaded from resource {@link #locations}.
    * <p>This attribute may be used in conjunction with {@link #value}
@@ -235,31 +240,33 @@ public @interface TestPropertySource {
   String[] properties() default {};
 
   /**
-   * Whether or not inlined test {@link #properties} from superclasses should
-   * be <em>inherited</em>.
+   * Whether inlined test {@link #properties} from superclasses and
+   * enclosing classes should be <em>inherited</em>.
    * <p>The default value is {@code true}, which means that a test class will
-   * <em>inherit</em> inlined properties defined by a superclass. Specifically,
-   * the inlined properties for a test class will be appended to the list of
-   * inlined properties defined by a superclass. Thus, subclasses have the
-   * option of <em>extending</em> the list of inlined test properties.
+   * <em>inherit</em> inlined properties defined by a superclass or enclosing
+   * class. Specifically, the inlined properties for a test class will be
+   * appended to the list of inlined properties defined by a superclass or
+   * enclosing class. Thus, subclasses and nested classes have the option of
+   * <em>extending</em> the list of inlined test properties.
    * <p>If {@code inheritProperties} is set to {@code false}, the inlined
    * properties for the test class will <em>shadow</em> and effectively
-   * replace any inlined properties defined by a superclass.
+   * replace any inlined properties defined by a superclass or enclosing class.
    * <p>In the following example, the {@code ApplicationContext} for
    * {@code BaseTest} will be loaded using only the inlined {@code key1}
    * property. In contrast, the {@code ApplicationContext} for
    * {@code ExtendedTest} will be loaded using the inlined {@code key1}
    * <strong>and</strong> {@code key2} properties.
-   * <pre class="code">
-   * &#064;TestPropertySource(properties = &quot;key1 = value1&quot;)
-   * &#064;ContextConfiguration
+   * <pre>{@code
+   * @TestPropertySource(properties = "key1 = value1")
+   * @ContextConfiguration
    * public class BaseTest {
    *   // ...
    * }
-   * &#064;TestPropertySource(properties = &quot;key2 = value2&quot;)
-   * &#064;ContextConfiguration
+   * @TestPropertySource(properties = "key2 = value2")
+   * @ContextConfiguration
    * public class ExtendedTest extends BaseTest {
    *   // ...
+   * }
    * }</pre>
    * <p>If {@code @TestPropertySource} is used as a <em>{@linkplain Repeatable
    * repeatable}</em> annotation, the following special rules apply.
@@ -268,7 +275,7 @@ public @interface TestPropertySource {
    * test class hierarchy (i.e., directly present or meta-present on a test
    * class) are considered to be <em>local</em> annotations, in contrast to
    * {@code @TestPropertySource} annotations that are inherited from a
-   * superclass.</li>
+   * superclass or enclosing class.</li>
    * <li>All local {@code @TestPropertySource} annotations must declare the
    * same value for the {@code inheritProperties} flag.</li>
    * <li>The {@code inheritProperties} flag is not taken into account between
@@ -282,5 +289,23 @@ public @interface TestPropertySource {
    * @see #properties
    */
   boolean inheritProperties() default true;
+
+  /**
+   * Specify the character encoding for the given {@linkplain #locations resources}
+   * &mdash; for example, "UTF-8".
+   * <p>If not specified, the default character encoding of the JVM will be used.
+   */
+  String encoding() default "";
+
+  /**
+   * Specify a custom {@link PropertySourceFactory}, if any.
+   * <p>By default, a factory for standard resource files will be used which
+   * supports {@code *.properties} and {@code *.xml} file formats for
+   * {@link java.util.Properties}.
+   *
+   * @see cn.taketoday.core.io.DefaultPropertySourceFactory
+   * @see cn.taketoday.core.io.ResourcePropertySource
+   */
+  Class<? extends PropertySourceFactory> factory() default PropertySourceFactory.class;
 
 }

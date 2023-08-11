@@ -97,6 +97,7 @@ dependencies {
   testRuntimeOnly("org.glassfish:jakarta.el")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
+  testRuntimeOnly("org.yaml:snakeyaml")
 }
 
 // Prevent xml-apis from being used so that the corresponding XML APIs from

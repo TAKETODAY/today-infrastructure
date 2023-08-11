@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,7 +125,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    *
    * @param context the newly created application context
    * @param mergedConfig the merged context configuration
-   * @see TestPropertySourceUtils#addPropertiesFilesToEnvironment
+   * @see TestPropertySourceUtils#addPropertySourcesToEnvironment(ConfigurableApplicationContext, List)
    * @see TestPropertySourceUtils#addInlinedPropertiesToEnvironment
    * @see ApplicationContextInitializer#initialize(ConfigurableApplicationContext)
    * @see #loadContext(MergedContextConfiguration)
@@ -136,7 +133,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    */
   protected void prepareContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
     context.getEnvironment().setActiveProfiles(mergedConfig.getActiveProfiles());
-    TestPropertySourceUtils.addPropertiesFilesToEnvironment(context, mergedConfig.getPropertySourceLocations());
+    TestPropertySourceUtils.addPropertySourcesToEnvironment(context, mergedConfig.getPropertySourceDescriptors());
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(context, mergedConfig.getPropertySourceProperties());
     invokeApplicationContextInitializers(context, mergedConfig);
   }

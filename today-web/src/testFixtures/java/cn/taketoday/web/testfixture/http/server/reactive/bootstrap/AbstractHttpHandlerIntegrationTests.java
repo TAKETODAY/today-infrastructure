@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.testfixture.http.server.reactive.bootstrap;
 
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -36,6 +34,8 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.client.HttpServerErrorException;
 import reactor.core.publisher.Flux;
@@ -73,7 +73,7 @@ public abstract class AbstractHttpHandlerIntegrationTests {
     throw throwable;
   };
 
-  protected final Log logger = LogFactory.getLog(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   protected HttpServer server;
 

@@ -15,33 +15,26 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.test.context.env.repeatable;
+package cn.taketoday.test.context.env;
 
-import org.junit.jupiter.api.Test;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.TestPropertySource;
 
 /**
- * Integration tests for {@link TestPropertySource @TestPropertySource} as a
- * repeatable annotation.
- *
- * <p>Verify a property value is defined both in the properties file which is declared
- * via {@link MetaFileTestProperty @MetaFileTestProperty} and in the properties file
- * which is declared locally via {@code @TestPropertySource}.
- *
- * @author Anatoliy Korovin
  * @author Sam Brannen
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@TestPropertySource("local.properties")
-@MetaFileTestProperty
-class LocalPropertiesFileAndMetaPropertiesFileTests extends AbstractRepeatableTestPropertySourceTests {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@TestPropertySource(factory = YamlPropertySourceFactory.class)
+public @interface YamlTestProperties {
 
-  @Test
-  void test() {
-    assertEnvironmentValue("key1", "local file");
-    assertEnvironmentValue("key2", "meta file");
-  }
+  @AliasFor(annotation = TestPropertySource.class)
+  String[] value();
 
 }
