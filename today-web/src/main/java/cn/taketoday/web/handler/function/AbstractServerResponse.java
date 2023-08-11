@@ -50,7 +50,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   private final MultiValueMap<String, HttpCookie> cookies;
 
   protected AbstractServerResponse(HttpStatusCode statusCode,
-          HttpHeaders headers, @Nullable MultiValueMap<String, HttpCookie> cookies) {
+      HttpHeaders headers, @Nullable MultiValueMap<String, HttpCookie> cookies) {
     this.statusCode = statusCode;
     this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
     this.cookies = cookies;
@@ -62,7 +62,6 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   }
 
   @Override
-  @Deprecated
   public int rawStatusCode() {
     return this.statusCode.value();
   }
@@ -87,7 +86,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
       writeStatusAndHeaders(request);
 
       if (SAFE_METHODS.contains(request.getMethod())
-              && request.checkNotModified(headers().getETag(), headers().getLastModified())) {
+          && request.checkNotModified(headers().getETag(), headers().getLastModified())) {
         return NONE_RETURN_VALUE;
       }
       else {

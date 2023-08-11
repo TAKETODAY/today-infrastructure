@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.contentOf;
  *
  * @author Andy Wilkinson
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 abstract class AbstractArchiveIntegrationTests {
 
@@ -62,7 +63,6 @@ abstract class AbstractArchiveIntegrationTests {
     return new AssertProvider<>() {
 
       @Override
-      @Deprecated(since = "2.3.0", forRemoval = false)
       public JarAssert assertThat() {
         return new JarAssert(file);
       }
@@ -88,7 +88,7 @@ abstract class AbstractArchiveIntegrationTests {
         }
         else if (line.startsWith(entryPrefix)) {
           index.computeIfAbsent(layer, (key) -> new ArrayList<>())
-                  .add(line.substring(entryPrefix.length() + 1, line.length() - 1));
+              .add(line.substring(entryPrefix.length() + 1, line.length() - 1));
         }
         line = reader.readLine();
       }
@@ -147,7 +147,7 @@ abstract class AbstractArchiveIntegrationTests {
       withJarFile((jarFile) -> {
         withEntries(jarFile, (entries) -> {
           Optional<JarEntry> match = entries.filter((entry) -> entry.getName().startsWith(prefix))
-                  .findFirst();
+              .findFirst();
           assertThat(match).hasValueSatisfying((entry) -> assertThat(entry.getComment()).isNull());
         });
       });
@@ -158,9 +158,9 @@ abstract class AbstractArchiveIntegrationTests {
       withJarFile((jarFile) -> {
         withEntries(jarFile, (entries) -> {
           Optional<JarEntry> match = entries.filter((entry) -> entry.getName().startsWith(prefix))
-                  .findFirst();
+              .findFirst();
           assertThat(match).as("Name starting with %s", prefix)
-                  .hasValueSatisfying((entry) -> assertThat(entry.getComment()).startsWith("UNPACK:"));
+              .hasValueSatisfying((entry) -> assertThat(entry.getComment()).startsWith("UNPACK:"));
         });
       });
       return this;
@@ -170,7 +170,7 @@ abstract class AbstractArchiveIntegrationTests {
       withJarFile((jarFile) -> {
         withEntries(jarFile, (entries) -> {
           Optional<JarEntry> match = entries.filter((entry) -> entry.getName().startsWith(prefix))
-                  .findFirst();
+              .findFirst();
           assertThat(match).isNotPresent();
         });
       });
@@ -180,9 +180,9 @@ abstract class AbstractArchiveIntegrationTests {
     ListAssert<String> entryNamesInPath(String path) {
       List<String> matches = new ArrayList<>();
       withJarFile((jarFile) -> withEntries(jarFile,
-              (entries) -> matches.addAll(entries.map(ZipEntry::getName)
-                      .filter((name) -> name.startsWith(path) && name.length() > path.length())
-                      .toList())));
+          (entries) -> matches.addAll(entries.map(ZipEntry::getName)
+              .filter((name) -> name.startsWith(path) && name.length() > path.length())
+              .toList())));
       return new ListAssert<>(matches);
     }
 

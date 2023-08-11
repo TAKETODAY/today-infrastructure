@@ -75,7 +75,6 @@ class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse impleme
   }
 
   @Override
-  @Deprecated
   public Integer getRawStatusCode() {
     Integer status = super.getRawStatusCode();
     return (status != null ? status : this.response.status().code());

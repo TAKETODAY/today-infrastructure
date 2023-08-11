@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +37,7 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @author Arjen Poutsma
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class ExchangeFilterFunctions {
@@ -48,7 +46,7 @@ public abstract class ExchangeFilterFunctions {
    * Name of the request attribute with {@link Credentials} for {@link #basicAuthentication()}.
    */
   private static final String BASIC_AUTHENTICATION_CREDENTIALS_ATTRIBUTE =
-          ExchangeFilterFunctions.class.getName() + ".basicAuthenticationCredentials";
+      ExchangeFilterFunctions.class.getName() + ".basicAuthenticationCredentials";
 
   /**
    * Consume up to the specified number of bytes from the response body and
@@ -57,14 +55,13 @@ public abstract class ExchangeFilterFunctions {
    *
    * @param maxByteCount the limit as number of bytes
    * @return the filter to limit the response size with
-   * @since 4.0
    */
   public static ExchangeFilterFunction limitResponseSize(long maxByteCount) {
     return (request, next) ->
-            next.exchange(request).map(response ->
-                    response.mutate()
-                            .body(body -> DataBufferUtils.takeUntilByteCount(body, maxByteCount))
-                            .build());
+        next.exchange(request).map(response ->
+            response.mutate()
+                .body(body -> DataBufferUtils.takeUntilByteCount(body, maxByteCount))
+                .build());
   }
 
   /**
@@ -76,14 +73,14 @@ public abstract class ExchangeFilterFunctions {
    * @return the filter to generate an error signal
    */
   public static ExchangeFilterFunction statusError(Predicate<HttpStatusCode> statusPredicate,
-          Function<ClientResponse, ? extends Throwable> exceptionFunction) {
+      Function<ClientResponse, ? extends Throwable> exceptionFunction) {
 
     Assert.notNull(statusPredicate, "Predicate must not be null");
     Assert.notNull(exceptionFunction, "Function must not be null");
 
     return ExchangeFilterFunction.ofResponseProcessor(
-            response -> (statusPredicate.test(response.statusCode()) ?
-                         Mono.error(exceptionFunction.apply(response)) : Mono.just(response)));
+        response -> (statusPredicate.test(response.statusCode()) ?
+                     Mono.error(exceptionFunction.apply(response)) : Mono.just(response)));
   }
 
   /**
@@ -100,9 +97,9 @@ public abstract class ExchangeFilterFunctions {
   public static ExchangeFilterFunction basicAuthentication(String username, String password) {
     String encodedCredentials = HttpHeaders.encodeBasicAuth(username, password, null);
     return (request, next) ->
-            next.exchange(ClientRequest.from(request)
-                    .headers(headers -> headers.setBasicAuth(encodedCredentials))
-                    .build());
+        next.exchange(ClientRequest.from(request)
+            .headers(headers -> headers.setBasicAuth(encodedCredentials))
+            .build());
   }
 
   /**
@@ -112,17 +109,14 @@ public abstract class ExchangeFilterFunctions {
    *
    * @return the filter to use
    * @see Credentials
-   * @deprecated in favor of using
-   * {@link HttpHeaders#setBasicAuth(String, String)} while building the request.
    */
-  @Deprecated
   public static ExchangeFilterFunction basicAuthentication() {
     return (request, next) -> {
       Object attr = request.attributes().get(BASIC_AUTHENTICATION_CREDENTIALS_ATTRIBUTE);
       if (attr instanceof Credentials cred) {
         return next.exchange(ClientRequest.from(request)
-                .headers(headers -> headers.setBasicAuth(cred.username, cred.password))
-                .build());
+            .headers(headers -> headers.setBasicAuth(cred.username, cred.password))
+            .build());
       }
       else {
         return next.exchange(request);
@@ -132,11 +126,7 @@ public abstract class ExchangeFilterFunctions {
 
   /**
    * Stores username and password for HTTP basic authentication.
-   *
-   * @deprecated in favor of using
-   * {@link HttpHeaders#setBasicAuth(String, String)} while building the request.
    */
-  @Deprecated
   public record Credentials(String username, String password) {
 
     /**
@@ -146,8 +136,8 @@ public abstract class ExchangeFilterFunctions {
      * @param password the password
      */
     public Credentials {
-      Assert.notNull(username, "'username' must not be null");
-      Assert.notNull(password, "'password' must not be null");
+      Assert.notNull(username, "'username' is required");
+      Assert.notNull(password, "'password' is required");
     }
 
     /**

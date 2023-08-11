@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,16 +121,15 @@ public class ExchangeFilterFunctionsTests {
     ExchangeFunction exchange = r -> Mono.just(mock(ClientResponse.class));
 
     assertThatIllegalArgumentException().isThrownBy(() ->
-            ExchangeFilterFunctions.basicAuthentication("foo", "\ud83d\udca9").filter(request, exchange));
+        ExchangeFilterFunctions.basicAuthentication("foo", "\ud83d\udca9").filter(request, exchange));
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void basicAuthenticationAttributes() {
     ClientRequest request = ClientRequest.create(HttpMethod.GET, DEFAULT_URL)
-            .attributes(cn.taketoday.web.reactive.function.client.ExchangeFilterFunctions
-                    .Credentials.basicAuthenticationCredentials("foo", "bar"))
-            .build();
+        .attributes(cn.taketoday.web.reactive.function.client.ExchangeFilterFunctions
+            .Credentials.basicAuthenticationCredentials("foo", "bar"))
+        .build();
     ClientResponse response = mock(ClientResponse.class);
 
     ExchangeFunction exchange = r -> {
@@ -149,7 +145,6 @@ public class ExchangeFilterFunctionsTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void basicAuthenticationAbsentAttributes() {
     ClientRequest request = ClientRequest.create(HttpMethod.GET, DEFAULT_URL).build();
     ClientResponse response = mock(ClientResponse.class);
@@ -174,13 +169,13 @@ public class ExchangeFilterFunctionsTests {
     ExchangeFunction exchange = r -> Mono.just(response);
 
     ExchangeFilterFunction errorHandler = ExchangeFilterFunctions.statusError(
-            HttpStatusCode::is4xxClientError, r -> new MyException());
+        HttpStatusCode::is4xxClientError, r -> new MyException());
 
     Mono<ClientResponse> result = errorHandler.filter(request, exchange);
 
     StepVerifier.create(result)
-            .expectError(MyException.class)
-            .verify();
+        .expectError(MyException.class)
+        .verify();
   }
 
   @Test
@@ -190,13 +185,13 @@ public class ExchangeFilterFunctionsTests {
     given(response.statusCode()).willReturn(HttpStatus.NOT_FOUND);
 
     Mono<ClientResponse> result = ExchangeFilterFunctions
-            .statusError(HttpStatusCode::is5xxServerError, req -> new MyException())
-            .filter(request, req -> Mono.just(response));
+        .statusError(HttpStatusCode::is5xxServerError, req -> new MyException())
+        .filter(request, req -> Mono.just(response));
 
     StepVerifier.create(result)
-            .expectNext(response)
-            .expectComplete()
-            .verify();
+        .expectNext(response)
+        .expectComplete()
+        .verify();
   }
 
   @Test
@@ -209,13 +204,13 @@ public class ExchangeFilterFunctionsTests {
     ClientResponse response = ClientResponse.create(HttpStatus.OK).body(Flux.just(b1, b2, b3)).build();
 
     Mono<ClientResponse> result = ExchangeFilterFunctions.limitResponseSize(5)
-            .filter(request, req -> Mono.just(response));
+        .filter(request, req -> Mono.just(response));
 
     StepVerifier.create(result.flatMapMany(res -> res.body(BodyExtractors.toDataBuffers())))
-            .consumeNextWith(buffer -> Assertions.assertThat(string(buffer)).isEqualTo("foo"))
-            .consumeNextWith(buffer -> Assertions.assertThat(string(buffer)).isEqualTo("ba"))
-            .expectComplete()
-            .verify();
+        .consumeNextWith(buffer -> Assertions.assertThat(string(buffer)).isEqualTo("foo"))
+        .consumeNextWith(buffer -> Assertions.assertThat(string(buffer)).isEqualTo("ba"))
+        .expectComplete()
+        .verify();
 
   }
 

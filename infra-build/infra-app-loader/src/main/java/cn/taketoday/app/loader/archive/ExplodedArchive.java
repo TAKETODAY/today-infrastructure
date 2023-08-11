@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +107,6 @@ public class ExplodedArchive implements Archive {
   }
 
   @Override
-  @Deprecated(since = "2.3.10", forRemoval = false)
   public Iterator<Entry> iterator() {
     return new EntryIterator(this.root, this.recursive, null, null);
   }
@@ -211,8 +210,8 @@ public class ExplodedArchive implements Archive {
 
     private boolean isListable(FileEntry entry) {
       return entry.isDirectory() && (this.recursive || entry.getFile().getParentFile().equals(this.root))
-              && (this.searchFilter == null || this.searchFilter.matches(entry))
-              && (this.includeFilter == null || !this.includeFilter.matches(entry));
+          && (this.searchFilter == null || this.searchFilter.matches(entry))
+          && (this.includeFilter == null || !this.includeFilter.matches(entry));
     }
 
     private Iterator<File> listFiles(File file) {
@@ -321,7 +320,7 @@ public class ExplodedArchive implements Archive {
 
     @Override
     public Iterator<Archive> getNestedArchives(EntryFilter searchFilter, EntryFilter includeFilter)
-            throws IOException {
+        throws IOException {
       return Collections.emptyIterator();
     }
 

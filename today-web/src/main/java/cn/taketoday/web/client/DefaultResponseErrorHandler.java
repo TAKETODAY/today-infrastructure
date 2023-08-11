@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,25 +99,6 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   }
 
   /**
-   * Template method called from {@link #hasError(ClientHttpResponse)}.
-   * <p>The default implementation checks if the given status code is
-   * {@link HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
-   * {@link HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
-   * Can be overridden in subclasses.
-   *
-   * @param statusCode the HTTP status code as raw value
-   * @return {@code true} if the response indicates an error; {@code false} otherwise
-   * @see HttpStatus.Series#CLIENT_ERROR
-   * @see HttpStatus.Series#SERVER_ERROR
-   * @deprecated in favor of {@link #hasError(HttpStatusCode)}
-   */
-  @Deprecated
-  protected boolean hasError(int statusCode) {
-    HttpStatus.Series series = HttpStatus.Series.resolve(statusCode);
-    return series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR;
-  }
-
-  /**
    * Handle the error in the given response with the given resolved status code.
    * <p>The default implementation throws:
    * <ul>
@@ -150,7 +128,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </pre>
    */
   private String getErrorMessage(
-          int rawStatusCode, String statusText, @Nullable byte[] responseBody, @Nullable Charset charset) {
+      int rawStatusCode, String statusText, @Nullable byte[] responseBody, @Nullable Charset charset) {
 
     String preface = rawStatusCode + " " + statusText + ": ";
 
@@ -213,7 +191,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
     return resolvableType -> {
       try {
         HttpMessageConverterExtractor<?> extractor =
-                new HttpMessageConverterExtractor<>(resolvableType.getType(), this.messageConverters);
+            new HttpMessageConverterExtractor<>(resolvableType.getType(), this.messageConverters);
 
         return extractor.extractData(new ClientHttpResponseDecorator(response) {
           @Override
@@ -224,7 +202,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
       }
       catch (IOException ex) {
         throw new RestClientException(
-                "Error while extracting response for type [" + resolvableType + "]", ex);
+            "Error while extracting response for type [" + resolvableType + "]", ex);
       }
     };
   }

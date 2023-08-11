@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,7 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Adrian Colyer
  * @author Ramnivas Laddad
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint, JoinPoint.StaticPart {
@@ -97,8 +95,8 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     Assert.notNull(arguments, "Argument array passed to proceed cannot be null");
     if (arguments.length != this.methodInvocation.getArguments().length) {
       throw new IllegalArgumentException("Expecting " +
-              this.methodInvocation.getArguments().length + " arguments to proceed, " +
-              "but was passed " + arguments.length + " arguments");
+          this.methodInvocation.getArguments().length + " arguments to proceed, " +
+          "but was passed " + arguments.length + " arguments");
     }
     this.methodInvocation.setArguments(arguments);
     return this.methodInvocation.invocableClone(arguments).proceed();
@@ -251,7 +249,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     private String toString(boolean includeModifier, boolean includeReturnTypeAndArgs,
-            boolean useLongReturnAndArgumentTypeName, boolean useLongTypeName) {
+        boolean useLongReturnAndArgumentTypeName, boolean useLongTypeName) {
 
       StringBuilder sb = new StringBuilder();
       if (includeModifier) {
@@ -273,7 +271,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     private void appendTypes(StringBuilder sb, Class<?>[] types, boolean includeArgs,
-            boolean useLongReturnAndArgumentTypeName) {
+        boolean useLongReturnAndArgumentTypeName) {
 
       if (includeArgs) {
         for (int size = types.length, i = 0; i < size; i++) {
@@ -325,7 +323,6 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
     }
 
     @Override
-    @Deprecated
     public int getColumn() {
       throw new UnsupportedOperationException();
     }

@@ -56,11 +56,11 @@ public class JarFileArchive implements Archive {
 
   private static final FileAttribute<?>[] NO_FILE_ATTRIBUTES = {};
 
-  private static final EnumSet<PosixFilePermission> DIRECTORY_PERMISSIONS = EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
+  private static final EnumSet<PosixFilePermission> DIRECTORY_PERMISSIONS =
+      EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
 
-  private static final EnumSet<PosixFilePermission> FILE_PERMISSIONS = EnumSet.of(PosixFilePermission.OWNER_READ,
-          PosixFilePermission.OWNER_WRITE);
+  private static final EnumSet<PosixFilePermission> FILE_PERMISSIONS = EnumSet.of(
+      PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
 
   private final JarFile jarFile;
 
@@ -100,7 +100,6 @@ public class JarFileArchive implements Archive {
   }
 
   @Override
-  @Deprecated(since = "2.3.10", forRemoval = false)
   public Iterator<Entry> iterator() {
     return new EntryIterator(this.jarFile.iterator(), null, null);
   }
@@ -162,8 +161,8 @@ public class JarFileArchive implements Archive {
     createFile(path);
     path.toFile().deleteOnExit();
     try (InputStream inputStream = this.jarFile.getInputStream(entry);
-            OutputStream outputStream = Files.newOutputStream(path, StandardOpenOption.WRITE,
-                    StandardOpenOption.TRUNCATE_EXISTING)) {
+        OutputStream outputStream = Files.newOutputStream(path, StandardOpenOption.WRITE,
+            StandardOpenOption.TRUNCATE_EXISTING)) {
       byte[] buffer = new byte[BUFFER_SIZE];
       int bytesRead;
       while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -234,7 +233,7 @@ public class JarFileArchive implements Archive {
       while (this.iterator.hasNext()) {
         JarFileEntry candidate = new JarFileEntry(this.iterator.next());
         if ((this.searchFilter == null || this.searchFilter.matches(candidate))
-                && (this.includeFilter == null || this.includeFilter.matches(candidate))) {
+            && (this.includeFilter == null || this.includeFilter.matches(candidate))) {
           return candidate;
         }
       }

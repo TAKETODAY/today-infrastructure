@@ -52,9 +52,6 @@ import cn.taketoday.web.view.RedirectModel;
  */
 public class BindingContext {
 
-  @Nullable
-  private Object view;
-
   private ModelMap model;
 
   @Nullable
@@ -114,7 +111,7 @@ public class BindingContext {
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
   public WebDataBinder createBinder(RequestContext request,
-          @Nullable Object target, String objectName) throws Throwable {
+      @Nullable Object target, String objectName) throws Throwable {
     return createBinder(request, target, objectName, null);
   }
 
@@ -125,7 +122,7 @@ public class BindingContext {
    * insight on how to initialize the binder.
    */
   public WebDataBinder createBinder(RequestContext request,
-          @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
+      @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
     WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
     dataBinder.setNameResolver(new BindParamNameResolver());
 
@@ -151,7 +148,7 @@ public class BindingContext {
    * @throws Exception in case of invalid state or arguments
    */
   protected WebDataBinder createBinderInstance(
-          @Nullable Object target, String objectName, RequestContext request) throws Exception {
+      @Nullable Object target, String objectName, RequestContext request) throws Exception {
 
     return new WebDataBinder(target, objectName);
   }
@@ -185,44 +182,6 @@ public class BindingContext {
    */
   public boolean hasModelAndView() {
     return modelAndView != null;
-  }
-
-  /**
-   * Return the view name to be resolved by the DispatcherServlet via a
-   * ViewResolver, or {@code null} if a View object is set.
-   */
-  @Nullable
-  @Deprecated
-  public String getViewName() {
-    return view instanceof String ? (String) this.view : null;
-  }
-
-  /**
-   * Set a View object to be used by the DispatcherServlet.
-   * Will override any pre-existing view name or View.
-   */
-  @Deprecated
-  public void setView(@Nullable Object view) {
-    this.view = view;
-  }
-
-  /**
-   * Return the View object, or {@code null} if we using a view name
-   * to be resolved by the DispatcherServlet via a ViewResolver.
-   */
-  @Nullable
-  @Deprecated
-  public Object getView() {
-    return this.view;
-  }
-
-  /**
-   * Whether the view is a view reference specified via a name to be
-   * resolved by the DispatcherServlet via a ViewResolver.
-   */
-  @Deprecated
-  public boolean isViewReference() {
-    return view instanceof String;
   }
 
   /**
@@ -416,16 +375,7 @@ public class BindingContext {
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("BindingContext: ");
-    if (isViewReference()) {
-      sb.append("reference to view with name '")
-              .append(view)
-              .append('\'');
-    }
-    else {
-      sb.append("View is [").append(view).append(']');
-    }
-    sb.append("; model ");
+    StringBuilder sb = new StringBuilder("BindingContext: model: ");
     sb.append(getModel());
 
     RedirectModel redirectModel = getRedirectModel();
