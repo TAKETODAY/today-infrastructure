@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.locks.ReentrantLock;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
@@ -42,6 +43,11 @@ import cn.taketoday.web.RequestContext;
 public class SseEmitter extends ResponseBodyEmitter {
 
   private static final MediaType TEXT_PLAIN = new MediaType("text", "plain", StandardCharsets.UTF_8);
+
+  /**
+   * Guards access to write operations on the response.
+   */
+  private final ReentrantLock writeLock = new ReentrantLock();
 
   /**
    * Create a new SseEmitter instance.
@@ -124,8 +130,12 @@ public class SseEmitter extends ResponseBodyEmitter {
    */
   public void send(SseEventBuilder builder) throws IOException {
     var dataToSend = builder.build();
-    synchronized(this) {
+    this.writeLock.lock();
+    try {
       super.send(dataToSend);
+    }
+    finally {
+      this.writeLock.unlock();
     }
   }
 
