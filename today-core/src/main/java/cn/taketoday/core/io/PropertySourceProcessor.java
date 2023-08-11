@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,20 +48,17 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class PropertySourceProcessor {
 
-  private static final PropertySourceFactory DEFAULT_PROPERTY_SOURCE_FACTORY = new DefaultPropertySourceFactory();
-
   private static final Logger logger = LoggerFactory.getLogger(PropertySourceProcessor.class);
 
   private final ConfigurableEnvironment environment;
 
   private final ResourceLoader resourceLoader;
 
-  private final List<String> propertySourceNames;
+  private final ArrayList<String> propertySourceNames = new ArrayList<>();
 
   public PropertySourceProcessor(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
     this.environment = environment;
     this.resourceLoader = resourceLoader;
-    this.propertySourceNames = new ArrayList<>();
   }
 
   /**
@@ -78,16 +72,16 @@ public class PropertySourceProcessor {
     String name = descriptor.name();
     String encoding = descriptor.encoding();
     List<String> locations = descriptor.locations();
-    Assert.isTrue(locations.size() > 0, "At least one @PropertySource(value) location is required");
+    Assert.isTrue(!locations.isEmpty(), "At least one @PropertySource(value) location is required");
     boolean ignoreResourceNotFound = descriptor.ignoreResourceNotFound();
     PropertySourceFactory factory =
-            descriptor.propertySourceFactory() != null ?
-            instantiateClass(descriptor.propertySourceFactory()) : DEFAULT_PROPERTY_SOURCE_FACTORY;
+        descriptor.propertySourceFactory() != null ?
+        instantiateClass(descriptor.propertySourceFactory()) : new DefaultPropertySourceFactory();
 
     for (String location : locations) {
       try {
-        String resolvedLocation = this.environment.resolveRequiredPlaceholders(location);
-        Resource resource = this.resourceLoader.getResource(resolvedLocation);
+        String resolvedLocation = environment.resolveRequiredPlaceholders(location);
+        Resource resource = resourceLoader.getResource(resolvedLocation);
         addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
       }
       catch (IllegalArgumentException | FileNotFoundException | UnknownHostException | SocketException ex) {
@@ -106,9 +100,9 @@ public class PropertySourceProcessor {
 
   private void addPropertySource(cn.taketoday.core.env.PropertySource<?> propertySource) {
     String name = propertySource.getName();
-    PropertySources propertySources = this.environment.getPropertySources();
+    PropertySources propertySources = environment.getPropertySources();
 
-    if (this.propertySourceNames.contains(name)) {
+    if (propertySourceNames.contains(name)) {
       // We've already added a version, we need to extend it
       cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
@@ -130,17 +124,17 @@ public class PropertySourceProcessor {
       }
     }
 
-    if (this.propertySourceNames.isEmpty()) {
+    if (propertySourceNames.isEmpty()) {
       propertySources.addLast(propertySource);
     }
     else {
-      String firstProcessed = this.propertySourceNames.get(this.propertySourceNames.size() - 1);
+      String firstProcessed = propertySourceNames.get(propertySourceNames.size() - 1);
       propertySources.addBefore(firstProcessed, propertySource);
     }
-    this.propertySourceNames.add(name);
+    propertySourceNames.add(name);
   }
 
-  private PropertySourceFactory instantiateClass(Class<? extends PropertySourceFactory> type) {
+  private static PropertySourceFactory instantiateClass(Class<? extends PropertySourceFactory> type) {
     try {
       Constructor<? extends PropertySourceFactory> constructor = type.getDeclaredConstructor();
       ReflectionUtils.makeAccessible(constructor);
