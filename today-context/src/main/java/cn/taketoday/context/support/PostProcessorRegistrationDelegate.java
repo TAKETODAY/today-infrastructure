@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -61,7 +59,7 @@ import cn.taketoday.logging.LoggerFactory;
 final class PostProcessorRegistrationDelegate {
 
   public static void invokeBeanFactoryPostProcessors(
-          ConfigurableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
+      ConfigurableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
     // WARNING: Although it may appear that the body of this method can be easily
     // refactored to avoid the use of multiple loops and multiple lists, the use
@@ -96,7 +94,7 @@ final class PostProcessorRegistrationDelegate {
 
       // First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
       Set<String> postProcessorNames =
-              beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+          beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
       for (String ppName : postProcessorNames) {
         if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
           currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
@@ -152,7 +150,7 @@ final class PostProcessorRegistrationDelegate {
     // Do not initialize FactoryBeans here: We need to leave all regular beans
     // uninitialized to let the bean factory post-processors apply to them!
     Set<String> postProcessorNames =
-            beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
+        beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
 
     // Separate between BeanFactoryPostProcessors that implement PriorityOrdered,
     // Ordered, and the rest.
@@ -199,7 +197,7 @@ final class PostProcessorRegistrationDelegate {
   }
 
   public static void registerBeanPostProcessors(
-          ConfigurableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
+      ConfigurableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
 
     // WARNING: Although it may appear that the body of this method can be easily
     // refactored to avoid the use of multiple loops and multiple lists, the use
@@ -215,7 +213,8 @@ final class PostProcessorRegistrationDelegate {
     // a bean is created during BeanPostProcessor instantiation, i.e. when
     // a bean is not eligible for getting processed by all BeanPostProcessors.
     int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.size();
-    beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(beanFactory, beanProcessorTargetCount));
+    beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(
+        beanFactory, postProcessorNames, beanProcessorTargetCount));
 
     // Separate between BeanPostProcessors that implement PriorityOrdered,
     // Ordered, and the rest.
@@ -284,7 +283,7 @@ final class PostProcessorRegistrationDelegate {
    * @return a list of sorted post-processors for the specified type
    */
   static <T extends BeanPostProcessor> List<T> loadBeanPostProcessors(
-          ConfigurableBeanFactory beanFactory, Class<T> beanPostProcessorType) {
+      ConfigurableBeanFactory beanFactory, Class<T> beanPostProcessorType) {
 
     Set<String> postProcessorNames = beanFactory.getBeanNamesForType(beanPostProcessorType, true, false);
     List<T> postProcessors = new ArrayList<>();
@@ -326,7 +325,7 @@ final class PostProcessorRegistrationDelegate {
    * Invoke the given BeanDefinitionRegistryPostProcessor beans.
    */
   private static void invokeBeanDefinitionRegistryPostProcessors(
-          Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
+      Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
 
     for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
       postProcessor.postProcessBeanDefinitionRegistry(registry);
@@ -337,7 +336,7 @@ final class PostProcessorRegistrationDelegate {
    * Invoke the given BeanFactoryPostProcessor beans.
    */
   private static void invokeBeanFactoryPostProcessors(
-          Collection<? extends BeanFactoryPostProcessor> postProcessors, ConfigurableBeanFactory beanFactory) {
+      Collection<? extends BeanFactoryPostProcessor> postProcessors, ConfigurableBeanFactory beanFactory) {
 
     for (BeanFactoryPostProcessor postProcessor : postProcessors) {
       postProcessor.postProcessBeanFactory(beanFactory);
@@ -348,7 +347,7 @@ final class PostProcessorRegistrationDelegate {
    * Register the given BeanPostProcessor beans.
    */
   private static void registerBeanPostProcessors(
-          ConfigurableBeanFactory beanFactory, List<? extends BeanPostProcessor> postProcessors) {
+      ConfigurableBeanFactory beanFactory, List<? extends BeanPostProcessor> postProcessors) {
 
     if (beanFactory instanceof AbstractBeanFactory abstractBeanFactory) {
       // Bulk addition is more efficient against our list there
@@ -371,11 +370,16 @@ final class PostProcessorRegistrationDelegate {
 
     private final ConfigurableBeanFactory beanFactory;
 
+    private final Set<String> postProcessorNames;
+
     private final int beanPostProcessorTargetCount;
 
-    public BeanPostProcessorChecker(ConfigurableBeanFactory beanFactory, int count) {
+    public BeanPostProcessorChecker(ConfigurableBeanFactory beanFactory,
+        Set<String> postProcessorNames, int beanPostProcessorTargetCount) {
+
       this.beanFactory = beanFactory;
-      this.beanPostProcessorTargetCount = count;
+      this.postProcessorNames = postProcessorNames;
+      this.beanPostProcessorTargetCount = beanPostProcessorTargetCount;
     }
 
     @Override
@@ -386,18 +390,41 @@ final class PostProcessorRegistrationDelegate {
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) {
       if (!(bean instanceof BeanPostProcessor)
-              && !isInfrastructureBean(beanName)
-              && beanFactory.getBeanPostProcessorCount() < this.beanPostProcessorTargetCount) {
-        log.info("Bean '{}' of type [{}] is not eligible for getting processed by all BeanPostProcessors " +
-                "(for example: not eligible for auto-proxying)", beanName, bean.getClass().getName());
+          && !isInfrastructureBean(beanName)
+          && this.beanFactory.getBeanPostProcessorCount() < this.beanPostProcessorTargetCount) {
+        if (log.isWarnEnabled()) {
+          Set<String> bppsInCreation = new LinkedHashSet<>(2);
+          for (String bppName : this.postProcessorNames) {
+            if (this.beanFactory.isCurrentlyInCreation(bppName)) {
+              bppsInCreation.add(bppName);
+            }
+          }
+          if (bppsInCreation.size() == 1) {
+            String bppName = bppsInCreation.iterator().next();
+            if (this.beanFactory.containsBeanDefinition(bppName) &&
+                beanName.equals(this.beanFactory.getBeanDefinition(bppName).getFactoryBeanName())) {
+              log.warn("Bean '{}' of type [{}] is not eligible for getting processed by all BeanPostProcessors " +
+                      "(for example: not eligible for auto-proxying). The currently created " +
+                      "BeanPostProcessor {} is declared through a non-static " +
+                      "factory method on that class; consider declaring it as static instead.",
+                  beanName, bean.getClass().getName(), bppsInCreation);
+              return bean;
+            }
+          }
+          log.warn("Bean '{}' of type [{}] is not eligible for getting processed by all BeanPostProcessors " +
+                  "(for example: not eligible for auto-proxying). Is this bean getting eagerly " +
+                  "injected into a currently created BeanPostProcessor {}? " +
+                  "Check the corresponding BeanPostProcessor declaration and its dependencies.",
+              beanName, bean.getClass().getName(), bppsInCreation);
+        }
       }
       return bean;
     }
 
     private boolean isInfrastructureBean(@Nullable String beanName) {
-      if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
-        BeanDefinition bd = beanFactory.getBeanDefinition(beanName);
-        return bd.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE;
+      if (beanName != null && this.beanFactory.containsBeanDefinition(beanName)) {
+        BeanDefinition bd = this.beanFactory.getBeanDefinition(beanName);
+        return (bd.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE);
       }
       return false;
     }
@@ -413,7 +440,7 @@ final class PostProcessorRegistrationDelegate {
 
     private void invokeMergedBeanDefinitionPostProcessors() {
       var postProcessors = PostProcessorRegistrationDelegate.loadBeanPostProcessors(
-              this.beanFactory, MergedBeanDefinitionPostProcessor.class);
+          this.beanFactory, MergedBeanDefinitionPostProcessor.class);
       for (String beanName : this.beanFactory.getBeanDefinitionNames()) {
         RootBeanDefinition bd = (RootBeanDefinition) this.beanFactory.getMergedBeanDefinition(beanName);
         Class<?> beanType = resolveBeanType(bd);
@@ -424,7 +451,7 @@ final class PostProcessorRegistrationDelegate {
     }
 
     private void postProcessRootBeanDefinition(List<MergedBeanDefinitionPostProcessor> postProcessors,
-            String beanName, Class<?> beanType, RootBeanDefinition bd) {
+        String beanName, Class<?> beanType, RootBeanDefinition bd) {
       BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(beanFactory, beanName, bd);
 
       for (MergedBeanDefinitionPostProcessor postProcessor : postProcessors) {
@@ -437,7 +464,7 @@ final class PostProcessorRegistrationDelegate {
           if (value instanceof AbstractBeanDefinition innerBd) {
             Class<?> innerBeanType = resolveBeanType(innerBd);
             resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
-                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+                -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
           }
         }
       }
@@ -448,14 +475,14 @@ final class PostProcessorRegistrationDelegate {
           if (value instanceof AbstractBeanDefinition innerBd) {
             Class<?> innerBeanType = resolveBeanType(innerBd);
             resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
-                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+                -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
           }
         }
       }
     }
 
     private void resolveInnerBeanDefinition(BeanDefinitionValueResolver valueResolver,
-            BeanDefinition innerBeanDefinition, BiConsumer<String, RootBeanDefinition> resolver) {
+        BeanDefinition innerBeanDefinition, BiConsumer<String, RootBeanDefinition> resolver) {
 
       valueResolver.resolveInnerBean(null, innerBeanDefinition, (name, rbd) -> {
         resolver.accept(name, rbd);
