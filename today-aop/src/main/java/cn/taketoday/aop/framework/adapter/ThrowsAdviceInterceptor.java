@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.aop.AfterAdvice;
+import cn.taketoday.aop.framework.AopConfigException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -55,8 +53,10 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodBeforeAdviceInterceptor
  * @see AfterReturningAdviceInterceptor
+ * @since 4.0
  */
 public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 
@@ -81,22 +81,47 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
 
     Method[] methods = throwsAdvice.getClass().getMethods();
     for (Method method : methods) {
-      if (method.getName().equals(AFTER_THROWING) &&
-              (method.getParameterCount() == 1 || method.getParameterCount() == 4)) {
-        Class<?> throwableParam = method.getParameterTypes()[method.getParameterCount() - 1];
-        if (Throwable.class.isAssignableFrom(throwableParam)) {
-          // An exception handler to register...
-          this.exceptionHandlerMap.put(throwableParam, method);
-          if (logger.isDebugEnabled()) {
-            logger.debug("Found exception handler method on throws advice: " + method);
+      if (method.getName().equals(AFTER_THROWING)) {
+        Class<?> throwableParam = null;
+        if (method.getParameterCount() == 1) {
+          // just a Throwable parameter
+          throwableParam = method.getParameterTypes()[0];
+          if (!Throwable.class.isAssignableFrom(throwableParam)) {
+            throw new AopConfigException("Invalid afterThrowing signature: " +
+                "single argument must be a Throwable subclass");
           }
+        }
+        else if (method.getParameterCount() == 4) {
+          // Method, Object[], target, throwable
+          Class<?>[] paramTypes = method.getParameterTypes();
+          if (!Method.class.equals(paramTypes[0])
+              || !Object[].class.equals(paramTypes[1])
+              || Throwable.class.equals(paramTypes[2])
+              || !Throwable.class.isAssignableFrom(paramTypes[3])) {
+            throw new AopConfigException("Invalid afterThrowing signature: " +
+                "four arguments must be Method, Object[], target, throwable: " + method);
+          }
+          throwableParam = paramTypes[3];
+        }
+        if (throwableParam == null) {
+          throw new AopConfigException("Unsupported afterThrowing signature: single throwable argument " +
+              "or four arguments Method, Object[], target, throwable expected: " + method);
+        }
+        // An exception handler to register...
+        Method existingMethod = this.exceptionHandlerMap.put(throwableParam, method);
+        if (existingMethod != null) {
+          throw new AopConfigException("Only one afterThrowing method per specific Throwable subclass " +
+              "allowed: " + method + " / " + existingMethod);
+        }
+        if (logger.isDebugEnabled()) {
+          logger.debug("Found exception handler method on throws advice: {}", method);
         }
       }
     }
 
     if (this.exceptionHandlerMap.isEmpty()) {
-      throw new IllegalArgumentException(
-              "At least one handler method must be found in class [" + throwsAdvice.getClass() + "]");
+      throw new AopConfigException(
+          "At least one handler method must be found in class [" + throwsAdvice.getClass() + "]");
     }
   }
 

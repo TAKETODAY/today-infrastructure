@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,11 +33,6 @@ public class MyThrowsHandler extends MethodCounter implements ThrowsAdvice {
 
   public void afterThrowing(RemoteException ex) throws Throwable {
     count("remoteException");
-  }
-
-  /** Not valid, wrong number of arguments */
-  public void afterThrowing(Method m, Exception ex) throws Throwable {
-    throw new UnsupportedOperationException("Shouldn't be called");
   }
 
 }
