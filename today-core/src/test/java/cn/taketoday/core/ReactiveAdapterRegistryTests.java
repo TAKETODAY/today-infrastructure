@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.core;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
@@ -29,10 +25,12 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Flow;
 
 import cn.taketoday.lang.NonNull;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import reactor.adapter.JdkFlowAdapter;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -112,6 +110,16 @@ class ReactiveAdapterRegistryTests {
       Object target = getAdapter(Mono.class).fromPublisher(source);
       assertThat(target instanceof Mono).isTrue();
       assertThat(((Mono<Integer>) target).block(ONE_SECOND)).isEqualTo(Integer.valueOf(1));
+    }
+
+    @Test
+    void toFlowPublisher() {
+      List<Integer> sequence = Arrays.asList(1, 2, 3);
+      Publisher<Integer> source = io.reactivex.rxjava3.core.Flowable.fromIterable(sequence);
+      Object target = getAdapter(Flow.Publisher.class).fromPublisher(source);
+      assertThat(target).isInstanceOf(Flow.Publisher.class);
+      assertThat(JdkFlowAdapter.flowPublisherToFlux((Flow.Publisher<Integer>) target)
+              .collectList().block(ONE_SECOND)).isEqualTo(sequence);
     }
 
     @Test
