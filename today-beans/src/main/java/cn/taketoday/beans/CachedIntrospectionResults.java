@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +76,7 @@ public final class CachedIntrospectionResults {
 
   /**
    * System property that instructs Framework to use the {@link Introspector#IGNORE_ALL_BEANINFO}
-   * mode when calling the JavaBeans {@link Introspector}: "beaninfo.ignore", with a
+   * mode when calling the JavaBeans {@link Introspector}: "infra.beaninfo.ignore", with a
    * value of "true" skipping the search for {@code BeanInfo} classes (typically for scenarios
    * where no such classes are being defined for beans in the application in the first place).
    * <p>The default is "false", considering all {@code BeanInfo} metadata classes, like for
@@ -95,7 +92,7 @@ public final class CachedIntrospectionResults {
    *
    * @see Introspector#getBeanInfo(Class, int)
    */
-  public static final String IGNORE_BEANINFO_PROPERTY_NAME = "beaninfo.ignore";
+  public static final String IGNORE_BEANINFO_PROPERTY_NAME = "infra.beaninfo.ignore";
 
   private static final PropertyDescriptor[] EMPTY_PROPERTY_DESCRIPTOR_ARRAY = {};
 
@@ -418,9 +415,22 @@ public final class CachedIntrospectionResults {
         return beanInfo;
       }
     }
-    return shouldIntrospectorIgnoreBeanInfoClasses
-           ? Introspector.getBeanInfo(beanClass, Introspector.IGNORE_ALL_BEANINFO)
-           : Introspector.getBeanInfo(beanClass);
+    // fallback to default
+    BeanInfo beanInfo = shouldIntrospectorIgnoreBeanInfoClasses
+                        ? Introspector.getBeanInfo(beanClass, Introspector.IGNORE_ALL_BEANINFO)
+                        : Introspector.getBeanInfo(beanClass);
+
+    // Immediately remove class from Introspector cache to allow for proper garbage
+    // collection on class loader shutdown; we cache it in CachedIntrospectionResults
+    // in a GC-friendly manner. This is necessary (again) for the JDK ClassInfo cache.
+    Class<?> classToFlush = beanClass;
+    do {
+      Introspector.flushFromCaches(classToFlush);
+      classToFlush = classToFlush.getSuperclass();
+    }
+    while (classToFlush != null && classToFlush != Object.class);
+
+    return beanInfo;
   }
 
 }
