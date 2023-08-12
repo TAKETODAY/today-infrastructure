@@ -357,21 +357,21 @@ public abstract class ClassUtils {
     if (name.endsWith(ARRAY_SUFFIX)) {
       Class<?> elementClass = doForName(
               name.substring(0, name.length() - ARRAY_SUFFIX.length()), classLoader);
-      return Array.newInstance(elementClass, 0).getClass();
+      return elementClass.arrayType();
     }
 
     // "[Ljava.lang.String;" style arrays
     if (name.startsWith(NON_PRIMITIVE_ARRAY_PREFIX) && name.endsWith(";")) {
       Class<?> elementClass = doForName(
               name.substring(NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1), classLoader);
-      return Array.newInstance(elementClass, 0).getClass();
+      return elementClass.arrayType();
     }
 
     // "[[I" or "[[Ljava.lang.String;" style arrays
     if (name.startsWith(INTERNAL_ARRAY_PREFIX)) {
       Class<?> elementClass = doForName(
               name.substring(INTERNAL_ARRAY_PREFIX.length()), classLoader);
-      return Array.newInstance(elementClass, 0).getClass();
+      return elementClass.arrayType();
     }
 
     if (classLoader == null) {

@@ -1570,8 +1570,8 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forArrayComponent(ResolvableType componentType) {
     Assert.notNull(componentType, "Component type is required");
-    Class<?> arrayClass = Array.newInstance(componentType.resolve(), 0).getClass();
-    return new ResolvableType(arrayClass, null, null, componentType);
+    Class<?> arrayType = componentType.resolve().arrayType();
+    return new ResolvableType(arrayType, null, null, componentType);
   }
 
   /**

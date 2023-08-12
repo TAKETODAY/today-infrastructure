@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,6 @@
 package cn.taketoday.core.annotation;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -169,8 +165,7 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
   @SuppressWarnings("unchecked")
   public <E extends Enum<E>> E[] getEnumArray(String attributeName, Class<E> type) {
     Assert.notNull(type, "Type must not be null");
-    Class<?> arrayType = Array.newInstance(type, 0).getClass();
-    return (E[]) getRequiredAttributeValue(attributeName, arrayType);
+    return (E[]) getRequiredAttributeValue(attributeName, type.arrayType());
   }
 
   @Override

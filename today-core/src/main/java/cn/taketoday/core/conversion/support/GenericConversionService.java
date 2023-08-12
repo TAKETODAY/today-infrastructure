@@ -17,7 +17,6 @@
 
 package cn.taketoday.core.conversion.support;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -613,7 +612,7 @@ public class GenericConversionService implements ConfigurableConversionService {
             int index, Class<?> type, boolean asArray, List<Class<?>> hierarchy, Set<Class<?>> visited) {
 
       if (asArray) {
-        type = Array.newInstance(type, 0).getClass();
+        type = type.arrayType();
       }
       if (visited.add(type)) {
         hierarchy.add(index, type);

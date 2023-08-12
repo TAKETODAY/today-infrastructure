@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -345,8 +342,7 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
    */
   @SuppressWarnings("unchecked")
   public <A extends Annotation> A[] getAnnotationArray(String attributeName, Class<A> annotationType) {
-    Object array = Array.newInstance(annotationType, 0);
-    return (A[]) getRequiredAttribute(attributeName, array.getClass());
+    return (A[]) getRequiredAttribute(attributeName, annotationType.arrayType());
   }
 
   /**
