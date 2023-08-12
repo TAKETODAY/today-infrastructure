@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core;
 
 import java.util.function.Supplier;
@@ -29,6 +27,7 @@ import cn.taketoday.lang.Nullable;
  * {@link #isMultiValue()}, {@link #isNoValue()}, and {@link #supportsEmpty()}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ReactiveTypeDescriptor {
@@ -40,24 +39,24 @@ public final class ReactiveTypeDescriptor {
   private final boolean noValue;
 
   @Nullable
-  private final Supplier<?> emptyValueSupplier;
+  private final Supplier<?> emptySupplier;
 
   private final boolean deferred;
 
   private ReactiveTypeDescriptor(Class<?> reactiveType, boolean multiValue, boolean noValue,
-                                 @Nullable Supplier<?> emptySupplier) {
+          @Nullable Supplier<?> emptySupplier) {
 
     this(reactiveType, multiValue, noValue, emptySupplier, true);
   }
 
   private ReactiveTypeDescriptor(Class<?> reactiveType, boolean multiValue, boolean noValue,
-                                 @Nullable Supplier<?> emptySupplier, boolean deferred) {
+          @Nullable Supplier<?> emptySupplier, boolean deferred) {
 
     Assert.notNull(reactiveType, "'reactiveType' must not be null");
     this.reactiveType = reactiveType;
     this.multiValue = multiValue;
     this.noValue = noValue;
-    this.emptyValueSupplier = emptySupplier;
+    this.emptySupplier = emptySupplier;
     this.deferred = deferred;
   }
 
@@ -90,16 +89,16 @@ public final class ReactiveTypeDescriptor {
    * Return {@code true} if the reactive type can complete with no values.
    */
   public boolean supportsEmpty() {
-    return (this.emptyValueSupplier != null);
+    return (this.emptySupplier != null);
   }
 
   /**
    * Return an empty-value instance for the underlying reactive or async type.
-   * Use of this type implies {@link #supportsEmpty()} is true.
+   * <p>Use of this type implies {@link #supportsEmpty()} is {@code true}.
    */
   public Object getEmptyValue() {
-    Assert.state(this.emptyValueSupplier != null, "Empty values not supported");
-    return this.emptyValueSupplier.get();
+    Assert.state(this.emptySupplier != null, "Empty values not supported");
+    return this.emptySupplier.get();
   }
 
   /**
