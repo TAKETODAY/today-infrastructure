@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +27,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.support.StaticListableBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.beans.testfixture.beans.AnnotatedBean;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
@@ -357,7 +354,7 @@ class BeanFactoryUtilsTests {
 
   @Test
   public void isSingletonAndIsPrototypeWithStaticFactory() {
-    StandardBeanFactory lbf = new StandardBeanFactory();
+    StaticListableBeanFactory lbf = new StaticListableBeanFactory();
     TestBean bean = new TestBean();
     DummyFactory fb1 = new DummyFactory();
     DummyFactory fb2 = new DummyFactory();
@@ -367,13 +364,13 @@ class BeanFactoryUtilsTests {
     TestBeanSmartFactoryBean sfb3 = new TestBeanSmartFactoryBean(false, true);
     TestBeanSmartFactoryBean sfb4 = new TestBeanSmartFactoryBean(false, false);
 
-    lbf.registerBeanDefinition("bean", new RootBeanDefinition(TestBean.class, () -> bean));
-    lbf.registerBeanDefinition("fb1", new RootBeanDefinition(DummyFactory.class, () -> fb1));
-    lbf.registerBeanDefinition("fb2", new RootBeanDefinition(DummyFactory.class, () -> fb2));
-    lbf.registerBeanDefinition("sfb1", new RootBeanDefinition(TestBeanSmartFactoryBean.class, () -> sfb1));
-    lbf.registerBeanDefinition("sfb2", new RootBeanDefinition(TestBeanSmartFactoryBean.class, () -> sfb2));
-    lbf.registerBeanDefinition("sfb3", new RootBeanDefinition(TestBeanSmartFactoryBean.class, () -> sfb3));
-    lbf.registerBeanDefinition("sfb4", new RootBeanDefinition(TestBeanSmartFactoryBean.class, () -> sfb4));
+    lbf.addBean("bean", bean);
+    lbf.addBean("fb1", fb1);
+    lbf.addBean("fb2", fb2);
+    lbf.addBean("sfb1", sfb1);
+    lbf.addBean("sfb2", sfb2);
+    lbf.addBean("sfb3", sfb3);
+    lbf.addBean("sfb4", sfb4);
 
     Map<String, ?> beans = BeanFactoryUtils.beansOfTypeIncludingAncestors(lbf, ITestBean.class, true, true);
     assertThat(beans.get("bean")).isSameAs(bean);
@@ -395,33 +392,33 @@ class BeanFactoryUtilsTests {
 
     assertThat(lbf.isSingleton("bean")).isTrue();
     assertThat(lbf.isSingleton("fb1")).isTrue();
-    assertThat(lbf.isSingleton("fb2")).isFalse();
+    assertThat(lbf.isSingleton("fb2")).isTrue();
     assertThat(lbf.isSingleton("sfb1")).isTrue();
     assertThat(lbf.isSingleton("sfb2")).isTrue();
-    assertThat(lbf.isSingleton("sfb3")).isFalse();
-    assertThat(lbf.isSingleton("sfb4")).isFalse();
+    assertThat(lbf.isSingleton("sfb3")).isTrue();
+    assertThat(lbf.isSingleton("sfb4")).isTrue();
 
     assertThat(lbf.isSingleton("&fb1")).isTrue();
-    assertThat(lbf.isSingleton("&fb2")).isTrue();
+    assertThat(lbf.isSingleton("&fb2")).isFalse();
     assertThat(lbf.isSingleton("&sfb1")).isTrue();
     assertThat(lbf.isSingleton("&sfb2")).isTrue();
-    assertThat(lbf.isSingleton("&sfb3")).isTrue();
-    assertThat(lbf.isSingleton("&sfb4")).isTrue();
+    assertThat(lbf.isSingleton("&sfb3")).isFalse();
+    assertThat(lbf.isSingleton("&sfb4")).isFalse();
 
     assertThat(lbf.isPrototype("bean")).isFalse();
     assertThat(lbf.isPrototype("fb1")).isFalse();
-    assertThat(lbf.isPrototype("fb2")).isTrue();
-    assertThat(lbf.isPrototype("sfb1")).isTrue();
+    assertThat(lbf.isPrototype("fb2")).isFalse();
+    assertThat(lbf.isPrototype("sfb1")).isFalse();
     assertThat(lbf.isPrototype("sfb2")).isFalse();
-    assertThat(lbf.isPrototype("sfb3")).isTrue();
-    assertThat(lbf.isPrototype("sfb4")).isTrue();
+    assertThat(lbf.isPrototype("sfb3")).isFalse();
+    assertThat(lbf.isPrototype("sfb4")).isFalse();
 
     assertThat(lbf.isPrototype("&fb1")).isFalse();
-    assertThat(lbf.isPrototype("&fb2")).isFalse();
-    assertThat(lbf.isPrototype("&sfb1")).isFalse();
+    assertThat(lbf.isPrototype("&fb2")).isTrue();
+    assertThat(lbf.isPrototype("&sfb1")).isTrue();
     assertThat(lbf.isPrototype("&sfb2")).isFalse();
-    assertThat(lbf.isPrototype("&sfb3")).isFalse();
-    assertThat(lbf.isPrototype("&sfb4")).isFalse();
+    assertThat(lbf.isPrototype("&sfb3")).isTrue();
+    assertThat(lbf.isPrototype("&sfb4")).isTrue();
   }
 
   @Retention(RetentionPolicy.RUNTIME)
