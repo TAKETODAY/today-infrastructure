@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,7 +193,7 @@ public class HibernateTransactionManagerTests {
     assertFalse(TransactionSynchronizationManager.isSynchronizationActive(), "JTA synchronizations not active");
 
     try {
-      tt.execute(status -> {
+      tt.executeWithoutResult(status -> {
         assertTrue(TransactionSynchronizationManager.hasResource(sf), "Has thread session");
         throw new RuntimeException("application exception");
       });
@@ -304,7 +301,7 @@ public class HibernateTransactionManagerTests {
     PlatformTransactionManager tm = new HibernateTransactionManager(sf);
     TransactionTemplate tt = new TransactionTemplate(tm);
     try {
-      tt.execute(status -> tt.execute(status1 -> {
+      tt.executeWithoutResult(status -> tt.executeWithoutResult(status1 -> {
         throw new RuntimeException("application exception");
       }));
       fail("Should have thrown RuntimeException");
@@ -337,7 +334,7 @@ public class HibernateTransactionManagerTests {
     l.add("test");
 
     try {
-      tt.execute(status -> tt.execute(status1 -> {
+      tt.executeWithoutResult(status -> tt.execute(status1 -> {
         status1.setRollbackOnly();
         return null;
       }));

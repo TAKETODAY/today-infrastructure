@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,9 @@
 
 package cn.taketoday.transaction.reactive;
 
+import java.util.function.Function;
+
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.CannotCreateTransactionException;
 import cn.taketoday.transaction.ReactiveTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
@@ -39,7 +39,11 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
 
   private final boolean canCreateTransaction;
 
-  private final boolean forceFailOnCommit;
+  @Nullable
+  private Function<String, RuntimeException> forceFailOnCommit;
+
+  @Nullable
+  private Function<String, RuntimeException> forceFailOnRollback;
 
   protected boolean begin = false;
 
@@ -52,13 +56,15 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
   protected boolean cleanup = false;
 
   ReactiveTestTransactionManager(boolean existingTransaction, boolean canCreateTransaction) {
-    this(existingTransaction, canCreateTransaction, false);
-  }
-
-  ReactiveTestTransactionManager(boolean existingTransaction, boolean canCreateTransaction, boolean forceFailOnCommit) {
     this.existingTransaction = existingTransaction;
     this.canCreateTransaction = canCreateTransaction;
+  }
+
+  ReactiveTestTransactionManager(boolean existingTransaction, @Nullable Function<String, RuntimeException> forceFailOnCommit, @Nullable Function<String, RuntimeException> forceFailOnRollback) {
+    this.existingTransaction = existingTransaction;
+    this.canCreateTransaction = true;
     this.forceFailOnCommit = forceFailOnCommit;
+    this.forceFailOnRollback = forceFailOnRollback;
   }
 
   @Override
@@ -89,8 +95,8 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
     }
     return Mono.fromRunnable(() -> {
       this.commit = true;
-      if (this.forceFailOnCommit) {
-        throw new IllegalArgumentException("Forced failure on commit");
+      if (this.forceFailOnCommit != null) {
+        throw this.forceFailOnCommit.apply("Forced failure on commit");
       }
     });
   }
@@ -100,7 +106,12 @@ class ReactiveTestTransactionManager extends AbstractReactiveTransactionManager 
     if (!TRANSACTION.equals(status.getTransaction())) {
       return Mono.error(new IllegalArgumentException("Not the same transaction object"));
     }
-    return Mono.fromRunnable(() -> this.rollback = true);
+    return Mono.fromRunnable(() -> {
+      this.rollback = true;
+      if (this.forceFailOnRollback != null) {
+        throw this.forceFailOnRollback.apply("Forced failure on rollback");
+      }
+    });
   }
 
   @Override

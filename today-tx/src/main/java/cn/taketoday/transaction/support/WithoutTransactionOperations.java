@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,17 +17,15 @@
 
 package cn.taketoday.transaction.support;
 
-import java.util.function.Consumer;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionException;
-import cn.taketoday.transaction.TransactionStatus;
 
 /**
  * A {@link TransactionOperations} implementation which executes a given
  * {@link TransactionCallback} without an actual transaction.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionOperations#withoutTransaction()
  * @since 4.0
  */
@@ -42,11 +37,6 @@ final class WithoutTransactionOperations implements TransactionOperations {
   @Nullable
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
     return action.doInTransaction(new SimpleTransactionStatus(false));
-  }
-
-  @Override
-  public void executeWithoutResult(Consumer<TransactionStatus> action) throws TransactionException {
-    action.accept(new SimpleTransactionStatus(false));
   }
 
 }

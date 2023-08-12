@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +43,7 @@ import cn.taketoday.transaction.support.SmartTransactionObject;
  * implement the {@link SavepointManager} interface.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSourceTransactionManager
  * @since 4.0
  */
@@ -128,11 +126,6 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
    */
   public boolean isSavepointAllowed() {
     return this.savepointAllowed;
-  }
-
-  @Override
-  public void flush() {
-    // no-op
   }
 
   //---------------------------------------------------------------------

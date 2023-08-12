@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +36,7 @@ import cn.taketoday.transaction.TransactionUsageException;
  * underlying transaction object, and no transaction synchronization mechanism.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setRollbackOnly()
  * @see #isRollbackOnly()
  * @see #setCompleted()
@@ -63,6 +61,9 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 
   @Override
   public void setRollbackOnly() {
+    if (this.completed) {
+      throw new IllegalStateException("Transaction completed");
+    }
     this.rollbackOnly = true;
   }
 
@@ -221,17 +222,6 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
    */
   protected SavepointManager getSavepointManager() {
     throw new NestedTransactionNotSupportedException("This transaction does not support savepoints");
-  }
-
-  //---------------------------------------------------------------------
-  // Flushing support
-  //---------------------------------------------------------------------
-
-  /**
-   * This implementations is empty, considering flush as a no-op.
-   */
-  @Override
-  public void flush() {
   }
 
 }

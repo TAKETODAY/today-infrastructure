@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,8 @@ package cn.taketoday.transaction;
 import java.io.Flushable;
 
 /**
- * Representation of the status of a transaction.
+ * Representation of an ongoing {@link PlatformTransactionManager} transaction.
+ * Extends the common {@link TransactionExecution} interface.
  *
  * <p>Transactional code can use this to retrieve status information,
  * and to programmatically request a rollback (instead of throwing
@@ -34,7 +32,7 @@ import java.io.Flushable;
  * is only available if supported by the underlying transaction manager.
  *
  * @author Juergen Hoeller
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setRollbackOnly()
  * @see PlatformTransactionManager#getTransaction
  * @see cn.taketoday.transaction.support.TransactionCallback#doInTransaction
@@ -49,13 +47,16 @@ public interface TransactionStatus extends TransactionExecution, SavepointManage
    * <p>This method is mainly here for diagnostic purposes, alongside
    * {@link #isNewTransaction()}. For programmatic handling of custom
    * savepoints, use the operations provided by {@link SavepointManager}.
+   * <p>The default implementation returns {@code false}.
    *
    * @see #isNewTransaction()
    * @see #createSavepoint()
    * @see #rollbackToSavepoint(Object)
    * @see #releaseSavepoint(Object)
    */
-  boolean hasSavepoint();
+  default boolean hasSavepoint() {
+    return false;
+  }
 
   /**
    * Flush the underlying session to the datastore, if applicable:
@@ -64,9 +65,11 @@ public interface TransactionStatus extends TransactionExecution, SavepointManage
    * transaction manager does not have a flush concept. A flush signal may
    * get applied to the primary resource or to transaction synchronizations,
    * depending on the underlying resource.
+   * <p>The default implementation is empty, considering flush as a no-op.
    */
   @Override
-  void flush();
+  default void flush() {
+
+  }
 
 }
-

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -166,7 +163,7 @@ public class JpaTransactionManagerTests {
     assertThat(condition2).isTrue();
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-            tt.execute(status -> {
+            tt.executeWithoutResult(status -> {
               assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
               EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
               throw new RuntimeException("some exception");
@@ -194,7 +191,7 @@ public class JpaTransactionManagerTests {
     assertThat(condition2).isTrue();
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-            tt.execute(status -> {
+            tt.executeWithoutResult(status -> {
               assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
               EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
               throw new RuntimeException("some exception");
@@ -287,7 +284,7 @@ public class JpaTransactionManagerTests {
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
             tt.execute(status -> {
               assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
-              return tt.execute(status1 -> {
+              return tt.executeWithoutResult(status1 -> {
                 EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
                 throw new RuntimeException("some exception");
               });

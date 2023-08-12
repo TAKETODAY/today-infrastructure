@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +17,9 @@
 
 package cn.taketoday.transaction.support;
 
-import java.util.function.Consumer;
-
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionException;
-import cn.taketoday.transaction.TransactionStatus;
 
 /**
  * Interface specifying basic transaction execution operations.
@@ -50,7 +44,7 @@ public interface TransactionOperations {
    * @return a result object returned by the callback, or {@code null} if none
    * @throws TransactionException in case of initialization, rollback, or system errors
    * @throws RuntimeException if thrown by the TransactionCallback
-   * @see #executeWithoutResult(Consumer)
+   * @see #executeWithoutResult(TransactionCallbackWithoutResult)
    */
   @Nullable
   <T> T execute(TransactionCallback<T> action) throws TransactionException;
@@ -71,11 +65,8 @@ public interface TransactionOperations {
    * @see TransactionCallbackWithoutResult
    * @since 4.0
    */
-  default void executeWithoutResult(Consumer<TransactionStatus> action) throws TransactionException {
-    execute(status -> {
-      action.accept(status);
-      return null;
-    });
+  default void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException {
+    execute(action);
   }
 
   /**

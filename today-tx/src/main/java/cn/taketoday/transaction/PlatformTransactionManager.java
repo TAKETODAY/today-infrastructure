@@ -43,6 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.transaction.support.TransactionTemplate
  * @see cn.taketoday.transaction.interceptor.TransactionInterceptor
  * @see cn.taketoday.transaction.ReactiveTransactionManager
+ * @see ConfigurableTransactionManager
  * @since 4.0 2021/12/10 21:01
  */
 public interface PlatformTransactionManager extends TransactionManager {

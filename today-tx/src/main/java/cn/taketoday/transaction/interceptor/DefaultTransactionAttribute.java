@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,7 +181,7 @@ public class DefaultTransactionAttribute
    * (a corner case). For declarative transactions, we expect checked exceptions to be
    * intentionally declared as business exceptions, leading to a commit by default.
    *
-   * @see cn.taketoday.transaction.support.TransactionTemplate#execute
+   * @see cn.taketoday.transaction.support.TransactionTemplate#executeWithoutResult
    */
   @Override
   public boolean rollbackOn(Throwable ex) {

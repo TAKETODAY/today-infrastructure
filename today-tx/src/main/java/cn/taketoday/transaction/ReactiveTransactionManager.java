@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
  * @see cn.taketoday.transaction.reactive.TransactionalOperator
  * @see cn.taketoday.transaction.interceptor.TransactionInterceptor
  * @see PlatformTransactionManager
+ * @see ConfigurableTransactionManager
  * @since 4.0 2021/12/10 21:00
  */
 public interface ReactiveTransactionManager extends TransactionManager {

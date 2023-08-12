@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +34,7 @@ import cn.taketoday.transaction.TransactionSystemException;
  * Template class that simplifies programmatic transaction demarcation and
  * transaction exception handling.
  *
- * <p>The central method is {@link #execute}, supporting transactional code that
+ * <p>The central method is {@link #executeWithoutResult}, supporting transactional code that
  * implements the {@link TransactionCallback} interface. This template handles
  * the transaction lifecycle and possible exceptions such that neither the
  * TransactionCallback implementation nor the calling code needs to explicitly
@@ -59,7 +56,7 @@ import cn.taketoday.transaction.TransactionSystemException;
  * for convenient configuration in context definitions.
  *
  * @author Juergen Hoeller
- * @see #execute
+ * @see #executeWithoutResult
  * @see #setTransactionManager
  * @see PlatformTransactionManager
  * @since 4.0

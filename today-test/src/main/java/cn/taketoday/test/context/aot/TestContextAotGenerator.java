@@ -140,7 +140,6 @@ public class TestContextAotGenerator {
    * @param runtimeHints the {@code RuntimeHints} to use
    * @param failOnError {@code true} if errors encountered during AOT processing
    * should result in an exception that fails the overall process
-   * @since 6.1
    */
   public TestContextAotGenerator(GeneratedFiles generatedFiles, RuntimeHints runtimeHints, boolean failOnError) {
     this.testRuntimeHintsRegistrars = AotServices.factories().load(TestRuntimeHintsRegistrar.class);

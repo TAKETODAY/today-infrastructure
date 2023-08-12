@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,7 @@ import cn.taketoday.transaction.TransactionStatus;
 public interface TransactionCallback<T> {
 
   /**
-   * Gets called by {@link TransactionTemplate#execute} within a transactional context.
+   * Gets called by {@link TransactionTemplate#executeWithoutResult} within a transactional context.
    * Does not need to care about transactions itself, although it can retrieve and
    * influence the status of the current transaction via the given status object,
    * e.g. setting rollback-only.
@@ -54,7 +51,7 @@ public interface TransactionCallback<T> {
    *
    * @param status associated transaction status
    * @return a result object, or {@code null}
-   * @see TransactionTemplate#execute
+   * @see TransactionTemplate#executeWithoutResult
    * @see CallbackPreferringPlatformTransactionManager#execute
    */
   @Nullable

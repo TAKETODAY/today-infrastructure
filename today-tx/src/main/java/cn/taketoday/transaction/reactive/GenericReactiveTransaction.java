@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +35,7 @@ import cn.taketoday.transaction.ReactiveTransaction;
  *
  * @author Mark Paluch
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractReactiveTransactionManager
  * @see #getTransaction
  * @since 4.0
@@ -45,11 +43,16 @@ import cn.taketoday.transaction.ReactiveTransaction;
 public class GenericReactiveTransaction implements ReactiveTransaction {
 
   @Nullable
+  private final String transactionName;
+
+  @Nullable
   private final Object transaction;
 
   private final boolean newTransaction;
 
   private final boolean newSynchronization;
+
+  private final boolean nested;
 
   private final boolean readOnly;
 
@@ -65,6 +68,7 @@ public class GenericReactiveTransaction implements ReactiveTransaction {
   /**
    * Create a new {@code DefaultReactiveTransactionStatus} instance.
    *
+   * @param transactionName the defined name of the transaction
    * @param transaction underlying transaction object that can hold state
    * for the internal transaction implementation
    * @param newTransaction if the transaction is new, otherwise participating
@@ -78,16 +82,21 @@ public class GenericReactiveTransaction implements ReactiveTransaction {
    * @param suspendedResources a holder for resources that have been suspended
    * for this transaction, if any
    */
-  public GenericReactiveTransaction(
-          @Nullable Object transaction, boolean newTransaction, boolean newSynchronization,
-          boolean readOnly, boolean debug, @Nullable Object suspendedResources) {
-
+  public GenericReactiveTransaction(@Nullable String transactionName, @Nullable Object transaction, boolean newTransaction,
+          boolean newSynchronization, boolean nested, boolean readOnly, boolean debug, @Nullable Object suspendedResources) {
+    this.transactionName = transactionName;
     this.transaction = transaction;
     this.newTransaction = newTransaction;
     this.newSynchronization = newSynchronization;
+    this.nested = nested;
     this.readOnly = readOnly;
     this.debug = debug;
     this.suspendedResources = suspendedResources;
+  }
+
+  @Override
+  public String getTransactionName() {
+    return (this.transactionName != null ? this.transactionName : "");
   }
 
   /**
@@ -100,9 +109,7 @@ public class GenericReactiveTransaction implements ReactiveTransaction {
     return this.transaction;
   }
 
-  /**
-   * Return whether there is an actual transaction active.
-   */
+  @Override
   public boolean hasTransaction() {
     return (this.transaction != null);
   }
@@ -113,16 +120,18 @@ public class GenericReactiveTransaction implements ReactiveTransaction {
   }
 
   /**
-   * Return if a new transaction synchronization has been opened
-   * for this transaction.
+   * Return if a new transaction synchronization has been opened for this transaction.
    */
   public boolean isNewSynchronization() {
     return this.newSynchronization;
   }
 
-  /**
-   * Return if this transaction is defined as read-only transaction.
-   */
+  @Override
+  public boolean isNested() {
+    return this.nested;
+  }
+
+  @Override
   public boolean isReadOnly() {
     return this.readOnly;
   }
@@ -147,6 +156,9 @@ public class GenericReactiveTransaction implements ReactiveTransaction {
 
   @Override
   public void setRollbackOnly() {
+    if (this.completed) {
+      throw new IllegalStateException("Transaction completed");
+    }
     this.rollbackOnly = true;
   }
 

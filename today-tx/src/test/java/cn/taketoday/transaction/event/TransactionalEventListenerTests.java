@@ -97,7 +97,7 @@ public class TransactionalEventListenerTests {
   public void immediatelyImpactsCurrentTransaction() {
     load(ImmediateTestListener.class, BeforeCommitTestListener.class);
     assertThatIllegalStateException().isThrownBy(() ->
-            this.transactionTemplate.execute(status -> {
+            this.transactionTemplate.executeWithoutResult(status -> {
               getContext().publishEvent("FAIL");
               throw new AssertionError("Should have thrown an exception at this point");
             }))

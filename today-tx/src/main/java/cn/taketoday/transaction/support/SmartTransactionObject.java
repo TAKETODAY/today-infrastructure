@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,11 +24,12 @@ import java.io.Flushable;
  * return an internal rollback-only marker, typically from a another
  * transaction that has participated and marked it as rollback-only.
  *
- * <p>Autodetected by DefaultTransactionStatus, to always return a
- * current rollbackOnly flag even if not resulting from the current
+ * <p>Autodetected by {@link DefaultTransactionStatus} in order to always
+ * return a current rollbackOnly flag even if not resulting from the current
  * TransactionStatus.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DefaultTransactionStatus#isRollbackOnly
  * @since 4.0
  */
@@ -40,17 +38,23 @@ public interface SmartTransactionObject extends Flushable {
   /**
    * Return whether the transaction is internally marked as rollback-only.
    * Can, for example, check the JTA UserTransaction.
+   * <p>The default implementation returns {@code false}.
    *
    * @see jakarta.transaction.UserTransaction#getStatus
    * @see jakarta.transaction.Status#STATUS_MARKED_ROLLBACK
    */
-  boolean isRollbackOnly();
+  default boolean isRollbackOnly() {
+    return false;
+  }
 
   /**
    * Flush the underlying sessions to the datastore, if applicable:
    * for example, all affected Hibernate/JPA sessions.
+   * <p>The default implementation is empty, considering flush as a no-op.
    */
   @Override
-  void flush();
+  default void flush() {
+
+  }
 
 }
