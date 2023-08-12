@@ -239,6 +239,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   /**
+   * This implementation returns {@code true} if bean definition overriding
+   * is generally allowed.
+   *
+   * @see #setAllowBeanDefinitionOverriding
+   */
+  @Override
+  public boolean isBeanDefinitionOverridable(String beanName) {
+    return isAllowBeanDefinitionOverriding();
+  }
+
+  /**
    * Set whether the factory is allowed to eagerly load bean classes
    * even for bean definitions that are marked as "lazy-init".
    * <p>Default is "true". Turn this flag off to suppress class loading
@@ -348,7 +359,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   protected void checkForAliasCircle(String name, String alias) {
     super.checkForAliasCircle(name, alias);
-    if (!isAllowBeanDefinitionOverriding() && containsBeanDefinition(alias)) {
+    if (!isBeanDefinitionOverridable(name) && containsBeanDefinition(alias)) {
       throw new IllegalStateException("Cannot register alias '" + alias +
               "' for name '" + name + "': Alias would override bean definition '" + alias + "'");
     }
@@ -448,7 +459,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     BeanDefinition existBeanDef = beanDefinitionMap.get(beanName);
     if (existBeanDef != null) {
-      if (!isAllowBeanDefinitionOverriding()) {
+      if (!isBeanDefinitionOverridable(beanName)) {
         throw new BeanDefinitionOverrideException(beanName, def, existBeanDef);
       }
       else if (existBeanDef.getRole() < def.getRole()) {
@@ -470,8 +481,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
     else {
       if (isAlias(beanName)) {
-        if (!isAllowBeanDefinitionOverriding()) {
-          String aliasedName = canonicalName(beanName);
+        String aliasedName = canonicalName(beanName);
+        if (!isBeanDefinitionOverridable(aliasedName)) {
           if (containsBeanDefinition(aliasedName)) {  // alias for existing bean definition
             throw new BeanDefinitionOverrideException(
                     beanName, def, getBeanDefinition(aliasedName));

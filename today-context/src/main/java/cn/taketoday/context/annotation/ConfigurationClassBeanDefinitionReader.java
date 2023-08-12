@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -316,7 +313,7 @@ class ConfigurationClassBeanDefinitionReader {
 
     // At this point, it's a top-level override (probably XML), just having been parsed
     // before configuration class processing kicks in...
-    if (!bootstrapContext.getRegistry().isAllowBeanDefinitionOverriding()) {
+    if (!bootstrapContext.getRegistry().isBeanDefinitionOverridable(beanName)) {
       throw new BeanDefinitionStoreException(componentMethod.configurationClass.resource.toString(),
               beanName, "@Component definition illegally overridden by existing bean definition: " + existingBeanDef);
     }

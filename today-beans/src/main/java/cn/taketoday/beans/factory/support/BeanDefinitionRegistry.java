@@ -156,4 +156,18 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
    */
   boolean isAllowBeanDefinitionOverriding();
 
+  /**
+   * Determine whether the bean definition for the given name is overridable,
+   * i.e. whether {@link #registerBeanDefinition} would successfully return
+   * against an existing definition of the same name.
+   * <p>The default implementation returns {@code true}.
+   *
+   * @param beanName the name to check
+   * @return whether the definition for the given bean name is overridable
+   * @since 4.0
+   */
+  default boolean isBeanDefinitionOverridable(String beanName) {
+    return isAllowBeanDefinitionOverriding();
+  }
+
 }

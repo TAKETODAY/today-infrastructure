@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -202,6 +199,19 @@ public class ClassPathBeanDefinitionScannerTests {
     scanner.setIncludeAnnotationConfig(false);
     // should not fail!
     scanner.scan(BASE_PACKAGE);
+  }
+
+  @Test
+  public void testSimpleScanWithDefaultFiltersAndOverridingBeanNotAllowed() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.getBeanFactory().setAllowBeanDefinitionOverriding(false);
+    context.registerBeanDefinition("stubFooDao", new RootBeanDefinition(TestBean.class));
+    ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
+    scanner.setIncludeAnnotationConfig(false);
+
+    assertThatIllegalStateException().isThrownBy(() -> scanner.scan(BASE_PACKAGE))
+            .withMessageContaining("stubFooDao")
+            .withMessageContaining(StubFooDao.class.getName());
   }
 
   @Test

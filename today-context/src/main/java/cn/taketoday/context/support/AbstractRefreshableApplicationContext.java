@@ -294,6 +294,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   }
 
   @Override
+  public boolean isBeanDefinitionOverridable(String beanName) {
+    return getBeanFactory().isBeanDefinitionOverridable(beanName);
+  }
+
+  @Override
   public void registerAlias(String name, String alias) {
     getBeanFactory().registerAlias(name, alias);
   }

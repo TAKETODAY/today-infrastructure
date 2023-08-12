@@ -145,4 +145,8 @@ public class SimpleBeanDefinitionRegistry
     return allowBeanDefinitionOverriding;
   }
 
+  @Override
+  public boolean isBeanDefinitionOverridable(String beanName) {
+    return isAllowBeanDefinitionOverriding();
+  }
 }
