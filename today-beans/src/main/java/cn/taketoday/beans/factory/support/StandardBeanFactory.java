@@ -432,11 +432,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   //---------------------------------------------------------------------
 
   @Override
-  public Map<String, BeanDefinition> getBeanDefinitions() {
-    return beanDefinitionMap;
-  }
-
-  @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
     Assert.hasText(beanName, "Bean name must not be empty");
     Assert.notNull(def, "BeanDefinition is required");

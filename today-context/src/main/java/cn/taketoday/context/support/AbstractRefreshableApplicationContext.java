@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,6 @@ package cn.taketoday.context.support;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -242,11 +238,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   //---------------------------------------------------------------------
 
   @Override
-  public Map<String, BeanDefinition> getBeanDefinitions() {
-    return getBeanFactory().getBeanDefinitions();
-  }
-
-  @Override
   public void registerBeanDefinition(String beanName, BeanDefinition def) {
     getBeanFactory().registerBeanDefinition(beanName, def);
   }
@@ -256,7 +247,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     getBeanFactory().removeBeanDefinition(beanName);
   }
 
-  @Nullable
   @Override
   public BeanDefinition getBeanDefinition(String beanName) {
     return getBeanFactory().getBeanDefinition(beanName);

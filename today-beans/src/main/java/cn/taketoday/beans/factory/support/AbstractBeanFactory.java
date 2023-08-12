@@ -695,9 +695,6 @@ public abstract class AbstractBeanFactory
     }
   }
 
-  @Override
-  public abstract Map<String, BeanDefinition> getBeanDefinitions();
-
   /**
    * register bean-def for
    */
@@ -1464,7 +1461,7 @@ public abstract class AbstractBeanFactory
       return ResolvableType.forClass(clazz);
     }
     throw new IllegalArgumentException("Invalid value type for attribute '" +
-        FactoryBean.OBJECT_TYPE_ATTRIBUTE + "': " + attribute.getClass().getName());
+            FactoryBean.OBJECT_TYPE_ATTRIBUTE + "': " + attribute.getClass().getName());
   }
 
   /**

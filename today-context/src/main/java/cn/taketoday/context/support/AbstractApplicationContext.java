@@ -1123,11 +1123,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
   }
 
   @Override
-  public Map<String, BeanDefinition> getBeanDefinitions() {
-    return getBeanFactory().getBeanDefinitions();
-  }
-
-  @Override
   public boolean isSingleton(String name) {
     assertBeanFactoryActive();
     return getBeanFactory().isSingleton(name);
