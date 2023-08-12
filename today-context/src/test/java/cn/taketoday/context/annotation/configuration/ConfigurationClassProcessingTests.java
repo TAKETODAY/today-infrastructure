@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -148,6 +145,13 @@ public class ConfigurationClassProcessingTests {
   public void testFinalBeanMethod() {
     assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() ->
             initBeanFactory(ConfigWithFinalBean.class));
+  }
+
+  @Test
+    // gh-31007
+  void voidBeanMethod() {
+    assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() ->
+            initBeanFactory(ConfigWithVoidBean.class));
   }
 
   @Test
@@ -424,6 +428,13 @@ public class ConfigurationClassProcessingTests {
     public final @Bean
     TestBean testBean() {
       return new TestBean();
+    }
+  }
+
+  @Configuration
+  static class ConfigWithVoidBean {
+
+    public @Bean void testBean() {
     }
   }
 

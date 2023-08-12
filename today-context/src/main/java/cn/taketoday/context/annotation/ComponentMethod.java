@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,7 @@ import cn.taketoday.stereotype.Component;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationClass
  * @see ConfigurationClassParser
  * @see ConfigurationClassBeanDefinitionReader
@@ -54,8 +52,13 @@ final class ComponentMethod {
   }
 
   public void validate(ProblemReporter problemReporter) {
+    if ("void".equals(metadata.getReturnTypeName())) {
+      // declared as void: potential misuse of @Bean, maybe meant as init method instead?
+      problemReporter.error(new VoidDeclaredMethodError());
+    }
+
     if (metadata.isStatic()) {
-      // static @Component methods have no constraints to validate -> return immediately
+      // static @Component methods have no further constraints to validate -> return immediately
       return;
     }
 
@@ -81,6 +84,14 @@ final class ComponentMethod {
   @Override
   public String toString() {
     return "ComponentMethod: " + this.metadata;
+  }
+
+  private class VoidDeclaredMethodError extends Problem {
+
+    VoidDeclaredMethodError() {
+      super("@Bean method '%s' must not be declared as void; change the method's return type or its annotation."
+              .formatted(metadata.getMethodName()), getResourceLocation());
+    }
   }
 
   private class NonOverridableMethodError extends Problem {
