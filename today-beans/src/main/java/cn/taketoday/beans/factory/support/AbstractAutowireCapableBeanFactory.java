@@ -1714,12 +1714,11 @@ public abstract class AbstractAutowireCapableBeanFactory
     if (result.isResolved()) {
       return result;
     }
-    if (!merged.hasBeanClass()) {
-      return null;
-    }
-    result = getFactoryBeanGeneric(ResolvableType.forClass(merged.getBeanClass()));
-    if (result.isResolved()) {
-      return result;
+    if (merged.hasBeanClass()) {
+      result = getFactoryBeanGeneric(ResolvableType.forClass(merged.getBeanClass()));
+      if (result.isResolved()) {
+        return result;
+      }
     }
     return null;
   }

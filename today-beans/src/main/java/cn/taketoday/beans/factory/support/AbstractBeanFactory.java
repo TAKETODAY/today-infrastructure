@@ -1454,13 +1454,17 @@ public abstract class AbstractBeanFactory
    */
   ResolvableType getTypeForFactoryBeanFromAttributes(AttributeAccessor attributes) {
     Object attribute = attributes.getAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE);
-    if (attribute instanceof ResolvableType) {
-      return (ResolvableType) attribute;
+    if (attribute == null) {
+      return ResolvableType.NONE;
     }
-    if (attribute instanceof Class) {
-      return ResolvableType.forClass((Class<?>) attribute);
+    if (attribute instanceof ResolvableType resolvableType) {
+      return resolvableType;
     }
-    return ResolvableType.NONE;
+    if (attribute instanceof Class<?> clazz) {
+      return ResolvableType.forClass(clazz);
+    }
+    throw new IllegalArgumentException("Invalid value type for attribute '" +
+        FactoryBean.OBJECT_TYPE_ATTRIBUTE + "': " + attribute.getClass().getName());
   }
 
   /**

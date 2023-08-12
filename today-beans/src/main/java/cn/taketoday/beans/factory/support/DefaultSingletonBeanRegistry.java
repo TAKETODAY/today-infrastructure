@@ -181,6 +181,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * @param beanName the name of the bean to look for
    * @param allowEarlyReference whether early references should be created or not
    * @return the registered singleton object, or {@code null} if none found
+   * @see cn.taketoday.lang.NullValue#INSTANCE
    */
   @Nullable
   protected Object getSingleton(String beanName, boolean allowEarlyReference) {
