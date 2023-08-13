@@ -17,6 +17,7 @@ cn.taketoday.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration
 cn.taketoday.annotation.config.jdbc.DataSourceAutoConfiguration
+cn.taketoday.annotation.config.jdbc.JdbcClientAutoConfiguration
 cn.taketoday.annotation.config.jdbc.JdbcTemplateAutoConfiguration
 cn.taketoday.annotation.config.jdbc.DataSourceTransactionManagerAutoConfiguration
 cn.taketoday.annotation.config.jpa.HibernateJpaAutoConfiguration
