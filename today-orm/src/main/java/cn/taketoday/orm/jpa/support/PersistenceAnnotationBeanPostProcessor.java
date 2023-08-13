@@ -357,7 +357,7 @@ public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwar
     InjectionMetadata metadata = findInjectionMetadata(beanDefinition, beanClass, beanName);
     Collection<InjectedElement> injectedElements = metadata.getInjectedElements(
             beanDefinition.getPropertyValues());
-    if (!CollectionUtils.isEmpty(injectedElements)) {
+    if (CollectionUtils.isNotEmpty(injectedElements)) {
       return new AotContribution(beanClass, injectedElements);
     }
     return null;
@@ -862,7 +862,7 @@ public class PersistenceAnnotationBeanPostProcessor implements InstantiationAwar
       method.addStatement(
               "$T entityManagerFactory = $T.findEntityManagerFactory($L.getBeanFactory(), $S)",
               EntityManagerFactory.class, EntityManagerFactoryUtils.class, REGISTERED_BEAN_PARAMETER, unitName);
-      boolean hasProperties = !CollectionUtils.isEmpty(properties);
+      boolean hasProperties = CollectionUtils.isNotEmpty(properties);
       if (hasProperties) {
         method.addStatement("$T properties = new Properties()",
                 Properties.class);

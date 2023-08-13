@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -365,18 +362,18 @@ class DefaultWebTestClient implements WebTestClient {
     private ClientRequest.Builder initRequestBuilder() {
       ClientRequest.Builder builder = ClientRequest.create(this.httpMethod, initUri())
               .headers(headersToUse -> {
-                if (!CollectionUtils.isEmpty(defaultHeaders)) {
+                if (CollectionUtils.isNotEmpty(defaultHeaders)) {
                   headersToUse.putAll(defaultHeaders);
                 }
-                if (!CollectionUtils.isEmpty(this.headers)) {
+                if (CollectionUtils.isNotEmpty(this.headers)) {
                   headersToUse.putAll(this.headers);
                 }
               })
               .cookies(cookiesToUse -> {
-                if (!CollectionUtils.isEmpty(defaultCookies)) {
+                if (CollectionUtils.isNotEmpty(defaultCookies)) {
                   cookiesToUse.putAll(defaultCookies);
                 }
-                if (!CollectionUtils.isEmpty(this.cookies)) {
+                if (CollectionUtils.isNotEmpty(this.cookies)) {
                   cookiesToUse.putAll(this.cookies);
                 }
               })

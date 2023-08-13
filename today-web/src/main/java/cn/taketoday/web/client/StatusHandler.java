@@ -91,7 +91,7 @@ final class StatusHandler {
           else {
             ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
           }
-          if (!CollectionUtils.isEmpty(messageConverters)) {
+          if (CollectionUtils.isNotEmpty(messageConverters)) {
             ex.setBodyConvertFunction(initBodyConvertFunction(response, body, messageConverters));
           }
           throw ex;
@@ -100,7 +100,7 @@ final class StatusHandler {
 
   private static Function<ResolvableType, ?> initBodyConvertFunction(
       ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
-    Assert.state(!CollectionUtils.isEmpty(messageConverters), "Expected message converters");
+    Assert.state(CollectionUtils.isNotEmpty(messageConverters), "Expected message converters");
     return resolvableType -> {
       try {
         HttpMessageConverterExtractor<?> extractor =

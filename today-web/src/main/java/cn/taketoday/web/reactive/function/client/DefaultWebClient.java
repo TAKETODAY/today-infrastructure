@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -467,19 +464,19 @@ class DefaultWebClient implements WebClient {
     }
 
     private void initHeaders(HttpHeaders out) {
-      if (!CollectionUtils.isEmpty(defaultHeaders)) {
+      if (CollectionUtils.isNotEmpty(defaultHeaders)) {
         out.putAll(defaultHeaders);
       }
-      if (!CollectionUtils.isEmpty(this.headers)) {
+      if (CollectionUtils.isNotEmpty(this.headers)) {
         out.putAll(this.headers);
       }
     }
 
     private void initCookies(MultiValueMap<String, String> out) {
-      if (!CollectionUtils.isEmpty(defaultCookies)) {
+      if (CollectionUtils.isNotEmpty(defaultCookies)) {
         out.putAll(defaultCookies);
       }
-      if (!CollectionUtils.isEmpty(this.cookies)) {
+      if (CollectionUtils.isNotEmpty(this.cookies)) {
         out.putAll(this.cookies);
       }
     }

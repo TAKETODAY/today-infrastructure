@@ -123,7 +123,7 @@ public class ReloadableResourceBundleMessageSource
    * @param fileExtensions the file extensions (starts with a dot)
    */
   public void setFileExtensions(List<String> fileExtensions) {
-    Assert.isTrue(!CollectionUtils.isEmpty(fileExtensions), "At least one file extension is required");
+    Assert.isTrue(CollectionUtils.isNotEmpty(fileExtensions), "At least one file extension is required");
     for (String extension : fileExtensions) {
       if (!extension.startsWith(".")) {
         throw new IllegalArgumentException("File extension '" + extension + "' should start with '.'");
