@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.MessageSourceResolvable;
 import cn.taketoday.context.annotation.Bean;
@@ -112,8 +111,8 @@ class MessageSourceAutoConfigurationTests {
   @Test
   @Disabled("Expected to fail per gh-1075")
   void testMessageSourceFromPropertySourceAnnotation() {
-    this.contextRunner.withUserConfiguration(Config.class).run(
-            (context) -> assertThat(context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar"));
+    this.contextRunner.withUserConfiguration(Config.class)
+            .run((context) -> assertThat(context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar"));
   }
 
   @Test
@@ -183,6 +182,15 @@ class MessageSourceAutoConfigurationTests {
     this.contextRunner.withPropertyValues("infra.messages.basename:test/messages")
             .withUserConfiguration(CustomBeanNameMessageSourceConfiguration.class)
             .run((context) -> assertThat(context.getMessage("foo", null, Locale.US)).isEqualTo("bar"));
+  }
+
+  @Test
+  void shouldRegisterDefaultHints() {
+    RuntimeHints hints = new RuntimeHints();
+    new MessageSourceAutoConfiguration.Hints().registerHints(hints, getClass().getClassLoader());
+    assertThat(RuntimeHintsPredicates.resource().forResource("messages.properties")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.resource().forResource("messages_de.properties")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.resource().forResource("messages_zh-CN.properties")).accepts(hints);
   }
 
   @Configuration(proxyBeanMethods = false)

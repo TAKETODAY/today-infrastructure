@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +21,12 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.ImportRuntimeHints;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -61,6 +61,7 @@ import cn.taketoday.util.StringUtils;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @Conditional(MessageSourceAutoConfiguration.ResourceBundleCondition.class)
 @EnableConfigurationProperties
+@ImportRuntimeHints(MessageSourceAutoConfiguration.Hints.class)
 public class MessageSourceAutoConfiguration {
 
   @Component
@@ -129,6 +130,15 @@ public class MessageSourceAutoConfiguration {
       catch (Exception ex) {
         return Collections.emptySet();
       }
+    }
+
+  }
+
+  static class Hints implements RuntimeHintsRegistrar {
+
+    @Override
+    public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+      hints.resources().registerPattern("messages.properties").registerPattern("messages_*.properties");
     }
 
   }
