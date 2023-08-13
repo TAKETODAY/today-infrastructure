@@ -294,21 +294,21 @@ public interface ServerResponse {
    * {@code consumer} can be used to build and send events.
    *
    * <p>For example:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse handleSse(ServerRequest request) {
-   *     return ServerResponse.sse(sse -&gt; sse.send("Hello World!"));
+   *     return ServerResponse.sse(sse -> sse.send("Hello World!"));
    * }
-   * </pre>
+   * }</pre>
    *
    * <p>or, to set both the id and event type:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse handleSse(ServerRequest request) {
-   *     return ServerResponse.sse(sse -&gt; sse
+   *     return ServerResponse.sse(sse -> sse
    *         .id("42)
    *         .event("event")
    *         .send("Hello World!"));
    * }
-   * </pre>
+   * }</pre>
    *
    * @param consumer consumer that will be provided with an event builder
    * @return the server-side event response
@@ -323,21 +323,21 @@ public interface ServerResponse {
    * {@code consumer} can be used to build and send events.
    *
    * <p>For example:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse handleSse(ServerRequest request) {
-   *     return ServerResponse.sse(sse -&gt; sse.send("Hello World!"));
+   *     return ServerResponse.sse(sse -> sse.send("Hello World!"));
    * }
-   * </pre>
+   * }</pre>
    *
    * <p>or, to set both the id and event type:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse handleSse(ServerRequest request) {
-   *     return ServerResponse.sse(sse -&gt; sse
+   *     return ServerResponse.sse(sse -> sse
    *         .id("42)
    *         .event("event")
    *         .send("Hello World!"));
    * }
-   * </pre>
+   * }</pre>
    *
    * @param consumer consumer that will be provided with an event builder
    * @param timeout maximum time period to wait before timing out

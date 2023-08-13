@@ -50,7 +50,6 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.bind.ServletRequestDataBinder;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.util.UriBuilder;
@@ -58,7 +57,6 @@ import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Default {@link ServerRequest.Builder} implementation.
@@ -92,7 +90,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   public DefaultServerRequestBuilder(ServerRequest other) {
     Assert.notNull(other, "ServerRequest is required");
-    this.requestContext = other.requestContext();
+    this.requestContext = other.exchange();
     this.messageConverters = new ArrayList<>(other.messageConverters());
     this.method = other.method();
     this.uri = other.uri();
@@ -322,7 +320,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
       dataBinder.setTargetType(ResolvableType.forClass(bindType));
       dataBinderCustomizer.accept(dataBinder);
 
-      RequestContext context = requestContext();
+      RequestContext context = exchange();
       dataBinder.construct(context);
       dataBinder.bind(context);
 
@@ -370,7 +368,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    public RequestContext requestContext() {
+    public RequestContext exchange() {
       return this.requestContext;
     }
 

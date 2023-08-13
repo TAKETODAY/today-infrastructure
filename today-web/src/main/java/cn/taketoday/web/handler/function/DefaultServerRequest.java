@@ -142,7 +142,7 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public RequestContext requestContext() {
+  public RequestContext exchange() {
     return requestContext;
   }
 
@@ -215,7 +215,7 @@ class DefaultServerRequest implements ServerRequest {
     dataBinder.setTargetType(ResolvableType.forClass(bindType));
     dataBinderCustomizer.accept(dataBinder);
 
-    RequestContext context = requestContext();
+    RequestContext context = exchange();
     dataBinder.construct(context);
     dataBinder.bind(context);
 

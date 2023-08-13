@@ -490,7 +490,7 @@ public abstract class RequestPredicates {
     }
 
     private static HttpMethod method(ServerRequest request) {
-      if (request.requestContext().isPreFlightRequest()) {
+      if (request.exchange().isPreFlightRequest()) {
         String accessControlRequestMethod =
                 request.headers().firstHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
         if (accessControlRequestMethod != null) {
@@ -585,7 +585,7 @@ public abstract class RequestPredicates {
 
     @Override
     public boolean test(ServerRequest request) {
-      if (request.requestContext().isPreFlightRequest()) {
+      if (request.exchange().isPreFlightRequest()) {
         return true;
       }
       else {
@@ -1093,8 +1093,8 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public RequestContext requestContext() {
-      return request.requestContext();
+    public RequestContext exchange() {
+      return request.exchange();
     }
 
     @Override

@@ -93,14 +93,14 @@ public interface ServerRequest extends ServerResponse.Context {
    * Get the request path.
    */
   default String path() {
-    return requestContext().getLookupPath().value();
+    return exchange().getLookupPath().value();
   }
 
   /**
    * Get the request path as a {@code PathContainer}.
    */
   default RequestPath requestPath() {
-    return requestContext().getRequestPath();
+    return exchange().getRequestPath();
   }
 
   /**
@@ -273,7 +273,7 @@ public interface ServerRequest extends ServerResponse.Context {
   /**
    * Get the request that this request is based on.
    */
-  RequestContext requestContext();
+  RequestContext exchange();
 
   /**
    * Check whether the requested resource has been modified given the
@@ -281,14 +281,15 @@ public interface ServerRequest extends ServerResponse.Context {
    * If not modified, this method returns a response with corresponding
    * status code and headers, otherwise an empty result.
    * <p>Typical usage:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse myHandleMethod(ServerRequest request) {
    *   Instant lastModified = // application-specific calculation
    * 	 return request.checkNotModified(lastModified)
-   * 	   .orElseGet(() -&gt; {
+   * 	   .orElseGet(() -> {
    * 	     // further request processing, actually building content
    * 		 return ServerResponse.ok().body(...);
    *     });
+   * }
    * }</pre>
    * <p>This method works with conditional GET/HEAD requests, but
    * also with conditional POST/PUT/DELETE requests.
@@ -306,7 +307,7 @@ public interface ServerRequest extends ServerResponse.Context {
    */
   default Optional<ServerResponse> checkNotModified(Instant lastModified) {
     Assert.notNull(lastModified, "LastModified is required");
-    return DefaultServerRequest.checkNotModified(requestContext(), lastModified, null);
+    return DefaultServerRequest.checkNotModified(exchange(), lastModified, null);
   }
 
   /**
@@ -315,15 +316,15 @@ public interface ServerRequest extends ServerResponse.Context {
    * If not modified, this method returns a response with corresponding
    * status code and headers, otherwise an empty result.
    * <p>Typical usage:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse myHandleMethod(ServerRequest request) {
    *   String eTag = // application-specific calculation
    * 	 return request.checkNotModified(eTag)
-   * 	   .orElseGet(() -&gt; {
+   * 	   .orElseGet(() -> {
    * 	     // further request processing, actually building content
    * 		 return ServerResponse.ok().body(...);
    *     });
-   * }</pre>
+   * }}</pre>
    * <p>This method works with conditional GET/HEAD requests, but
    * also with conditional POST/PUT/DELETE requests.
    * <p><strong>Note:</strong> you can use either
@@ -341,7 +342,7 @@ public interface ServerRequest extends ServerResponse.Context {
    */
   default Optional<ServerResponse> checkNotModified(String etag) {
     Assert.notNull(etag, "Etag is required");
-    return DefaultServerRequest.checkNotModified(requestContext(), null, etag);
+    return DefaultServerRequest.checkNotModified(exchange(), null, etag);
   }
 
   /**
@@ -351,16 +352,16 @@ public interface ServerRequest extends ServerResponse.Context {
    * If not modified, this method returns a response with corresponding
    * status code and headers, otherwise an empty result.
    * <p>Typical usage:
-   * <pre class="code">
+   * <pre>{@code
    * public ServerResponse myHandleMethod(ServerRequest request) {
    *   Instant lastModified = // application-specific calculation
    *   String eTag = // application-specific calculation
    * 	 return request.checkNotModified(lastModified, eTag)
-   * 	   .orElseGet(() -&gt; {
+   * 	   .orElseGet(() -> {
    * 	     // further request processing, actually building content
    * 		 return ServerResponse.ok().body(...);
    *     });
-   * }</pre>
+   * }}</pre>
    * <p>This method works with conditional GET/HEAD requests, but
    * also with conditional POST/PUT/DELETE requests.
    *
@@ -375,7 +376,7 @@ public interface ServerRequest extends ServerResponse.Context {
   default Optional<ServerResponse> checkNotModified(Instant lastModified, String etag) {
     Assert.notNull(etag, "Etag is required");
     Assert.notNull(lastModified, "LastModified is required");
-    return DefaultServerRequest.checkNotModified(requestContext(), lastModified, etag);
+    return DefaultServerRequest.checkNotModified(exchange(), lastModified, etag);
   }
 
   // Static methods
