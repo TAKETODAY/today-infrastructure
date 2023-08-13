@@ -37,6 +37,7 @@ dependencies {
   testImplementation("javax.annotation:javax.annotation-api")
   testImplementation('com.google.code.findbugs:findbugs')
   testImplementation(project(":today-core-test"))
+  testImplementation(project(":today-test-support"))
   testImplementation(testFixtures(project(":today-aop")))
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))

@@ -11,8 +11,8 @@ dependencies {
   optional "org.junit.jupiter:junit-jupiter-api"
   optional 'jakarta.servlet:jakarta.servlet-api'
 
-  implementation 'org.testcontainers:cassandra:1.16.2'
-  implementation 'org.testcontainers:testcontainers:1.16.2'
+  implementation 'org.testcontainers:cassandra'
+  implementation 'org.testcontainers:testcontainers'
 
   implementation("org.apache.maven.resolver:maven-resolver-connector-basic")
   implementation("org.apache.maven.resolver:maven-resolver-impl")
@@ -22,8 +22,8 @@ dependencies {
   implementation("org.apache.maven.resolver:maven-resolver-transport-http") {
     exclude group: "org.slf4j", module: "jcl-over-slf4j"
   }
-
-  implementation 'org.junit.platform:junit-platform-launcher:1.8.2'
+  implementation("org.assertj:assertj-core")
+  implementation 'org.junit.platform:junit-platform-launcher'
 
   testImplementation 'commons-logging:commons-logging:1.2'
   testImplementation 'org.hibernate.validator:hibernate-validator'
