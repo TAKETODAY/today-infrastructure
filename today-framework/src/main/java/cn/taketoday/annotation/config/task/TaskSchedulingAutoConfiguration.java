@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,22 +17,16 @@
 
 package cn.taketoday.annotation.config.task;
 
-import java.util.concurrent.ScheduledExecutorService;
-
-import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.framework.LazyInitializationExcludeFilter;
 import cn.taketoday.scheduling.TaskScheduler;
-import cn.taketoday.scheduling.annotation.SchedulingConfigurer;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskScheduler;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
-import cn.taketoday.scheduling.support.TaskSchedulerBuilder;
-import cn.taketoday.scheduling.support.TaskSchedulerCustomizer;
 import cn.taketoday.stereotype.Component;
 
 /**
@@ -48,33 +39,16 @@ import cn.taketoday.stereotype.Component;
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
 @AutoConfiguration(after = TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
+@Import({ TaskSchedulingConfigurations.ThreadPoolTaskSchedulerBuilderConfiguration.class,
+    TaskSchedulingConfigurations.TaskSchedulerBuilderConfiguration.class,
+    TaskSchedulingConfigurations.SimpleAsyncTaskSchedulerBuilderConfiguration.class,
+    TaskSchedulingConfigurations.TaskSchedulerConfiguration.class })
 public class TaskSchedulingAutoConfiguration {
-
-  @Component
-  @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
-  @ConditionalOnMissingBean({ SchedulingConfigurer.class, TaskScheduler.class, ScheduledExecutorService.class })
-  public ThreadPoolTaskScheduler taskScheduler(TaskSchedulerBuilder builder) {
-    return builder.build();
-  }
 
   @Component
   @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
   public static LazyInitializationExcludeFilter scheduledBeanLazyInitializationExcludeFilter() {
     return new ScheduledBeanLazyInitializationExcludeFilter();
-  }
-
-  @Component
-  @ConditionalOnMissingBean
-  public TaskSchedulerBuilder taskSchedulerBuilder(TaskSchedulingProperties properties,
-          ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
-    TaskSchedulerBuilder builder = new TaskSchedulerBuilder();
-    builder = builder.poolSize(properties.getPool().getSize());
-    var shutdown = properties.getShutdown();
-    builder = builder.awaitTermination(shutdown.isAwaitTermination());
-    builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
-    builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-    builder = builder.customizers(taskSchedulerCustomizers);
-    return builder;
   }
 
 }
