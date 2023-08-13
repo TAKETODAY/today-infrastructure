@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,7 +97,7 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
   private void configureEnabledProtocols(AbstractHttp11JsseProtocol<?> protocol) {
     SslOptions options = this.sslBundle.getOptions();
     if (options.getEnabledProtocols() != null) {
-      String enabledProtocols = StringUtils.arrayToCommaDelimitedString(options.getEnabledProtocols());
+      String enabledProtocols = StringUtils.arrayToDelimitedString(options.getEnabledProtocols(), "+");
       for (SSLHostConfig sslHostConfig : protocol.findSslHostConfigs()) {
         sslHostConfig.setProtocols(enabledProtocols);
       }
