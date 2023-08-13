@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,9 @@ import cn.taketoday.util.ObjectUtils;
  * Base class for {@link MockDefinition} and {@link SpyDefinition}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DefinitionsParser
+ * @since 4.0
  */
 abstract class Definition {
 
@@ -42,9 +41,9 @@ abstract class Definition {
 
   Definition(String name, MockReset reset, boolean proxyTargetAware, QualifierDefinition qualifier) {
     this.name = name;
-    this.reset = (reset != null) ? reset : MockReset.AFTER;
-    this.proxyTargetAware = proxyTargetAware;
     this.qualifier = qualifier;
+    this.proxyTargetAware = proxyTargetAware;
+    this.reset = (reset != null) ? reset : MockReset.AFTER;
   }
 
   /**
@@ -92,12 +91,10 @@ abstract class Definition {
       return false;
     }
     Definition other = (Definition) obj;
-    boolean result = true;
-    result = result && ObjectUtils.nullSafeEquals(this.name, other.name);
-    result = result && ObjectUtils.nullSafeEquals(this.reset, other.reset);
-    result = result && ObjectUtils.nullSafeEquals(this.proxyTargetAware, other.proxyTargetAware);
-    result = result && ObjectUtils.nullSafeEquals(this.qualifier, other.qualifier);
-    return result;
+    return ObjectUtils.nullSafeEquals(this.name, other.name)
+            && ObjectUtils.nullSafeEquals(this.proxyTargetAware, other.proxyTargetAware)
+            && ObjectUtils.nullSafeEquals(this.reset, other.reset)
+            && ObjectUtils.nullSafeEquals(this.qualifier, other.qualifier);
   }
 
   @Override

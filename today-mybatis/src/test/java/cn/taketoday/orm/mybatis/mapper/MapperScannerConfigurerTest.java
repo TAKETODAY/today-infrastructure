@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,16 +35,16 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.PropertyPlaceholderConfigurer;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.context.support.SimpleThreadScope;
 import cn.taketoday.orm.mybatis.SqlSessionFactoryBean;
 import cn.taketoday.orm.mybatis.SqlSessionTemplate;
 import cn.taketoday.orm.mybatis.mapper.child.MapperChildInterface;
 import cn.taketoday.orm.mybatis.type.DummyMapperFactoryBean;
+import cn.taketoday.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -399,14 +396,6 @@ class MapperScannerConfigurerTest {
     applicationContext.getBean("annotatedMapper");
 
     assertTrue(DummyMapperFactoryBean.getMapperCount() > 0);
-  }
-
-  @Test
-  void testMapperBeanAttribute() {
-    startContext();
-
-    assertThat(applicationContext.getBeanDefinition("annotatedMapper")
-            .getAttribute(ClassPathMapperScanner.FACTORY_BEAN_OBJECT_TYPE)).isEqualTo(AnnotatedMapper.class.getName());
   }
 
   private void setupSqlSessionFactory(String name) {

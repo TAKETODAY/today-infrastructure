@@ -18,7 +18,6 @@
 package cn.taketoday.framework.test.mock.mockito;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,11 +78,11 @@ import cn.taketoday.util.StringUtils;
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  * @author Andreas Neiser
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor,
-        BeanClassLoaderAware, DependenciesBeanPostProcessor,
-        BeanFactoryAware, BeanFactoryPostProcessor, Ordered {
+public class MockitoPostProcessor implements BeanFactoryAware, BeanClassLoaderAware, Ordered,
+        InstantiationAwareBeanPostProcessor, DependenciesBeanPostProcessor, BeanFactoryPostProcessor {
 
   private static final String BEAN_NAME = MockitoPostProcessor.class.getName();
 
@@ -257,12 +256,11 @@ public class MockitoPostProcessor implements InstantiationAwareBeanPostProcessor
   private Set<String> getExistingBeans(ConfigurableBeanFactory beanFactory, ResolvableType resolvableType) {
     Set<String> beans = new LinkedHashSet<>(beanFactory.getBeanNamesForType(resolvableType, true, false));
     Class<?> type = resolvableType.resolve(Object.class);
-    String typeName = type.getName();
     for (String beanName : beanFactory.getBeanNamesForType(FactoryBean.class, true, false)) {
       beanName = BeanFactoryUtils.transformedBeanName(beanName);
       BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
       Object attribute = beanDefinition.getAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE);
-      if (resolvableType.equals(attribute) || type.equals(attribute) || typeName.equals(attribute)) {
+      if (resolvableType.equals(attribute) || type.equals(attribute)) {
         beans.add(beanName);
       }
     }

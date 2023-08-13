@@ -776,6 +776,14 @@ public abstract class AbstractAutowireCapableBeanFactory
     return createBeanWrapper(merged, instance);
   }
 
+  /**
+   * Obtain a bean instance from the given supplier.
+   *
+   * @param supplier the configured supplier
+   * @param beanName the corresponding bean name
+   * @param merged the bean definition for the bean
+   * @return the bean instance (possibly {@code null})
+   */
   private Object obtainInstanceFromSupplier(Supplier<?> supplier, String beanName, RootBeanDefinition merged) {
     String outerBean = currentlyCreatedBean.get();
     currentlyCreatedBean.set(beanName);

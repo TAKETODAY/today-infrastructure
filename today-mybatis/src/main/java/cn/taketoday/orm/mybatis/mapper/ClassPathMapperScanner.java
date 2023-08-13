@@ -26,7 +26,6 @@ import java.util.Optional;
 import cn.taketoday.aop.scope.ScopedProxyFactoryBean;
 import cn.taketoday.aop.scope.ScopedProxyUtils;
 import cn.taketoday.beans.PropertyValues;
-import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
@@ -59,9 +58,6 @@ import cn.taketoday.util.StringUtils;
  */
 public class ClassPathMapperScanner {
   private static final Logger log = LoggerFactory.getLogger(ClassPathMapperScanner.class);
-
-  // Copy of FactoryBean#OBJECT_TYPE_ATTRIBUTE
-  static final String FACTORY_BEAN_OBJECT_TYPE = FactoryBean.OBJECT_TYPE_ATTRIBUTE;
 
   private boolean addToConfig = true;
 
@@ -226,10 +222,6 @@ public class ClassPathMapperScanner {
     PropertyValues propertyValues = definition.getPropertyValues();
     propertyValues.add("addToConfig", addToConfig);
     propertyValues.add("mapperInterface", beanClassName);
-
-    // Attribute for MockitoPostProcessor
-    // https://github.com/mybatis/spring-boot-starter/issues/475
-    definition.setAttribute(FACTORY_BEAN_OBJECT_TYPE, beanClassName);
 
     boolean explicitFactoryUsed = false;
     if (StringUtils.hasText(sqlSessionFactoryBeanName)) {
