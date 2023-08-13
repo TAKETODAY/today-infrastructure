@@ -38,15 +38,15 @@ public enum Threading {
       return !VIRTUAL.isActive(environment);
     }
   },
+
   /**
-   * Virtual threads. Active if {@code spring.threads.virtual.enabled} is {@code true}
+   * Virtual threads. Active if {@code infra.threads.virtual.enabled} is {@code true}
    * and running on Java 21 or later.
    */
   VIRTUAL {
     @Override
     public boolean isActive(Environment environment) {
-      boolean virtualThreadsEnabled = environment.getProperty("infra.threads.virtual.enabled", boolean.class,
-              false);
+      boolean virtualThreadsEnabled = environment.getFlag("infra.threads.virtual.enabled", false);
       return virtualThreadsEnabled && JavaVersion.getJavaVersion().isEqualOrNewerThan(JavaVersion.TWENTY_ONE);
     }
   };

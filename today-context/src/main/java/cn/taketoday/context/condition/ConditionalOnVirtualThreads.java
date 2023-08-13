@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,11 +34,11 @@ import cn.taketoday.core.JavaVersion;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/7/1 23:17
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Retention(RetentionPolicy.RUNTIME)
 @ConditionalOnJava(JavaVersion.TWENTY_ONE)
-@ConditionalOnProperty(name = "infra.threads.virtual.enabled", havingValue = "true")
+@ConditionalOnThreading(Threading.VIRTUAL)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface ConditionalOnVirtualThreads {
 
 }
