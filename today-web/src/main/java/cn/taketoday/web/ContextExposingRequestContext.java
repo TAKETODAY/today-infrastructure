@@ -51,16 +51,6 @@ public class ContextExposingRequestContext extends RequestContextDecorator {
    *
    * @param originalRequest the original RequestContext
    * @param context the WebApplicationContext that this request runs in
-   */
-  public ContextExposingRequestContext(RequestContext originalRequest, ApplicationContext context) {
-    this(originalRequest, context, null);
-  }
-
-  /**
-   * Create a new ContextExposingRequestContext for the given request.
-   *
-   * @param originalRequest the original RequestContext
-   * @param context the WebApplicationContext that this request runs in
    * @param exposedContextBeanNames the names of beans in the context which
    * are supposed to be exposed (if this is non-null, only the beans in this
    * Set are eligible for exposure as attributes)
