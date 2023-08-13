@@ -163,11 +163,11 @@ public class JpaTransactionManagerTests {
     assertThat(condition2).isTrue();
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
-              assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
-              EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
-              throw new RuntimeException("some exception");
-            })).withMessage("some exception");
+        tt.executeWithoutResult(status -> {
+          assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
+          EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
+          throw new RuntimeException("some exception");
+        })).withMessage("some exception");
 
     boolean condition1 = !TransactionSynchronizationManager.hasResource(factory);
     assertThat(condition1).isTrue();
@@ -191,11 +191,11 @@ public class JpaTransactionManagerTests {
     assertThat(condition2).isTrue();
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
-              assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
-              EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
-              throw new RuntimeException("some exception");
-            }));
+        tt.executeWithoutResult(status -> {
+          assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
+          EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
+          throw new RuntimeException("some exception");
+        }));
 
     boolean condition1 = !TransactionSynchronizationManager.hasResource(factory);
     assertThat(condition1).isTrue();
@@ -282,13 +282,13 @@ public class JpaTransactionManagerTests {
     assertThat(condition2).isTrue();
 
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-            tt.execute(status -> {
-              assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
-              return tt.executeWithoutResult(status1 -> {
-                EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
-                throw new RuntimeException("some exception");
-              });
-            }));
+        tt.execute(status -> {
+          assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
+          return tt.execute(status1 -> {
+            EntityManagerFactoryUtils.getTransactionalEntityManager(factory);
+            throw new RuntimeException("some exception");
+          });
+        }));
 
     boolean condition1 = !TransactionSynchronizationManager.hasResource(factory);
     assertThat(condition1).isTrue();
@@ -316,16 +316,16 @@ public class JpaTransactionManagerTests {
     assertThat(condition2).isTrue();
 
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-                    tt.execute(status -> {
-                      assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
+            tt.execute(status -> {
+              assertThat(TransactionSynchronizationManager.hasResource(factory)).isTrue();
 
-                      return tt.execute(status1 -> {
-                        EntityManagerFactoryUtils.getTransactionalEntityManager(factory).flush();
-                        status1.setRollbackOnly();
-                        return null;
-                      });
-                    }))
-            .withCauseInstanceOf(RollbackException.class);
+              return tt.execute(status1 -> {
+                EntityManagerFactoryUtils.getTransactionalEntityManager(factory).flush();
+                status1.setRollbackOnly();
+                return null;
+              });
+            }))
+        .withCauseInstanceOf(RollbackException.class);
 
     boolean condition1 = !TransactionSynchronizationManager.hasResource(factory);
     assertThat(condition1).isTrue();
@@ -741,8 +741,8 @@ public class JpaTransactionManagerTests {
     given(manager.isOpen()).willReturn(true);
 
     assertThatExceptionOfType(InvalidIsolationLevelException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
-            }));
+        tt.executeWithoutResult(status -> {
+        }));
 
     verify(manager).close();
   }
