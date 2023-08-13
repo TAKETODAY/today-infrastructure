@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,6 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactResult;
@@ -250,11 +246,9 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
 
   private static List<URL> resolveCoordinates(String[] coordinates) {
     Exception latestFailure = null;
-    DefaultServiceLocator serviceLocator = MavenRepositorySystemUtils.newServiceLocator();
-    serviceLocator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
-    serviceLocator.addService(TransporterFactory.class, HttpTransporterFactory.class);
-    RepositorySystem repositorySystem = serviceLocator.getService(RepositorySystem.class);
+    RepositorySystem repositorySystem = createRepositorySystem();
     DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
+    session.setSystemProperties(System.getProperties());
     LocalRepository localRepository = new LocalRepository(System.getProperty("user.home") + "/.m2/repository");
     RemoteRepository remoteRepository = new RemoteRepository.Builder("central", "default",
             "https://repo.maven.apache.org/maven2")
@@ -276,8 +270,15 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
         latestFailure = ex;
       }
     }
-    throw new IllegalStateException("Resolution failed after " +
-            MAX_RESOLUTION_ATTEMPTS + " attempts", latestFailure);
+    throw new IllegalStateException("Resolution failed after " + MAX_RESOLUTION_ATTEMPTS + " attempts",
+            latestFailure);
+  }
+
+  private static RepositorySystem createRepositorySystem() {
+    org.eclipse.aether.impl.DefaultServiceLocator serviceLocator = MavenRepositorySystemUtils.newServiceLocator();
+    serviceLocator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
+    serviceLocator.addService(TransporterFactory.class, HttpTransporterFactory.class);
+    return serviceLocator.getService(RepositorySystem.class);
   }
 
   private static List<Dependency> createDependencies(String[] allCoordinates) {
