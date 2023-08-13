@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +30,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import cn.taketoday.core.env.EnumerablePropertySource;
 import cn.taketoday.core.env.Environment;
@@ -41,6 +39,7 @@ import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.PathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.support.ApplicationConversionService;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.OriginProvider;
@@ -266,6 +265,8 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
     private final Path path;
 
+    private final ReentrantLock resourceLock = new ReentrantLock();
+
     private final Resource resource;
 
     private final Origin origin;
@@ -349,10 +350,14 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
         }
         if (this.content == null) {
           assertStillExists();
-          synchronized(this.resource) {
+          this.resourceLock.lock();
+          try {
             if (this.content == null) {
               this.content = FileCopyUtils.copyToByteArray(this.resource.getInputStream());
             }
+          }
+          finally {
+            this.resourceLock.unlock();
           }
         }
         return this.content;
@@ -363,9 +368,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
     }
 
     private void assertStillExists() {
-      if (!Files.exists(this.path)) {
-        throw new IllegalStateException("The property file '" + this.path + "' no longer exists");
-      }
+      Assert.state(Files.exists(this.path), () -> "The property file '" + this.path + "' no longer exists");
     }
 
   }
