@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,8 +63,7 @@ class DataSourceJmxConfigurationTests {
   void hikariAutoConfiguredCanUseRegisterMBeans() {
     String poolName = UUID.randomUUID().toString();
     this.contextRunner
-            .withPropertyValues("infra.jmx.enabled=true",
-                    "datasource.type=" + HikariDataSource.class.getName(),
+            .withPropertyValues("infra.jmx.enabled=true", "datasource.type=" + HikariDataSource.class.getName(),
                     "datasource.name=" + poolName, "datasource.hikari.register-mbeans=true")
             .run((context) -> {
               assertThat(context).hasSingleBean(HikariDataSource.class);
@@ -86,7 +82,8 @@ class DataSourceJmxConfigurationTests {
     MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
     Set<ObjectInstance> existingInstances = mBeanServer.queryMBeans(new ObjectName("com.zaxxer.hikari:type=*"),
             null);
-    this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName(),
+    this.contextRunner.withPropertyValues(
+            "datasource.type=" + HikariDataSource.class.getName(),
             "datasource.hikari.register-mbeans=true").run((context) -> {
       assertThat(context).hasSingleBean(HikariDataSource.class);
       HikariDataSource hikariDataSource = context.getBean(HikariDataSource.class);
@@ -96,8 +93,8 @@ class DataSourceJmxConfigurationTests {
       hikariDataSource.getConnection().close();
       // We can't rely on the number of MBeans so we're checking that the
       // pool and pool config MBeans were registered
-      assertThat(mBeanServer.queryMBeans(new ObjectName("com.zaxxer.hikari:type=*"), null).size())
-              .isEqualTo(existingInstances.size() + 2);
+      assertThat(mBeanServer.queryMBeans(new ObjectName("com.zaxxer.hikari:type=*"), null))
+              .hasSize(existingInstances.size() + 2);
     });
   }
 

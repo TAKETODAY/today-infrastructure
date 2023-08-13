@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,10 +25,12 @@ import javax.sql.DataSource;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.condition.ConditionalOnCheckpointRestore;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.framework.jdbc.HikariCheckpointRestoreLifecycle;
 import cn.taketoday.jdbc.config.DatabaseDriver;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
@@ -96,6 +95,12 @@ abstract class DataSourceConfiguration {
         dataSource.setPoolName(properties.getName());
       }
       return dataSource;
+    }
+
+    @Component
+    @ConditionalOnCheckpointRestore
+    HikariCheckpointRestoreLifecycle hikariCheckpointRestoreLifecycle(HikariDataSource hikariDataSource) {
+      return new HikariCheckpointRestoreLifecycle(hikariDataSource);
     }
 
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,9 @@ import org.junit.jupiter.api.Test;
 import javax.sql.DataSource;
 
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.framework.jdbc.HikariCheckpointRestoreLifecycle;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+import cn.taketoday.test.classpath.ClassPathOverrides;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,6 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  */
 class HikariDataSourceConfigurationTests {
+
+  private static final String PREFIX = "datasource.hikari.";
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class))
@@ -53,19 +54,19 @@ class HikariDataSourceConfigurationTests {
 
   @Test
   void testDataSourcePropertiesOverridden() {
-    this.contextRunner.withPropertyValues("datasource.hikari.jdbc-url=jdbc:foo//bar/spam",
-            "datasource.hikari.max-lifetime=1234").run((context) -> {
-      HikariDataSource ds = context.getBean(HikariDataSource.class);
-      assertThat(ds.getJdbcUrl()).isEqualTo("jdbc:foo//bar/spam");
-      assertThat(ds.getMaxLifetime()).isEqualTo(1234);
-    });
+    this.contextRunner
+            .withPropertyValues(PREFIX + "jdbc-url=jdbc:foo//bar/spam", "datasource.hikari.max-lifetime=1234")
+            .run((context) -> {
+              HikariDataSource ds = context.getBean(HikariDataSource.class);
+              assertThat(ds.getJdbcUrl()).isEqualTo("jdbc:foo//bar/spam");
+              assertThat(ds.getMaxLifetime()).isEqualTo(1234);
+            });
   }
 
   @Test
   void testDataSourceGenericPropertiesOverridden() {
     this.contextRunner
-            .withPropertyValues(
-                    "datasource.hikari.data-source-properties.dataSourceClassName=org.h2.JDBCDataSource")
+            .withPropertyValues(PREFIX + "data-source-properties.dataSourceClassName=org.h2.JDBCDataSource")
             .run((context) -> {
               HikariDataSource ds = context.getBean(HikariDataSource.class);
               assertThat(ds.getDataSourceProperties().getProperty("dataSourceClassName"))
@@ -93,12 +94,24 @@ class HikariDataSourceConfigurationTests {
 
   @Test
   void poolNameTakesPrecedenceOverName() {
-    this.contextRunner
-            .withPropertyValues("datasource.name=myDS", "datasource.hikari.pool-name=myHikariDS")
+    this.contextRunner.withPropertyValues("datasource.name=myDS", PREFIX + "pool-name=myHikariDS")
             .run((context) -> {
               HikariDataSource ds = context.getBean(HikariDataSource.class);
               assertThat(ds.getPoolName()).isEqualTo("myHikariDS");
             });
+  }
+
+  @Test
+  @ClassPathOverrides("org.crac:crac:1.3.0")
+  void whenCheckpointRestoreIsAvailableHikariAutoConfigRegistersLifecycleBean() {
+    this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
+            .run((context) -> assertThat(context).hasSingleBean(HikariCheckpointRestoreLifecycle.class));
+  }
+
+  @Test
+  void whenCheckpointRestoreIsNotAvailableHikariAutoConfigDoesNotRegisterLifecycleBean() {
+    this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
+            .run((context) -> assertThat(context).doesNotHaveBean(HikariCheckpointRestoreLifecycle.class));
   }
 
 }
