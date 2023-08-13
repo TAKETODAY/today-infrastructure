@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,17 +40,15 @@ public class SimpleFormatter extends Formatter {
 
   private final String pid = getOrUseDefault(LoggingSystemProperty.PID.getEnvironmentVariableName(), "????");
 
-  private final Date date = new Date();
-
   @Override
-  public synchronized String format(LogRecord record) {
-    this.date.setTime(record.getMillis());
+  public String format(LogRecord record) {
+    Date date = new Date(record.getMillis());
     String source = record.getLoggerName();
     String message = formatMessage(record);
     String throwable = getThrowable(record);
     String thread = getThreadName();
-    return String.format(this.format, this.date, source, record.getLoggerName(),
-            record.getLevel().getLocalizedName(), message, throwable, thread, this.pid);
+    return String.format(this.format, date, source, record.getLoggerName(), record.getLevel().getLocalizedName(),
+            message, throwable, thread, this.pid);
   }
 
   private String getThrowable(LogRecord record) {
