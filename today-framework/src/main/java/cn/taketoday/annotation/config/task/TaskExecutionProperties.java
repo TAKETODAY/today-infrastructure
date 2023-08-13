@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,12 +34,18 @@ public class TaskExecutionProperties {
 
   private final Pool pool = new Pool();
 
+  private final Simple simple = new Simple();
+
   private final Shutdown shutdown = new Shutdown();
 
   /**
    * Prefix to use for the names of newly created threads.
    */
   private String threadNamePrefix = "task-";
+
+  public Simple getSimple() {
+    return this.simple;
+  }
 
   public Pool getPool() {
     return this.pool;
@@ -58,6 +61,24 @@ public class TaskExecutionProperties {
 
   public void setThreadNamePrefix(String threadNamePrefix) {
     this.threadNamePrefix = threadNamePrefix;
+  }
+
+  public static class Simple {
+
+    /**
+     * Set the maximum number of parallel accesses allowed. -1 indicates no
+     * concurrency limit at all.
+     */
+    private Integer concurrencyLimit;
+
+    public Integer getConcurrencyLimit() {
+      return this.concurrencyLimit;
+    }
+
+    public void setConcurrencyLimit(Integer concurrencyLimit) {
+      this.concurrencyLimit = concurrencyLimit;
+    }
+
   }
 
   public static class Pool {

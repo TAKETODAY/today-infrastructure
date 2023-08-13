@@ -24,12 +24,11 @@ import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
  *
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see TaskExecutorBuilder
+ * @see ThreadPoolTaskExecutorBuilder
  * @since 4.0
  */
-@Deprecated
 @FunctionalInterface
-public interface TaskExecutorCustomizer {
+public interface ThreadPoolTaskExecutorCustomizer {
 
   /**
    * Callback to customize a {@link ThreadPoolTaskExecutor} instance.
