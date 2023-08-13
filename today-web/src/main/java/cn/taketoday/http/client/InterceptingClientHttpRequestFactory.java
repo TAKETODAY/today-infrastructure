@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import cn.taketoday.lang.Nullable;
  * {@link ClientHttpRequestInterceptor ClientHttpRequestInterceptors}.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ClientHttpRequestFactory
  * @see ClientHttpRequestInterceptor
  * @since 4.0
@@ -46,9 +44,8 @@ public class InterceptingClientHttpRequestFactory extends ClientHttpRequestFacto
    * @param requestFactory the request factory to wrap
    * @param interceptors the interceptors that are to be applied (can be {@code null})
    */
-  public InterceptingClientHttpRequestFactory(
-          ClientHttpRequestFactory requestFactory,
-          @Nullable List<ClientHttpRequestInterceptor> interceptors) {
+  public InterceptingClientHttpRequestFactory(ClientHttpRequestFactory requestFactory,
+      @Nullable List<ClientHttpRequestInterceptor> interceptors) {
 
     super(requestFactory);
     this.interceptors = interceptors != null ? interceptors : Collections.emptyList();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +37,7 @@ import cn.taketoday.util.MultiValueMap;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RestTemplate
  * @since 4.0
  */
@@ -95,7 +93,7 @@ public interface RestOperations {
    * @return the entity
    */
   <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Object... uriVariables)
-          throws RestClientException;
+      throws RestClientException;
 
   /**
    * Retrieve a representation by doing a GET on the URI template.
@@ -108,7 +106,7 @@ public interface RestOperations {
    * @return the converted object
    */
   <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Map<String, ?> uriVariables)
-          throws RestClientException;
+      throws RestClientException;
 
   /**
    * Retrieve a representation by doing a GET on the URL .
@@ -193,7 +191,7 @@ public interface RestOperations {
    */
   @Nullable
   URI postForLocation(String url, @Nullable Object request, Map<String, ?> uriVariables)
-          throws RestClientException;
+      throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URL, and returns the value of the
@@ -234,9 +232,8 @@ public interface RestOperations {
    * @see HttpEntity
    */
   @Nullable
-  <T> T postForObject(
-          String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
-          throws RestClientException;
+  <T> T postForObject(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
+      throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URI template,
@@ -258,8 +255,8 @@ public interface RestOperations {
    * @see HttpEntity
    */
   @Nullable
-  <T> T postForObject(String url, @Nullable Object request, Class<T> responseType,
-                      Map<String, ?> uriVariables) throws RestClientException;
+  <T> T postForObject(String url, @Nullable Object request, Class<T> responseType, Map<String, ?> uriVariables)
+      throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URL,
@@ -299,9 +296,8 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    */
-  <T> ResponseEntity<T> postForEntity(
-          String url, @Nullable Object request, Class<T> responseType,
-          Object... uriVariables) throws RestClientException;
+  <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
+      throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URI template,
@@ -321,9 +317,8 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    */
-  <T> ResponseEntity<T> postForEntity(
-          String url, @Nullable Object request, Class<T> responseType,
-          Map<String, ?> uriVariables) throws RestClientException;
+  <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request, Class<T> responseType, Map<String, ?> uriVariables)
+      throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URL,
@@ -342,7 +337,7 @@ public interface RestOperations {
    * @see HttpEntity
    */
   <T> ResponseEntity<T> postForEntity(URI url, @Nullable Object request, Class<T> responseType)
-          throws RestClientException;
+      throws RestClientException;
 
   // PUT
 
@@ -405,7 +400,7 @@ public interface RestOperations {
    */
   @Nullable
   <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
-          throws RestClientException;
+      throws RestClientException;
 
   /**
    * Update a resource by PATCHing the given object to the URI template,
@@ -426,9 +421,8 @@ public interface RestOperations {
    * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
    */
   @Nullable
-  <T> T patchForObject(
-          String url, @Nullable Object request, Class<T> responseType,
-          Map<String, ?> uriVariables) throws RestClientException;
+  <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType, Map<String, ?> uriVariables)
+      throws RestClientException;
 
   /**
    * Update a resource by PATCHing the given object to the URL,
@@ -448,7 +442,7 @@ public interface RestOperations {
    */
   @Nullable
   <T> T patchForObject(URI url, @Nullable Object request, Class<T> responseType)
-          throws RestClientException;
+      throws RestClientException;
 
   // DELETE
 
@@ -522,10 +516,9 @@ public interface RestOperations {
    * @param uriVariables the variables to expand in the template
    * @return the response as entity
    */
-  <T> ResponseEntity<T> exchange(
-          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          Class<T> responseType, Object... uriVariables)
-          throws RestClientException;
+  <T> ResponseEntity<T> exchange(String url, HttpMethod method,
+      @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
+      throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
@@ -540,9 +533,9 @@ public interface RestOperations {
    * @param uriVariables the variables to expand in the template
    * @return the response as entity
    */
-  <T> ResponseEntity<T> exchange(
-          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          Class<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
+  <T> ResponseEntity<T> exchange(String url, HttpMethod method,
+      @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Map<String, ?> uriVariables)
+      throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given request entity to the request, and
@@ -555,21 +548,20 @@ public interface RestOperations {
    * @param responseType the type to convert the response to, or {@code Void.class} for no body
    * @return the response as entity
    */
-  <T> ResponseEntity<T> exchange(
-          URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          Class<T> responseType) throws RestClientException;
+  <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity, Class<T> responseType)
+      throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
    * request entity to the request, and returns the response as {@link ResponseEntity}.
    * The given {@link ParameterizedTypeReference} is used to pass generic type information:
-   * <pre class="code">
-   * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean =
-   *     new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+   * <pre>{@code
+   * ParameterizedTypeReference<List<MyBean>> myBean =
+   *     new ParameterizedTypeReference<List<MyBean>>() {};
    *
-   * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response =
-   *     template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
-   * </pre>
+   * ResponseEntity<List<MyBean>> response =
+   *     template.exchange("https://example.com", HttpMethod.GET, null, myBean);
+   * }</pre>
    *
    * @param url the URL
    * @param method the HTTP method (GET, POST, etc)
@@ -579,21 +571,21 @@ public interface RestOperations {
    * @param uriVariables the variables to expand in the template
    * @return the response as entity
    */
-  <T> ResponseEntity<T> exchange(
-          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          ParameterizedTypeReference<T> responseType, Object... uriVariables) throws RestClientException;
+  <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+      ParameterizedTypeReference<T> responseType, Object... uriVariables)
+      throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
    * request entity to the request, and returns the response as {@link ResponseEntity}.
    * The given {@link ParameterizedTypeReference} is used to pass generic type information:
-   * <pre class="code">
-   * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean =
-   *     new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+   * <pre>{@code
+   * ParameterizedTypeReference<List<MyBean>> myBean =
+   *     new ParameterizedTypeReference<List<MyBean>>() {};
    *
-   * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response =
-   *     template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
-   * </pre>
+   * ResponseEntity<List<MyBean>> response =
+   *     template.exchange("https://example.com",HttpMethod.GET, null, myBean);
+   * }</pre>
    *
    * @param url the URL
    * @param method the HTTP method (GET, POST, etc)
@@ -603,21 +595,20 @@ public interface RestOperations {
    * @param uriVariables the variables to expand in the template
    * @return the response as entity
    */
-  <T> ResponseEntity<T> exchange(
-          String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-          ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
+  <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
+      ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
    * request entity to the request, and returns the response as {@link ResponseEntity}.
    * The given {@link ParameterizedTypeReference} is used to pass generic type information:
-   * <pre class="code">
-   * TypeReference&lt;List&lt;MyBean&gt;&gt; myBean =
-   *     new TypeReference&lt;List&lt;MyBean&gt;&gt;() {};
+   * <pre>{@code
+   * ParameterizedTypeReference<List<MyBean>> myBean =
+   *     new ParameterizedTypeReference<List<MyBean>>() {};
    *
-   * ResponseEntity&lt;List&lt;MyBean&gt;&gt; response =
-   *     template.exchange(&quot;https://example.com&quot;,HttpMethod.GET, null, myBean);
-   * </pre>
+   * ResponseEntity<List<MyBean>> response =
+   *     template.exchange("https://example.com",HttpMethod.GET, null, myBean);
+   * } </pre>
    *
    * @param url the URL
    * @param method the HTTP method (GET, POST, etc)
@@ -627,49 +618,49 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-                                 ParameterizedTypeReference<T> responseType) throws RestClientException;
+      ParameterizedTypeReference<T> responseType) throws RestClientException;
 
   /**
    * Execute the request specified in the given {@link RequestEntity} and return
    * the response as {@link ResponseEntity}. Typically used in combination
    * with the static builder methods on {@code RequestEntity}, for instance:
-   * <pre class="code">
+   * <pre>{@code
    * MyRequest body = ...
    * RequestEntity request = RequestEntity
-   *     .post(new URI(&quot;https://example.com/foo&quot;))
+   *     .post(new URI("https://example.com/foo"))
    *     .accept(MediaType.APPLICATION_JSON)
    *     .body(body);
-   * ResponseEntity&lt;MyResponse&gt; response = template.exchange(request, MyResponse.class);
-   * </pre>
+   * ResponseEntity<MyResponse> response = template.exchange(request, MyResponse.class);
+   * }</pre>
    *
    * @param requestEntity the entity to write to the request
    * @param responseType the type to convert the response to, or {@code Void.class} for no body
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, Class<T> responseType)
-          throws RestClientException;
+      throws RestClientException;
 
   /**
    * Execute the request specified in the given {@link RequestEntity} and return
    * the response as {@link ResponseEntity}. The given
    * {@link ParameterizedTypeReference} is used to pass generic type information:
-   * <pre class="code">
+   * <pre>{@code
    * MyRequest body = ...
    * RequestEntity request = RequestEntity
-   *     .post(new URI(&quot;https://example.com/foo&quot;))
+   *     .post(new URI("https://example.com/foo"))
    *     .accept(MediaType.APPLICATION_JSON)
    *     .body(body);
-   * TypeReference&lt;List&lt;MyResponse&gt;&gt; myBean =
-   *     new TypeReference&lt;List&lt;MyResponse&gt;&gt;() {};
-   * ResponseEntity&lt;List&lt;MyResponse&gt;&gt; response = template.exchange(request, myBean);
-   * </pre>
+   * ParameterizedTypeReference<List<MyResponse>> myBean =
+   *     new ParameterizedTypeReference<List<MyResponse>>() {};
+   * ResponseEntity<List<MyResponse>> response = template.exchange(request, myBean);
+   * }</pre>
    *
    * @param requestEntity the entity to write to the request
    * @param responseType the type to convert the response to, or {@code Void.class} for no body
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType)
-          throws RestClientException;
+      throws RestClientException;
 
   // General execution
 
@@ -687,8 +678,8 @@ public interface RestOperations {
    */
   @Nullable
   <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-                @Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables)
-          throws RestClientException;
+      @Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables)
+      throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, preparing the request with the
@@ -704,8 +695,8 @@ public interface RestOperations {
    */
   @Nullable
   <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-                @Nullable ResponseExtractor<T> responseExtractor, Map<String, ?> uriVariables)
-          throws RestClientException;
+      @Nullable ResponseExtractor<T> responseExtractor, Map<String, ?> uriVariables)
+      throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URL, preparing the request with the
@@ -719,6 +710,6 @@ public interface RestOperations {
    */
   @Nullable
   <T> T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
-                @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException;
+      @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException;
 
 }

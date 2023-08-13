@@ -49,7 +49,6 @@ import cn.taketoday.util.ObjectUtils;
 final class StatusHandler {
 
   private final ResponsePredicate predicate;
-
   private final RestClient.ResponseSpec.ErrorHandler errorHandler;
 
   private StatusHandler(ResponsePredicate predicate, RestClient.ResponseSpec.ErrorHandler errorHandler) {
@@ -58,53 +57,54 @@ final class StatusHandler {
   }
 
   public static StatusHandler of(Predicate<HttpStatusCode> predicate,
-          RestClient.ResponseSpec.ErrorHandler errorHandler) {
-    Assert.notNull(predicate, "Predicate must not be null");
-    Assert.notNull(errorHandler, "ErrorHandler must not be null");
+      RestClient.ResponseSpec.ErrorHandler errorHandler) {
+    Assert.notNull(predicate, "Predicate is required");
+    Assert.notNull(errorHandler, "ErrorHandler is required");
 
     return new StatusHandler(response -> predicate.test(response.getStatusCode()), errorHandler);
   }
 
   public static StatusHandler fromErrorHandler(ResponseErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ResponseErrorHandler must not be null");
+    Assert.notNull(errorHandler, "ResponseErrorHandler is required");
 
     return new StatusHandler(errorHandler::hasError, (request, response) ->
-            errorHandler.handleError(request.getURI(), request.getMethod(), response));
+        errorHandler.handleError(request.getURI(), request.getMethod(), response));
   }
 
   public static StatusHandler defaultHandler(List<HttpMessageConverter<?>> messageConverters) {
     return new StatusHandler(response -> response.getStatusCode().isError(),
-            (request, response) -> {
-              HttpStatusCode statusCode = response.getStatusCode();
-              String statusText = response.getStatusText();
-              HttpHeaders headers = response.getHeaders();
-              byte[] body = RestClientUtils.getBody(response);
-              Charset charset = RestClientUtils.getCharset(response);
-              String message = getErrorMessage(statusCode.value(), statusText, body, charset);
-              RestClientResponseException ex;
+        (request, response) -> {
+          HttpStatusCode statusCode = response.getStatusCode();
+          String statusText = response.getStatusText();
+          HttpHeaders headers = response.getHeaders();
+          byte[] body = RestClientUtils.getBody(response);
+          Charset charset = RestClientUtils.getCharset(response);
+          String message = getErrorMessage(statusCode.value(), statusText, body, charset);
+          RestClientResponseException ex;
 
-              if (statusCode.is4xxClientError()) {
-                ex = HttpClientErrorException.create(message, statusCode, statusText, headers, body, charset);
-              }
-              else if (statusCode.is5xxServerError()) {
-                ex = HttpServerErrorException.create(message, statusCode, statusText, headers, body, charset);
-              }
-              else {
-                ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
-              }
-              if (!CollectionUtils.isEmpty(messageConverters)) {
-                ex.setBodyConvertFunction(initBodyConvertFunction(response, body, messageConverters));
-              }
-              throw ex;
-            });
+          if (statusCode.is4xxClientError()) {
+            ex = HttpClientErrorException.create(message, statusCode, statusText, headers, body, charset);
+          }
+          else if (statusCode.is5xxServerError()) {
+            ex = HttpServerErrorException.create(message, statusCode, statusText, headers, body, charset);
+          }
+          else {
+            ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
+          }
+          if (!CollectionUtils.isEmpty(messageConverters)) {
+            ex.setBodyConvertFunction(initBodyConvertFunction(response, body, messageConverters));
+          }
+          throw ex;
+        });
   }
 
-  private static Function<ResolvableType, ?> initBodyConvertFunction(ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
+  private static Function<ResolvableType, ?> initBodyConvertFunction(
+      ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
     Assert.state(!CollectionUtils.isEmpty(messageConverters), "Expected message converters");
     return resolvableType -> {
       try {
         HttpMessageConverterExtractor<?> extractor =
-                new HttpMessageConverterExtractor<>(resolvableType.getType(), messageConverters);
+            new HttpMessageConverterExtractor<>(resolvableType.getType(), messageConverters);
 
         return extractor.extractData(new ClientHttpResponseDecorator(response) {
           @Override
@@ -119,8 +119,8 @@ final class StatusHandler {
     };
   }
 
-  private static String getErrorMessage(int rawStatusCode, String statusText, @Nullable byte[] responseBody,
-          @Nullable Charset charset) {
+  private static String getErrorMessage(int rawStatusCode, String statusText,
+      @Nullable byte[] responseBody, @Nullable Charset charset) {
 
     String preface = rawStatusCode + " " + statusText + ": ";
 

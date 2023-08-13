@@ -43,6 +43,7 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.client.RestClient.ResponseSpec.ErrorHandler;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriBuilderFactory;
@@ -220,11 +221,11 @@ public interface RestClient {
     /**
      * Configure a base URL for requests. Effectively a shortcut for:
      * <p>
-     * <pre class="code">
+     * <pre>{@code
      * String baseUrl = "https://abc.go.com/v1";
      * DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
      * RestClient client = RestClient.builder().uriBuilderFactory(factory).build();
-     * </pre>
+     * }</pre>
      * <p>The {@code DefaultUriBuilderFactory} is used to prepare the URL
      * for every request with the given base URL, unless the URL request
      * for a given URL is absolute in which case the base URL is ignored.
@@ -242,12 +243,12 @@ public interface RestClient {
      * Configure default URL variable values to use when expanding URI
      * templates with a {@link Map}. Effectively a shortcut for:
      * <p>
-     * <pre class="code">
-     * Map&lt;String, ?&gt; defaultVars = ...;
+     * <pre>{@code
+     * Map<String, ?> defaultVars = ...;
      * DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
      * factory.setDefaultVariables(defaultVars);
      * RestClient client = RestClient.builder().uriBuilderFactory(factory).build();
-     * </pre>
+     * }</pre>
      * <p><strong>Note:</strong> this method is mutually exclusive with
      * {@link #uriBuilderFactory(UriBuilderFactory)}. If both are used, the
      * {@code defaultUriVariables} value provided here will be ignored.
@@ -303,7 +304,7 @@ public interface RestClient {
 
     /**
      * Register a default
-     * {@linkplain ResponseSpec#onStatus(Predicate, ResponseSpec.ErrorHandler) status handler}
+     * {@linkplain ResponseSpec#onStatus(Predicate, ErrorHandler) status handler}
      * to apply to every response. Such default handlers are applied in the
      * order in which they are registered, and after any others that are
      * registered for a specific response.
@@ -313,8 +314,7 @@ public interface RestClient {
      * throws an exception
      * @return this builder
      */
-    Builder defaultStatusHandler(Predicate<HttpStatusCode> statusPredicate,
-            ResponseSpec.ErrorHandler errorHandler);
+    Builder defaultStatusHandler(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler);
 
     /**
      * Register a default
@@ -546,25 +546,25 @@ public interface RestClient {
     /**
      * Proceed to declare how to extract the response. For example to extract
      * a {@link ResponseEntity} with status, headers, and body:
-     * <p><pre>
-     * ResponseEntity&lt;Person&gt; entity = client.get()
+     * <p><pre>{@code
+     * ResponseEntity<Person> entity = client.get()
      *     .uri("/persons/1")
      *     .accept(MediaType.APPLICATION_JSON)
      *     .retrieve()
      *     .toEntity(Person.class);
-     * </pre>
+     * }</pre>
      * <p>Or if interested only in the body:
-     * <p><pre>
+     * <p><pre>{@code
      * Person person = client.get()
      *     .uri("/persons/1")
      *     .accept(MediaType.APPLICATION_JSON)
      *     .retrieve()
      *     .body(Person.class);
-     * </pre>
+     * }</pre>
      * <p>By default, 4xx response code result in a
      * {@link HttpClientErrorException} and 5xx response codes in a
      * {@link HttpServerErrorException}. To customize error handling, use
-     * {@link ResponseSpec#onStatus(Predicate, ResponseSpec.ErrorHandler) onStatus} handlers.
+     * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
      *
      * @return {@code ResponseSpec} to specify how to decode the body
      */
@@ -574,11 +574,11 @@ public interface RestClient {
      * Exchange the {@link ClientHttpResponse} for a type {@code T}. This
      * can be useful for advanced scenarios, for example to decode the
      * response differently depending on the response status:
-     * <p><pre>
+     * <p><pre>{@code
      * Person person = client.get()
      *     .uri("/people/1")
      *     .accept(MediaType.APPLICATION_JSON)
-     *     .exchange((request, response) -&gt; {
+     *     .exchange((request, response) -> {
      *         if (response.getStatusCode().equals(HttpStatus.OK)) {
      *             return deserialize(response.getBody());
      *         }
@@ -586,7 +586,7 @@ public interface RestClient {
      *             throw new BusinessException();
      *         }
      *     });
-     * </pre>
+     * }</pre>
      * <p><strong>Note:</strong> The response is
      * {@linkplain ClientHttpResponse#close() closed} after the exchange
      * function has been invoked.
@@ -603,11 +603,11 @@ public interface RestClient {
      * Exchange the {@link ClientHttpResponse} for a type {@code T}. This
      * can be useful for advanced scenarios, for example to decode the
      * response differently depending on the response status:
-     * <p><pre>
+     * <p><pre>{@code
      * Person person = client.get()
      *     .uri("/people/1")
      *     .accept(MediaType.APPLICATION_JSON)
-     *     .exchange((request, response) -&gt; {
+     *     .exchange((request, response) -> {
      *         if (response.getStatusCode().equals(HttpStatus.OK)) {
      *             return deserialize(response.getBody());
      *         }
@@ -615,7 +615,7 @@ public interface RestClient {
      *             throw new BusinessException();
      *         }
      *     });
-     * </pre>
+     * }</pre>
      * <p><strong>Note:</strong> If {@code close} is {@code true},
      * then the response is {@linkplain ClientHttpResponse#close() closed}
      * after the exchange function has been invoked. When set to
@@ -679,15 +679,15 @@ public interface RestClient {
     /**
      * Set the body of the request to the given {@code Object}.
      * For example:
-     * <p><pre class="code">
+     * <p><pre>{@code
      * Person person = ... ;
-     * ResponseEntity&lt;Void&gt; response = client.post()
+     * ResponseEntity<Void> response = client.post()
      *     .uri("/persons/{id}", id)
      *     .contentType(MediaType.APPLICATION_JSON)
      *     .body(person)
      *     .retrieve()
      *     .toBodilessEntity();
-     * </pre>
+     * }</pre>
      *
      * @param body the body of the response
      * @return the built response
@@ -733,8 +733,7 @@ public interface RestClient {
      * throws an exception
      * @return this builder
      */
-    ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate,
-            ErrorHandler errorHandler);
+    ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler);
 
     /**
      * Provide a function to map specific error status codes to an error

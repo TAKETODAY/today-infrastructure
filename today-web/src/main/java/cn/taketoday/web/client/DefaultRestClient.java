@@ -94,11 +94,11 @@ final class DefaultRestClient implements RestClient {
   private final List<HttpMessageConverter<?>> messageConverters;
 
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
-          @Nullable List<ClientHttpRequestInterceptor> interceptors,
-          @Nullable List<ClientHttpRequestInitializer> initializers,
-          UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
-          @Nullable List<StatusHandler> statusHandlers,
-          List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
+      @Nullable List<ClientHttpRequestInterceptor> interceptors,
+      @Nullable List<ClientHttpRequestInitializer> initializers,
+      UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
+      @Nullable List<StatusHandler> statusHandlers,
+      List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
 
     this.clientRequestFactory = clientRequestFactory;
     this.initializers = initializers;
@@ -147,7 +147,7 @@ final class DefaultRestClient implements RestClient {
 
   @Override
   public RequestBodyUriSpec method(HttpMethod method) {
-    Assert.notNull(method, "HttpMethod must not be null");
+    Assert.notNull(method, "HttpMethod is required");
     return methodInternal(method);
   }
 
@@ -307,7 +307,7 @@ final class DefaultRestClient implements RestClient {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void writeWithMessageConverters(Object body, Type bodyType, ClientHttpRequest clientRequest)
-            throws IOException {
+        throws IOException {
 
       MediaType contentType = clientRequest.getHeaders().getContentType();
       Class<?> bodyClass = body.getClass();
@@ -360,7 +360,7 @@ final class DefaultRestClient implements RestClient {
     }
 
     private <T> T exchangeInternal(ExchangeFunction<T> exchangeFunction, boolean close) {
-      Assert.notNull(exchangeFunction, "ExchangeFunction must not be null");
+      Assert.notNull(exchangeFunction, "ExchangeFunction is required");
 
       ClientHttpResponse clientResponse = null;
       URI uri = null;
@@ -457,35 +457,33 @@ final class DefaultRestClient implements RestClient {
 
     private final ClientHttpResponse clientResponse;
 
-    private final List<StatusHandler> statusHandlers = new ArrayList<>(1);
+    private final ArrayList<StatusHandler> statusHandlers = new ArrayList<>(1);
 
     private final int defaultStatusHandlerCount;
 
     DefaultResponseSpec(HttpRequest clientRequest, ClientHttpResponse clientResponse) {
       this.clientRequest = clientRequest;
       this.clientResponse = clientResponse;
-      this.statusHandlers.addAll(DefaultRestClient.this.defaultStatusHandlers);
-      this.statusHandlers.add(StatusHandler.defaultHandler(DefaultRestClient.this.messageConverters));
+      this.statusHandlers.addAll(defaultStatusHandlers);
+      this.statusHandlers.add(StatusHandler.defaultHandler(messageConverters));
       this.defaultStatusHandlerCount = this.statusHandlers.size();
     }
 
     @Override
     public ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler) {
-      Assert.notNull(statusPredicate, "StatusPredicate must not be null");
-      Assert.notNull(errorHandler, "ErrorHandler must not be null");
-
+      Assert.notNull(errorHandler, "ErrorHandler is required");
+      Assert.notNull(statusPredicate, "StatusPredicate is required");
       return onStatusInternal(StatusHandler.of(statusPredicate, errorHandler));
     }
 
     @Override
     public ResponseSpec onStatus(ResponseErrorHandler errorHandler) {
-      Assert.notNull(errorHandler, "ResponseErrorHandler must not be null");
-
+      Assert.notNull(errorHandler, "ResponseErrorHandler is required");
       return onStatusInternal(StatusHandler.fromErrorHandler(errorHandler));
     }
 
     private ResponseSpec onStatusInternal(StatusHandler statusHandler) {
-      Assert.notNull(statusHandler, "StatusHandler must not be null");
+      Assert.notNull(statusHandler, "StatusHandler is required");
 
       int index = this.statusHandlers.size() - this.defaultStatusHandlerCount;  // Default handlers always last
       this.statusHandlers.add(index, statusHandler);
@@ -520,8 +518,8 @@ final class DefaultRestClient implements RestClient {
       T body = readWithMessageConverters(bodyType, bodyClass);
       try {
         return ResponseEntity.status(this.clientResponse.getStatusCode())
-                .headers(this.clientResponse.getHeaders())
-                .body(body);
+            .headers(this.clientResponse.getHeaders())
+            .body(body);
       }
       catch (IOException ex) {
         throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
@@ -533,8 +531,8 @@ final class DefaultRestClient implements RestClient {
       try (this.clientResponse) {
         applyStatusHandlers(this.clientRequest, this.clientResponse);
         return ResponseEntity.status(this.clientResponse.getStatusCode())
-                .headers(this.clientResponse.getHeaders())
-                .build();
+            .headers(this.clientResponse.getHeaders())
+            .build();
       }
       catch (IOException ex) {
         throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
@@ -546,8 +544,7 @@ final class DefaultRestClient implements RestClient {
       if (type instanceof Class<?> clazz) {
         return (Class<T>) clazz;
       }
-      if (type instanceof ParameterizedType parameterizedType &&
-              parameterizedType.getRawType() instanceof Class<?> rawType) {
+      if (type instanceof ParameterizedType pType && pType.getRawType() instanceof Class<?> rawType) {
         return (Class<T>) rawType;
       }
       return (Class<T>) Object.class;
@@ -560,29 +557,29 @@ final class DefaultRestClient implements RestClient {
       try (this.clientResponse) {
         applyStatusHandlers(this.clientRequest, this.clientResponse);
 
-        for (HttpMessageConverter<?> messageConverter : DefaultRestClient.this.messageConverters) {
-          if (messageConverter instanceof GenericHttpMessageConverter genericHttpMessageConverter) {
-            if (genericHttpMessageConverter.canRead(bodyType, bodyClass, contentType)) {
+        for (HttpMessageConverter messageConverter : DefaultRestClient.this.messageConverters) {
+          if (messageConverter instanceof GenericHttpMessageConverter generic) {
+            if (generic.canRead(bodyType, bodyClass, contentType)) {
               if (logger.isDebugEnabled()) {
-                logger.debug("Reading to [" + ResolvableType.forType(bodyType) + "]");
+                logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
               }
-              return (T) genericHttpMessageConverter.read(bodyType, bodyClass, this.clientResponse);
+              return (T) generic.read(bodyType, bodyClass, this.clientResponse);
             }
           }
           if (messageConverter.canRead(bodyClass, contentType)) {
             if (logger.isDebugEnabled()) {
-              logger.debug("Reading to [" + bodyClass.getName() + "] as \"" + contentType + "\"");
+              logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
             }
-            return (T) messageConverter.read((Class) bodyClass, this.clientResponse);
+            return (T) messageConverter.read(bodyClass, this.clientResponse);
           }
         }
         throw new UnknownContentTypeException(bodyType, contentType,
-                this.clientResponse.getStatusCode(), this.clientResponse.getStatusText(),
-                this.clientResponse.getHeaders(), RestClientUtils.getBody(this.clientResponse));
+            this.clientResponse.getStatusCode(), this.clientResponse.getStatusText(),
+            this.clientResponse.getHeaders(), RestClientUtils.getBody(this.clientResponse));
       }
       catch (IOException | HttpMessageNotReadableException ex) {
         throw new RestClientException("Error while extracting response for type [" +
-                ResolvableType.forType(bodyType) + "] and content type [" + contentType + "]", ex);
+            ResolvableType.forType(bodyType) + "] and content type [" + contentType + "]", ex);
       }
     }
 
