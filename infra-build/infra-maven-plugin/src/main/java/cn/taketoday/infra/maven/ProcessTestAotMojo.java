@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,6 +119,10 @@ public class ProcessTestAotMojo extends AbstractAotMojo {
 
   @Override
   protected void executeAot() throws Exception {
+    if (this.project.getPackaging().equals("pom")) {
+      getLog().debug("process-test-aot goal could not be applied to pom project.");
+      return;
+    }
     if (Boolean.getBoolean("skipTests") || Boolean.getBoolean("maven.test.skip")) {
       getLog().info("Skipping AOT test processing since tests are skipped");
       return;

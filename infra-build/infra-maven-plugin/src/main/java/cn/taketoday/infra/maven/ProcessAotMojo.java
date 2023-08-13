@@ -90,6 +90,10 @@ public class ProcessAotMojo extends AbstractAotMojo {
 
   @Override
   protected void executeAot() throws Exception {
+    if (this.project.getPackaging().equals("pom")) {
+      getLog().debug("process-aot goal could not be applied to pom project.");
+      return;
+    }
     String applicationClass = this.mainClass != null
                               ? this.mainClass
                               : InfraApplicationClassFinder.findSingleClass(this.classesDirectory);
