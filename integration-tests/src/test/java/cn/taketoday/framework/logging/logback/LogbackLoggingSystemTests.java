@@ -46,6 +46,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
+import ch.qos.logback.core.util.DynamicClassLoadingException;
 import ch.qos.logback.core.util.StatusPrinter;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -760,6 +761,16 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
     assertThat(getLineWithText(output, "Hello world")).doesNotContain("myapp");
+  }
+
+  @Test
+  void whenConfigurationErrorIsDetectedUnderlyingCausesAreIncludedAsSuppressedExceptions() {
+    this.loggingSystem.beforeInitialize();
+    assertThatIllegalStateException()
+            .isThrownBy(() -> initialize(this.initializationContext, "classpath:logback-broken.xml",
+                    getLogFile(tmpDir() + "/tmp.log", null)))
+            .satisfies((ex) -> assertThat(ex.getSuppressed())
+                    .hasAtLeastOneElementOfType(DynamicClassLoadingException.class));
   }
 
   private void initialize(LoggingStartupContext context, @Nullable String configLocation, @Nullable LogFile logFile) {
