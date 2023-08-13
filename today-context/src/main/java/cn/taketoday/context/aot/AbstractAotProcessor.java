@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,7 +96,7 @@ public abstract class AbstractAotProcessor<T> {
    */
   protected void deleteExistingOutput() {
     deleteExistingOutput(getSettings().getSourceOutput(),
-            getSettings().getResourceOutput(), getSettings().getClassOutput());
+        getSettings().getResourceOutput(), getSettings().getClassOutput());
   }
 
   private void deleteExistingOutput(Path... paths) {
@@ -108,7 +105,7 @@ public abstract class AbstractAotProcessor<T> {
         FileSystemUtils.deleteRecursively(path);
       }
       catch (IOException ex) {
-        throw new RuntimeException("Failed to delete existing output in '" + path + "'");
+        throw new IllegalStateException("Failed to delete existing output in '" + path + "'");
       }
     }
   }
@@ -127,7 +124,7 @@ public abstract class AbstractAotProcessor<T> {
 
   protected void writeHints(RuntimeHints hints) {
     FileNativeConfigurationWriter writer = new FileNativeConfigurationWriter(
-            getSettings().getResourceOutput(), getSettings().getGroupId(), getSettings().getArtifactId());
+        getSettings().getResourceOutput(), getSettings().getGroupId(), getSettings().getArtifactId());
     writer.write(hints);
   }
 
@@ -149,7 +146,7 @@ public abstract class AbstractAotProcessor<T> {
     private final String artifactId;
 
     private Settings(Path sourceOutput, Path resourceOutput,
-            Path classOutput, @Nullable String groupId, @Nullable String artifactId) {
+        Path classOutput, @Nullable String groupId, @Nullable String artifactId) {
       this.groupId = groupId;
       this.artifactId = artifactId;
       this.classOutput = classOutput;
@@ -292,7 +289,7 @@ public abstract class AbstractAotProcessor<T> {
         Assert.hasText(this.groupId, "'groupId' must not be null or empty");
         Assert.hasText(this.artifactId, "'artifactId' must not be null or empty");
         return new Settings(this.sourceOutput, this.resourceOutput, this.classOutput,
-                this.groupId, this.artifactId);
+            this.groupId, this.artifactId);
       }
 
     }

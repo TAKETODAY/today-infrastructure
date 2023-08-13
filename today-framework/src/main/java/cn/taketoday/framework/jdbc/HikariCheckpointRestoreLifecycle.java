@@ -22,9 +22,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +34,8 @@ import java.util.function.Function;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.jdbc.config.DataSourceUnwrapper;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.logging.LogMessage;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -55,7 +53,7 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
-  private static final Log logger = LogFactory.getLog(HikariCheckpointRestoreLifecycle.class);
+  private static final Logger logger = LoggerFactory.getLogger(HikariCheckpointRestoreLifecycle.class);
 
   private static final Field CLOSE_CONNECTION_EXECUTOR;
 
@@ -63,8 +61,8 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
     Field closeConnectionExecutor = ReflectionUtils.findField(HikariPool.class, "closeConnectionExecutor");
     Assert.notNull(closeConnectionExecutor, "Unable to locate closeConnectionExecutor for HikariPool");
     Assert.isAssignable(ThreadPoolExecutor.class, closeConnectionExecutor.getType(),
-            "Expected ThreadPoolExecutor for closeConnectionExecutor but found %s"
-                    .formatted(closeConnectionExecutor.getType()));
+        "Expected ThreadPoolExecutor for closeConnectionExecutor but found %s"
+            .formatted(closeConnectionExecutor.getType()));
     ReflectionUtils.makeAccessible(closeConnectionExecutor);
     CLOSE_CONNECTION_EXECUTOR = closeConnectionExecutor;
   }
@@ -83,7 +81,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
     this.dataSource = DataSourceUnwrapper.unwrap(dataSource, HikariConfigMXBean.class, HikariDataSource.class);
     this.hasOpenConnections = (pool) -> {
       ThreadPoolExecutor closeConnectionExecutor = (ThreadPoolExecutor) ReflectionUtils
-              .getField(CLOSE_CONNECTION_EXECUTOR, pool);
+          .getField(CLOSE_CONNECTION_EXECUTOR, pool);
       Assert.notNull(closeConnectionExecutor, "CloseConnectionExecutor was null");
       return closeConnectionExecutor.getActiveCount() > 0;
     };
@@ -127,10 +125,10 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
       Thread.currentThread().interrupt();
     }
     catch (TimeoutException ex) {
-      logger.warn(LogMessage.format("Hikari connections could not be closed within %s", shutdownTimeout), ex);
+      logger.warn("Hikari connections could not be closed within {}", shutdownTimeout, ex);
     }
     catch (ExecutionException ex) {
-      throw new RuntimeException("Failed to close Hikari connections", ex);
+      throw new IllegalStateException("Failed to close Hikari connections", ex);
     }
   }
 
