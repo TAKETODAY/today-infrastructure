@@ -29,9 +29,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
@@ -600,7 +599,7 @@ public interface WebTestClient {
      * @return spec for further declaration of the request
      */
     <T, S extends Publisher<T>> RequestHeadersSpec<?> body(
-            S publisher, ParameterizedTypeReference<T> elementTypeRef);
+        S publisher, ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Set the body from the given producer. This method invokes the

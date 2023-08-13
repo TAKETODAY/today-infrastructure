@@ -34,8 +34,6 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -79,8 +77,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    * @param messageConverters converters to write emitted objects with
    * @param manager for detecting streaming media types
    */
-  public ResponseBodyEmitterReturnValueHandler(
-          List<HttpMessageConverter<?>> messageConverters, ContentNegotiationManager manager) {
+  public ResponseBodyEmitterReturnValueHandler(List<HttpMessageConverter<?>> messageConverters, ContentNegotiationManager manager) {
     Assert.notEmpty(messageConverters, "HttpMessageConverter List must not be empty");
     this.sseMessageConverters = initSseConverters(messageConverters);
     this.reactiveHandler = new ReactiveTypeHandler(manager);
@@ -95,7 +92,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    * @param manager for detecting streaming media types
    */
   public ResponseBodyEmitterReturnValueHandler(List<HttpMessageConverter<?>> messageConverters,
-          ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
+      ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
     Assert.notEmpty(messageConverters, "HttpMessageConverter List must not be empty");
     this.sseMessageConverters = initSseConverters(messageConverters);
     this.reactiveHandler = new ReactiveTypeHandler(registry, executor, manager);
@@ -138,9 +135,9 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
                         ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
                         : returnType.getParameterType();
     return bodyType != null
-            && (
-            ResponseBodyEmitter.class.isAssignableFrom(bodyType)
-                    || reactiveHandler.isReactiveType(bodyType)
+        && (
+        ResponseBodyEmitter.class.isAssignableFrom(bodyType)
+            || reactiveHandler.isReactiveType(bodyType)
     );
   }
 
@@ -150,8 +147,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   }
 
   @Override
-  public void handleReturnValue(
-          RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext request,
+      @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -189,7 +186,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     else {
       // should not happen
       throw new UnsupportedOperationException(
-              "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
+          "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
     }
     emitter.extendResponse(request);
 
@@ -205,7 +202,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
 
       request.getAsyncManager()
-              .startDeferredResultProcessing(deferredResult, handler);
+          .startDeferredResultProcessing(deferredResult, handler);
 
       responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
     }
@@ -221,7 +218,6 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    * ResponseBodyEmitter.Handler that writes with HttpMessageConverter's.
    */
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
-    private static final Logger log = LoggerFactory.getLogger(HttpMessageConvertingHandler.class);
 
     private final RequestContext request;
     private final DeferredResult<?> deferredResult;
