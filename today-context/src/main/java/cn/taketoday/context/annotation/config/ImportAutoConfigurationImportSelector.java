@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +26,14 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -52,8 +51,9 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 23:56
  */
-public class ImportAutoConfigurationImportSelector
-        extends AutoConfigurationImportSelector implements DeterminableImports {
+public class ImportAutoConfigurationImportSelector extends AutoConfigurationImportSelector implements DeterminableImports {
+
+  private static final String OPTIONAL_PREFIX = "optional:";
 
   @Override
   public Set<Object> determineImports(AnnotationMetadata metadata) {
@@ -71,7 +71,7 @@ public class ImportAutoConfigurationImportSelector
 
   @Override
   protected List<String> getCandidateConfigurations(
-          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
+      AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     ArrayList<String> candidates = new ArrayList<>();
 
     Map<Class<?>, List<Annotation>> annotations = getAnnotations(metadata);
@@ -83,8 +83,8 @@ public class ImportAutoConfigurationImportSelector
     return candidates;
   }
 
-  private void collectCandidateConfigurations(
-          Class<?> source, List<Annotation> annotations, List<String> candidates) {
+  private void collectCandidateConfigurations(Class<?> source,
+      List<Annotation> annotations, List<String> candidates) {
     for (Annotation annotation : annotations) {
       candidates.addAll(getConfigurationsForAnnotation(source, annotation));
     }
@@ -95,7 +95,19 @@ public class ImportAutoConfigurationImportSelector
     if (classes.length > 0) {
       return Arrays.asList(classes);
     }
-    return getStrategiesNames(source);
+    Collection<String> strategiesNames = getStrategiesNames(source);
+    return strategiesNames.stream()
+        .map((name) -> {
+          if (name.startsWith(OPTIONAL_PREFIX)) {
+            name = name.substring(OPTIONAL_PREFIX.length());
+            if (!present(name)) {
+              return null;
+            }
+          }
+          return name;
+        })
+        .filter(Objects::nonNull)
+        .toList();
   }
 
   protected Collection<String> getStrategiesNames(Class<?> source) {
@@ -103,6 +115,11 @@ public class ImportAutoConfigurationImportSelector
     ArrayList<String> strategies = ImportCandidates.load(source, beanClassLoader).getCandidates();
     strategies.addAll(TodayStrategies.findNames(source.getName(), beanClassLoader));
     return strategies;
+  }
+
+  private boolean present(String className) {
+    String resourcePath = ClassUtils.convertClassNameToResourcePath(className) + ".class";
+    return new ClassPathResource(resourcePath).exists();
   }
 
   @Override
@@ -139,8 +156,8 @@ public class ImportAutoConfigurationImportSelector
     return Collections.unmodifiableMap(annotations);
   }
 
-  private void collectAnnotations(
-          Class<?> source, MultiValueMap<Class<?>, Annotation> annotations, HashSet<Class<?>> seen) {
+  private void collectAnnotations(Class<?> source,
+      MultiValueMap<Class<?>, Annotation> annotations, HashSet<Class<?>> seen) {
     if (source != null && seen.add(source)) {
       for (Annotation annotation : source.getDeclaredAnnotations()) {
         if (!AnnotationUtils.isInJavaLangAnnotationPackage(annotation)) {

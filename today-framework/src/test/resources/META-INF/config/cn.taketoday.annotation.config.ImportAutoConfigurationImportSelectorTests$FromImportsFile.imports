@@ -1,0 +1,2 @@
+cn.taketoday.annotation.config.freemarker.FreeMarkerAutoConfiguration
+cn.taketoday.annotation.config.missing.MissingAutoConfiguration
