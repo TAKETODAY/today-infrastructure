@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -151,6 +148,7 @@ public class Instantiator<T> {
     return instances;
   }
 
+  @Nullable
   private T instantiate(TypeSupplier typeSupplier) {
     try {
       Class<?> type = typeSupplier.get();
@@ -177,6 +175,7 @@ public class Instantiator<T> {
     throw new IllegalAccessException("Class [" + type.getName() + "] has no suitable constructor");
   }
 
+  @Nullable
   private Object[] getArgs(Class<?>[] parameterTypes) {
     Object[] args = new Object[parameterTypes.length];
     for (int i = 0; i < parameterTypes.length; i++) {
@@ -189,6 +188,7 @@ public class Instantiator<T> {
     return args;
   }
 
+  @Nullable
   private Function<Class<?>, Object> getAvailableParameter(Class<?> parameterType) {
     for (Map.Entry<Class<?>, Function<Class<?>, Object>> entry : this.availableParameters.entrySet()) {
       if (entry.getKey().isAssignableFrom(parameterType)) {
