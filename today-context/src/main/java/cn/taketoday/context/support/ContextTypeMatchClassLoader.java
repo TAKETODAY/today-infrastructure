@@ -19,7 +19,6 @@ package cn.taketoday.context.support;
 
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -65,7 +64,7 @@ final class ContextTypeMatchClassLoader extends DecoratingClassLoader implements
       // Typically a JDK 9+ InaccessibleObjectException...
       // Avoid through JVM startup with --add-opens=java.base/java.lang=ALL-UNNAMED
       LoggerFactory.getLogger(ContextTypeMatchClassLoader.class)
-              .debug("ClassLoader.findLoadedClass not accessible -> will always override requested class", ex);
+          .debug("ClassLoader.findLoadedClass not accessible -> will always override requested class", ex);
     }
     findLoadedClassMethod = method;
   }
