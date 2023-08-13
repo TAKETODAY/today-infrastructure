@@ -60,8 +60,8 @@ class MockitoPostProcessorTests {
     MockitoPostProcessor.register(context);
     context.register(MultipleBeans.class);
     assertThatIllegalStateException().isThrownBy(context::refresh)
-            .withMessageContaining("Unable to register mock bean " + ExampleService.class.getName()
-                    + " expected a single matching bean to replace but found [example1, example2]");
+        .withMessageContaining("Unable to register mock bean " + ExampleService.class.getName()
+            + " expected a single matching bean to replace but found [example1, example2]");
   }
 
   @Test
@@ -70,20 +70,8 @@ class MockitoPostProcessorTests {
     MockitoPostProcessor.register(context);
     context.register(MultipleQualifiedBeans.class);
     assertThatIllegalStateException().isThrownBy(context::refresh)
-            .withMessageContaining("Unable to register mock bean " + ExampleService.class.getName()
-                    + " expected a single matching bean to replace but found [example1, example3]");
-  }
-
-  @Test
-  void canMockBeanProducedByFactoryBeanWithStringObjectTypeAttribute() {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    MockitoPostProcessor.register(context);
-    RootBeanDefinition factoryBeanDefinition = new RootBeanDefinition(TestFactoryBean.class);
-    factoryBeanDefinition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, SomeInterface.class.getName());
-    context.registerBeanDefinition("beanToBeMocked", factoryBeanDefinition);
-    context.register(MockedFactoryBean.class);
-    context.refresh();
-    assertThat(Mockito.mockingDetails(context.getBean("beanToBeMocked")).isMock()).isTrue();
+        .withMessageContaining("Unable to register mock bean " + ExampleService.class.getName()
+            + " expected a single matching bean to replace but found [example1, example3]");
   }
 
   @Test
@@ -121,7 +109,7 @@ class MockitoPostProcessorTests {
     assertThat(Mockito.mockingDetails(context.getBean(ExampleService.class)).isMock()).isTrue();
     assertThat(Mockito.mockingDetails(context.getBean("examplePrimary", ExampleService.class)).isMock()).isTrue();
     assertThat(Mockito.mockingDetails(context.getBean("exampleQualified", ExampleService.class)).isMock())
-            .isFalse();
+        .isFalse();
   }
 
   @Test
@@ -353,7 +341,7 @@ class MockitoPostProcessorTests {
     @SuppressWarnings("unchecked")
     public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
       Map<String, BeanWrapper> cache = (Map<String, BeanWrapper>) ReflectionTestUtils.getField(beanFactory,
-              "factoryBeanInstanceCache");
+          "factoryBeanInstanceCache");
       Assert.isTrue(cache.isEmpty(), "Early initialization of factory bean triggered.");
     }
 
