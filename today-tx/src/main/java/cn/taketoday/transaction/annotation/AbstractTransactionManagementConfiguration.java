@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ImportAware;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -59,7 +58,7 @@ public abstract class AbstractTransactionManagementConfiguration implements Impo
     this.enableTx = importMetadata.getAnnotation(EnableTransactionManagement.class);
     if (!enableTx.isPresent()) {
       throw new IllegalArgumentException(
-              "@EnableTransactionManagement is not present on importing class " + importMetadata.getClassName());
+          "@EnableTransactionManagement is not present on importing class " + importMetadata.getClassName());
     }
   }
 

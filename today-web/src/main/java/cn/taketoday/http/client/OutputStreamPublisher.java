@@ -37,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the published item type
  * @author Oleh Dokuka
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #create(OutputStreamHandler, ByteMapper, Executor)
  * @since 4.0
  */
@@ -92,8 +93,8 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
    * @return a {@code Publisher<T>} based on bytes written by
    * {@code outputStreamHandler} mapped by {@code byteMapper}
    */
-  public static <T> Flow.Publisher<T> create(OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper,
-          Executor executor) {
+  public static <T> Flow.Publisher<T> create(
+          OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, Executor executor) {
 
     Assert.notNull(outputStreamHandler, "OutputStreamHandler must not be null");
     Assert.notNull(byteMapper, "ByteMapper must not be null");
@@ -149,8 +150,8 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
   public void subscribe(Flow.Subscriber<? super T> subscriber) {
     Objects.requireNonNull(subscriber, "Subscriber must not be null");
 
-    OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(subscriber, this.outputStreamHandler,
-            this.byteMapper, this.chunkSize);
+    OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(
+            subscriber, this.outputStreamHandler, this.byteMapper, this.chunkSize);
     subscriber.onSubscribe(subscription);
     this.executor.execute(subscription::invokeHandler);
   }
@@ -229,8 +230,8 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
     private long produced;
 
-    public OutputStreamSubscription(Flow.Subscriber<? super T> actual, OutputStreamHandler outputStreamHandler,
-            ByteMapper<T> byteMapper, int chunkSize) {
+    public OutputStreamSubscription(Flow.Subscriber<? super T> actual,
+            OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, int chunkSize) {
       this.actual = actual;
       this.byteMapper = byteMapper;
       this.outputStreamHandler = outputStreamHandler;
@@ -294,7 +295,7 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
       }
     }
 
-    private void invokeHandler() {
+    public void invokeHandler() {
       // assume sync write within try-with-resource block
 
       // use BufferedOutputStream, so that written bytes are buffered
