@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.framework.env;
 
+import java.util.HexFormat;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Random;
@@ -33,7 +31,6 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.DigestUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -60,6 +57,7 @@ import cn.taketoday.util.StringUtils;
  * @author Dave Syer
  * @author Matt Benson
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class RandomValuePropertySource extends PropertySource<Random> {
@@ -140,9 +138,9 @@ public class RandomValuePropertySource extends PropertySource<Random> {
   }
 
   private Object getRandomBytes() {
-    byte[] bytes = new byte[32];
+    byte[] bytes = new byte[16];
     getSource().nextBytes(bytes);
-    return DigestUtils.md5DigestAsHex(bytes);
+    return HexFormat.of().withLowerCase().formatHex(bytes);
   }
 
   public static void addToEnvironment(ConfigurableEnvironment environment) {

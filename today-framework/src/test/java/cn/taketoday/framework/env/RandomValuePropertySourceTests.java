@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.framework.env;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -174,7 +170,7 @@ class RandomValuePropertySourceTests {
   void addToEnvironmentAddsSource() {
     MockEnvironment environment = new MockEnvironment();
     RandomValuePropertySource.addToEnvironment(environment);
-    Assertions.assertThat(environment.getProperty("random.string")).isNotNull();
+    assertThat(environment.getProperty("random.string")).isNotNull();
   }
 
   @Test
@@ -182,7 +178,7 @@ class RandomValuePropertySourceTests {
     MockEnvironment environment = new MockEnvironment();
     RandomValuePropertySource.addToEnvironment(environment);
     RandomValuePropertySource.addToEnvironment(environment);
-    Assertions.assertThat(environment.getProperty("random.string")).isNotNull();
+    assertThat(environment.getProperty("random.string")).isNotNull();
   }
 
   @Test
@@ -192,9 +188,14 @@ class RandomValuePropertySourceTests {
             .addFirst(new SystemEnvironmentPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
                     Collections.emptyMap()));
     RandomValuePropertySource.addToEnvironment(environment);
-    Assertions.assertThat(environment.getPropertySources().stream().map(PropertySource::getName)).containsExactly(
+    assertThat(environment.getPropertySources().stream().map(PropertySource::getName)).containsExactly(
             StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME,
             RandomValuePropertySource.RANDOM_PROPERTY_SOURCE_NAME, "mockProperties");
+  }
+
+  @Test
+  void randomStringIs32CharsLong() {
+    assertThat(this.source.getProperty("random.string")).asString().hasSize(32);
   }
 
 }
