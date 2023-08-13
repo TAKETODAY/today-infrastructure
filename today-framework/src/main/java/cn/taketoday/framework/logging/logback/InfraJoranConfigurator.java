@@ -355,7 +355,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
         return true;
       }
       catch (Exception ex) {
-        throw new RuntimeException(ex);
+        throw new IllegalStateException(ex);
       }
     }
 
@@ -389,7 +389,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
         properties.store(bytes, "");
       }
       catch (IOException ex) {
-        throw new RuntimeException(ex);
+        throw new IllegalStateException(ex);
       }
       return new ByteArrayInputStream(bytes.toByteArray());
     }

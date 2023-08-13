@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,8 +62,8 @@ class DisabledIfProcessUnavailableCondition implements ExecutionCondition {
 
   private Stream<String[]> getAnnotationValue(AnnotatedElement testElement) {
     return MergedAnnotations.from(testElement, SearchStrategy.TYPE_HIERARCHY)
-            .stream(DisabledIfProcessUnavailable.class)
-            .map((annotation) -> annotation.getStringArray(MergedAnnotation.VALUE));
+        .stream(DisabledIfProcessUnavailable.class)
+        .map((annotation) -> annotation.getStringArray(MergedAnnotation.VALUE));
   }
 
   private void check(String[] command) {
@@ -80,14 +77,14 @@ class DisabledIfProcessUnavailableCondition implements ExecutionCondition {
     catch (Exception ex) {
       String path = processBuilder.environment().get("PATH");
       if (MAC_OS && path != null && !path.contains(USR_LOCAL_BIN)
-              && !command[0].startsWith(USR_LOCAL_BIN + "/")) {
+          && !command[0].startsWith(USR_LOCAL_BIN + "/")) {
         String[] localCommand = command.clone();
         localCommand[0] = USR_LOCAL_BIN + "/" + localCommand[0];
         check(localCommand);
         return;
       }
-      throw new RuntimeException(
-              "Unable to start process '%s'".formatted(StringUtils.arrayToDelimitedString(command, " ")));
+      throw new IllegalStateException(
+          "Unable to start process '%s'".formatted(StringUtils.arrayToDelimitedString(command, " ")));
     }
   }
 
