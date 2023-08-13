@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,7 +81,7 @@ public class ApplicationBuilder {
 
   private final Application application;
 
-  private ConfigurableApplicationContext context;
+  private volatile ConfigurableApplicationContext context;
 
   private ApplicationBuilder parent;
 
@@ -156,10 +153,8 @@ public class ApplicationBuilder {
     }
     configureAsChildIfNecessary(args);
     if (running.compareAndSet(false, true)) {
-      synchronized(running) {
-        // If not already running copy the sources over and then run.
-        this.context = build().run(args);
-      }
+      // If not already running copy the sources over and then run.
+      this.context = build().run(args);
     }
     return context;
   }
