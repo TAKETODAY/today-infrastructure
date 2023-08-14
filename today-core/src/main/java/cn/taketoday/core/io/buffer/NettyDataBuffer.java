@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -186,7 +183,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public NettyDataBuffer write(DataBuffer... dataBuffers) {
-    if (!ObjectUtils.isEmpty(dataBuffers)) {
+    if (ObjectUtils.isNotEmpty(dataBuffers)) {
       if (hasNettyDataBuffers(dataBuffers)) {
         ByteBuf[] nativeBuffers = new ByteBuf[dataBuffers.length];
         for (int i = 0; i < dataBuffers.length; i++) {
@@ -217,7 +214,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public NettyDataBuffer write(ByteBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       for (ByteBuffer buffer : buffers) {
         this.byteBuf.writeBytes(buffer);
       }
@@ -233,7 +230,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
    * @return this buffer
    */
   public NettyDataBuffer write(ByteBuf... byteBufs) {
-    if (!ObjectUtils.isEmpty(byteBufs)) {
+    if (ObjectUtils.isNotEmpty(byteBufs)) {
       for (ByteBuf byteBuf : byteBufs) {
         this.byteBuf.writeBytes(byteBuf);
       }

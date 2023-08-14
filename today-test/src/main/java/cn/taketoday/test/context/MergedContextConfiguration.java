@@ -335,7 +335,7 @@ public class MergedContextConfiguration implements Serializable {
    * @see #hasClasses()
    */
   public boolean hasLocations() {
-    return !ObjectUtils.isEmpty(getLocations());
+    return ObjectUtils.isNotEmpty(getLocations());
   }
 
   /**
@@ -347,7 +347,7 @@ public class MergedContextConfiguration implements Serializable {
    * @see #hasLocations()
    */
   public boolean hasClasses() {
-    return !ObjectUtils.isEmpty(getClasses());
+    return ObjectUtils.isNotEmpty(getClasses());
   }
 
   /**

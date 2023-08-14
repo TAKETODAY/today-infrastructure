@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,7 +161,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public Object getBean(String name, Object... args) throws BeansException {
-    if (!ObjectUtils.isEmpty(args)) {
+    if (ObjectUtils.isNotEmpty(args)) {
       throw new UnsupportedOperationException(
               "StaticListableBeanFactory does not support explicit bean creation arguments");
     }
@@ -187,7 +184,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
-    if (!ObjectUtils.isEmpty(args)) {
+    if (ObjectUtils.isNotEmpty(args)) {
       throw new UnsupportedOperationException(
               "StaticListableBeanFactory does not support explicit bean creation arguments");
     }

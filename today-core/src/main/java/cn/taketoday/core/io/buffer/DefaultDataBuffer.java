@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -306,7 +303,7 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public DefaultDataBuffer write(DataBuffer... dataBuffers) {
-    if (!ObjectUtils.isEmpty(dataBuffers)) {
+    if (ObjectUtils.isNotEmpty(dataBuffers)) {
       ByteBuffer[] byteBuffers = new ByteBuffer[dataBuffers.length];
       for (int i = 0; i < dataBuffers.length; i++) {
         byteBuffers[i] = ByteBuffer.allocate(dataBuffers[i].readableByteCount());
@@ -319,7 +316,7 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public DefaultDataBuffer write(ByteBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       int capacity = Arrays.stream(buffers).mapToInt(ByteBuffer::remaining).sum();
       ensureWritable(capacity);
       Arrays.stream(buffers).forEach(this::write);

@@ -253,11 +253,11 @@ final class HttpServiceMethod {
       String[] value1 = (typeAnnot != null ? typeAnnot.accept() : null);
       String[] value2 = annot.accept();
 
-      if (!ObjectUtils.isEmpty(value2)) {
+      if (ObjectUtils.isNotEmpty(value2)) {
         return MediaType.parseMediaTypes(Arrays.asList(value2));
       }
 
-      if (!ObjectUtils.isEmpty(value1)) {
+      if (ObjectUtils.isNotEmpty(value1)) {
         return MediaType.parseMediaTypes(Arrays.asList(value1));
       }
 

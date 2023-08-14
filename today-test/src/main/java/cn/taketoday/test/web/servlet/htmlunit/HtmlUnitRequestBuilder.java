@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -204,7 +201,7 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
 
     // cookie
     Cookie[] parentCookies = parentRequest.getCookies();
-    if (!ObjectUtils.isEmpty(parentCookies)) {
+    if (ObjectUtils.isNotEmpty(parentCookies)) {
       request.setCookies(parentCookies);
     }
 
@@ -314,7 +311,7 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
       Collections.addAll(cookies, parentCookies);
     }
 
-    if (!ObjectUtils.isEmpty(cookies)) {
+    if (ObjectUtils.isNotEmpty(cookies)) {
       request.setCookies(cookies.toArray(new Cookie[0]));
     }
   }

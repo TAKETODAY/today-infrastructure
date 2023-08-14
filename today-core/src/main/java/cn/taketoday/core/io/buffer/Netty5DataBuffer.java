@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,7 +191,7 @@ public final class Netty5DataBuffer
 
   @Override
   public Netty5DataBuffer write(DataBuffer... dataBuffers) {
-    if (!ObjectUtils.isEmpty(dataBuffers)) {
+    if (ObjectUtils.isNotEmpty(dataBuffers)) {
       if (hasNetty5DataBuffers(dataBuffers)) {
         Buffer[] nativeBuffers = new Buffer[dataBuffers.length];
         for (int i = 0; i < dataBuffers.length; i++) {
@@ -225,7 +222,7 @@ public final class Netty5DataBuffer
 
   @Override
   public Netty5DataBuffer write(ByteBuffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       for (ByteBuffer buffer : buffers) {
         this.buffer.writeBytes(buffer);
       }
@@ -241,7 +238,7 @@ public final class Netty5DataBuffer
    * @return this buffer
    */
   public Netty5DataBuffer write(Buffer... buffers) {
-    if (!ObjectUtils.isEmpty(buffers)) {
+    if (ObjectUtils.isNotEmpty(buffers)) {
       for (Buffer buffer : buffers) {
         this.buffer.writeBytes(buffer);
       }

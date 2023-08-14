@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +78,7 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
 
   @Override
   public WebSocketHandlerRegistration addInterceptors(HandshakeInterceptor... interceptors) {
-    if (!ObjectUtils.isEmpty(interceptors)) {
+    if (ObjectUtils.isNotEmpty(interceptors)) {
       this.interceptors.addAll(Arrays.asList(interceptors));
     }
     return this;
@@ -90,7 +87,7 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
   @Override
   public WebSocketHandlerRegistration setAllowedOrigins(String... allowedOrigins) {
     this.allowedOrigins.clear();
-    if (!ObjectUtils.isEmpty(allowedOrigins)) {
+    if (ObjectUtils.isNotEmpty(allowedOrigins)) {
       this.allowedOrigins.addAll(Arrays.asList(allowedOrigins));
     }
     return this;
@@ -99,7 +96,7 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
   @Override
   public WebSocketHandlerRegistration setAllowedOriginPatterns(String... allowedOriginPatterns) {
     this.allowedOriginPatterns.clear();
-    if (!ObjectUtils.isEmpty(allowedOriginPatterns)) {
+    if (ObjectUtils.isNotEmpty(allowedOriginPatterns)) {
       this.allowedOriginPatterns.addAll(Arrays.asList(allowedOriginPatterns));
     }
     return this;
@@ -109,7 +106,7 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
     List<HandshakeInterceptor> interceptors = new ArrayList<>(this.interceptors.size() + 1);
     interceptors.addAll(this.interceptors);
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(allowedOrigins);
-    if (!ObjectUtils.isEmpty(this.allowedOriginPatterns)) {
+    if (ObjectUtils.isNotEmpty(this.allowedOriginPatterns)) {
       interceptor.setAllowedOriginPatterns(this.allowedOriginPatterns);
     }
     interceptors.add(interceptor);

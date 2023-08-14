@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -493,7 +490,7 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
     if (!this.lazyInit) {
       getJaxbContext();
     }
-    if (!ObjectUtils.isEmpty(this.schemaResources)) {
+    if (ObjectUtils.isNotEmpty(this.schemaResources)) {
       this.schema = loadSchema(this.schemaResources, this.schemaLanguage);
     }
   }
@@ -513,10 +510,10 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
           if (StringUtils.isNotEmpty(this.contextPath)) {
             context = createJaxbContextFromContextPath(this.contextPath);
           }
-          else if (!ObjectUtils.isEmpty(this.classesToBeBound)) {
+          else if (ObjectUtils.isNotEmpty(this.classesToBeBound)) {
             context = createJaxbContextFromClasses(this.classesToBeBound);
           }
-          else if (!ObjectUtils.isEmpty(this.packagesToScan)) {
+          else if (ObjectUtils.isNotEmpty(this.packagesToScan)) {
             context = createJaxbContextFromPackages(this.packagesToScan);
           }
           else {
@@ -661,7 +658,7 @@ public class Jaxb2Marshaller implements MimeMarshaller, MimeUnmarshaller,
       }
       return false;
     }
-    else if (!ObjectUtils.isEmpty(this.classesToBeBound)) {
+    else if (ObjectUtils.isNotEmpty(this.classesToBeBound)) {
       return Arrays.asList(this.classesToBeBound).contains(clazz);
     }
     return false;

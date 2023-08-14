@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -742,7 +739,7 @@ public class MockHttpServletRequestBuilder
       }
     });
 
-    if (!ObjectUtils.isEmpty(this.content) &&
+    if (ObjectUtils.isNotEmpty(this.content) &&
             !this.headers.containsKey(HttpHeaders.CONTENT_LENGTH) &&
             !this.headers.containsKey(HttpHeaders.TRANSFER_ENCODING)) {
 
@@ -780,10 +777,10 @@ public class MockHttpServletRequestBuilder
       }
     }
 
-    if (!ObjectUtils.isEmpty(this.cookies)) {
+    if (ObjectUtils.isNotEmpty(this.cookies)) {
       request.setCookies(this.cookies.toArray(new Cookie[0]));
     }
-    if (!ObjectUtils.isEmpty(this.locales)) {
+    if (ObjectUtils.isNotEmpty(this.locales)) {
       request.setPreferredLocales(this.locales);
     }
 
