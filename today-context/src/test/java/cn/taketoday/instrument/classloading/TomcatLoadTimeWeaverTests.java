@@ -19,7 +19,6 @@ package cn.taketoday.instrument.classloading;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,11 +27,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/14 14:42
  */
-
 class TomcatLoadTimeWeaverTests {
 
   @Test
-  @ClassPathOverrides("org.apache.tomcat.embed:tomcat-embed-core:10.1.11")
   void tomcatLoadTimeWeaver() {
     SimpleInstrumentableClassLoader classLoader = new SimpleInstrumentableClassLoader(ClassUtils.getDefaultClassLoader());
     assertThatThrownBy(() -> new TomcatLoadTimeWeaver(classLoader))
