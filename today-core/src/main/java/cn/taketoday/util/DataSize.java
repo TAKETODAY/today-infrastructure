@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import java.io.Serial;
@@ -59,22 +60,22 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
   /**
    * Bytes per Kilobyte.
    */
-  private static final long BYTES_PER_KB = 1024;
+  public static final long BYTES_PER_KB = 1024;
 
   /**
    * Bytes per Megabyte.
    */
-  private static final long BYTES_PER_MB = BYTES_PER_KB * 1024;
+  public static final long BYTES_PER_MB = BYTES_PER_KB * 1024;
 
   /**
    * Bytes per Gigabyte.
    */
-  private static final long BYTES_PER_GB = BYTES_PER_MB * 1024;
+  public static final long BYTES_PER_GB = BYTES_PER_MB * 1024;
 
   /**
    * Bytes per Terabyte.
    */
-  private static final long BYTES_PER_TB = BYTES_PER_GB * 1024;
+  public static final long BYTES_PER_TB = BYTES_PER_GB * 1024;
 
   private final long bytes;
 
@@ -186,7 +187,9 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
     try {
       CharSequence trimmedText = StringUtils.trimAllWhitespace(text);
       Matcher matcher = DataSizeUtils.PATTERN.matcher(trimmedText);
-      Assert.state(matcher.matches(), () -> "'" + text + "' does not match data size pattern");
+      if (!matcher.matches()) {
+        throw new IllegalStateException("'" + text + "' does not match data size pattern");
+      }
       DataUnit unit = DataSizeUtils.determineDataUnit(matcher.group(2), defaultUnit);
       long amount = Long.parseLong(trimmedText, matcher.start(1), matcher.end(1), 10);
       return DataSize.of(amount, unit);
