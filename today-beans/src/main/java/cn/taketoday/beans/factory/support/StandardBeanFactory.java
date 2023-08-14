@@ -1361,8 +1361,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @param resolver the AutowireCandidateResolver to use for the actual resolution algorithm
    * @return whether the bean should be considered as autowire candidate
    */
-  protected boolean isAutowireCandidate(
-          String beanName, RootBeanDefinition merged,
+  protected boolean isAutowireCandidate(String beanName, RootBeanDefinition merged,
           DependencyDescriptor descriptor, AutowireCandidateResolver resolver) {
 
     String bdName = BeanFactoryUtils.transformedBeanName(beanName);

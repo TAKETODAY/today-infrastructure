@@ -161,13 +161,6 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
   private record FilteringClassFileTransformer(
           ClassFileTransformer targetTransformer, @Nullable ClassLoader targetClassLoader) implements ClassFileTransformer {
 
-    private FilteringClassFileTransformer(
-            ClassFileTransformer targetTransformer, @Nullable ClassLoader targetClassLoader) {
-
-      this.targetTransformer = targetTransformer;
-      this.targetClassLoader = targetClassLoader;
-    }
-
     @Override
     @Nullable
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,

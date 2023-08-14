@@ -78,11 +78,9 @@ public class TomcatLoadTimeWeaver implements LoadTimeWeaver {
     }
 
     try {
-      this.addTransformerMethod = instrumentableLoaderClass.getMethod(
-              "addTransformer", ClassFileTransformer.class);
+      this.addTransformerMethod = instrumentableLoaderClass.getMethod("addTransformer", ClassFileTransformer.class);
       // Check for Tomcat's new copyWithoutTransformers on InstrumentableClassLoader first
-      Method copyMethod = ReflectionUtils.getMethodIfAvailable(
-              instrumentableLoaderClass, "copyWithoutTransformers");
+      Method copyMethod = ReflectionUtils.getMethodIfAvailable(instrumentableLoaderClass, "copyWithoutTransformers");
       if (copyMethod == null) {
         // Fallback: expecting TomcatInstrumentableClassLoader's getThrowawayClassLoader
         copyMethod = instrumentableLoaderClass.getMethod("getThrowawayClassLoader");
