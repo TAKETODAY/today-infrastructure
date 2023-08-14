@@ -19,6 +19,10 @@ package cn.taketoday.instrument.classloading;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+
 import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +38,21 @@ public class InstrumentableClassLoaderTests {
   public void testDefaultLoadTimeWeaver() {
     ClassLoader loader = new SimpleInstrumentableClassLoader(ClassUtils.getDefaultClassLoader());
     ReflectiveLoadTimeWeaver handler = new ReflectiveLoadTimeWeaver(loader);
+    handler.addTransformer(new ClassFileTransformer() {
+      @Override
+      public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        return ClassFileTransformer.super.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+      }
+    });
     assertThat(handler.getInstrumentableClassLoader()).isSameAs(loader);
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+
+    Thread.currentThread().setContextClassLoader(loader);
+    handler = new ReflectiveLoadTimeWeaver();
+    assertThat(handler.getInstrumentableClassLoader()).isSameAs(ClassUtils.getDefaultClassLoader());
+
+    // reset
+    Thread.currentThread().setContextClassLoader(contextClassLoader);
   }
 
 }
