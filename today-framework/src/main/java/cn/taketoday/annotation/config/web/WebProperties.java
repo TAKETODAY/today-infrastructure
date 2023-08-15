@@ -100,7 +100,7 @@ public class WebProperties {
     /**
      * Whether to enable default resource handling.
      */
-    private boolean addMappings = true;
+    private boolean addDefaultMappings = true;
 
     private boolean customized = false;
 
@@ -126,13 +126,13 @@ public class WebProperties {
       return normalized;
     }
 
-    public boolean isAddMappings() {
-      return this.addMappings;
+    public boolean isAddDefaultMappings() {
+      return this.addDefaultMappings;
     }
 
-    public void setAddMappings(boolean addMappings) {
+    public void setAddDefaultMappings(boolean addDefaultMappings) {
+      this.addDefaultMappings = addDefaultMappings;
       this.customized = true;
-      this.addMappings = addMappings;
     }
 
     public Chain getChain() {
@@ -155,7 +155,7 @@ public class WebProperties {
       boolean customized = false;
 
       /**
-       * Whether to enable the Framework Resource Handling chain. By default, disabled
+       * Whether to enable the Infra Resource Handling chain. By default, disabled
        * unless at least one strategy has been enabled.
        */
       private Boolean enabled;

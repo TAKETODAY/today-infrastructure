@@ -366,7 +366,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
     Resources resourceProperties = webProperties.getResources();
-    if (resourceProperties.isAddMappings()) {
+    if (resourceProperties.isAddDefaultMappings()) {
       addResourceHandler(registry, mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
       addResourceHandler(registry, mvcProperties.getStaticPathPattern(), resourceProperties.getStaticLocations());
     }
