@@ -208,7 +208,7 @@ public class WebMvcAutoConfigurationTests {
 
   @Test
   void resourceHandlerMappingDisabled() {
-    this.contextRunner.withPropertyValues("web.resources.add-mappings:false")
+    this.contextRunner.withPropertyValues("web.resources.add-default-mappings:false")
             .run((context) -> assertThat(getResourceMappingLocations(context)).hasSize(0));
   }
 
