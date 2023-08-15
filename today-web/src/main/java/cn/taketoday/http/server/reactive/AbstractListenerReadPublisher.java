@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -281,7 +278,8 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
 
   /**
    * Represents a state for the {@link Publisher} to be in.
-   * <p><pre>
+   * <p>
+   * <pre>{@code
    *        UNSUBSCRIBED
    *             |
    *             v
@@ -295,7 +293,7 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
    *    |                    |                     |
    *    |                    v                     |
    *    +--------------> COMPLETED <---------------+
-   * </pre>
+   * }</pre>
    */
   private enum State {
 

@@ -324,8 +324,8 @@ public abstract class AbstractListenerWriteProcessor<T> implements Processor<T, 
 
   /**
    * Represents a state for the {@link Processor} to be in.
-   *
-   * <p><pre>
+   * <p>
+   * <pre> {@code
    *        UNSUBSCRIBED
    *             |
    *             v
@@ -336,7 +336,7 @@ public abstract class AbstractListenerWriteProcessor<T> implements Processor<T, 
    *   |                    |                    |
    *   |                    v                    |
    *   +--------------> COMPLETED <--------------+
-   * </pre>
+   * }</pre>
    */
   private enum State {
 
