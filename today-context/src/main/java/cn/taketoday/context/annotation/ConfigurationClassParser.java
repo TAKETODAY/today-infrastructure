@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +28,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -90,6 +86,7 @@ import cn.taketoday.util.ClassUtils;
  * @author Phillip Webb
  * @author Sam Brannen
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationClassBeanDefinitionReader
  * @since 4.0
  */
@@ -106,9 +103,9 @@ class ConfigurationClassParser {
 
   private final ComponentScanAnnotationParser componentScanParser;
 
-  private final Map<ConfigurationClass, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
+  private final LinkedHashMap<ConfigurationClass, ConfigurationClass> configurationClasses = new LinkedHashMap<>();
 
-  private final Map<String, ConfigurationClass> knownSuperclasses = new HashMap<>();
+  private final HashMap<String, ConfigurationClass> knownSuperclasses = new HashMap<>();
 
   private final ImportRegistry importStack = new ImportRegistry();
 
@@ -190,13 +187,13 @@ class ConfigurationClassParser {
   }
 
   List<PropertySourceDescriptor> getPropertySourceDescriptors() {
-    return (this.propertySourceRegistry != null ? this.propertySourceRegistry.getDescriptors()
-                                                : Collections.emptyList());
+    return propertySourceRegistry != null
+           ? propertySourceRegistry.getDescriptors()
+           : Collections.emptyList();
   }
 
   protected void processConfigurationClass(ConfigurationClass configClass, Predicate<String> filter) throws IOException {
-    if (bootstrapContext.passCondition(
-            configClass.metadata, ConfigurationPhase.PARSE_CONFIGURATION)) {
+    if (bootstrapContext.passCondition(configClass.metadata, ConfigurationPhase.PARSE_CONFIGURATION)) {
       ConfigurationClass existingClass = configurationClasses.get(configClass);
       if (existingClass != null) {
         if (configClass.isImported()) {
@@ -782,8 +779,8 @@ class ConfigurationClassParser {
    */
   private class SourceClass implements Ordered {
 
-    private final Object source;  // Class or MetadataReader
-    private final AnnotationMetadata metadata;
+    public final Object source;  // Class or MetadataReader
+    public final AnnotationMetadata metadata;
 
     public SourceClass(Object source) {
       this.source = source;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,12 +44,12 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY 2021/9/12 11:32
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Ordered
  * @see PriorityOrdered
  * @see java.util.List#sort(java.util.Comparator)
  * @see java.util.Arrays#sort(Object[], java.util.Comparator)
- * @since 4.0
+ * @since 4.0 2021/9/12 11:32
  */
 public class OrderComparator implements Comparator<Object> {
 
@@ -76,10 +73,9 @@ public class OrderComparator implements Comparator<Object> {
     return doCompare(o1, o2, null);
   }
 
-  private int doCompare(
-          @Nullable Object o1, @Nullable Object o2, @Nullable OrderSourceProvider sourceProvider) {
-    boolean p1 = (o1 instanceof PriorityOrdered);
-    boolean p2 = (o2 instanceof PriorityOrdered);
+  private int doCompare(@Nullable Object o1, @Nullable Object o2, @Nullable OrderSourceProvider sourceProvider) {
+    boolean p1 = o1 instanceof PriorityOrdered;
+    boolean p2 = o2 instanceof PriorityOrdered;
     if (p1 && !p2) {
       return -1;
     }
@@ -123,7 +119,7 @@ public class OrderComparator implements Comparator<Object> {
       Object orderSource = provider.getOrderSource(obj);
       order = findOrder(orderSource);
     }
-    return (order != null ? order : getOrder(obj));
+    return order != null ? order : getOrder(obj);
   }
 
   /**
@@ -153,8 +149,8 @@ public class OrderComparator implements Comparator<Object> {
    * @return the order value, or {@code null} if none found
    */
   @Nullable
-  protected Integer findOrder(Object obj) {
-    return (obj instanceof Ordered ? ((Ordered) obj).getOrder() : null);
+  protected Integer findOrder(@Nullable Object obj) {
+    return obj instanceof Ordered ? ((Ordered) obj).getOrder() : null;
   }
 
   /**

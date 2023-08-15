@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,11 +40,11 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Oliver Gierke
  * @author Stephane Nicoll
- * @author TODAY 2021/9/12 11:35
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.core.Ordered
  * @see Order
  * @see jakarta.annotation.Priority
- * @since 4.0
+ * @since 4.0 2021/9/12 11:35
  */
 public class AnnotationAwareOrderComparator extends OrderComparator {
 
@@ -64,10 +61,13 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
    */
   @Override
   @Nullable
-  protected Integer findOrder(Object obj) {
+  protected Integer findOrder(@Nullable Object obj) {
     Integer order = super.findOrder(obj);
     if (order != null) {
       return order;
+    }
+    if (obj == null) {
+      return null;
     }
     return findOrderFromAnnotation(obj);
   }
@@ -139,7 +139,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
    * @param value the array or List to sort
    * @see java.util.Arrays#sort(Object[], java.util.Comparator)
    */
-  public static void sortIfNecessary(Object value) {
+  public static void sortIfNecessary(@Nullable Object value) {
     if (value instanceof Object[]) {
       sort((Object[]) value);
     }

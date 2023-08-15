@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +16,14 @@
  */
 package cn.taketoday.core.annotation;
 
+import java.lang.reflect.AnnotatedElement;
+
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-
-import java.lang.reflect.AnnotatedElement;
 
 /**
  * General utility for determining the order of an object based on its type declaration.
@@ -91,7 +88,7 @@ public abstract class OrderUtils {
    */
   public static int getOrder(Class<?> type, int defaultOrder) {
     Integer order = getOrder(type);
-    return (order != null ? order : defaultOrder);
+    return order != null ? order : defaultOrder;
   }
 
   /**
@@ -106,7 +103,7 @@ public abstract class OrderUtils {
   @Nullable
   public static Integer getOrder(Class<?> type, @Nullable Integer defaultOrder) {
     Integer order = getOrder(type);
-    return (order != null ? order : defaultOrder);
+    return order != null ? order : defaultOrder;
   }
 
   /**
@@ -150,7 +147,7 @@ public abstract class OrderUtils {
     }
     Object cached = orderCache.get(element);
     if (cached != null) {
-      return (cached instanceof Integer ? (Integer) cached : null);
+      return cached instanceof Integer ? (Integer) cached : null;
     }
     Integer result = findOrder(annotations);
     orderCache.put(element, result != null ? result : NOT_ANNOTATED);

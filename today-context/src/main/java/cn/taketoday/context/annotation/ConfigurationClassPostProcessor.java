@@ -116,9 +116,8 @@ import static cn.taketoday.context.annotation.ConfigurationClassUtils.CONFIGURAT
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/7 21:36
  */
-public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPostProcessor,
-        PriorityOrdered, BeanClassLoaderAware, BootstrapContextAware,
-        BeanRegistrationAotProcessor, BeanFactoryInitializationAotProcessor {
+public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanClassLoaderAware, BootstrapContextAware,
+        BeanDefinitionRegistryPostProcessor, BeanRegistrationAotProcessor, BeanFactoryInitializationAotProcessor {
 
   private static final Logger log = LoggerFactory.getLogger(ConfigurationClassPostProcessor.class);
 
