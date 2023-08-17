@@ -17,8 +17,9 @@
 
 package cn.taketoday.annotation.config.web.client;
 
+import java.util.List;
+
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Lazy;
@@ -26,6 +27,7 @@ import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.http.converter.HttpMessageConverters;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.client.config.RestTemplateBuilder;
@@ -46,14 +48,14 @@ public class RestTemplateAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   static RestTemplateBuilderConfigurer restTemplateBuilderConfigurer(
-          ObjectProvider<HttpMessageConverters> messageConverters,
-          ObjectProvider<RestTemplateCustomizer> restTemplateCustomizers,
-          ObjectProvider<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
+          @Nullable HttpMessageConverters messageConverters,
+          @Nullable List<RestTemplateCustomizer> restTemplateCustomizers,
+          @Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
 
     RestTemplateBuilderConfigurer configurer = new RestTemplateBuilderConfigurer();
-    configurer.setHttpMessageConverters(messageConverters.getIfUnique());
-    configurer.setRestTemplateCustomizers(restTemplateCustomizers.orderedList());
-    configurer.setRestTemplateRequestCustomizers(restTemplateRequestCustomizers.orderedList());
+    configurer.setHttpMessageConverters(messageConverters);
+    configurer.setRestTemplateCustomizers(restTemplateCustomizers);
+    configurer.setRestTemplateRequestCustomizers(restTemplateRequestCustomizers);
     return configurer;
   }
 

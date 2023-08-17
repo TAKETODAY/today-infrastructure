@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.annotation.config.web.client;
 import java.util.List;
 
 import cn.taketoday.http.converter.HttpMessageConverters;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.client.config.RestTemplateBuilder;
 import cn.taketoday.web.client.config.RestTemplateCustomizer;
@@ -37,21 +35,24 @@ import cn.taketoday.web.client.config.RestTemplateRequestCustomizer;
  */
 public final class RestTemplateBuilderConfigurer {
 
+  @Nullable
   private HttpMessageConverters httpMessageConverters;
 
+  @Nullable
   private List<RestTemplateCustomizer> restTemplateCustomizers;
 
+  @Nullable
   private List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers;
 
-  void setHttpMessageConverters(HttpMessageConverters httpMessageConverters) {
+  void setHttpMessageConverters(@Nullable HttpMessageConverters httpMessageConverters) {
     this.httpMessageConverters = httpMessageConverters;
   }
 
-  void setRestTemplateCustomizers(List<RestTemplateCustomizer> restTemplateCustomizers) {
+  void setRestTemplateCustomizers(@Nullable List<RestTemplateCustomizer> restTemplateCustomizers) {
     this.restTemplateCustomizers = restTemplateCustomizers;
   }
 
-  void setRestTemplateRequestCustomizers(List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
+  void setRestTemplateRequestCustomizers(@Nullable List<RestTemplateRequestCustomizer<?>> restTemplateRequestCustomizers) {
     this.restTemplateRequestCustomizers = restTemplateRequestCustomizers;
   }
 

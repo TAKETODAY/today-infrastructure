@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -134,8 +131,7 @@ public class RestTemplateBuilder {
           @Nullable BasicAuthentication basicAuthentication,
           Map<String, List<String>> defaultHeaders,
           Set<RestTemplateCustomizer> customizers,
-          Set<RestTemplateRequestCustomizer<?>> requestCustomizers
-  ) {
+          Set<RestTemplateRequestCustomizer<?>> requestCustomizers) {
     this.requestFactorySettings = requestFactorySettings;
     this.detectRequestFactory = detectRequestFactory;
     this.rootUri = rootUri;

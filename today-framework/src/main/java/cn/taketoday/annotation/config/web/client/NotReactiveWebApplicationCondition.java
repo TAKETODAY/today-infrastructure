@@ -17,6 +17,7 @@
 
 package cn.taketoday.annotation.config.web.client;
 
+import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.condition.NoneNestedConditions;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 
