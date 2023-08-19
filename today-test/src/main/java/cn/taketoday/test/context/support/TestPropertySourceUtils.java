@@ -78,6 +78,9 @@ public abstract class TestPropertySourceUtils {
 
   private static final PropertySourceFactory defaultPropertySourceFactory = new DefaultPropertySourceFactory();
 
+  private static Comparator<MergedAnnotation<? extends Annotation>> reversedMetaDistance =
+          Comparator.<MergedAnnotation<? extends Annotation>>comparingInt(MergedAnnotation::getDistance).reversed();
+
   private static final Logger logger = LoggerFactory.getLogger(TestPropertySourceUtils.class);
 
   static MergedTestPropertySources buildMergedTestPropertySources(Class<?> testClass) {
@@ -421,7 +424,7 @@ public abstract class TestPropertySourceUtils {
 
     MergedAnnotations.from(clazz, SearchStrategy.DIRECT)
             .stream(annotationType)
-            .sorted(highMetaDistancesFirst())
+            .sorted(reversedMetaDistance)
             .forEach(annotation -> listOfLists.get(aggregateIndex[0]).add(0, annotation));
 
     aggregateIndex[0]++;
@@ -441,10 +444,6 @@ public abstract class TestPropertySourceUtils {
     if (TestContextAnnotationUtils.searchEnclosingClass(clazz)) {
       findRepeatableAnnotations(clazz.getEnclosingClass(), annotationType, listOfLists, aggregateIndex);
     }
-  }
-
-  private static <A extends Annotation> Comparator<MergedAnnotation<A>> highMetaDistancesFirst() {
-    return Comparator.<MergedAnnotation<A>>comparingInt(MergedAnnotation::getDistance).reversed();
   }
 
   /**
