@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-  ~ Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
-  ~ Copyright © TODAY & 2017 - 2023 All Rights Reserved.
-  ~
-  ~ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+  ~ Copyright 2017 - 2023 the original author or authors.
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU General Public License as published by
@@ -176,8 +173,6 @@
       <xsd:documentation><![CDATA[
 	Creates a default JtaTransactionManager bean with name "transactionManager",
 	matching the default bean name expected by the "annotation-driven" tag.
-	Automatically detects WebLogic and WebSphere: creating a WebLogicJtaTransactionManager
-	or WebSphereUowTransactionManager, respectively.
 
 	For customization needs, consider defining a JtaTransactionManager bean as a regular
 	Infra bean definition with name "transactionManager", replacing this element.

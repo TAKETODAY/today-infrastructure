@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -267,8 +264,8 @@ public interface TransactionDefinition {
   /**
    * Return the name of this transaction. Can be {@code null}.
    * <p>This will be used as the transaction name to be shown in a
-   * transaction monitor, if applicable (for example, WebLogic's).
-   * <p>In case of declarative transactions, the exposed name will be
+   * transaction monitor, if applicable.
+   * <p>In case of Spring's declarative transactions, the exposed name will be
    * the {@code fully-qualified class name + "." + method name} (by default).
    *
    * @return the name of this transaction ({@code null} by default}
