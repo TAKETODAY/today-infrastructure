@@ -1682,29 +1682,31 @@ else */
   /**
    * Convert a name in camelCase to an underscored name in lower case. Any upper
    * case letters are converted to lower case with a preceding underscore.
+   * <p>
+   * Convert a property name using "camelCase" to a corresponding column name with underscores.
+   * A name like "customerNumber" would match a "customer_number" column name.
    *
    * @param name the original name
    * @return the converted name
    * @since 4.0
    */
-  public static String camelCaseToUnderscore(String name) {
+  public static String camelCaseToUnderscore(@Nullable String name) {
     if (StringUtils.isEmpty(name)) {
       return Constant.BLANK;
     }
     final int length = name.length();
-    final StringBuilder ret = new StringBuilder();
-    ret.append(Character.toLowerCase(name.charAt(0)));
-
+    StringBuilder result = new StringBuilder(length + 1);
+    result.append(Character.toLowerCase(name.charAt(0)));
     for (int i = 1; i < length; i++) {
-      final char c = name.charAt(i);
-      if (c > 0x40 && c < 0x5b) {
-        ret.append('_').append((char) (c | 0x20));
+      char c = name.charAt(i);
+      if (Character.isUpperCase(c)) {
+        result.append('_').append(Character.toLowerCase(c));
       }
       else {
-        ret.append(c);
+        result.append(c);
       }
     }
-    return ret.toString();
+    return result.toString();
   }
 
   /**
