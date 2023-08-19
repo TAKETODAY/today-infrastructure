@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +36,9 @@ import cn.taketoday.util.MultiValueMap;
 
 /**
  * Defines access to the annotations of a specific type ({@link AnnotationMetadata class}
- * or {@link MethodMetadata method}), in a form that does not necessarily require the
- * class-loading.
+ * or {@link MethodMetadata method}), in a form that does not necessarily require
+ * class loading of the types being inspected. Note, however, that classes for
+ * encountered annotations will be loaded.
  *
  * @author Juergen Hoeller
  * @author Mark Fisher
@@ -56,10 +54,10 @@ import cn.taketoday.util.MultiValueMap;
 public interface AnnotatedTypeMetadata {
 
   /**
-   * Return annotation details based on the direct annotations of the
-   * underlying element.
+   * Get annotation details based on the direct annotations and meta-annotations
+   * of the underlying element.
    *
-   * @return merged annotations based on the direct annotations
+   * @return merged annotations based on the direct annotations and meta-annotations
    */
   MergedAnnotations getAnnotations();
 
@@ -208,13 +206,16 @@ public interface AnnotatedTypeMetadata {
 
   /**
    * Retrieve the attributes of the annotation of the given type, if any (i.e. if
-   * defined on the underlying element, as direct annotation or meta-annotation),
-   * also taking attribute overrides on composed annotations into account.
+   * defined on the underlying element, as direct annotation or meta-annotation).
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
    *
-   * @param annotationType the class of the annotation type to look for
-   * @return a Map of attributes, with the attribute name as key (e.g. "value")
-   * and the defined attribute value as Map value. This return value will be
-   * {@code null} if no matching annotation is defined.
+   * @param annotationType the fully-qualified class of the annotation
+   * type to look for
+   * @return a {@link Map} of attributes, with each annotation attribute name
+   * as map key (e.g. "location") and the attribute's value as map value; or
+   * {@code null} if no matching annotation is found
    */
   @Nullable
   default Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType) {
@@ -223,14 +224,16 @@ public interface AnnotatedTypeMetadata {
 
   /**
    * Retrieve the attributes of the annotation of the given type, if any (i.e. if
-   * defined on the underlying element, as direct annotation or meta-annotation),
-   * also taking attribute overrides on composed annotations into account.
+   * defined on the underlying element, as direct annotation or meta-annotation).
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
    *
-   * @param annotationName the fully qualified class name of the annotation
+   * @param annotationName the fully-qualified class name of the annotation
    * type to look for
-   * @return a Map of attributes, with the attribute name as key (e.g. "value")
-   * and the defined attribute value as Map value. This return value will be
-   * {@code null} if no matching annotation is defined.
+   * @return a {@link Map} of attributes, with each annotation attribute name
+   * as map key (e.g. "location") and the attribute's value as map value; or
+   * {@code null} if no matching annotation is found
    */
   @Nullable
   default Map<String, Object> getAnnotationAttributes(String annotationName) {
@@ -239,16 +242,19 @@ public interface AnnotatedTypeMetadata {
 
   /**
    * Retrieve the attributes of the annotation of the given type, if any (i.e. if
-   * defined on the underlying element, as direct annotation or meta-annotation),
-   * also taking attribute overrides on composed annotations into account.
+   * defined on the underlying element, as direct annotation or meta-annotation).
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
    *
-   * @param annotationType the class of the annotation type to look for
+   * @param annotationType the fully-qualified class of the annotation
+   * type to look for
    * @param classValuesAsString whether to convert class references to String
    * class names for exposure as values in the returned Map, instead of Class
    * references which might potentially have to be loaded first
-   * @return a Map of attributes, with the attribute name as key (e.g. "value")
-   * and the defined attribute value as Map value. This return value will be
-   * {@code null} if no matching annotation is defined.
+   * @return a {@link Map} of attributes, with each annotation attribute name
+   * as map key (e.g. "location") and the attribute's value as map value; or
+   * {@code null} if no matching annotation is found
    */
   @Nullable
   default Map<String, Object> getAnnotationAttributes(
@@ -258,17 +264,19 @@ public interface AnnotatedTypeMetadata {
 
   /**
    * Retrieve the attributes of the annotation of the given type, if any (i.e. if
-   * defined on the underlying element, as direct annotation or meta-annotation),
-   * also taking attribute overrides on composed annotations into account.
+   * defined on the underlying element, as direct annotation or meta-annotation).
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
    *
-   * @param annotationName the fully qualified class name of the annotation
+   * @param annotationName the fully-qualified class name of the annotation
    * type to look for
    * @param classValuesAsString whether to convert class references to String
    * class names for exposure as values in the returned Map, instead of Class
    * references which might potentially have to be loaded first
-   * @return a Map of attributes, with the attribute name as key (e.g. "value")
-   * and the defined attribute value as Map value. This return value will be
-   * {@code null} if no matching annotation is defined.
+   * @return a {@link Map} of attributes, with each annotation attribute name
+   * as map key (e.g. "location") and the attribute's value as map value; or
+   * {@code null} if no matching annotation is found
    */
   @Nullable
   default Map<String, Object> getAnnotationAttributes(String annotationName, boolean classValuesAsString) {
