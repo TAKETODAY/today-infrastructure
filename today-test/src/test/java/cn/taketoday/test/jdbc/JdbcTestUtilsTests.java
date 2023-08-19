@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,18 +36,18 @@ import static org.mockito.BDDMockito.given;
 class JdbcTestUtilsTests {
 
   @Mock
-  private JdbcTemplate jdbcTemplate;
+  JdbcTemplate jdbcTemplate;
 
   @Test
   void deleteWithoutWhereClause() throws Exception {
-    given(jdbcTemplate.update("DELETE FROM person")).willReturn(10);
+    given(jdbcTemplate.update("DELETE FROM person", new Object[0])).willReturn(10);
     int deleted = JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, "person", null);
     assertThat(deleted).isEqualTo(10);
   }
 
   @Test
   void deleteWithWhereClause() throws Exception {
-    given(jdbcTemplate.update("DELETE FROM person WHERE name = 'Bob' and age > 25")).willReturn(10);
+    given(jdbcTemplate.update("DELETE FROM person WHERE name = 'Bob' and age > 25", new Object[0])).willReturn(10);
     int deleted = JdbcTestUtils.deleteFromTableWhere(jdbcTemplate, "person", "name = 'Bob' and age > 25");
     assertThat(deleted).isEqualTo(10);
   }
