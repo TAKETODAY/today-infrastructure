@@ -86,9 +86,9 @@ class TestPropertySourceAttributes {
    */
   void mergeWith(TestPropertySourceAttributes attributes) {
     Assert.state(attributes.declaringClass == this.declaringClass,
-        () -> "Detected @TestPropertySource declarations within an aggregate index "
-            + "with different sources: " + this.declaringClass.getName() + " and "
-            + attributes.declaringClass.getName());
+            () -> "Detected @TestPropertySource declarations within an aggregate index "
+                    + "with different sources: " + this.declaringClass.getName() + " and "
+                    + attributes.declaringClass.getName());
     logger.trace("Retrieved {} for declaring class [{}].", attributes, this.declaringClass.getName());
 
     assertSameBooleanAttribute(this.inheritLocations, attributes.inheritLocations, "inheritLocations", attributes);
@@ -98,45 +98,48 @@ class TestPropertySourceAttributes {
   }
 
   private void assertSameBooleanAttribute(boolean expected, boolean actual,
-      String attributeName, TestPropertySourceAttributes that) {
+          String attributeName, TestPropertySourceAttributes that) {
     Assert.isTrue(expected == actual, () -> String.format(
-        "@%s on %s and @%s on %s must declare the same value for '%s' as other " +
-            "directly present or meta-present @TestPropertySource annotations",
-        this.rootAnnotation.getType().getSimpleName(), this.declaringClass.getSimpleName(),
-        that.rootAnnotation.getType().getSimpleName(), that.declaringClass.getSimpleName(),
-        attributeName));
+            "@%s on %s and @%s on %s must declare the same value for '%s' as other " +
+                    "directly present or meta-present @TestPropertySource annotations",
+            this.rootAnnotation.getType().getSimpleName(), this.declaringClass.getSimpleName(),
+            that.rootAnnotation.getType().getSimpleName(), that.declaringClass.getSimpleName(),
+            attributeName));
   }
 
   private void addPropertiesAndLocationsFrom(
-      MergedAnnotation<TestPropertySource> mergedAnnotation, Class<?> declaringClass) {
+          MergedAnnotation<TestPropertySource> mergedAnnotation, Class<?> declaringClass) {
 
     String[] locations = mergedAnnotation.getStringArray("locations");
     String[] properties = mergedAnnotation.getStringArray("properties");
     String[] convertedLocations =
-        TestContextResourceUtils.convertToClasspathResourcePaths(declaringClass, true, locations);
-    Class<? extends PropertySourceFactory> factoryClass =
-        mergedAnnotation.getClass("factory");
+            TestContextResourceUtils.convertToClasspathResourcePaths(declaringClass, true, locations);
+    Class<? extends PropertySourceFactory> factoryClass = mergedAnnotation.getClass("factory");
+    if (factoryClass == PropertySourceFactory.class) {
+      factoryClass = null; // default factory type will be inferred
+    }
+
     String encoding = mergedAnnotation.getString("encoding");
     if (encoding.isBlank()) {
       encoding = null; // default encoding will be inferred
     }
     PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
-        List.of(convertedLocations), false, null, factoryClass, encoding);
+            List.of(convertedLocations), false, null, factoryClass, encoding);
     addPropertiesAndLocations(List.of(descriptor), properties, declaringClass, encoding, false);
   }
 
   private void mergePropertiesAndLocationsFrom(TestPropertySourceAttributes attributes) {
     addPropertiesAndLocations(attributes.getPropertySourceDescriptors(), attributes.getProperties(),
-        attributes.getDeclaringClass(), null, true);
+            attributes.getDeclaringClass(), null, true);
   }
 
   private void addPropertiesAndLocations(List<PropertySourceDescriptor> descriptors,
-      String[] properties, Class<?> declaringClass, @Nullable String encoding, boolean prepend) {
+          String[] properties, Class<?> declaringClass, @Nullable String encoding, boolean prepend) {
 
     if (hasNoLocations(descriptors) && ObjectUtils.isEmpty(properties)) {
       String defaultPropertiesFile = detectDefaultPropertiesFile(declaringClass);
       PropertySourceDescriptor descriptor = new PropertySourceDescriptor(
-          List.of(defaultPropertiesFile), false, null, null, encoding);
+              List.of(defaultPropertiesFile), false, null, null, encoding);
       addAll(prepend, this.descriptors, List.of(descriptor));
     }
     else {
@@ -178,17 +181,17 @@ class TestPropertySourceAttributes {
     ClassPathResource classPathResource = new ClassPathResource(resourcePath);
     if (!classPathResource.exists()) {
       String msg = String.format(
-          "Could not detect default properties file for test class [%s]: " +
-              "%s does not exist. Either declare the 'locations' or 'properties' attributes " +
-              "of @TestPropertySource or make the default properties file available.",
-          testClass.getName(), classPathResource);
+              "Could not detect default properties file for test class [%s]: " +
+                      "%s does not exist. Either declare the 'locations' or 'properties' attributes " +
+                      "of @TestPropertySource or make the default properties file available.",
+              testClass.getName(), classPathResource);
       logger.error(msg);
       throw new IllegalStateException(msg);
     }
     String prefixedResourcePath = ResourceUtils.CLASSPATH_URL_PREFIX + SLASH + resourcePath;
     if (logger.isDebugEnabled()) {
       logger.debug("Detected default properties file \"{}\" for test class [{}]",
-          prefixedResourcePath, testClass.getName());
+              prefixedResourcePath, testClass.getName());
     }
     return prefixedResourcePath;
   }
@@ -293,12 +296,12 @@ class TestPropertySourceAttributes {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-        .append("declaringClass", this.declaringClass.getName())
-        .append("descriptors", this.descriptors)
-        .append("inheritLocations", this.inheritLocations)
-        .append("properties", this.properties)
-        .append("inheritProperties", this.inheritProperties)
-        .toString();
+            .append("declaringClass", this.declaringClass.getName())
+            .append("descriptors", this.descriptors)
+            .append("inheritLocations", this.inheritLocations)
+            .append("properties", this.properties)
+            .append("inheritProperties", this.inheritProperties)
+            .toString();
   }
 
   private static Class<?> declaringClass(MergedAnnotation<?> mergedAnnotation) {
@@ -312,10 +315,10 @@ class TestPropertySourceAttributes {
    */
   private static boolean hasNoLocations(List<PropertySourceDescriptor> descriptors) {
     return descriptors.stream()
-        .map(PropertySourceDescriptor::locations)
-        .flatMap(List::stream)
-        .findAny()
-        .isEmpty();
+            .map(PropertySourceDescriptor::locations)
+            .flatMap(List::stream)
+            .findAny()
+            .isEmpty();
   }
 
 }
