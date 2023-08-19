@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +39,10 @@ class EntityManagerRuntimeHints implements RuntimeHintsRegistrar {
 
   private static final String ENTITY_MANAGER_FACTORY_CLASS_NAME = "jakarta.persistence.EntityManagerFactory";
 
+  private static final String QUERY_SQM_IMPL_CLASS_NAME = "org.hibernate.query.sqm.internal.QuerySqmImpl";
+
+  private static final String NATIVE_QUERY_IMPL_CLASS_NAME = "org.hibernate.query.sql.internal.NativeQueryImpl";
+
   @Override
   public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
     if (ClassUtils.isPresent(HIBERNATE_SESSION_FACTORY_CLASS_NAME, classLoader)) {
@@ -57,6 +58,18 @@ class EntityManagerRuntimeHints implements RuntimeHintsRegistrar {
         builder.onReachableType(SharedEntityManagerCreator.class).withMethod("getMetamodel",
                 Collections.emptyList(), ExecutableMode.INVOKE);
       });
+    }
+    try {
+      Class<?> clazz = ClassUtils.forName(QUERY_SQM_IMPL_CLASS_NAME, classLoader);
+      hints.proxies().registerJdkProxy(ClassUtils.getAllInterfacesForClass(clazz, classLoader));
+    }
+    catch (ClassNotFoundException ignored) {
+    }
+    try {
+      Class<?> clazz = ClassUtils.forName(NATIVE_QUERY_IMPL_CLASS_NAME, classLoader);
+      hints.proxies().registerJdkProxy(ClassUtils.getAllInterfacesForClass(clazz, classLoader));
+    }
+    catch (ClassNotFoundException ignored) {
     }
   }
 }
