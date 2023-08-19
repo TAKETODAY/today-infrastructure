@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,8 +52,8 @@ class ConfigDataLocationRuntimeHints implements RuntimeHintsRegistrar {
       logger.debug("Registering application configuration hints for " + fileNames + "(" + extensions + ") at "
               + locations);
     }
-    new FilePatternResourceHintsRegistrar(fileNames, locations, extensions).registerHints(hints.resources(),
-            classLoader);
+    new FilePatternResourceHintsRegistrar(fileNames, locations, extensions)
+            .registerHints(hints.resources(), classLoader);
   }
 
   /**
@@ -76,7 +73,7 @@ class ConfigDataLocationRuntimeHints implements RuntimeHintsRegistrar {
    * @param classLoader the classloader to use
    * @return the configuration file locations
    */
-  protected List<String> getLocations(ClassLoader classLoader) {
+  protected List<String> getLocations(@Nullable ClassLoader classLoader) {
     var classpathLocations = new ArrayList<String>();
     for (ConfigDataLocation candidate : ConfigDataEnvironment.DEFAULT_SEARCH_LOCATIONS) {
       for (ConfigDataLocation configDataLocation : candidate.split()) {
@@ -96,7 +93,7 @@ class ConfigDataLocationRuntimeHints implements RuntimeHintsRegistrar {
    * @param classLoader the classloader to use
    * @return the configuration file extensions
    */
-  protected List<String> getExtensions(ClassLoader classLoader) {
+  protected List<String> getExtensions(@Nullable ClassLoader classLoader) {
     List<String> extensions = new ArrayList<>();
     List<PropertySourceLoader> loaders = getLoaderStrategies(classLoader).load(PropertySourceLoader.class);
     for (PropertySourceLoader propertySourceLoader : loaders) {
@@ -110,7 +107,7 @@ class ConfigDataLocationRuntimeHints implements RuntimeHintsRegistrar {
     return extensions;
   }
 
-  protected TodayStrategies getLoaderStrategies(ClassLoader classLoader) {
+  protected TodayStrategies getLoaderStrategies(@Nullable ClassLoader classLoader) {
     return TodayStrategies.forDefaultResourceLocation(classLoader);
   }
 
