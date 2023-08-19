@@ -113,9 +113,10 @@ public @interface TestPropertySource {
 
   /**
    * The resource locations of properties files to be loaded into the
-   * {@code Environment}'s set of {@code PropertySources}. Each location
-   * will be added to the enclosing {@code Environment} as its own property
-   * source, in the order declared.
+   * {@code Environment}'s set of {@code PropertySources}.
+   * <p>Each location will be added to the enclosing {@code Environment} as its
+   * own property source, in the order declared (or in the order in which resource
+   * locations are resolved when location wildcards are used).
    * <h4>Supported File Formats</h4>
    * <p>By default, both traditional and XML-based properties file formats are
    * supported &mdash; for example, {@code "classpath:/com/example/test.properties"}
@@ -133,11 +134,19 @@ public @interface TestPropertySource {
    * {@link cn.taketoday.util.ResourceUtils#CLASSPATH_URL_PREFIX classpath:},
    * {@link cn.taketoday.util.ResourceUtils#FILE_URL_PREFIX file:},
    * {@code http:}, etc.) will be loaded using the specified resource protocol.
-   * Resource location wildcards (e.g. <code>*&#42;/*.properties</code>)
-   * are not permitted: each location must evaluate to exactly one properties
-   * resource. Property placeholders in paths (i.e., <code>${...}</code>) will be
-   * {@linkplain cn.taketoday.core.env.Environment#resolveRequiredPlaceholders(String) resolved}
-   * against the {@code Environment}.
+   * <p>Property placeholders in paths (i.e., <code>${...}</code>) will be
+   * {@linkplain cn.taketoday.core.env.Environment#resolveRequiredPlaceholders(String)
+   * resolved} against the {@code Environment}.
+   * <p>resource location patterns are also
+   * supported &mdash; for example, {@code "classpath*:/config/*.properties"}.
+   * <p><strong>WARNING</strong>: a pattern such as {@code "classpath*:/config/*.properties"}
+   * may be effectively equivalent to an explicit enumeration of resource locations such as
+   * <code>{"classpath:/config/mail.properties", classpath:/config/order.properties"}</code>;
+   * however, the two declarations will result in different keys for the context
+   * cache since the pattern cannot be eagerly resolved to concrete locations.
+   * Consequently, to benefit from the context cache you must ensure that you
+   * consistently use either patterns or explicit enumerations of resource
+   * locations within your test suite.
    * <h4>Default Properties File Detection</h4>
    * <p>See the class-level Javadoc for a discussion on detection of defaults.
    * <h4>Precedence</h4>
@@ -217,7 +226,8 @@ public @interface TestPropertySource {
    * {@link cn.taketoday.core.env.Environment Environment} before the
    * {@code ApplicationContext} is loaded for the test. All key-value pairs
    * will be added to the enclosing {@code Environment} as a single test
-   * {@code PropertySource} with the highest precedence.
+   * {@code PropertySource} with the highest precedence.  multiple
+   * key-value pairs may be specified via a single <em>text block</em>.
    * <h4>Supported Syntax</h4>
    * <p>The supported syntax for key-value pairs is the same as the
    * syntax defined for entries in a Java
@@ -227,6 +237,41 @@ public @interface TestPropertySource {
    * <li>{@code "key:value"}</li>
    * <li>{@code "key value"}</li>
    * </ul>
+   * <p><strong>WARNING</strong>: although properties can be defined using any
+   * of the above syntax variants and any number of spaces between the key and
+   * the value, it is recommended that you use one syntax variant and consistent
+   * spacing within your test suite &mdash; for example, consider always using
+   * {@code "key = value"} instead of {@code "key= value"}, {@code "key=value"},
+   * etc. Similarly, if you define inlined properties using <em>text blocks</em>
+   * you should consistently use text blocks for inlined properties throughout
+   * your test suite. The reason is that the exact strings you provide will be
+   * used to determine the key for the context cache. Consequently, to benefit
+   * from the context cache you must ensure that you define inlined properties
+   * consistently.
+   * <h4>Examples</h4>
+   * <pre>{@code
+   * // Using an array of strings
+   * @TestPropertySource(properties = {
+   *     "key1 = value1",
+   *     "key2 = value2"
+   * })
+   * @ContextConfiguration
+   * class MyTests {
+   *   // ...
+   * }
+   * }</pre>
+   * <pre>{@code
+   * // Using a single text block
+   * @TestPropertySource(properties = """
+   *     key1 = value1
+   *     key2 = value2
+   *     """
+   * )
+   * @ContextConfiguration
+   * class MyTests {
+   *   // ...
+   * }
+   * }</pre>
    * <h4>Precedence</h4>
    * <p>Properties declared via this attribute have higher precedence than
    * properties loaded from resource {@link #locations}.

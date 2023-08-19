@@ -86,13 +86,13 @@ public abstract class TestPropertySourceUtils {
     // Iterate over all aggregate levels, where each level is represented by
     // a list of merged annotations found at that level (e.g., on a test
     // class in the class hierarchy).
-    for (List<MergedAnnotation<TestPropertySource>> aggregatedAnnotations :
-        findRepeatableAnnotations(testClass, TestPropertySource.class)) {
+    for (List<MergedAnnotation<TestPropertySource>> aggregatedAnnotations
+            : findRepeatableAnnotations(testClass, TestPropertySource.class)) {
 
       // Convert all the merged annotations for the current aggregate
       // level to a list of TestPropertySourceAttributes.
       List<TestPropertySourceAttributes> aggregatedAttributesList =
-          aggregatedAnnotations.stream().map(TestPropertySourceAttributes::new).toList();
+              aggregatedAnnotations.stream().map(TestPropertySourceAttributes::new).toList();
       // Merge all TestPropertySourceAttributes instances for the current
       // aggregate level into a single TestPropertySourceAttributes instance.
       TestPropertySourceAttributes mergedAttributes = mergeTestPropertySourceAttributes(aggregatedAttributesList);
@@ -112,7 +112,7 @@ public abstract class TestPropertySourceUtils {
 
   @Nullable
   private static TestPropertySourceAttributes mergeTestPropertySourceAttributes(
-      List<TestPropertySourceAttributes> aggregatedAttributesList) {
+          List<TestPropertySourceAttributes> aggregatedAttributesList) {
 
     TestPropertySourceAttributes mergedAttributes = null;
     TestPropertySourceAttributes previousAttributes = null;
@@ -130,15 +130,15 @@ public abstract class TestPropertySourceUtils {
   }
 
   private static boolean duplicationDetected(TestPropertySourceAttributes currentAttributes,
-      @Nullable TestPropertySourceAttributes previousAttributes) {
+          @Nullable TestPropertySourceAttributes previousAttributes) {
 
     boolean duplicationDetected =
-        (currentAttributes.equals(previousAttributes) && !currentAttributes.isEmpty());
+            (currentAttributes.equals(previousAttributes) && !currentAttributes.isEmpty());
 
     if (duplicationDetected && logger.isTraceEnabled()) {
       logger.trace("Ignoring duplicate {} declaration on {} since it is also declared on {}",
-          currentAttributes, currentAttributes.getDeclaringClass().getName(),
-          previousAttributes.getDeclaringClass().getName());
+              currentAttributes, currentAttributes.getDeclaringClass().getName(),
+              previousAttributes.getDeclaringClass().getName());
     }
 
     return duplicationDetected;
@@ -218,11 +218,11 @@ public abstract class TestPropertySourceUtils {
    * @see #addPropertySourcesToEnvironment(ConfigurableApplicationContext, List)
    */
   public static void addPropertiesFilesToEnvironment(ConfigurableEnvironment environment,
-      ResourceLoader resourceLoader, String... locations) {
+          ResourceLoader resourceLoader, String... locations) {
 
     Assert.notNull(locations, "'locations' must not be null");
     addPropertySourcesToEnvironment(environment, resourceLoader,
-        List.of(new PropertySourceDescriptor(locations)));
+            List.of(new PropertySourceDescriptor(locations)));
   }
 
   /**
@@ -250,7 +250,7 @@ public abstract class TestPropertySourceUtils {
    * @see #addPropertySourcesToEnvironment(ConfigurableEnvironment, ResourceLoader, List)
    */
   public static void addPropertySourcesToEnvironment(ConfigurableApplicationContext context,
-      List<PropertySourceDescriptor> descriptors) {
+          List<PropertySourceDescriptor> descriptors) {
 
     Assert.notNull(context, "'context' must not be null");
     Assert.notNull(descriptors, "'descriptors' must not be null");
@@ -282,7 +282,7 @@ public abstract class TestPropertySourceUtils {
    * @see PropertySourceFactory
    */
   public static void addPropertySourcesToEnvironment(ConfigurableEnvironment environment,
-      ResourceLoader resourceLoader, List<PropertySourceDescriptor> descriptors) {
+          ResourceLoader resourceLoader, List<PropertySourceDescriptor> descriptors) {
 
     Assert.notNull(environment, "'environment' must not be null");
     Assert.notNull(resourceLoader, "'resourceLoader' must not be null");
@@ -293,14 +293,14 @@ public abstract class TestPropertySourceUtils {
         if (!descriptor.locations().isEmpty()) {
           Class<? extends PropertySourceFactory> factoryClass = descriptor.propertySourceFactory();
           PropertySourceFactory factory =
-              (factoryClass != null && factoryClass != PropertySourceFactory.class ?
-               BeanUtils.newInstance(factoryClass) : defaultPropertySourceFactory);
+                  (factoryClass != null && factoryClass != PropertySourceFactory.class ?
+                   BeanUtils.newInstance(factoryClass) : defaultPropertySourceFactory);
 
           for (String location : descriptor.locations()) {
             String resolvedLocation = environment.resolveRequiredPlaceholders(location);
             Resource resource = resourceLoader.getResource(resolvedLocation);
             PropertySource<?> propertySource = factory.createPropertySource(descriptor.name(),
-                new EncodedResource(resource, descriptor.encoding()));
+                    new EncodedResource(resource, descriptor.encoding()));
             propertySources.addFirst(propertySource);
           }
         }
@@ -351,11 +351,10 @@ public abstract class TestPropertySourceUtils {
     Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
     if (ObjectUtils.isNotEmpty(inlinedProperties)) {
       if (logger.isTraceEnabled()) {
-        logger.trace("Adding inlined properties to environment: " +
-            ObjectUtils.nullSafeToString(inlinedProperties));
+        logger.trace("Adding inlined properties to environment: {}", ObjectUtils.nullSafeToString(inlinedProperties));
       }
       MapPropertySource ps = (MapPropertySource)
-          environment.getPropertySources().get(INLINED_PROPERTIES_PROPERTY_SOURCE_NAME);
+              environment.getPropertySources().get(INLINED_PROPERTIES_PROPERTY_SOURCE_NAME);
       if (ps == null) {
         ps = new MapPropertySource(INLINED_PROPERTIES_PROPERTY_SOURCE_NAME, new LinkedHashMap<>());
         environment.getPropertySources().addFirst(ps);
@@ -366,48 +365,47 @@ public abstract class TestPropertySourceUtils {
 
   /**
    * Convert the supplied <em>inlined properties</em> (in the form of <em>key-value</em>
-   * pairs) into a map keyed by property name, preserving the ordering of property names
-   * in the returned map.
-   * <p>Parsing of the key-value pairs is achieved by converting all pairs
-   * into <em>virtual</em> properties files in memory and delegating to
+   * pairs) into a map keyed by property name.
+   * <p>Parsing of the key-value pairs is achieved by converting all supplied
+   * strings into <em>virtual</em> properties files in memory and delegating to
    * {@link Properties#load(java.io.Reader)} to parse each virtual file.
+   * <p>The ordering of property names will be preserved in the returned map,
+   * analogous to the order in which the key-value pairs are supplied to this
+   * method. This also applies if a single string contains multiple key-value
+   * pairs separated by newlines &mdash; for example, when supplied by a user
+   * via a <em>text block</em>.
    * <p>For a full discussion of <em>inlined properties</em>, consult the Javadoc
    * for {@link TestPropertySource#properties}.
    *
    * @param inlinedProperties the inlined properties to convert; potentially empty
    * but never {@code null}
    * @return a new, ordered map containing the converted properties
-   * @throws IllegalStateException if a given key-value pair cannot be parsed, or if
-   * a given inlined property contains multiple key-value pairs
+   * @throws IllegalStateException if a given key-value pair cannot be parsed
    * @see #addInlinedPropertiesToEnvironment(ConfigurableEnvironment, String[])
    */
   public static Map<String, Object> convertInlinedPropertiesToMap(String... inlinedProperties) {
     Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
-    Map<String, Object> map = new LinkedHashMap<>();
-    Properties props = new Properties();
 
-    for (String pair : inlinedProperties) {
-      if (!StringUtils.hasText(pair)) {
+    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+    SequencedProperties sequencedProperties = new SequencedProperties(map);
+
+    for (String input : inlinedProperties) {
+      if (!StringUtils.hasText(input)) {
         continue;
       }
       try {
-        props.load(new StringReader(pair));
+        sequencedProperties.load(new StringReader(input));
       }
       catch (Exception ex) {
-        throw new IllegalStateException("Failed to load test environment property from [" + pair + "]", ex);
+        throw new IllegalStateException("Failed to load test environment properties from [" + input + "]", ex);
       }
-      Assert.state(props.size() == 1, () -> "Failed to load exactly one test environment property from [" + pair + "]");
-      for (String name : props.stringPropertyNames()) {
-        map.put(name, props.getProperty(name));
-      }
-      props.clear();
     }
 
     return map;
   }
 
   private static <T extends Annotation> List<List<MergedAnnotation<T>>> findRepeatableAnnotations(
-      Class<?> clazz, Class<T> annotationType) {
+          Class<?> clazz, Class<T> annotationType) {
 
     List<List<MergedAnnotation<T>>> listOfLists = new ArrayList<>();
     findRepeatableAnnotations(clazz, annotationType, listOfLists, new int[] { 0 });
@@ -415,7 +413,7 @@ public abstract class TestPropertySourceUtils {
   }
 
   private static <T extends Annotation> void findRepeatableAnnotations(
-      Class<?> clazz, Class<T> annotationType, List<List<MergedAnnotation<T>>> listOfLists, int[] aggregateIndex) {
+          Class<?> clazz, Class<T> annotationType, List<List<MergedAnnotation<T>>> listOfLists, int[] aggregateIndex) {
 
     // Ensure we have a list for the current aggregate index.
     if (listOfLists.size() < aggregateIndex[0] + 1) {
@@ -423,9 +421,9 @@ public abstract class TestPropertySourceUtils {
     }
 
     MergedAnnotations.from(clazz, SearchStrategy.DIRECT)
-        .stream(annotationType)
-        .sorted(highMetaDistancesFirst())
-        .forEach(annotation -> listOfLists.get(aggregateIndex[0]).add(0, annotation));
+            .stream(annotationType)
+            .sorted(highMetaDistancesFirst())
+            .forEach(annotation -> listOfLists.get(aggregateIndex[0]).add(0, annotation));
 
     aggregateIndex[0]++;
 
@@ -450,4 +448,25 @@ public abstract class TestPropertySourceUtils {
     return Comparator.<MergedAnnotation<A>>comparingInt(MergedAnnotation::getDistance).reversed();
   }
 
+  /**
+   * Extension of {@link Properties} that mimics a {@code SequencedMap} by
+   * tracking all added properties in the supplied {@link LinkedHashMap}.
+   */
+  @SuppressWarnings("serial")
+  private static class SequencedProperties extends Properties {
+
+    private final LinkedHashMap<String, Object> map;
+
+    SequencedProperties(LinkedHashMap<String, Object> map) {
+      this.map = map;
+    }
+
+    @Override
+    public synchronized Object put(Object key, Object value) {
+      if (key instanceof String str) {
+        this.map.put(str, value);
+      }
+      return super.put(key, value);
+    }
+  }
 }
