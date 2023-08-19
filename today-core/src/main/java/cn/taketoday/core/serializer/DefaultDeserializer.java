@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,10 +64,8 @@ public class DefaultDeserializer implements Deserializer<Object> {
    * @see ObjectInputStream#readObject()
    */
   @Override
-  @SuppressWarnings("resource")
   public Object deserialize(InputStream inputStream) throws IOException {
-    ObjectInputStream objectInputStream = new ConfigurableObjectInputStream(inputStream, this.classLoader);
-    try {
+    try (ObjectInputStream objectInputStream = new ConfigurableObjectInputStream(inputStream, this.classLoader)) {
       return objectInputStream.readObject();
     }
     catch (ClassNotFoundException ex) {
