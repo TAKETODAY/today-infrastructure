@@ -40,6 +40,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.io.DefaultPropertySourceFactory;
 import cn.taketoday.core.io.EncodedResource;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.PropertySourceDescriptor;
 import cn.taketoday.core.io.PropertySourceFactory;
 import cn.taketoday.core.io.Resource;
@@ -257,6 +258,8 @@ public abstract class TestPropertySourceUtils {
    * <p>Property placeholders in resource locations (i.e., <code>${...}</code>)
    * will be {@linkplain Environment#resolveRequiredPlaceholders(String) resolved}
    * against the {@code Environment}.
+   * <p>A {@link cn.taketoday.core.io.PatternResourceLoader} will be used to resolve resource
+   * location patterns into multiple resource locations.
    * <p>Each {@link PropertySource} will be created via the configured
    * {@link PropertySourceDescriptor#propertySourceFactory() PropertySourceFactory}
    * (or the {@link DefaultPropertySourceFactory} if no factory is configured)
@@ -264,7 +267,7 @@ public abstract class TestPropertySourceUtils {
    * precedence.
    *
    * @param environment the environment to update; never {@code null}
-   * @param resourceLoader the {@code ResourceLoader} to use to load each resource;
+   * @param resourceLoader the {@code ResourceLoader} to use to load resources;
    * never {@code null}
    * @param descriptors the property source descriptors to process; potentially
    * empty but never {@code null}
@@ -281,6 +284,8 @@ public abstract class TestPropertySourceUtils {
     Assert.notNull(environment, "'environment' must not be null");
     Assert.notNull(resourceLoader, "'resourceLoader' must not be null");
     Assert.notNull(descriptors, "'descriptors' must not be null");
+
+    PatternResourceLoader patternResourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
     PropertySources propertySources = environment.getPropertySources();
     try {
       for (PropertySourceDescriptor descriptor : descriptors) {
@@ -291,10 +296,11 @@ public abstract class TestPropertySourceUtils {
 
           for (String location : descriptor.locations()) {
             String resolvedLocation = environment.resolveRequiredPlaceholders(location);
-            Resource resource = resourceLoader.getResource(resolvedLocation);
-            PropertySource<?> propertySource = factory.createPropertySource(descriptor.name(),
-                    new EncodedResource(resource, descriptor.encoding()));
-            propertySources.addFirst(propertySource);
+            for (Resource resource : patternResourceLoader.getResources(resolvedLocation)) {
+              PropertySource<?> propertySource = factory.createPropertySource(descriptor.name(),
+                      new EncodedResource(resource, descriptor.encoding()));
+              propertySources.addFirst(propertySource);
+            }
           }
         }
       }
