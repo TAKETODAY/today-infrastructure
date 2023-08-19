@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,9 +35,9 @@ import cn.taketoday.lang.Nullable;
  * JAR files or classes directories can contain multiple files of the same name.
  *
  * @author Juergen Hoeller
- * @author TODAY <br>
- * 2019-12-05 12:52
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see PatternResourceLoader
+ * @since 2.1.7 2019-12-05 12:52
  */
 public interface ResourceLoader {
 

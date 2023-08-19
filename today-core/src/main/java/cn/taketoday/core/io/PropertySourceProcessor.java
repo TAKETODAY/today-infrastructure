@@ -53,13 +53,13 @@ public class PropertySourceProcessor {
 
   private final ConfigurableEnvironment environment;
 
-  private final ResourceLoader resourceLoader;
+  private final PatternResourceLoader resourceLoader;
 
   private final ArrayList<String> propertySourceNames = new ArrayList<>();
 
   public PropertySourceProcessor(ConfigurableEnvironment environment, ResourceLoader resourceLoader) {
     this.environment = environment;
-    this.resourceLoader = resourceLoader;
+    this.resourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
   }
 
   /**
@@ -76,19 +76,20 @@ public class PropertySourceProcessor {
     Assert.isTrue(!locations.isEmpty(), "At least one @PropertySource(value) location is required");
     boolean ignoreResourceNotFound = descriptor.ignoreResourceNotFound();
     PropertySourceFactory factory =
-        descriptor.propertySourceFactory() != null ?
-        instantiateClass(descriptor.propertySourceFactory()) : new DefaultPropertySourceFactory();
+            descriptor.propertySourceFactory() != null ?
+            instantiateClass(descriptor.propertySourceFactory()) : new DefaultPropertySourceFactory();
 
     for (String location : locations) {
       try {
         String resolvedLocation = environment.resolveRequiredPlaceholders(location);
-        Resource resource = resourceLoader.getResource(resolvedLocation);
-        addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
+        for (Resource resource : resourceLoader.getResources(resolvedLocation)) {
+          addPropertySource(factory.createPropertySource(name, new EncodedResource(resource, encoding)));
+        }
       }
       catch (RuntimeException | IOException ex) {
         // Placeholders not resolvable (IllegalArgumentException) or resource not found when trying to open it
         if (ignoreResourceNotFound && (ex instanceof IllegalArgumentException
-            || isIgnorableException(ex) || isIgnorableException(ex.getCause()))) {
+                || isIgnorableException(ex) || isIgnorableException(ex.getCause()))) {
           if (logger.isInfoEnabled()) {
             logger.info("Properties location [{}] not resolvable: {}", location, ex.getMessage());
           }
@@ -152,9 +153,9 @@ public class PropertySourceProcessor {
    * {@code ignoreResourceNotFound} semantics.
    */
   private static boolean isIgnorableException(@Nullable Throwable ex) {
-    return (ex instanceof FileNotFoundException ||
-        ex instanceof UnknownHostException ||
-        ex instanceof SocketException);
+    return ex instanceof FileNotFoundException
+            || ex instanceof UnknownHostException
+            || ex instanceof SocketException;
   }
 
 }
