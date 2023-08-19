@@ -39,6 +39,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -396,10 +397,12 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
     // Explicitly registered overriding bean?
     if (!(existingDef instanceof ScannedGenericBeanDefinition) &&
-            this.registry.isBeanDefinitionOverridable(beanName)) {
+            (this.registry.isBeanDefinitionOverridable(beanName) || ObjectUtils.nullSafeEquals(
+                    beanDefinition.getBeanClassName(), existingDef.getBeanClassName()))) {
       return false;
     }
 
+    // Scanned same file or equivalent class twice?
     if (isCompatible(beanDefinition, existingDef)) {
       return false;
     }
