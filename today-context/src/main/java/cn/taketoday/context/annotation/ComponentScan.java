@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +48,11 @@ import cn.taketoday.core.type.filter.TypeFilter;
  * {@code @ComponentScan} level would be ignored.
  *
  * <p>See {@link Configuration @Configuration}'s Javadoc for usage examples.
+ *
+ * <p>{@code @ComponentScan} can be used as a <em>{@linkplain Repeatable repeatable}</em>
+ * annotation. {@code @ComponentScan} may also be used as a <em>meta-annotation</em>
+ * to create custom <em>composed annotations</em> with attribute overrides.
+ * F
  *
  * @author Chris Beams
  * @author Juergen Hoeller

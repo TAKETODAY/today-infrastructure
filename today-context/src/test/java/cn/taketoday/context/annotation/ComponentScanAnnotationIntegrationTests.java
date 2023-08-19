@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +36,7 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.annotation.ComponentScan.Filter;
@@ -46,6 +44,7 @@ import cn.taketoday.context.annotation.ComponentScanParserTests.KustomAnnotation
 import cn.taketoday.context.annotation.componentscan.simple.ClassWithNestedComponents;
 import cn.taketoday.context.annotation.componentscan.simple.SimpleComponent;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.Profiles;
@@ -145,6 +144,15 @@ public class ComponentScanAnnotationIntegrationTests {
     assertThat(ctx.containsBean("simpleComponent")).as("@ComponentScan annotated @Configuration class registered directly against " +
                     "AnnotationConfigApplicationContext did not trigger component scanning as expected")
             .isTrue();
+  }
+
+  @Test
+  void multipleComposedComponentScanAnnotations() {  // gh-30941
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(MultipleComposedAnnotationsConfig.class);
+    ctx.getBean(MultipleComposedAnnotationsConfig.class);
+    assertContextContainsBean(ctx, "componentScanAnnotationIntegrationTests.MultipleComposedAnnotationsConfig");
+    assertContextContainsBean(ctx, "simpleComponent");
+    assertContextContainsBean(ctx, "barComponent");
   }
 
   @Test
@@ -271,17 +279,37 @@ public class ComponentScanAnnotationIntegrationTests {
     assertThat(ctx.containsBean("fooServiceImpl")).isTrue();
   }
 
+  private static void assertContextContainsBean(ApplicationContext ctx, String beanName) {
+    assertThat(ctx.containsBean(beanName)).as("context contains bean " + beanName).isTrue();
+  }
+
   @Configuration
   @ComponentScan
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
-  public @interface ComposedConfiguration {
+  @interface ComposedConfiguration {
 
+    @AliasFor(annotation = ComponentScan.class)
+    String[] basePackages() default {};
+  }
+
+  @Configuration
+  @ComponentScan
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @interface ComposedConfiguration2 {
+
+    @AliasFor(annotation = ComponentScan.class)
     String[] basePackages() default {};
   }
 
   @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
-  public static class ComposedAnnotationConfig {
+  static class ComposedAnnotationConfig {
+  }
+
+  @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
+  @ComposedConfiguration2(basePackages = "example.scannable.sub")
+  static class MultipleComposedAnnotationsConfig {
   }
 
   public static class AwareTypeFilter implements TypeFilter, EnvironmentAware,

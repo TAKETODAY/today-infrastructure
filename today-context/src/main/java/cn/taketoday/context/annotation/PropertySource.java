@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,12 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.io.PropertySourceFactory;
 
 /**
  * Annotation providing a convenient and declarative mechanism for adding a
- * {@link cn.taketoday.core.env.PropertySource PropertySource} to
+ * {@link cn.taketoday.core.env.PropertySource PropertySource} to Infra
  * {@link cn.taketoday.core.env.Environment Environment}. To be used in
  * conjunction with @{@link Configuration} classes.
  *
@@ -43,124 +39,132 @@ import cn.taketoday.core.io.PropertySourceFactory;
  * uses {@code @PropertySource} to contribute {@code app.properties} to the
  * {@code Environment}'s set of {@code PropertySources}.
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;PropertySource("classpath:/com/myco/app.properties")
+ * <pre>{@code
+ * @Configuration
+ * @PropertySource("classpath:/com/myco/app.properties")
  * public class AppConfig {
  *
- *     &#064;Autowired
+ *     @Autowired
  *     Environment env;
  *
- *     &#064;Bean
+ *     @Bean
  *     public TestBean testBean() {
  *         TestBean testBean = new TestBean();
  *         testBean.setName(env.getProperty("testbean.name"));
  *         return testBean;
  *     }
+ * }
  * }</pre>
  *
- * Notice that the {@code Environment} object is
- * {@link Autowired @Autowired} into the
+ * <p>Notice that the {@code Environment} object is
+ * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired} into the
  * configuration class and then used when populating the {@code TestBean} object. Given
  * the configuration above, a call to {@code testBean.getName()} will return "myTestBean".
  *
- * <h3>Resolving ${...} placeholders in {@code <bean>} and {@code @Value} annotations</h3>
+ * <h3>Resolving <code>${...}</code> placeholders in {@code <bean>} and {@code @Value} annotations</h3>
  *
- * In order to resolve ${...} placeholders in {@code <bean>} definitions or {@code @Value}
- * annotations using properties from a {@code PropertySource}, one must register
- * a {@code PropertySourcesPlaceholderConfigurer}. This happens automatically when using
- * {@code <context:property-placeholder>} in XML, but must be explicitly registered using
- * a {@code static} {@code @Component} method when using {@code @Configuration} classes. See
- * the "Working with externalized values" section of @{@link Configuration}'s javadoc and
- * "a note on BeanFactoryPostProcessor-returning @Component methods" of
- * {@link cn.taketoday.stereotype.Component}'s javadoc for details and examples.
+ * <p>In order to resolve ${...} placeholders in {@code <bean>} definitions or {@code @Value}
+ * annotations using properties from a {@code PropertySource}, you must ensure that an
+ * appropriate <em>embedded value resolver</em> is registered in the {@code BeanFactory}
+ * used by the {@code ApplicationContext}. This happens automatically when using
+ * {@code <context:property-placeholder>} in XML. When using {@code @Configuration} classes
+ * this can be achieved by explicitly registering a {@code PropertySourcesPlaceholderConfigurer}
+ * via a {@code static} {@code @Bean} method. Note, however, that explicit registration
+ * of a {@code PropertySourcesPlaceholderConfigurer} via a {@code static} {@code @Bean}
+ * method is typically only required if you need to customize configuration such as the
+ * placeholder syntax, etc. See the "Working with externalized values" section of
+ * {@link Configuration @Configuration}'s javadocs and "a note on
+ * BeanFactoryPostProcessor-returning {@code @Bean} methods" of {@link Bean @Bean}'s
+ * javadocs for details and examples.
  *
  * <h3>Resolving ${...} placeholders within {@code @PropertySource} resource locations</h3>
  *
- * Any ${...} placeholders present in a {@code @PropertySource} {@linkplain #value()
+ * <p>Any ${...} placeholders present in a {@code @PropertySource} {@linkplain #value()
  * resource location} will be resolved against the set of property sources already
  * registered against the environment. For example:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;PropertySource("classpath:/com/${my.placeholder:default/path}/app.properties")
+ * <pre>{@code
+ * @Configuration
+ * @PropertySource("classpath:/com/${my.placeholder:default/path}/app.properties")
  * public class AppConfig {
  *
- *     &#064;Autowired
+ *     @Autowired
  *     Environment env;
  *
- *     &#064;Bean
+ *     @Bean
  *     public TestBean testBean() {
  *         TestBean testBean = new TestBean();
  *         testBean.setName(env.getProperty("testbean.name"));
  *         return testBean;
  *     }
+ * }
  * }</pre>
  *
- * Assuming that "my.placeholder" is present in one of the property sources already
- * registered, e.g. system properties or environment variables, the placeholder will
- * be resolved to the corresponding value. If not, then "default/path" will be used as a
- * default. Expressing a default value (delimited by colon ":") is optional.  If no
- * default is specified and a property cannot be resolved, an {@code
+ * <p>Assuming that "my.placeholder" is present in one of the property sources already
+ * registered &mdash; for example, system properties or environment variables &mdash;
+ * the placeholder will be resolved to the corresponding value. If not, then "default/path"
+ * will be used as a default. Expressing a default value (delimited by colon ":") is
+ * optional. If no default is specified and a property cannot be resolved, an {@code
  * IllegalArgumentException} will be thrown.
  *
- * <h3>A note on property overriding with @PropertySource</h3>
+ * <h3>A note on property overriding with {@code @PropertySource}</h3>
  *
- * In cases where a given property key exists in more than one {@code .properties}
- * file, the last {@code @PropertySource} annotation processed will 'win' and override.
+ * <p>In cases where a given property key exists in more than one property resource
+ * file, the last {@code @PropertySource} annotation processed will 'win' and override
+ * any previous key with the same name.
  *
- * For example, given two properties files {@code a.properties} and
+ * <p>For example, given two properties files {@code a.properties} and
  * {@code b.properties}, consider the following two configuration classes
  * that reference them with {@code @PropertySource} annotations:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;PropertySource("classpath:/com/myco/a.properties")
+ * <pre>{@code
+ * @Configuration
+ * @PropertySource("classpath:/com/myco/a.properties")
  * public class ConfigA { }
  *
- * &#064;Configuration
- * &#064;PropertySource("classpath:/com/myco/b.properties")
+ * @Configuration
+ * @PropertySource("classpath:/com/myco/b.properties")
  * public class ConfigB { }
- * </pre>
+ * }</pre>
  *
- * The override ordering depends on the order in which these classes are registered
+ * <p>The override ordering depends on the order in which these classes are registered
  * with the application context.
  *
- * <pre class="code">
- * StandardApplicationContext ctx = new StandardApplicationContext();
+ * <pre>{@code
+ * AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
  * ctx.register(ConfigA.class);
  * ctx.register(ConfigB.class);
  * ctx.refresh();
- * </pre>
+ * }</pre>
  *
- * In the scenario above, the properties in {@code b.properties} will override any
+ * <p>In the scenario above, the properties in {@code b.properties} will override any
  * duplicates that exist in {@code a.properties}, because {@code ConfigB} was registered
  * last.
  *
  * <p>In certain situations, it may not be possible or practical to tightly control
  * property source ordering when using {@code @PropertySource} annotations. For example,
  * if the {@code @Configuration} classes above were registered via component-scanning,
- * the ordering is difficult to predict. In such cases - and if overriding is important -
- * it is recommended that the user fall back to using the programmatic PropertySource API.
- * See {@link cn.taketoday.core.env.ConfigurableEnvironment ConfigurableEnvironment} and
- * {@link cn.taketoday.core.env.PropertySources PropertySources} javadocs for details.
+ * the ordering is difficult to predict. In such cases &mdash; and if overriding is important
+ * &mdash; it is recommended that the user fall back to using the programmatic
+ * {@code PropertySource} API. See {@link cn.taketoday.core.env.ConfigurableEnvironment
+ * ConfigurableEnvironment} and {@link cn.taketoday.core.env.PropertySources
+ * MutablePropertySources} javadocs for details.
  *
- * <p><b>NOTE: This annotation is repeatable according to Java 8 conventions.</b>
- * However, all such {@code @PropertySource} annotations need to be declared at the same
- * level: either directly on the configuration class or as meta-annotations within the
- * same custom annotation. Mixing of direct annotations and meta-annotations is not
- * recommended since direct annotations will effectively override meta-annotations.
+ * <p>{@code @PropertySource} can be used as a <em>{@linkplain Repeatable repeatable}</em>
+ * annotation. {@code @PropertySource} may also be used as a <em>meta-annotation</em>
+ * to create custom <em>composed annotations</em> with attribute overrides.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Phillip Webb
- * @author TODAY 2021/10/28 17:24
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertySources
  * @see Configuration
  * @see cn.taketoday.core.env.PropertySource
  * @see cn.taketoday.core.env.ConfigurableEnvironment#getPropertySources()
  * @see cn.taketoday.core.env.PropertySources
- * @since 4.0
+ * @since 4.0 2021/10/28 17:24
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

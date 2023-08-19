@@ -244,7 +244,8 @@ class ConfigurationClassParser {
     // Process any @PropertySource annotations
     Environment environment = bootstrapContext.getEnvironment();
     MergedAnnotations annotations = sourceClass.metadata.getAnnotations();
-    for (var propertySource : repeatable(annotations, PropertySource.class, PropertySources.class)) {
+    for (var propertySource : sourceClass.metadata.getMergedRepeatableAnnotation(
+            PropertySource.class, PropertySources.class, true)) {
       if (this.propertySourceRegistry != null) {
         this.propertySourceRegistry.processPropertySource(propertySource);
       }
@@ -256,8 +257,7 @@ class ConfigurationClassParser {
 
     // Process any @ComponentScan annotations
 
-    var componentScans = repeatable(
-            annotations, ComponentScan.class, ComponentScans.class);
+    var componentScans = sourceClass.metadata.getMergedRepeatableAnnotation(ComponentScan.class, ComponentScans.class);
 
     if (!componentScans.isEmpty()
             && bootstrapContext.passCondition(sourceClass.metadata, ConfigurationPhase.REGISTER_BEAN)) {
@@ -403,38 +403,6 @@ class ConfigurationClassParser {
       }
     }
     return componentMethods;
-  }
-
-  static <A extends Annotation, C extends Annotation> Set<MergedAnnotation<A>> repeatable(
-          MergedAnnotations annotations, Class<A> annotationType, Class<C> con) {
-    return repeatable(annotations, annotationType, con, MergedAnnotation.VALUE);
-  }
-
-  static <A extends Annotation, C extends Annotation> Set<MergedAnnotation<A>> repeatable(
-          MergedAnnotations annotations, Class<A> annotationType, Class<C> container, String attributeName) {
-
-    LinkedHashSet<MergedAnnotation<A>> result = new LinkedHashSet<>();
-    // Direct annotation present?
-    addAttributesIfNotNull(result, annotations.get(annotationType));
-    MergedAnnotation<C> annotation = annotations.get(container);
-
-    if (annotation.isPresent()) {
-      // repeatable exist
-      MergedAnnotation<A>[] repeatable = annotation.getAnnotationArray(attributeName, annotationType);
-      for (MergedAnnotation<A> mergedAnnotation : repeatable) {
-        addAttributesIfNotNull(result, mergedAnnotation);
-      }
-    }
-    // Return merged result
-    return result;
-  }
-
-  private static <A extends Annotation> void addAttributesIfNotNull(
-          Set<MergedAnnotation<A>> result, MergedAnnotation<A> propertySource) {
-
-    if (propertySource.isPresent()) {
-      result.add(propertySource);
-    }
   }
 
   /**

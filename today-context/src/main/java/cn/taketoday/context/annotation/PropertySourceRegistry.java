@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,8 +75,8 @@ class PropertySourceRegistry {
     Class<? extends PropertySourceFactory> factoryClass = propertySource.getClass("factory");
     Class<? extends PropertySourceFactory> factorClassToUse =
             (factoryClass != PropertySourceFactory.class ? factoryClass : null);
-    PropertySourceDescriptor descriptor = new PropertySourceDescriptor(Arrays.asList(locations), ignoreResourceNotFound, name,
-            factorClassToUse, encoding);
+    var descriptor = new PropertySourceDescriptor(Arrays.asList(locations),
+            ignoreResourceNotFound, name, factorClassToUse, encoding);
     this.propertySourceProcessor.processPropertySource(descriptor);
     this.descriptors.add(descriptor);
   }

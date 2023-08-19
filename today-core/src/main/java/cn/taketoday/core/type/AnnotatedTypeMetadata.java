@@ -445,6 +445,73 @@ public interface AnnotatedTypeMetadata {
             .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
+  /**
+   * Retrieve all <em>repeatable annotations</em> of the given type within the
+   * annotation hierarchy <em>above</em> the underlying element (as direct
+   * annotation or meta-annotation); and for each annotation found, merge that
+   * annotation's attributes with <em>matching</em> attributes from annotations
+   * in lower levels of the annotation hierarchy and store the results in an
+   * instance of {@link MergedAnnotation}.
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
+   *
+   * @param annotationType the annotation type to find
+   * @param containerType the type of the container that holds the annotations
+   * @return the set of all merged repeatable {@code MergedAnnotation} found,
+   * or an empty set if none were found
+   * @see #getMergedRepeatableAnnotation(Class, Class, boolean)
+   */
+  default <A extends Annotation> Set<MergedAnnotation<A>> getMergedRepeatableAnnotation(
+          Class<A> annotationType, Class<? extends Annotation> containerType) {
+
+    return getMergedRepeatableAnnotation(annotationType, containerType, false);
+  }
+
+  /**
+   * Retrieve all <em>repeatable annotations</em> of the given type within the
+   * annotation hierarchy <em>above</em> the underlying element (as direct
+   * annotation or meta-annotation); and for each annotation found, merge that
+   * annotation's attributes with <em>matching</em> attributes from annotations
+   * in lower levels of the annotation hierarchy and store the results in an
+   * instance of {@link MergedAnnotation}.
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
+   * <p>If the {@code sortByReversedMetaDistance} flag is set to {@code true},
+   * the results will be sorted in {@link Comparator#reversed() reversed} order
+   * based on each annotation's {@linkplain MergedAnnotation#getDistance()
+   * meta distance}, which effectively orders meta-annotations before annotations
+   * that are declared directly on the underlying element.
+   *
+   * @param annotationType the annotation type to find
+   * @param containerType the type of the container that holds the annotations
+   * @param sortByReversedMetaDistance {@code true} if the results should be
+   * sorted in reversed order based on each annotation's meta distance
+   * @return the set of all merged repeatable {@code MergedAnnotation} found,
+   * or an empty set if none were found
+   * @see #getMergedRepeatableAnnotation(Class, Class, boolean)
+   */
+  @SuppressWarnings("unchecked")
+  default <A extends Annotation> Set<MergedAnnotation<A>> getMergedRepeatableAnnotation(
+          Class<A> annotationType, Class<? extends Annotation> containerType, boolean sortByReversedMetaDistance) {
+
+    Stream<MergedAnnotation<Annotation>> stream = getAnnotations().stream()
+            .filter(MergedAnnotationPredicates.typeIn(containerType, annotationType));
+
+    if (sortByReversedMetaDistance) {
+      stream = stream.sorted(reversedMetaDistance());
+    }
+
+    return stream.flatMap(annotation -> {
+              if (containerType.equals(annotation.getType())) {
+                return Stream.of(annotation.getAnnotationArray(MergedAnnotation.VALUE, annotationType));
+              }
+              return Stream.of((MergedAnnotation<A>) annotation);
+            })
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+  }
+
   private static Comparator<MergedAnnotation<Annotation>> reversedMetaDistance() {
     return Comparator.<MergedAnnotation<Annotation>>comparingInt(MergedAnnotation::getDistance).reversed();
   }
