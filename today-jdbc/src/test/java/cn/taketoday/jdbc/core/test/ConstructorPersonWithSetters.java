@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,31 +29,30 @@ public class ConstructorPersonWithSetters {
 
   private long age;
 
-  private Date birth_date;
+  private Date birthDate;
 
   private BigDecimal balance;
 
-  public ConstructorPersonWithSetters(String name, long age, Date birth_date, BigDecimal balance) {
+  public ConstructorPersonWithSetters(String name, long age, BigDecimal balance) {
     this.name = name.toUpperCase();
     this.age = age;
-    this.birth_date = birth_date;
     this.balance = balance;
   }
 
   public void setName(String name) {
-    this.name = name;
+    throw new UnsupportedOperationException();
   }
 
   public void setAge(long age) {
-    this.age = age;
+    throw new UnsupportedOperationException();
   }
 
-  public void setBirth_date(Date birth_date) {
-    this.birth_date = birth_date;
+  public void setBirthDate(Date birthDate) {
+    this.birthDate = birthDate;
   }
 
   public void setBalance(BigDecimal balance) {
-    this.balance = balance;
+    throw new UnsupportedOperationException();
   }
 
   public String name() {
@@ -67,8 +63,8 @@ public class ConstructorPersonWithSetters {
     return this.age;
   }
 
-  public Date birth_date() {
-    return this.birth_date;
+  public Date birthDate() {
+    return this.birthDate;
   }
 
   public BigDecimal balance() {

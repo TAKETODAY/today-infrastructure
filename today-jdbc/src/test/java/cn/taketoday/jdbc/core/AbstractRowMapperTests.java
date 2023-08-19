@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +17,11 @@
 
 package cn.taketoday.jdbc.core;
 
-import org.mockito.ArgumentMatchers;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -42,6 +38,9 @@ import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
 import cn.taketoday.jdbc.support.SQLStateSQLExceptionTranslator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -113,18 +112,18 @@ public abstract class AbstractRowMapperTests {
   }
 
   protected enum MockType {
-    ONE, TWO, THREE
+    ONE, TWO, THREE, FOUR
   }
 
   protected static class Mock {
 
-    private Connection connection;
+    private Connection connection = mock();
 
-    private ResultSetMetaData resultSetMetaData;
+    private ResultSetMetaData resultSetMetaData = mock();
 
-    private ResultSet resultSet;
+    private ResultSet resultSet = mock();
 
-    private Statement statement;
+    private Statement statement = mock();
 
     private JdbcTemplate jdbcTemplate;
 
@@ -134,20 +133,15 @@ public abstract class AbstractRowMapperTests {
 
     @SuppressWarnings("unchecked")
     public Mock(MockType type) throws Exception {
-      connection = mock(Connection.class);
-      statement = mock(Statement.class);
-      resultSet = mock(ResultSet.class);
-      resultSetMetaData = mock(ResultSetMetaData.class);
-
       given(connection.createStatement()).willReturn(statement);
-      given(statement.executeQuery(ArgumentMatchers.anyString())).willReturn(resultSet);
+      given(statement.executeQuery(anyString())).willReturn(resultSet);
       given(resultSet.getMetaData()).willReturn(resultSetMetaData);
 
       given(resultSet.next()).willReturn(true, false);
       given(resultSet.getString(1)).willReturn("Bubba");
       given(resultSet.getLong(2)).willReturn(22L);
       given(resultSet.getTimestamp(3)).willReturn(new Timestamp(1221222L));
-      given(resultSet.getObject(ArgumentMatchers.anyInt(), ArgumentMatchers.any(Class.class))).willThrow(new SQLFeatureNotSupportedException());
+      given(resultSet.getObject(anyInt(), any(Class.class))).willThrow(new SQLFeatureNotSupportedException());
       given(resultSet.getDate(3)).willReturn(new java.sql.Date(1221222L));
       given(resultSet.getBigDecimal(4)).willReturn(new BigDecimal("1234.56"));
       given(resultSet.getObject(4)).willReturn(new BigDecimal("1234.56"));
@@ -158,13 +152,20 @@ public abstract class AbstractRowMapperTests {
       given(resultSetMetaData.getColumnLabel(1)).willReturn(
               type == MockType.THREE ? "Last Name" : "name");
       given(resultSetMetaData.getColumnLabel(2)).willReturn("age");
-      given(resultSetMetaData.getColumnLabel(3)).willReturn("birth_date");
+      given(resultSetMetaData.getColumnLabel(3)).willReturn(type == MockType.FOUR ? "birthdate" : "birth_date");
       given(resultSetMetaData.getColumnLabel(4)).willReturn("balance");
       given(resultSetMetaData.getColumnLabel(5)).willReturn("e_mail");
 
       given(resultSet.findColumn("name")).willReturn(1);
       given(resultSet.findColumn("age")).willReturn(2);
-      given(resultSet.findColumn("birth_date")).willReturn(3);
+      if (type == MockType.FOUR) {
+        given(resultSet.findColumn("birthdate")).willReturn(3);
+      }
+      else {
+        given(resultSet.findColumn("birthdate")).willThrow(new SQLException());
+        given(resultSet.findColumn("birthDate")).willThrow(new SQLException());
+        given(resultSet.findColumn("birth_date")).willReturn(3);
+      }
       given(resultSet.findColumn("balance")).willReturn(4);
       given(resultSet.findColumn("e_mail")).willReturn(5);
 

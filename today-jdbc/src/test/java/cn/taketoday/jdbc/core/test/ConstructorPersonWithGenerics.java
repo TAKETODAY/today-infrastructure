@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,14 +30,14 @@ public class ConstructorPersonWithGenerics {
 
   private final long age;
 
-  private final Date birth_date;
+  private final Date bd;
 
   private final List<BigDecimal> balance;
 
-  public ConstructorPersonWithGenerics(String name, long age, Date birth_date, List<BigDecimal> balance) {
+  public ConstructorPersonWithGenerics(String name, long age, Date birthDate, List<BigDecimal> balance) {
     this.name = name;
     this.age = age;
-    this.birth_date = birth_date;
+    this.bd = birthDate;
     this.balance = balance;
   }
 
@@ -52,8 +49,8 @@ public class ConstructorPersonWithGenerics {
     return this.age;
   }
 
-  public Date birth_date() {
-    return this.birth_date;
+  public Date birthDate() {
+    return this.bd;
   }
 
   public List<BigDecimal> balance() {

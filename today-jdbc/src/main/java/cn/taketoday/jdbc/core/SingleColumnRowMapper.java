@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +42,7 @@ import cn.taketoday.util.NumberUtils;
  * @param <T> the result type
  * @author Juergen Hoeller
  * @author Kazuki Shimizu
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JdbcTemplate#queryForList(String, Class)
  * @see JdbcTemplate#queryForObject(String, Class)
  * @since 4.0
@@ -71,7 +69,9 @@ public class SingleColumnRowMapper<T> implements RowMapper<T> {
    * @param requiredType the type that each result object is expected to match
    */
   public SingleColumnRowMapper(Class<T> requiredType) {
-    setRequiredType(requiredType);
+    if (requiredType != Object.class) {
+      setRequiredType(requiredType);
+    }
   }
 
   /**

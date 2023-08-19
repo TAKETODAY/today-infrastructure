@@ -18,17 +18,22 @@
 package cn.taketoday.jdbc.core.simple;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.jdbc.core.JdbcOperations;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.core.RowCallbackHandler;
 import cn.taketoday.jdbc.core.RowMapper;
+import cn.taketoday.jdbc.core.SimplePropertyRowMapper;
+import cn.taketoday.jdbc.core.SingleColumnRowMapper;
 import cn.taketoday.jdbc.core.SqlParameterValue;
 import cn.taketoday.jdbc.core.namedparam.MapSqlParameterSource;
 import cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -55,6 +60,8 @@ final class DefaultJdbcClient implements JdbcClient {
   private final JdbcOperations classicOps;
 
   private final NamedParameterJdbcOperations namedParamOps;
+
+  private final ConcurrentHashMap<Class<?>, RowMapper<?>> rowMapperCache = new ConcurrentHashMap<>();
 
   public DefaultJdbcClient(DataSource dataSource) {
     this.classicOps = new JdbcTemplate(dataSource);
@@ -135,6 +142,12 @@ final class DefaultJdbcClient implements JdbcClient {
     }
 
     @Override
+    public StatementSpec params(Object... values) {
+      Collections.addAll(this.indexedParams, values);
+      return this;
+    }
+
+    @Override
     public StatementSpec params(List<?> values) {
       this.indexedParams.addAll(values);
       return this;
@@ -166,6 +179,17 @@ final class DefaultJdbcClient implements JdbcClient {
       return (useNamedParams() ?
               new NamedParamResultQuerySpec() :
               new IndexedParamResultQuerySpec());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> MappedQuerySpec<T> query(Class<T> mappedClass) {
+      RowMapper<?> rowMapper = rowMapperCache.computeIfAbsent(mappedClass, key ->
+              BeanUtils.isSimpleProperty(mappedClass)
+              ? new SingleColumnRowMapper<>(mappedClass)
+              : new SimplePropertyRowMapper<>(mappedClass)
+      );
+      return query((RowMapper<T>) rowMapper);
     }
 
     @Override
@@ -237,9 +261,10 @@ final class DefaultJdbcClient implements JdbcClient {
         return classicOps.queryForMap(sql, indexedParams.toArray());
       }
 
+      @SuppressWarnings("unchecked")
       @Override
-      public <T> List<T> singleColumn(Class<T> requiredType) {
-        return classicOps.queryForList(sql, requiredType, indexedParams.toArray());
+      public <T> List<T> singleColumn() {
+        return (List<T>) classicOps.queryForList(sql, Object.class, indexedParams.toArray());
       }
     }
 
@@ -260,9 +285,10 @@ final class DefaultJdbcClient implements JdbcClient {
         return namedParamOps.queryForMap(sql, namedParamSource);
       }
 
+      @SuppressWarnings("unchecked")
       @Override
-      public <T> List<T> singleColumn(Class<T> requiredType) {
-        return namedParamOps.queryForList(sql, namedParamSource, requiredType);
+      public <T> List<T> singleColumn() {
+        return (List<T>) namedParamOps.queryForList(sql, namedParamSource, Object.class);
       }
     }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,32 +47,43 @@ import cn.taketoday.util.StringUtils;
 /**
  * {@link RowMapper} implementation that converts a row into a new instance
  * of the specified mapped target class. The mapped target class must be a
- * top-level class and it must have a default or no-arg constructor.
+ * top-level class or {@code static} nested class, and it must have a default or
+ * no-arg constructor.
  *
- * <p>Column values are mapped based on matching the column name as obtained from result set
- * meta-data to public setters for the corresponding properties. The names are matched either
- * directly or by transforming a name separating the parts with underscores to the same name
- * using "camel" case.
+ * <p>Column values are mapped based on matching the column name (as obtained from
+ * result set meta-data) to public setters in the target class for the corresponding
+ * properties. The names are matched either directly or by transforming a name
+ * separating the parts with underscores to the same name using "camel" case.
  *
- * <p>Mapping is provided for fields in the target class for many common types, e.g.:
- * String, boolean, Boolean, byte, Byte, short, Short, int, Integer, long, Long,
- * float, Float, double, Double, BigDecimal, {@code java.util.Date}, etc.
+ * <p>Mapping is provided for properties in the target class for many common types &mdash;
+ * for example: String, boolean, Boolean, byte, Byte, short, Short, int, Integer,
+ * long, Long, float, Float, double, Double, BigDecimal, {@code java.util.Date}, etc.
  *
- * <p>To facilitate mapping between columns and fields that don't have matching names,
- * try using column aliases in the SQL statement like "select fname as first_name from customer".
+ * <p>To facilitate mapping between columns and properties that don't have matching
+ * names, try using underscore-separated column aliases in the SQL statement like
+ * {@code "select fname as first_name from customer"}, where {@code first_name}
+ * can be mapped to a {@code setFirstName(String)} method in the target class.
  *
- * <p>For 'null' values read from the database, we will attempt to call the setter, but in the case of
- * Java primitives, this causes a TypeMismatchException. This class can be configured (using the
- * primitivesDefaultedForNullValue property) to trap this exception and use the primitives default value.
- * Be aware that if you use the values from the generated bean to update the database the primitive value
- * will have been set to the primitive's default value instead of null.
+ * <p>For a {@code NULL} value read from the database, an attempt will be made to
+ * call the corresponding setter method with {@code null}, but in the case of
+ * Java primitives this will result in a {@link TypeMismatchException} by default.
+ * To ignore {@code NULL} database values for all primitive properties in the
+ * target class, set the {@code primitivesDefaultedForNullValue} flag to
+ * {@code true}. See {@link #setPrimitivesDefaultedForNullValue(boolean)} for
+ * details.
  *
- * <p>Please note that this class is designed to provide convenience rather than high performance.
- * For best performance, consider using a custom {@link RowMapper} implementation.
+ * <p>If you need to map to a target class which has a <em>data class</em> constructor
+ * &mdash; for example, a Java {@code record} or a Kotlin {@code data} class &mdash;
+ * use {@link DataClassRowMapper} instead.
+ *
+ * <p>Please note that this class is designed to provide convenience rather than
+ * high performance. For best performance, consider using a custom {@code RowMapper}
+ * implementation.
  *
  * @param <T> the result type
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataClassRowMapper
  * @since 4.0
  */
@@ -278,14 +286,14 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
 
   /**
    * Convert a name in camelCase to an underscored name in lower case.
-   * Any upper case letters are converted to lower case with a preceding underscore.
+   * <p>Any upper case letters are converted to lower case with a preceding underscore.
    *
    * @param name the original name
    * @return the converted name
-   * @see #lowerCaseName
+   * @see JdbcUtils#convertPropertyNameToUnderscoreName
    */
   protected String underscoreName(String name) {
-    return StringUtils.camelCaseToUnderscore(name);
+    return JdbcUtils.convertPropertyNameToUnderscoreName(name);
   }
 
   /**

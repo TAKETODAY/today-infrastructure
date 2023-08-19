@@ -53,13 +53,13 @@ public abstract class ReflectionUtils {
    * which are not declared on {@code java.lang.Object}.
    */
   public static final MethodFilter USER_DECLARED_METHODS =
-      method -> !method.isBridge() && !method.isSynthetic() && (method.getDeclaringClass() != Object.class);
+          method -> !method.isBridge() && !method.isSynthetic() && (method.getDeclaringClass() != Object.class);
 
   /**
    * Pre-built FieldFilter that matches all non-static, non-final fields.
    */
   public static final FieldFilter COPYABLE_FIELDS =
-      field -> !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()));
+          field -> !(Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()));
 
   /**
    * Naming prefix for CGLIB-renamed methods.
@@ -75,13 +75,13 @@ public abstract class ReflectionUtils {
    * Cache for {@link Class#getDeclaredFields()}, allowing for fast iteration.
    */
   private static final ConcurrentReferenceHashMap<Class<?>, Field[]>
-      DECLARED_FIELDS_CACHE = new ConcurrentReferenceHashMap<>(256);
+          DECLARED_FIELDS_CACHE = new ConcurrentReferenceHashMap<>(256);
   /**
    * Cache for {@link Class#getDeclaredMethods()} plus equivalent default methods
    * from Java 8 based interfaces, allowing for fast iteration.
    */
   private static final ConcurrentReferenceHashMap<Class<?>, Method[]>
-      DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
+          DECLARED_METHODS_CACHE = new ConcurrentReferenceHashMap<>(256);
 
   /**
    * Cache for equivalent methods on an interface implemented by the declaring class.
@@ -89,7 +89,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   private static final ConcurrentReferenceHashMap<Method, Method>
-      interfaceMethodCache = new ConcurrentReferenceHashMap<>(256);
+          interfaceMethodCache = new ConcurrentReferenceHashMap<>(256);
 
   // Exception handling
 
@@ -256,7 +256,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method getMethodIfAvailable(
-      Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+          Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -397,7 +397,7 @@ public abstract class ReflectionUtils {
         }
         else {
           Method specificMethod =
-              ReflectionUtils.findMethod(targetClass, method.getName(), method.getParameterTypes());
+                  ReflectionUtils.findMethod(targetClass, method.getName(), method.getParameterTypes());
           return (specificMethod != null ? specificMethod : method);
         }
       }
@@ -439,7 +439,7 @@ public abstract class ReflectionUtils {
     }
     // Try cached version of method in its declaring class
     Method result = interfaceMethodCache.computeIfAbsent(method,
-        key -> findInterfaceMethodIfPossible(key, key.getDeclaringClass(), Object.class));
+            key -> findInterfaceMethodIfPossible(key, key.getDeclaringClass(), Object.class));
     if (result == method && targetClass != null) {
       // No interface method found yet -> try given target class (possibly a subclass of the
       // declaring class, late-binding a base class method to a subclass-declared interface:
@@ -480,7 +480,7 @@ public abstract class ReflectionUtils {
       return true;
     }
     return targetClass == null
-        || ClassUtils.getPackageName(method.getDeclaringClass()).equals(ClassUtils.getPackageName(targetClass));
+            || ClassUtils.getPackageName(method.getDeclaringClass()).equals(ClassUtils.getPackageName(targetClass));
   }
 
   /**
@@ -519,7 +519,7 @@ public abstract class ReflectionUtils {
       Method[] methods = searchType.isInterface() ? searchType.getMethods() : getDeclaredMethods(searchType, false);
       for (Method method : methods) {
         if (name.equals(method.getName())
-            && (paramTypes == null || hasSameParams(method, paramTypes))) {
+                && (paramTypes == null || hasSameParams(method, paramTypes))) {
           return method;
         }
       }
@@ -530,7 +530,7 @@ public abstract class ReflectionUtils {
 
   private static boolean hasSameParams(Method method, Class<?>[] paramTypes) {
     return paramTypes.length == method.getParameterCount()
-        && Arrays.equals(paramTypes, method.getParameterTypes());
+            && Arrays.equals(paramTypes, method.getParameterTypes());
   }
 
   /**
@@ -688,7 +688,7 @@ public abstract class ReflectionUtils {
     }
     // Keep backing up the inheritance hierarchy.
     if (clazz.getSuperclass() != null
-        && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
+            && (mf != USER_DECLARED_METHODS || clazz.getSuperclass() != Object.class)) {
       doWithMethods(clazz.getSuperclass(), mc, mf);
     }
     else if (clazz.isInterface()) {
@@ -750,8 +750,8 @@ public abstract class ReflectionUtils {
       }
       catch (Throwable ex) {
         throw new IllegalStateException(
-            "Failed to introspect Class [" + targetClass.getName() +
-                "] from ClassLoader [" + targetClass.getClassLoader() + "]", ex);
+                "Failed to introspect Class [" + targetClass.getName() +
+                        "] from ClassLoader [" + targetClass.getClassLoader() + "]", ex);
       }
     }
     return (result.length == 0 || !defensive) ? result : result.clone();
@@ -803,11 +803,11 @@ public abstract class ReflectionUtils {
       Method methodBeingOverriddenWithCovariantReturnType = null;
       for (Method existingMethod : methods) {
         if (method.getName().equals(existingMethod.getName())
-            && method.getParameterCount() == existingMethod.getParameterCount()
-            && Arrays.equals(method.getParameterTypes(), existingMethod.getParameterTypes())) {
+                && method.getParameterCount() == existingMethod.getParameterCount()
+                && Arrays.equals(method.getParameterTypes(), existingMethod.getParameterTypes())) {
           // Is this a covariant return type situation?
           if (existingMethod.getReturnType() != method.getReturnType()
-              && existingMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
+                  && existingMethod.getReturnType().isAssignableFrom(method.getReturnType())) {
             methodBeingOverriddenWithCovariantReturnType = existingMethod;
           }
           else {
@@ -865,11 +865,11 @@ public abstract class ReflectionUtils {
    */
   public static boolean isObjectMethod(@Nullable Method method) {
     return (method != null
-        && (
-        method.getDeclaringClass() == Object.class
-            || isEqualsMethod(method)
-            || isHashCodeMethod(method)
-            || isToStringMethod(method))
+            && (
+            method.getDeclaringClass() == Object.class
+                    || isEqualsMethod(method)
+                    || isHashCodeMethod(method)
+                    || isToStringMethod(method))
     );
   }
 
@@ -880,8 +880,8 @@ public abstract class ReflectionUtils {
    */
   public static boolean isFinalizeMethod(@Nullable Method method) {
     return method != null
-        && method.getName().equals("finalize")
-        && method.getParameterCount() == 0;
+            && method.getName().equals("finalize")
+            && method.getParameterCount() == 0;
   }
 
   /**
@@ -915,7 +915,7 @@ public abstract class ReflectionUtils {
   public static Method makeAccessible(Method method) {
     Assert.notNull(method, "method is required");
     if ((!Modifier.isPublic(method.getModifiers()) ||
-        !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+            !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
       method.setAccessible(true);
     }
     return method;
@@ -971,7 +971,33 @@ public abstract class ReflectionUtils {
       Field[] fields = getDeclaredFields(searchType);
       for (Field field : fields) {
         if ((name == null || name.equals(field.getName()))
-            && (type == null || type.equals(field.getType()))) {
+                && (type == null || type.equals(field.getType()))) {
+          return field;
+        }
+      }
+      searchType = searchType.getSuperclass();
+    }
+    return null;
+  }
+
+  /**
+   * Attempt to find a {@link Field field} on the supplied {@link Class} with the
+   * supplied {@code name}. Searches all superclasses up to {@link Object}.
+   *
+   * @param clazz the class to introspect
+   * @param name the name of the field (with upper/lower case to be ignored)
+   * @return the corresponding Field object, or {@code null} if not found
+   * @since 4.0
+   */
+  @Nullable
+  public static Field findFieldIgnoreCase(Class<?> clazz, String name) {
+    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(name, "Name must not be null");
+    Class<?> searchType = clazz;
+    while (Object.class != searchType && searchType != null) {
+      Field[] fields = getDeclaredFields(searchType);
+      for (Field field : fields) {
+        if (name.equalsIgnoreCase(field.getName())) {
           return field;
         }
       }
@@ -1111,8 +1137,8 @@ public abstract class ReflectionUtils {
       }
       catch (Throwable ex) {
         throw new IllegalStateException(
-            "Failed to introspect Class [" + clazz.getName() +
-                "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
+                "Failed to introspect Class [" + clazz.getName() +
+                        "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
       }
     }
     return result;
@@ -1130,8 +1156,8 @@ public abstract class ReflectionUtils {
     Assert.notNull(dest, "Destination for field copy cannot be null");
     if (!src.getClass().isAssignableFrom(dest.getClass())) {
       throw new IllegalArgumentException(
-          "Destination class [" + dest.getClass().getName() +
-              "] must be same or subclass as source class [" + src.getClass().getName() + "]");
+              "Destination class [" + dest.getClass().getName() +
+                      "] must be same or subclass as source class [" + src.getClass().getName() + "]");
     }
 
     doWithFields(src.getClass(), field -> copyField(field, src, dest), COPYABLE_FIELDS);
@@ -1161,8 +1187,8 @@ public abstract class ReflectionUtils {
     Assert.notNull(field, "field is required");
 
     if ((!Modifier.isPublic(field.getModifiers())
-        || !Modifier.isPublic(field.getDeclaringClass().getModifiers())
-        || Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
+            || !Modifier.isPublic(field.getDeclaringClass().getModifiers())
+            || Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
       field.setAccessible(true);
     }
     return field;
@@ -1195,7 +1221,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   public static <T> Constructor<T> accessibleConstructor(
-      Class<T> targetClass, Class<?>... parameterTypes) {
+          Class<T> targetClass, Class<?>... parameterTypes) {
     return makeAccessible(getConstructor(targetClass, parameterTypes));
   }
 
@@ -1204,8 +1230,8 @@ public abstract class ReflectionUtils {
     Assert.notNull(constructor, "constructor is required");
 
     if ((!Modifier.isPublic(constructor.getModifiers())
-        || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers()))
-        && !constructor.isAccessible()) {
+            || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers()))
+            && !constructor.isAccessible()) {
 
       constructor.setAccessible(true);
     }
@@ -1289,7 +1315,7 @@ public abstract class ReflectionUtils {
     Field field = findField(clazz, name);
     if (field == null) {
       throw new ReflectionException(
-          "No such field named: " + name + " in class: " + clazz.getName());
+              "No such field named: " + name + " in class: " + clazz.getName());
     }
     return field;
   }
@@ -1298,7 +1324,7 @@ public abstract class ReflectionUtils {
     Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
     if (declaredMethod == null) {
       throw new ReflectionException(
-          "No such method named: " + methodName + " in class: " + targetClass.getName());
+              "No such method named: " + methodName + " in class: " + targetClass.getName());
     }
     return declaredMethod;
   }
@@ -1322,7 +1348,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method findMethodWithMinimalParameters(Class<?> clazz, String methodName)
-      throws IllegalArgumentException {
+          throws IllegalArgumentException {
 
     Method targetMethod = findMethodWithMinimalParameters(clazz.getMethods(), methodName);
     if (targetMethod == null) {
@@ -1347,7 +1373,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method findDeclaredMethodWithMinimalParameters(Class<?> clazz, String methodName)
-      throws IllegalArgumentException {
+          throws IllegalArgumentException {
 
     Method targetMethod = findMethodWithMinimalParameters(clazz.getDeclaredMethods(), methodName);
     if (targetMethod == null && clazz.getSuperclass() != null) {
@@ -1369,7 +1395,7 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Method findMethodWithMinimalParameters(Method[] methods, String methodName)
-      throws IllegalArgumentException {
+          throws IllegalArgumentException {
 
     Method targetMethod = null;
     int numMethodsFoundWithCurrentMinimumArgs = 0;
@@ -1394,9 +1420,9 @@ public abstract class ReflectionUtils {
     }
     if (numMethodsFoundWithCurrentMinimumArgs > 1) {
       throw new IllegalArgumentException("Cannot resolve method '" + methodName +
-          "' to a unique method. Attempted to resolve to overloaded method with " +
-          "the least number of parameters but there were " +
-          numMethodsFoundWithCurrentMinimumArgs + " candidates.");
+              "' to a unique method. Attempted to resolve to overloaded method with " +
+              "the least number of parameters but there were " +
+              numMethodsFoundWithCurrentMinimumArgs + " candidates.");
     }
     return targetMethod;
   }
@@ -1632,7 +1658,7 @@ public abstract class ReflectionUtils {
       }
     }
     throw new IllegalArgumentException(
-        "Given parameter [" + parameter + "] does not match any parameter in the declaring executable");
+            "Given parameter [" + parameter + "] does not match any parameter in the declaring executable");
   }
 
   /**

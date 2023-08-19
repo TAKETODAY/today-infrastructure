@@ -89,8 +89,8 @@ public interface JdbcClient {
 
   /**
    * Create a {@code JdbcClient} for the given {@link JdbcOperations} delegate,
-   * typically a {@link cn.taketoday.jdbc.core.JdbcTemplate}.
-   * <p>Use this factory method for reusing existing {@code JdbcTemplate} configuration,
+   * typically an {@link cn.taketoday.jdbc.core.JdbcTemplate}.
+   * <p>Use this factory method to reuse existing {@code JdbcTemplate} configuration,
    * including its {@code DataSource}.
    *
    * @param jdbcTemplate the delegate to perform operations on
@@ -101,9 +101,9 @@ public interface JdbcClient {
 
   /**
    * Create a {@code JdbcClient} for the given {@link NamedParameterJdbcOperations} delegate,
-   * typically a {@link cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcTemplate}.
-   * <p>Use this factory method for reusing existing {@code NamedParameterJdbcTemplate}
-   * configuration, including its underlying {@code JdbcTemplate} and the {@code DataSource}.
+   * typically an {@link cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcTemplate}.
+   * <p>Use this factory method to reuse existing {@code NamedParameterJdbcTemplate}
+   * configuration, including its underlying {@code JdbcTemplate} and {@code DataSource}.
    *
    * @param jdbcTemplate the delegate to perform operations on
    */
@@ -119,9 +119,9 @@ public interface JdbcClient {
     /**
      * Bind a positional JDBC statement parameter for "?" placeholder resolution
      * by implicit order of parameter value registration.
-     * <p>This is primarily intended for statements with a single or very few
-     * parameters, registering each parameter value in the order of the
-     * parameter's occurrence in the SQL statement.
+     * <p>This is primarily intended for statements with a single parameter
+     * or very few parameters, registering each parameter value in the order
+     * of the parameter's occurrence in the SQL statement.
      *
      * @param value the parameter value to bind
      * @return this statement specification (for chaining)
@@ -176,6 +176,19 @@ public interface JdbcClient {
     StatementSpec param(String name, Object value, int sqlType);
 
     /**
+     * Bind a var-args list of positional parameters for "?" placeholder resolution.
+     * <p>The given list will be added to existing positional parameters, if any.
+     * Each element from the complete list will be bound as a JDBC positional
+     * parameter with a corresponding JDBC index (i.e. list index + 1).
+     *
+     * @param values the parameter values to bind
+     * @return this statement specification (for chaining)
+     * @see #param(Object)
+     * @see #params(List)
+     */
+    StatementSpec params(Object... values);
+
+    /**
      * Bind a list of positional parameters for "?" placeholder resolution.
      * <p>The given list will be added to existing positional parameters, if any.
      * Each element from the complete list will be bound as a JDBC positional
@@ -200,12 +213,14 @@ public interface JdbcClient {
     /**
      * Bind named statement parameters for ":x" placeholder resolution.
      * <p>The given parameter object will define all named parameters
-     * based on its JavaBean properties, record components or raw fields.
+     * based on its JavaBean properties, record components, or raw fields.
      * A Map instance can be provided as a complete parameter source as well.
      *
-     * @param namedParamObject a custom parameter object (e.g. a JavaBean or
-     * record class) with named properties serving as statement parameters
+     * @param namedParamObject a custom parameter object (e.g. a JavaBean,
+     * record class, or field holder) with named properties serving as
+     * statement parameters
      * @return this statement specification (for chaining)
+     * @see #paramSource(SqlParameterSource)
      * @see cn.taketoday.jdbc.core.namedparam.MapSqlParameterSource
      * @see cn.taketoday.jdbc.core.namedparam.SimplePropertySqlParameterSource
      */
@@ -230,6 +245,20 @@ public interface JdbcClient {
      * @see java.sql.PreparedStatement#executeQuery()
      */
     ResultQuerySpec query();
+
+    /**
+     * Proceed towards execution of a mapped query, with several options
+     * available in the returned query specification.
+     *
+     * @param mappedClass the target class to apply a RowMapper for
+     * (either a simple value type for a single column mapping or a
+     * JavaBean / record class / field holder for a multi-column mapping)
+     * @return the mapped query specification
+     * @see #query(RowMapper)
+     * @see cn.taketoday.jdbc.core.SingleColumnRowMapper
+     * @see cn.taketoday.jdbc.core.SimplePropertyRowMapper
+     */
+    <T> MappedQuerySpec<T> query(Class<T> mappedClass);
 
     /**
      * Proceed towards execution of a mapped query, with several options
@@ -317,7 +346,7 @@ public interface JdbcClient {
      * @return a (potentially empty) list of rows, with each
      * row represented as a column value of the given type
      */
-    <T> List<T> singleColumn(Class<T> requiredType);
+    <T> List<T> singleColumn();
 
     /**
      * Retrieve a single value result.
@@ -326,8 +355,8 @@ public interface JdbcClient {
      * column value of the given type
      * @see DataAccessUtils#requiredSingleResult(Collection)
      */
-    default <T> T singleValue(Class<T> requiredType) {
-      return DataAccessUtils.requiredSingleResult(singleColumn(requiredType));
+    default <T> T singleValue() {
+      return DataAccessUtils.requiredSingleResult(singleColumn());
     }
   }
 

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import cn.taketoday.jdbc.core.test.ConcretePerson;
 import cn.taketoday.jdbc.core.test.ConstructorPerson;
 import cn.taketoday.jdbc.core.test.ConstructorPersonWithGenerics;
 import cn.taketoday.jdbc.core.test.ConstructorPersonWithSetters;
@@ -29,16 +30,18 @@ import cn.taketoday.jdbc.core.test.ConstructorPersonWithSetters;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link SimplePropertyRowMapper}.
+ *
  * @author Juergen Hoeller
  */
-public class DataClassRowMapperTests extends AbstractRowMapperTests {
+class SimplePropertyRowMapperTests extends AbstractRowMapperTests {
 
   @Test
   void staticQueryWithDataClass() throws Exception {
     Mock mock = new Mock();
     ConstructorPerson person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(ConstructorPerson.class));
+            new SimplePropertyRowMapper<>(ConstructorPerson.class));
     verifyPerson(person);
 
     mock.verifyClosed();
@@ -49,7 +52,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     ConstructorPersonWithGenerics person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(ConstructorPersonWithGenerics.class));
+            new SimplePropertyRowMapper<>(ConstructorPersonWithGenerics.class));
     assertThat(person.name()).isEqualTo("Bubba");
     assertThat(person.age()).isEqualTo(22L);
     assertThat(person.birthDate()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
@@ -63,7 +66,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock(MockType.FOUR);
     ConstructorPersonWithSetters person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birthdate, balance from people",
-            new DataClassRowMapper<>(ConstructorPersonWithSetters.class));
+            new SimplePropertyRowMapper<>(ConstructorPersonWithSetters.class));
     assertThat(person.name()).isEqualTo("BUBBA");
     assertThat(person.age()).isEqualTo(22L);
     assertThat(person.birthDate()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
@@ -73,11 +76,44 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
   }
 
   @Test
+  void staticQueryWithPlainSetters() throws Exception {
+    Mock mock = new Mock();
+    ConcretePerson person = mock.getJdbcTemplate().queryForObject(
+            "select name, age, birth_date, balance from people",
+            new SimplePropertyRowMapper<>(ConcretePerson.class));
+    verifyPerson(person);
+
+    mock.verifyClosed();
+  }
+
+  @Test
   void staticQueryWithDataRecord() throws Exception {
     Mock mock = new Mock();
     RecordPerson person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(RecordPerson.class));
+            new SimplePropertyRowMapper<>(RecordPerson.class));
+    verifyPerson(person);
+
+    mock.verifyClosed();
+  }
+
+  @Test
+  void staticQueryWithDataFields() throws Exception {
+    Mock mock = new Mock();
+    FieldPerson person = mock.getJdbcTemplate().queryForObject(
+            "select name, age, birth_date, balance from people",
+            new SimplePropertyRowMapper<>(FieldPerson.class));
+    verifyPerson(person);
+
+    mock.verifyClosed();
+  }
+
+  @Test
+  void staticQueryWithIncompleteDataFields() throws Exception {
+    Mock mock = new Mock();
+    IncompleteFieldPerson person = mock.getJdbcTemplate().queryForObject(
+            "select name, age, birth_date, balance from people",
+            new SimplePropertyRowMapper<>(IncompleteFieldPerson.class));
     verifyPerson(person);
 
     mock.verifyClosed();
@@ -91,7 +127,35 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     verifyPersonViaBeanWrapper(person);
   }
 
+  protected void verifyPerson(FieldPerson person) {
+    assertThat(person.name).isEqualTo("Bubba");
+    assertThat(person.age).isEqualTo(22L);
+    assertThat(person.birth_date).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
+    assertThat(person.balance).isEqualTo(new BigDecimal("1234.56"));
+  }
+
+  protected void verifyPerson(IncompleteFieldPerson person) {
+    assertThat(person.name).isEqualTo("Bubba");
+    assertThat(person.age).isEqualTo(22L);
+    assertThat(person.balance).isEqualTo(new BigDecimal("1234.56"));
+  }
+
   record RecordPerson(String name, long age, Date birth_date, BigDecimal balance) {
+  }
+
+  static class FieldPerson {
+
+    String name;
+    long age;
+    Date birth_date;
+    BigDecimal balance;
+  }
+
+  static class IncompleteFieldPerson {
+
+    String name;
+    long age;
+    BigDecimal balance;
   }
 
 }

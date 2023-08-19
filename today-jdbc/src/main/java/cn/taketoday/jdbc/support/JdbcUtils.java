@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +36,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.CannotGetJdbcConnectionException;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -51,6 +49,8 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public abstract class JdbcUtils {
   private static final Logger log = LoggerFactory.getLogger(JdbcUtils.class);
@@ -251,8 +251,8 @@ public abstract class JdbcUtils {
         case "LocalTime" -> rs.getTime(index);
         case "LocalDateTime" -> rs.getTimestamp(index);
         default ->
-                // Fall back to getObject without type specification, again
-                // left up to the caller to convert the value if necessary.
+          // Fall back to getObject without type specification, again
+          // left up to the caller to convert the value if necessary.
                 getResultSetValue(rs, index);
       };
 
@@ -479,35 +479,50 @@ public abstract class JdbcUtils {
   }
 
   /**
-   * Convert a column name with underscores to the corresponding property name using "camel case".
+   * Convert a property name using "camelCase" to a corresponding column name with underscores.
+   * A name like "customerNumber" would match a "customer_number" column name.
+   *
+   * @param name the property name to be converted
+   * @return the column name using underscores
+   * @see #convertUnderscoreNameToPropertyName
+   */
+  public static String convertPropertyNameToUnderscoreName(@Nullable String name) {
+    return StringUtils.camelCaseToUnderscore(name);
+  }
+
+  /**
+   * Convert a column name with underscores to the corresponding property name using "camelCase".
    * A name like "customer_number" would match a "customerNumber" property name.
    *
-   * @param name the column name to be converted
-   * @return the name using "camel case"
+   * @param name the potentially underscores-based column name to be converted
+   * @return the name using "camelCase"
+   * @see #convertPropertyNameToUnderscoreName
    */
   public static String convertUnderscoreNameToPropertyName(@Nullable String name) {
+    if (StringUtils.isEmpty(name)) {
+      return Constant.BLANK;
+    }
+
     StringBuilder result = new StringBuilder();
     boolean nextIsUpper = false;
-    if (name != null && name.length() > 0) {
-      if (name.length() > 1 && name.charAt(1) == '_') {
-        result.append(Character.toUpperCase(name.charAt(0)));
+    if (name.length() > 1 && name.charAt(1) == '_') {
+      result.append(Character.toUpperCase(name.charAt(0)));
+    }
+    else {
+      result.append(Character.toLowerCase(name.charAt(0)));
+    }
+    for (int i = 1; i < name.length(); i++) {
+      char c = name.charAt(i);
+      if (c == '_') {
+        nextIsUpper = true;
       }
       else {
-        result.append(Character.toLowerCase(name.charAt(0)));
-      }
-      for (int i = 1; i < name.length(); i++) {
-        char c = name.charAt(i);
-        if (c == '_') {
-          nextIsUpper = true;
+        if (nextIsUpper) {
+          result.append(Character.toUpperCase(c));
+          nextIsUpper = false;
         }
         else {
-          if (nextIsUpper) {
-            result.append(Character.toUpperCase(c));
-            nextIsUpper = false;
-          }
-          else {
-            result.append(Character.toLowerCase(c));
-          }
+          result.append(Character.toLowerCase(c));
         }
       }
     }

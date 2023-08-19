@@ -19,12 +19,12 @@ package cn.taketoday.jdbc.core.namedparam;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.jdbc.core.StatementCreatorUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -51,7 +51,7 @@ public class SimplePropertySqlParameterSource extends AbstractSqlParameterSource
 
   private final Object paramObject;
 
-  private final Map<String, Object> descriptorMap = new HashMap<>();
+  private final ConcurrentHashMap<String, Object> propertyDescriptors = new ConcurrentHashMap<>();
 
   /**
    * Create a new SqlParameterSource for the given bean, record or field holder.
@@ -65,7 +65,7 @@ public class SimplePropertySqlParameterSource extends AbstractSqlParameterSource
 
   @Override
   public boolean hasValue(String paramName) {
-    return (getDescriptor(paramName) != null);
+    return getDescriptor(paramName) != NullValue.INSTANCE;
   }
 
   @Override
@@ -105,14 +105,17 @@ public class SimplePropertySqlParameterSource extends AbstractSqlParameterSource
     return TYPE_UNKNOWN;
   }
 
-  @Nullable
   private Object getDescriptor(String paramName) {
-    return this.descriptorMap.computeIfAbsent(paramName, name -> {
-      Object pd = BeanUtils.getPropertyDescriptor(this.paramObject.getClass(), name);
-      if (pd == null) {
-        pd = ReflectionUtils.findField(this.paramObject.getClass(), name);
+    return this.propertyDescriptors.computeIfAbsent(paramName, name -> {
+      PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(this.paramObject.getClass(), name);
+      if (pd != null && pd.getReadMethod() != null) {
+        return pd;
       }
-      return pd;
+      Field field = ReflectionUtils.findField(this.paramObject.getClass(), name);
+      if (field != null) {
+        return field;
+      }
+      return NullValue.INSTANCE;
     });
   }
 
