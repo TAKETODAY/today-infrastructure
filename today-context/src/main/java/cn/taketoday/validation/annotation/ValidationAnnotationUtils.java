@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,8 @@ import cn.taketoday.lang.Nullable;
  * Mainly for internal use within the framework.
  *
  * @author Christoph Dreis
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class ValidationAnnotationUtils {
@@ -38,9 +37,11 @@ public abstract class ValidationAnnotationUtils {
 
   /**
    * Determine any validation hints by the given annotation.
-   * <p>This implementation checks for {@code @jakarta.validation.Valid},
-   * Framework's {@link cn.taketoday.validation.annotation.Validated},
-   * and custom annotations whose name starts with "Valid".
+   * <p>This implementation checks for Infra
+   * {@link cn.taketoday.validation.annotation.Validated},
+   * {@code @jakarta.validation.Valid}, and custom annotations whose
+   * name starts with "Valid" which may optionally declare validation
+   * hints through the "value" attribute.
    *
    * @param ann the annotation (potentially a validation annotation)
    * @return the validation hints to apply (possibly an empty array),
@@ -48,20 +49,25 @@ public abstract class ValidationAnnotationUtils {
    */
   @Nullable
   public static Object[] determineValidationHints(Annotation ann) {
+    // Direct presence of @Validated ?
+    if (ann instanceof Validated validated) {
+      return validated.value();
+    }
+    // Direct presence of @Valid ?
     Class<? extends Annotation> annotationType = ann.annotationType();
-    String annotationName = annotationType.getName();
-    if ("jakarta.validation.Valid".equals(annotationName)) {
+    if ("jakarta.validation.Valid".equals(annotationType.getName())) {
       return EMPTY_OBJECT_ARRAY;
     }
+    // Meta presence of @Validated ?
     Validated validatedAnn = AnnotationUtils.getAnnotation(ann, Validated.class);
     if (validatedAnn != null) {
-      Object hints = validatedAnn.value();
-      return convertValidationHints(hints);
+      return validatedAnn.value();
     }
+    // Custom validation annotation ?
     if (annotationType.getSimpleName().startsWith("Valid")) {
-      Object hints = AnnotationUtils.getValue(ann);
-      return convertValidationHints(hints);
+      return convertValidationHints(AnnotationUtils.getValue(ann));
     }
+    // No validation triggered
     return null;
   }
 
