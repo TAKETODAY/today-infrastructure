@@ -65,6 +65,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @author Sam Brannen
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurationClassParser
  * @since 4.0
  */
@@ -80,8 +81,7 @@ class ConfigurationClassBeanDefinitionReader {
    * Create a new {@link ConfigurationClassBeanDefinitionReader} instance
    * that will be used to populate the given {@link BeanDefinitionRegistry}.
    */
-  ConfigurationClassBeanDefinitionReader(
-          BootstrapContext bootstrapContext,
+  ConfigurationClassBeanDefinitionReader(BootstrapContext bootstrapContext,
           BeanNameGenerator beanNameGenerator, ImportRegistry importRegistry) {
 
     this.bootstrapContext = bootstrapContext;
@@ -278,9 +278,6 @@ class ConfigurationClassBeanDefinitionReader {
       return false;
     }
     BeanDefinition existingBeanDef = bootstrapContext.getBeanDefinition(beanName);
-    if (existingBeanDef == null) {
-      return false;
-    }
 
     // Is the existing bean definition one that was created from a configuration class?
     // -> allow the current bean method to override, since both are at second-pass level.
@@ -300,8 +297,12 @@ class ConfigurationClassBeanDefinitionReader {
     }
 
     // A bean definition resulting from a component scan can be silently overridden
-    // by an @Component method
-    if (existingBeanDef instanceof ScannedGenericBeanDefinition) {
+    // by an @Component method, even when general overriding is disabled
+    // as long as the bean class is the same.
+    if (existingBeanDef instanceof ScannedGenericBeanDefinition scannedBeanDef) {
+      if (componentMethod.metadata.getReturnTypeName().equals(scannedBeanDef.getBeanClassName())) {
+        bootstrapContext.removeBeanDefinition(beanName);
+      }
       return false;
     }
 
