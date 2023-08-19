@@ -97,12 +97,12 @@ public class TransactionalEventListenerTests {
   public void immediatelyImpactsCurrentTransaction() {
     load(ImmediateTestListener.class, BeforeCommitTestListener.class);
     assertThatIllegalStateException().isThrownBy(() ->
-            this.transactionTemplate.executeWithoutResult(status -> {
-              getContext().publishEvent("FAIL");
-              throw new AssertionError("Should have thrown an exception at this point");
-            }))
-        .withMessageContaining("Test exception")
-        .withMessageContaining(EventCollector.IMMEDIATELY);
+                    this.transactionTemplate.execute(status -> {
+                      getContext().publishEvent("FAIL");
+                      throw new AssertionError("Should have thrown an exception at this point");
+                    }))
+            .withMessageContaining("Test exception")
+            .withMessageContaining(EventCollector.IMMEDIATELY);
 
     getEventCollector().assertEvents(EventCollector.IMMEDIATELY, "FAIL");
     getEventCollector().assertTotalEventsCount(1);
@@ -148,6 +148,17 @@ public class TransactionalEventListenerTests {
   @Test
   public void afterCommitWithTransactionalComponentListenerProxiedViaDynamicProxy() {
     load(TransactionalComponentTestListener.class);
+    this.transactionTemplate.execute(status -> {
+      getContext().publishEvent("SKIP");
+      getEventCollector().assertNoEventReceived();
+      return null;
+    });
+    getEventCollector().assertNoEventReceived();
+  }
+
+  @Test
+  public void afterCommitWithTransactionalComponentListenerWithInterfaceProxy() {
+    load(TransactionalComponentTestListenerWithInterface.class);
     this.transactionTemplate.execute(status -> {
       getContext().publishEvent("SKIP");
       getEventCollector().assertNoEventReceived();
@@ -212,18 +223,18 @@ public class TransactionalEventListenerTests {
   public void beforeCommitWithException() { // Validates the custom synchronization is invoked
     load(BeforeCommitTestListener.class);
     assertThatIllegalStateException().isThrownBy(() ->
-        this.transactionTemplate.execute(status -> {
-          TransactionSynchronizationManager.registerSynchronization(new EventTransactionSynchronization(10) {
-            @Override
-            public void beforeCommit(boolean readOnly) {
-              throw new IllegalStateException("test");
-            }
-          });
-          getContext().publishEvent("test");
-          getEventCollector().assertNoEventReceived();
-          return null;
+            this.transactionTemplate.execute(status -> {
+              TransactionSynchronizationManager.registerSynchronization(new EventTransactionSynchronization(10) {
+                @Override
+                public void beforeCommit(boolean readOnly) {
+                  throw new IllegalStateException("test");
+                }
+              });
+              getContext().publishEvent("test");
+              getEventCollector().assertNoEventReceived();
+              return null;
 
-        }));
+            }));
     getEventCollector().assertNoEventReceived(); // Before commit not invoked
   }
 
@@ -257,7 +268,7 @@ public class TransactionalEventListenerTests {
   @Test
   public void noTransaction() {
     load(BeforeCommitTestListener.class, AfterCompletionTestListener.class,
-        AfterCompletionExplicitTestListener.class);
+            AfterCompletionExplicitTestListener.class);
     this.context.publishEvent("test");
     getEventCollector().assertTotalEventsCount(0);
   }
@@ -427,7 +438,7 @@ public class TransactionalEventListenerTests {
       for (String phase : phases) {
         List<Object> eventsForPhase = getEvents(phase);
         assertThat(eventsForPhase.size()).as("Expected no events for phase '" + phase + "' " +
-            "but got " + eventsForPhase + ":").isEqualTo(0);
+                "but got " + eventsForPhase + ":").isEqualTo(0);
       }
     }
 
@@ -445,7 +456,7 @@ public class TransactionalEventListenerTests {
         size += entry.getValue().size();
       }
       assertThat(size).as("Wrong number of total events (" + this.events.size() + ") " +
-          "registered phase(s)").isEqualTo(number);
+              "registered phase(s)").isEqualTo(number);
     }
   }
 
@@ -530,8 +541,25 @@ public class TransactionalEventListenerTests {
   }
 
   static class TransactionalComponentTestListener extends BaseTransactionalTestListener implements
-      TransactionalComponentTestListenerInterface {
+          TransactionalComponentTestListenerInterface {
 
+    @Override
+    public void handleAfterCommit(String data) {
+      handleEvent(EventCollector.AFTER_COMMIT, data);
+    }
+  }
+
+  interface TransactionalComponentTestInterface {
+
+    void handleAfterCommit(String data);
+  }
+
+  @Transactional
+  @Component
+  static class TransactionalComponentTestListenerWithInterface extends BaseTransactionalTestListener implements
+          TransactionalComponentTestInterface {
+
+    @TransactionalEventListener(condition = "!'SKIP'.equals(#data)")
     @Override
     public void handleAfterCommit(String data) {
       handleEvent(EventCollector.AFTER_COMMIT, data);

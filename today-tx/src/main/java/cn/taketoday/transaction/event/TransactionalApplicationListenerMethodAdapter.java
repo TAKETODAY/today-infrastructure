@@ -18,6 +18,7 @@
 package cn.taketoday.transaction.event;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import cn.taketoday.context.ApplicationEvent;
@@ -48,13 +49,15 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public class TransactionalApplicationListenerMethodAdapter extends ApplicationListenerMethodAdapter
-    implements TransactionalApplicationListener<ApplicationEvent> {
+        implements TransactionalApplicationListener<ApplicationEvent> {
 
   private static final Logger log = LoggerFactory.getLogger(TransactionalApplicationListenerMethodAdapter.class);
 
   private final TransactionPhase transactionPhase;
-  private final TransactionalEventListener annotation;
-  private final CopyOnWriteArrayList<SynchronizationCallback> callbacks = new CopyOnWriteArrayList<>();
+
+  private final boolean fallbackExecution;
+
+  private final List<SynchronizationCallback> callbacks = new CopyOnWriteArrayList<>();
 
   /**
    * Construct a new TransactionalApplicationListenerMethodAdapter.
@@ -66,12 +69,12 @@ public class TransactionalApplicationListenerMethodAdapter extends ApplicationLi
   public TransactionalApplicationListenerMethodAdapter(String beanName, Class<?> targetClass, Method method) {
     super(beanName, targetClass, method);
     TransactionalEventListener eventAnn =
-        AnnotatedElementUtils.findMergedAnnotation(method, TransactionalEventListener.class);
+            AnnotatedElementUtils.findMergedAnnotation(getTargetMethod(), TransactionalEventListener.class);
     if (eventAnn == null) {
       throw new IllegalStateException("No TransactionalEventListener annotation found on method: " + method);
     }
-    this.annotation = eventAnn;
     this.transactionPhase = eventAnn.phase();
+    this.fallbackExecution = eventAnn.fallbackExecution();
   }
 
   @Override
@@ -97,8 +100,8 @@ public class TransactionalApplicationListenerMethodAdapter extends ApplicationLi
         log.debug("Registered transaction synchronization for {}", event);
       }
     }
-    else if (this.annotation.fallbackExecution()) {
-      if (this.annotation.phase() == TransactionPhase.AFTER_ROLLBACK && log.isWarnEnabled()) {
+    else if (this.fallbackExecution) {
+      if (getTransactionPhase() == TransactionPhase.AFTER_ROLLBACK && log.isWarnEnabled()) {
         log.warn("Processing {} as a fallback execution on AFTER_ROLLBACK phase", event);
       }
       processEvent(event);
