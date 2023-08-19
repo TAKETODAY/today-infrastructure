@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.io.PropertySourceFactory;
+import cn.taketoday.core.io.Resource;
 
 /**
  * Annotation providing a convenient and declarative mechanism for adding a
@@ -173,11 +174,14 @@ import cn.taketoday.core.io.PropertySourceFactory;
 public @interface PropertySource {
 
   /**
-   * Indicate the name of this property source. If omitted, a name will
-   * be generated based on the description of the underlying resource.
+   * Indicate the name of this property source. If omitted, the {@link #factory}
+   * will generate a name based on the underlying resource (in the case of
+   * {@link cn.taketoday.core.io.DefaultPropertySourceFactory}:
+   * derived from the resource description through a corresponding name-less
+   * {@link cn.taketoday.core.io.ResourcePropertySource} constructor).
    *
    * @see cn.taketoday.core.env.PropertySource#getName()
-   * @see cn.taketoday.core.io.Resource#toString()
+   * @see Resource#toString()
    */
   String name() default "";
 
@@ -186,21 +190,22 @@ public @interface PropertySource {
    * <p>The default {@link #factory() factory} supports both traditional and
    * XML-based properties file formats &mdash; for example,
    * {@code "classpath:/com/myco/app.properties"} or {@code "file:/path/to/file.xml"}.
-   * <p>Resource location wildcards (e.g. *&#42;/*.properties) are not permitted;
-   * each location must evaluate to exactly one resource.
-   * <p>${...} placeholders will be resolved against property sources already
+   * <p>resource location wildcards are also
+   * supported &mdash; for example, {@code "classpath*:/config/*.properties"}.
+   * <p>{@code ${...}} placeholders will be resolved against property sources already
    * registered with the {@code Environment}. See {@linkplain PropertySource above}
    * for examples.
    * <p>Each location will be added to the enclosing {@code Environment} as its own
-   * property source, and in the order declared.
+   * property source, and in the order declared (or in the order in which resource
+   * locations are resolved when location wildcards are used).
    */
   String[] value();
 
   /**
-   * Indicate if failure to find the a {@link #value() property resource} should be
+   * Indicate if a failure to find a {@link #value property resource} should be
    * ignored.
    * <p>{@code true} is appropriate if the properties file is completely optional.
-   * Default is {@code false}.
+   * <p>Default is {@code false}.
    */
   boolean ignoreResourceNotFound() default false;
 
