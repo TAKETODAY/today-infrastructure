@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,6 +96,10 @@ public abstract class AbstractAotMojo extends AbstractDependencyFilterMojo {
    */
   @Parameter(property = "infra.aot.compilerArguments")
   private String compilerArguments;
+
+  protected final MavenSession getSession() {
+    return this.session;
+  }
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
