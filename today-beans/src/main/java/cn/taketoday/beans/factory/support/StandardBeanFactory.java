@@ -1419,10 +1419,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
     InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
     try {
+      // Step 1: pre-resolved shortcut for single bean match, e.g. from @Autowired
       Object shortcut = descriptor.resolveShortcut(this);
       if (shortcut != null) {
         return shortcut;
       }
+      // Step 2: pre-defined value or expression, e.g. from @Value
 
       Class<?> type = descriptor.getDependencyType();
       Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
@@ -1445,13 +1447,21 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         }
       }
 
+      // Step 3a: multiple beans as stream / array / standard collection / plain map
       Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);
       if (multipleBeans != null) {
         return multipleBeans;
       }
 
+      // Step 3b: direct bean matches, possibly direct beans of type Collection / Map
       Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
       if (matchingBeans.isEmpty()) {
+        // Step 3c (fallback): custom Collection / Map declarations for collecting multiple beans
+        multipleBeans = resolveMultipleBeansFallback(descriptor, beanName, autowiredBeanNames, typeConverter);
+        if (multipleBeans != null) {
+          return multipleBeans;
+        }
+        // Raise exception if nothing found for required injection point
         if (isRequired(descriptor)) {
           raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
         }
@@ -1461,10 +1471,12 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       String autowiredBeanName;
       Object instanceCandidate;
 
+      // Step 4: determine single candidate
       if (matchingBeans.size() > 1) {
         autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
         if (autowiredBeanName == null) {
-          if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
+          if (isRequired(descriptor) || !indicatesArrayCollectionOrMap(type)) {
+            // Raise exception if no clear match found for required injection point
             return descriptor.resolveNotUnique(descriptor.getResolvableType(), matchingBeans);
           }
           else {
@@ -1483,6 +1495,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         instanceCandidate = entry.getValue();
       }
 
+      // Step 5: validate single result
       if (autowiredBeanNames != null) {
         autowiredBeanNames.add(autowiredBeanName);
       }
@@ -1506,6 +1519,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
                               + factoryMethodName + "' in '" + factoryBeanName + "' returns null");
             }
           }
+          // Raise exception if null encountered for required injection point
           raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
         }
       }
@@ -1522,8 +1536,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Nullable
   @SuppressWarnings("unchecked")
-  private <T> T convertIfNecessary(
-          @Nullable Object bean, @Nullable Class<?> requiredType, @Nullable TypeConverter converter) {
+  private <T> T convertIfNecessary(@Nullable Object bean,
+          @Nullable Class<?> requiredType, @Nullable TypeConverter converter) {
     // Check if required type matches the type of the actual bean instance.
     if (bean != null && requiredType != null && !ClassUtils.isAssignableValue(requiredType, bean)) {
       if (converter == null) {
@@ -1579,60 +1593,89 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
       return result;
     }
-    else if (Collection.class.isAssignableFrom(type) && type.isInterface()) {
-      Class<?> elementType = descriptor.getResolvableType().asCollection().resolveGeneric();
-      if (elementType == null) {
-        return null;
-      }
-      var matchingBeans = findAutowireCandidates(beanName, elementType, new MultiElementDescriptor(descriptor));
-      if (matchingBeans.isEmpty()) {
-        return null;
-      }
-      if (autowiredBeanNames != null) {
-        autowiredBeanNames.addAll(matchingBeans.keySet());
-      }
-      Object result = convertIfNecessary(matchingBeans.values(), type, typeConverter);
-      if (result instanceof List<?> list) {
-        if (list.size() > 1) {
-          Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
-          if (comparator != null) {
-            list.sort(comparator);
-          }
-        }
-      }
-      return result;
+    else if (Collection.class == type || Set.class == type || List.class == type) {
+      return resolveMultipleBeanCollection(descriptor, beanName, autowiredBeanNames, typeConverter);
     }
     else if (Map.class == type) {
-      ResolvableType mapType = descriptor.getResolvableType().asMap();
-      Class<?> keyType = mapType.resolveGeneric(0);
-      if (String.class != keyType) {
-        return null;
-      }
-      Class<?> valueType = mapType.resolveGeneric(1);
-      if (valueType == null) {
-        return null;
-      }
-      var matchingBeans = findAutowireCandidates(beanName, valueType, new MultiElementDescriptor(descriptor));
-      if (matchingBeans.isEmpty()) {
-        return null;
-      }
-      if (autowiredBeanNames != null) {
-        autowiredBeanNames.addAll(matchingBeans.keySet());
-      }
-      return matchingBeans;
+      return resolveMultipleBeanMap(descriptor, beanName, autowiredBeanNames, typeConverter);
     }
     else {
       return null;
     }
   }
 
+  @Nullable
+  private Object resolveMultipleBeansFallback(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
+
+    Class<?> type = descriptor.getDependencyType();
+    if (Collection.class.isAssignableFrom(type) && type.isInterface()) {
+      return resolveMultipleBeanCollection(descriptor, beanName, autowiredBeanNames, typeConverter);
+    }
+    else if (Map.class.isAssignableFrom(type) && type.isInterface()) {
+      return resolveMultipleBeanMap(descriptor, beanName, autowiredBeanNames, typeConverter);
+    }
+    return null;
+  }
+
+  @Nullable
+  private Object resolveMultipleBeanCollection(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
+
+    Class<?> elementType = descriptor.getResolvableType().asCollection().resolveGeneric();
+    if (elementType == null) {
+      return null;
+    }
+    Map<String, Object> matchingBeans = findAutowireCandidates(beanName, elementType,
+            new MultiElementDescriptor(descriptor));
+    if (matchingBeans.isEmpty()) {
+      return null;
+    }
+    if (autowiredBeanNames != null) {
+      autowiredBeanNames.addAll(matchingBeans.keySet());
+    }
+    Object result = convertIfNecessary(matchingBeans.values(), descriptor.getDependencyType(), typeConverter);
+    if (result instanceof List<?> list && list.size() > 1) {
+      Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
+      if (comparator != null) {
+        list.sort(comparator);
+      }
+    }
+    return result;
+  }
+
+  @Nullable
+  private Object resolveMultipleBeanMap(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
+
+    ResolvableType mapType = descriptor.getResolvableType().asMap();
+    Class<?> keyType = mapType.resolveGeneric(0);
+    if (String.class != keyType) {
+      return null;
+    }
+    Class<?> valueType = mapType.resolveGeneric(1);
+    if (valueType == null) {
+      return null;
+    }
+    Map<String, Object> matchingBeans = findAutowireCandidates(beanName, valueType,
+            new MultiElementDescriptor(descriptor));
+    if (matchingBeans.isEmpty()) {
+      return null;
+    }
+    if (autowiredBeanNames != null) {
+      autowiredBeanNames.addAll(matchingBeans.keySet());
+    }
+    TypeConverter converter = (typeConverter != null ? typeConverter : getTypeConverter());
+    return converter.convertIfNecessary(matchingBeans, descriptor.getDependencyType());
+  }
+
   private boolean isRequired(DependencyDescriptor descriptor) {
     return getAutowireCandidateResolver().isRequired(descriptor);
   }
 
-  private boolean indicatesMultipleBeans(Class<?> type) {
-    return (type.isArray() || (type.isInterface() &&
-            (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type))));
+  private boolean indicatesArrayCollectionOrMap(Class<?> type) {
+    return type.isArray() || (type.isInterface()
+            && (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)));
   }
 
   @Nullable
@@ -1682,7 +1725,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
     if (result.isEmpty()) {
-      boolean multiple = indicatesMultipleBeans(requiredType);
+      boolean multiple = indicatesArrayCollectionOrMap(requiredType);
       // Consider fallback matches if the first pass failed to find anything...
       DependencyDescriptor fallbackDescriptor = descriptor.forFallbackMatch();
       for (String candidate : candidateNames) {
