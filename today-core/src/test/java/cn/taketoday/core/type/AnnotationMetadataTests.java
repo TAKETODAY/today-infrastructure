@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -37,8 +35,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAttributes;
-import cn.taketoday.core.testfixture.stereotype.Indexed;
+import cn.taketoday.core.testfixture.stereotype.Component;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
@@ -95,7 +94,7 @@ class AnnotationMetadataTests {
     assertThat(metadata.isConcrete()).isTrue();
     assertThat(metadata.hasSuperClass()).isTrue();
     assertThat(metadata.getSuperClassName()).isEqualTo(AnnotatedComponent.class.getName());
-    assertThat(metadata.getInterfaceNames().length).isEqualTo(0);
+    assertThat(metadata.getInterfaceNames()).isEmpty();
     assertThat(metadata.isAnnotated(Component.class.getName())).isFalse();
     assertThat(metadata.isAnnotated(Scope.class.getName())).isFalse();
     assertThat(metadata.isAnnotated(SpecialAttr.class.getName())).isFalse();
@@ -119,8 +118,8 @@ class AnnotationMetadataTests {
     assertThat(metadata.getAnnotationAttributes(Component.class.getName())).isNull();
     assertThat(metadata.getAnnotationAttributes(MetaAnnotation.class.getName(), false)).isNull();
     assertThat(metadata.getAnnotationAttributes(MetaAnnotation.class.getName(), true)).isNull();
-    assertThat(metadata.getAnnotatedMethods(DirectAnnotation.class.getName()).size()).isEqualTo(0);
-    assertThat(metadata.isAnnotated(IsAnnotatedAnnotation.class.getName())).isEqualTo(false);
+    assertThat(metadata.getAnnotatedMethods(DirectAnnotation.class.getName())).isEmpty();
+    assertThat(metadata.isAnnotated(IsAnnotatedAnnotation.class.getName())).isFalse();
     assertThat(metadata.getAllAnnotationAttributes(DirectAnnotation.class.getName())).isNull();
   }
 
@@ -146,10 +145,10 @@ class AnnotationMetadataTests {
     assertThat(metadata.isConcrete()).isFalse();
     assertThat(metadata.hasSuperClass()).isFalse();
     assertThat(metadata.getSuperClassName()).isNull();
-    assertThat(metadata.getInterfaceNames().length).isEqualTo(2);
+    assertThat(metadata.getInterfaceNames()).hasSize(2);
     assertThat(metadata.getInterfaceNames()[0]).isEqualTo(ClassMetadata.class.getName());
     assertThat(metadata.getInterfaceNames()[1]).isEqualTo(AnnotatedTypeMetadata.class.getName());
-    assertThat(metadata.getAnnotationTypes()).hasSize(0);
+    assertThat(metadata.getAnnotationTypes()).isEmpty();
   }
 
   @Test
@@ -174,7 +173,7 @@ class AnnotationMetadataTests {
     assertThat(metadata.isConcrete()).isFalse();
     assertThat(metadata.hasSuperClass()).isFalse();
     assertThat(metadata.getSuperClassName()).isNull();
-    assertThat(metadata.getInterfaceNames().length).isEqualTo(1);
+    assertThat(metadata.getInterfaceNames()).hasSize(1);
     assertThat(metadata.getInterfaceNames()[0]).isEqualTo(Annotation.class.getName());
     assertThat(metadata.isAnnotated(Documented.class.getName())).isFalse();
     assertThat(metadata.isAnnotated(Scope.class.getName())).isFalse();
@@ -193,8 +192,8 @@ class AnnotationMetadataTests {
    * 'true' as is done in the main test above.
    */
   @Test
-  @Deprecated
   void standardAnnotationMetadata_nestedAnnotationsAsMap_false() {
+    @SuppressWarnings("deprecation")
     AnnotationMetadata metadata = new StandardAnnotationMetadata(AnnotatedComponent.class);
     AnnotationAttributes specialAttrs = (AnnotationAttributes) metadata.getAnnotationAttributes(SpecialAttr.class.getName());
     Annotation[] nestedAnnoArray = (Annotation[]) specialAttrs.get("nestedAnnoArray");
@@ -202,14 +201,14 @@ class AnnotationMetadataTests {
   }
 
   @Test
-  @Deprecated
   void metaAnnotationOverridesUsingStandardAnnotationMetadata() {
+    @SuppressWarnings("deprecation")
     AnnotationMetadata metadata = new StandardAnnotationMetadata(ComposedConfigurationWithAttributeOverridesClass.class);
     assertMetaAnnotationOverrides(metadata);
   }
 
   @Test
-  void metaAnnotationOverridesUsingAnnotationMetadataReadingVisitor() throws Exception {
+  void metaAnnotationOverridesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(ComposedConfigurationWithAttributeOverridesClass.class.getName());
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
@@ -219,8 +218,8 @@ class AnnotationMetadataTests {
   private void assertMetaAnnotationOverrides(AnnotationMetadata metadata) {
     AnnotationAttributes attributes = (AnnotationAttributes) metadata.getAnnotationAttributes(
             TestComponentScan.class.getName(), false);
+    assertThat(attributes.getStringArray("value")).containsExactly("org.example.componentscan");
     assertThat(attributes.getStringArray("basePackages")).containsExactly("org.example.componentscan");
-    assertThat(attributes.getStringArray("value")).isEmpty();
     assertThat(attributes.getClassArray("basePackageClasses")).isEmpty();
   }
 
@@ -233,7 +232,7 @@ class AnnotationMetadataTests {
 
   @Test
     // SPR-11649
-  void multipleAnnotationsWithIdenticalAttributeNamesUsingAnnotationMetadataReadingVisitor() throws Exception {
+  void multipleAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedAnnotationsClass.class.getName());
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
@@ -249,11 +248,121 @@ class AnnotationMetadataTests {
 
   @Test
     // SPR-11649
-  void composedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingAnnotationMetadataReadingVisitor() throws Exception {
+  void composedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedComposedAnnotationClass.class.getName());
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
     assertMultipleAnnotationsWithIdenticalAttributeNames(metadata);
+  }
+
+  @Test
+    // gh-31041
+  void multipleComposedRepeatableAnnotationsUsingStandardAnnotationMetadata() {
+    AnnotationMetadata metadata = AnnotationMetadata.introspect(MultipleComposedRepeatableAnnotationsClass.class);
+    assertRepeatableAnnotations(metadata);
+  }
+
+  @Test
+    // gh-31041
+  void multipleComposedRepeatableAnnotationsUsingSimpleAnnotationMetadata() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(MultipleComposedRepeatableAnnotationsClass.class.getName());
+    AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
+    assertRepeatableAnnotations(metadata);
+  }
+
+  @Test
+    // gh-31074
+  void multipleComposedRepeatableAnnotationsSortedByReversedMetaDistanceUsingStandardAnnotationMetadata() {
+    AnnotationMetadata metadata = AnnotationMetadata.introspect(MultipleComposedRepeatableAnnotationsClass.class);
+    assertRepeatableAnnotationsSortedByReversedMetaDistance(metadata);
+  }
+
+  @Test
+    // gh-31074
+  void multipleComposedRepeatableAnnotationsSortedByReversedMetaDistanceUsingSimpleAnnotationMetadata() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(MultipleComposedRepeatableAnnotationsClass.class.getName());
+    AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
+    assertRepeatableAnnotationsSortedByReversedMetaDistance(metadata);
+  }
+
+  @Test
+    // gh-31041
+  void multipleRepeatableAnnotationsInContainersUsingStandardAnnotationMetadata() {
+    AnnotationMetadata metadata = AnnotationMetadata.introspect(MultipleRepeatableAnnotationsInContainersClass.class);
+    assertRepeatableAnnotations(metadata);
+  }
+
+  @Test
+    // gh-31041
+  void multipleRepeatableAnnotationsInContainersUsingSimpleAnnotationMetadata() throws Exception {
+    MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(MultipleRepeatableAnnotationsInContainersClass.class.getName());
+    AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
+    assertRepeatableAnnotations(metadata);
+  }
+
+  /**
+   * Tests {@code AnnotatedElementUtils#getMergedRepeatableAnnotations()} variants to ensure that
+   * {@link AnnotationMetadata#getMergedRepeatableAnnotationAttributes(Class, Class, boolean)}
+   * behaves the same.
+   */
+  @Test
+  // gh-31041
+  void multipleComposedRepeatableAnnotationsUsingAnnotatedElementUtils() throws Exception {
+    Class<?> element = MultipleComposedRepeatableAnnotationsClass.class;
+
+    Set<TestComponentScan> annotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(element, TestComponentScan.class);
+    assertRepeatableAnnotations(annotations);
+
+    annotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(element, TestComponentScan.class, TestComponentScans.class);
+    assertRepeatableAnnotations(annotations);
+  }
+
+  /**
+   * Tests {@code AnnotatedElementUtils#getMergedRepeatableAnnotations()} variants to ensure that
+   * {@link AnnotationMetadata#getMergedRepeatableAnnotationAttributes(Class, Class, boolean)}
+   * behaves the same.
+   */
+  @Test
+  // gh-31041
+  void multipleRepeatableAnnotationsInContainersUsingAnnotatedElementUtils() throws Exception {
+    Class<?> element = MultipleRepeatableAnnotationsInContainersClass.class;
+
+    Set<TestComponentScan> annotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(element, TestComponentScan.class);
+    assertRepeatableAnnotations(annotations);
+
+    annotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(element, TestComponentScan.class, TestComponentScans.class);
+    assertRepeatableAnnotations(annotations);
+  }
+
+  private static void assertRepeatableAnnotations(AnnotationMetadata metadata) {
+    Set<AnnotationAttributes> attributesSet =
+            metadata.getMergedRepeatableAnnotationAttributes(TestComponentScan.class, TestComponentScans.class, false);
+    assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("value")).flatMap(Arrays::stream))
+            .containsExactly("A", "B", "C", "D");
+    assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("basePackages")).flatMap(Arrays::stream))
+            .containsExactly("A", "B", "C", "D");
+  }
+
+  private static void assertRepeatableAnnotationsSortedByReversedMetaDistance(AnnotationMetadata metadata) {
+    // Note: although the real @ComponentScan annotation is not looked up using
+    // "sortByReversedMetaDistance" semantics, we can still use @TestComponentScan
+    // to verify the expected behavior.
+    Set<AnnotationAttributes> attributesSet =
+            metadata.getMergedRepeatableAnnotationAttributes(TestComponentScan.class, TestComponentScans.class, false, true);
+    assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("value")).flatMap(Arrays::stream))
+            .containsExactly("C", "D", "A", "B");
+    assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("basePackages")).flatMap(Arrays::stream))
+            .containsExactly("C", "D", "A", "B");
+  }
+
+  private static void assertRepeatableAnnotations(Set<TestComponentScan> annotations) {
+    assertThat(annotations.stream().map(TestComponentScan::value).flatMap(Arrays::stream))
+            .containsExactly("A", "B", "C", "D");
+    assertThat(annotations.stream().map(TestComponentScan::basePackages).flatMap(Arrays::stream))
+            .containsExactly("A", "B", "C", "D");
   }
 
   @Test
@@ -263,7 +372,7 @@ class AnnotationMetadataTests {
   }
 
   @Test
-  void inheritedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingAnnotationMetadataReadingVisitor() throws Exception {
+  void inheritedAnnotationWithMetaAnnotationsWithIdenticalAttributeNamesUsingSimpleAnnotationMetadata() throws Exception {
     MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
     MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(NamedComposedAnnotationExtended.class.getName());
     AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
@@ -338,12 +447,12 @@ class AnnotationMetadataTests {
       assertThat(specialAttrs.getEnum("state").equals(Thread.State.NEW)).isTrue();
 
       AnnotationAttributes nestedAnno = specialAttrs.getAnnotation("nestedAnno");
-      assertThat("na").isEqualTo(nestedAnno.getString("value"));
+      assertThat(nestedAnno.getString("value")).isEqualTo("na");
       assertThat(nestedAnno.getEnum("anEnum").equals(SomeEnum.LABEL1)).isTrue();
       assertThat((Class<?>[]) nestedAnno.get("classArray")).isEqualTo(new Class<?>[] { String.class });
 
       AnnotationAttributes[] nestedAnnoArray = specialAttrs.getAnnotationArray("nestedAnnoArray");
-      assertThat(nestedAnnoArray.length).isEqualTo(2);
+      assertThat(nestedAnnoArray).hasSize(2);
       assertThat(nestedAnnoArray[0].getString("value")).isEqualTo("default");
       assertThat(nestedAnnoArray[0].getEnum("anEnum").equals(SomeEnum.DEFAULT)).isTrue();
       assertThat((Class<?>[]) nestedAnnoArray[0].get("classArray")).isEqualTo(new Class<?>[] { Void.class });
@@ -359,7 +468,7 @@ class AnnotationMetadataTests {
       assertThat(optional.getClassArray("classArray")).isEqualTo(new Class<?>[] { Void.class });
 
       AnnotationAttributes[] optionalArray = specialAttrs.getAnnotationArray("optionalArray");
-      assertThat(optionalArray.length).isEqualTo(1);
+      assertThat(optionalArray).hasSize(1);
       assertThat(optionalArray[0].getString("value")).isEqualTo("optional");
       assertThat(optionalArray[0].getEnum("anEnum").equals(SomeEnum.DEFAULT)).isTrue();
       assertThat((Class<?>[]) optionalArray[0].get("classArray")).isEqualTo(new Class<?>[] { Void.class });
@@ -371,7 +480,7 @@ class AnnotationMetadataTests {
       allMeta = metadata.getAllAnnotationAttributes(DirectAnnotation.class.getName()).get("additional");
       assertThat(new HashSet<>(allMeta)).isEqualTo(new HashSet<Object>(Arrays.asList("direct", "")));
       assertThat(metadata.getAnnotationAttributes(DirectAnnotation.class.getName()).get("additional")).isEqualTo("");
-      assertThat(((String[]) metadata.getAnnotationAttributes(DirectAnnotation.class.getName()).get("additionalArray")).length).isEqualTo(0);
+      assertThat(((String[]) metadata.getAnnotationAttributes(DirectAnnotation.class.getName()).get("additionalArray"))).isEmpty();
     }
     { // perform tests with classValuesAsString = true
       AnnotationAttributes specialAttrs = (AnnotationAttributes) metadata.getAnnotationAttributes(
@@ -423,7 +532,7 @@ class AnnotationMetadataTests {
 
   // -------------------------------------------------------------------------
 
-  public static enum SomeEnum {
+  public enum SomeEnum {
     LABEL1, LABEL2, DEFAULT
   }
 
@@ -518,6 +627,7 @@ class AnnotationMetadataTests {
   @EnumSubclasses({ SubclassEnum.FOO, SubclassEnum.BAR })
   @NamedComposedAnnotation
   private static class AnnotatedComponent implements Serializable {
+
     public AnnotatedComponent() {
     }
 
@@ -548,10 +658,20 @@ class AnnotationMetadataTests {
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.TYPE)
+  public @interface TestComponentScans {
+
+    TestComponentScan[] value();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @Repeatable(TestComponentScans.class)
   public @interface TestComponentScan {
 
+    @AliasFor("basePackages")
     String[] value() default {};
 
+    @AliasFor("value")
     String[] basePackages() default {};
 
     Class<?>[] basePackageClasses() default {};
@@ -563,11 +683,47 @@ class AnnotationMetadataTests {
   @Target(ElementType.TYPE)
   public @interface ComposedConfigurationWithAttributeOverrides {
 
+    // Do NOT use @AliasFor here until 4.0
+    // @AliasFor(annotation = TestComponentScan.class)
     String[] basePackages() default {};
   }
 
   @ComposedConfigurationWithAttributeOverrides(basePackages = "org.example.componentscan")
   public static class ComposedConfigurationWithAttributeOverridesClass {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @TestComponentScan("C")
+  public @interface ScanPackageC {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @TestComponentScan("D")
+  public @interface ScanPackageD {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @TestComponentScans({
+          @TestComponentScan("C"),
+          @TestComponentScan("D")
+  })
+  public @interface ScanPackagesCandD {
+  }
+
+  @TestComponentScan("A")
+  @ScanPackageC
+  @ScanPackageD
+  @TestComponentScan("B")
+  static class MultipleComposedRepeatableAnnotationsClass {
+  }
+
+  @TestComponentScan("A")
+  @ScanPackagesCandD
+  @TestComponentScans(@TestComponentScan("B"))
+  static class MultipleRepeatableAnnotationsInContainersClass {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -610,10 +766,4 @@ class AnnotationMetadataTests {
   public static class NamedComposedAnnotationExtended extends NamedComposedAnnotationClass {
   }
 
-  @Indexed
-  @Retention(RetentionPolicy.RUNTIME)
-  @Target({ ElementType.TYPE, ElementType.METHOD })
-  public @interface Component {
-    String value() default "";
-  }
 }
