@@ -34,6 +34,7 @@ import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
+import cn.taketoday.context.properties.bind.JavaBeanBinder.BeanProperty;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -218,7 +219,7 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
     }
 
     private void handleJavaBeanProperties(JavaBeanBinder.BeanProperties bean, ReflectionHints hints) {
-      Map<String, JavaBeanBinder.BeanProperty> properties = bean.getProperties();
+      Map<String, BeanProperty> properties = bean.getProperties();
       properties.forEach((name, property) -> {
         Method getter = property.getter;
         if (getter != null) {
@@ -306,11 +307,18 @@ public class BindableRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
      */
     private boolean isNestedType(String propertyName, Class<?> propertyType) {
       Class<?> declaringClass = propertyType.getDeclaringClass();
-      if (declaringClass != null && declaringClass.isAssignableFrom(this.type)) {
+      if (declaringClass != null && isNested(declaringClass, this.type)) {
         return true;
       }
       Field field = ReflectionUtils.findField(this.type, propertyName);
       return (field != null) && MergedAnnotations.from(field).isPresent(Nested.class);
+    }
+
+    private static boolean isNested(Class<?> type, Class<?> candidate) {
+      if (type.isAssignableFrom(candidate)) {
+        return true;
+      }
+      return (candidate.getDeclaringClass() != null && isNested(type, candidate.getDeclaringClass()));
     }
 
     private boolean isJavaType(Class<?> candidate) {

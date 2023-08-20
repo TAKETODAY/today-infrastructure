@@ -39,6 +39,8 @@ import cn.taketoday.context.properties.BoundConfigurationProperties;
 import cn.taketoday.context.properties.ConfigurationPropertiesBean;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.BaseProperties.InheritedNested;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.ComplexNestedProperties.ListenerRetry;
+import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrarTests.ComplexNestedProperties.Retry;
 import cn.taketoday.core.env.Environment;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -255,6 +257,23 @@ class BindableRuntimeHintsRegistrarTests {
             .satisfies(javaBeanBinding(ExtendingProperties.class, "getBravo", "setBravo"));
     assertThat(runtimeHints.reflection().getTypeHint(InheritedNested.class))
             .satisfies(javaBeanBinding(InheritedNested.class, "getAlpha", "setAlpha"));
+  }
+
+  @Test
+  void registerHintsWhenHasComplexNestedProperties() {
+    RuntimeHints runtimeHints = registerHints(ComplexNestedProperties.class);
+    assertThat(runtimeHints.reflection().typeHints()).hasSize(4);
+    assertThat(runtimeHints.reflection().getTypeHint(Retry.class)).satisfies((entry) -> {
+      assertThat(entry.getMemberCategories()).isEmpty();
+      assertThat(entry.methods()).extracting(ExecutableHint::getName)
+              .containsExactlyInAnyOrder("getCount", "setCount");
+    });
+    assertThat(runtimeHints.reflection().getTypeHint(ListenerRetry.class))
+            .satisfies(javaBeanBinding(ListenerRetry.class, "isStateless", "setStateless"));
+    assertThat(runtimeHints.reflection().getTypeHint(ComplexNestedProperties.Simple.class))
+            .satisfies(javaBeanBinding(ComplexNestedProperties.Simple.class, "getRetry"));
+    assertThat(runtimeHints.reflection().getTypeHint(ComplexNestedProperties.class))
+            .satisfies(javaBeanBinding(ComplexNestedProperties.class, "getSimple"));
   }
 
   private Consumer<TypeHint> javaBeanBinding(Class<?> type, String... expectedMethods) {
@@ -717,6 +736,54 @@ class BindableRuntimeHintsRegistrarTests {
 
     public void setBravo(String bravo) {
       this.bravo = bravo;
+    }
+
+  }
+
+  public static class ComplexNestedProperties {
+
+    private final Simple simple = new Simple();
+
+    public Simple getSimple() {
+      return this.simple;
+    }
+
+    public static class Simple {
+
+      private final ListenerRetry retry = new ListenerRetry();
+
+      public ListenerRetry getRetry() {
+        return this.retry;
+      }
+
+    }
+
+    public abstract static class Retry {
+
+      private int count = 5;
+
+      public int getCount() {
+        return this.count;
+      }
+
+      public void setCount(int count) {
+        this.count = count;
+      }
+
+    }
+
+    public static class ListenerRetry extends Retry {
+
+      private boolean stateless;
+
+      public boolean isStateless() {
+        return this.stateless;
+      }
+
+      public void setStateless(boolean stateless) {
+        this.stateless = stateless;
+      }
+
     }
 
   }
