@@ -118,7 +118,7 @@ class NativeImagePluginAction implements PluginApplicationAction {
 
   private void configureInfraBuildImageToProduceANativeImage(Project project) {
     project.getTasks().named(INFRA_BUILD_IMAGE_TASK_NAME, InfraBuildImage.class).configure(infraBuildImage -> {
-      infraBuildImage.getBuilder().convention("paketobuildpacks/builder:tiny");
+      infraBuildImage.getBuilder().convention("paketobuildpacks/builder-jammy-tiny:latest");
       infraBuildImage.getEnvironment().put("BP_NATIVE_IMAGE", "true");
     });
   }

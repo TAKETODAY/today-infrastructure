@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,11 @@ import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.function.Function;
+
 import cn.taketoday.buildpack.platform.build.BuildRequest;
 import cn.taketoday.buildpack.platform.build.BuildpackReference;
 import cn.taketoday.buildpack.platform.build.Cache;
@@ -30,11 +35,6 @@ import cn.taketoday.buildpack.platform.docker.type.Binding;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.io.Owner;
 import cn.taketoday.buildpack.platform.io.TarArchive;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.function.Function;
-
 import cn.taketoday.infra.maven.CacheInfo.VolumeCacheInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +68,7 @@ class ImageTests {
   void getBuildRequestWhenNoCustomizationsUsesDefaults() {
     BuildRequest request = new Image().getBuildRequest(createArtifact(), mockApplicationContent());
     assertThat(request.getName()).hasToString("docker.io/library/my-app:0.0.1-SNAPSHOT");
-    assertThat(request.getBuilder().toString()).contains("paketobuildpacks/builder");
+    assertThat(request.getBuilder().toString()).contains("paketobuildpacks/builder-jammy-base");
     assertThat(request.getRunImage()).isNull();
     assertThat(request.getEnv()).isEmpty();
     assertThat(request.isCleanCache()).isFalse();

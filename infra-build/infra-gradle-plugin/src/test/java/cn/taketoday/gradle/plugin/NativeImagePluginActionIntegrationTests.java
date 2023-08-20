@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,8 @@ class NativeImagePluginActionIntegrationTests {
     writeDummyApplicationAotProcessorMainClass();
     BuildResult result = this.gradleBuild.expectDeprecationWarningsWithAtLeastVersion("8.2-rc-1")
             .build("infraBuildImageConfiguration");
-    assertThat(result.getOutput()).contains("paketobuildpacks/builder:tiny").contains("BP_NATIVE_IMAGE = true");
+    assertThat(result.getOutput()).contains("paketobuildpacks/builder-jammy-tiny")
+            .contains("BP_NATIVE_IMAGE = true");
   }
 
   @TestTemplate

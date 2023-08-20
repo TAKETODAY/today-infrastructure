@@ -48,7 +48,7 @@ import cn.taketoday.lang.Assert;
  */
 public class BuildRequest {
 
-  static final String DEFAULT_BUILDER_IMAGE_NAME = "paketobuildpacks/builder:base";
+  static final String DEFAULT_BUILDER_IMAGE_NAME = "paketobuildpacks/builder-jammy-base:latest";
 
   private static final ImageReference DEFAULT_BUILDER = ImageReference.of(DEFAULT_BUILDER_IMAGE_NAME);
 

@@ -21,17 +21,17 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import cn.taketoday.buildpack.platform.build.BuildRequest;
-import cn.taketoday.buildpack.platform.build.BuildpackReference;
-import cn.taketoday.buildpack.platform.build.PullPolicy;
-import cn.taketoday.buildpack.platform.docker.type.Binding;
-import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.buildpack.platform.build.BuildRequest;
+import cn.taketoday.buildpack.platform.build.BuildpackReference;
+import cn.taketoday.buildpack.platform.build.PullPolicy;
+import cn.taketoday.buildpack.platform.docker.type.Binding;
+import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.gradle.junit.GradleProjectBuilder;
 import cn.taketoday.lang.Version;
 
@@ -173,7 +173,8 @@ class InfraBuildImageTests {
 
   @Test
   void whenNoBuilderIsConfiguredThenRequestHasDefaultBuilder() {
-    assertThat(this.buildImage.createRequest().getBuilder().getName()).isEqualTo("paketobuildpacks/builder");
+    assertThat(this.buildImage.createRequest().getBuilder().getName())
+            .isEqualTo("paketobuildpacks/builder");
   }
 
   @Test
