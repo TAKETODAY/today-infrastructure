@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +34,7 @@ import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.util.DataSize;
 import io.netty.channel.ChannelOption;
+import reactor.netty.http.Http2SettingsSpec;
 import reactor.netty.http.server.HttpRequestDecoderSpec;
 import reactor.netty.http.server.HttpServer;
 
@@ -131,34 +129,34 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   }
 
   @Test
+  void setHttp2MaxRequestHeaderSize() {
+    DataSize headerSize = DataSize.ofKilobytes(24);
+    this.serverProperties.getHttp2().setEnabled(true);
+    this.serverProperties.setMaxHttpRequestHeaderSize(headerSize);
+    ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
+    this.customizer.customize(factory);
+    verifyHttp2MaxHeaderSize(factory, headerSize.toBytes());
+  }
+
+  @Test
   void configureHttpRequestDecoder() {
     ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getReactorNetty();
+    this.serverProperties.setMaxHttpRequestHeaderSize(DataSize.ofKilobytes(24));
     nettyProperties.setValidateHeaders(false);
     nettyProperties.setInitialBufferSize(DataSize.ofBytes(512));
     nettyProperties.setH2cMaxContentLength(DataSize.ofKilobytes(1));
-    setMaxChunkSize(nettyProperties);
     nettyProperties.setMaxInitialLineLength(DataSize.ofKilobytes(32));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().addServerCustomizers(this.customizerCaptor.capture());
-    ReactorNettyServerCustomizer serverCustomizer = this.customizerCaptor.getValue();
+    ReactorNettyServerCustomizer serverCustomizer = this.customizerCaptor.getAllValues().get(0);
     HttpServer httpServer = serverCustomizer.apply(HttpServer.create());
     HttpRequestDecoderSpec decoder = httpServer.configuration().decoder();
     assertThat(decoder.validateHeaders()).isFalse();
+    assertThat(decoder.maxHeaderSize()).isEqualTo(this.serverProperties.getMaxHttpRequestHeaderSize().toBytes());
     assertThat(decoder.initialBufferSize()).isEqualTo(nettyProperties.getInitialBufferSize().toBytes());
     assertThat(decoder.h2cMaxContentLength()).isEqualTo(nettyProperties.getH2cMaxContentLength().toBytes());
-    assertMaxChunkSize(nettyProperties, decoder);
     assertThat(decoder.maxInitialLineLength()).isEqualTo(nettyProperties.getMaxInitialLineLength().toBytes());
-  }
-
-  @SuppressWarnings("removal")
-  private void setMaxChunkSize(ServerProperties.ReactorNetty nettyProperties) {
-    nettyProperties.setMaxChunkSize(DataSize.ofKilobytes(16));
-  }
-
-  @SuppressWarnings({ "deprecation", "removal" })
-  private void assertMaxChunkSize(ServerProperties.ReactorNetty nettyProperties, HttpRequestDecoderSpec decoder) {
-    assertThat(decoder.maxChunkSize()).isEqualTo(nettyProperties.getMaxChunkSize().toBytes());
   }
 
   private void verifyConnectionTimeout(ReactorNettyReactiveWebServerFactory factory, Integer expected) {
@@ -191,6 +189,14 @@ class ReactorNettyWebServerFactoryCustomizerTests {
     HttpServer httpServer = serverCustomizer.apply(HttpServer.create());
     int maxKeepAliveRequests = httpServer.configuration().maxKeepAliveRequests();
     assertThat(maxKeepAliveRequests).isEqualTo(expected);
+  }
+
+  private void verifyHttp2MaxHeaderSize(ReactorNettyReactiveWebServerFactory factory, long expected) {
+    then(factory).should(times(2)).addServerCustomizers(this.customizerCaptor.capture());
+    ReactorNettyServerCustomizer serverCustomizer = this.customizerCaptor.getAllValues().get(0);
+    HttpServer httpServer = serverCustomizer.apply(HttpServer.create());
+    Http2SettingsSpec decoder = httpServer.configuration().http2SettingsSpec();
+    assertThat(decoder.maxHeaderListSize()).isEqualTo(expected);
   }
 
 }

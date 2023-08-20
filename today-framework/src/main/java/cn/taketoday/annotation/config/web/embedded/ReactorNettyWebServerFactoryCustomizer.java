@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,13 +57,19 @@ public class ReactorNettyWebServerFactoryCustomizer
   @Override
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
-    PropertyMapper propertyMapper = PropertyMapper.get().alwaysApplyingWhenNonNull();
+    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
     ServerProperties.ReactorNetty nettyProperties = serverProperties.getReactorNetty();
 
-    propertyMapper.from(nettyProperties::getIdleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
-    propertyMapper.from(nettyProperties::getConnectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
-    propertyMapper.from(nettyProperties::getMaxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
-    customizeRequestDecoder(factory, propertyMapper);
+    map.from(nettyProperties::getIdleTimeout).whenNonNull().to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
+    map.from(nettyProperties::getConnectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
+    map.from(nettyProperties::getMaxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
+
+    if (serverProperties.getHttp2().isEnabled()) {
+      map.from(serverProperties.getMaxHttpRequestHeaderSize())
+              .whenNonNull()
+              .to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));
+    }
+    customizeRequestDecoder(factory, map);
   }
 
   private boolean getOrDeduceUseForwardHeaders() {
@@ -110,6 +113,11 @@ public class ReactorNettyWebServerFactoryCustomizer
 
   private void customizeMaxKeepAliveRequests(ReactorNettyReactiveWebServerFactory factory, int maxKeepAliveRequests) {
     factory.addServerCustomizers(httpServer -> httpServer.maxKeepAliveRequests(maxKeepAliveRequests));
+  }
+
+  private void customizeHttp2MaxHeaderSize(ReactorNettyReactiveWebServerFactory factory, long size) {
+    factory.addServerCustomizers(
+            ((httpServer) -> httpServer.http2Settings(settings -> settings.maxHeaderListSize(size))));
   }
 
 }
