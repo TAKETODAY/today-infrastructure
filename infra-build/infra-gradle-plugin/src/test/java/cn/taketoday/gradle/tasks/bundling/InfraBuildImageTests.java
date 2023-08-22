@@ -174,7 +174,7 @@ class InfraBuildImageTests {
   @Test
   void whenNoBuilderIsConfiguredThenRequestHasDefaultBuilder() {
     assertThat(this.buildImage.createRequest().getBuilder().getName())
-            .isEqualTo("paketobuildpacks/builder");
+            .isEqualTo("paketobuildpacks/builder-jammy-base");
   }
 
   @Test
