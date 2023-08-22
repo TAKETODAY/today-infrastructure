@@ -142,10 +142,10 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @author Brian Clozel
  * @author Ethan Rubinson
  * @author Chris Bono
- * @author TODAY 2021/10/5 23:49
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #run(Class, String[])
  * @see #Application(Class...)
- * @since 4.0
+ * @since 4.0 2021/10/5 23:49
  */
 public class Application {
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
@@ -156,6 +156,12 @@ public class Application {
   private static final ThreadLocal<ApplicationHook> applicationHook = new ThreadLocal<>();
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+  private final Set<Class<?>> primarySources;
+
+  private final ApplicationTemp applicationTemp;
+
+  private final List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
 
   @Nullable
   private Class<?> mainApplicationClass;
@@ -174,15 +180,11 @@ public class Application {
 
   private Set<String> additionalProfiles = Collections.emptySet();
 
-  private final List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
-
   @Nullable
   private ResourceLoader resourceLoader;
 
   @Nullable
   private BeanNameGenerator beanNameGenerator;
-
-  private final Set<Class<?>> primarySources;
 
   private Set<String> sources = new LinkedHashSet<>();
 
@@ -198,8 +200,6 @@ public class Application {
   private Banner banner;
 
   private Banner.Mode bannerMode = Banner.Mode.CONSOLE;
-
-  private final ApplicationTemp applicationTemp;
 
   private boolean headless = true;
   private boolean logStartupInfo = true;

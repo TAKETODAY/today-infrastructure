@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.annotation.config.ssl;
 
 import java.util.List;
 
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -38,20 +36,23 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Lazy
 @AutoConfiguration
 @EnableConfigurationProperties(SslProperties.class)
 public class SslAutoConfiguration {
 
   @Component
-  public SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties sslProperties) {
+  static SslPropertiesBundleRegistrar sslPropertiesSslBundleRegistrar(SslProperties sslProperties) {
     return new SslPropertiesBundleRegistrar(sslProperties);
   }
 
   @Component
   @ConditionalOnMissingBean({ SslBundleRegistry.class, SslBundles.class })
-  public DefaultSslBundleRegistry sslBundleRegistry(List<SslBundleRegistrar> sslBundleRegistrars) {
+  static DefaultSslBundleRegistry sslBundleRegistry(List<SslBundleRegistrar> sslBundleRegistrars) {
     DefaultSslBundleRegistry registry = new DefaultSslBundleRegistry();
-    sslBundleRegistrars.forEach((registrar) -> registrar.registerBundles(registry));
+    for (SslBundleRegistrar registrar : sslBundleRegistrars) {
+      registrar.registerBundles(registry);
+    }
     return registry;
   }
 

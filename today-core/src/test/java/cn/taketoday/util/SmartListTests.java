@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.util;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -357,7 +353,7 @@ public class SmartListTests {
     assertThat(list).isNotEqualTo(Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3)));
   }
 
-  private static <T> void checkForEach(@NotNull List<T> list) {
+  private static <T> void checkForEach(List<T> list) {
     List<T> checkList = new ArrayList<>();
     //noinspection UseBulkOperation
     list.forEach(checkList::add);

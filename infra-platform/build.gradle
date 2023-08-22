@@ -63,9 +63,7 @@ bom {
     group("org.awaitility") {
       modules = [
           "awaitility",
-          "awaitility-groovy",
-          "awaitility-kotlin",
-          "awaitility-scala"
+          "awaitility-groovy"
       ]
     }
   }

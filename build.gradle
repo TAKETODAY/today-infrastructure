@@ -71,6 +71,11 @@ configure([rootProject] + javaProjects) {
     apply plugin: "java-test-fixtures"
   }
 
+  configurations.forEach {
+    it.exclude group: 'org.jetbrains.kotlin'
+    it.exclude group: 'org.jetbrains', module: 'annotations'
+  }
+
   jacocoTestReport {
     enabled = false
   }
