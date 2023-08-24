@@ -83,7 +83,6 @@ dependencies {
 
   testImplementation 'org.apache.derby:derby'
   testImplementation 'org.apache.derby:derbytools'
-  testImplementation("com.squareup.okhttp3:okhttp")
 
   testImplementation 'jakarta.persistence:jakarta.persistence-api'
   testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
