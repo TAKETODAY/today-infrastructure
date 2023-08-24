@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.Spliterators;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -42,10 +43,20 @@ class MapPropertyResolverTests {
   @Test
   void nonnullMap() {
     Map<String, String> map = Map.of("k1", "v1", "k2", "v2");
-    doTestNonnullMap(new MapPropertyResolver(map));
     Properties keyValues = new Properties();
     keyValues.putAll(map);
+    doTestNonnullMap(new MapPropertyResolver(map));
     doTestNonnullMap(new PropertiesPropertyResolver(keyValues));
+  }
+
+  @Test
+  void getProperty() {
+    Map<String, String> map = Map.of("true", "true", "false", "false");
+    Properties keyValues = new Properties();
+    keyValues.putAll(map);
+
+    getProperty(new MapPropertyResolver(keyValues));
+    getProperty(new PropertiesPropertyResolver(keyValues));
   }
 
   void doTestNullMap(MapPropertyResolver resolver) {
@@ -53,6 +64,31 @@ class MapPropertyResolverTests {
     resolver.forEach(s -> fail("no elements"));
     assertThat(resolver.iterator()).isSameAs(Collections.emptyIterator());
     assertThat(resolver.spliterator()).isEqualTo(Spliterators.emptySpliterator());
+  }
+
+  void getProperty(PropertyResolver resolver) {
+    assertThat(resolver.getFlag("")).isFalse();
+    assertThat(resolver.getFlag("false")).isFalse();
+    assertThat(resolver.getFlag("true")).isTrue();
+
+    assertThat(resolver.getFlag("", true)).isTrue();
+    assertThat(resolver.getFlag("false", true)).isFalse();
+    assertThat(resolver.getFlag("true", false)).isTrue();
+
+    assertThat(resolver.getProperty("true", boolean.class)).isTrue();
+    assertThat(resolver.getProperty("false", boolean.class)).isFalse();
+
+    assertThat(resolver.getProperty("true", Boolean.class, Boolean.FALSE)).isTrue();
+    assertThat(resolver.getProperty("false", Boolean.class, Boolean.TRUE)).isFalse();
+    assertThat(resolver.getProperty("", Boolean.class, Boolean.FALSE)).isFalse();
+    assertThat(resolver.getProperty("", boolean.class, false)).isFalse();
+
+    assertThat(resolver.getRequiredProperty("true", boolean.class)).isTrue();
+    assertThat(resolver.getRequiredProperty("false", boolean.class)).isFalse();
+
+    assertThatThrownBy(() -> resolver.getRequiredProperty("v1")).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> resolver.getRequiredProperty("v1", String.class)).isInstanceOf(IllegalStateException.class);
+
   }
 
   void doTestNonnullMap(MapPropertyResolver resolver) {
