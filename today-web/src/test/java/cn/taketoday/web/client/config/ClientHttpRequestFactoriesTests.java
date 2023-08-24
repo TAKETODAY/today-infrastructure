@@ -29,7 +29,6 @@ import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,13 +66,6 @@ class ClientHttpRequestFactoriesTests {
     ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories
             .get(HttpComponentsClientHttpRequestFactory.class, ClientHttpRequestFactorySettings.DEFAULTS);
     assertThat(requestFactory).isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
-  }
-
-  @Test
-  void getOfOkHttpFactoryReturnsOkHttpFactory() {
-    ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(OkHttp3ClientHttpRequestFactory.class,
-            ClientHttpRequestFactorySettings.DEFAULTS);
-    assertThat(requestFactory).isInstanceOf(OkHttp3ClientHttpRequestFactory.class);
   }
 
   @Test

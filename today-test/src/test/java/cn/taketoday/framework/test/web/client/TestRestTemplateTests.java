@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,13 @@ package cn.taketoday.framework.test.web.client;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.util.Base64;
+import java.util.stream.Stream;
+
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.framework.test.web.client.TestRestTemplate.CustomHttpComponentsClientHttpRequestFactory;
 import cn.taketoday.framework.test.web.client.TestRestTemplate.HttpClientOption;
@@ -34,7 +38,7 @@ import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
@@ -47,13 +51,6 @@ import cn.taketoday.web.client.RestOperations;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.client.config.RestTemplateBuilder;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.util.Base64;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -90,15 +87,15 @@ class TestRestTemplateTests {
 
   @Test
   void doNotReplaceCustomRequestFactory() {
-    RestTemplateBuilder builder = new RestTemplateBuilder().requestFactory(OkHttp3ClientHttpRequestFactory.class);
+    RestTemplateBuilder builder = new RestTemplateBuilder().requestFactory(HttpComponentsClientHttpRequestFactory.class);
     TestRestTemplate testRestTemplate = new TestRestTemplate(builder);
     assertThat(testRestTemplate.getRestTemplate().getRequestFactory())
-            .isInstanceOf(OkHttp3ClientHttpRequestFactory.class);
+            .isInstanceOf(HttpComponentsClientHttpRequestFactory.class);
   }
 
   @Test
   void useTheSameRequestFactoryClassWithBasicAuth() {
-    OkHttp3ClientHttpRequestFactory customFactory = new OkHttp3ClientHttpRequestFactory();
+    JdkClientHttpRequestFactory customFactory = new JdkClientHttpRequestFactory();
     RestTemplateBuilder builder = new RestTemplateBuilder().requestFactory(() -> customFactory);
     TestRestTemplate testRestTemplate = new TestRestTemplate(builder).withBasicAuth("test", "test");
     RestTemplate restTemplate = testRestTemplate.getRestTemplate();

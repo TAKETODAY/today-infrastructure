@@ -52,7 +52,6 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.JettyClientHttpRequestFactory;
-import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.ReactorNettyClientRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.FormHttpMessageConverter;
@@ -97,7 +96,6 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     return Stream.of(
             named("JDK HttpURLConnection", new SimpleClientHttpRequestFactory()),
             named("HttpComponents", new HttpComponentsClientHttpRequestFactory()),
-            named("OkHttp", new OkHttp3ClientHttpRequestFactory()),
             named("Jetty", new JettyClientHttpRequestFactory()),
             named("JDK HttpClient", new JdkClientHttpRequestFactory()),
             named("Reactor Netty", new ReactorNettyClientRequestFactory())

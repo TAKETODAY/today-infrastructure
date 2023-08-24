@@ -93,7 +93,7 @@ public interface RestOperations {
    * @return the entity
    */
   <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Object... uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Retrieve a representation by doing a GET on the URI template.
@@ -106,7 +106,7 @@ public interface RestOperations {
    * @return the converted object
    */
   <T> ResponseEntity<T> getForEntity(String url, Class<T> responseType, Map<String, ?> uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Retrieve a representation by doing a GET on the URL .
@@ -191,7 +191,7 @@ public interface RestOperations {
    */
   @Nullable
   URI postForLocation(String url, @Nullable Object request, Map<String, ?> uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URL, and returns the value of the
@@ -233,7 +233,7 @@ public interface RestOperations {
    */
   @Nullable
   <T> T postForObject(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URI template,
@@ -256,7 +256,7 @@ public interface RestOperations {
    */
   @Nullable
   <T> T postForObject(String url, @Nullable Object request, Class<T> responseType, Map<String, ?> uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URL,
@@ -297,7 +297,7 @@ public interface RestOperations {
    * @see HttpEntity
    */
   <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URI template,
@@ -318,7 +318,7 @@ public interface RestOperations {
    * @see HttpEntity
    */
   <T> ResponseEntity<T> postForEntity(String url, @Nullable Object request, Class<T> responseType, Map<String, ?> uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Create a new resource by POSTing the given object to the URL,
@@ -337,7 +337,7 @@ public interface RestOperations {
    * @see HttpEntity
    */
   <T> ResponseEntity<T> postForEntity(URI url, @Nullable Object request, Class<T> responseType)
-      throws RestClientException;
+          throws RestClientException;
 
   // PUT
 
@@ -396,11 +396,11 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    * @see RestTemplate#setRequestFactory
-   * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
+   * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   @Nullable
   <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType, Object... uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Update a resource by PATCHing the given object to the URI template,
@@ -418,11 +418,11 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    * @see RestTemplate#setRequestFactory
-   * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
+   * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   @Nullable
   <T> T patchForObject(String url, @Nullable Object request, Class<T> responseType, Map<String, ?> uriVariables)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Update a resource by PATCHing the given object to the URL,
@@ -438,11 +438,11 @@ public interface RestOperations {
    * @return the converted object
    * @see HttpEntity
    * @see RestTemplate#setRequestFactory
-   * @see cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory
+   * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   @Nullable
   <T> T patchForObject(URI url, @Nullable Object request, Class<T> responseType)
-      throws RestClientException;
+          throws RestClientException;
 
   // DELETE
 
@@ -517,8 +517,8 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(String url, HttpMethod method,
-      @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
-      throws RestClientException;
+          @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
+          throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
@@ -534,8 +534,8 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(String url, HttpMethod method,
-      @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Map<String, ?> uriVariables)
-      throws RestClientException;
+          @Nullable HttpEntity<?> requestEntity, Class<T> responseType, Map<String, ?> uriVariables)
+          throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given request entity to the request, and
@@ -549,7 +549,7 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity, Class<T> responseType)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
@@ -572,8 +572,8 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-      ParameterizedTypeReference<T> responseType, Object... uriVariables)
-      throws RestClientException;
+          ParameterizedTypeReference<T> responseType, Object... uriVariables)
+          throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
@@ -596,7 +596,7 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(String url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-      ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
+          ParameterizedTypeReference<T> responseType, Map<String, ?> uriVariables) throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, writing the given
@@ -618,7 +618,7 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(URI url, HttpMethod method, @Nullable HttpEntity<?> requestEntity,
-      ParameterizedTypeReference<T> responseType) throws RestClientException;
+          ParameterizedTypeReference<T> responseType) throws RestClientException;
 
   /**
    * Execute the request specified in the given {@link RequestEntity} and return
@@ -638,7 +638,7 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, Class<T> responseType)
-      throws RestClientException;
+          throws RestClientException;
 
   /**
    * Execute the request specified in the given {@link RequestEntity} and return
@@ -660,7 +660,7 @@ public interface RestOperations {
    * @return the response as entity
    */
   <T> ResponseEntity<T> exchange(RequestEntity<?> requestEntity, ParameterizedTypeReference<T> responseType)
-      throws RestClientException;
+          throws RestClientException;
 
   // General execution
 
@@ -678,8 +678,8 @@ public interface RestOperations {
    */
   @Nullable
   <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-      @Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables)
-      throws RestClientException;
+          @Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables)
+          throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URI template, preparing the request with the
@@ -695,8 +695,8 @@ public interface RestOperations {
    */
   @Nullable
   <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
-      @Nullable ResponseExtractor<T> responseExtractor, Map<String, ?> uriVariables)
-      throws RestClientException;
+          @Nullable ResponseExtractor<T> responseExtractor, Map<String, ?> uriVariables)
+          throws RestClientException;
 
   /**
    * Execute the HTTP method to the given URL, preparing the request with the
@@ -710,6 +710,6 @@ public interface RestOperations {
    */
   @Nullable
   <T> T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
-      @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException;
+          @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException;
 
 }

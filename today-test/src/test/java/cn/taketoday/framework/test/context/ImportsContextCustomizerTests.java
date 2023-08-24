@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +32,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportSelector;
 import cn.taketoday.context.annotation.config.DeterminableImports;
 import cn.taketoday.core.type.AnnotationMetadata;
-import kotlin.Metadata;
 import spock.lang.Issue;
 import spock.lang.Stepwise;
 
@@ -57,12 +53,6 @@ class ImportsContextCustomizerTests {
   void determinableImportSelector() {
     assertThat(new ImportsContextCustomizer(FirstDeterminableImportSelectorAnnotatedClass.class))
             .isEqualTo(new ImportsContextCustomizer(SecondDeterminableImportSelectorAnnotatedClass.class));
-  }
-
-  @Test
-  void customizersForTestClassesWithDifferentKotlinMetadataAreEqual() {
-    assertThat(new ImportsContextCustomizer(FirstKotlinAnnotatedTestClass.class))
-            .isEqualTo(new ImportsContextCustomizer(SecondKotlinAnnotatedTestClass.class));
   }
 
   @Test
@@ -104,18 +94,6 @@ class ImportsContextCustomizerTests {
   @Import(TestDeterminableImportSelector.class)
   @Indicator2
   static class SecondDeterminableImportSelectorAnnotatedClass {
-
-  }
-
-  @Metadata(d2 = "foo")
-  @Import(TestImportSelector.class)
-  static class FirstKotlinAnnotatedTestClass {
-
-  }
-
-  @Metadata(d2 = "bar")
-  @Import(TestImportSelector.class)
-  static class SecondKotlinAnnotatedTestClass {
 
   }
 

@@ -39,8 +39,6 @@ import java.util.function.Supplier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
@@ -50,14 +48,12 @@ import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.JettyClientHttpRequestFactory;
-import cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.PropertyMapper;
 import cn.taketoday.util.ReflectionUtils;
-import okhttp3.OkHttpClient;
 
 /**
  * Utility class that can be used to create {@link ClientHttpRequestFactory} instances
@@ -73,10 +69,6 @@ public abstract class ClientHttpRequestFactories {
 
   private static final boolean APACHE_HTTP_CLIENT_PRESENT = ClassUtils.isPresent(APACHE_HTTP_CLIENT_CLASS);
 
-  static final String OKHTTP_CLIENT_CLASS = "okhttp3.OkHttpClient";
-
-  private static final boolean OKHTTP_CLIENT_PRESENT = ClassUtils.isPresent(OKHTTP_CLIENT_CLASS);
-
   static final String JETTY_CLIENT_CLASS = "org.eclipse.jetty.client.HttpClient";
 
   private static final boolean JETTY_CLIENT_PRESENT = ClassUtils.isPresent(JETTY_CLIENT_CLASS);
@@ -87,7 +79,6 @@ public abstract class ClientHttpRequestFactories {
    * dependencies {@link ClassUtils#isPresent are available} is returned:
    * <ol>
    * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
-   * <li>{@link OkHttp3ClientHttpRequestFactory}</li>
    * <li>{@link JettyClientHttpRequestFactory}</li>
    * <li>{@link SimpleClientHttpRequestFactory}</li>
    * </ol>
@@ -99,9 +90,6 @@ public abstract class ClientHttpRequestFactories {
     Assert.notNull(settings, "Settings is required");
     if (APACHE_HTTP_CLIENT_PRESENT) {
       return HttpComponents.get(settings);
-    }
-    if (OKHTTP_CLIENT_PRESENT) {
-      return OkHttp.get(settings);
     }
     if (JETTY_CLIENT_PRESENT) {
       return Jetty.get(settings);
@@ -118,7 +106,6 @@ public abstract class ClientHttpRequestFactories {
    * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
    * <li>{@link JdkClientHttpRequestFactory}</li>
    * <li>{@link JettyClientHttpRequestFactory}</li>
-   * <li>{@link OkHttp3ClientHttpRequestFactory}</li>
    * <li>{@link SimpleClientHttpRequestFactory}</li>
    * </ul>
    * A {@code requestFactoryType} of {@link ClientHttpRequestFactory} is equivalent to
@@ -138,9 +125,6 @@ public abstract class ClientHttpRequestFactories {
     }
     if (requestFactoryType == HttpComponentsClientHttpRequestFactory.class) {
       return (T) HttpComponents.get(settings);
-    }
-    if (requestFactoryType == OkHttp3ClientHttpRequestFactory.class) {
-      return (T) OkHttp.get(settings);
     }
     if (requestFactoryType == JettyClientHttpRequestFactory.class) {
       return (T) Jetty.get(settings);
@@ -215,43 +199,6 @@ public abstract class ClientHttpRequestFactories {
       return HttpClientBuilder.create()
               .useSystemProperties()
               .setConnectionManager(connectionManager).build();
-    }
-
-  }
-
-  /**
-   * Support for {@link OkHttp3ClientHttpRequestFactory}.
-   */
-  static class OkHttp {
-
-    static OkHttp3ClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
-      Assert.state(settings.bufferRequestBody() == null,
-              () -> "OkHttp3ClientHttpRequestFactory does not support request body buffering");
-      OkHttp3ClientHttpRequestFactory requestFactory = createRequestFactory(settings.sslBundle());
-
-      if (settings.readTimeout() != null) {
-        requestFactory.setReadTimeout((int) settings.readTimeout().toMillis());
-      }
-      if (settings.connectTimeout() != null) {
-        requestFactory.setConnectTimeout((int) settings.connectTimeout().toMillis());
-      }
-
-      return requestFactory;
-    }
-
-    private static OkHttp3ClientHttpRequestFactory createRequestFactory(@Nullable SslBundle sslBundle) {
-      if (sslBundle != null) {
-        Assert.state(!sslBundle.getOptions().isSpecified(), "SSL Options cannot be specified with OkHttp");
-        SSLSocketFactory socketFactory = sslBundle.createSslContext().getSocketFactory();
-        TrustManager[] trustManagers = sslBundle.getManagers().getTrustManagers();
-        Assert.state(trustManagers.length == 1,
-                "Trust material must be provided in the SSL bundle for OkHttp3ClientHttpRequestFactory");
-        OkHttpClient client = new OkHttpClient.Builder()
-                .sslSocketFactory(socketFactory, (X509TrustManager) trustManagers[0])
-                .build();
-        return new OkHttp3ClientHttpRequestFactory(client);
-      }
-      return new OkHttp3ClientHttpRequestFactory();
     }
 
   }
