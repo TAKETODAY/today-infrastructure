@@ -72,7 +72,6 @@ configure([rootProject] + javaProjects) {
   }
 
   configurations.forEach {
-    it.exclude group: 'org.jetbrains.kotlin'
     it.exclude group: 'org.jetbrains', module: 'annotations'
   }
 
