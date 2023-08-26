@@ -31,6 +31,7 @@ import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.core.ssl.SslStoreBundle;
 import cn.taketoday.framework.web.server.Ssl.ClientAuth;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -42,11 +43,12 @@ import cn.taketoday.util.StringUtils;
  */
 class SslConnectorCustomizer implements TomcatConnectorCustomizer {
 
+  @Nullable
   private final ClientAuth clientAuth;
 
   private final SslBundle sslBundle;
 
-  SslConnectorCustomizer(ClientAuth clientAuth, SslBundle sslBundle) {
+  SslConnectorCustomizer(@Nullable ClientAuth clientAuth, SslBundle sslBundle) {
     this.clientAuth = clientAuth;
     this.sslBundle = sslBundle;
   }

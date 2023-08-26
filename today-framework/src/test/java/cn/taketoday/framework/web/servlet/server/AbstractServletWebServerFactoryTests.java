@@ -124,6 +124,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
 import cn.taketoday.test.classpath.ClassPathExclusions;
@@ -686,21 +687,21 @@ public abstract class AbstractServletWebServerFactoryTests {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 
-  protected Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyStore) {
+  protected Ssl getSsl(@Nullable ClientAuth clientAuth, @Nullable String keyPassword, @Nullable String keyStore) {
     return getSsl(clientAuth, keyPassword, keyStore, null, null, null);
   }
 
-  protected Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyAlias, String keyStore) {
+  protected Ssl getSsl(@Nullable ClientAuth clientAuth, @Nullable String keyPassword, @Nullable String keyAlias, @Nullable String keyStore) {
     return getSsl(clientAuth, keyPassword, keyAlias, keyStore, null, null, null);
   }
 
-  private Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyStore, String trustStore,
-          String[] supportedProtocols, String[] ciphers) {
+  private Ssl getSsl(@Nullable ClientAuth clientAuth, @Nullable String keyPassword, @Nullable String keyStore, @Nullable String trustStore,
+          @Nullable String[] supportedProtocols, @Nullable String[] ciphers) {
     return getSsl(clientAuth, keyPassword, null, keyStore, trustStore, supportedProtocols, ciphers);
   }
 
-  private Ssl getSsl(ClientAuth clientAuth, String keyPassword, String keyAlias, String keyStore, String trustStore,
-          String[] supportedProtocols, String[] ciphers) {
+  private Ssl getSsl(@Nullable ClientAuth clientAuth, @Nullable String keyPassword, @Nullable String keyAlias,
+          @Nullable String keyStore, @Nullable String trustStore, @Nullable String[] supportedProtocols, @Nullable String[] ciphers) {
     Ssl ssl = new Ssl();
     ssl.setClientAuth(clientAuth);
     if (keyPassword != null) {
@@ -1338,15 +1339,13 @@ public abstract class AbstractServletWebServerFactoryTests {
 
   protected abstract void handleExceptionCausedByBlockedPortOnPrimaryConnector(RuntimeException ex, int blockedPort);
 
-  protected abstract void handleExceptionCausedByBlockedPortOnSecondaryConnector(RuntimeException ex,
-          int blockedPort);
+  protected abstract void handleExceptionCausedByBlockedPortOnSecondaryConnector(RuntimeException ex, int blockedPort);
 
-  private boolean doTestCompression(int contentSize, String[] mimeTypes, String[] excludedUserAgents)
-          throws Exception {
+  private boolean doTestCompression(int contentSize, @Nullable String[] mimeTypes, @Nullable String[] excludedUserAgents) throws Exception {
     return doTestCompression(contentSize, mimeTypes, excludedUserAgents, HttpMethod.GET);
   }
 
-  private boolean doTestCompression(int contentSize, String[] mimeTypes, String[] excludedUserAgents,
+  private boolean doTestCompression(int contentSize, @Nullable String[] mimeTypes, @Nullable String[] excludedUserAgents,
           HttpMethod method) throws Exception {
     String testContent = setUpFactoryForCompression(contentSize, mimeTypes, excludedUserAgents);
     TestGzipInputStreamFactory inputStreamFactory = new TestGzipInputStreamFactory();
@@ -1361,7 +1360,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     return inputStreamFactory.wasCompressionUsed();
   }
 
-  private String setUpFactoryForCompression(int contentSize, String[] mimeTypes, String[] excludedUserAgents) {
+  private String setUpFactoryForCompression(int contentSize, @Nullable String[] mimeTypes, @Nullable String[] excludedUserAgents) {
     char[] chars = new char[contentSize];
     Arrays.fill(chars, 'F');
     String testContent = new String(chars);

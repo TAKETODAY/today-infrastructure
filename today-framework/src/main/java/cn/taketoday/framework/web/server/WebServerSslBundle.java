@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +52,7 @@ public final class WebServerSslBundle implements SslBundle {
 
   private final SslManagerBundle managers;
 
-  private WebServerSslBundle(SslStoreBundle stores, String keyPassword, Ssl ssl) {
+  private WebServerSslBundle(SslStoreBundle stores, @Nullable String keyPassword, Ssl ssl) {
     this.stores = stores;
     this.key = SslBundleKey.of(keyPassword, ssl.getKeyAlias());
     this.protocol = ssl.getProtocol();
@@ -72,8 +69,9 @@ public final class WebServerSslBundle implements SslBundle {
   }
 
   private static SslStoreBundle createJksStoreBundle(Ssl ssl) {
-    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails(ssl.getKeyStoreType(), ssl.getKeyStoreProvider(),
-            ssl.getKeyStore(), ssl.getKeyStorePassword());
+    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails(ssl.getKeyStoreType(),
+            ssl.getKeyStoreProvider(), ssl.getKeyStore(), ssl.getKeyStorePassword());
+
     JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails(ssl.getTrustStoreType(),
             ssl.getTrustStoreProvider(), ssl.getTrustStore(), ssl.getTrustStorePassword());
     return new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,43 +32,58 @@ public class Ssl {
 
   private boolean enabled = true;
 
+  @Nullable
   private String bundle;
 
+  @Nullable
   private ClientAuth clientAuth;
 
+  @Nullable
   private String[] ciphers;
 
+  @Nullable
   private String[] enabledProtocols;
 
+  @Nullable
   private String keyAlias;
 
+  @Nullable
   private String keyPassword;
 
   @Nullable
   private String keyStore;
 
+  @Nullable
   private String keyStorePassword;
 
   @Nullable
   private String keyStoreType;
 
+  @Nullable
   private String keyStoreProvider;
 
+  @Nullable
   private String trustStore;
 
+  @Nullable
   private String trustStorePassword;
 
+  @Nullable
   private String trustStoreType;
 
+  @Nullable
   private String trustStoreProvider;
 
   @Nullable
   private String certificate;
 
+  @Nullable
   private String certificatePrivateKey;
 
+  @Nullable
   private String trustCertificate;
 
+  @Nullable
   private String trustCertificatePrivateKey;
 
   private String protocol = "TLS";
@@ -94,6 +106,7 @@ public class Ssl {
    *
    * @return the SSL bundle name
    */
+  @Nullable
   public String getBundle() {
     return this.bundle;
   }
@@ -103,7 +116,7 @@ public class Ssl {
    *
    * @param bundle the SSL bundle name
    */
-  public void setBundle(String bundle) {
+  public void setBundle(@Nullable String bundle) {
     this.bundle = bundle;
   }
 
@@ -113,11 +126,12 @@ public class Ssl {
    *
    * @return the {@link ClientAuth} to use
    */
+  @Nullable
   public ClientAuth getClientAuth() {
     return this.clientAuth;
   }
 
-  public void setClientAuth(ClientAuth clientAuth) {
+  public void setClientAuth(@Nullable ClientAuth clientAuth) {
     this.clientAuth = clientAuth;
   }
 
@@ -126,11 +140,12 @@ public class Ssl {
    *
    * @return the supported SSL ciphers
    */
+  @Nullable
   public String[] getCiphers() {
     return this.ciphers;
   }
 
-  public void setCiphers(String[] ciphers) {
+  public void setCiphers(@Nullable String[] ciphers) {
     this.ciphers = ciphers;
   }
 
@@ -139,11 +154,12 @@ public class Ssl {
    *
    * @return the enabled SSL protocols.
    */
+  @Nullable
   public String[] getEnabledProtocols() {
     return this.enabledProtocols;
   }
 
-  public void setEnabledProtocols(String[] enabledProtocols) {
+  public void setEnabledProtocols(@Nullable String[] enabledProtocols) {
     this.enabledProtocols = enabledProtocols;
   }
 
@@ -152,11 +168,12 @@ public class Ssl {
    *
    * @return the key alias
    */
+  @Nullable
   public String getKeyAlias() {
     return this.keyAlias;
   }
 
-  public void setKeyAlias(String keyAlias) {
+  public void setKeyAlias(@Nullable String keyAlias) {
     this.keyAlias = keyAlias;
   }
 
@@ -165,11 +182,12 @@ public class Ssl {
    *
    * @return the key password
    */
+  @Nullable
   public String getKeyPassword() {
     return this.keyPassword;
   }
 
-  public void setKeyPassword(String keyPassword) {
+  public void setKeyPassword(@Nullable String keyPassword) {
     this.keyPassword = keyPassword;
   }
 
@@ -193,11 +211,12 @@ public class Ssl {
    *
    * @return the key store password
    */
+  @Nullable
   public String getKeyStorePassword() {
     return this.keyStorePassword;
   }
 
-  public void setKeyStorePassword(String keyStorePassword) {
+  public void setKeyStorePassword(@Nullable String keyStorePassword) {
     this.keyStorePassword = keyStorePassword;
   }
 
@@ -220,11 +239,12 @@ public class Ssl {
    *
    * @return the key store provider
    */
+  @Nullable
   public String getKeyStoreProvider() {
     return this.keyStoreProvider;
   }
 
-  public void setKeyStoreProvider(String keyStoreProvider) {
+  public void setKeyStoreProvider(@Nullable String keyStoreProvider) {
     this.keyStoreProvider = keyStoreProvider;
   }
 
@@ -233,11 +253,12 @@ public class Ssl {
    *
    * @return the trust store
    */
+  @Nullable
   public String getTrustStore() {
     return this.trustStore;
   }
 
-  public void setTrustStore(String trustStore) {
+  public void setTrustStore(@Nullable String trustStore) {
     this.trustStore = trustStore;
   }
 
@@ -246,11 +267,12 @@ public class Ssl {
    *
    * @return the trust store password
    */
+  @Nullable
   public String getTrustStorePassword() {
     return this.trustStorePassword;
   }
 
-  public void setTrustStorePassword(String trustStorePassword) {
+  public void setTrustStorePassword(@Nullable String trustStorePassword) {
     this.trustStorePassword = trustStorePassword;
   }
 
@@ -259,11 +281,12 @@ public class Ssl {
    *
    * @return the trust store type
    */
+  @Nullable
   public String getTrustStoreType() {
     return this.trustStoreType;
   }
 
-  public void setTrustStoreType(String trustStoreType) {
+  public void setTrustStoreType(@Nullable String trustStoreType) {
     this.trustStoreType = trustStoreType;
   }
 
@@ -272,11 +295,12 @@ public class Ssl {
    *
    * @return the trust store provider
    */
+  @Nullable
   public String getTrustStoreProvider() {
     return this.trustStoreProvider;
   }
 
-  public void setTrustStoreProvider(String trustStoreProvider) {
+  public void setTrustStoreProvider(@Nullable String trustStoreProvider) {
     this.trustStoreProvider = trustStoreProvider;
   }
 
@@ -304,7 +328,7 @@ public class Ssl {
     return this.certificatePrivateKey;
   }
 
-  public void setCertificatePrivateKey(String certificatePrivateKey) {
+  public void setCertificatePrivateKey(@Nullable String certificatePrivateKey) {
     this.certificatePrivateKey = certificatePrivateKey;
   }
 
@@ -313,11 +337,12 @@ public class Ssl {
    *
    * @return the location of the trust certificate
    */
+  @Nullable
   public String getTrustCertificate() {
     return this.trustCertificate;
   }
 
-  public void setTrustCertificate(String trustCertificate) {
+  public void setTrustCertificate(@Nullable String trustCertificate) {
     this.trustCertificate = trustCertificate;
   }
 
@@ -326,11 +351,12 @@ public class Ssl {
    *
    * @return the location of the trust certificate private key
    */
+  @Nullable
   public String getTrustCertificatePrivateKey() {
     return this.trustCertificatePrivateKey;
   }
 
-  public void setTrustCertificatePrivateKey(String trustCertificatePrivateKey) {
+  public void setTrustCertificatePrivateKey(@Nullable String trustCertificatePrivateKey) {
     this.trustCertificatePrivateKey = trustCertificatePrivateKey;
   }
 
@@ -363,7 +389,7 @@ public class Ssl {
    * @param bundle the name of the bundle
    * @return a new {@link Ssl} instance with the bundle set
    */
-  public static Ssl forBundle(String bundle) {
+  public static Ssl forBundle(@Nullable String bundle) {
     Ssl ssl = new Ssl();
     ssl.setBundle(bundle);
     return ssl;
