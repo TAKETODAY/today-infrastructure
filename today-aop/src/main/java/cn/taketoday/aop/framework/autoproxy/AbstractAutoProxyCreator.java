@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +142,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   private AdvisorAdapterRegistry advisorAdapterRegistry = DefaultAdvisorAdapterRegistry.getInstance();
 
   private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
-  private final ConcurrentHashMap<Object, Object> earlyProxyReferences = new ConcurrentHashMap<>(16);
+  private final ConcurrentHashMap<Object, Object> earlyBeanReferences = new ConcurrentHashMap<>(16);
   private final ConcurrentHashMap<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
   private final ConcurrentHashMap<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 
@@ -323,7 +320,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   @Override
   public Object getEarlyBeanReference(Object bean, String beanName) {
     Object cacheKey = getCacheKey(bean.getClass(), beanName);
-    this.earlyProxyReferences.put(cacheKey, bean);
+    this.earlyBeanReferences.put(cacheKey, bean);
     return wrapIfNecessary(bean, beanName, cacheKey);
   }
 
@@ -338,7 +335,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
     if (bean != null) {
       Object cacheKey = getCacheKey(bean.getClass(), beanName);
-      if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+      if (this.earlyBeanReferences.remove(cacheKey) != bean) {
         return wrapIfNecessary(bean, beanName, cacheKey);
       }
     }
