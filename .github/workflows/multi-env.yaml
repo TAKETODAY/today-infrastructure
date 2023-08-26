@@ -17,7 +17,9 @@ jobs:
     name: JDK ${{ matrix.java }} on ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout project sources
+        uses: actions/checkout@v3
+
       - name: Set JDK ${{ matrix.java }} from jdk.java.net
         uses: oracle-actions/setup-java@v1
         with:
