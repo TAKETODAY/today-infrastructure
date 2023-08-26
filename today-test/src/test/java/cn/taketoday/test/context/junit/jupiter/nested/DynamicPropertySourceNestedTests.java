@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,6 +123,23 @@ class DynamicPropertySourceNestedTests {
         assertServiceHasInjectedValues(service);
       }
     }
+  }
+
+  @Nested
+  class DynamicPropertySourceOverridesEnclosingClassTests {
+
+    @DynamicPropertySource
+    static void overrideDynamicPropertyFromEnclosingClass(DynamicPropertyRegistry registry) {
+      registry.add(TEST_CONTAINER_PORT, () -> -999);
+    }
+
+    @Test
+    @DisplayName("@Service has values injected from @DynamicPropertySource in enclosing class and nested class")
+    void serviceHasInjectedValues(@Autowired Service service) {
+      assertThat(service.getIp()).isEqualTo("127.0.0.1");
+      assertThat(service.getPort()).isEqualTo(-999);
+    }
+
   }
 
   static abstract class DynamicPropertySourceSuperclass {

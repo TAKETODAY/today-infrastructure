@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +55,15 @@ class DynamicPropertiesContextCustomizerFactory implements ContextCustomizerFact
   }
 
   private void findMethods(Class<?> testClass, Set<Method> methods) {
-    methods.addAll(MethodIntrospector.filterMethods(testClass, this::isAnnotated));
+    // Beginning with Java 16, inner classes may contain static members.
+    // We therefore need to search for @DynamicPropertySource methods in the
+    // current class after searching enclosing classes so that a local
+    // @DynamicPropertySource method can override properties registered in
+    // an enclosing class.
     if (TestContextAnnotationUtils.searchEnclosingClass(testClass)) {
       findMethods(testClass.getEnclosingClass(), methods);
     }
+    methods.addAll(MethodIntrospector.filterMethods(testClass, this::isAnnotated));
   }
 
   private boolean isAnnotated(Method method) {
