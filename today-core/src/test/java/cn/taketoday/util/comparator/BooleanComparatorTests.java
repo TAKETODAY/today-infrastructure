@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,28 +35,28 @@ class BooleanComparatorTests {
   @Test
   void shouldCompareWithTrueLow() {
     Comparator<Boolean> c = new BooleanComparator(true);
-    assertThat(c.compare(true, false)).isEqualTo(-1);
+    assertThat(c.compare(true, false)).isLessThan(0);
     assertThat(c.compare(Boolean.TRUE, Boolean.TRUE)).isEqualTo(0);
   }
 
   @Test
   void shouldCompareWithTrueHigh() {
     Comparator<Boolean> c = new BooleanComparator(false);
-    assertThat(c.compare(true, false)).isEqualTo(1);
+    assertThat(c.compare(true, false)).isGreaterThan(0);
     assertThat(c.compare(Boolean.TRUE, Boolean.TRUE)).isEqualTo(0);
   }
 
   @Test
   void shouldCompareFromTrueLow() {
     Comparator<Boolean> c = BooleanComparator.TRUE_LOW;
-    assertThat(c.compare(true, false)).isEqualTo(-1);
+    assertThat(c.compare(true, false)).isLessThan(0);
     assertThat(c.compare(Boolean.TRUE, Boolean.TRUE)).isEqualTo(0);
   }
 
   @Test
   void shouldCompareFromTrueHigh() {
     Comparator<Boolean> c = BooleanComparator.TRUE_HIGH;
-    assertThat(c.compare(true, false)).isEqualTo(1);
+    assertThat(c.compare(true, false)).isGreaterThan(0);
     assertThat(c.compare(Boolean.TRUE, Boolean.TRUE)).isEqualTo(0);
   }
 

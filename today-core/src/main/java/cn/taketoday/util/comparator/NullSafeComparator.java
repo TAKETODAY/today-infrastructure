@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the type of objects that may be compared by this comparator
  * @author Keith Donald
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Comparable
  * @since 4.0
  */
@@ -97,35 +95,24 @@ public class NullSafeComparator<T> implements Comparator<T> {
   }
 
   @Override
-  public int compare(@Nullable T o1, @Nullable T o2) {
-    if (o1 == o2) {
-      return 0;
-    }
-    if (o1 == null) {
-      return (this.nullsLow ? -1 : 1);
-    }
-    if (o2 == null) {
-      return (this.nullsLow ? 1 : -1);
-    }
-    return this.nonNullComparator.compare(o1, o2);
+  public int compare(@Nullable T left, @Nullable T right) {
+    Comparator<T> comparator = this.nullsLow
+                               ? Comparator.nullsFirst(this.nonNullComparator)
+                               : Comparator.nullsLast(this.nonNullComparator);
+    return comparator.compare(left, right);
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof NullSafeComparator)) {
-      return false;
-    }
-    NullSafeComparator<T> otherComp = (NullSafeComparator<T>) other;
-    return (this.nonNullComparator.equals(otherComp.nonNullComparator) && this.nullsLow == otherComp.nullsLow);
+    return this == other ||
+            (other instanceof NullSafeComparator<?> that
+                    && this.nullsLow == that.nullsLow
+                    && this.nonNullComparator.equals(that.nonNullComparator));
   }
 
   @Override
   public int hashCode() {
-    return this.nonNullComparator.hashCode() * (this.nullsLow ? -1 : 1);
+    return Boolean.hashCode(this.nullsLow);
   }
 
   @Override

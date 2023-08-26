@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.lang.Nullable;
  * {@code true} or {@code false} first.
  *
  * @author Keith Donald
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -65,8 +63,9 @@ public class BooleanComparator implements Comparator<Boolean>, Serializable {
   }
 
   @Override
-  public int compare(Boolean v1, Boolean v2) {
-    return (v1 ^ v2) ? ((v1 ^ this.trueLow) ? 1 : -1) : 0;
+  public int compare(Boolean left, Boolean right) {
+    int multiplier = this.trueLow ? -1 : 1;
+    return multiplier * Boolean.compare(left, right);
   }
 
   @Override
@@ -77,7 +76,7 @@ public class BooleanComparator implements Comparator<Boolean>, Serializable {
 
   @Override
   public int hashCode() {
-    return getClass().hashCode() * (this.trueLow ? -1 : 1);
+    return Boolean.hashCode(this.trueLow);
   }
 
   @Override
