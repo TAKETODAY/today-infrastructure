@@ -20,7 +20,7 @@ plugins {
 }
 
 gradleEnterprise {
-  if (System.getenv("CI") != null) {
+  if (System.getenv("CI") != null || Boolean.getBoolean("CI")) {
     buildScan {
       publishAlways()
       termsOfServiceUrl = "https://gradle.com/terms-of-service"
