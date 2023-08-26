@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +37,9 @@ import static cn.taketoday.expression.spel.SpelMessage.NON_TERMINATING_DOUBLE_QU
 import static cn.taketoday.expression.spel.SpelMessage.NON_TERMINATING_QUOTED_STRING;
 import static cn.taketoday.expression.spel.SpelMessage.NOT_AN_INTEGER;
 import static cn.taketoday.expression.spel.SpelMessage.NOT_A_LONG;
+import static cn.taketoday.expression.spel.SpelMessage.OOD;
 import static cn.taketoday.expression.spel.SpelMessage.REAL_CANNOT_BE_LONG;
+import static cn.taketoday.expression.spel.SpelMessage.RIGHT_OPERAND_PROBLEM;
 import static cn.taketoday.expression.spel.SpelMessage.RUN_OUT_OF_ARGUMENTS;
 import static cn.taketoday.expression.spel.SpelMessage.UNEXPECTED_DATA_AFTER_DOT;
 import static cn.taketoday.expression.spel.SpelMessage.UNEXPECTED_ESCAPE_CHAR;
@@ -154,7 +153,13 @@ class SpelParserTests {
     assertParseException(() -> parser.parseRaw("new String(3"), RUN_OUT_OF_ARGUMENTS, 10);
     assertParseException(() -> parser.parseRaw("new String("), RUN_OUT_OF_ARGUMENTS, 10);
     assertParseException(() -> parser.parseRaw("\"abc"), NON_TERMINATING_DOUBLE_QUOTED_STRING, 0);
+    assertParseException(() -> parser.parseRaw("abc\""), NON_TERMINATING_DOUBLE_QUOTED_STRING, 3);
     assertParseException(() -> parser.parseRaw("'abc"), NON_TERMINATING_QUOTED_STRING, 0);
+    assertParseException(() -> parser.parseRaw("abc'"), NON_TERMINATING_QUOTED_STRING, 3);
+    assertParseException(() -> parser.parseRaw("("), OOD, 0);
+    assertParseException(() -> parser.parseRaw(")"), OOD, 0);
+    assertParseException(() -> parser.parseRaw("+"), OOD, 0);
+    assertParseException(() -> parser.parseRaw("1+"), RIGHT_OPERAND_PROBLEM, 1);
   }
 
   @Test
@@ -392,10 +397,13 @@ class SpelParserTests {
 
   private static <E extends SpelParseException> Consumer<E> parseExceptionRequirements(
           SpelMessage expectedMessage, int expectedPosition) {
+
     return ex -> {
       assertThat(ex.getMessageCode()).isEqualTo(expectedMessage);
       assertThat(ex.getPosition()).isEqualTo(expectedPosition);
-      assertThat(ex.getMessage()).contains(ex.getExpressionString());
+      if (ex.getExpressionString() != null) {
+        assertThat(ex.getMessage()).contains(ex.getExpressionString());
+      }
     };
   }
 

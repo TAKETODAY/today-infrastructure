@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,14 +82,14 @@ class Token {
 
   @Override
   public String toString() {
-    StringBuilder s = new StringBuilder();
-    s.append('[').append(this.kind);
+    StringBuilder sb = new StringBuilder();
+    sb.append('[').append(this.kind);
     if (this.kind.hasPayload()) {
-      s.append(':').append(this.data);
+      sb.append(':').append(this.data);
     }
-    s.append(']');
-    s.append('(').append(this.startPos).append(',').append(this.endPos).append(')');
-    return s.toString();
+    sb.append(']');
+    sb.append('(').append(this.startPos).append(',').append(this.endPos).append(')');
+    return sb.toString();
   }
 
 }
