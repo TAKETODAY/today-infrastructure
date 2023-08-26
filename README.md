@@ -6,6 +6,7 @@
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![Snapshots Deployment Status](https://github.com/TAKETODAY/today-infrastructure/workflows/GitHub%20CI/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions)
+[![Coverage Status](https://github.com/TAKETODAY/today-infrastructure/workflows/Coveralls/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/gh/TAKETODAY/today-infrastructure/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-infrastructure&amp;utm_campaign=Badge_Grade)
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 
