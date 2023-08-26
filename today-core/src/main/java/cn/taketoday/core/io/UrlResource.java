@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -42,10 +40,15 @@ import cn.taketoday.util.StringUtils;
  * Supports resolution as a {@code URL} and also as a {@code File} in
  * case of the {@code "file:"} protocol.
  *
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @see java.net.URL
  * @since 2.1.6 2019-05-14 22:26
  */
 public class UrlResource extends AbstractFileResolvingResource {
+
+  private static final String AUTHORIZATION = "Authorization";
 
   /**
    * Original URI, if available; used for URI and File access.
@@ -183,6 +186,16 @@ public class UrlResource extends AbstractFileResolvingResource {
         ((HttpURLConnection) con).disconnect();
       }
       throw ex;
+    }
+  }
+
+  @Override
+  protected void customizeConnection(URLConnection con) throws IOException {
+    super.customizeConnection(con);
+    String userInfo = this.url.getUserInfo();
+    if (userInfo != null) {
+      String encodedCredentials = Base64.getUrlEncoder().encodeToString(userInfo.getBytes());
+      con.setRequestProperty(AUTHORIZATION, "Basic " + encodedCredentials);
     }
   }
 
