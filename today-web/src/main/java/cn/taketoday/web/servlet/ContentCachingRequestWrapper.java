@@ -193,16 +193,28 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
   }
 
   /**
-   * Return the cached request content as a String. The Charset used to decode
-   * the cached content is the same as returned by getCharacterEncoding.
+   * Return the cached request content as a String, using the configured
+   * {@link Charset}.
+   * <p><strong>Note:</strong> The String returned from this method
+   * reflects the amount of content that has been read at the time when it
+   * is called. If the application does not read the content, this method
+   * returns an empty String.
+   *
+   * @see #getContentAsByteArray()
    */
   public String getContentAsString() {
     return getContentAsString(Charset.forName(getCharacterEncoding()));
   }
 
   /**
-   * Return the cached request content as a String. The Charset used to decode
-   * the cached content is the same as returned by getCharacterEncoding.
+   * Return the cached request content as a String, using the configured
+   * {@link Charset}.
+   * <p><strong>Note:</strong> The String returned from this method
+   * reflects the amount of content that has been read at the time when it
+   * is called. If the application does not read the content, this method
+   * returns an empty String.
+   *
+   * @see #getContentAsByteArray()
    */
   public String getContentAsString(Charset charset) {
     return this.cachedContent.toString(charset);
