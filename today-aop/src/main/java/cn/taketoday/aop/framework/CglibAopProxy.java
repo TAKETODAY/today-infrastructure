@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +22,8 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -52,6 +49,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -350,33 +348,38 @@ class CglibAopProxy implements AopProxy, Serializable {
             new HashCodeInterceptor(config)
     };
 
-    Callback[] callbacks = mainCallbacks;
-
     // If the target is a static one and the advice chain is frozen,
     // then we can make some optimizations by sending the AOP calls
     // direct to the target using the fixed chain for that method.
     if (isStatic && isFrozen) {
       Method[] methods = rootClass.getMethods();
-      Callback[] fixedCallbacks = new Callback[methods.length];
-      this.fixedInterceptorMap = new HashMap<>(methods.length);
+      int methodsCount = methods.length;
+      ArrayList<Callback> fixedCallbacks = new ArrayList<>(methodsCount);
+      this.fixedInterceptorMap = CollectionUtils.newHashMap(methodsCount);
 
-      // TODO: small memory optimization here (can skip creation for methods with no advice)
-      for (int x = 0; x < methods.length; x++) {
+      int advicedMethodCount = methodsCount;
+      for (int x = 0; x < methodsCount; x++) {
         Method method = methods[x];
+        //do not create advices for non-overridden methods of java.lang.Object
+        if (method.getDeclaringClass() == Object.class) {
+          advicedMethodCount--;
+          continue;
+        }
         var chain = config.getInterceptors(method, rootClass);
-
-        fixedCallbacks[x] = new FixedChainStaticTargetInterceptor(chain, config);
-        this.fixedInterceptorMap.put(method, x);
+        fixedCallbacks.add(new FixedChainStaticTargetInterceptor(chain, config));
+        this.fixedInterceptorMap.put(method, x - (methodsCount - advicedMethodCount));
       }
 
       // Now copy both the callbacks from mainCallbacks
       // and fixedCallbacks into the callbacks array.
-      callbacks = new Callback[mainCallbacks.length + fixedCallbacks.length];
+      Callback[] callbacks = new Callback[mainCallbacks.length + advicedMethodCount];
       System.arraycopy(mainCallbacks, 0, callbacks, 0, mainCallbacks.length);
-      System.arraycopy(fixedCallbacks, 0, callbacks, mainCallbacks.length, fixedCallbacks.length);
+      System.arraycopy(fixedCallbacks.toArray(new Callback[0]), 0, callbacks,
+              mainCallbacks.length, advicedMethodCount);
       this.fixedInterceptorOffset = mainCallbacks.length;
+      return callbacks;
     }
-    return callbacks;
+    return mainCallbacks;
   }
 
   @Override
@@ -573,8 +576,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 
     final org.aopalliance.intercept.MethodInterceptor[] adviceChain;
 
-    public FixedChainStaticTargetInterceptor(
-            org.aopalliance.intercept.MethodInterceptor[] adviceChain, AdvisedSupport config) throws Exception {
+    public FixedChainStaticTargetInterceptor(org.aopalliance.intercept.MethodInterceptor[] adviceChain, AdvisedSupport config) throws Exception {
       this.adviceChain = adviceChain;
       this.targetClass = config.getTargetClass();
       this.target = config.getTargetSource().getTarget();
