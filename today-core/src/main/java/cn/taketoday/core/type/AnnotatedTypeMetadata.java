@@ -33,7 +33,6 @@ import cn.taketoday.core.annotation.MergedAnnotationCollectors;
 import cn.taketoday.core.annotation.MergedAnnotationPredicates;
 import cn.taketoday.core.annotation.MergedAnnotationSelectors;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 
@@ -117,14 +116,14 @@ public interface AnnotatedTypeMetadata {
    * Get the fully qualified class names of all meta-annotation types that
    * are <em>present</em> on the given annotation type on the underlying class.
    *
-   * @param annotationName the fully qualified class name of the meta-annotation
-   * type to look for
+   * @param annotationName the fully qualified class name of the annotation
+   * type to look for meta-annotations on
    * @return the meta-annotation type names, or an empty set if none found
    */
   default Set<String> getMetaAnnotationTypes(String annotationName) {
     var annotation = getAnnotations().get(annotationName, MergedAnnotation::isDirectlyPresent);
     if (annotation.isPresent()) {
-      return MergedAnnotations.from(annotation.getType(), SearchStrategy.INHERITED_ANNOTATIONS)
+      return MergedAnnotations.from(annotation.getType())
               .stream()
               .map(mergedAnnotation -> mergedAnnotation.getType().getName())
               .collect(Collectors.toCollection(LinkedHashSet::new));
