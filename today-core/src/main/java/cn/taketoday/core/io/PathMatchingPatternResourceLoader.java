@@ -713,6 +713,14 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
         rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
       }
 
+      if (!Files.exists(rootPath)) {
+        if (log.isInfoEnabled()) {
+          log.info("Skipping search for files matching pattern [{}]: directory [{}] does not exist",
+                  subPattern, rootPath.toAbsolutePath());
+        }
+        return;
+      }
+
       String rootDir = StringUtils.cleanPath(rootPath.toString());
       if (!rootDir.endsWith("/")) {
         rootDir += "/";

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,6 +114,19 @@ class PathMatchingPatternResourceLoaderTests {
       String[] expectedFilenames = StringUtils.concatenateStringArrays(
               CLASSES_IN_CORE_IO_SUPPORT, TEST_CLASSES_IN_CORE_IO_SUPPORT);
       assertFilenames(pattern, expectedFilenames);
+    }
+
+    @Test
+    void usingFileProtocolWithWildcardInPatternAndNonexistentRootPath() throws IOException {
+      Path testResourcesDir = Paths.get("src/test/resources").toAbsolutePath();
+      String pattern = String.format("file:%s/example/bogus/**", testResourcesDir);
+      assertThat(resolver.getResources(pattern)).isEmpty();
+      // When the log level for the resolver is set to at least INFO, we should see
+      // a log entry similar to the following.
+      //
+      // [main] INFO  o.s.c.i.s.PathMatchingResourcePatternResolver -
+      // Skipping search for files matching pattern [**]: directory
+      // [/<...>/spring-core/src/test/resources/example/bogus] does not exist
     }
 
     @Test
