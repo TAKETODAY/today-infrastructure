@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,14 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.support;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.beans.factory.config.CustomScopeConfigurer;
 import cn.taketoday.beans.factory.config.Scope;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.lang.Nullable;
@@ -34,17 +30,26 @@ import cn.taketoday.logging.LoggerFactory;
 /**
  * A simple thread-backed {@link Scope} implementation.
  *
- * <p>
- * <b>NOTE:</b> This thread scope is not registered by default in common
- * contexts. Instead, you need to explicitly assign it to a scope key in your
- * setup, either through {@link ConfigurableBeanFactory#registerScope} or
- * through a {@link CustomScopeConfigurer} bean.
+ * <p><b>NOTE:</b> This thread scope is not registered by default in common contexts.
+ * Instead, you need to explicitly assign it to a scope key in your setup, either through
+ * {@link cn.taketoday.beans.factory.config.ConfigurableBeanFactory#registerScope}
+ * or through a {@link cn.taketoday.beans.factory.config.CustomScopeConfigurer} bean.
+ *
+ * <p>{@code SimpleThreadScope} <em>does not clean up any objects</em> associated with it.
+ * It is therefore typically preferable to use a request-bound scope implementation such
+ * as {@code cn.taketoday.web.context.request.RequestScope} in web environments,
+ * implementing the full lifecycle for scoped attributes (including reliable destruction).
+ *
+ * <p>For an implementation of a thread-based {@code Scope} with support for destruction
+ * callbacks, refer to
+ * <a href="https://www.springbyexample.org/examples/custom-thread-scope-module.html">Spring by Example</a>.
+ *
+ * <p>Thanks to Eugene Kuleshov for submitting the original prototype for a thread scope!
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @author TODAY <br>
- * 2020-04-02 21:09
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.7 2020-04-02 21:09
  */
 public class SimpleThreadScope implements Scope {
   private static final Logger logger = LoggerFactory.getLogger(SimpleThreadScope.class);
