@@ -49,12 +49,18 @@ import joptsimple.OptionSpec;
  * }</pre>
  *
  * See {@link CommandLinePropertySource} for complete general usage examples.
+ * <p>If an option has several representations, the most descriptive is expected
+ * to be set last, and is used as the property name of the associated
+ * {@link EnumerablePropertySource#getPropertyNames()}.
+ *
+ * <p>See {@link CommandLinePropertySource} for complete general usage examples.
  *
  * <p>Requires JOpt Simple version 4.3 or higher. Tested against JOpt up until 5.0.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see CommandLinePropertySource
  * @see joptsimple.OptionParser
  * @see joptsimple.OptionSet
