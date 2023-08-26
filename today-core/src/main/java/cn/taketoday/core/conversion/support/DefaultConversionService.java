@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConverterRegistry;
@@ -169,6 +167,9 @@ public class DefaultConversionService extends GenericConversionService {
 
     converterRegistry.addConverter(new StringToUUIDConverter());
     converterRegistry.addConverter(UUID.class, String.class, new ObjectToStringConverter());
+
+    converterRegistry.addConverter(new StringToPatternConverter());
+    converterRegistry.addConverter(Pattern.class, String.class, new ObjectToStringConverter());
   }
 
 }
