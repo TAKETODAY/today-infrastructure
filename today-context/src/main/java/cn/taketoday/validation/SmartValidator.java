@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface SmartValidator extends Validator {
@@ -68,6 +66,21 @@ public interface SmartValidator extends Validator {
           @Nullable Object value, Errors errors, Object... validationHints) {
 
     throw new IllegalArgumentException("Cannot validate individual value for " + targetType);
+  }
+
+  /**
+   * Return a contained validator instance of the specified type, unwrapping
+   * as far as necessary.
+   *
+   * @param type the class of the object to return
+   * @param <T> the type of the object to return
+   * @return a validator instance of the specified type; {@code null} if there
+   * isn't a nested validator; an exception may be raised if the specified
+   * validator type does not match.
+   */
+  @Nullable
+  default <T> T unwrap(@Nullable Class<T> type) {
+    return null;
   }
 
 }
