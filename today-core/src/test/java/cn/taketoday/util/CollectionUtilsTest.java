@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.util;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -539,6 +537,30 @@ public class CollectionUtilsTest {
 
     assertThat(CollectionUtils.lastElement((List<?>) null)).isNull();
     assertThat(CollectionUtils.lastElement(list)).isNotNull().isNotEmpty().isEqualTo("myOtherElement");
+  }
+
+  @Test
+  void conversionOfEmptyMap() {
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.from(new HashMap<>());
+    assertThat(asMultiValueMap.isEmpty()).isTrue();
+    assertThat(asMultiValueMap).isEmpty();
+  }
+
+  @Test
+  void conversionOfNonEmptyMap() {
+    Map<String, List<String>> wrapped = new HashMap<>();
+    wrapped.put("key", Arrays.asList("first", "second"));
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.from(wrapped);
+    assertThat(asMultiValueMap).containsAllEntriesOf(wrapped);
+  }
+
+  @Test
+  void changesValueByReference() {
+    Map<String, List<String>> wrapped = new HashMap<>();
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.from(wrapped);
+    assertThat(asMultiValueMap).doesNotContainKeys("key");
+    wrapped.put("key", new ArrayList<>());
+    assertThat(asMultiValueMap).containsKey("key");
   }
 
   private static final class Instance {
