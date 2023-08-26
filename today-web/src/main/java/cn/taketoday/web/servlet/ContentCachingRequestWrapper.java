@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -50,6 +48,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
  *
  * @author Juergen Hoeller
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContentCachingResponseWrapper
  * @since 4.0
  */
@@ -191,6 +190,22 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    */
   public byte[] getContentAsByteArray() {
     return cachedContent.toByteArray();
+  }
+
+  /**
+   * Return the cached request content as a String. The Charset used to decode
+   * the cached content is the same as returned by getCharacterEncoding.
+   */
+  public String getContentAsString() {
+    return getContentAsString(Charset.forName(getCharacterEncoding()));
+  }
+
+  /**
+   * Return the cached request content as a String. The Charset used to decode
+   * the cached content is the same as returned by getCharacterEncoding.
+   */
+  public String getContentAsString(Charset charset) {
+    return this.cachedContent.toString(charset);
   }
 
   /**
