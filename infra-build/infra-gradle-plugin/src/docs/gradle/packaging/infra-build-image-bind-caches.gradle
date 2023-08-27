@@ -24,7 +24,7 @@ tasks.named("infraBuildImage") {
 
 tasks.register("infraBuildImageCaches") {
   doFirst {
-    bootBuildImage.buildCache.asCache().with { println "buildCache=$source" }
-    bootBuildImage.launchCache.asCache().with { println "launchCache=$source" }
+    infraBuildImage.buildCache.asCache().with { println "buildCache=$source" }
+    infraBuildImage.launchCache.asCache().with { println "launchCache=$source" }
   }
 }

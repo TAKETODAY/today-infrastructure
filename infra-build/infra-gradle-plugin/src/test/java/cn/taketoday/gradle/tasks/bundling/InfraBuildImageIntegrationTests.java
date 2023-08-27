@@ -315,8 +315,13 @@ class InfraBuildImageIntegrationTests {
     Path launchCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-launch");
     assertThat(buildCachePath).exists().isDirectory();
     assertThat(launchCachePath).exists().isDirectory();
-    FileSystemUtils.deleteRecursively(buildCachePath);
-    FileSystemUtils.deleteRecursively(launchCachePath);
+    try {
+      FileSystemUtils.deleteRecursively(buildCachePath);
+      FileSystemUtils.deleteRecursively(launchCachePath);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   @TestTemplate
