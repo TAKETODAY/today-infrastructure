@@ -49,6 +49,7 @@ dependencies {
   testImplementation("jakarta.inject:jakarta.inject-tck")
   testImplementation("io.reactivex.rxjava3:rxjava")
   testImplementation("org.hsqldb:hsqldb")
+  testImplementation("javax.inject:javax.inject:1")
   testImplementation("jakarta.annotation:jakarta.annotation-api")
   testRuntimeOnly("org.ehcache:jcache")
   testRuntimeOnly("org.ehcache:ehcache")
