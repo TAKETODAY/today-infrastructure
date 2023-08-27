@@ -38,6 +38,8 @@ jobs:
           server-password: SNAPSHOTS_TOKEN
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2.7.1
 
       - name: Deploy snapshots
         run: ./gradlew --no-daemon publish -DCI=true -DrepoUsername=$SNAPSHOTS_USERNAME -DrepoPassword=$SNAPSHOTS_TOKEN

@@ -35,5 +35,8 @@ jobs:
       - name: Print JDK Version
         run: java -version
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2.7.1
+
       - name: Build with Gradle
         run: ./gradlew -DCI=true --no-daemon --max-workers=4 check
