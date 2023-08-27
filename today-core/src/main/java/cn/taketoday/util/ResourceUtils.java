@@ -367,7 +367,7 @@ public abstract class ResourceUtils {
     }
     try {
       // try URL
-      return new URL(resourceLocation);
+      return toURL(resourceLocation);
     }
     catch (MalformedURLException ex) {
       // no URL -> treat as file path
