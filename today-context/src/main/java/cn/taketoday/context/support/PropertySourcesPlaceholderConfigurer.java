@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,16 +162,24 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
       }
     }
 
-    processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));
+    processProperties(beanFactory, createPropertyResolver(this.propertySources));
     this.appliedPropertySources = this.propertySources;
+  }
+
+  /**
+   * Create a {@link ConfigurablePropertyResolver} for the specified property sources.
+   *
+   * @param propertySources the property sources to use
+   */
+  protected ConfigurablePropertyResolver createPropertyResolver(PropertySources propertySources) {
+    return new PropertySourcesPropertyResolver(propertySources);
   }
 
   /**
    * Visit each bean definition in the given bean factory and attempt to replace ${...} property
    * placeholders with values from the given properties.
    */
-  protected void processProperties(
-          ConfigurableBeanFactory beanFactoryToProcess,
+  protected void processProperties(ConfigurableBeanFactory beanFactoryToProcess,
           ConfigurablePropertyResolver propertyResolver) throws BeansException {
 
     propertyResolver.setValueSeparator(valueSeparator);
