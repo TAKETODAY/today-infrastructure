@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.lang.Assert;
@@ -81,10 +79,6 @@ public class SynchronizationInfo implements Serializable {
    */
   public Map<Object, Object> getResourceMap() {
     return resourceMap != null ? Collections.unmodifiableMap(resourceMap) : Collections.emptyMap();
-  }
-
-  public void setResourcesMap(@Nullable Map<Object, Object> resources) {
-    this.resourceMap = resources;
   }
 
   /**
@@ -293,18 +287,22 @@ public class SynchronizationInfo implements Serializable {
    * @see TransactionSynchronization
    */
   public List<TransactionSynchronization> getSynchronizations() {
-    if (synchronizations == null) {
+    Set<TransactionSynchronization> synchs = synchronizations;
+    if (synchs == null) {
       throw new IllegalStateException("Transaction synchronization is not active");
     }
     // Return unmodifiable snapshot, to avoid ConcurrentModificationExceptions
     // while iterating and invoking synchronization callbacks that in turn
     // might register further synchronizations.
-    if (synchronizations.isEmpty()) {
+    if (synchs.isEmpty()) {
       return Collections.emptyList();
+    }
+    else if (synchs.size() == 1) {
+      return Collections.singletonList(synchs.iterator().next());
     }
     else {
       // Sort lazily here, not in registerSynchronization.
-      ArrayList<TransactionSynchronization> sortedSynchs = new ArrayList<>(synchronizations);
+      ArrayList<TransactionSynchronization> sortedSynchs = new ArrayList<>(synchs);
       OrderComparator.sort(sortedSynchs);
       return Collections.unmodifiableList(sortedSynchs);
     }
@@ -543,5 +541,4 @@ public class SynchronizationInfo implements Serializable {
     }
   }
 
-  // -------------------------------------------------------------
 }
