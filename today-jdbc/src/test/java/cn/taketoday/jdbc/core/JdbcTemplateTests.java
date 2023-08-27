@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -526,6 +523,35 @@ public class JdbcTemplateTests {
     verify(this.preparedStatement).setInt(1, ids[1]);
     verify(this.preparedStatement).close();
     verify(this.connection, atLeastOnce()).close();
+  }
+
+  @Test
+  public void testBatchUpdateWithPreparedStatementWithEmptyData() throws Exception {
+    final String sql = "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = ?";
+    final int[] ids = new int[] {};
+    final int[] rowsAffected = new int[] {};
+
+    given(this.preparedStatement.executeBatch()).willReturn(rowsAffected);
+    mockDatabaseMetaData(true);
+
+    BatchPreparedStatementSetter setter = new BatchPreparedStatementSetter() {
+      @Override
+      public void setValues(PreparedStatement ps, int i) throws SQLException {
+        ps.setInt(1, ids[i]);
+      }
+
+      @Override
+      public int getBatchSize() {
+        return ids.length;
+      }
+    };
+
+    JdbcTemplate template = new JdbcTemplate(this.dataSource, false);
+
+    int[] actualRowsAffected = template.batchUpdate(sql, setter);
+    assertThat(actualRowsAffected.length == 0).as("executed 0 updates").isTrue();
+
+    verify(this.preparedStatement, never()).executeBatch();
   }
 
   @Test
