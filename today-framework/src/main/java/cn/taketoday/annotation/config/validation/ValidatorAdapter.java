@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +35,7 @@ import jakarta.validation.ValidationException;
 /**
  * {@link Validator} implementation that delegates calls to another {@link Validator}.
  * This {@link Validator} implements Infra {@link SmartValidator} interface but does
- * not implement the JSR-303 {@code javax.validator.Validator} interface.
+ * not implement the JSR-303 {@code jakarta.validator.Validator} interface.
  *
  * @author Stephane Nicoll
  * @author Phillip Webb
