@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,11 +56,13 @@ import cn.taketoday.stereotype.Service;
 import cn.taketoday.util.ClassUtils;
 
 /**
- * A component provider that provides candidate components from a base package. Can
- * use {@link CandidateComponentsIndex the index} if it is available of scans the
- * classpath otherwise. Candidate components are identified by applying exclude and
- * include filters. {@link AnnotationTypeFilter}, {@link AssignableTypeFilter} include
- * filters on an annotation/superclass that are annotated with {@link Indexed} are
+ * A component provider that scans for candidate components starting from a
+ * specified base package. Can use the {@linkplain CandidateComponentsIndex component
+ * index}, if it is available, and scans the classpath otherwise.
+ *
+ * <p>Candidate components are identified by applying exclude and include filters.
+ * {@link AnnotationTypeFilter} and {@link AssignableTypeFilter} include filters
+ * for an annotation/target-type that is annotated with {@link Indexed} are
  * supported: if any other include filter is specified, the index is ignored and
  * classpath scanning is used instead.
  *
@@ -77,6 +76,10 @@ import cn.taketoday.util.ClassUtils;
  * @author Chris Beams
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see cn.taketoday.core.type.classreading.MetadataReaderFactory
+ * @see cn.taketoday.core.type.AnnotationMetadata
+ * @see ScannedGenericBeanDefinition
+ * @see CandidateComponentsIndex
  * @since 4.0 2021/12/9 21:33
  */
 public class ClassPathScanningCandidateComponentProvider
@@ -168,7 +171,9 @@ public class ClassPathScanningCandidateComponentProvider
    * {@link Repository @Repository}, {@link Service @Service}, and
    * {@link Controller @Controller} stereotype annotations.
    * <p>Also supports Jakarta EE's {@link jakarta.annotation.ManagedBean} and
-   * JSR-330's {@link jakarta.inject.Named} annotations, if available.
+   * JSR-330's {@link jakarta.inject.Named} annotations (as well as their
+   * pre-Jakarta {@code javax.annotation.ManagedBean} and {@code javax.inject.Named}
+   * equivalents), if available.
    */
   protected void registerDefaultFilters() {
     this.includeFilters.add(new AnnotationTypeFilter(Component.class));
@@ -183,8 +188,24 @@ public class ClassPathScanningCandidateComponentProvider
     }
     try {
       this.includeFilters.add(new AnnotationTypeFilter(
+              ClassUtils.forName("javax.annotation.ManagedBean", cl), false));
+      log.trace("JSR-250 'javax.annotation.ManagedBean' found and supported for component scanning");
+    }
+    catch (ClassNotFoundException ex) {
+      // JSR-250 1.1 API not available - simply skip.
+    }
+    try {
+      this.includeFilters.add(new AnnotationTypeFilter(
               ClassUtils.forName("jakarta.inject.Named", cl), false));
       log.trace("JSR-330 'jakarta.inject.Named' annotation found and supported for component scanning");
+    }
+    catch (ClassNotFoundException ex) {
+      // JSR-330 API (as included in Jakarta EE) not available - simply skip.
+    }
+    try {
+      this.includeFilters.add(new AnnotationTypeFilter(
+              ClassUtils.forName("javax.inject.Named", cl), false));
+      log.trace("JSR-330 'javax.inject.Named' annotation found and supported for component scanning");
     }
     catch (ClassNotFoundException ex) {
       // JSR-330 API not available - simply skip.
@@ -243,7 +264,7 @@ public class ClassPathScanningCandidateComponentProvider
   }
 
   /**
-   * Scan the class path for candidate components.
+   * Scan the component index or class path for candidate components.
    *
    * @param basePackage the package to check for annotated classes
    * @return a corresponding Set of autodetected bean definitions
@@ -280,7 +301,7 @@ public class ClassPathScanningCandidateComponentProvider
   }
 
   /**
-   * Determine if the index can be used by this instance.
+   * Determine if the component index can be used by this instance.
    *
    * @return {@code true} if the index is available and the configuration of this
    * instance is supported by it, {@code false} otherwise
@@ -304,11 +325,12 @@ public class ClassPathScanningCandidateComponentProvider
   private boolean indexSupportsIncludeFilter(TypeFilter filter) {
     if (filter instanceof AnnotationTypeFilter) {
       Class<? extends Annotation> annotation = ((AnnotationTypeFilter) filter).getAnnotationType();
-      return (AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, annotation)
-              || annotation.getName().startsWith("jakarta."));
+      return AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, annotation)
+              || annotation.getName().startsWith("jakarta.")
+              || annotation.getName().startsWith("javax.");
     }
-    else if (filter instanceof AssignableTypeFilter) {
-      Class<?> target = ((AssignableTypeFilter) filter).getTargetType();
+    else if (filter instanceof AssignableTypeFilter atf) {
+      Class<?> target = atf.getTargetType();
       return AnnotationUtils.isAnnotationDeclaredLocally(Indexed.class, target);
     }
     return false;

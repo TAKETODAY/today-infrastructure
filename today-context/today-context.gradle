@@ -32,6 +32,7 @@ dependencies {
   optional("com.github.ben-manes.caffeine:caffeine")
   optional("org.freemarker:freemarker")
   optional 'ch.qos.logback:logback-classic'
+  optional("javax.inject:javax.inject")
 
   testImplementation("org.eclipse.angus:jakarta.mail")
   testImplementation("javax.annotation:javax.annotation-api")
@@ -49,7 +50,6 @@ dependencies {
   testImplementation("jakarta.inject:jakarta.inject-tck")
   testImplementation("io.reactivex.rxjava3:rxjava")
   testImplementation("org.hsqldb:hsqldb")
-  testImplementation("javax.inject:javax.inject:1")
   testImplementation("jakarta.annotation:jakarta.annotation-api")
   testRuntimeOnly("org.ehcache:jcache")
   testRuntimeOnly("org.ehcache:ehcache")

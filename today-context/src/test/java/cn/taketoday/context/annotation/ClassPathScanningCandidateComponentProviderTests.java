@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,8 @@ import cn.taketoday.stereotype.Service;
 import example.gh24375.AnnotatedComponent;
 import example.indexed.IndexedJakartaManagedBeanComponent;
 import example.indexed.IndexedJakartaNamedComponent;
+import example.indexed.IndexedJavaxManagedBeanComponent;
+import example.indexed.IndexedJavaxNamedComponent;
 import example.profilescan.DevComponent;
 import example.profilescan.ProfileAnnotatedComponent;
 import example.profilescan.ProfileMetaAnnotatedComponent;
@@ -61,6 +60,8 @@ import example.scannable.FooService;
 import example.scannable.FooServiceImpl;
 import example.scannable.JakartaManagedBeanComponent;
 import example.scannable.JakartaNamedComponent;
+import example.scannable.JavaxManagedBeanComponent;
+import example.scannable.JavaxNamedComponent;
 import example.scannable.MessageBean;
 import example.scannable.NamedComponent;
 import example.scannable.NamedStubDao;
@@ -89,21 +90,6 @@ public class ClassPathScanningCandidateComponentProviderTests {
           ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
           new ClassPathResource("today.components", NamedComponent.class));
 
-  @Test
-  void defaultsWithScan() {
-    ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-    provider.setResourceLoader(new DefaultResourceLoader(
-            CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-    testDefault(provider, true, false);
-  }
-
-  @Test
-  void defaultsWithIndex() {
-    ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-    provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-    testDefault(provider, "example", true, true);
-  }
-
   private static final Set<Class<?>> springComponents = Set.of(
           DefaultNamedComponent.class,
           NamedComponent.class,
@@ -119,22 +105,45 @@ public class ClassPathScanningCandidateComponentProviderTests {
           JakartaManagedBeanComponent.class
   );
 
-  private static final Set<Class<?>> indexedJakartaComponents = Set.of(
-          IndexedJakartaNamedComponent.class,
-          IndexedJakartaManagedBeanComponent.class
+  private static final Set<Class<?>> scannedJavaxComponents = Set.of(
+          JavaxNamedComponent.class,
+          JavaxManagedBeanComponent.class
   );
 
-  private void testDefault(ClassPathScanningCandidateComponentProvider provider, boolean includeScannedJakartaComponents, boolean includeIndexedJakartaComponents) {
-    testDefault(provider, TEST_BASE_PACKAGE, includeScannedJakartaComponents, includeIndexedJakartaComponents);
+  private static final Set<Class<?>> indexedComponents = Set.of(
+          IndexedJakartaNamedComponent.class,
+          IndexedJakartaManagedBeanComponent.class,
+          IndexedJavaxNamedComponent.class,
+          IndexedJavaxManagedBeanComponent.class
+  );
+
+  @Test
+  void defaultsWithScan() {
+    ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+    provider.setResourceLoader(new DefaultResourceLoader(
+            CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+    testDefault(provider, TEST_BASE_PACKAGE, true, true, false);
   }
 
-  private void testDefault(ClassPathScanningCandidateComponentProvider provider, String basePackage, boolean includeScannedJakartaComponents, boolean includeIndexedJakartaComponents) {
+  @Test
+  void defaultsWithIndex() {
+    ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+    provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+    testDefault(provider, "example", true, true, true);
+  }
+
+  private void testDefault(ClassPathScanningCandidateComponentProvider provider, String basePackage,
+          boolean includeScannedJakartaComponents, boolean includeScannedJavaxComponents, boolean includeIndexedComponents) {
+
     Set<Class<?>> expectedTypes = new HashSet<>(springComponents);
     if (includeScannedJakartaComponents) {
       expectedTypes.addAll(scannedJakartaComponents);
     }
-    if (includeIndexedJakartaComponents) {
-      expectedTypes.addAll(indexedJakartaComponents);
+    if (includeScannedJavaxComponents) {
+      expectedTypes.addAll(scannedJavaxComponents);
+    }
+    if (includeIndexedComponents) {
+      expectedTypes.addAll(indexedComponents);
     }
 
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(basePackage);
@@ -207,7 +216,7 @@ public class ClassPathScanningCandidateComponentProviderTests {
 
   private void testCustomAnnotationTypeIncludeFilter(ClassPathScanningCandidateComponentProvider provider) {
     provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-    testDefault(provider, false, false);
+    testDefault(provider, TEST_BASE_PACKAGE, false, false, false);
   }
 
   @Test
@@ -300,7 +309,7 @@ public class ClassPathScanningCandidateComponentProviderTests {
     Set<AnnotatedBeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
     assertScannedBeanDefinitions(candidates);
     assertBeanTypes(candidates, FooServiceImpl.class, StubFooDao.class, ServiceInvocationCounter.class,
-            BarComponent.class, JakartaManagedBeanComponent.class);
+            BarComponent.class, JakartaManagedBeanComponent.class, JavaxManagedBeanComponent.class);
   }
 
   @Test
@@ -566,12 +575,12 @@ public class ClassPathScanningCandidateComponentProviderTests {
 
   @Profile(TEST_DEFAULT_PROFILE_NAME)
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface DefaultProfile {
+  @interface DefaultProfile {
   }
 
   @Profile("dev")
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface DevProfile {
+  @interface DevProfile {
   }
 
 }
