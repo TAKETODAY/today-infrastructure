@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,12 +48,14 @@ import cn.taketoday.util.StringUtils;
  * themselves annotated with {@code @Component}.
  *
  * <p>Also supports Jakarta EE's {@link jakarta.annotation.ManagedBean} and
- * JSR-330's {@link jakarta.inject.Named} annotations, if available. Note that
- * Framework component annotations always override such standard annotations.
+ * JSR-330's {@link jakarta.inject.Named} annotations (as well as their pre-Jakarta
+ * {@code javax.annotation.ManagedBean} and {@code javax.inject.Named} equivalents),
+ * if available. Note that Spring component annotations always override such
+ * standard annotations.
  *
  * <p>If the annotation's value doesn't indicate a bean name, an appropriate
  * name will be built based on the short name of the class (with the first
- * letter lower-cased), unless the two first letters are uppercase. For example:
+ * letter lower-cased), unless the first two letters are uppercase. For example:
  *
  * <pre class="code">com.xyz.FooServiceImpl -&gt; fooServiceImpl</pre>
  * <pre class="code">com.xyz.URLFooServiceImpl -&gt; URLFooServiceImpl</pre>
@@ -133,6 +132,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
     return beanName;
   }
 
+  @Nullable
   private BeanNameHolder getBeanNameHolder(MergedAnnotation<?> annotation) {
     Optional<Object> value = annotation.getValue(MergedAnnotation.VALUE);
     if (value.isPresent()) {
@@ -174,7 +174,9 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
     return annotationType.equals(COMPONENT_ANNOTATION_CLASSNAME)
             || metaAnnotationTypes.contains(COMPONENT_ANNOTATION_CLASSNAME)
             || annotationType.equals("jakarta.annotation.ManagedBean")
-            || annotationType.equals("jakarta.inject.Named");
+            || annotationType.equals("jakarta.inject.Named")
+            || annotationType.equals("javax.annotation.ManagedBean")
+            || annotationType.equals("javax.inject.Named");
   }
 
   /**
