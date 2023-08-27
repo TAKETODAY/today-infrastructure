@@ -134,9 +134,9 @@ class BuildRequestTests {
   void withCreatorUpdatesCreator() throws IOException {
     BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
     BuildRequest withCreator = request.withCreator(Creator.withVersion("1.0.0"));
-    assertThat(request.getCreator().getName()).isEqualTo("Spring Boot");
+    assertThat(request.getCreator().getName()).isEqualTo("Infra Application");
     assertThat(request.getCreator().getVersion()).isEmpty();
-    assertThat(withCreator.getCreator().getName()).isEqualTo("Spring Boot");
+    assertThat(withCreator.getCreator().getName()).isEqualTo("Infra Application");
     assertThat(withCreator.getCreator().getVersion()).isEqualTo("1.0.0");
   }
 
