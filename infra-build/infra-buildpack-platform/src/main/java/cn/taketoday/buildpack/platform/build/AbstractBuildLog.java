@@ -33,6 +33,7 @@ import cn.taketoday.buildpack.platform.docker.type.VolumeName;
  * @author Scott Frederick
  * @author Andrey Shlykov
  * @author Rafael Ceccone
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractBuildLog implements BuildLog {
@@ -67,6 +68,12 @@ public abstract class AbstractBuildLog implements BuildLog {
   public void executingLifecycle(BuildRequest request, LifecycleVersion version, VolumeName buildCacheVolume) {
     log(" > Executing lifecycle version " + version);
     log(" > Using build cache volume '" + buildCacheVolume + "'");
+  }
+
+  @Override
+  public void executingLifecycle(BuildRequest request, LifecycleVersion version, Cache buildCache) {
+    log(" > Executing lifecycle version " + version);
+    log(" > Using build cache " + buildCache);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,6 @@ package cn.taketoday.maven;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
-import cn.taketoday.buildpack.platform.docker.DockerApi;
-import cn.taketoday.buildpack.platform.docker.DockerApi.VolumeApi;
-import cn.taketoday.buildpack.platform.docker.type.Image;
-import cn.taketoday.buildpack.platform.docker.type.ImageName;
-import cn.taketoday.buildpack.platform.docker.type.ImageReference;
-import cn.taketoday.buildpack.platform.docker.type.VolumeName;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +30,15 @@ import java.time.OffsetDateTime;
 import java.util.Random;
 import java.util.stream.IntStream;
 
+import cn.taketoday.buildpack.platform.docker.DockerApi;
+import cn.taketoday.buildpack.platform.docker.DockerApi.VolumeApi;
+import cn.taketoday.buildpack.platform.docker.type.Image;
+import cn.taketoday.buildpack.platform.docker.type.ImageName;
+import cn.taketoday.buildpack.platform.docker.type.ImageReference;
+import cn.taketoday.buildpack.platform.docker.type.VolumeName;
 import cn.taketoday.test.junit.DisabledOnOs;
 import cn.taketoday.test.testcontainers.DisabledIfDockerUnavailable;
+import cn.taketoday.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -386,16 +387,38 @@ class BuildImageTests extends AbstractArchiveIntegrationTests {
   @TestTemplate
   void whenBuildImageIsInvokedWithVolumeCaches(MavenBuild mavenBuild) {
     String testBuildId = randomString();
-    mavenBuild.project("build-image-caches")
+    mavenBuild.project("build-image-volume-caches")
             .goals("package")
             .systemProperty("infra.build-image.pullPolicy", "IF_NOT_PRESENT")
             .systemProperty("test-build-id", testBuildId)
             .execute((project) -> {
               assertThat(buildLog(project)).contains("Building image")
-                      .contains("docker.io/library/build-image-caches:0.0.1.BUILD-SNAPSHOT")
+                      .contains("docker.io/library/build-image-volume-caches:0.0.1.BUILD-SNAPSHOT")
                       .contains("Successfully built image");
-              removeImage("build-image-caches", "0.0.1.BUILD-SNAPSHOT");
+              removeImage("build-image-volume-caches", "0.0.1.BUILD-SNAPSHOT");
               deleteVolumes("cache-" + testBuildId + ".build", "cache-" + testBuildId + ".launch");
+            });
+  }
+
+  @TestTemplate
+  void whenBuildImageIsInvokedWithBindCaches(MavenBuild mavenBuild) {
+    String testBuildId = randomString();
+    mavenBuild.project("build-image-bind-caches")
+            .goals("package")
+            .systemProperty("infra.build-image.pullPolicy", "IF_NOT_PRESENT")
+            .systemProperty("test-build-id", testBuildId)
+            .execute((project) -> {
+              assertThat(buildLog(project)).contains("Building image")
+                      .contains("docker.io/library/build-image-bind-caches:0.0.1.BUILD-SNAPSHOT")
+                      .contains("Successfully built image");
+              removeImage("build-image-bind-caches", "0.0.1.BUILD-SNAPSHOT");
+              String tempDir = System.getProperty("java.io.tmpdir");
+              Path buildCachePath = Paths.get(tempDir, "junit-image-cache-" + testBuildId + "-build");
+              Path launchCachePath = Paths.get(tempDir, "junit-image-cache-" + testBuildId + "-launch");
+              assertThat(buildCachePath).exists().isDirectory();
+              assertThat(launchCachePath).exists().isDirectory();
+              FileSystemUtils.deleteRecursively(buildCachePath);
+              FileSystemUtils.deleteRecursively(launchCachePath);
             });
   }
 

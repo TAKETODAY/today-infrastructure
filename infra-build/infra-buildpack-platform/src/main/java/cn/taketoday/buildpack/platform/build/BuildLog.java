@@ -33,6 +33,7 @@ import cn.taketoday.buildpack.platform.docker.type.VolumeName;
  * @author Scott Frederick
  * @author Andrey Shlykov
  * @author Rafael Ceccone
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #toSystemOut()
  * @since 4.0
  */
@@ -85,6 +86,15 @@ public interface BuildLog {
    * @param buildCacheVolume the name of the build cache volume in use
    */
   void executingLifecycle(BuildRequest request, LifecycleVersion version, VolumeName buildCacheVolume);
+
+  /**
+   * Log that the lifecycle is executing.
+   *
+   * @param request the build request
+   * @param version the lifecycle version
+   * @param buildCache the build cache in use
+   */
+  void executingLifecycle(BuildRequest request, LifecycleVersion version, Cache buildCache);
 
   /**
    * Log that a specific phase is running.

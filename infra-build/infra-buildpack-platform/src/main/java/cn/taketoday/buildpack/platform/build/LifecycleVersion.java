@@ -30,9 +30,10 @@ import cn.taketoday.lang.Assert;
  */
 class LifecycleVersion implements Comparable<LifecycleVersion> {
 
-  private static final Comparator<LifecycleVersion> COMPARATOR = Comparator.comparingInt(LifecycleVersion::getMajor)
-          .thenComparingInt(LifecycleVersion::getMinor)
-          .thenComparing(LifecycleVersion::getPatch);
+  private static final Comparator<LifecycleVersion> COMPARATOR =
+          Comparator.comparingInt(LifecycleVersion::getMajor)
+                  .thenComparingInt(LifecycleVersion::getMinor)
+                  .thenComparing(LifecycleVersion::getPatch);
 
   private final int major;
 
@@ -55,8 +56,7 @@ class LifecycleVersion implements Comparable<LifecycleVersion> {
       return false;
     }
     LifecycleVersion other = (LifecycleVersion) obj;
-    boolean result = true;
-    result = result && this.major == other.major;
+    boolean result = this.major == other.major;
     result = result && this.minor == other.minor;
     result = result && this.patch == other.patch;
     return result;

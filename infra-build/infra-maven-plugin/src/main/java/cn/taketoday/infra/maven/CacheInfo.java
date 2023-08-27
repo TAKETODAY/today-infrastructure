@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package cn.taketoday.infra.maven;
 
 import cn.taketoday.buildpack.platform.build.Cache;
-
 import cn.taketoday.lang.Assert;
 
 /**
@@ -34,8 +33,8 @@ public class CacheInfo {
 
   public CacheInfo() { }
 
-  CacheInfo(VolumeCacheInfo volumeCacheInfo) {
-    this.cache = Cache.volume(volumeCacheInfo.getName());
+  private CacheInfo(Cache cache) {
+    this.cache = cache;
   }
 
   public void setVolume(VolumeCacheInfo info) {
@@ -43,8 +42,21 @@ public class CacheInfo {
     this.cache = Cache.volume(info.getName());
   }
 
+  public void setBind(BindCacheInfo info) {
+    Assert.state(this.cache == null, "Each image building cache can be configured only once");
+    this.cache = Cache.bind(info.getSource());
+  }
+
   Cache asCache() {
     return this.cache;
+  }
+
+  static CacheInfo fromVolume(VolumeCacheInfo cacheInfo) {
+    return new CacheInfo(Cache.volume(cacheInfo.getName()));
+  }
+
+  static CacheInfo fromBind(BindCacheInfo cacheInfo) {
+    return new CacheInfo(Cache.bind(cacheInfo.getSource()));
   }
 
   /**
@@ -53,6 +65,9 @@ public class CacheInfo {
   public static class VolumeCacheInfo {
 
     private String name;
+
+    public VolumeCacheInfo() {
+    }
 
     VolumeCacheInfo(String name) {
       this.name = name;
@@ -64,6 +79,30 @@ public class CacheInfo {
 
     void setName(String name) {
       this.name = name;
+    }
+
+  }
+
+  /**
+   * Encapsulates configuration of an image building cache stored in a bind mount.
+   */
+  public static class BindCacheInfo {
+
+    private String source;
+
+    public BindCacheInfo() {
+    }
+
+    BindCacheInfo(String name) {
+      this.source = name;
+    }
+
+    public String getSource() {
+      return this.source;
+    }
+
+    void setSource(String source) {
+      this.source = source;
     }
 
   }

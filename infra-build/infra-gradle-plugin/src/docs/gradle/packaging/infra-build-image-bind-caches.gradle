@@ -1,0 +1,30 @@
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
+}
+
+tasks.named("infraJar") {
+  mainClass = 'com.example.ExampleApplication'
+}
+
+// tag::caches[]
+tasks.named("infraBuildImage") {
+  buildCache {
+    bind {
+      source = "/tmp/cache-${rootProject.name}.build"
+    }
+  }
+  launchCache {
+    bind {
+      source = "/tmp/cache-${rootProject.name}.launch"
+    }
+  }
+}
+// end::caches[]
+
+tasks.register("infraBuildImageCaches") {
+  doFirst {
+    bootBuildImage.buildCache.asCache().with { println "buildCache=$source" }
+    bootBuildImage.launchCache.asCache().with { println "launchCache=$source" }
+  }
+}

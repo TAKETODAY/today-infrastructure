@@ -51,6 +51,7 @@ import cn.taketoday.gradle.junit.GradleCompatibility;
 import cn.taketoday.gradle.testkit.GradleBuild;
 import cn.taketoday.test.junit.DisabledOnOs;
 import cn.taketoday.test.testcontainers.DisabledIfDockerUnavailable;
+import cn.taketoday.util.FileSystemUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -296,6 +297,26 @@ class InfraBuildImageIntegrationTests {
     assertThat(result.getOutput()).contains("---> Test Info buildpack done");
     removeImages(projectName);
     deleteVolumes("cache-" + projectName + ".build", "cache-" + projectName + ".launch");
+  }
+
+  @TestTemplate
+  void buildsImageWithBindCaches() throws IOException {
+    writeMainClass();
+    writeLongNameResource();
+    BuildResult result = this.gradleBuild.build("infraBuildImage");
+    String projectName = this.gradleBuild.getProjectDir().getName();
+    assertThat(result.task(":infraBuildImage").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    assertThat(result.getOutput()).contains("docker.io/library/" + projectName);
+    assertThat(result.getOutput()).contains("---> Test Info buildpack building");
+    assertThat(result.getOutput()).contains("---> Test Info buildpack done");
+    removeImages(projectName);
+    String tempDir = System.getProperty("java.io.tmpdir");
+    Path buildCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-build");
+    Path launchCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-launch");
+    assertThat(buildCachePath).exists().isDirectory();
+    assertThat(launchCachePath).exists().isDirectory();
+    FileSystemUtils.deleteRecursively(buildCachePath);
+    FileSystemUtils.deleteRecursively(launchCachePath);
   }
 
   @TestTemplate

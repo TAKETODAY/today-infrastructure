@@ -68,7 +68,7 @@ class PrintStreamBuildLogTests {
     Consumer<TotalProgressEvent> pullRunImageConsumer = log.pullingImage(runImageReference, ImageType.RUNNER);
     pullRunImageConsumer.accept(new TotalProgressEvent(100));
     log.pulledImage(runImage, ImageType.RUNNER);
-    log.executingLifecycle(request, LifecycleVersion.parse("0.5"), VolumeName.of("pack-abc.cache"));
+    log.executingLifecycle(request, LifecycleVersion.parse("0.5"), Cache.volume(VolumeName.of("pack-abc.cache")));
     Consumer<LogUpdateEvent> phase1Consumer = log.runningPhase(request, "alphabet");
     phase1Consumer.accept(mockLogEvent("one"));
     phase1Consumer.accept(mockLogEvent("two"));

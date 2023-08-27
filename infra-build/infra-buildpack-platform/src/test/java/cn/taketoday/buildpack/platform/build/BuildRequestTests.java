@@ -134,9 +134,9 @@ class BuildRequestTests {
   void withCreatorUpdatesCreator() throws IOException {
     BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
     BuildRequest withCreator = request.withCreator(Creator.withVersion("1.0.0"));
-    assertThat(request.getCreator().getName()).isEqualTo("Infra Application");
+    assertThat(request.getCreator().getName()).isEqualTo("Spring Boot");
     assertThat(request.getCreator().getVersion()).isEmpty();
-    assertThat(withCreator.getCreator().getName()).isEqualTo("Infra Application");
+    assertThat(withCreator.getCreator().getName()).isEqualTo("Spring Boot");
     assertThat(withCreator.getCreator().getVersion()).isEqualTo("1.0.0");
   }
 
@@ -241,6 +241,14 @@ class BuildRequestTests {
   }
 
   @Test
+  void withBuildBindCacheAddsCache() throws IOException {
+    BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
+    BuildRequest withCache = request.withBuildCache(Cache.bind("/tmp/build-cache"));
+    assertThat(request.getBuildCache()).isNull();
+    assertThat(withCache.getBuildCache()).isEqualTo(Cache.bind("/tmp/build-cache"));
+  }
+
+  @Test
   void withBuildVolumeCacheWhenCacheIsNullThrowsException() throws IOException {
     BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
     assertThatIllegalArgumentException().isThrownBy(() -> request.withBuildCache(null))
@@ -253,6 +261,14 @@ class BuildRequestTests {
     BuildRequest withCache = request.withLaunchCache(Cache.volume("launch-volume"));
     assertThat(request.getLaunchCache()).isNull();
     assertThat(withCache.getLaunchCache()).isEqualTo(Cache.volume("launch-volume"));
+  }
+
+  @Test
+  void withLaunchBindCacheAddsCache() throws IOException {
+    BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
+    BuildRequest withCache = request.withLaunchCache(Cache.bind("/tmp/launch-cache"));
+    assertThat(request.getLaunchCache()).isNull();
+    assertThat(withCache.getLaunchCache()).isEqualTo(Cache.bind("/tmp/launch-cache"));
   }
 
   @Test

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +22,10 @@ import org.gradle.api.GradleException;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import cn.taketoday.buildpack.platform.build.Cache;
 
 import javax.inject.Inject;
+
+import cn.taketoday.buildpack.platform.build.Cache;
 
 /**
  * Configuration for an image building cache.
@@ -66,6 +64,20 @@ public class CacheSpec {
   }
 
   /**
+   * Configures a bind cache using the given {@code action}.
+   *
+   * @param action the action
+   */
+  public void bind(Action<BindCacheSpec> action) {
+    if (this.cache != null) {
+      throw new GradleException("Each image building cache can be configured only once");
+    }
+    BindCacheSpec spec = this.objectFactory.newInstance(BindCacheSpec.class);
+    action.execute(spec);
+    this.cache = Cache.bind(spec.getSource().get());
+  }
+
+  /**
    * Configuration for an image building cache stored in a Docker volume.
    */
   public abstract static class VolumeCacheSpec {
@@ -77,6 +89,21 @@ public class CacheSpec {
      */
     @Input
     public abstract Property<String> getName();
+
+  }
+
+  /**
+   * Configuration for an image building cache stored in a bind mount.
+   */
+  public abstract static class BindCacheSpec {
+
+    /**
+     * Returns the source of the cache.
+     *
+     * @return the cache source
+     */
+    @Input
+    public abstract Property<String> getSource();
 
   }
 

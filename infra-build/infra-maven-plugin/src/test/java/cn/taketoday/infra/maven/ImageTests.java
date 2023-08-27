@@ -35,6 +35,7 @@ import cn.taketoday.buildpack.platform.docker.type.Binding;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.io.Owner;
 import cn.taketoday.buildpack.platform.io.TarArchive;
+import cn.taketoday.infra.maven.CacheInfo.BindCacheInfo;
 import cn.taketoday.infra.maven.CacheInfo.VolumeCacheInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -171,19 +172,35 @@ class ImageTests {
   }
 
   @Test
-  void getBuildRequestWhenHasBuildVolumeCacheUsesCache() {
+  void getBuildRequestWhenHasBuildCacheVolumeUsesCache() {
     Image image = new Image();
-    image.buildCache = new CacheInfo(new VolumeCacheInfo("build-cache-vol"));
+    image.buildCache = CacheInfo.fromVolume(new VolumeCacheInfo("build-cache-vol"));
     BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
     assertThat(request.getBuildCache()).isEqualTo(Cache.volume("build-cache-vol"));
   }
 
   @Test
-  void getBuildRequestWhenHasLaunchVolumeCacheUsesCache() {
+  void getBuildRequestWhenHasLaunchCacheVolumeUsesCache() {
     Image image = new Image();
-    image.launchCache = new CacheInfo(new VolumeCacheInfo("launch-cache-vol"));
+    image.launchCache = CacheInfo.fromVolume(new VolumeCacheInfo("launch-cache-vol"));
     BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
     assertThat(request.getLaunchCache()).isEqualTo(Cache.volume("launch-cache-vol"));
+  }
+
+  @Test
+  void getBuildRequestWhenHasBuildCacheBindUsesCache() {
+    Image image = new Image();
+    image.buildCache = CacheInfo.fromBind(new BindCacheInfo("build-cache-dir"));
+    BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
+    assertThat(request.getBuildCache()).isEqualTo(Cache.bind("build-cache-dir"));
+  }
+
+  @Test
+  void getBuildRequestWhenHasLaunchCacheBindUsesCache() {
+    Image image = new Image();
+    image.launchCache = CacheInfo.fromBind(new BindCacheInfo("launch-cache-dir"));
+    BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
+    assertThat(request.getLaunchCache()).isEqualTo(Cache.bind("launch-cache-dir"));
   }
 
   @Test
