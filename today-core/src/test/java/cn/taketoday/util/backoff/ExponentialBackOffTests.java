@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,10 @@
 package cn.taketoday.util.backoff;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -131,6 +132,19 @@ class ExponentialBackOffTests {
     assertThat(execution.toString()).isEqualTo("ExponentialBackOff{currentInterval=2000ms, multiplier=2.0}");
     execution.nextBackOff();
     assertThat(execution.toString()).isEqualTo("ExponentialBackOff{currentInterval=4000ms, multiplier=2.0}");
+  }
+
+  @Test
+  void maxAttempts() {
+    ExponentialBackOff backOff = new ExponentialBackOff();
+    backOff.setInitialInterval(1000L);
+    backOff.setMultiplier(2.0);
+    backOff.setMaxInterval(10000L);
+    backOff.setMaxAttempts(6);
+    List<Long> delays = new ArrayList<>();
+    BackOffExecution execution = backOff.start();
+    IntStream.range(0, 7).forEach(i -> delays.add(execution.nextBackOff()));
+    assertThat(delays).containsExactly(1000L, 2000L, 4000L, 8000L, 10000L, 10000L, BackOffExecution.STOP);
   }
 
 }

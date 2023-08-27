@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +16,14 @@
  */
 package cn.taketoday.util.backoff;
 
-import cn.taketoday.lang.Assert;
-
 /**
  * Implementation of {@link BackOff} that increases the back off period for each
- * retry attempt. When the interval has reached the {@link #setMaxInterval(long)
+ * retry attempt. When the interval has reached the {@linkplain #setMaxInterval(long)
  * max interval}, it is no longer increased. Stops retrying once the
- * {@link #setMaxElapsedTime(long) max elapsed time} has been reached.
+ * {@linkplain #setMaxElapsedTime(long) max elapsed time} has been reached.
  *
- * <p>Example: The default interval is {@value #DEFAULT_INITIAL_INTERVAL} ms,
- * the default multiplier is {@value #DEFAULT_MULTIPLIER}, and the default max
+ * <p>Example: The default interval is {@value #DEFAULT_INITIAL_INTERVAL} ms;
+ * the default multiplier is {@value #DEFAULT_MULTIPLIER}; and the default max
  * interval is {@value #DEFAULT_MAX_INTERVAL}. For 10 attempts the sequence will be
  * as follows:
  *
@@ -47,12 +42,16 @@ import cn.taketoday.lang.Assert;
  * 10             30000
  * </pre>
  *
- * <p>Note that the default max elapsed time is {@link Long#MAX_VALUE}. Use
- * {@link #setMaxElapsedTime(long)} to limit the maximum length of time
- * that an instance should accumulate before returning
- * {@link BackOffExecution#STOP}.
+ * <p>Note that the default max elapsed time is {@link Long#MAX_VALUE}, and the
+ * default maximum number of attempts is {@link Integer#MAX_VALUE}. Use
+ * {@link #setMaxElapsedTime(long)} to limit the length of time that an instance
+ * should accumulate before returning {@link BackOffExecution#STOP}. Alternatively,
+ * use {@link #setMaxAttempts(int)} to limit the number of attempts. The execution
+ * stops when either of those two limits is reached.
  *
  * @author Stephane Nicoll
+ * @author Gary Russell
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ExponentialBackOff implements BackOff {
@@ -77,6 +76,11 @@ public class ExponentialBackOff implements BackOff {
    */
   public static final long DEFAULT_MAX_ELAPSED_TIME = Long.MAX_VALUE;
 
+  /**
+   * The default maximum attempts.
+   */
+  public static final int DEFAULT_MAX_ATTEMPTS = Integer.MAX_VALUE;
+
   private long initialInterval = DEFAULT_INITIAL_INTERVAL;
 
   private double multiplier = DEFAULT_MULTIPLIER;
@@ -85,6 +89,8 @@ public class ExponentialBackOff implements BackOff {
 
   private long maxElapsedTime = DEFAULT_MAX_ELAPSED_TIME;
 
+  private int maxAttempts = DEFAULT_MAX_ATTEMPTS;
+
   /**
    * Create an instance with the default settings.
    *
@@ -92,6 +98,7 @@ public class ExponentialBackOff implements BackOff {
    * @see #DEFAULT_MULTIPLIER
    * @see #DEFAULT_MAX_INTERVAL
    * @see #DEFAULT_MAX_ELAPSED_TIME
+   * @see #DEFAULT_MAX_ATTEMPTS
    */
   public ExponentialBackOff() { }
 
@@ -103,8 +110,8 @@ public class ExponentialBackOff implements BackOff {
    */
   public ExponentialBackOff(long initialInterval, double multiplier) {
     checkMultiplier(multiplier);
-    this.multiplier = multiplier;
     this.initialInterval = initialInterval;
+    this.multiplier = multiplier;
   }
 
   /**
@@ -153,6 +160,9 @@ public class ExponentialBackOff implements BackOff {
   /**
    * The maximum elapsed time in milliseconds after which a call to
    * {@link BackOffExecution#nextBackOff()} returns {@link BackOffExecution#STOP}.
+   *
+   * @param maxElapsedTime the maximum elapsed time
+   * @see #setMaxAttempts(int)
    */
   public void setMaxElapsedTime(long maxElapsedTime) {
     this.maxElapsedTime = maxElapsedTime;
@@ -161,9 +171,34 @@ public class ExponentialBackOff implements BackOff {
   /**
    * Return the maximum elapsed time in milliseconds after which a call to
    * {@link BackOffExecution#nextBackOff()} returns {@link BackOffExecution#STOP}.
+   *
+   * @return the maximum elapsed time
+   * @see #getMaxAttempts()
    */
   public long getMaxElapsedTime() {
     return this.maxElapsedTime;
+  }
+
+  /**
+   * The maximum number of attempts after which a call to
+   * {@link BackOffExecution#nextBackOff()} returns {@link BackOffExecution#STOP}.
+   *
+   * @param maxAttempts the maximum number of attempts
+   * @see #setMaxElapsedTime(long)
+   */
+  public void setMaxAttempts(int maxAttempts) {
+    this.maxAttempts = maxAttempts;
+  }
+
+  /**
+   * Return the maximum number of attempts after which a call to
+   * {@link BackOffExecution#nextBackOff()} returns {@link BackOffExecution#STOP}.
+   *
+   * @return the maximum number of attempts
+   * @see #getMaxElapsedTime()
+   */
+  public int getMaxAttempts() {
+    return this.maxAttempts;
   }
 
   @Override
@@ -172,8 +207,10 @@ public class ExponentialBackOff implements BackOff {
   }
 
   private void checkMultiplier(double multiplier) {
-    Assert.isTrue(multiplier >= 1, () -> "Invalid multiplier '" + multiplier + "'. Should be greater than " +
-            "or equal to 1. A multiplier of 1 is equivalent to a fixed interval.");
+    if (multiplier < 1) {
+      throw new IllegalArgumentException("Invalid multiplier '" + multiplier + "'. Should be greater than " +
+              "or equal to 1. A multiplier of 1 is equivalent to a fixed interval.");
+    }
   }
 
   private class ExponentialBackOffExecution implements BackOffExecution {
@@ -182,14 +219,18 @@ public class ExponentialBackOff implements BackOff {
 
     private long currentElapsedTime = 0;
 
+    private int attempts;
+
     @Override
     public long nextBackOff() {
-      if (this.currentElapsedTime >= maxElapsedTime) {
+      if (this.currentElapsedTime >= getMaxElapsedTime()
+              || this.attempts >= getMaxAttempts()) {
         return STOP;
       }
 
       long nextInterval = computeNextInterval();
       this.currentElapsedTime += nextInterval;
+      this.attempts++;
       return nextInterval;
     }
 
