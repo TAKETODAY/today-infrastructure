@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.core.env;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,6 +46,15 @@ class CompositePropertySourceTests {
     int i2 = s.indexOf("name='p2'");
     int i3 = s.indexOf("name='p3'");
     assertThat(((i1 < i2) && (i2 < i3))).as("Bad order: " + s).isTrue();
+  }
+
+  @Test
+  void getPropertyNamesRemovesDuplicates() {
+    CompositePropertySource composite = new CompositePropertySource("c");
+    composite.addPropertySource(new MapPropertySource("p1", Map.of("p1.property", "value")));
+    composite.addPropertySource(new MapPropertySource("p2",
+            Map.of("p2.property1", "value", "p1.property", "value", "p2.property2", "value")));
+    assertThat(composite.getPropertyNames()).containsOnly("p1.property", "p2.property1", "p2.property2");
   }
 
 }

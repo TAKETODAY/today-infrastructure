@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +21,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -38,6 +34,7 @@ import cn.taketoday.util.StringUtils;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class CompositePropertySource extends EnumerablePropertySource<Object> {
@@ -77,16 +74,24 @@ public class CompositePropertySource extends EnumerablePropertySource<Object> {
 
   @Override
   public String[] getPropertyNames() {
-    LinkedHashSet<String> names = new LinkedHashSet<>();
+    ArrayList<String[]> namesList = new ArrayList<>(this.propertySources.size());
+    int total = 0;
     for (PropertySource<?> propertySource : this.propertySources) {
       if (!(propertySource instanceof EnumerablePropertySource<?> enumerable)) {
         throw new IllegalStateException(
                 "Failed to enumerate property names due to non-enumerable property source: " + propertySource);
       }
-      String[] propertyNames = enumerable.getPropertyNames();
-      CollectionUtils.addAll(names, propertyNames);
+      String[] names = enumerable.getPropertyNames();
+      namesList.add(names);
+      total += names.length;
     }
-    return StringUtils.toStringArray(names);
+    LinkedHashSet<String> allNames = new LinkedHashSet<>(total);
+    for (String[] names : namesList) {
+      for (String name : names) {
+        allNames.add(name);
+      }
+    }
+    return StringUtils.toStringArray(allNames);
   }
 
   /**
