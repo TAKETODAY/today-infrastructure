@@ -23,7 +23,6 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnCheckpointRestore;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -63,9 +62,9 @@ abstract class DataSourceConfiguration {
   @ConditionalOnProperty(name = "datasource.type", havingValue = "org.apache.tomcat.jdbc.pool.DataSource", matchIfMissing = true)
   static class Tomcat {
 
-    @Bean
+    @Component
     @ConfigurationProperties(prefix = "datasource.tomcat")
-    org.apache.tomcat.jdbc.pool.DataSource dataSource(DataSourceProperties properties) {
+    static org.apache.tomcat.jdbc.pool.DataSource dataSource(DataSourceProperties properties) {
       org.apache.tomcat.jdbc.pool.DataSource dataSource = createDataSource(properties, org.apache.tomcat.jdbc.pool.DataSource.class);
       DatabaseDriver databaseDriver = DatabaseDriver.fromJdbcUrl(properties.determineUrl());
       String validationQuery = databaseDriver.getValidationQuery();
@@ -89,7 +88,7 @@ abstract class DataSourceConfiguration {
 
     @Component
     @ConfigurationProperties(prefix = "datasource.hikari")
-    HikariDataSource dataSource(DataSourceProperties properties) {
+    static HikariDataSource dataSource(DataSourceProperties properties) {
       HikariDataSource dataSource = createDataSource(properties, HikariDataSource.class);
       if (StringUtils.hasText(properties.getName())) {
         dataSource.setPoolName(properties.getName());
@@ -99,7 +98,7 @@ abstract class DataSourceConfiguration {
 
     @Component
     @ConditionalOnCheckpointRestore
-    HikariCheckpointRestoreLifecycle hikariCheckpointRestoreLifecycle(HikariDataSource hikariDataSource) {
+    static HikariCheckpointRestoreLifecycle hikariCheckpointRestoreLifecycle(HikariDataSource hikariDataSource) {
       return new HikariCheckpointRestoreLifecycle(hikariDataSource);
     }
 
@@ -114,9 +113,9 @@ abstract class DataSourceConfiguration {
   @ConditionalOnProperty(name = "datasource.type", havingValue = "org.apache.commons.dbcp2.BasicDataSource", matchIfMissing = true)
   static class Dbcp2 {
 
-    @Bean
+    @Component
     @ConfigurationProperties(prefix = "datasource.dbcp2")
-    org.apache.commons.dbcp2.BasicDataSource dataSource(DataSourceProperties properties) {
+    static org.apache.commons.dbcp2.BasicDataSource dataSource(DataSourceProperties properties) {
       return createDataSource(properties, org.apache.commons.dbcp2.BasicDataSource.class);
     }
 
@@ -131,9 +130,9 @@ abstract class DataSourceConfiguration {
   @ConditionalOnProperty(name = "datasource.type", havingValue = "oracle.ucp.jdbc.PoolDataSource", matchIfMissing = true)
   static class OracleUcp {
 
-    @Bean
+    @Component
     @ConfigurationProperties(prefix = "datasource.oracleucp")
-    PoolDataSourceImpl dataSource(DataSourceProperties properties) throws SQLException {
+    static PoolDataSourceImpl dataSource(DataSourceProperties properties) throws SQLException {
       PoolDataSourceImpl dataSource = createDataSource(properties, PoolDataSourceImpl.class);
       dataSource.setValidateConnectionOnBorrow(true);
       if (StringUtils.hasText(properties.getName())) {
@@ -152,8 +151,8 @@ abstract class DataSourceConfiguration {
   @ConditionalOnProperty(name = "datasource.type")
   static class Generic {
 
-    @Bean
-    DataSource dataSource(DataSourceProperties properties) {
+    @Component
+    static DataSource dataSource(DataSourceProperties properties) {
       return properties.initializeDataSourceBuilder().build();
     }
 
