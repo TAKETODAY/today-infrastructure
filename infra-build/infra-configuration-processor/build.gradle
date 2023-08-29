@@ -1,0 +1,21 @@
+plugins {
+  id "java-library"
+}
+
+description = "Infra App Configuration Annotation Processor"
+
+jar {
+  manifest.attributes["Infra-App-Jar-Type"] = "annotation-processor"
+}
+
+dependencies {
+
+  testImplementation(project(":today-test-support"))
+  testImplementation(project(":today-core"))
+  testImplementation(project(":today-aop"))
+  testImplementation(project(":today-core-test"))
+
+  testCompileOnly("com.google.code.findbugs:jsr305:3.0.2")
+  testImplementation("jakarta.validation:jakarta.validation-api")
+  testImplementation("org.hamcrest:hamcrest-library")
+}

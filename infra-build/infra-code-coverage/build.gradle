@@ -36,6 +36,8 @@ dependencies {
   jacocoAggregation project(':infra-build:infra-jarmode-layertools')
 //  jacocoAggregation project(':infra-build:infra-maven-plugin')
   jacocoAggregation project(':infra-build:infra-gradle-plugin')
+  jacocoAggregation project(':infra-build:infra-configuration-processor')
+  jacocoAggregation project(':infra-build:infra-annotation-config-processor')
 }
 
 reporting {

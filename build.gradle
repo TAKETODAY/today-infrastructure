@@ -8,6 +8,7 @@ ext {
   starterProjects = subprojects.findAll { it.name.startsWith("today-starter") }
   moduleProjects = subprojects.findAll { it.name.startsWith("today-") && !it.name.startsWith("today-starter") } + [
       project(":infra-build:infra-annotation-config-processor"),
+      project(":infra-build:infra-configuration-processor"),
       project(":infra-build:infra-app-loader"),
       project(":infra-build:infra-app-loader-tools"),
       project(":infra-build:infra-jarmode-layertools"),
