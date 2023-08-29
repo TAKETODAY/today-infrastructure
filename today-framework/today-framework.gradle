@@ -11,6 +11,8 @@ dependencies {
   optional project(':today-websocket')
   optional project(':today-orm')
 
+  annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
+
   optional 'ch.qos.logback:logback-classic'
   optional 'org.freemarker:freemarker'
   optional 'com.google.code.gson:gson'

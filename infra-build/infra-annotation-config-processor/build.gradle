@@ -1,0 +1,16 @@
+plugins {
+  id "java-library"
+}
+
+description = "TODAY Infrastructure Annotation config Annotation Processor"
+
+jar {
+  manifest.attributes["Infra-App-Jar-Type"] = "annotation-processor"
+}
+
+dependencies {
+  testImplementation(project(":today-test-support"))
+  testImplementation(project(":today-core"))
+  testImplementation(project(":today-core-test"))
+
+}
