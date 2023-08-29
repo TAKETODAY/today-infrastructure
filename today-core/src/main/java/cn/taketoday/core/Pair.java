@@ -19,6 +19,7 @@ package cn.taketoday.core;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Comparator;
 
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Experimental;
@@ -41,6 +42,9 @@ import cn.taketoday.util.ObjectUtils;
 @Experimental
 public class Pair<A, B> implements Serializable {
 
+  @SuppressWarnings({ "rawtypes" })
+  public static final Pair EMPTY = of(null, null);
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -53,6 +57,16 @@ public class Pair<A, B> implements Serializable {
   public Pair(@Nullable A first, @Nullable B second) {
     this.first = first;
     this.second = second;
+  }
+
+  @Nullable
+  public final A getFirst() {
+    return first;
+  }
+
+  @Nullable
+  public final B getSecond() {
+    return second;
   }
 
   public Pair<A, B> withFirst(@Nullable A first) {
@@ -96,8 +110,43 @@ public class Pair<A, B> implements Serializable {
             .toString();
   }
 
+  // Static
+
+  @SuppressWarnings("unchecked")
+  public static <A, B> Pair<A, B> empty() {
+    return EMPTY;
+  }
+
   public static <A, B> Pair<A, B> of(@Nullable A first, @Nullable B second) {
     return new Pair<>(first, second);
+  }
+
+  @Nullable
+  public static <T> T getFirst(@Nullable Pair<T, ?> pair) {
+    return pair != null ? pair.first : null;
+  }
+
+  @Nullable
+  public static <T> T getSecond(@Nullable Pair<?, T> pair) {
+    return pair != null ? pair.second : null;
+  }
+
+  /**
+   * @param <A> first value type (Comparable)
+   * @param <B> second value type
+   * @return a comparator that compares pair values by first value
+   */
+  public static <A extends Comparable<? super A>, B> Comparator<Pair<A, B>> comparingFirst() {
+    return Comparator.comparing(o -> o.first);
+  }
+
+  /**
+   * @param <A> first value type
+   * @param <B> second value type (Comparable)
+   * @return a comparator that compares pair values by second value
+   */
+  public static <A, B extends Comparable<? super B>> Comparator<Pair<A, B>> comparingSecond() {
+    return Comparator.comparing(o -> o.second);
   }
 
 }
