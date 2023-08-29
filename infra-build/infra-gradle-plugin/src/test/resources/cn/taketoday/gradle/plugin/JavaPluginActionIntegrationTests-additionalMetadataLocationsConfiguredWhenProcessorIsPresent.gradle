@@ -8,8 +8,8 @@ repositories {
 }
 
 dependencies {
-//	def configurationName = configurations.findByName('annotationProcessor') != null ? 'annotationProcessor' : 'implementation'
-//	add(configurationName, [name: 'infra-configuration-processor-1.2.3'])
+	def configurationName = configurations.findByName('annotationProcessor') != null ? 'annotationProcessor' : 'implementation'
+	add(configurationName, [name: 'infra-configuration-processor-1.2.3'])
 }
 
 compileJava {

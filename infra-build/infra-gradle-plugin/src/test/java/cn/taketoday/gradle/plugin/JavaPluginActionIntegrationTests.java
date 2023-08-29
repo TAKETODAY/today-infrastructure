@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ class JavaPluginActionIntegrationTests {
     assertThat(result.getOutput()).contains("Main class name has not been configured and it could not be resolved");
   }
 
-//  @TestTemplate
+  @TestTemplate
   void additionalMetadataLocationsConfiguredWhenProcessorIsPresent() throws IOException {
     createMinimalMainSource();
     File libs = new File(this.gradleBuild.getProjectDir(), "libs");
@@ -128,8 +128,7 @@ class JavaPluginActionIntegrationTests {
             .close();
     BuildResult result = this.gradleBuild.build("compileJava");
     assertThat(result.task(":compileJava").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-    assertThat(result.getOutput()).contains("compileJava compiler args: [-parameters, -Acn.taketoday."
-            + "configurationprocessor.additionalMetadataLocations="
+    assertThat(result.getOutput()).contains("compileJava compiler args: [-parameters, -Acn.taketoday.context.properties.additionalMetadataLocations="
             + new File(this.gradleBuild.getProjectDir(), "src/main/resources").getCanonicalPath());
   }
 
