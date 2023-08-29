@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +47,7 @@ class AutoConfigurationSorter {
   private final MetadataReaderFactory readerFactory;
   private final AutoConfigurationMetadata autoConfigMetadata;
 
-  AutoConfigurationSorter(
-          MetadataReaderFactory readerFactory,
-          AutoConfigurationMetadata autoConfigMetadata) {
+  AutoConfigurationSorter(MetadataReaderFactory readerFactory, AutoConfigurationMetadata autoConfigMetadata) {
     Assert.notNull(readerFactory, "MetadataReaderFactory must not be null");
     this.readerFactory = readerFactory;
     this.autoConfigMetadata = autoConfigMetadata;
@@ -122,10 +117,8 @@ class AutoConfigurationSorter {
       return classes.keySet();
     }
 
-    private void addToClasses(
-            MetadataReaderFactory metadataReaderFactory,
-            AutoConfigurationMetadata autoConfigurationMetadata,
-            Collection<String> classNames, boolean required) {
+    private void addToClasses(MetadataReaderFactory metadataReaderFactory,
+            AutoConfigurationMetadata autoConfigurationMetadata, Collection<String> classNames, boolean required) {
       for (String className : classNames) {
         if (!classes.containsKey(className)) {
           var autoConfigurationClass = new AutoConfigurationClass(
@@ -135,10 +128,8 @@ class AutoConfigurationSorter {
             classes.put(className, autoConfigurationClass);
           }
           if (available) {
-            addToClasses(metadataReaderFactory, autoConfigurationMetadata,
-                    autoConfigurationClass.getBefore(), false);
-            addToClasses(metadataReaderFactory, autoConfigurationMetadata,
-                    autoConfigurationClass.getAfter(), false);
+            addToClasses(metadataReaderFactory, autoConfigurationMetadata, autoConfigurationClass.getBefore(), false);
+            addToClasses(metadataReaderFactory, autoConfigurationMetadata, autoConfigurationClass.getAfter(), false);
           }
         }
       }
@@ -176,8 +167,7 @@ class AutoConfigurationSorter {
 
     private volatile Set<String> after;
 
-    AutoConfigurationClass(String className,
-            MetadataReaderFactory metadataReaderFactory,
+    AutoConfigurationClass(String className, MetadataReaderFactory metadataReaderFactory,
             AutoConfigurationMetadata autoConfigurationMetadata) {
       this.className = className;
       this.metadataReaderFactory = metadataReaderFactory;

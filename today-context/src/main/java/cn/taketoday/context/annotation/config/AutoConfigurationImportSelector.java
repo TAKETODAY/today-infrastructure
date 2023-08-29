@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -394,10 +391,8 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
         }
       }
       else {
-        throw new IllegalStateException(
-                String.format("Only %s implementations are supported, got %s",
-                        AutoConfigurationImportSelector.class.getSimpleName(),
-                        selector.getClass().getName()));
+        throw new IllegalStateException("Only %s implementations are supported, got %s"
+                .formatted(AutoConfigurationImportSelector.class.getSimpleName(), selector.getClass().getName()));
       }
     }
 
@@ -416,8 +411,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
         processedConfigurations.removeAll(entry.exclusions);
       }
 
-      List<String> sortedConfigurations = sortAutoConfigurations(
-              processedConfigurations, getAutoConfigurationMetadata());
+      List<String> sortedConfigurations = sortAutoConfigurations(processedConfigurations, getAutoConfigurationMetadata());
 
       var entries = new ArrayList<Entry>(sortedConfigurations.size());
       for (String importClassName : sortedConfigurations) {
@@ -457,14 +451,6 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     AutoConfigurationEntry(Collection<String> configurations, Collection<String> exclusions) {
       this.configurations = new ArrayList<>(configurations);
       this.exclusions = new HashSet<>(exclusions);
-    }
-
-    public List<String> getConfigurations() {
-      return this.configurations;
-    }
-
-    public Set<String> getExclusions() {
-      return this.exclusions;
     }
 
     static AutoConfigurationEntry empty() {

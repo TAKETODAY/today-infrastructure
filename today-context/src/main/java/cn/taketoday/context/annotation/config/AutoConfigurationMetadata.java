@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +36,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/1 02:48
  */
 public class AutoConfigurationMetadata {
-  protected static final String PATH = "META-INF/autoconfigure-metadata.properties";
+  protected static final String PATH = "META-INF/infra-autoconfigure-metadata.properties";
 
   private final Properties properties;
 
