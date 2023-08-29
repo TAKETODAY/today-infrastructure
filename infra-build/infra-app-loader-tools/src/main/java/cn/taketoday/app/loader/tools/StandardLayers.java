@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2023 the original author or authors.
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ public abstract class StandardLayers implements Layers {
   public static final Layer DEPENDENCIES = new Layer("dependencies");
 
   /**
-   * The spring boot loader layer.
+   * The infra app loader layer.
    */
   public static final Layer INFRA_APP_LOADER = new Layer("infra-app-loader");
 
