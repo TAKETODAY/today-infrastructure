@@ -26,7 +26,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.http.config.CodecCustomizer;
+import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.http.converter.StringHttpMessageConverter;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +26,9 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.codec.CodecConfigurer;
+import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.http.codec.json.Jackson2JsonDecoder;
 import cn.taketoday.http.codec.json.Jackson2JsonEncoder;
-import cn.taketoday.http.config.CodecCustomizer;
-import cn.taketoday.http.config.CodecProperties;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.MimeType;
@@ -62,7 +58,7 @@ public class CodecsAutoConfiguration {
     @Order(0)
     @Component
     @ConditionalOnBean(ObjectMapper.class)
-    CodecCustomizer jacksonCodecCustomizer(ObjectMapper objectMapper) {
+    static CodecCustomizer jacksonCodecCustomizer(ObjectMapper objectMapper) {
       return configurer -> {
         CodecConfigurer.DefaultCodecs defaults = configurer.defaultCodecs();
         defaults.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper, EMPTY_MIME_TYPES));
@@ -74,7 +70,7 @@ public class CodecsAutoConfiguration {
 
   @Component
   @Order(0)
-  CodecCustomizer defaultCodecCustomizer(CodecProperties codecProperties) {
+  static CodecCustomizer defaultCodecCustomizer(CodecProperties codecProperties) {
     return configurer -> {
       PropertyMapper map = PropertyMapper.get();
       CodecConfigurer.DefaultCodecs defaultCodecs = configurer.defaultCodecs();

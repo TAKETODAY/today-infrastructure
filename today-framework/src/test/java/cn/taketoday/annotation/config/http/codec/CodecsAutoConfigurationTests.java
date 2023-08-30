@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,8 +32,8 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.http.codec.CodecConfigurer;
 import cn.taketoday.http.codec.support.DefaultClientCodecConfigurer;
-import cn.taketoday.http.config.CodecCustomizer;
-import cn.taketoday.http.config.CodecProperties;
+import cn.taketoday.http.codec.CodecCustomizer;
+import cn.taketoday.annotation.config.http.CodecProperties;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

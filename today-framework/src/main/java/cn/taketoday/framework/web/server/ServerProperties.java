@@ -91,7 +91,7 @@ public class ServerProperties {
   @NestedConfigurationProperty
   private final EncodingProperties encoding = new EncodingProperties();
 
-  @NestedConfigurationProperty
+//  @NestedConfigurationProperty
   private final SessionProperties session = new SessionProperties();
 
   @NestedConfigurationProperty

@@ -13,6 +13,8 @@ dependencies {
   optional("jakarta.servlet.jsp:jakarta.servlet.jsp-api")
   optional("jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api")
 
+  annotationProcessor(project(":infra-build:infra-configuration-processor"))
+
   optional("jakarta.servlet:jakarta.servlet-api")
   optional("jakarta.servlet.jsp:jakarta.servlet.jsp-api")
   optional("jakarta.el:jakarta.el-api")

@@ -39,7 +39,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
-import cn.taketoday.http.config.CodecCustomizer;
+import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.TestContextAnnotationUtils;

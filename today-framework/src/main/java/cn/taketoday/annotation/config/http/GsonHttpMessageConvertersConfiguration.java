@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +19,9 @@ package cn.taketoday.annotation.config.http;
 
 import com.google.gson.Gson;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.condition.AnyNestedCondition;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -33,6 +30,7 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.NoneNestedConditions;
 import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
+import cn.taketoday.stereotype.Component;
 
 /**
  * Configuration for HTTP Message converters that use Gson.
@@ -42,6 +40,7 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Lazy
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(Gson.class)
 class GsonHttpMessageConvertersConfiguration {
@@ -51,9 +50,9 @@ class GsonHttpMessageConvertersConfiguration {
   @Conditional(PreferGsonOrJacksonAndJsonbUnavailableCondition.class)
   static class GsonHttpMessageConverterConfiguration {
 
-    @Bean
+    @Component
     @ConditionalOnMissingBean
-    GsonHttpMessageConverter gsonHttpMessageConverter(Gson gson) {
+    static GsonHttpMessageConverter gsonHttpMessageConverter(Gson gson) {
       GsonHttpMessageConverter converter = new GsonHttpMessageConverter();
       converter.setGson(gson);
       return converter;
