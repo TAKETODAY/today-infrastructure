@@ -1,0 +1,467 @@
+{
+  "groups": [
+    {
+      "name": "logging",
+      "type": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    }
+  ],
+  "properties": [
+    {
+      "name": "debug",
+      "type": "java.lang.Boolean",
+      "description": "Enable debug logs.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": false
+    },
+    {
+      "name": "logging.charset.console",
+      "type": "java.nio.charset.Charset",
+      "description": "Charset to use for console output."
+    },
+    {
+      "name": "logging.charset.file",
+      "type": "java.nio.charset.Charset",
+      "description": "Charset to use for file output."
+    },
+    {
+      "name": "logging.config",
+      "type": "java.lang.String",
+      "description": "Location of the logging configuration file. For instance, `classpath:logback.xml` for Logback.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.exception-conversion-word",
+      "type": "java.lang.String",
+      "description": "Conversion word used when logging exceptions.",
+      "defaultValue": "%wEx",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.file.name",
+      "type": "java.lang.String",
+      "description": "Log file name (for instance, `myapp.log`). Names can be an exact location or relative to the current directory.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.file.path",
+      "type": "java.lang.String",
+      "description": "Location of the log file. For instance, `/var/log`.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.group",
+      "type": "java.util.Map<java.lang.String,java.util.List<java.lang.String>>",
+      "description": "Log groups to quickly change multiple loggers at the same time. For instance, `logging.group.db=org.hibernate,cn.taketoday.jdbc`.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.include-application-name",
+      "type": "java.lang.Boolean",
+      "description": "Whether to include the application name in the logs.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": true
+    },
+    {
+      "name": "logging.level",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "Log levels severity mapping. For instance, `logging.level.cn.taketoday=DEBUG`.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.logback.rollingpolicy.clean-history-on-start",
+      "type": "java.lang.Boolean",
+      "description": "Whether to clean the archive log files on startup.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": false
+    },
+    {
+      "name": "logging.logback.rollingpolicy.file-name-pattern",
+      "type": "java.lang.String",
+      "description": "Pattern for rolled-over log file names.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz"
+    },
+    {
+      "name": "logging.logback.rollingpolicy.max-file-size",
+      "type": "cn.taketoday.util.DataSize",
+      "description": "Maximum log file size.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "10MB"
+    },
+    {
+      "name": "logging.logback.rollingpolicy.max-history",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of archive log files to keep.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": 7
+    },
+    {
+      "name": "logging.logback.rollingpolicy.total-size-cap",
+      "type": "cn.taketoday.util.DataSize",
+      "description": "Total size of log backups to be kept.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "0B"
+    },
+    {
+      "name": "logging.pattern.console",
+      "type": "java.lang.String",
+      "description": "Appender pattern for output to the console. Supported only with the default Logback setup.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+    },
+    {
+      "name": "logging.pattern.correlation",
+      "type": "java.lang.String",
+      "description": "Appender pattern for log correlation. Supported only with the default Logback setup.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener"
+    },
+    {
+      "name": "logging.pattern.dateformat",
+      "type": "java.lang.String",
+      "description": "Appender pattern for log date format. Supported only with the default Logback setup.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+    },
+    {
+      "name": "logging.pattern.file",
+      "type": "java.lang.String",
+      "description": "Appender pattern for output to a file. Supported only with the default Logback setup.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"
+    },
+    {
+      "name": "logging.pattern.level",
+      "type": "java.lang.String",
+      "description": "Appender pattern for log level. Supported only with the default Logback setup.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": "%5p"
+    },
+    {
+      "name": "logging.register-shutdown-hook",
+      "type": "java.lang.Boolean",
+      "description": "Register a shutdown hook for the logging system when it is initialized. Disabled automatically when deployed as a war file.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": true
+    },
+    {
+      "name": "logging.threshold.console",
+      "type": "java.lang.String",
+      "description": "Log level threshold for console output.",
+      "defaultValue": "TRACE"
+    },
+    {
+      "name": "logging.threshold.file",
+      "type": "java.lang.String",
+      "description": "Log level threshold for file output.",
+      "defaultValue": "TRACE"
+    },
+    {
+      "name": "app.name",
+      "type": "java.lang.String",
+      "sourceType": "cn.taketoday.framework.context.ContextIdApplicationContextInitializer",
+      "description": "Application name."
+    },
+    {
+      "name": "banner.charset",
+      "type": "java.nio.charset.Charset",
+      "description": "Banner file encoding.",
+      "defaultValue": "UTF-8"
+    },
+    {
+      "name": "banner.image.bitdepth",
+      "type": "java.lang.Integer",
+      "deprecation": {
+        "level": "error",
+        "reason": "Support for image banners has been removed."
+      }
+    },
+    {
+      "name": "banner.image.height",
+      "type": "java.lang.Integer",
+      "deprecation": {
+        "level": "error",
+        "reason": "Support for image banners has been removed."
+      }
+    },
+    {
+      "name": "banner.image.invert",
+      "type": "java.lang.Boolean",
+      "deprecation": {
+        "level": "error",
+        "reason": "Support for image banners has been removed."
+      }
+    },
+    {
+      "name": "banner.image.location",
+      "type": "cn.taketoday.core.io.Resource",
+      "deprecation": {
+        "level": "error",
+        "reason": "Support for image banners has been removed."
+      }
+    },
+    {
+      "name": "banner.image.margin",
+      "type": "java.lang.Integer",
+      "deprecation": {
+        "level": "error",
+        "reason": "Support for image banners has been removed."
+      }
+    },
+    {
+      "name": "banner.image.width",
+      "type": "java.lang.Integer",
+      "deprecation": {
+        "level": "error",
+        "reason": "Support for image banners has been removed."
+      }
+    },
+    {
+      "name": "banner.location",
+      "type": "cn.taketoday.core.io.Resource",
+      "description": "Banner text resource location.",
+      "defaultValue": "classpath:banner.txt"
+    },
+    {
+      "name": "infra.beaninfo.ignore",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether to skip search of BeanInfo classes.",
+      "defaultValue": true
+    },
+    {
+      "name": "app.config.activate.on-cloud-platform",
+      "type": "cn.taketoday.framework.cloud.CloudPlatform",
+      "description": "Required cloud platform for the document to be included.",
+      "sourceType": "cn.taketoday.framework.context.config.ConfigDataProperties"
+    },
+    {
+      "name": "app.config.activate.on-profile",
+      "type": "java.lang.String[]",
+      "description": "Profile expressions that should match for the document to be included.",
+      "sourceType": "cn.taketoday.framework.context.config.ConfigDataProperties"
+    },
+    {
+      "name": "app.config.additional-location",
+      "type": "java.lang.String",
+      "sourceType": "cn.taketoday.framework.context.config.ConfigDataEnvironment",
+      "description": "Config file locations used in addition to the defaults."
+    },
+    {
+      "name": "app.config.import",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Import additional config data.",
+      "sourceType": "cn.taketoday.framework.context.config.ConfigDataProperties"
+    },
+    {
+      "name": "app.config.location",
+      "type": "java.lang.String",
+      "sourceType": "cn.taketoday.framework.context.config.ConfigDataEnvironment",
+      "description": "Config file locations that replace the defaults."
+    },
+    {
+      "name": "app.config.name",
+      "type": "java.lang.String",
+      "sourceType": "cn.taketoday.framework.context.config.StandardConfigDataLocationResolver",
+      "description": "Config file name.",
+      "defaultValue": "application"
+    },
+    {
+      "name": "app.main.allow-bean-definition-overriding",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether bean definition overriding, by registering a definition with the same name as an existing definition, is allowed.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.main.allow-circular-references",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether to allow circular references between beans and automatically try to resolve them.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.main.banner-mode",
+      "type": "cn.taketoday.framework.Banner$Mode",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Mode used to display the banner when the application runs.",
+      "defaultValue": "console"
+    },
+    {
+      "name": "app.main.cloud-platform",
+      "type": "cn.taketoday.framework.cloud.CloudPlatform",
+      "description": "Override the Cloud Platform auto-detection."
+    },
+    {
+      "name": "app.main.lazy-initialization",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether initialization should be performed lazily.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.main.log-startup-info",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether to log information about the application when it starts.",
+      "defaultValue": true
+    },
+    {
+      "name": "app.main.register-shutdown-hook",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether the application should have a shutdown hook registered.",
+      "defaultValue": true
+    },
+    {
+      "name": "app.main.sources",
+      "type": "java.util.Set<java.lang.String>",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Sources (class names, package names, or XML resource locations) to include in the ApplicationContext."
+    },
+    {
+      "name": "app.main.application-type",
+      "type": "cn.taketoday.framework.ApplicationType",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Flag to explicitly request a specific type of application. If not set, auto-detected based on the classpath."
+    },
+    {
+      "name": "infra.output.ansi.enabled",
+      "type": "cn.taketoday.core.ansi.AnsiOutput$Enabled",
+      "description": "Configures the ANSI output.",
+      "defaultValue": "detect"
+    },
+    {
+      "name": "infra.profiles.active",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "description": "Comma-separated list of active profiles. Can be overridden by a command line switch."
+    },
+    {
+      "name": "infra.profiles.default",
+      "type": "java.lang.String",
+      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "description": "Name of the profile to enable if no profile is active.",
+      "defaultValue": "default"
+    },
+    {
+      "name": "infra.profiles.group",
+      "type": "java.util.Map<java.lang.String,java.util.List<java.lang.String>>",
+      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "description": "Profile groups to define a logical name for a related group of profiles."
+    },
+    {
+      "name": "infra.profiles.include",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "cn.taketoday.framework.context.config.Profiles",
+      "description": "Unconditionally activate the specified comma-separated list of profiles (or list of profiles if using YAML)."
+    },
+    {
+      "name": "trace",
+      "type": "java.lang.Boolean",
+      "description": "Enable trace logs.",
+      "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
+      "defaultValue": false
+    }
+  ],
+  "hints": [
+    {
+      "name": "logging.group.values",
+      "providers": [
+        {
+          "name": "logger-name",
+          "parameters": {
+            "group": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "logging.level.keys",
+      "values": [
+        {
+          "value": "root",
+          "description": "Root logger used to assign the default logging level."
+        },
+        {
+          "value": "sql",
+          "description": "SQL logging group including Hibernate SQL logger."
+        },
+        {
+          "value": "web",
+          "description": "Web logging group including codecs."
+        }
+      ],
+      "providers": [
+        {
+          "name": "logger-name"
+        }
+      ]
+    },
+    {
+      "name": "logging.level.values",
+      "values": [
+        {
+          "value": "trace"
+        },
+        {
+          "value": "debug"
+        },
+        {
+          "value": "info"
+        },
+        {
+          "value": "warn"
+        },
+        {
+          "value": "error"
+        },
+        {
+          "value": "fatal"
+        },
+        {
+          "value": "off"
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "app.config.import",
+      "values": [
+        {
+          "value": "file:"
+        },
+        {
+          "value": "classpath:"
+        },
+        {
+          "value": "configtree:"
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "infra.profiles.active",
+      "providers": [
+        {
+          "name": "infra-profile-name"
+        }
+      ]
+    },
+    {
+      "name": "infra.profiles.include",
+      "providers": [
+        {
+          "name": "infra-profile-name"
+        }
+      ]
+    }
+  ]
+}
