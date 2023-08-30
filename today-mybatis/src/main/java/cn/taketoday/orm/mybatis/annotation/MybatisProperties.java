@@ -29,6 +29,7 @@ import java.util.Set;
 
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
@@ -100,6 +101,8 @@ public class MybatisProperties implements ResourceLoaderAware {
    * A Configuration object for customize default settings. If {@link #configLocation} is specified, this property is
    * not used.
    */
+  @Nullable
+  @NestedConfigurationProperty
   private Configuration configuration;
 
   @Nullable
@@ -181,7 +184,7 @@ public class MybatisProperties implements ResourceLoaderAware {
     return configuration;
   }
 
-  public void setConfiguration(Configuration configuration) {
+  public void setConfiguration(@Nullable Configuration configuration) {
     this.configuration = configuration;
   }
 
