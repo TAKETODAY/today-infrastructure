@@ -18,8 +18,8 @@
 package cn.taketoday.session.config;
 
 import java.io.File;
+import java.util.List;
 
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
@@ -99,12 +99,12 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static SessionEventDispatcher sessionEventDispatcher(
-          ObjectProvider<WebSessionListener> webSessionListeners,
-          ObjectProvider<WebSessionAttributeListener> webSessionAttributeListeners) {
+          List<WebSessionListener> webSessionListeners,
+          List<WebSessionAttributeListener> webSessionAttributeListeners) {
 
     SessionEventDispatcher eventDispatcher = new SessionEventDispatcher();
-    eventDispatcher.addSessionListeners(webSessionListeners.orderedList());
-    eventDispatcher.addAttributeListeners(webSessionAttributeListeners.toList());
+    eventDispatcher.addSessionListeners(webSessionListeners);
+    eventDispatcher.addAttributeListeners(webSessionAttributeListeners);
     return eventDispatcher;
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,7 +104,7 @@ public class SessionEventDispatcher {
    * @param array list to add
    * @throws NullPointerException input list is null
    */
-  public void addAttributeListeners(WebSessionAttributeListener... array) {
+  public void addAttributeListeners(@Nullable WebSessionAttributeListener... array) {
     attributeListeners.add(array);
   }
 
@@ -117,7 +114,7 @@ public class SessionEventDispatcher {
    * @param list list to add
    * @throws NullPointerException input list is null
    */
-  public void addAttributeListeners(Collection<WebSessionAttributeListener> list) {
+  public void addAttributeListeners(@Nullable Collection<WebSessionAttributeListener> list) {
     attributeListeners.addAll(list);
   }
 
@@ -127,7 +124,7 @@ public class SessionEventDispatcher {
    * @param array array to add
    * @throws NullPointerException input list is null
    */
-  public void addSessionListeners(WebSessionListener... array) {
+  public void addSessionListeners(@Nullable WebSessionListener... array) {
     sessionListeners.add(array);
   }
 
@@ -137,7 +134,7 @@ public class SessionEventDispatcher {
    * @param list list to add
    * @throws NullPointerException input list is null
    */
-  public void addSessionListeners(Collection<WebSessionListener> list) {
+  public void addSessionListeners(@Nullable Collection<WebSessionListener> list) {
     sessionListeners.addAll(list);
   }
 

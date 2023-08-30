@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
+import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.core.ApplicationHome;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.format.annotation.DurationUnit;
@@ -44,13 +45,22 @@ public class SessionProperties {
   private static final String SESSION_TEMP_DIR = TodayStrategies.getProperty(
           "server.session.temp-dir", "server-sessions");
 
+  /**
+   * session timout
+   */
   @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration timeout = Duration.ofMinutes(30);
 
+  /**
+   * the {@link SessionTrackingMode session tracking modes}.
+   */
   @Nullable
   private Set<SessionTrackingMode> trackingModes;
 
+  /**
+   * Whether to persist session data between restarts.
+   */
   private boolean persistent;
 
   /**
@@ -59,10 +69,23 @@ public class SessionProperties {
   @Nullable
   private File storeDir;
 
+  /**
+   * Session cookie config
+   */
+  @NestedConfigurationProperty
   private final CookieProperties cookie = new CookieProperties();
 
+  /**
+   * Session Id length
+   */
   private int sessionIdLength = 32;
 
+  /**
+   * Set the maximum number of sessions that can be stored. Once the limit is
+   * reached, any attempt to store an additional session will result in an
+   * {@link IllegalStateException}.
+   * <p>By default set to 10000.
+   */
   private int maxSessions = 10000;
 
   /**
