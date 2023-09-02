@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,10 +63,7 @@ import cn.taketoday.core.annotation.AliasFor;
 public @interface Repository {
 
   /**
-   * The value may indicate a suggestion for a logical component name, to be
-   * turned into a bean in case of an autodetected component.
-   *
-   * @return the suggested component name, if any (or empty String otherwise)
+   * Alias for {@link Component#value}.
    */
   @AliasFor(annotation = Component.class)
   String[] value() default {};

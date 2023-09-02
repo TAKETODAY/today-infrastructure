@@ -20,6 +20,7 @@ package cn.taketoday.context.annotation;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -103,14 +104,19 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
    */
   @Nullable
   protected String determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
-    AnnotationMetadata amd = annotatedDef.getMetadata();
-    Set<String> types = amd.getAnnotationTypes();
-    String beanName = null;
+    AnnotationMetadata metadata = annotatedDef.getMetadata();
+
+    String beanName = getExplicitBeanName(metadata);
+    if (beanName != null) {
+      return beanName;
+    }
+
+    Set<String> types = metadata.getAnnotationTypes();
     for (String type : types) {
-      MergedAnnotation<Annotation> annotation = amd.getAnnotation(type);
+      MergedAnnotation<Annotation> annotation = metadata.getAnnotation(type);
       if (annotation.isPresent()) {
         Set<String> metaTypes = this.metaAnnotationTypesCache.computeIfAbsent(type, key -> {
-          Set<String> result = amd.getMetaAnnotationTypes(key);
+          Set<String> result = metadata.getMetaAnnotationTypes(key);
           return result.isEmpty() ? Collections.emptySet() : result;
         });
         if (isStereotype(type, metaTypes)) {
@@ -163,6 +169,36 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
   }
 
   /**
+   * Get the explicit bean name for the underlying class, as configured via
+   * {@link cn.taketoday.stereotype.Component @Component} and taking into
+   * account {@link cn.taketoday.core.annotation.AliasFor @AliasFor}
+   * semantics for annotation attribute overrides for {@code @Component}'s
+   * {@code value} attribute.
+   *
+   * @param metadata the {@link AnnotationMetadata} for the underlying class
+   * @return the explicit bean name, or {@code null} if not found
+   * @see cn.taketoday.stereotype.Component#value()
+   */
+  @Nullable
+  private String getExplicitBeanName(AnnotationMetadata metadata) {
+    List<String> names = metadata.getAnnotations().stream(COMPONENT_ANNOTATION_CLASSNAME)
+            .map(annotation -> annotation.getString(MergedAnnotation.VALUE))
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .distinct()
+            .toList();
+
+    if (names.size() == 1) {
+      return names.get(0);
+    }
+    if (names.size() > 1) {
+      throw new IllegalStateException(
+              "Stereotype annotations suggest inconsistent component names: " + names);
+    }
+    return null;
+  }
+
+  /**
    * Check whether the given annotation is a stereotype that is allowed
    * to suggest a component name through its annotation {@code value()}.
    *
@@ -171,8 +207,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
    * @return whether the annotation qualifies as a stereotype with component name
    */
   protected boolean isStereotype(String annotationType, Set<String> metaAnnotationTypes) {
-    return annotationType.equals(COMPONENT_ANNOTATION_CLASSNAME)
-            || metaAnnotationTypes.contains(COMPONENT_ANNOTATION_CLASSNAME)
+    return metaAnnotationTypes.contains(COMPONENT_ANNOTATION_CLASSNAME)
             || annotationType.equals("jakarta.annotation.ManagedBean")
             || annotationType.equals("jakarta.inject.Named")
             || annotationType.equals("javax.annotation.ManagedBean")

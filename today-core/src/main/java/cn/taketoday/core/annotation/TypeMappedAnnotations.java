@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  * annotations and meta-annotations using {@link AnnotationTypeMappings}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class TypeMappedAnnotations implements MergedAnnotations {
@@ -71,9 +69,9 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   @Nullable
   private volatile List<Aggregate> aggregates;
 
-  private TypeMappedAnnotations(@Nullable AnnotatedElement element, @Nullable SearchStrategy searchStrategy,
-          Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers,
-          AnnotationFilter annotationFilter) {
+  private TypeMappedAnnotations(@Nullable AnnotatedElement element,
+          @Nullable SearchStrategy searchStrategy, Predicate<Class<?>> searchEnclosingClass,
+          RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
     this.source = element;
     this.element = element;
@@ -138,17 +136,13 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(
-          Class<A> annotationType,
-          @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
-
+  public <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
     return get(annotationType, predicate, null);
   }
 
   @Override
   public <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
-          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
-          @Nullable MergedAnnotationSelector<A> selector) {
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate, @Nullable MergedAnnotationSelector<A> selector) {
 
     if (annotationFilter.matches(annotationType)) {
       return MergedAnnotation.missing();
@@ -164,8 +158,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
   }
 
   @Override
-  public <A extends Annotation> MergedAnnotation<A> get(
-          String annotationType,
+  public <A extends Annotation> MergedAnnotation<A> get(String annotationType,
           @Nullable Predicate<? super MergedAnnotation<A>> predicate) {
     return get(annotationType, predicate, null);
   }

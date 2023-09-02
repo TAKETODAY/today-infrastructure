@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,18 +45,18 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>For example, a {@code @PostMapping} annotation might be defined as follows:
  *
- * <pre class="code">
- * &#064;Retention(RetentionPolicy.RUNTIME)
- * &#064;RequestMapping(method = HttpMethod.POST)
- * public &#064;interface PostMapping {
+ * <pre>{@code
+ * @Retention(RetentionPolicy.RUNTIME)
+ * @RequestMapping(method = HttpMethod.POST)
+ * public @interface PostMapping {
  *
- *     &#064;AliasFor(attribute = "path")
+ *     @AliasFor(attribute = "path")
  *     String[] value() default {};
  *
- *     &#064;AliasFor(attribute = "value")
+ *     @AliasFor(attribute = "value")
  *     String[] path() default {};
  * }
- * </pre>
+ * }</pre>
  *
  * <p>If a method is annotated with {@code @PostMapping("/home")} it will contain
  * merged annotations for both {@code @PostMapping} and the meta-annotation
@@ -99,10 +96,10 @@ import cn.taketoday.lang.Nullable;
  * search for annotations on {@code MyClass} as well as in superclasses and implemented
  * interfaces.
  *
- * <pre class="code">
+ * <pre>{@code
  * MergedAnnotations mergedAnnotations =
  *     MergedAnnotations.search(TYPE_HIERARCHY).from(MyClass.class);
- * </pre>
+ * }</pre>
  *
  * <p>From a {@link MergedAnnotations} instance you can either
  * {@linkplain #get(String) get} a single annotation, or {@linkplain #stream()
@@ -112,7 +109,7 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Here are some typical examples:
  *
- * <pre class="code">
+ * <pre>{@code
  * // is an annotation present or meta-present?
  * mergedAnnotations.isPresent(ExampleAnnotation.class);
  *
@@ -128,7 +125,7 @@ import cn.taketoday.lang.Nullable;
  * mergedAnnotations.stream(ExampleAnnotation.class)
  *     .map(mergedAnnotation -&gt; mergedAnnotation.getString("value"))
  *     .forEach(System.out::println);
- * </pre>
+ * }</pre>
  *
  * <p><b>NOTE: The {@code MergedAnnotations} API and its underlying model have
  * been designed for composable annotations in common component model,
@@ -139,6 +136,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MergedAnnotation
  * @see MergedAnnotationCollectors
  * @see MergedAnnotationPredicates
@@ -208,8 +206,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotation} instance
    * @see MergedAnnotationPredicates
    */
-  <A extends Annotation> MergedAnnotation<A> get(
-          Class<A> annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate);
+  <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate);
 
   /**
    * Get a matching annotation or meta-annotation of the specified type, or
@@ -226,8 +224,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see MergedAnnotationSelectors
    */
   <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
-          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
-          @Nullable MergedAnnotationSelector<A> selector);
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate, @Nullable MergedAnnotationSelector<A> selector);
 
   /**
    * Get the {@linkplain MergedAnnotationSelectors#nearest() nearest} matching
@@ -271,8 +268,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @see MergedAnnotationSelectors
    */
   <A extends Annotation> MergedAnnotation<A> get(String annotationType,
-          @Nullable Predicate<? super MergedAnnotation<A>> predicate,
-          @Nullable MergedAnnotationSelector<A> selector);
+          @Nullable Predicate<? super MergedAnnotation<A>> predicate, @Nullable MergedAnnotationSelector<A> selector);
 
   /**
    * Stream all annotations and meta-annotations that match the specified
@@ -387,11 +383,11 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
           Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers,
           AnnotationFilter annotationFilter) {
 
-    Assert.notNull(element, "AnnotatedElement must not be null");
-    Assert.notNull(searchStrategy, "SearchStrategy must not be null");
-    Assert.notNull(searchEnclosingClass, "Predicate must not be null");
-    Assert.notNull(repeatableContainers, "RepeatableContainers must not be null");
-    Assert.notNull(annotationFilter, "AnnotationFilter must not be null");
+    Assert.notNull(element, "AnnotatedElement is required");
+    Assert.notNull(searchStrategy, "SearchStrategy is required");
+    Assert.notNull(searchEnclosingClass, "Predicate is required");
+    Assert.notNull(annotationFilter, "AnnotationFilter is required");
+    Assert.notNull(repeatableContainers, "RepeatableContainers is required");
     return TypeMappedAnnotations.from(element, searchStrategy, searchEnclosingClass,
             repeatableContainers, annotationFilter);
   }
@@ -461,9 +457,8 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    */
   static MergedAnnotations from(Object source, Annotation[] annotations,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
-
-    Assert.notNull(repeatableContainers, "RepeatableContainers must not be null");
-    Assert.notNull(annotationFilter, "AnnotationFilter must not be null");
+    Assert.notNull(annotationFilter, "AnnotationFilter is required");
+    Assert.notNull(repeatableContainers, "RepeatableContainers is required");
     return TypeMappedAnnotations.from(source, annotations, repeatableContainers, annotationFilter);
   }
 
@@ -497,7 +492,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@code Search} instance to perform the search
    */
   static Search search(SearchStrategy searchStrategy) {
-    Assert.notNull(searchStrategy, "SearchStrategy must not be null");
+    Assert.notNull(searchStrategy, "SearchStrategy is required");
     return new Search(searchStrategy);
   }
 
@@ -518,26 +513,26 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * <p>For example, the following performs a search on {@code MyClass} within
    * the entire type hierarchy of that class while ignoring repeatable annotations.
    *
-   * <pre class="code">
+   * <pre>{@code
    * MergedAnnotations mergedAnnotations =
    *     MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
    *         .withRepeatableContainers(RepeatableContainers.none())
    *         .from(MyClass.class);
-   * </pre>
+   * }</pre>
    *
    * <p>If you wish to reuse search configuration to perform the same type of search
    * on multiple elements, you can save the {@code Search} instance as demonstrated
    * in the following example.
    *
-   * <pre class="code">
+   * <pre>{@code
    * Search search = MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
-   *                     .withRepeatableContainers(RepeatableContainers.none());
+   *      .withRepeatableContainers(RepeatableContainers.none());
    *
    * MergedAnnotations mergedAnnotations = search.from(MyClass.class);
    * // do something with the MergedAnnotations for MyClass
    * mergedAnnotations = search.from(AnotherClass.class);
    * // do something with the MergedAnnotations for AnotherClass
-   * </pre>
+   * }</pre>
    */
   final class Search {
 
@@ -593,7 +588,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
      * @see #from(AnnotatedElement)
      */
     public Search withEnclosingClasses(Predicate<Class<?>> searchEnclosingClass) {
-      Assert.notNull(searchEnclosingClass, "Predicate must not be null");
+      Assert.notNull(searchEnclosingClass, "Predicate is required");
       Assert.state(this.searchStrategy == SearchStrategy.TYPE_HIERARCHY,
               "A custom 'searchEnclosingClass' predicate can only be combined with SearchStrategy.TYPE_HIERARCHY");
       this.searchEnclosingClass = searchEnclosingClass;
@@ -611,7 +606,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
      * @see #from(AnnotatedElement)
      */
     public Search withRepeatableContainers(RepeatableContainers repeatableContainers) {
-      Assert.notNull(repeatableContainers, "RepeatableContainers must not be null");
+      Assert.notNull(repeatableContainers, "RepeatableContainers is required");
       this.repeatableContainers = repeatableContainers;
       return this;
     }
@@ -627,7 +622,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
      * @see #from(AnnotatedElement)
      */
     public Search withAnnotationFilter(AnnotationFilter annotationFilter) {
-      Assert.notNull(annotationFilter, "AnnotationFilter must not be null");
+      Assert.notNull(annotationFilter, "AnnotationFilter is required");
       this.annotationFilter = annotationFilter;
       return this;
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -403,7 +400,7 @@ import cn.taketoday.stereotype.Component;
 public @interface Configuration {
 
   /**
-   * Explicitly specify the name of the Framework bean definition associated with the
+   * Explicitly specify the name of the Infra bean definition associated with the
    * {@code @Configuration} class. If left unspecified (the common case), a bean
    * name will be automatically generated.
    * <p>The custom name applies only if the {@code @Configuration} class is picked
@@ -411,8 +408,10 @@ public @interface Configuration {
    * {@link AnnotationConfigApplicationContext}. If the {@code @Configuration} class
    * is registered as a traditional XML bean definition, the name/id of the bean
    * element will take precedence.
+   * <p>Alias for {@link Component#value}.
    *
    * @return the explicit component name, if any (or empty String otherwise)
+   * @see AnnotationBeanNameGenerator
    */
   @AliasFor(annotation = Component.class)
   String[] value() default {};
