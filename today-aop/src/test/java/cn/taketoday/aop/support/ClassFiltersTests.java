@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,9 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.NestedRuntimeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for {@link ClassFilters}.
@@ -67,6 +67,67 @@ class ClassFiltersTests {
     assertThat(intersection.matches(NestedRuntimeException.class)).isTrue();
     assertThat(intersection.toString())
             .matches("^.+IntersectionClassFilter: \\[.+RootClassFilter: .+Exception, .+RootClassFilter: .+NestedRuntimeException\\]$");
+  }
+
+  @Test
+  void negateClassFilter() {
+    ClassFilter filter = mock(ClassFilter.class);
+    given(filter.matches(String.class)).willReturn(true);
+    ClassFilter negate = ClassFilters.negate(filter);
+    assertThat(negate.matches(String.class)).isFalse();
+    verify(filter).matches(String.class);
+  }
+
+  @Test
+  void negateTrueClassFilter() {
+    ClassFilter negate = ClassFilters.negate(ClassFilter.TRUE);
+    assertThat(negate.matches(String.class)).isFalse();
+    assertThat(negate.matches(Object.class)).isFalse();
+    assertThat(negate.matches(Integer.class)).isFalse();
+  }
+
+  @Test
+  void negateTrueClassFilterAppliedTwice() {
+    ClassFilter negate = ClassFilters.negate(ClassFilters.negate(ClassFilter.TRUE));
+    assertThat(negate.matches(String.class)).isTrue();
+    assertThat(negate.matches(Object.class)).isTrue();
+    assertThat(negate.matches(Integer.class)).isTrue();
+  }
+
+  @Test
+  void negateIsNotEqualsToOriginalFilter() {
+    ClassFilter original = ClassFilter.TRUE;
+    ClassFilter negate = ClassFilters.negate(original);
+    assertThat(original).isNotEqualTo(negate);
+  }
+
+  @Test
+  void negateOnSameFilterIsEquals() {
+    ClassFilter original = ClassFilter.TRUE;
+    ClassFilter first = ClassFilters.negate(original);
+    ClassFilter second = ClassFilters.negate(original);
+    assertThat(first).isEqualTo(second);
+  }
+
+  @Test
+  void negateHasNotSameHashCodeAsOriginalFilter() {
+    ClassFilter original = ClassFilter.TRUE;
+    ClassFilter negate = ClassFilters.negate(original);
+    assertThat(original).doesNotHaveSameHashCodeAs(negate);
+  }
+
+  @Test
+  void negateOnSameFilterHasSameHashCode() {
+    ClassFilter original = ClassFilter.TRUE;
+    ClassFilter first = ClassFilters.negate(original);
+    ClassFilter second = ClassFilters.negate(original);
+    assertThat(first).hasSameHashCodeAs(second);
+  }
+
+  @Test
+  void toStringIncludesRepresentationOfOriginalFilter() {
+    ClassFilter original = ClassFilter.TRUE;
+    assertThat(ClassFilters.negate(original)).hasToString("Negate " + original);
   }
 
 }

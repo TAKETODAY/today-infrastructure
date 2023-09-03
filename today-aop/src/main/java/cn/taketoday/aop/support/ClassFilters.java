@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,10 @@
 
 package cn.taketoday.aop.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.lang.Assert;
@@ -93,6 +92,19 @@ public abstract class ClassFilters {
   }
 
   /**
+   * Return a class filter that represents the logical negation of the specified
+   * filter instance.
+   *
+   * @param classFilter the {@link ClassFilter} to negate
+   * @return a filter that represents the logical negation of the specified filter
+   * @since 4.0
+   */
+  public static ClassFilter negate(ClassFilter classFilter) {
+    Assert.notNull(classFilter, "ClassFilter must not be null");
+    return new NegateClassFilter(classFilter);
+  }
+
+  /**
    * ClassFilter implementation for a union of the given ClassFilters.
    */
   static class UnionClassFilter implements ClassFilter, Serializable {
@@ -135,6 +147,7 @@ public abstract class ClassFilters {
    * ClassFilter implementation for an intersection of the given ClassFilters.
    */
   static class IntersectionClassFilter implements ClassFilter, Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private final ClassFilter[] filters;
@@ -167,6 +180,42 @@ public abstract class ClassFilters {
     @Override
     public String toString() {
       return getClass().getName() + ": " + Arrays.toString(this.filters);
+    }
+
+  }
+
+  /**
+   * ClassFilter implementation for a logical negation of the given ClassFilter.
+   */
+  private static class NegateClassFilter implements ClassFilter, Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final ClassFilter original;
+
+    NegateClassFilter(ClassFilter original) {
+      this.original = original;
+    }
+
+    @Override
+    public boolean matches(Class<?> clazz) {
+      return !this.original.matches(clazz);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return (this == other || (other instanceof NegateClassFilter that
+              && this.original.equals(that.original)));
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(getClass(), this.original);
+    }
+
+    @Override
+    public String toString() {
+      return "Negate " + this.original;
     }
 
   }

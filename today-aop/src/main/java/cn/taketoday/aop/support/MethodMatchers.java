@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +19,10 @@ package cn.taketoday.aop.support;
 
 import org.aopalliance.intercept.MethodInvocation;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.IntroductionAwareMethodMatcher;
@@ -89,6 +88,19 @@ public abstract class MethodMatchers {
   public static MethodMatcher intersection(MethodMatcher mm1, MethodMatcher mm2) {
     return (mm1 instanceof IntroductionAwareMethodMatcher || mm2 instanceof IntroductionAwareMethodMatcher ?
             new IntersectionIntroductionAwareMethodMatcher(mm1, mm2) : new IntersectionMethodMatcher(mm1, mm2));
+  }
+
+  /**
+   * Return a method matcher that represents the logical negation of the specified
+   * matcher instance.
+   *
+   * @param methodMatcher the {@link MethodMatcher} to negate
+   * @return a matcher that represents the logical negation of the specified matcher
+   * @since 4.0
+   */
+  public static MethodMatcher negate(MethodMatcher methodMatcher) {
+    Assert.notNull(methodMatcher, "MethodMatcher must not be null");
+    return new NegateMethodMatcher(methodMatcher);
   }
 
   /**
@@ -334,6 +346,7 @@ public abstract class MethodMatchers {
    */
   static class IntersectionIntroductionAwareMethodMatcher
           extends IntersectionMethodMatcher implements IntroductionAwareMethodMatcher {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public IntersectionIntroductionAwareMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
@@ -344,6 +357,51 @@ public abstract class MethodMatchers {
     public boolean matches(Method method, Class<?> targetClass, boolean hasIntroductions) {
       return (MethodMatchers.matches(this.mm1, method, targetClass, hasIntroductions) &&
               MethodMatchers.matches(this.mm2, method, targetClass, hasIntroductions));
+    }
+
+  }
+
+  @SuppressWarnings("serial")
+  private static class NegateMethodMatcher implements MethodMatcher, Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    private final MethodMatcher original;
+
+    NegateMethodMatcher(MethodMatcher original) {
+      this.original = original;
+    }
+
+    @Override
+    public boolean matches(Method method, Class<?> targetClass) {
+      return !this.original.matches(method, targetClass);
+    }
+
+    @Override
+    public boolean isRuntime() {
+      return this.original.isRuntime();
+    }
+
+    @Override
+    public boolean matches(MethodInvocation invocation) {
+      return !this.original.matches(invocation);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return (this == other || (other instanceof NegateMethodMatcher that
+              && this.original.equals(that.original)));
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(getClass(), this.original);
+    }
+
+    @Override
+    public String toString() {
+      return "Negate " + this.original;
     }
 
   }
