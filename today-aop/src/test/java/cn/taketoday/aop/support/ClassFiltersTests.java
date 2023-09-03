@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit tests for {@link ClassFilters}.
+ * Unit tests for {@link ClassFilter}.
  *
  * @author Rod Johnson
  * @author Chris Beams
@@ -50,7 +50,7 @@ class ClassFiltersTests {
     assertThat(exceptionFilter.matches(TestBean.class)).isFalse();
     assertThat(interfaceFilter.matches(Exception.class)).isFalse();
     assertThat(interfaceFilter.matches(TestBean.class)).isTrue();
-    ClassFilter union = ClassFilters.union(exceptionFilter, interfaceFilter);
+    ClassFilter union = ClassFilter.union(exceptionFilter, interfaceFilter);
     assertThat(union.matches(RuntimeException.class)).isTrue();
     assertThat(union.matches(TestBean.class)).isTrue();
     assertThat(union.toString())
@@ -61,7 +61,7 @@ class ClassFiltersTests {
   void intersection() {
     assertThat(exceptionFilter.matches(RuntimeException.class)).isTrue();
     assertThat(hasRootCauseFilter.matches(NestedRuntimeException.class)).isTrue();
-    ClassFilter intersection = ClassFilters.intersection(exceptionFilter, hasRootCauseFilter);
+    ClassFilter intersection = ClassFilter.intersection(exceptionFilter, hasRootCauseFilter);
     assertThat(intersection.matches(RuntimeException.class)).isFalse();
     assertThat(intersection.matches(TestBean.class)).isFalse();
     assertThat(intersection.matches(NestedRuntimeException.class)).isTrue();
@@ -73,14 +73,14 @@ class ClassFiltersTests {
   void negateClassFilter() {
     ClassFilter filter = mock(ClassFilter.class);
     given(filter.matches(String.class)).willReturn(true);
-    ClassFilter negate = ClassFilters.negate(filter);
+    ClassFilter negate = ClassFilter.negate(filter);
     assertThat(negate.matches(String.class)).isFalse();
     verify(filter).matches(String.class);
   }
 
   @Test
   void negateTrueClassFilter() {
-    ClassFilter negate = ClassFilters.negate(ClassFilter.TRUE);
+    ClassFilter negate = ClassFilter.negate(ClassFilter.TRUE);
     assertThat(negate.matches(String.class)).isFalse();
     assertThat(negate.matches(Object.class)).isFalse();
     assertThat(negate.matches(Integer.class)).isFalse();
@@ -88,7 +88,7 @@ class ClassFiltersTests {
 
   @Test
   void negateTrueClassFilterAppliedTwice() {
-    ClassFilter negate = ClassFilters.negate(ClassFilters.negate(ClassFilter.TRUE));
+    ClassFilter negate = ClassFilter.negate(ClassFilter.negate(ClassFilter.TRUE));
     assertThat(negate.matches(String.class)).isTrue();
     assertThat(negate.matches(Object.class)).isTrue();
     assertThat(negate.matches(Integer.class)).isTrue();
@@ -97,37 +97,37 @@ class ClassFiltersTests {
   @Test
   void negateIsNotEqualsToOriginalFilter() {
     ClassFilter original = ClassFilter.TRUE;
-    ClassFilter negate = ClassFilters.negate(original);
+    ClassFilter negate = ClassFilter.negate(original);
     assertThat(original).isNotEqualTo(negate);
   }
 
   @Test
   void negateOnSameFilterIsEquals() {
     ClassFilter original = ClassFilter.TRUE;
-    ClassFilter first = ClassFilters.negate(original);
-    ClassFilter second = ClassFilters.negate(original);
+    ClassFilter first = ClassFilter.negate(original);
+    ClassFilter second = ClassFilter.negate(original);
     assertThat(first).isEqualTo(second);
   }
 
   @Test
   void negateHasNotSameHashCodeAsOriginalFilter() {
     ClassFilter original = ClassFilter.TRUE;
-    ClassFilter negate = ClassFilters.negate(original);
+    ClassFilter negate = ClassFilter.negate(original);
     assertThat(original).doesNotHaveSameHashCodeAs(negate);
   }
 
   @Test
   void negateOnSameFilterHasSameHashCode() {
     ClassFilter original = ClassFilter.TRUE;
-    ClassFilter first = ClassFilters.negate(original);
-    ClassFilter second = ClassFilters.negate(original);
+    ClassFilter first = ClassFilter.negate(original);
+    ClassFilter second = ClassFilter.negate(original);
     assertThat(first).hasSameHashCodeAs(second);
   }
 
   @Test
   void toStringIncludesRepresentationOfOriginalFilter() {
     ClassFilter original = ClassFilter.TRUE;
-    assertThat(ClassFilters.negate(original)).hasToString("Negate " + original);
+    assertThat(ClassFilter.negate(original)).hasToString("Negate " + original);
   }
 
 }

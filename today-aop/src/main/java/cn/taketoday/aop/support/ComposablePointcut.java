@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,7 +113,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut union(ClassFilter other) {
-    this.classFilter = ClassFilters.union(this.classFilter, other);
+    this.classFilter = ClassFilter.union(this.classFilter, other);
     return this;
   }
 
@@ -127,7 +124,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut intersection(ClassFilter other) {
-    this.classFilter = ClassFilters.intersection(this.classFilter, other);
+    this.classFilter = ClassFilter.intersection(this.classFilter, other);
     return this;
   }
 
@@ -138,7 +135,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut union(MethodMatcher other) {
-    this.methodMatcher = MethodMatchers.union(this.methodMatcher, other);
+    this.methodMatcher = MethodMatcher.union(this.methodMatcher, other);
     return this;
   }
 
@@ -149,7 +146,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut intersection(MethodMatcher other) {
-    this.methodMatcher = MethodMatchers.intersection(this.methodMatcher, other);
+    this.methodMatcher = MethodMatcher.intersection(this.methodMatcher, other);
     return this;
   }
 
@@ -164,9 +161,9 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut union(Pointcut other) {
-    this.methodMatcher = MethodMatchers.union(
+    this.methodMatcher = MethodMatcher.union(
             this.methodMatcher, this.classFilter, other.getMethodMatcher(), other.getClassFilter());
-    this.classFilter = ClassFilters.union(this.classFilter, other.getClassFilter());
+    this.classFilter = ClassFilter.union(this.classFilter, other.getClassFilter());
     return this;
   }
 
@@ -177,8 +174,8 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @return this composable pointcut (for call chaining)
    */
   public ComposablePointcut intersection(Pointcut other) {
-    this.classFilter = ClassFilters.intersection(this.classFilter, other.getClassFilter());
-    this.methodMatcher = MethodMatchers.intersection(this.methodMatcher, other.getMethodMatcher());
+    this.classFilter = ClassFilter.intersection(this.classFilter, other.getClassFilter());
+    this.methodMatcher = MethodMatcher.intersection(this.methodMatcher, other.getMethodMatcher());
     return this;
   }
 

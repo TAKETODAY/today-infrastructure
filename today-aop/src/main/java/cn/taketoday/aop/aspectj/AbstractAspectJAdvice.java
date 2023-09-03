@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +40,6 @@ import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.ProxyMethodInvocation;
 import cn.taketoday.aop.interceptor.ExposeInvocationInterceptor;
 import cn.taketoday.aop.support.ComposablePointcut;
-import cn.taketoday.aop.support.MethodMatchers;
 import cn.taketoday.aop.support.StaticMethodMatcher;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -62,6 +58,7 @@ import cn.taketoday.util.StringUtils;
  * @author Adrian Colyer
  * @author Juergen Hoeller
  * @author Ramnivas Laddad
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -201,7 +198,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    */
   public final Pointcut buildSafePointcut() {
     Pointcut pc = getPointcut();
-    MethodMatcher safeMethodMatcher = MethodMatchers.intersection(
+    MethodMatcher safeMethodMatcher = MethodMatcher.intersection(
             new AdviceExcludingMethodMatcher(aspectJAdviceMethod), pc.getMethodMatcher());
     return new ComposablePointcut(pc.getClassFilter(), safeMethodMatcher);
   }

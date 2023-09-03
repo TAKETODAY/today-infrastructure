@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +17,7 @@
 
 package cn.taketoday.aop;
 
-import cn.taketoday.aop.support.ClassFilters;
 import cn.taketoday.aop.support.ComposablePointcut;
-import cn.taketoday.aop.support.MethodMatchers;
 import cn.taketoday.aop.support.Pointcuts;
 
 /**
@@ -37,8 +32,6 @@ import cn.taketoday.aop.support.Pointcuts;
  * @see ClassFilter
  * @see MethodMatcher
  * @see Pointcuts
- * @see ClassFilters
- * @see MethodMatchers
  * @since 3.0
  */
 public interface Pointcut {

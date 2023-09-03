@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.aopalliance.aop.Advice;
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.IntroductionAdvisor;
 import cn.taketoday.aop.IntroductionInterceptor;
-import cn.taketoday.aop.support.ClassFilters;
 import cn.taketoday.aop.support.DelegatePerTargetObjectIntroductionInterceptor;
 import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 
@@ -35,6 +31,7 @@ import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
  *
  * @author Rod Johnson
  * @author Ramnivas Laddad
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DeclareParentsAdvisor implements IntroductionAdvisor {
@@ -83,7 +80,7 @@ public class DeclareParentsAdvisor implements IntroductionAdvisor {
     // Excludes methods implemented.
     ClassFilter typePatternFilter = new TypePatternClassFilter(typePattern);
     ClassFilter exclusion = (clazz -> !this.introducedInterface.isAssignableFrom(clazz));
-    this.typePatternClassFilter = ClassFilters.intersection(typePatternFilter, exclusion);
+    this.typePatternClassFilter = ClassFilter.intersection(typePatternFilter, exclusion);
   }
 
   @Override
