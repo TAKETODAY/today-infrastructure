@@ -12,6 +12,7 @@ dependencies {
   optional("org.hibernate:hibernate-core-jakarta")
   optional("jakarta.servlet:jakarta.servlet-api")
   optional("jakarta.validation:jakarta.validation-api")
+  compileOnly("org.graalvm.sdk:graal-sdk")
 
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation(project(":today-core-test"))
