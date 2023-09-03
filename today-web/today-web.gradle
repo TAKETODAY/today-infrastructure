@@ -73,6 +73,7 @@ dependencies {
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+  testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
   testImplementation("org.apache.tomcat:tomcat-util")
   testImplementation("org.apache.tomcat.embed:tomcat-embed-core")
   testImplementation("org.eclipse.jetty:jetty-server")

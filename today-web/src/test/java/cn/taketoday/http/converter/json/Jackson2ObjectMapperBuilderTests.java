@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,9 +85,9 @@ import java.util.stream.StreamSupport;
 
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.util.StringUtils;
-import kotlin.ranges.IntRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -269,6 +266,8 @@ class Jackson2ObjectMapperBuilderTests {
 
     Optional<String> optional = Optional.of("test");
     assertThat(new String(objectMapper.writeValueAsBytes(optional), StandardCharsets.UTF_8)).isEqualTo("\"test\"");
+
+    assertThatCode(() -> objectMapper.readValue("{\"x\":1,\"y\":2}", ParameterModuleDto.class)).doesNotThrowAnyException();
   }
 
   @Test
@@ -732,6 +731,25 @@ class Jackson2ObjectMapperBuilderTests {
     @Override
     public Class<Bar> handledType() {
       return Bar.class;
+    }
+  }
+
+  static class ParameterModuleDto {
+
+    int x;
+    int y;
+
+    ParameterModuleDto(int x, int y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    int getX() {
+      return x;
+    }
+
+    int getY() {
+      return y;
     }
   }
 
