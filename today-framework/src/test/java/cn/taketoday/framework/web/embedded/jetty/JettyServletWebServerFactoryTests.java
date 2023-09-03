@@ -89,8 +89,8 @@ import static org.mockito.Mockito.mock;
  * @author Henri Kerola
  */
 @Servlet5ClassPathOverrides
-@ClassPathOverrides({ "org.eclipse.jetty:jetty-jndi:11.0.15",
-        "org.eclipse.jetty:jetty-server:11.0.15" })
+@ClassPathOverrides({ "org.eclipse.jetty:jetty-jndi:11.0.16",
+        "org.eclipse.jetty:jetty-server:11.0.16" })
 class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryTests {
 
   @Override
