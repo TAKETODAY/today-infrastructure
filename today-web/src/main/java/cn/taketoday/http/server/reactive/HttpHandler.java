@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,15 +27,9 @@ import reactor.core.publisher.Mono;
  * {@code WebFilter}, {@code WebSession}, {@code ServerWebExchange}, and others
  * are available in the {@code cn.taketoday.web.server} package.
  *
- *
- * <p>Typically an {@link HttpHandler} represents an entire application with
- * higher-level programming models bridged via
- * {@link cn.taketoday.web.server.adapter.WebHttpHandlerBuilder}.
- * Multiple applications at unique context paths can be plugged in with the
- * help of the {@link ContextPathCompositeHandler}.
- *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContextPathCompositeHandler
  * @since 4.0
  */

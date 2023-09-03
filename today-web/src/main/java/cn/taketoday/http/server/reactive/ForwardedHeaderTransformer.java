@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
@@ -35,12 +34,6 @@ import cn.taketoday.web.util.ForwardedHeaderUtils;
  * Extract values from "Forwarded" and "X-Forwarded-*" headers to override
  * the request URI (i.e. {@link ServerHttpRequest#getURI()}) so it reflects
  * the client-originated protocol and address.
- *
- * <p>An instance of this class is typically declared as a bean with the name
- * "forwardedHeaderTransformer" and detected by
- * {@link WebHttpHandlerBuilder#applicationContext(ApplicationContext)}, or it
- * can also be registered directly via
- * {@link WebHttpHandlerBuilder#forwardedHeaderTransformer(ForwardedHeaderTransformer)}.
  *
  * <p>There are security considerations for forwarded headers since an application
  * cannot know if the headers were added by a proxy, as intended, or by a malicious
