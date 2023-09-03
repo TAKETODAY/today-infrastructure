@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,7 +129,7 @@ public interface TestContextBootstrapper {
    * Framework will use the
    * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
    * mechanism to look up all {@code TestExecutionListener} class names
-   * configured in all {@code META-INF/today-strategies.properties} files on the classpath.
+   * configured in all {@code META-INF/today.strategies} files on the classpath.
    * <p>The {@link TestExecutionListeners#inheritListeners() inheritListeners}
    * flag of {@link TestExecutionListeners @TestExecutionListeners} must be
    * taken into consideration. Specifically, if the {@code inheritListeners}

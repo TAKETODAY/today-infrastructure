@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +32,7 @@ import cn.taketoday.util.Instantiator.FailureHandler;
 
 /**
  * Utility to trigger {@link FailureAnalyzer} and {@link FailureAnalysisReporter}
- * instances loaded from {@code today-strategies.properties}.
+ * instances loaded from {@code today.strategies}.
  * <p>
  * A {@code FailureAnalyzer} that requires access to the {@link BeanFactory} in order to
  * perform its analysis can implement {@code BeanFactoryAware} to have the

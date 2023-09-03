@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
  * application context being refreshed.
  * <p>
  * EnvironmentPostProcessor implementations have to be registered in
- * {@code META-INF/today-strategies.properties}, using the fully qualified name of this class as the
+ * {@code META-INF/today.strategies}, using the fully qualified name of this class as the
  * key. Implementations may implement the {@link cn.taketoday.core.Ordered Ordered}
  * interface or use an {@link cn.taketoday.core.annotation.Order @Order} annotation
  * if they wish to be invoked in specific order.

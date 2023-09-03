@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +45,7 @@ public abstract class TestContextFactoriesUtils {
    * <p>This method utilizes a custom {@link TodayStrategies.FailureHandler} and DEBUG/TRACE logging
    * that are specific to the needs of the <em>Infra TestContext Framework</em>.
    * <p>Specifically, this method looks up and instantiates all {@code factoryType}
-   * entries configured in all {@code META-INF/today-strategies.properties} files on the classpath.
+   * entries configured in all {@code META-INF/today.strategies} files on the classpath.
    * <p>If a particular factory implementation cannot be loaded due to a {@link LinkageError}
    * or {@link ClassNotFoundException}, a {@code DEBUG} message will be logged,
    * but the associated exception will not be rethrown. A {@link RuntimeException}

@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
 /**
  * today-framework Strategies
  * <p>General purpose strategy loading mechanism for internal use within the framework.
- * <p>Reads a {@code META-INF/today-strategies.properties} file from the root of the library classpath,
+ * <p>Reads a {@code META-INF/today.strategies} file from the root of the library classpath,
  * and also allows for programmatically setting properties through {@link #setProperty}.
  * When checking a property, local entries are being checked first, then falling back
  * to JVM-level system properties through a {@link System#getProperty} check.
@@ -59,7 +59,7 @@ import cn.taketoday.util.StringUtils;
 public class TodayStrategies {
   private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
 
-  public static final String STRATEGIES_LOCATION = "META-INF/today-strategies.properties";
+  public static final String STRATEGIES_LOCATION = "META-INF/today.strategies";
 
   static final ConcurrentReferenceHashMap<ClassLoader, Map<String, TodayStrategies>>
           strategiesCache = new ConcurrentReferenceHashMap<>();

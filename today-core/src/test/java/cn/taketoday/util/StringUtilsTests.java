@@ -319,7 +319,7 @@ class StringUtilsTests {
     assertThat(StringUtils.cleanPath("file:../")).isEqualTo("file:../");
     assertThat(StringUtils.cleanPath("file:./../")).isEqualTo("file:../");
     assertThat(StringUtils.cleanPath("file:.././")).isEqualTo("file:../");
-    assertThat(StringUtils.cleanPath("file:/mypath/today-strategies.properties")).isEqualTo("file:/mypath/today-strategies.properties");
+    assertThat(StringUtils.cleanPath("file:/mypath/today.strategies")).isEqualTo("file:/mypath/today.strategies");
     assertThat(StringUtils.cleanPath("file:///c:/some/../path/the%20file.txt")).isEqualTo("file:///c:/path/the%20file.txt");
     assertThat(StringUtils.cleanPath("jar:file:///c:\\some\\..\\path\\.\\the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");
     assertThat(StringUtils.cleanPath("jar:file:///c:/some/../path/./the%20file.txt")).isEqualTo("jar:file:///c:/path/the%20file.txt");

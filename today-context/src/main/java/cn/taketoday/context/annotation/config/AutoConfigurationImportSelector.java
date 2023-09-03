@@ -179,7 +179,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
 
     Assert.notEmpty(configurations,
-            "No auto configuration classes found in META-INF/today-strategies.properties " +
+            "No auto configuration classes found in META-INF/today.strategies " +
                     "nor in META-INF/config/cn.taketoday.context.annotation.config.AutoConfiguration.imports." +
                     " If you are using a custom packaging, make sure that file is correct.");
     return configurations;

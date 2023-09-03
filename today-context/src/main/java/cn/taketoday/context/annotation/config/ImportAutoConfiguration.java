@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +30,7 @@ import cn.taketoday.core.annotation.AliasFor;
 /**
  * Import and apply the specified auto-configuration classes. Applies the same ordering
  * rules as {@code @EnableAutoConfiguration} but restricts the auto-configuration classes
- * to the specified set, rather than consulting {@code today-strategies.properties}.
+ * to the specified set, rather than consulting {@code today.strategies}.
  * <p>
  * Can also be used to {@link #exclude()} specific auto-configuration classes such that
  * they will never be applied.
@@ -65,7 +62,7 @@ public @interface ImportAutoConfiguration {
 
   /**
    * The auto-configuration classes that should be imported. When empty, the classes are
-   * specified using an entry in {@code META-INF/today-strategies.properties} where the key is the
+   * specified using an entry in {@code META-INF/today.strategies} where the key is the
    * fully-qualified name of the annotated class.
    *
    * @return the classes to import
