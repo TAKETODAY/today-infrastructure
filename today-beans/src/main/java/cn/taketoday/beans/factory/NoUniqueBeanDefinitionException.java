@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.beans.factory;
 
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -37,6 +35,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionException {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -68,7 +67,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
     super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
             StringUtils.collectionToCommaDelimitedString(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
-    this.beanNamesFound = beanNamesFound;
+    this.beanNamesFound = new ArrayList<>(beanNamesFound);
   }
 
   /**
@@ -91,7 +90,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
     super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
             StringUtils.collectionToCommaDelimitedString(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
-    this.beanNamesFound = beanNamesFound;
+    this.beanNamesFound = new ArrayList<>(beanNamesFound);
   }
 
   /**
