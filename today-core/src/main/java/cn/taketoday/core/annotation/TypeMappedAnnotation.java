@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -496,6 +493,9 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       int length = Array.getLength(value);
       if (length == 1) {
         value = Array.get(value, 0);
+      }
+      else if (length == 0) {
+        return null;
       }
       else {
         throw new IllegalArgumentException(

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,28 +89,28 @@ class MergedAnnotationsTests {
     void preconditions() {
       assertThatIllegalArgumentException()
               .isThrownBy(() -> MergedAnnotations.search(null))
-              .withMessage("SearchStrategy must not be null");
+              .withMessage("SearchStrategy is required");
 
       Search search = MergedAnnotations.search(SearchStrategy.SUPERCLASS);
 
       assertThatIllegalArgumentException()
               .isThrownBy(() -> search.withEnclosingClasses(null))
-              .withMessage("Predicate must not be null");
+              .withMessage("Predicate is required");
       assertThatIllegalStateException()
               .isThrownBy(() -> search.withEnclosingClasses(Search.always))
               .withMessage("A custom 'searchEnclosingClass' predicate can only be combined with SearchStrategy.TYPE_HIERARCHY");
 
       assertThatIllegalArgumentException()
               .isThrownBy(() -> search.withAnnotationFilter(null))
-              .withMessage("AnnotationFilter must not be null");
+              .withMessage("AnnotationFilter is required");
 
       assertThatIllegalArgumentException()
               .isThrownBy(() -> search.withRepeatableContainers(null))
-              .withMessage("RepeatableContainers must not be null");
+              .withMessage("RepeatableContainers is required");
 
       assertThatIllegalArgumentException()
               .isThrownBy(() -> search.from(null))
-              .withMessage("AnnotatedElement must not be null");
+              .withMessage("AnnotatedElement is required");
     }
 
     @Test
@@ -282,17 +279,17 @@ class MergedAnnotationsTests {
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> MergedAnnotations.from(getClass(), strategy, null, AnnotationFilter.PLAIN))
-            .withMessage("RepeatableContainers must not be null");
+            .withMessage("RepeatableContainers is required");
     assertThatIllegalArgumentException()
             .isThrownBy(() -> MergedAnnotations.from(getClass(), strategy, containers, null))
-            .withMessage("AnnotationFilter must not be null");
+            .withMessage("AnnotationFilter is required");
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> MergedAnnotations.from(getClass(), new Annotation[0], null, AnnotationFilter.PLAIN))
-            .withMessage("RepeatableContainers must not be null");
+            .withMessage("RepeatableContainers is required");
     assertThatIllegalArgumentException()
             .isThrownBy(() -> MergedAnnotations.from(getClass(), new Annotation[0], containers, null))
-            .withMessage("AnnotationFilter must not be null");
+            .withMessage("AnnotationFilter is required");
   }
 
   @Test

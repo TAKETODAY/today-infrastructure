@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,8 +35,9 @@ import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -51,7 +53,7 @@ import cn.taketoday.util.StringUtils;
  * <p>Also supports Jakarta EE's {@link jakarta.annotation.ManagedBean} and
  * JSR-330's {@link jakarta.inject.Named} annotations (as well as their pre-Jakarta
  * {@code javax.annotation.ManagedBean} and {@code javax.inject.Named} equivalents),
- * if available. Note that Spring component annotations always override such
+ * if available. Note that Infra component annotations always override such
  * standard annotations.
  *
  * <p>If the annotation's value doesn't indicate a bean name, an appropriate
@@ -83,6 +85,17 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
   private final Map<String, Set<String>> metaAnnotationTypesCache = new ConcurrentHashMap<>();
 
+  private static final Logger logger = LoggerFactory.getLogger(AnnotationBeanNameGenerator.class);
+
+  /**
+   * Set used to track which stereotype annotations have already been checked
+   * to see if they use a convention-based override for the {@code value}
+   * attribute in {@code @Component}.
+   *
+   * @see #determineBeanNameFromAnnotation(AnnotatedBeanDefinition)
+   */
+  private static final Set<String> conventionBasedStereotypeCheckCache = ConcurrentHashMap.newKeySet();
+
   @Override
   public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
     if (definition instanceof AnnotatedBeanDefinition) {
@@ -106,30 +119,40 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
   protected String determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
     AnnotationMetadata metadata = annotatedDef.getMetadata();
 
-    String beanName = getExplicitBeanName(metadata);
-    if (beanName != null) {
-      return beanName;
+    BeanNameHolder holder = getExplicitBeanName(metadata);
+    if (holder != null) {
+      annotatedDef.setAttribute(BeanNameHolder.AttributeName, holder);
+      return holder.getBeanName();
     }
 
-    Set<String> types = metadata.getAnnotationTypes();
-    for (String type : types) {
-      MergedAnnotation<Annotation> annotation = metadata.getAnnotation(type);
+    String beanName = null;
+    for (String annotationType : metadata.getAnnotationTypes()) {
+      MergedAnnotation<Annotation> annotation = metadata.getAnnotation(annotationType);
       if (annotation.isPresent()) {
-        Set<String> metaTypes = this.metaAnnotationTypesCache.computeIfAbsent(type, key -> {
+        Set<String> metaAnnotationTypes = metaAnnotationTypesCache.computeIfAbsent(annotationType, key -> {
           Set<String> result = metadata.getMetaAnnotationTypes(key);
           return result.isEmpty() ? Collections.emptySet() : result;
         });
-        if (isStereotype(type, metaTypes)) {
+        if (isStereotype(annotationType, metaAnnotationTypes)) {
           BeanNameHolder beanNameHolder = getBeanNameHolder(annotation);
           if (beanNameHolder != null) {
-            String strVal = beanNameHolder.getBeanName();
-            if (StringUtils.isNotEmpty(strVal)) {
-              if (beanName != null && !strVal.equals(beanName)) {
+            String currentName = beanNameHolder.getBeanName();
+            if (!currentName.isBlank()) {
+              if (conventionBasedStereotypeCheckCache.add(annotationType)
+                      && metaAnnotationTypes.contains(COMPONENT_ANNOTATION_CLASSNAME) && logger.isWarnEnabled()) {
+                logger.warn("""
+                        Support for convention-based stereotype names is deprecated and will \
+                        be removed in a future version of the framework. Please annotate the \
+                        'value' attribute in @{} with @AliasFor(annotation=Component.class) \
+                        to declare an explicit alias for @Component's 'value' attribute.""", annotationType);
+              }
+
+              if (beanName != null && !currentName.equals(beanName)) {
                 throw new IllegalStateException("Stereotype annotations suggest inconsistent " +
-                        "component names: '" + beanName + "' versus '" + strVal + "'");
+                        "component names: '" + beanName + "' versus '" + currentName + "'");
               }
               annotatedDef.setAttribute(BeanNameHolder.AttributeName, beanNameHolder);
-              beanName = strVal;
+              beanName = currentName;
             }
           }
         }
@@ -157,7 +180,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
             }
           }
           if (!aliases.isEmpty()) {
-            aliasesArray = aliases.toArray(Constant.EMPTY_STRING_ARRAY);
+            aliasesArray = StringUtils.toStringArray(aliases);
           }
         }
 
@@ -180,11 +203,11 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
    * @see cn.taketoday.stereotype.Component#value()
    */
   @Nullable
-  private String getExplicitBeanName(AnnotationMetadata metadata) {
-    List<String> names = metadata.getAnnotations().stream(COMPONENT_ANNOTATION_CLASSNAME)
-            .map(annotation -> annotation.getString(MergedAnnotation.VALUE))
-            .filter(StringUtils::hasText)
-            .map(String::trim)
+  private BeanNameHolder getExplicitBeanName(AnnotationMetadata metadata) {
+    List<BeanNameHolder> names = metadata.getAnnotations().stream(COMPONENT_ANNOTATION_CLASSNAME)
+            .map(this::getBeanNameHolder)
+            .filter(Objects::nonNull)
+            .filter(holder -> StringUtils.hasText(holder.getBeanName()))
             .distinct()
             .toList();
 
@@ -193,7 +216,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
     }
     if (names.size() > 1) {
       throw new IllegalStateException(
-              "Stereotype annotations suggest inconsistent component names: " + names);
+              "Stereotype annotations suggest inconsistent component names: " + names.stream().map(BeanNameHolder::getBeanName).toList());
     }
     return null;
   }

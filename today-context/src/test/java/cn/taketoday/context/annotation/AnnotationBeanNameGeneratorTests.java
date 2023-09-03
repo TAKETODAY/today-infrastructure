@@ -28,6 +28,7 @@ import java.util.List;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanNameHolder;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.SimpleBeanDefinitionRegistry;
 import cn.taketoday.core.annotation.AliasFor;
@@ -52,6 +53,22 @@ class AnnotationBeanNameGeneratorTests {
   private final BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 
   private final AnnotationBeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
+
+  @Test
+  void nameAndAliases() {
+    BeanDefinition bd = annotatedBeanDef(NameAndAliases.class);
+    assertThat(this.beanNameGenerator.generateBeanName(bd, this.registry))
+            .isEqualTo("name");
+
+    assertThat(bd.getAttributes()).containsKey(BeanNameHolder.AttributeName);
+
+    BeanNameHolder holder = BeanNameHolder.find(bd);
+    assertThat(holder).isNotNull();
+
+    assertThat(holder.getBeanName()).isEqualTo("name");
+    assertThat(holder.getAliases()).contains("aliases", "aliases1");
+
+  }
 
   @Test
   void buildDefaultBeanName() {
@@ -179,7 +196,7 @@ class AnnotationBeanNameGeneratorTests {
     assertThat(generateBeanName(bd)).isNotBlank().isEqualTo(expectedName);
   }
 
-  private AnnotatedBeanDefinition annotatedBeanDef(Class<?> clazz) {
+  static AnnotatedBeanDefinition annotatedBeanDef(Class<?> clazz) {
     return new AnnotatedGenericBeanDefinition(clazz);
   }
 
@@ -248,7 +265,7 @@ class AnnotationBeanNameGeneratorTests {
   }
 
   @NonStringMetaComponent(123)
-  private static class ComponentFromNonStringMeta {
+  static class ComponentFromNonStringMeta {
   }
 
   /**
@@ -323,6 +340,11 @@ class AnnotationBeanNameGeneratorTests {
 
   @TestRestControllerAdvice(basePackages = "com.example", name = "myRestControllerAdvice")
   static class RestControllerAdviceClass {
+  }
+
+  @Service({ "name", "", "aliases", "  ", "aliases1" })
+  static class NameAndAliases {
+
   }
 
 }
