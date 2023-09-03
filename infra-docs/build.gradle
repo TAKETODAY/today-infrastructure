@@ -33,7 +33,7 @@ dependencies {
  * Produce Javadoc for all Infrastructure modules in "build/docs/javadoc"
  */
 task api(type: Javadoc) {
-  group = "Documentation"
+  group = "documentation"
   description = "Generates aggregated Javadoc API documentation."
   title = "${rootProject.description} ${version} API"
 
@@ -74,7 +74,7 @@ task api(type: Javadoc) {
  * Zip all Java docs (javadoc & kdoc) into a single archive
  */
 task docsZip(type: Zip, dependsOn: ['api']) {
-  group = "Distribution"
+  group = "distribution"
   description = "Builds -${archiveClassifier} archive containing api and reference " +
       "for deployment at https://taketoday.cn/open-source/projects/today-infrastructure/docs."
 
@@ -92,7 +92,7 @@ task docsZip(type: Zip, dependsOn: ['api']) {
  * Zip all Infrastructure schemas into a single archive
  */
 task schemaZip(type: Zip) {
-  group = "Distribution"
+  group = "distribution"
   archiveBaseName.set("today-infrastructure")
   archiveClassifier.set("schema")
   description = "Builds -${archiveClassifier} archive containing all " +
@@ -127,7 +127,7 @@ task schemaZip(type: Zip) {
  * docs, schemas, jars, source jars, javadoc jars
  */
 task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
-  group = "Distribution"
+  group = "distribution"
   archiveBaseName.set("today-infrastructure")
   archiveClassifier.set("dist")
   description = "Builds -${archiveClassifier} archive, containing all jars and docs, " +
