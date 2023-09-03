@@ -34,6 +34,15 @@ ext {
 configure(allprojects) {
   group = "cn.taketoday"
 
+  if (it.hasProperty("skipDocs")) {
+    it.afterEvaluate {
+      it.getTasks().matching(task -> {
+        return JavaBasePlugin.DOCUMENTATION_GROUP == task.getGroup()
+            || "distribution" == task.getGroup()
+      }).forEach(task -> task.setEnabled(false))
+    }
+  }
+
   repositories {
     mavenLocal()
 

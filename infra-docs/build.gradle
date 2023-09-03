@@ -44,8 +44,8 @@ task api(type: Javadoc) {
   }
   doFirst {
     classpath = files(
-            // ensure the javadoc process can resolve types compiled from .aj sources
-            project(":today-aspects").sourceSets.main.output
+        // ensure the javadoc process can resolve types compiled from .aj sources
+        project(":today-aspects").sourceSets.main.output
     )
     classpath += files(moduleProjects.collect { it.sourceSets.main.compileClasspath })
   }
@@ -76,7 +76,7 @@ task api(type: Javadoc) {
 task docsZip(type: Zip, dependsOn: ['api']) {
   group = "Distribution"
   description = "Builds -${archiveClassifier} archive containing api and reference " +
-          "for deployment at https://taketoday.cn/open-source/projects/today-infrastructure/docs."
+      "for deployment at https://taketoday.cn/open-source/projects/today-infrastructure/docs."
 
   archiveBaseName = "today-infrastructure"
   archiveClassifier = "docs"
@@ -96,7 +96,7 @@ task schemaZip(type: Zip) {
   archiveBaseName.set("today-infrastructure")
   archiveClassifier.set("schema")
   description = "Builds -${archiveClassifier} archive containing all " +
-          "XSDs for deployment at"
+      "XSDs for deployment at"
   duplicatesStrategy DuplicatesStrategy.EXCLUDE
   moduleProjects.each { module ->
     def Properties schemas = new Properties();
@@ -131,7 +131,7 @@ task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
   archiveBaseName.set("today-infrastructure")
   archiveClassifier.set("dist")
   description = "Builds -${archiveClassifier} archive, containing all jars and docs, " +
-          "suitable for community download page."
+      "suitable for community download page."
 
   ext.baseDir = "today-infrastructure-${project.version}";
 
