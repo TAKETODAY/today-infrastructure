@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +26,45 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
- * This annotation indicates that an annotated element is a bean component in
- * your application
+ * Indicates that the annotated class is a <em>component</em>.
  *
- * @author TODAY 2018-07-2 22:46:39
+ * <p>Such classes are considered as candidates for auto-detection
+ * when using annotation-based configuration and classpath scanning.
+ *
+ * <p>A component may optionally specify a logical component name via the
+ * {@link #value value} attribute of this annotation.
+ *
+ * <p>Other class-level annotations may be considered as identifying
+ * a component as well, typically a special kind of component &mdash;
+ * for example, the {@link Repository @Repository} annotation or AspectJ's
+ * {@link org.aspectj.lang.annotation.Aspect @Aspect} annotation. Note, however,
+ * that the {@code @Aspect} annotation does not automatically make a class
+ * eligible for classpath scanning.
+ *
+ * <p>Any annotation meta-annotated with {@code @Component} is considered a
+ * <em>stereotype</em> annotation which makes the annotated class eligible for
+ * classpath scanning. For example, {@link Service @Service},
+ * {@link Controller @Controller}, and {@link Repository @Repository} are
+ * stereotype annotations. Stereotype annotations may also support configuration
+ * of a logical component name by overriding the {@link #value} attribute of this
+ * annotation via {@link cn.taketoday.core.annotation.AliasFor @AliasFor}.
+ *
+ * <p>As of 4.0, support for configuring the name of a stereotype
+ * component by convention (i.e., via a {@code String value()} attribute without
+ * {@code @AliasFor}) is deprecated and will be removed in a future version of the
+ * framework. Consequently, custom stereotype annotations must use {@code @AliasFor}
+ * to declare an explicit alias for this annotation's {@link #value} attribute.
+ * See the source code declaration of {@link Repository#value()} and
+ * {@link cn.taketoday.web.annotation.ControllerAdvice#name()
+ * ControllerAdvice.name()} for concrete examples.
+ *
+ * @author Mark Fisher
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Repository
+ * @see Service
+ * @see Controller
+ * @since 2018-07-2 22:46:39
  */
 @Indexed
 @Retention(RetentionPolicy.RUNTIME)
