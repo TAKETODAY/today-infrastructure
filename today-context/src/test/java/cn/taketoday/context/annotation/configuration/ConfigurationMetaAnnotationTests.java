@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.core.annotation.AliasFor;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -65,9 +63,12 @@ public class ConfigurationMetaAnnotationTests {
     }
   }
 
-  @Configuration
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface TestConfiguration {
+  @Configuration
+  @interface TestConfiguration {
+
+    @AliasFor(annotation = Configuration.class)
     String value() default "";
   }
+
 }
