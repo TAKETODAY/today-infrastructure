@@ -1,3 +1,0 @@
-# Jar Modes
-cn.taketoday.app.loader.jarmode.JarMode=\
-cn.taketoday.jarmode.layertools.LayerToolsJarMode

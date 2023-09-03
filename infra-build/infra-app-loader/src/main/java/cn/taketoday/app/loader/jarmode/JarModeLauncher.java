@@ -17,10 +17,13 @@
 
 package cn.taketoday.app.loader.jarmode;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * Delegate class used to launch the fat jar in a specific mode.
@@ -37,15 +40,43 @@ public final class JarModeLauncher {
     String mode = System.getProperty("jarmode");
     List<JarMode> candidates = TodayStrategies.find(JarMode.class, ClassUtils.getDefaultClassLoader());
     for (JarMode candidate : candidates) {
-      if (candidate.accepts(mode)) {
-        candidate.run(mode, args);
+      if (tryRun(candidate, mode, args)) {
         return;
       }
     }
+
+    JarMode jarMode = findDefault();
+    if (jarMode != null && tryRun(jarMode, mode, args)) {
+      return;
+    }
+
     System.err.println("Unsupported jarmode '" + mode + "'");
     if (!Boolean.getBoolean(DISABLE_SYSTEM_EXIT)) {
       System.exit(1);
     }
+  }
+
+  private static boolean tryRun(JarMode candidate, String mode, String[] args) {
+    if (candidate.accepts(mode)) {
+      candidate.run(mode, args);
+      return true;
+    }
+    return false;
+  }
+
+  @Nullable
+  private static JarMode findDefault() {
+    Class<JarMode> jarModeClass = ClassUtils.load("cn.taketoday.jarmode.layertools.LayerToolsJarMode");
+    if (jarModeClass != null) {
+      try {
+        Constructor<JarMode> constructor = jarModeClass.getConstructor();
+        return constructor.newInstance();
+      }
+      catch (Exception e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
+    }
+    return null;
   }
 
 }
