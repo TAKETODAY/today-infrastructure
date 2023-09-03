@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,14 +40,17 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class PreparedStatementCreatorFactory {
 
   /** The SQL, which won't change when the parameters change. */
   private final String sql;
 
-  /** List of SqlParameter objects (may not be {@code null}). */
-  private final List<SqlParameter> declaredParameters;
+  /** List of SqlParameter objects (may be {@code null}). */
+  @Nullable
+  private List<SqlParameter> declaredParameters;
 
   private int resultSetType = ResultSet.TYPE_FORWARD_ONLY;
 
@@ -69,7 +69,6 @@ public class PreparedStatementCreatorFactory {
    */
   public PreparedStatementCreatorFactory(String sql) {
     this.sql = sql;
-    this.declaredParameters = new ArrayList<>();
   }
 
   /**
@@ -108,6 +107,9 @@ public class PreparedStatementCreatorFactory {
    * @param param the parameter to add to the list of declared parameters
    */
   public void addParameter(SqlParameter param) {
+    if (this.declaredParameters == null) {
+      this.declaredParameters = new ArrayList<>();
+    }
     this.declaredParameters.add(param);
   }
 
@@ -115,9 +117,9 @@ public class PreparedStatementCreatorFactory {
    * Set whether to use prepared statements that return a specific type of ResultSet.
    *
    * @param resultSetType the ResultSet type
-   * @see ResultSet#TYPE_FORWARD_ONLY
-   * @see ResultSet#TYPE_SCROLL_INSENSITIVE
-   * @see ResultSet#TYPE_SCROLL_SENSITIVE
+   * @see java.sql.ResultSet#TYPE_FORWARD_ONLY
+   * @see java.sql.ResultSet#TYPE_SCROLL_INSENSITIVE
+   * @see java.sql.ResultSet#TYPE_SCROLL_SENSITIVE
    */
   public void setResultSetType(int resultSetType) {
     this.resultSetType = resultSetType;
@@ -189,7 +191,7 @@ public class PreparedStatementCreatorFactory {
    */
   public PreparedStatementCreator newPreparedStatementCreator(String sqlToUse, @Nullable Object[] params) {
     return new PreparedStatementCreatorImpl(
-            sqlToUse, params != null ? Arrays.asList(params) : Collections.emptyList());
+            sqlToUse, (params != null ? Arrays.asList(params) : Collections.emptyList()));
   }
 
   /**
@@ -199,6 +201,7 @@ public class PreparedStatementCreatorFactory {
           implements PreparedStatementCreator, PreparedStatementSetter, SqlProvider, ParameterDisposer {
 
     private final String actualSql;
+
     private final List<?> parameters;
 
     public PreparedStatementCreatorImpl(List<?> parameters) {
@@ -208,23 +211,25 @@ public class PreparedStatementCreatorFactory {
     public PreparedStatementCreatorImpl(String actualSql, List<?> parameters) {
       this.actualSql = actualSql;
       this.parameters = parameters;
-      int size = parameters.size();
-      if (size != declaredParameters.size()) {
-        // Account for named parameters being used multiple times
-        HashSet<String> names = new HashSet<>();
-        for (int i = 0; i < size; i++) {
-          Object param = parameters.get(i);
-          if (param instanceof SqlParameterValue) {
-            names.add(((SqlParameterValue) param).getName());
+      if (declaredParameters != null) {
+        int size = parameters.size();
+        if (size != declaredParameters.size()) {
+          // Account for named parameters being used multiple times
+          HashSet<String> names = new HashSet<>();
+          for (int i = 0; i < size; i++) {
+            Object param = parameters.get(i);
+            if (param instanceof SqlParameterValue sqlParameterValue) {
+              names.add(sqlParameterValue.getName());
+            }
+            else {
+              names.add("Parameter #" + i);
+            }
           }
-          else {
-            names.add("Parameter #" + i);
+          if (names.size() != declaredParameters.size()) {
+            throw new InvalidDataAccessApiUsageException(
+                    "SQL [" + sql + "]: given " + names.size() +
+                            " parameters but expected " + declaredParameters.size());
           }
-        }
-        if (names.size() != declaredParameters.size()) {
-          throw new InvalidDataAccessApiUsageException(
-                  "SQL [" + sql + "]: given " + names.size() +
-                          " parameters but expected " + declaredParameters.size());
         }
       }
     }
@@ -258,14 +263,14 @@ public class PreparedStatementCreatorFactory {
       int size = parameters.size();
       for (int i = 0; i < size; i++) {
         Object in = parameters.get(i);
-        SqlParameter declaredParameter;
+        SqlParameter declaredParameter = null;
         // SqlParameterValue overrides declared parameter meta-data, in particular for
         // independence from the declared parameter position in case of named parameters.
-        if (in instanceof SqlParameterValue paramValue) {
-          in = paramValue.getValue();
-          declaredParameter = paramValue;
+        if (in instanceof SqlParameterValue sqlParameterValue) {
+          in = sqlParameterValue.getValue();
+          declaredParameter = sqlParameterValue;
         }
-        else {
+        else if (declaredParameters != null) {
           if (declaredParameters.size() <= i) {
             throw new InvalidDataAccessApiUsageException(
                     "SQL [" + sql + "]: unable to access parameter number " + (i + 1) +
@@ -274,7 +279,10 @@ public class PreparedStatementCreatorFactory {
           }
           declaredParameter = declaredParameters.get(i);
         }
-        if (in instanceof Iterable<?> entries && declaredParameter.getSqlType() != Types.ARRAY) {
+        if (declaredParameter == null) {
+          StatementCreatorUtils.setParameterValue(ps, sqlColIndx++, SqlTypeValue.TYPE_UNKNOWN, in);
+        }
+        else if (in instanceof Iterable<?> entries && declaredParameter.getSqlType() != Types.ARRAY) {
           for (Object entry : entries) {
             if (entry instanceof Object[] valueArray) {
               for (Object argValue : valueArray) {
