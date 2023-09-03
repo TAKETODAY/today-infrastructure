@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +49,6 @@ import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
-import cn.taketoday.http.converter.HttpMessageConversionException;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Nullable;
 
@@ -499,14 +495,15 @@ public class MappingJackson2HttpMessageConverterTests {
     assertThat(result.contains("\"number\":123")).isTrue();
   }
 
-  @Test
+  @Test // gh-27511
   public void readWithNoDefaultConstructor() throws Exception {
     String body = "{\"property1\":\"foo\",\"property2\":\"bar\"}";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
-    inputMessage.getHeaders().setContentType(new MediaType("application", "json"));
-    assertThatExceptionOfType(HttpMessageConversionException.class)
-            .isThrownBy(() -> converter.read(BeanWithNoDefaultConstructor.class, inputMessage))
-            .withMessageStartingWith("Type definition error:");
+    inputMessage.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    BeanWithNoDefaultConstructor bean =
+            (BeanWithNoDefaultConstructor) converter.read(BeanWithNoDefaultConstructor.class, inputMessage);
+    assertThat(bean.property1).isEqualTo("foo");
+    assertThat(bean.property2).isEqualTo("bar");
   }
 
   @Test

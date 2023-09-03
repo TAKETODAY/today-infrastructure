@@ -36,8 +36,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.CodecException;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -229,9 +229,22 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
     StepVerifier.create(result).expectComplete().verify();
   }
 
-  @Test
+  @Test // gh-27511
   public void noDefaultConstructor() {
     Flux<DataBuffer> input = Flux.from(stringBuffer("{\"property1\":\"foo\",\"property2\":\"bar\"}"));
+
+    testDecode(input, BeanWithNoDefaultConstructor.class, step -> step
+            .consumeNextWith(o -> {
+              assertThat(o.getProperty1()).isEqualTo("foo");
+              assertThat(o.getProperty2()).isEqualTo("bar");
+            })
+            .verifyComplete()
+    );
+  }
+
+  @Test
+  public void codecException() {
+    Flux<DataBuffer> input = Flux.from(stringBuffer("["));
     ResolvableType elementType = ResolvableType.forClass(BeanWithNoDefaultConstructor.class);
     Flux<Object> flux = new Jackson2JsonDecoder().decode(input, elementType, null, Collections.emptyMap());
     StepVerifier.create(flux).verifyError(CodecException.class);
