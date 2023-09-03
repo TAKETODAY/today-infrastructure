@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +32,6 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.application.scripts.TemplateBasedScriptGenerator;
 import org.gradle.jvm.application.tasks.CreateStartScripts;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -95,7 +91,7 @@ final class ApplicationPluginAction implements PluginApplicationAction {
       }
     });
     createStartScripts.getConventionMapping()
-            .map("outputDir", () -> new File(project.getBuildDir(), "infraScripts"));
+            .map("outputDir", () -> project.getLayout().getBuildDirectory().dir("infraScripts").get().getAsFile());
     createStartScripts.getConventionMapping().map("applicationName", javaApplication::getApplicationName);
     createStartScripts.getConventionMapping().map("defaultJvmOpts", javaApplication::getApplicationDefaultJvmArgs);
   }
