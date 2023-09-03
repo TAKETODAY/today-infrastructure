@@ -371,7 +371,6 @@ public interface RestClient {
      * client library (e.g. SSL).
      * <p>If no request factory is specified, {@code RestClient} uses
      * {@linkplain cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory Apache Http Client},
-     * {@linkplain cn.taketoday.http.client.OkHttp3ClientHttpRequestFactory OkHttp 3}, or
      * {@linkplain cn.taketoday.http.client.JettyClientHttpRequestFactory Jetty Http Client}
      * if available on the classpath, and defaults to the
      * {@linkplain cn.taketoday.http.client.JdkClientHttpRequestFactory JDK HttpClient}
