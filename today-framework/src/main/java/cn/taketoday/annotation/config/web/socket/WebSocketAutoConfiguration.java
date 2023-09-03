@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,20 +20,27 @@ package cn.taketoday.annotation.config.web.socket;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.websocket.server.WsSci;
 import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+import org.eclipse.jetty.websocket.servlet.WebSocketUpgradeFilter;
+
+import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
+import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
+import jakarta.servlet.DispatcherType;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} WebSocket
@@ -44,6 +48,7 @@ import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/5 21:52
  */
+@Lazy
 @EnableWebSocket
 @AutoConfiguration
 @DisableAllDependencyInjection
@@ -56,24 +61,41 @@ public class WebSocketAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-    TomcatWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
+    static TomcatWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
       return new TomcatWebSocketServletWebServerCustomizer();
     }
 
   }
 
+  @Lazy
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(JakartaWebSocketServletContainerInitializer.class)
   static class JettyWebSocketConfiguration {
 
     @Component
     @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-    JettyWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
+    static JettyWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
       return new JettyWebSocketServletWebServerCustomizer();
+    }
+
+    @Component
+    @ConditionalOnMissingBean(
+            value = WebSocketUpgradeFilter.class,
+            parameterizedContainer = FilterRegistrationBean.class)
+    static FilterRegistrationBean<WebSocketUpgradeFilter> webSocketUpgradeFilter() {
+      WebSocketUpgradeFilter websocketFilter = new WebSocketUpgradeFilter();
+      FilterRegistrationBean<WebSocketUpgradeFilter> registration = new FilterRegistrationBean<>(websocketFilter);
+      registration.setAsyncSupported(true);
+      registration.setDispatcherTypes(DispatcherType.REQUEST);
+      registration.setName(WebSocketUpgradeFilter.class.getName());
+      registration.setOrder(Ordered.LOWEST_PRECEDENCE);
+      registration.setUrlPatterns(List.of("/*"));
+      return registration;
     }
 
   }
 
+  @Lazy
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(io.undertow.websockets.jsr.Bootstrap.class)
   static class UndertowWebSocketConfiguration {
@@ -86,6 +108,7 @@ public class WebSocketAutoConfiguration {
 
   }
 
+  @Lazy
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(io.netty.handler.codec.http.HttpMethod.class)
   @ConditionalOnWebApplication(type = Type.NETTY)
@@ -93,7 +116,7 @@ public class WebSocketAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean
-    RequestUpgradeStrategy nettyRequestUpgradeStrategy() {
+    static RequestUpgradeStrategy nettyRequestUpgradeStrategy() {
       return new NettyRequestUpgradeStrategy();
     }
 
