@@ -168,54 +168,6 @@
       "defaultValue": "UTF-8"
     },
     {
-      "name": "banner.image.bitdepth",
-      "type": "java.lang.Integer",
-      "deprecation": {
-        "level": "error",
-        "reason": "Support for image banners has been removed."
-      }
-    },
-    {
-      "name": "banner.image.height",
-      "type": "java.lang.Integer",
-      "deprecation": {
-        "level": "error",
-        "reason": "Support for image banners has been removed."
-      }
-    },
-    {
-      "name": "banner.image.invert",
-      "type": "java.lang.Boolean",
-      "deprecation": {
-        "level": "error",
-        "reason": "Support for image banners has been removed."
-      }
-    },
-    {
-      "name": "banner.image.location",
-      "type": "cn.taketoday.core.io.Resource",
-      "deprecation": {
-        "level": "error",
-        "reason": "Support for image banners has been removed."
-      }
-    },
-    {
-      "name": "banner.image.margin",
-      "type": "java.lang.Integer",
-      "deprecation": {
-        "level": "error",
-        "reason": "Support for image banners has been removed."
-      }
-    },
-    {
-      "name": "banner.image.width",
-      "type": "java.lang.Integer",
-      "deprecation": {
-        "level": "error",
-        "reason": "Support for image banners has been removed."
-      }
-    },
-    {
       "name": "banner.location",
       "type": "cn.taketoday.core.io.Resource",
       "description": "Banner text resource location.",
