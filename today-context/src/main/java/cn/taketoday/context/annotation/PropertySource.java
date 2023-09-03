@@ -174,11 +174,28 @@ import cn.taketoday.core.io.Resource;
 public @interface PropertySource {
 
   /**
-   * Indicate the name of this property source. If omitted, the {@link #factory}
-   * will generate a name based on the underlying resource (in the case of
-   * {@link cn.taketoday.core.io.DefaultPropertySourceFactory}:
-   * derived from the resource description through a corresponding name-less
-   * {@link cn.taketoday.core.io.ResourcePropertySource} constructor).
+   * Indicate the unique name of this property source.
+   * <p>If omitted, the {@link #factory} will generate a name based on the
+   * underlying resource (in the case of
+   * {@link cn.taketoday.core.io.DefaultPropertySourceFactory
+   * DefaultPropertySourceFactory}: derived from the resource description through
+   * a corresponding name-less
+   * {@link cn.taketoday.core.io.ResourcePropertySource
+   * ResourcePropertySource} constructor).
+   * <p>The name of a {@code PropertySource} serves two general purposes.
+   * <ul>
+   * <li>Diagnostics: to determine the source of the properties in logging and
+   * debugging &mdash; for example, in a Infra App application via Infra App's
+   * {@code PropertySourceOrigin}.</li>
+   * <li>Programmatic interaction with
+   * {@link cn.taketoday.core.env.PropertySources MutablePropertySources}:
+   * the name can be used to retrieve properties from a particular property
+   * source (or to determine if a particular named property source already exists).
+   * The name can also be used to add a new property source relative to an existing
+   * property source (see
+   * {@link cn.taketoday.core.env.PropertySources#addBefore addBefore()} and
+   * {@link cn.taketoday.core.env.PropertySources#addAfter addAfter()}).</li>
+   * </ul>
    *
    * @see cn.taketoday.core.env.PropertySource#getName()
    * @see Resource#toString()
