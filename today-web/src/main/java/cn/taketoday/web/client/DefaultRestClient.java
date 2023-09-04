@@ -357,7 +357,7 @@ final class DefaultRestClient implements RestClient {
 
     @Override
     public void execute() {
-      execute(false);
+      execute(true);
     }
 
     @Override

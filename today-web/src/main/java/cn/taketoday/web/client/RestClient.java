@@ -589,7 +589,9 @@ public interface RestClient {
      * {@link HttpServerErrorException}. To customize error handling, use
      * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
      */
-    void execute();
+    default void execute() {
+      execute(true);
+    }
 
     /**
      * Execute the HTTP request:
