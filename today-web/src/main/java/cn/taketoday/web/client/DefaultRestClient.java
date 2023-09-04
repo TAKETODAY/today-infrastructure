@@ -94,11 +94,11 @@ final class DefaultRestClient implements RestClient {
   private final List<HttpMessageConverter<?>> messageConverters;
 
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
-      @Nullable List<ClientHttpRequestInterceptor> interceptors,
-      @Nullable List<ClientHttpRequestInitializer> initializers,
-      UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
-      @Nullable List<StatusHandler> statusHandlers,
-      List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
+          @Nullable List<ClientHttpRequestInterceptor> interceptors,
+          @Nullable List<ClientHttpRequestInitializer> initializers,
+          UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
+          @Nullable List<StatusHandler> statusHandlers,
+          List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
 
     this.clientRequestFactory = clientRequestFactory;
     this.initializers = initializers;
@@ -136,7 +136,7 @@ final class DefaultRestClient implements RestClient {
   }
 
   @Override
-  public RequestHeadersUriSpec<?> delete() {
+  public RequestBodyUriSpec delete() {
     return methodInternal(HttpMethod.DELETE);
   }
 
@@ -307,7 +307,7 @@ final class DefaultRestClient implements RestClient {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void writeWithMessageConverters(Object body, Type bodyType, ClientHttpRequest clientRequest)
-        throws IOException {
+            throws IOException {
 
       MediaType contentType = clientRequest.getHeaders().getContentType();
       Class<?> bodyClass = body.getClass();
@@ -518,8 +518,8 @@ final class DefaultRestClient implements RestClient {
       T body = readWithMessageConverters(bodyType, bodyClass);
       try {
         return ResponseEntity.status(this.clientResponse.getStatusCode())
-            .headers(this.clientResponse.getHeaders())
-            .body(body);
+                .headers(this.clientResponse.getHeaders())
+                .body(body);
       }
       catch (IOException ex) {
         throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
@@ -531,8 +531,8 @@ final class DefaultRestClient implements RestClient {
       try (this.clientResponse) {
         applyStatusHandlers(this.clientRequest, this.clientResponse);
         return ResponseEntity.status(this.clientResponse.getStatusCode())
-            .headers(this.clientResponse.getHeaders())
-            .build();
+                .headers(this.clientResponse.getHeaders())
+                .build();
       }
       catch (IOException ex) {
         throw new ResourceAccessException("Could not retrieve response status code: " + ex.getMessage(), ex);
@@ -574,12 +574,12 @@ final class DefaultRestClient implements RestClient {
           }
         }
         throw new UnknownContentTypeException(bodyType, contentType,
-            this.clientResponse.getStatusCode(), this.clientResponse.getStatusText(),
-            this.clientResponse.getHeaders(), RestClientUtils.getBody(this.clientResponse));
+                this.clientResponse.getStatusCode(), this.clientResponse.getStatusText(),
+                this.clientResponse.getHeaders(), RestClientUtils.getBody(this.clientResponse));
       }
       catch (IOException | HttpMessageNotReadableException ex) {
         throw new RestClientException("Error while extracting response for type [" +
-            ResolvableType.forType(bodyType) + "] and content type [" + contentType + "]", ex);
+                ResolvableType.forType(bodyType) + "] and content type [" + contentType + "]", ex);
       }
     }
 

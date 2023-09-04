@@ -117,7 +117,7 @@ public interface RestClient {
    *
    * @return a spec for specifying the target URL
    */
-  RequestHeadersUriSpec<?> delete();
+  RequestBodyUriSpec delete();
 
   /**
    * Start building an HTTP OPTIONS request.
