@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +45,7 @@ public abstract class CachedExpressionEvaluator {
    * Create a new instance with a default {@link SpelExpressionParser}.
    */
   protected CachedExpressionEvaluator() {
-    this(new SpelExpressionParser());
+    this(SpelExpressionParser.INSTANCE);
   }
 
   /**
@@ -77,8 +74,7 @@ public abstract class CachedExpressionEvaluator {
    * @param elementKey the element on which the expression is defined
    * @param expression the expression to parse
    */
-  protected Expression getExpression(
-          Map<ExpressionKey, Expression> cache, AnnotatedElementKey elementKey, String expression) {
+  protected Expression getExpression(Map<ExpressionKey, Expression> cache, AnnotatedElementKey elementKey, String expression) {
     ExpressionKey expressionKey = createKey(elementKey, expression);
     Expression expr = cache.get(expressionKey);
     if (expr == null) {
