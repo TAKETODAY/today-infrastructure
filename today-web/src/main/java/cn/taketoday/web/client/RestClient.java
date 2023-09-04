@@ -570,6 +570,52 @@ public interface RestClient {
     ResponseSpec retrieve();
 
     /**
+     * Execute the HTTP request:
+     * <p><pre>{@code
+     * ResponseEntity<Person> entity = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .execute();
+     * }</pre>
+     * <p>Or if interested only in the body:
+     * <p><pre>{@code
+     * Person person = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .execute();
+     * }</pre>
+     * <p>By default, 4xx response code result in a
+     * {@link HttpClientErrorException} and 5xx response codes in a
+     * {@link HttpServerErrorException}. To customize error handling, use
+     * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
+     */
+    void execute();
+
+    /**
+     * Execute the HTTP request:
+     * <p><pre>{@code
+     * ResponseEntity<Person> entity = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .execute();
+     * }</pre>
+     * <p>Or if interested only in the body:
+     * <p><pre>{@code
+     * Person person = client.get()
+     *     .uri("/persons/1")
+     *     .accept(MediaType.APPLICATION_JSON)
+     *     .execute();
+     * }</pre>
+     * <p>By default, 4xx response code result in a
+     * {@link HttpClientErrorException} and 5xx response codes in a
+     * {@link HttpServerErrorException}. To customize error handling, use
+     * {@link ResponseSpec#onStatus(Predicate, ErrorHandler) onStatus} handlers.
+     *
+     * @param close {@code true} to close the response
+     */
+    void execute(boolean close);
+
+    /**
      * Exchange the {@link ClientHttpResponse} for a type {@code T}. This
      * can be useful for advanced scenarios, for example to decode the
      * response differently depending on the response status:

@@ -51,6 +51,7 @@ import cn.taketoday.http.converter.GenericHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -355,6 +356,16 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
+    public void execute() {
+      execute(false);
+    }
+
+    @Override
+    public void execute(boolean close) {
+      exchangeInternal((clientRequest, clientResponse) -> NullValue.INSTANCE, close);
+    }
+
+    @Override
     public <T> T exchange(ExchangeFunction<T> exchangeFunction, boolean close) {
       return exchangeInternal(exchangeFunction, close);
     }
@@ -410,10 +421,10 @@ final class DefaultRestClient implements RestClient {
 
     private ClientHttpRequest createRequest(URI uri) throws IOException {
       ClientHttpRequestFactory factory;
-      if (DefaultRestClient.this.interceptors != null) {
+      if (interceptors != null) {
         factory = DefaultRestClient.this.interceptingRequestFactory;
         if (factory == null) {
-          factory = new InterceptingClientHttpRequestFactory(DefaultRestClient.this.clientRequestFactory, DefaultRestClient.this.interceptors);
+          factory = new InterceptingClientHttpRequestFactory(clientRequestFactory, interceptors);
           DefaultRestClient.this.interceptingRequestFactory = factory;
         }
       }
@@ -421,8 +432,10 @@ final class DefaultRestClient implements RestClient {
         factory = DefaultRestClient.this.clientRequestFactory;
       }
       ClientHttpRequest request = factory.createRequest(uri, this.httpMethod);
-      if (DefaultRestClient.this.initializers != null) {
-        DefaultRestClient.this.initializers.forEach(initializer -> initializer.initialize(request));
+      if (initializers != null) {
+        for (ClientHttpRequestInitializer initializer : initializers) {
+          initializer.initialize(request);
+        }
       }
       return request;
     }
