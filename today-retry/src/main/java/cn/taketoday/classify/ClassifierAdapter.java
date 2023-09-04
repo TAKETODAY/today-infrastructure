@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.classify;
 
 import cn.taketoday.classify.util.MethodInvoker;
-import cn.taketoday.classify.util.MethodInvokerUtils;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Wrapper for an object to adapt it to the {@link Classifier} interface.
@@ -29,12 +26,15 @@ import cn.taketoday.lang.Assert;
  * @param <C> the type of the thing to classify
  * @param <T> the output of the classifier
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class ClassifierAdapter<C, T> implements Classifier<C, T> {
 
   private MethodInvoker invoker;
 
+  @Nullable
   private Classifier<C, T> classifier;
 
   /**
@@ -60,7 +60,7 @@ public class ClassifierAdapter<C, T> implements Classifier<C, T> {
    *
    * @param delegate the classifier to delegate to
    */
-  public ClassifierAdapter(Classifier<C, T> delegate) {
+  public ClassifierAdapter(@Nullable Classifier<C, T> delegate) {
     this.classifier = delegate;
   }
 
@@ -82,13 +82,17 @@ public class ClassifierAdapter<C, T> implements Classifier<C, T> {
    */
   public final void setDelegate(Object delegate) {
     this.classifier = null;
-    this.invoker = MethodInvokerUtils
-            .getMethodInvokerByAnnotation(cn.taketoday.classify.annotation.Classifier.class, delegate);
-    if (this.invoker == null) {
-      this.invoker = MethodInvokerUtils.<C, T>getMethodInvokerForSingleArgument(delegate);
+    MethodInvoker invoker = MethodInvoker.forAnnotation(cn.taketoday.classify.annotation.Classifier.class, delegate);
+    if (invoker == null) {
+      try {
+        invoker = MethodInvoker.forSingleArgument(delegate);
+      }
+      catch (IllegalStateException e) {
+        throw new IllegalStateException("No single argument public method with or without "
+                + "@Classifier was found in delegate of type " + delegate.getClass(), e);
+      }
     }
-    Assert.state(this.invoker != null, "No single argument public method with or without "
-            + "@Classifier was found in delegate of type " + delegate.getClass());
+    this.invoker = invoker;
   }
 
   /**

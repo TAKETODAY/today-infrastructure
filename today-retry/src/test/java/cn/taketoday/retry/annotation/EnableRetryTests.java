@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,7 +153,7 @@ public class EnableRetryTests {
   public void excludes() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExcludesService service = context.getBean(ExcludesService.class);
-    assertThatIllegalStateException().isThrownBy(() -> service.service());
+    assertThatIllegalStateException().isThrownBy(service::service);
     assertThat(service.getCount()).isEqualTo(1);
     context.close();
   }
@@ -166,7 +163,7 @@ public class EnableRetryTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     ExcludesOnlyService service = context.getBean(ExcludesOnlyService.class);
     service.setExceptionToThrow(new IllegalStateException());
-    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service());
+    assertThatExceptionOfType(Exception.class).isThrownBy(service::service);
     assertThat(service.getCount()).isEqualTo(1);
 
     service.setExceptionToThrow(new IllegalArgumentException());
@@ -236,7 +233,7 @@ public class EnableRetryTests {
     ExpressionService service = context.getBean(ExpressionService.class);
     service.service1();
     assertThat(service.getCount()).isEqualTo(3);
-    assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.service2());
+    assertThatExceptionOfType(Exception.class).isThrownBy(service::service2);
     assertThat(service.getCount()).isEqualTo(4);
     service.service3();
     assertThat(service.getCount()).isEqualTo(9);

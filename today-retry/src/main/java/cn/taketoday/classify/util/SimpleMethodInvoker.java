@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.classify.util;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.lang.Assert;
@@ -35,6 +33,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Lucas Ward
  * @author Artem Bilan
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class SimpleMethodInvoker implements MethodInvoker {
@@ -48,8 +47,8 @@ public class SimpleMethodInvoker implements MethodInvoker {
   private volatile Object target;
 
   public SimpleMethodInvoker(Object object, Method method) {
-    Assert.notNull(object, "Object to invoke must not be null");
-    Assert.notNull(method, "Method to invoke must not be null");
+    Assert.notNull(object, "Object to invoke is required");
+    Assert.notNull(method, "Method to invoke is required");
     this.method = method;
     this.object = object;
     this.parameterTypes = method.getParameterTypes();
@@ -58,7 +57,7 @@ public class SimpleMethodInvoker implements MethodInvoker {
   }
 
   public SimpleMethodInvoker(Object object, String methodName, Class<?>... paramTypes) {
-    Assert.notNull(object, "Object to invoke must not be null");
+    Assert.notNull(object, "Object to invoke is required");
     Method method = ReflectionUtils.getMethodIfAvailable(object.getClass(), methodName, paramTypes);
     if (method == null) {
       // try with no params
@@ -127,22 +126,17 @@ public class SimpleMethodInvoker implements MethodInvoker {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof SimpleMethodInvoker rhs)) {
-      return false;
-    }
-
     if (obj == this) {
       return true;
     }
-    return (rhs.method.equals(this.method)) && (rhs.object.equals(this.object));
+    return obj instanceof SimpleMethodInvoker rhs
+            && rhs.method.equals(this.method)
+            && rhs.object.equals(this.object);
   }
 
   @Override
   public int hashCode() {
-    int result = 25;
-    result = 31 * result + this.object.hashCode();
-    result = 31 * result + this.method.hashCode();
-    return result;
+    return Objects.hash(object, method);
   }
 
 }
