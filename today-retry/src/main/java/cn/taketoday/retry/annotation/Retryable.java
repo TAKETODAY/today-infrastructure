@@ -55,8 +55,8 @@ public @interface Retryable {
   String interceptor() default "";
 
   /**
-   * Exception types that are retryable. Defaults to empty (and if excludes is also
-   * empty all exceptions are retried).
+   * Exception types that are retryable. Defaults to empty (and if exclude is also empty
+   * all exceptions are retried).
    *
    * @return exception types to retry
    */
@@ -72,7 +72,7 @@ public @interface Retryable {
 
   /**
    * Exception types that are not retryable. Defaults to empty (and, if retryFor is also
-   * empty, all exceptions are retried). If retryFor is empty but excludes is not, all
+   * empty, all exceptions are retried). If retryFor is empty but noRetryFor is not, all
    * other exceptions are retried
    *
    * @return exception types not to retry

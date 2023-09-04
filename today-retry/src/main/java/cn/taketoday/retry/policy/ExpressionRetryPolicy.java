@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.retry.policy;
 
+import java.io.Serial;
 import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
@@ -26,7 +25,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.expression.Expression;
-import cn.taketoday.expression.common.TemplateParserContext;
+import cn.taketoday.expression.ParserContext;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
@@ -40,14 +39,17 @@ import cn.taketoday.retry.RetryContext;
  *
  * @author Gary Russell
  * @author Aldo Sinanaj
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class ExpressionRetryPolicy extends SimpleRetryPolicy implements BeanFactoryAware {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private static final Logger logger = LoggerFactory.getLogger(ExpressionRetryPolicy.class);
 
-  private static final TemplateParserContext PARSER_CONTEXT = new TemplateParserContext();
+  private static final ParserContext PARSER_CONTEXT = ParserContext.TEMPLATE_EXPRESSION;
 
   private final Expression expression;
 
@@ -137,9 +139,9 @@ public class ExpressionRetryPolicy extends SimpleRetryPolicy implements BeanFact
     if (isTemplate(expression)) {
       logger.warn("#{...} syntax is not required for this run-time expression "
               + "and is deprecated in favor of a simple expression string");
-      return new SpelExpressionParser().parseExpression(expression, PARSER_CONTEXT);
+      return SpelExpressionParser.INSTANCE.parseExpression(expression, PARSER_CONTEXT);
     }
-    return new SpelExpressionParser().parseExpression(expression);
+    return SpelExpressionParser.INSTANCE.parseExpression(expression);
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,8 +155,8 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
             result = method;
           }
           else if (distance == min) {
-            boolean parametersMatch = compareParameters(args, meta.argCount, method.getParameterTypes());
-            if (parametersMatch) {
+            // parametersMatch
+            if (compareParameters(args, meta.argCount, method.getParameterTypes(), false)) {
               result = method;
             }
           }
@@ -171,8 +168,8 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
         Method method = entry.getKey();
         if (method.getName().equals(this.recoverMethodName)) {
           SimpleMetadata meta = entry.getValue();
-          if (meta.isAssignable(cause)
-                  && compareParameters(args, meta.argCount, method.getParameterTypes())) {
+          if (meta.isAssignable(cause) && compareParameters(
+                  args, meta.argCount, method.getParameterTypes(), true)) {
             result = method;
             break;
           }
@@ -192,8 +189,8 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
     return result;
   }
 
-  private boolean compareParameters(Object[] args, int argCount, Class<?>[] parameterTypes) {
-    if (argCount == (args.length + 1)) {
+  private boolean compareParameters(Object[] args, int argCount, Class<?>[] parameterTypes, boolean withRecoverMethodName) {
+    if ((withRecoverMethodName && argCount == args.length) || argCount == (args.length + 1)) {
       int startingIndex = 0;
       if (parameterTypes.length > 0 && Throwable.class.isAssignableFrom(parameterTypes[0])) {
         startingIndex = 1;
@@ -285,7 +282,7 @@ public class RecoverAnnotationRecoveryHandler<T> implements MethodInvocationReco
       }
     }
 
-    if (filteredMethods.size() > 0) {
+    if (!filteredMethods.isEmpty()) {
       this.methods.clear();
       this.methods.putAll(filteredMethods);
     }

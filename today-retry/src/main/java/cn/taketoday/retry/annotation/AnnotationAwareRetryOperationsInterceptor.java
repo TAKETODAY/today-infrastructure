@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,7 +84,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
 
   private static final TemplateParserContext PARSER_CONTEXT = new TemplateParserContext();
 
-  private static final SpelExpressionParser PARSER = new SpelExpressionParser();
+  private static final SpelExpressionParser PARSER = SpelExpressionParser.INSTANCE;
 
   private static final MethodInterceptor NULL_INTERCEPTOR = methodInvocation -> {
     throw new OperationNotSupportedException("Not supported");

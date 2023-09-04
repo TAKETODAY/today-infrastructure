@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,10 +35,10 @@ import cn.taketoday.util.ClassUtils;
  * Simple retry policy that retries a fixed number of times for a set of named exceptions
  * (and subclasses). The number of attempts includes the initial try, so e.g.
  *
- * <pre>
+ * <pre>{@code
  * retryTemplate = new RetryTemplate(new SimpleRetryPolicy(3));
  * retryTemplate.execute(callback);
- * </pre>
+ * }</pre>
  *
  * will execute the callback at least once, and as many as 3 times.
  *
@@ -50,12 +47,12 @@ import cn.taketoday.util.ClassUtils;
  * {@link MaxAttemptsRetryPolicy} and {@link BinaryExceptionClassifierRetryPolicy} inside,
  * that is actually performed by:
  *
- * <pre>
+ * <pre>{@code
  * RetryTemplate.builder()
- *                  .maxAttempts(3)
- *                  .retryOn(Exception.class)
- *                  .build();
- * </pre>
+ *        .maxAttempts(3)
+ *        .retryOn(Exception.class)
+ *        .build();
+ * }</pre>
  *
  * or by {@link RetryTemplate#defaultInstance()}
  *
