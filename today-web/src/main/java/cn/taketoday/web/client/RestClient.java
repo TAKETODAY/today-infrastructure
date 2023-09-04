@@ -572,16 +572,15 @@ public interface RestClient {
     /**
      * Execute the HTTP request:
      * <p><pre>{@code
-     * ResponseEntity<Person> entity = client.get()
+     * client.delete()
      *     .uri("/persons/1")
-     *     .accept(MediaType.APPLICATION_JSON)
      *     .execute();
      * }</pre>
      * <p>Or if interested only in the body:
      * <p><pre>{@code
-     * Person person = client.get()
+     *  client.put()
      *     .uri("/persons/1")
-     *     .accept(MediaType.APPLICATION_JSON)
+     *     .body(persons)
      *     .execute();
      * }</pre>
      * <p>By default, 4xx response code result in a
@@ -596,16 +595,15 @@ public interface RestClient {
     /**
      * Execute the HTTP request:
      * <p><pre>{@code
-     * ResponseEntity<Person> entity = client.get()
+     * client.delete()
      *     .uri("/persons/1")
-     *     .accept(MediaType.APPLICATION_JSON)
      *     .execute();
      * }</pre>
      * <p>Or if interested only in the body:
      * <p><pre>{@code
-     * Person person = client.get()
+     *  client.put()
      *     .uri("/persons/1")
-     *     .accept(MediaType.APPLICATION_JSON)
+     *     .body(persons)
      *     .execute();
      * }</pre>
      * <p>By default, 4xx response code result in a
