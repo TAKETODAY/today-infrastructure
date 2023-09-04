@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +23,7 @@ import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.context.properties.source.InvalidConfigurationPropertyNameException;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.lang.Nullable;
 
 /**
  * An {@link AbstractFailureAnalyzer} that performs analysis of failures caused by
@@ -46,7 +44,7 @@ class InvalidConfigurationPropertyNameFailureAnalyzer
     return new FailureAnalysis(buildDescription(cause, exception), action, cause);
   }
 
-  private String buildDescription(InvalidConfigurationPropertyNameException cause, BeanCreationException exception) {
+  private String buildDescription(InvalidConfigurationPropertyNameException cause, @Nullable BeanCreationException exception) {
     StringBuilder description = new StringBuilder(
             String.format("Configuration property name '%s' is not valid:%n", cause.getName()));
     String invalid = cause.getInvalidCharacters().stream().map(this::quote).collect(Collectors.joining(", "));
