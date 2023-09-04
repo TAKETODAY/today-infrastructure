@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +30,7 @@ import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -66,7 +64,7 @@ class BindFailureAnalyzer extends AbstractFailureAnalyzer<BindException> {
     return getFailureAnalysis(description, cause);
   }
 
-  private void buildDescription(StringBuilder description, ConfigurationProperty property) {
+  private void buildDescription(StringBuilder description, @Nullable ConfigurationProperty property) {
     if (property != null) {
       description.append(String.format("%n    Property: %s", property.getName()));
       description.append(String.format("%n    Value: %s", property.getValue()));
@@ -91,6 +89,7 @@ class BindFailureAnalyzer extends AbstractFailureAnalyzer<BindException> {
     return getExceptionTypeAndMessage(cause);
   }
 
+  @Nullable
   private Throwable getRootCause(Throwable cause) {
     Throwable rootCause = cause;
     while (rootCause != null && rootCause.getCause() != null) {
@@ -109,7 +108,7 @@ class BindFailureAnalyzer extends AbstractFailureAnalyzer<BindException> {
     Collection<String> validValues = findValidValues(cause);
     if (!validValues.isEmpty()) {
       message.append(String.format(". The following values are valid:%n"));
-      validValues.forEach((value) -> message.append(String.format("%n    %s", value)));
+      validValues.forEach(value -> message.append(String.format("%n    %s", value)));
     }
     return new FailureAnalysis(description.toString(), message.toString(), cause);
   }

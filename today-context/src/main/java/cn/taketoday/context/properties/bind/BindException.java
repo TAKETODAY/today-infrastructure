@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.io.Serial;
 
 import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginProvider;
 
@@ -41,11 +39,12 @@ public class BindException extends RuntimeException implements OriginProvider {
 
   private final Bindable<?> target;
 
+  @Nullable
   private final ConfigurationProperty property;
 
   private final ConfigurationPropertyName name;
 
-  BindException(ConfigurationPropertyName name, Bindable<?> target, ConfigurationProperty property, Throwable cause) {
+  BindException(ConfigurationPropertyName name, Bindable<?> target, @Nullable ConfigurationProperty property, Throwable cause) {
     super(buildMessage(name, target), cause);
     this.name = name;
     this.target = target;
@@ -75,6 +74,7 @@ public class BindException extends RuntimeException implements OriginProvider {
    *
    * @return the configuration property name
    */
+  @Nullable
   public ConfigurationProperty getProperty() {
     return this.property;
   }
@@ -84,7 +84,7 @@ public class BindException extends RuntimeException implements OriginProvider {
     return Origin.from(this.name);
   }
 
-  private static String buildMessage(ConfigurationPropertyName name, Bindable<?> target) {
+  private static String buildMessage(@Nullable ConfigurationPropertyName name, Bindable<?> target) {
     StringBuilder message = new StringBuilder();
     message.append("Failed to bind properties");
     message.append((name != null) ? " under '" + name + "'" : "");
