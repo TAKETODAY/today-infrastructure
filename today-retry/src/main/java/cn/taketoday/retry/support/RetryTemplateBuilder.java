@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.retry.support;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +39,21 @@ import cn.taketoday.retry.policy.MaxAttemptsRetryPolicy;
 import cn.taketoday.retry.policy.TimeoutRetryPolicy;
 
 /**
- * Fluent API to configure new instance of RetryTemplate. For detailed description of each
- * builder method - see it's doc.
+ * Builder that provides a fluent API to configure new instances of {@link RetryTemplate}.
  *
  * <p>
- * Examples: <pre>{@code
+ * By default, the builder configures a {@link BinaryExceptionClassifier} that acts upon
+ * {@link Exception} and its subclasses without traversing causes, a
+ * {@link NoBackOffPolicy} and a {@link MaxAttemptsRetryPolicy} that attempts actions
+ * {@link MaxAttemptsRetryPolicy#DEFAULT_MAX_ATTEMPTS} times.
+ *
+ * <p>
+ * The builder is not thread-safe.
+ *
+ * <p>
+ * Example usage:
+ *
+ * <pre>{@code
  * RetryTemplate.builder()
  *      .maxAttempts(10)
  *      .exponentialBackoff(100, 2, 10000)
@@ -64,29 +73,11 @@ import cn.taketoday.retry.policy.TimeoutRetryPolicy;
  *      .build();
  * }</pre>
  *
- * <p>
- * The builder provides the following defaults:
- * <ul>
- * <li>retry policy: max attempts = 3 (initial + 2 retries)</li>
- * <li>backoff policy: no backoff (retry immediately)</li>
- * <li>exception classification: retry only on {@link Exception} and it's subclasses,
- * without traversing of causes</li>
- * </ul>
- *
- * <p>
- * The builder supports only widely used properties of {@link RetryTemplate}. More
- * specific properties can be configured directly (after building).
- *
- * <p>
- * Not thread safe. Building should be performed in a single thread. Also, there is no
- * guarantee that all constructors of all fields are thread safe in-depth (means employing
- * only volatile and final writes), so, in concurrent environment, it is recommended to
- * ensure presence of happens-before between publication and any usage. (e.g. publication
- * via volatile write, or other safe publication technique)
- *
  * @author Aleksandr Shamukov
  * @author Artem Bilan
  * @author Kim In Hoi
+ * @author Andreas Ahlenstorf
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class RetryTemplateBuilder {
@@ -102,14 +93,13 @@ public class RetryTemplateBuilder {
   /* ---------------- Configure retry policy -------------- */
 
   /**
-   * Limits maximum number of attempts to provided value.
-   * <p>
-   * Invocation of this method does not discard default exception classification rule,
-   * that is "retry only on {@link Exception} and it's subclasses".
+   * Attempt an action no more than {@code maxAttempts} times.
    *
-   * @param maxAttempts includes initial attempt and all retries. E.g: maxAttempts = 3
-   * means one initial attempt and two retries.
+   * @param maxAttempts how many times an action should be attempted. A value of 3 would
+   * result in an initial attempt and two retries.
    * @return this
+   * @throws IllegalArgumentException if {@code maxAttempts} is 0 or less, or if another
+   * retry policy has already been selected.
    * @see MaxAttemptsRetryPolicy
    */
   public RetryTemplateBuilder maxAttempts(int maxAttempts) {
@@ -120,32 +110,41 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Allows retry if there is no more than {@code timeout} millis since first attempt.
-   * <p>
-   * Invocation of this method does not discard default exception classification rule,
-   * that is "retry only on {@link Exception} and it's subclasses".
+   * Retry until {@code timeoutMillis} has passed since the initial attempt.
    *
-   * @param timeout whole execution timeout in milliseconds
+   * @param timeoutMillis timeout in milliseconds
    * @return this
+   * @throws IllegalArgumentException if timeout is {@literal <=} 0 or if another retry
+   * policy has already been selected.
    * @see TimeoutRetryPolicy
    */
-  public RetryTemplateBuilder withinMillis(long timeout) {
-    Assert.isTrue(timeout > 0, "Timeout should be positive");
+  public RetryTemplateBuilder withTimeout(long timeoutMillis) {
+    Assert.isTrue(timeoutMillis > 0, "timeoutMillis should be greater than 0");
     Assert.isNull(this.baseRetryPolicy, "You have already selected another retry policy");
-    TimeoutRetryPolicy timeoutRetryPolicy = new TimeoutRetryPolicy();
-    timeoutRetryPolicy.setTimeout(timeout);
-    this.baseRetryPolicy = timeoutRetryPolicy;
+    this.baseRetryPolicy = new TimeoutRetryPolicy(timeoutMillis);
     return this;
   }
 
   /**
-   * Allows infinite retry, do not limit attempts by number or time.
-   * <p>
-   * Invocation of this method does not discard default exception classification rule,
-   * that is "retry only on {@link Exception} and it's subclasses".
+   * Retry until {@code timeout} has passed since the initial attempt.
+   *
+   * @param timeout duration for how long retries should be attempted
+   * @return this
+   * @throws IllegalArgumentException if timeout is {@code null} or 0, or if another
+   * retry policy has already been selected.
+   * @see TimeoutRetryPolicy
+   */
+  public RetryTemplateBuilder withTimeout(Duration timeout) {
+    Assert.notNull(timeout, "timeout must not be null");
+    return withTimeout(timeout.toMillis());
+  }
+
+  /**
+   * Retry actions infinitely.
    *
    * @return this
-   * @see TimeoutRetryPolicy
+   * @throws IllegalArgumentException if another retry policy has already been selected.
+   * @see AlwaysRetryPolicy
    */
   public RetryTemplateBuilder infiniteRetry() {
     Assert.isNull(this.baseRetryPolicy, "You have already selected another retry policy");
@@ -154,14 +153,13 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * If flexibility of this builder is not enough for you, you can provide your own
-   * {@link RetryPolicy} via this method.
-   * <p>
-   * Invocation of this method does not discard default exception classification rule,
-   * that is "retry only on {@link Exception} and it's subclasses".
+   * Use the provided {@link RetryPolicy}.
    *
-   * @param policy will be directly set to resulting {@link RetryTemplate}
+   * @param policy {@link RetryPolicy} to use
    * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if any argument is {@code null}, or if another retry policy has already
+   * been selected.
    */
   public RetryTemplateBuilder customPolicy(RetryPolicy policy) {
     Assert.notNull(policy, "Policy should not be null");
@@ -173,16 +171,19 @@ public class RetryTemplateBuilder {
   /* ---------------- Configure backoff policy -------------- */
 
   /**
-   * Use exponential backoff policy. The formula of backoff period:
+   * Use an exponential backoff policy. The formula for the backoff period is:
    * <p>
    * {@code currentInterval = Math.min(initialInterval * Math.pow(multiplier, retryNum), maxInterval)}
    * <p>
-   * (for first attempt retryNum = 0)
+   * For the first attempt, {@code retryNum = 0}.
    *
-   * @param initialInterval in milliseconds
-   * @param multiplier see the formula above
-   * @param maxInterval in milliseconds
+   * @param initialInterval initial sleep duration in milliseconds
+   * @param multiplier backoff interval multiplier
+   * @param maxInterval maximum backoff duration in milliseconds
    * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if {@code initialInterval} is {@literal <} 1, if {@code multiplier} is
+   * {@literal <=} 1, or if {@code maxInterval} {@literal <=} {@code initialInterval}.
    * @see ExponentialBackOffPolicy
    */
   public RetryTemplateBuilder exponentialBackoff(long initialInterval, double multiplier, long maxInterval) {
@@ -190,18 +191,45 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Use exponential backoff policy. The formula of backoff period (without randomness):
+   * Use an exponential backoff policy. The formula for the backoff period is:
    * <p>
    * {@code currentInterval = Math.min(initialInterval * Math.pow(multiplier, retryNum), maxInterval)}
    * <p>
-   * (for first attempt retryNum = 0)
+   * For the first attempt, {@code retryNum = 0}.
    *
-   * @param initialInterval in milliseconds
-   * @param multiplier see the formula above
-   * @param maxInterval in milliseconds
-   * @param withRandom adds some randomness to backoff intervals. For details, see
-   * {@link ExponentialRandomBackOffPolicy}
+   * @param initialInterval initial sleep duration
+   * @param multiplier backoff interval multiplier
+   * @param maxInterval maximum backoff duration
    * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if {@code initialInterval} is {@code null} or less than 1 millisecond,
+   * multiplier is {@literal <=} 1, or if {@code maxInterval} is {@code null} or
+   * {@literal <=} {@code initialInterval}.
+   * @see ExponentialBackOffPolicy
+   */
+  public RetryTemplateBuilder exponentialBackoff(Duration initialInterval, double multiplier, Duration maxInterval) {
+    Assert.notNull(initialInterval, "initialInterval must not be null");
+    Assert.notNull(maxInterval, "maxInterval must not be null");
+    return exponentialBackoff(initialInterval.toMillis(), multiplier, maxInterval.toMillis(), false);
+  }
+
+  /**
+   * Use an exponential backoff policy. The formula for the backoff period is (without
+   * randomness):
+   * <p>
+   * {@code currentInterval = Math.min(initialInterval * Math.pow(multiplier, retryNum), maxInterval)}
+   * <p>
+   * For the first attempt, {@code retryNum = 0}.
+   *
+   * @param initialInterval initial sleep duration in milliseconds
+   * @param multiplier backoff interval multiplier
+   * @param maxInterval maximum backoff duration in milliseconds
+   * @param withRandom whether to use a {@link ExponentialRandomBackOffPolicy} (if
+   * {@code true}) or not
+   * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if {@code initialInterval} is {@literal <} 1, if {@code multiplier} is
+   * {@literal <=} 1, or if {@code maxInterval} {@literal <=} {@code initialInterval}.
    * @see ExponentialBackOffPolicy
    * @see ExponentialRandomBackOffPolicy
    */
@@ -221,10 +249,40 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Perform each retry after fixed amount of time.
+   * Use an exponential backoff policy. The formula for the backoff period is (without
+   * randomness):
+   * <p>
+   * {@code currentInterval = Math.min(initialInterval * Math.pow(multiplier, retryNum), maxInterval)}
+   * <p>
+   * For the first attempt, {@code retryNum = 0}.
+   *
+   * @param initialInterval initial sleep duration
+   * @param multiplier backoff interval multiplier
+   * @param maxInterval maximum backoff duration
+   * @param withRandom whether to use a {@link ExponentialRandomBackOffPolicy} (if
+   * {@code true}) or not
+   * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if {@code initialInterval} is {@code null} or less than 1 millisecond, if
+   * {@code multiplier} is {@literal <=} 1, or if {@code maxInterval} is {@code null} or
+   * {@literal <=} {@code initialInterval}.
+   * @see ExponentialBackOffPolicy
+   * @see ExponentialRandomBackOffPolicy
+   */
+  public RetryTemplateBuilder exponentialBackoff(Duration initialInterval,
+          double multiplier, Duration maxInterval, boolean withRandom) {
+    Assert.notNull(initialInterval, "initialInterval most not be null");
+    Assert.notNull(maxInterval, "maxInterval must not be null");
+    return this.exponentialBackoff(initialInterval.toMillis(), multiplier, maxInterval.toMillis(), withRandom);
+  }
+
+  /**
+   * Perform each retry after a fixed amount of time.
    *
    * @param interval fixed interval in milliseconds
    * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, or if {@code interval} is {@literal <} 1.
    * @see FixedBackOffPolicy
    */
   public RetryTemplateBuilder fixedBackoff(long interval) {
@@ -237,11 +295,30 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Use {@link UniformRandomBackOffPolicy}, see it's doc for details.
+   * Perform each retry after fixed amount of time.
    *
-   * @param minInterval in milliseconds
-   * @param maxInterval in milliseconds
+   * @param interval fixed backoff duration
    * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, or if {@code interval} is {@code null} or less than 1 millisecond
+   * @see FixedBackOffPolicy
+   */
+  public RetryTemplateBuilder fixedBackoff(Duration interval) {
+    Assert.notNull(interval, "interval must not be null");
+    long millis = interval.toMillis();
+    Assert.isTrue(millis >= 1, "interval is less than 1 millisecond");
+    return fixedBackoff(millis);
+  }
+
+  /**
+   * Use {@link UniformRandomBackOffPolicy}.
+   *
+   * @param minInterval minimal interval in milliseconds
+   * @param maxInterval maximal interval in milliseconds
+   * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if {@code minInterval} is {@literal <} 1, {@code maxInterval} is
+   * {@literal <} 1, or if {@code maxInterval} is {@literal <=} {@code minInterval}.
    * @see UniformRandomBackOffPolicy
    */
   public RetryTemplateBuilder uniformRandomBackoff(long minInterval, long maxInterval) {
@@ -257,9 +334,29 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Do not pause between attempts, retry immediately.
+   * Use {@link UniformRandomBackOffPolicy}.
+   *
+   * @param minInterval minimum backoff duration
+   * @param maxInterval maximum backoff duration
+   * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected, if {@code minInterval} is {@code null} or {@literal <} 1,
+   * {@code maxInterval} is {@code null} or less than 1 millisecond, or if
+   * {@code maxInterval} {@literal <=} {@code minInterval}.
+   * @see UniformRandomBackOffPolicy
+   */
+  public RetryTemplateBuilder uniformRandomBackoff(Duration minInterval, Duration maxInterval) {
+    Assert.notNull(minInterval, "minInterval must not be null");
+    Assert.notNull(maxInterval, "maxInterval must not be null");
+    return uniformRandomBackoff(minInterval.toMillis(), maxInterval.toMillis());
+  }
+
+  /**
+   * Retry immediately without pausing between attempts.
    *
    * @return this
+   * @throws IllegalArgumentException if another backoff policy has already been
+   * selected.
    * @see NoBackOffPolicy
    */
   public RetryTemplateBuilder noBackoff() {
@@ -269,10 +366,12 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * You can provide your own {@link BackOffPolicy} via this method.
+   * Use the provided {@link BackOffPolicy}.
    *
-   * @param backOffPolicy will be directly set to resulting {@link RetryTemplate}
+   * @param backOffPolicy {@link BackOffPolicy} to use
    * @return this
+   * @throws IllegalArgumentException if {@code backOffPolicy} is null or if another
+   * backoff policy has already been selected.
    */
   public RetryTemplateBuilder customBackoff(BackOffPolicy backOffPolicy) {
     Assert.isNull(this.backOffPolicy, "You have already selected backoff policy");
@@ -284,17 +383,16 @@ public class RetryTemplateBuilder {
   /* ---------------- Configure exception classifier -------------- */
 
   /**
-   * Add a throwable to the while list of retryable exceptions.
+   * Add the {@link Throwable} and its subclasses to the list of exceptions that cause a
+   * retry.
    * <p>
-   * Warn: touching this method drops default {@code retryOn(Exception.class)} and you
-   * should configure whole classifier from scratch.
-   * <p>
-   * You should select the way you want to configure exception classifier: white list or
-   * black list. If you choose white list - use this method, if black - use
-   * {@link #notRetryOn(Class)} or {@link #notRetryOn(List)}
+   * {@code retryOn()} and {@code notRetryOn()} are mutually exclusive. Trying to use
+   * both causes an {@link IllegalArgumentException}.
    *
-   * @param throwable to be retryable (with it's subclasses)
+   * @param throwable that causes a retry
    * @return this
+   * @throws IllegalArgumentException if {@code throwable} is {@code null}, or if
+   * {@link #notRetryOn} has already been used.
    * @see BinaryExceptionClassifierBuilder#retryOn
    * @see BinaryExceptionClassifier
    */
@@ -304,17 +402,16 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Add a throwable to the black list of retryable exceptions.
+   * Add the {@link Throwable} and its subclasses to the list of exceptions that do not
+   * cause a retry.
    * <p>
-   * Warn: touching this method drops default {@code retryOn(Exception.class)} and you
-   * should configure whole classifier from scratch.
-   * <p>
-   * You should select the way you want to configure exception classifier: white list or
-   * black list. If you choose black list - use this method, if white - use
-   * {@link #retryOn(Class)} or {@link #retryOn(List)}
+   * {@code retryOn()} and {@code notRetryOn()} are mutually exclusive. Trying to use
+   * both causes an {@link IllegalArgumentException}.
    *
-   * @param throwable to be not retryable (with it's subclasses)
+   * @param throwable that does not cause a retry
    * @return this
+   * @throws IllegalArgumentException if {@code throwable} is {@code null}, or if
+   * {@link #retryOn} has already been used.
    * @see BinaryExceptionClassifierBuilder#notRetryOn
    * @see BinaryExceptionClassifier
    */
@@ -324,56 +421,60 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Add all throwables to the while list of retryable exceptions.
+   * Add the list of {@link Throwable} classes and their subclasses to the list of
+   * exceptions that cause a retry.
    * <p>
-   * Warn: touching this method drops default {@code retryOn(Exception.class)} and you
-   * should configure whole classifier from scratch.
-   * <p>
-   * You should select the way you want to configure exception classifier: white list or
-   * black list. If you choose white list - use this method, if black - use
-   * {@link #notRetryOn(Class)} or {@link #notRetryOn(List)}
+   * {@code retryOn()} and {@code notRetryOn()} are mutually exclusive. Trying to use
+   * both causes an {@link IllegalArgumentException}.
    *
-   * @param throwables to be retryable (with it's subclasses)
+   * @param throwables that cause a retry
    * @return this
+   * @throws IllegalArgumentException if {@link #notRetryOn} has already been used.
    * @see BinaryExceptionClassifierBuilder#retryOn
    * @see BinaryExceptionClassifier
    */
   public RetryTemplateBuilder retryOn(List<Class<? extends Throwable>> throwables) {
-    for (final Class<? extends Throwable> throwable : throwables) {
+    for (Class<? extends Throwable> throwable : throwables) {
       classifierBuilder().retryOn(throwable);
     }
     return this;
   }
 
   /**
-   * Add all throwables to the black list of retryable exceptions.
+   * Add the list of {@link Throwable} classes and their subclasses to the list of
+   * exceptions that do not cause a retry.
    * <p>
-   * Warn: touching this method drops default {@code retryOn(Exception.class)} and you
-   * should configure whole classifier from scratch.
-   * <p>
-   * You should select the way you want to configure exception classifier: white list or
-   * black list. If you choose black list - use this method, if white - use
-   * {@link #retryOn(Class)} or {@link #retryOn(List)}
+   * {@code retryOn()} and {@code notRetryOn()} are mutually exclusive. Trying to use
+   * both causes an {@link IllegalArgumentException}.
    *
-   * @param throwables to be not retryable (with it's subclasses)
+   * @param throwables that do not cause a retry
    * @return this
+   * @throws IllegalArgumentException if {@link #retryOn} has already been used.
    * @see BinaryExceptionClassifierBuilder#notRetryOn
    * @see BinaryExceptionClassifier
    */
   public RetryTemplateBuilder notRetryOn(List<Class<? extends Throwable>> throwables) {
-    for (final Class<? extends Throwable> throwable : throwables) {
+    for (Class<? extends Throwable> throwable : throwables) {
       classifierBuilder().notRetryOn(throwable);
     }
     return this;
   }
 
   /**
-   * Suppose throwing a {@code new MyLogicException(new IOException())}. This template
-   * will not retry on it: <pre>{@code
+   * Enable examining exception causes for {@link Throwable} instances that cause a
+   * retry.
+   * <p>
+   * Suppose the following {@code RetryTemplate}: <pre>{@code
    * RetryTemplate.builder()
    *          .retryOn(IOException.class)
    *          .build()
-   * }</pre> but this will retry: <pre>{@code
+   * }</pre>
+   * <p>
+   * It will act on code that throws an {@link java.io.IOException}, for example,
+   * {@code throw new IOException()}. But it will not retry the action if the
+   * {@link java.io.IOException} is wrapped in another exception, for example,
+   * {@code throw new MyException(new IOException())}. However, this
+   * {@link RetryTemplate} will: <pre>{@code
    * RetryTemplate.builder()
    *          .retryOn(IOException.class)
    *          .traversingCauses()
@@ -391,11 +492,11 @@ public class RetryTemplateBuilder {
   /* ---------------- Add listeners -------------- */
 
   /**
-   * Appends provided {@code listener} to {@link RetryTemplate}'s listener list.
+   * Append the provided {@code listener} to {@link RetryTemplate}'s list of listeners.
    *
    * @param listener to be appended
    * @return this
-   * @see RetryTemplate
+   * @throws IllegalArgumentException if {@code listener} is {@code null}.
    * @see RetryListener
    */
   public RetryTemplateBuilder withListener(RetryListener listener) {
@@ -405,11 +506,11 @@ public class RetryTemplateBuilder {
   }
 
   /**
-   * Appends all provided {@code listeners} to {@link RetryTemplate}'s listener list.
+   * Append all provided {@code listeners} to {@link RetryTemplate}'s list of listeners.
    *
    * @param listeners to be appended
    * @return this
-   * @see RetryTemplate
+   * @throws IllegalArgumentException if any of the {@code listeners} is {@code null}.
    * @see RetryListener
    */
   public RetryTemplateBuilder withListeners(List<RetryListener> listeners) {
@@ -423,12 +524,15 @@ public class RetryTemplateBuilder {
   /* ---------------- Building -------------- */
 
   /**
-   * Finish configuration and build resulting {@link RetryTemplate}. For default
-   * behaviour and concurrency note see class-level doc of {@link RetryTemplateBuilder}.
-   * The {@code retryPolicy} of the returned {@link RetryTemplate} is always an instance
-   * of {@link CompositeRetryPolicy}, that consists of one base policy, and of
-   * {@link BinaryExceptionClassifierRetryPolicy}. The motivation is: whatever base
-   * policy we use, exception classification is extremely recommended.
+   * Build a new {@link RetryTemplate}.
+   * <p>
+   * Supports building multiple instances. However, it is not possible to change the
+   * configuration between multiple {@code build()} calls.
+   * <p>
+   * The {@code retryPolicy} of the returned {@link RetryTemplate} is always a
+   * {@link CompositeRetryPolicy} that consists of one base policy and of
+   * {@link BinaryExceptionClassifierRetryPolicy} to enable exception classification
+   * regardless of the base policy.
    *
    * @return new instance of {@link RetryTemplate}
    */
@@ -482,7 +586,7 @@ public class RetryTemplateBuilder {
 
   private List<RetryListener> listenersList() {
     if (this.listeners == null) {
-      this.listeners = new ArrayList<RetryListener>();
+      this.listeners = new ArrayList<>();
     }
     return this.listeners;
   }
