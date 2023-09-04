@@ -131,13 +131,31 @@ public class EnableRetryTests {
     service.service();
     assertThat(service.getCount()).isEqualTo(3);
     assertThat(service.getCause()).isExactlyInstanceOf(RuntimeException.class);
-    assertThatIllegalArgumentException().isThrownBy(() -> service.service());
+    assertThatIllegalArgumentException().isThrownBy(service::service);
     assertThat(service.getCount()).isEqualTo(6);
     assertThat(service.getCause()).isExactlyInstanceOf(RuntimeException.class);
-    assertThatIllegalStateException().isThrownBy(() -> service.service());
+    assertThatIllegalStateException().isThrownBy(service::service);
     assertThat(service.getCount()).isEqualTo(7);
     assertThat(service.getCause()).isExactlyInstanceOf(RuntimeException.class);
     context.close();
+  }
+
+  @Test
+  public void recoveryWithoutParam() {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+            TestConfiguration.class)) {
+      RecoverableService service = context.getBean(RecoverableService.class);
+      assertThat(service.serviceWithoutParam()).isEqualTo("test");
+    }
+  }
+
+  @Test
+  public void recoveryWithParam() {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+            TestConfiguration.class)) {
+      RecoverableService service = context.getBean(RecoverableService.class);
+      assertThat(service.serviceWithParam("test")).isEqualTo("test");
+    }
   }
 
   @Test
@@ -583,14 +601,14 @@ public class EnableRetryTests {
 
     private int count = 0;
 
-    @Retryable(RuntimeException.class)
+    @Retryable(retryFor = RuntimeException.class)
     public void service() {
       if (this.count++ < 2) {
         throw new RuntimeException("Planned");
       }
     }
 
-    @Retryable(RuntimeException.class)
+    @Retryable(retryFor = RuntimeException.class)
     public void other() {
       if (this.count++ < 3) {
         throw new RuntimeException("Other");
@@ -636,6 +654,26 @@ public class EnableRetryTests {
       this.cause = cause;
     }
 
+    @Retryable(retryFor = RuntimeException.class, recover = "recoverWithoutParam")
+    public String serviceWithoutParam() {
+      throw new RuntimeException("Planned");
+    }
+
+    @Recover
+    public String recoverWithoutParam() {
+      return "test";
+    }
+
+    @Retryable(retryFor = RuntimeException.class, recover = "recoverWithParam")
+    public String serviceWithParam(String param) {
+      throw new RuntimeException("Planned");
+    }
+
+    @Recover
+    public String recoverWithParam(String param) {
+      return param;
+    }
+
     public Throwable getCause() {
       return this.cause;
     }
@@ -654,7 +692,7 @@ public class EnableRetryTests {
 
   }
 
-  @Retryable(RuntimeException.class)
+  @Retryable(retryFor = RuntimeException.class)
   protected static class RetryableService {
 
     private int count = 0;
@@ -763,9 +801,8 @@ public class EnableRetryTests {
     }
 
     @Retryable(exceptionExpression = "@exceptionChecker.${retryMethod}(#root)",
-               maxAttemptsExpression = "@integerFiveBean",
-               backoff = @Backoff(delayExpression = "${one}",
-                                  maxDelayExpression = "@integerFiveBean", multiplierExpression = "${onePointOne}"))
+               maxAttemptsExpression = "@integerFiveBean", backoff = @Backoff(delayExpression = "${one}",
+                                                                              maxDelayExpression = "@integerFiveBean", multiplierExpression = "${onePointOne}"))
     public void service3() {
       if (this.count++ < 8) {
         throw new RuntimeException();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,10 @@
 
 package cn.taketoday.retry.support;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
 import cn.taketoday.retry.RetryOperations;
@@ -34,6 +35,8 @@ import cn.taketoday.retry.RetryOperations;
  * {@link RetryOperations} implementations.
  *
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public final class RetrySynchronizationManager {
 
@@ -41,13 +44,42 @@ public final class RetrySynchronizationManager {
 
   private static final ThreadLocal<RetryContext> context = new ThreadLocal<>();
 
+  private static final Map<Thread, RetryContext> contexts = new ConcurrentHashMap<>();
+
+  private static boolean useThreadLocal = true;
+
+  /**
+   * Set to false to store the context in a map (keyed by the current thread) instead of
+   * in a {@link ThreadLocal}. Recommended when using virtual threads.
+   *
+   * @param use true to use a {@link ThreadLocal} (default true).
+   */
+  public static void setUseThreadLocal(boolean use) {
+    useThreadLocal = use;
+  }
+
+  /**
+   * Return true if contexts are held in a ThreadLocal (default) rather than a Map.
+   *
+   * @return the useThreadLocal
+   */
+  public static boolean isUseThreadLocal() {
+    return useThreadLocal;
+  }
+
   /**
    * Public accessor for the locally enclosing {@link RetryContext}.
    *
    * @return the current retry context, or null if there isn't one
    */
+  @Nullable
   public static RetryContext getContext() {
-    return context.get();
+    if (useThreadLocal) {
+      return context.get();
+    }
+    else {
+      return contexts.get(Thread.currentThread());
+    }
   }
 
   /**
@@ -58,10 +90,18 @@ public final class RetrySynchronizationManager {
    * @param context the new context to register
    * @return the old context if there was one
    */
+  @Nullable
   public static RetryContext register(RetryContext context) {
-    RetryContext oldContext = getContext();
-    RetrySynchronizationManager.context.set(context);
-    return oldContext;
+    if (useThreadLocal) {
+      RetryContext oldContext = getContext();
+      RetrySynchronizationManager.context.set(context);
+      return oldContext;
+    }
+    else {
+      RetryContext oldContext = contexts.get(Thread.currentThread());
+      contexts.put(Thread.currentThread(), context);
+      return oldContext;
+    }
   }
 
   /**
@@ -70,10 +110,21 @@ public final class RetrySynchronizationManager {
    *
    * @return the old value if there was one.
    */
+  @Nullable
   public static RetryContext clear() {
     RetryContext value = getContext();
     RetryContext parent = value == null ? null : value.getParent();
-    RetrySynchronizationManager.context.set(parent);
+    if (useThreadLocal) {
+      RetrySynchronizationManager.context.set(parent);
+    }
+    else {
+      if (parent != null) {
+        contexts.put(Thread.currentThread(), parent);
+      }
+      else {
+        contexts.remove(Thread.currentThread());
+      }
+    }
     return value;
   }
 
