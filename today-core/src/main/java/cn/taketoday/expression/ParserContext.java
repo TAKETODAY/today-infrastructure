@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +17,15 @@
 
 package cn.taketoday.expression;
 
+import cn.taketoday.expression.common.TemplateParserContext;
+
 /**
  * Input provided to an expression parser that can influence an expression
  * parsing/compilation routine.
  *
  * @author Keith Donald
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ParserContext {
@@ -66,22 +66,6 @@ public interface ParserContext {
    *
    * @see #isTemplate()
    */
-  ParserContext TEMPLATE_EXPRESSION = new ParserContext() {
-
-    @Override
-    public boolean isTemplate() {
-      return true;
-    }
-
-    @Override
-    public String getExpressionPrefix() {
-      return "#{";
-    }
-
-    @Override
-    public String getExpressionSuffix() {
-      return "}";
-    }
-  };
+  ParserContext TEMPLATE_EXPRESSION = new TemplateParserContext();
 
 }

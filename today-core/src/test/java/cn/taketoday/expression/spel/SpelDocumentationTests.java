@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +33,7 @@ import java.util.Map;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.ExpressionParser;
-import cn.taketoday.expression.ParserContext;
+import cn.taketoday.expression.common.TemplateParserContext;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.expression.spel.testresources.Inventor;
@@ -490,27 +487,9 @@ class SpelDocumentationTests extends AbstractExpressionTests {
 
   @Test
   void templating() throws Exception {
-    String randomPhrase =
-            parser.parseExpression("random number is ${T(java.lang.Math).random()}", new TemplatedParserContext()).getValue(String.class);
+    String randomPhrase = parser.parseExpression("random number is ${T(java.lang.Math).random()}",
+            new TemplateParserContext("${", "}")).getValue(String.class);
     assertThat(randomPhrase.startsWith("random number")).isTrue();
-  }
-
-  static class TemplatedParserContext implements ParserContext {
-
-    @Override
-    public String getExpressionPrefix() {
-      return "${";
-    }
-
-    @Override
-    public String getExpressionSuffix() {
-      return "}";
-    }
-
-    @Override
-    public boolean isTemplate() {
-      return true;
-    }
   }
 
   static class IEEE {
