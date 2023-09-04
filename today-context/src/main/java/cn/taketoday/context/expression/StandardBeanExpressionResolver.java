@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +53,7 @@ import cn.taketoday.util.StringUtils;
  * @see StandardEvaluationContext
  * @since 4.0 2021/12/25 15:01
  */
-public class StandardBeanExpressionResolver implements BeanExpressionResolver {
+public class StandardBeanExpressionResolver implements BeanExpressionResolver, ParserContext {
 
   /** Default expression prefix: "#{". */
   public static final String DEFAULT_EXPRESSION_PREFIX = "#{";
@@ -74,28 +71,11 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
 
   private final ConcurrentHashMap<BeanExpressionContext, StandardEvaluationContext> evaluationCache = new ConcurrentHashMap<>(8);
 
-  private final ParserContext beanExpressionParserContext = new ParserContext() {
-    @Override
-    public boolean isTemplate() {
-      return true;
-    }
-
-    @Override
-    public String getExpressionPrefix() {
-      return expressionPrefix;
-    }
-
-    @Override
-    public String getExpressionSuffix() {
-      return expressionSuffix;
-    }
-  };
-
   /**
    * Create a new {@code StandardBeanExpressionResolver} with default settings.
    */
   public StandardBeanExpressionResolver() {
-    this.expressionParser = new SpelExpressionParser();
+    this.expressionParser = SpelExpressionParser.INSTANCE;
   }
 
   /**
@@ -141,6 +121,21 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
   }
 
   @Override
+  public boolean isTemplate() {
+    return true;
+  }
+
+  @Override
+  public String getExpressionPrefix() {
+    return expressionPrefix;
+  }
+
+  @Override
+  public String getExpressionSuffix() {
+    return expressionSuffix;
+  }
+
+  @Override
   @Nullable
   public Object evaluate(@Nullable String value, BeanExpressionContext evalContext) throws BeansException {
     if (StringUtils.isEmpty(value)) {
@@ -149,7 +144,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver {
     try {
       Expression expr = expressionCache.get(value);
       if (expr == null) {
-        expr = expressionParser.parseExpression(value, this.beanExpressionParserContext);
+        expr = expressionParser.parseExpression(value, this);
         expressionCache.put(value, expr);
       }
       StandardEvaluationContext sec = evaluationCache.get(evalContext);
