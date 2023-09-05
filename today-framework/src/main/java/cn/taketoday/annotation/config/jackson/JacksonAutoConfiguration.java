@@ -44,14 +44,13 @@ import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.NonOrdered;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -84,8 +83,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnClass(ObjectMapper.class)
 public class JacksonAutoConfiguration {
 

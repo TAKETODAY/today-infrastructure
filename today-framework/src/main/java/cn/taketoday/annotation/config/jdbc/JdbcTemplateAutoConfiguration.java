@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +19,9 @@ package cn.taketoday.annotation.config.jdbc;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -49,11 +45,10 @@ import cn.taketoday.stereotype.Component;
  * @since 4.0 2022/2/23 17:56
  */
 @Lazy
-@DisableAllDependencyInjection
 @ConditionalOnClass({ DataSource.class, JdbcTemplate.class })
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(JdbcProperties.class)
-@AutoConfiguration(after = DataSourceAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)
 public class JdbcTemplateAutoConfiguration {
 
   @Primary

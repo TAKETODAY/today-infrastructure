@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,7 @@ import org.hibernate.engine.spi.SessionImplementor;
 import cn.taketoday.annotation.config.jdbc.DataSourceAutoConfiguration;
 import cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -41,7 +38,7 @@ import jakarta.persistence.EntityManager;
  * @author Andy Wilkinson
  * @since 4.0
  */
-@AutoConfiguration(after = DataSourceAutoConfiguration.class, before = TransactionAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class, before = TransactionAutoConfiguration.class)
 @ConditionalOnClass({ LocalContainerEntityManagerFactoryBean.class, EntityManager.class, SessionImplementor.class })
 @EnableConfigurationProperties(JpaProperties.class)
 @Import(HibernateJpaConfiguration.class)

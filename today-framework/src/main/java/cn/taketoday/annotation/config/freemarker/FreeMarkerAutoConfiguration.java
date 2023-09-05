@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,16 +20,29 @@ package cn.taketoday.annotation.config.freemarker;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.AutoConfigureAfter;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.framework.annotation.ConditionalOnNotWebApplication;
+import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.template.TemplateLocation;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactoryBean;
+import cn.taketoday.web.view.freemarker.FreeMarkerConfig;
+import cn.taketoday.web.view.freemarker.FreeMarkerConfigurer;
+import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for FreeMarker.
@@ -43,14 +53,61 @@ import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration
+@Lazy
+@DisableDIAutoConfiguration
 @EnableConfigurationProperties(FreeMarkerProperties.class)
 @ConditionalOnClass({ freemarker.template.Configuration.class, FreeMarkerConfigurationFactory.class })
-@Import({ FreeMarkerWebConfiguration.class, FreeMarkerNonWebConfiguration.class })
 public class FreeMarkerAutoConfiguration {
 
   public FreeMarkerAutoConfiguration(ApplicationContext context, FreeMarkerProperties properties) {
     checkTemplateLocationExists(properties, context);
+  }
+
+  @Lazy
+  @ConditionalOnNotWebApplication
+  @Configuration(proxyBeanMethods = false)
+  static class FreeMarkerNonWebConfiguration {
+
+    @Component
+    @ConditionalOnMissingBean
+    static FreeMarkerConfigurationFactoryBean freeMarkerConfiguration(FreeMarkerProperties properties) {
+      var freeMarkerFactoryBean = new FreeMarkerConfigurationFactoryBean();
+      properties.applyTo(freeMarkerFactoryBean);
+      return freeMarkerFactoryBean;
+    }
+
+  }
+
+  @Lazy
+  @ConditionalOnWebApplication
+  @Configuration(proxyBeanMethods = false)
+  @AutoConfigureAfter(WebMvcAutoConfiguration.class)
+  @ConditionalOnClass({ FreeMarkerConfigurer.class })
+  static class FreeMarkerWebConfiguration {
+
+    @Component
+    @ConditionalOnMissingBean(FreeMarkerConfig.class)
+    static FreeMarkerConfigurer freeMarkerConfigurer(FreeMarkerProperties properties) {
+      FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+      properties.applyTo(configurer);
+      return configurer;
+    }
+
+    @Component
+    static freemarker.template.Configuration freeMarkerConfiguration(FreeMarkerConfig configurer) {
+      return configurer.getConfiguration();
+    }
+
+    @Component
+    @ConditionalOnMissingBean(name = "freeMarkerViewResolver")
+    @ConditionalOnProperty(name = "freemarker.enabled", matchIfMissing = true)
+    static FreeMarkerViewResolver freeMarkerViewResolver(FreeMarkerProperties properties, WebMvcProperties mvcProperties) {
+      FreeMarkerViewResolver resolver = new FreeMarkerViewResolver();
+      properties.applyToMvcViewResolver(resolver);
+      mvcProperties.getView().applyTo(resolver);
+      return resolver;
+    }
+
   }
 
   public void checkTemplateLocationExists(FreeMarkerProperties properties, ApplicationContext context) {

@@ -21,11 +21,10 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -52,8 +51,7 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnClass(ThreadPoolTaskExecutor.class)
 @EnableConfigurationProperties(TaskExecutionProperties.class)
 public class TaskExecutionAutoConfiguration {

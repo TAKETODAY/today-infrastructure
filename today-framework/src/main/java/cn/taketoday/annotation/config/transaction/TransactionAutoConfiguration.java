@@ -21,7 +21,7 @@ import java.util.Collection;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -47,7 +47,7 @@ import cn.taketoday.transaction.support.TransactionTemplate;
  * @since 4.0
  */
 @Lazy
-@AutoConfiguration
+@DisableDIAutoConfiguration
 @ConditionalOnClass(PlatformTransactionManager.class)
 @EnableConfigurationProperties(TransactionProperties.class)
 public class TransactionAutoConfiguration {

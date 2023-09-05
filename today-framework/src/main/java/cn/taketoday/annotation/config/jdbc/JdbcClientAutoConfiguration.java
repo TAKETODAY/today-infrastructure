@@ -17,7 +17,7 @@
 
 package cn.taketoday.annotation.config.jdbc;
 
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
@@ -32,7 +32,7 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/13 15:26
  */
-@AutoConfiguration(after = JdbcTemplateAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = JdbcTemplateAutoConfiguration.class)
 @ConditionalOnSingleCandidate(NamedParameterJdbcTemplate.class)
 @ConditionalOnMissingBean(JdbcClient.class)
 public class JdbcClientAutoConfiguration {

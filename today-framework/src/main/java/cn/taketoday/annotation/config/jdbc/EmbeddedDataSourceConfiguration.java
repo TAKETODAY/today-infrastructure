@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,8 @@
 package cn.taketoday.annotation.config.jdbc;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabase;
@@ -36,6 +35,8 @@ import cn.taketoday.stereotype.Component;
  * @see DataSourceAutoConfiguration
  * @since 4.0 2022/2/23 18:07
  */
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(DataSourceProperties.class)
 public class EmbeddedDataSourceConfiguration implements BeanClassLoaderAware {

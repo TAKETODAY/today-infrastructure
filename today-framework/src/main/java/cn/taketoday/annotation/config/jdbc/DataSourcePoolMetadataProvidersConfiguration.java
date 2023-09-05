@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,8 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbcp2.BasicDataSourceMXBean;
 import org.apache.tomcat.jdbc.pool.jmx.ConnectionPoolMBean;
 
-import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.framework.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata;
@@ -36,6 +34,7 @@ import cn.taketoday.framework.jdbc.metadata.HikariDataSourcePoolMetadata;
 import cn.taketoday.framework.jdbc.metadata.OracleUcpDataSourcePoolMetadata;
 import cn.taketoday.framework.jdbc.metadata.TomcatDataSourcePoolMetadata;
 import cn.taketoday.jdbc.config.DataSourceUnwrapper;
+import cn.taketoday.stereotype.Component;
 import oracle.jdbc.OracleConnection;
 import oracle.ucp.jdbc.PoolDataSource;
 
@@ -48,6 +47,8 @@ import oracle.ucp.jdbc.PoolDataSource;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 public class DataSourcePoolMetadataProvidersConfiguration {
 
@@ -55,8 +56,8 @@ public class DataSourcePoolMetadataProvidersConfiguration {
   @ConditionalOnClass(org.apache.tomcat.jdbc.pool.DataSource.class)
   static class TomcatDataSourcePoolMetadataProviderConfiguration {
 
-    @Bean
-    DataSourcePoolMetadataProvider tomcatPoolDataSourceMetadataProvider() {
+    @Component
+    static DataSourcePoolMetadataProvider tomcatPoolDataSourceMetadataProvider() {
       return (dataSource) -> {
         var tomcatDataSource = DataSourceUnwrapper.unwrap(dataSource,
                 ConnectionPoolMBean.class, org.apache.tomcat.jdbc.pool.DataSource.class);
@@ -73,8 +74,8 @@ public class DataSourcePoolMetadataProvidersConfiguration {
   @ConditionalOnClass(HikariDataSource.class)
   static class HikariPoolDataSourceMetadataProviderConfiguration {
 
-    @Bean
-    DataSourcePoolMetadataProvider hikariPoolDataSourceMetadataProvider() {
+    @Component
+    static DataSourcePoolMetadataProvider hikariPoolDataSourceMetadataProvider() {
       return (dataSource) -> {
         var hikariDataSource = DataSourceUnwrapper.unwrap(dataSource, HikariConfigMXBean.class,
                 HikariDataSource.class);
@@ -91,8 +92,8 @@ public class DataSourcePoolMetadataProvidersConfiguration {
   @ConditionalOnClass(BasicDataSource.class)
   static class CommonsDbcp2PoolDataSourceMetadataProviderConfiguration {
 
-    @Bean
-    DataSourcePoolMetadataProvider commonsDbcp2PoolDataSourceMetadataProvider() {
+    @Component
+    static DataSourcePoolMetadataProvider commonsDbcp2PoolDataSourceMetadataProvider() {
       return (dataSource) -> {
         var dbcpDataSource = DataSourceUnwrapper.unwrap(
                 dataSource, BasicDataSourceMXBean.class, BasicDataSource.class);
@@ -109,8 +110,8 @@ public class DataSourcePoolMetadataProvidersConfiguration {
   @ConditionalOnClass({ PoolDataSource.class, OracleConnection.class })
   static class OracleUcpPoolDataSourceMetadataProviderConfiguration {
 
-    @Bean
-    DataSourcePoolMetadataProvider oracleUcpPoolDataSourceMetadataProvider() {
+    @Component
+    static DataSourcePoolMetadataProvider oracleUcpPoolDataSourceMetadataProvider() {
       return (dataSource) -> {
         PoolDataSource ucpDataSource = DataSourceUnwrapper.unwrap(dataSource, PoolDataSource.class);
         if (ucpDataSource != null) {

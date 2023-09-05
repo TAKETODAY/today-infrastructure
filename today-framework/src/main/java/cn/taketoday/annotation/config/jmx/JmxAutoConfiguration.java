@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +20,9 @@ package cn.taketoday.annotation.config.jmx;
 import javax.management.MBeanServer;
 
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.EnableMBeanExport;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -55,23 +51,16 @@ import cn.taketoday.util.StringUtils;
  * @author Scott Frederick
  * @since 4.0 2022/10/9 18:35
  */
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnClass({ MBeanExporter.class })
 @EnableConfigurationProperties(JmxProperties.class)
 @ConditionalOnProperty(prefix = "infra.jmx", name = "enabled", havingValue = "true")
 public class JmxAutoConfiguration {
 
-  private final JmxProperties properties;
-
-  public JmxAutoConfiguration(JmxProperties properties) {
-    this.properties = properties;
-  }
-
   @Primary
   @Component
   @ConditionalOnMissingBean(value = MBeanExporter.class, search = SearchStrategy.CURRENT)
-  public AnnotationMBeanExporter mbeanExporter(ObjectNamingStrategy namingStrategy, BeanFactory beanFactory) {
+  static AnnotationMBeanExporter mbeanExporter(JmxProperties properties, ObjectNamingStrategy namingStrategy, BeanFactory beanFactory) {
     AnnotationMBeanExporter exporter = new AnnotationMBeanExporter();
     exporter.setRegistrationPolicy(properties.getRegistrationPolicy());
     exporter.setNamingStrategy(namingStrategy);
@@ -85,7 +74,7 @@ public class JmxAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ObjectNamingStrategy.class, search = SearchStrategy.CURRENT)
-  public ParentAwareNamingStrategy objectNamingStrategy() {
+  static ParentAwareNamingStrategy objectNamingStrategy(JmxProperties properties) {
     var namingStrategy = new ParentAwareNamingStrategy(new AnnotationJmxAttributeSource());
     String defaultDomain = properties.getDefaultDomain();
     if (StringUtils.isNotEmpty(defaultDomain)) {
@@ -97,7 +86,7 @@ public class JmxAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public MBeanServer mbeanServer() {
+  static MBeanServer mbeanServer() {
     MBeanServerFactoryBean factory = new MBeanServerFactoryBean();
     factory.setLocateExistingServerIfPossible(true);
     factory.afterPropertiesSet();

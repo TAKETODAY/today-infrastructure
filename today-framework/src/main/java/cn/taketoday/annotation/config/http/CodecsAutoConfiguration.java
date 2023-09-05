@@ -20,6 +20,7 @@ package cn.taketoday.annotation.config.http;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -44,7 +45,7 @@ import cn.taketoday.web.reactive.function.client.WebClient;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Configuration(proxyBeanMethods = false)
+@DisableDIAutoConfiguration
 @ConditionalOnClass({ CodecConfigurer.class, WebClient.class })
 @EnableConfigurationProperties(CodecProperties.class)
 public class CodecsAutoConfiguration {

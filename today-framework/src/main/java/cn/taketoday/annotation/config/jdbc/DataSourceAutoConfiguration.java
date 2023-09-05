@@ -29,13 +29,12 @@ import javax.sql.DataSource;
 import javax.sql.XADataSource;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.AnyNestedCondition;
 import cn.taketoday.context.condition.ConditionMessage;
@@ -67,8 +66,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/23 17:12
  */
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnClass({ DataSource.class, EmbeddedDatabaseType.class })
 @EnableConfigurationProperties(DataSourceProperties.class)
 @Import(DataSourcePoolMetadataProvidersConfiguration.class)
@@ -120,7 +118,7 @@ public class DataSourceAutoConfiguration {
       @Component
       @Nullable
       @ConditionalOnMissingBean(name = "dataSourceMBean")
-      Object dataSourceMBean(DataSource dataSource) {
+      static Object dataSourceMBean(DataSource dataSource) {
         DataSourceProxy dataSourceProxy = DataSourceUnwrapper.unwrap(
                 dataSource, PoolConfiguration.class, DataSourceProxy.class);
         if (dataSourceProxy != null) {

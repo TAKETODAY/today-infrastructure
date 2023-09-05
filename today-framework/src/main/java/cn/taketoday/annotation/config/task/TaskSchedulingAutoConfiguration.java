@@ -20,9 +20,8 @@ package cn.taketoday.annotation.config.task;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -49,9 +48,8 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@DisableAllDependencyInjection
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
-@AutoConfiguration(after = TaskExecutionAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
 public class TaskSchedulingAutoConfiguration {
 

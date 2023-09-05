@@ -19,6 +19,8 @@ package cn.taketoday.annotation.config.http;
 
 import com.google.gson.Gson;
 
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
@@ -41,6 +43,8 @@ import cn.taketoday.stereotype.Component;
  * @since 4.0
  */
 @Lazy
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(Gson.class)
 class GsonHttpMessageConvertersConfiguration {

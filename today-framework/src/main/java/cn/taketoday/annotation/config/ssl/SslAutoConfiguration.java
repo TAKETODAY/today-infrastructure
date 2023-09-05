@@ -20,7 +20,7 @@ package cn.taketoday.annotation.config.ssl;
 import java.util.List;
 
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -37,7 +37,7 @@ import cn.taketoday.stereotype.Component;
  * @since 4.0
  */
 @Lazy
-@AutoConfiguration
+@DisableDIAutoConfiguration
 @EnableConfigurationProperties(SslProperties.class)
 public class SslAutoConfiguration {
 

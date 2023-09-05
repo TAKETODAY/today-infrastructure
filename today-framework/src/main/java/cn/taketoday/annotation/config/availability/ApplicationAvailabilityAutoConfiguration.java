@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,8 @@
 
 package cn.taketoday.annotation.config.availability;
 
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.framework.availability.ApplicationAvailability;
@@ -35,12 +33,13 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration
+@Lazy
+@DisableDIAutoConfiguration
 public class ApplicationAvailabilityAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(ApplicationAvailability.class)
-  public ApplicationAvailabilityBean applicationAvailability() {
+  static ApplicationAvailabilityBean applicationAvailability() {
     return new ApplicationAvailabilityBean();
   }
 

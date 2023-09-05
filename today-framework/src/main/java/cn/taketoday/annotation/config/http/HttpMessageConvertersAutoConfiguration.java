@@ -29,7 +29,8 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportRuntimeHints;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -64,17 +65,15 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 15:10
  */
-@AutoConfiguration(after = {
+@DisableDIAutoConfiguration(after = {
         GsonAutoConfiguration.class,
         JacksonAutoConfiguration.class,
         JsonbAutoConfiguration.class
 })
+@Lazy
 @ConditionalOnClass(HttpMessageConverter.class)
 @Conditional(HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.class)
-@Import({
-        GsonHttpMessageConvertersConfiguration.class,
-        JsonbHttpMessageConvertersConfiguration.class
-})
+@Import({ GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })
 @ImportRuntimeHints(HttpMessageConvertersAutoConfiguration.Hints.class)
 public class HttpMessageConvertersAutoConfiguration {
   static final String PREFERRED_MAPPER_PROPERTY = "web.mvc.converters.preferred-json-mapper";

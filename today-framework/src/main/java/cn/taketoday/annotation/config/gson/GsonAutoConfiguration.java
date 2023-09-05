@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +22,13 @@ import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.PropertyMapper;
 
 /**
@@ -42,27 +39,27 @@ import cn.taketoday.util.PropertyMapper;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration
+@DisableDIAutoConfiguration
 @ConditionalOnClass(Gson.class)
 @EnableConfigurationProperties(GsonProperties.class)
 public class GsonAutoConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
-  public GsonBuilder gsonBuilder(List<GsonBuilderCustomizer> customizers) {
+  static GsonBuilder gsonBuilder(List<GsonBuilderCustomizer> customizers) {
     GsonBuilder builder = new GsonBuilder();
     customizers.forEach((c) -> c.customize(builder));
     return builder;
   }
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
-  public Gson gson(GsonBuilder gsonBuilder) {
+  static Gson gson(GsonBuilder gsonBuilder) {
     return gsonBuilder.create();
   }
 
-  @Bean
-  public StandardGsonBuilderCustomizer standardGsonBuilderCustomizer(GsonProperties gsonProperties) {
+  @Component
+  static StandardGsonBuilderCustomizer standardGsonBuilderCustomizer(GsonProperties gsonProperties) {
     return new StandardGsonBuilderCustomizer(gsonProperties);
   }
 

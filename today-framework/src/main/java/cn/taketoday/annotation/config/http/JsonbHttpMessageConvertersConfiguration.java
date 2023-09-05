@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +17,12 @@
 
 package cn.taketoday.annotation.config.http;
 
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.condition.AnyNestedCondition;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -40,6 +40,9 @@ import jakarta.json.bind.Jsonb;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Lazy
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(Jsonb.class)
 class JsonbHttpMessageConvertersConfiguration {
@@ -51,7 +54,7 @@ class JsonbHttpMessageConvertersConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    JsonbHttpMessageConverter jsonbHttpMessageConverter(Jsonb jsonb) {
+    static JsonbHttpMessageConverter jsonbHttpMessageConverter(Jsonb jsonb) {
       JsonbHttpMessageConverter converter = new JsonbHttpMessageConverter();
       converter.setJsonb(jsonb);
       return converter;

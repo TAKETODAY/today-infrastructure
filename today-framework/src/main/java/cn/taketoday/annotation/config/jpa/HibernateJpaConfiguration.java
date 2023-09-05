@@ -30,6 +30,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
@@ -59,6 +61,8 @@ import cn.taketoday.util.ClassUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@DisableDependencyInjection
+@DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(HibernateProperties.class)
 @ConditionalOnSingleCandidate(DataSource.class)

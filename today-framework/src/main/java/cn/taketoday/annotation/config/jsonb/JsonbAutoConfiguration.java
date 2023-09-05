@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,7 @@
 package cn.taketoday.annotation.config.jsonb;
 
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -36,7 +33,7 @@ import jakarta.json.bind.JsonbBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration
+@DisableDIAutoConfiguration
 @ConditionalOnClass(Jsonb.class)
 @ConditionalOnResource({ "classpath:META-INF/services/jakarta.json.bind.spi.JsonbProvider",
         "classpath:META-INF/services/jakarta.json.spi.JsonProvider" })
@@ -44,7 +41,7 @@ public class JsonbAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public Jsonb jsonb() {
+  static Jsonb jsonb() {
     return JsonbBuilder.create();
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +18,11 @@
 package cn.taketoday.annotation.config.aop;
 
 import cn.taketoday.aop.config.AopConfigUtils;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingClass;
@@ -48,17 +44,14 @@ import cn.taketoday.stereotype.Component;
  * @see EnableAspectJAutoProxy
  * @since 4.0
  */
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnProperty(prefix = "infra.aop", name = "auto", havingValue = "true", matchIfMissing = true)
 public class AopAutoConfiguration {
 
-  @DisableAllDependencyInjection
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(org.aspectj.weaver.Advice.class)
   static class AspectJAutoProxyingConfiguration {
 
-    @DisableAllDependencyInjection
     @Configuration(proxyBeanMethods = false)
     @EnableAspectJAutoProxy(proxyTargetClass = false)
     @ConditionalOnProperty(prefix = "infra.aop", name = "proxy-target-class", havingValue = "false")
@@ -66,7 +59,6 @@ public class AopAutoConfiguration {
 
     }
 
-    @DisableAllDependencyInjection
     @Configuration(proxyBeanMethods = false)
     @EnableAspectJAutoProxy(proxyTargetClass = true)
     @ConditionalOnProperty(
@@ -77,7 +69,6 @@ public class AopAutoConfiguration {
 
   }
 
-  @DisableAllDependencyInjection
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnMissingClass("org.aspectj.weaver.Advice")
   @ConditionalOnProperty(

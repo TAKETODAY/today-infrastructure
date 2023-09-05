@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +22,8 @@ import javax.sql.DataSource;
 import cn.taketoday.annotation.config.transaction.TransactionAutoConfiguration;
 import cn.taketoday.annotation.config.transaction.TransactionManagerCustomizers;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -53,7 +50,7 @@ import cn.taketoday.transaction.TransactionManager;
  */
 @AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
 @EnableConfigurationProperties(DataSourceProperties.class)
-@AutoConfiguration(before = TransactionAutoConfiguration.class)
+@DisableDIAutoConfiguration(before = TransactionAutoConfiguration.class)
 @ConditionalOnClass({ JdbcTemplate.class, TransactionManager.class })
 public class DataSourceTransactionManagerAutoConfiguration {
 
@@ -63,7 +60,7 @@ public class DataSourceTransactionManagerAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(TransactionManager.class)
-    DataSourceTransactionManager transactionManager(Environment environment, DataSource dataSource,
+    static DataSourceTransactionManager transactionManager(Environment environment, DataSource dataSource,
             @Nullable TransactionManagerCustomizers transactionManagerCustomizers) {
       DataSourceTransactionManager transactionManager = createTransactionManager(environment, dataSource);
       if (transactionManagerCustomizers != null) {
@@ -72,8 +69,8 @@ public class DataSourceTransactionManagerAutoConfiguration {
       return transactionManager;
     }
 
-    private DataSourceTransactionManager createTransactionManager(Environment environment, DataSource dataSource) {
-      return environment.getFlag("dao.exceptiontranslation.enabled", Boolean.TRUE)
+    private static DataSourceTransactionManager createTransactionManager(Environment environment, DataSource dataSource) {
+      return environment.getFlag("dao.exceptiontranslation.enabled", true)
              ? new JdbcTransactionManager(dataSource)
              : new DataSourceTransactionManager(dataSource);
     }

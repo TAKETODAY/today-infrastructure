@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +19,11 @@ package cn.taketoday.annotation.config.freemarker;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.framework.template.AbstractTemplateViewResolverProperties;
+import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} for configuring FreeMarker.
@@ -87,6 +86,16 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
 
   public void setTemplateLoaderPath(String... templateLoaderPaths) {
     this.templateLoaderPath = templateLoaderPaths;
+  }
+
+  protected void applyTo(FreeMarkerConfigurationFactory factory) {
+    factory.setTemplateLoaderPaths(getTemplateLoaderPath());
+    factory.setPreferFileSystemAccess(isPreferFileSystemAccess());
+    factory.setDefaultEncoding(getCharsetName());
+    Properties settings = new Properties();
+    settings.put("recognize_standard_file_extensions", "true");
+    settings.putAll(getSettings());
+    factory.setFreemarkerSettings(settings);
   }
 
 }

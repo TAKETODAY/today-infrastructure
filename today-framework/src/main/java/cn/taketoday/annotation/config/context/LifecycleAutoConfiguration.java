@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,8 @@
 
 package cn.taketoday.annotation.config.context;
 
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -36,7 +33,7 @@ import cn.taketoday.stereotype.Component;
  * @author Andy Wilkinson
  * @since 4.0
  */
-@AutoConfiguration
+@DisableDIAutoConfiguration
 @EnableConfigurationProperties(LifecycleProperties.class)
 public class LifecycleAutoConfiguration {
 
@@ -44,7 +41,7 @@ public class LifecycleAutoConfiguration {
   @ConditionalOnMissingBean(
           search = SearchStrategy.CURRENT,
           name = AbstractApplicationContext.LIFECYCLE_PROCESSOR_BEAN_NAME)
-  public DefaultLifecycleProcessor defaultLifecycleProcessor(LifecycleProperties properties) {
+  static DefaultLifecycleProcessor defaultLifecycleProcessor(LifecycleProperties properties) {
     DefaultLifecycleProcessor lifecycleProcessor = new DefaultLifecycleProcessor();
     lifecycleProcessor.setTimeoutPerShutdownPhase(properties.getTimeoutPerShutdownPhase().toMillis());
     return lifecycleProcessor;

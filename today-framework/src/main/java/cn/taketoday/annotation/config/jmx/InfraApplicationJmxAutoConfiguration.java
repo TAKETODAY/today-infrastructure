@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +18,12 @@
 package cn.taketoday.annotation.config.jmx;
 
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.jmx.export.MBeanExporter;
+import cn.taketoday.stereotype.Component;
 
 /**
  * Register a JMX component that allows to administer the current application. Intended
@@ -38,7 +35,7 @@ import cn.taketoday.jmx.export.MBeanExporter;
  * @see InfraApplicationMXBean
  * @since 4.0
  */
-@AutoConfiguration(after = JmxAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = JmxAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "app.admin", value = "enabled", havingValue = "true", matchIfMissing = false)
 public class InfraApplicationJmxAutoConfiguration {
 
@@ -53,9 +50,9 @@ public class InfraApplicationJmxAutoConfiguration {
    */
   private static final String DEFAULT_JMX_NAME = "cn.taketoday.app:type=Admin,name=InfraApplication";
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
-  public InfraApplicationMXBeanRegistrar infraApplicationRegistrar(
+  static InfraApplicationMXBeanRegistrar infraApplicationRegistrar(
           ObjectProvider<MBeanExporter> mbeanExporters, Environment environment) throws Exception {
     String jmxName = environment.getProperty(JMX_NAME_PROPERTY, DEFAULT_JMX_NAME);
     if (mbeanExporters != null) { // Make sure to not register that MBean twice
