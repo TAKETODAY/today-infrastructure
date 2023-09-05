@@ -17,16 +17,29 @@
 
 package cn.taketoday.annotation.config.task;
 
-import cn.taketoday.context.annotation.Import;
+import java.util.concurrent.ScheduledExecutorService;
+
+import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.context.condition.ConditionalOnThreading;
+import cn.taketoday.context.condition.Threading;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.LazyInitializationExcludeFilter;
 import cn.taketoday.scheduling.TaskScheduler;
+import cn.taketoday.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskScheduler;
 import cn.taketoday.scheduling.config.TaskManagementConfigUtils;
+import cn.taketoday.scheduling.support.SimpleAsyncTaskSchedulerBuilder;
+import cn.taketoday.scheduling.support.SimpleAsyncTaskSchedulerCustomizer;
+import cn.taketoday.scheduling.support.ThreadPoolTaskSchedulerBuilder;
+import cn.taketoday.scheduling.support.ThreadPoolTaskSchedulerCustomizer;
 import cn.taketoday.stereotype.Component;
 
 /**
@@ -36,13 +49,10 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@DisableAllDependencyInjection
 @ConditionalOnClass(ThreadPoolTaskScheduler.class)
 @AutoConfiguration(after = TaskExecutionAutoConfiguration.class)
 @EnableConfigurationProperties(TaskSchedulingProperties.class)
-@Import({ TaskSchedulingConfigurations.ThreadPoolTaskSchedulerBuilderConfiguration.class,
-    TaskSchedulingConfigurations.TaskSchedulerBuilderConfiguration.class,
-    TaskSchedulingConfigurations.SimpleAsyncTaskSchedulerBuilderConfiguration.class,
-    TaskSchedulingConfigurations.TaskSchedulerConfiguration.class })
 public class TaskSchedulingAutoConfiguration {
 
   @Component
@@ -51,4 +61,49 @@ public class TaskSchedulingAutoConfiguration {
     return new ScheduledBeanLazyInitializationExcludeFilter();
   }
 
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnBean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
+  @ConditionalOnMissingBean({ TaskScheduler.class, ScheduledExecutorService.class })
+  static class TaskSchedulerConfiguration {
+
+    @Component(name = "taskScheduler")
+    @ConditionalOnThreading(Threading.VIRTUAL)
+    static SimpleAsyncTaskScheduler taskSchedulerVirtualThreads(SimpleAsyncTaskSchedulerBuilder builder) {
+      return builder.build();
+    }
+
+    @Component
+    @ConditionalOnThreading(Threading.PLATFORM)
+    static ThreadPoolTaskScheduler taskScheduler(ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder) {
+      return threadPoolTaskSchedulerBuilder.build();
+    }
+
+    @Component
+    @ConditionalOnMissingBean({ ThreadPoolTaskSchedulerBuilder.class })
+    static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
+            ObjectProvider<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
+      TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
+      ThreadPoolTaskSchedulerBuilder builder = new ThreadPoolTaskSchedulerBuilder();
+      builder = builder.poolSize(properties.getPool().getSize());
+      builder = builder.awaitTermination(shutdown.isAwaitTermination());
+      builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
+      builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
+      builder = builder.customizers(threadPoolTaskSchedulerCustomizers);
+      return builder;
+    }
+
+    @Component
+    @ConditionalOnMissingBean
+    static SimpleAsyncTaskSchedulerBuilder simpleAsyncTaskSchedulerBuilder(Environment environment,
+            TaskSchedulingProperties properties, ObjectProvider<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+      SimpleAsyncTaskSchedulerBuilder builder = new SimpleAsyncTaskSchedulerBuilder();
+      builder = builder.customizers(taskSchedulerCustomizers);
+      builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
+      builder = builder.concurrencyLimit(properties.getSimple().getConcurrencyLimit());
+      if (Threading.VIRTUAL.isActive(environment)) {
+        builder = builder.virtualThreads(true);
+      }
+      return builder;
+    }
+  }
 }
