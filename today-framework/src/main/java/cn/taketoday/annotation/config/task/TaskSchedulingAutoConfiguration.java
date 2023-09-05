@@ -17,9 +17,9 @@
 
 package cn.taketoday.annotation.config.task;
 
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
@@ -81,7 +81,7 @@ public class TaskSchedulingAutoConfiguration {
     @Component
     @ConditionalOnMissingBean
     static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
-            ObjectProvider<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
+            List<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
       TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
       ThreadPoolTaskSchedulerBuilder builder = new ThreadPoolTaskSchedulerBuilder();
       builder = builder.poolSize(properties.getPool().getSize());
@@ -95,7 +95,7 @@ public class TaskSchedulingAutoConfiguration {
     @Component
     @ConditionalOnMissingBean
     static SimpleAsyncTaskSchedulerBuilder simpleAsyncTaskSchedulerBuilder(Environment environment,
-            TaskSchedulingProperties properties, ObjectProvider<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+            TaskSchedulingProperties properties, List<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
       SimpleAsyncTaskSchedulerBuilder builder = new SimpleAsyncTaskSchedulerBuilder();
       builder = builder.customizers(taskSchedulerCustomizers);
       builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
