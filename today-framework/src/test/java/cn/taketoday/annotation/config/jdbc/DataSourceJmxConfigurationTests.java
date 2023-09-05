@@ -47,8 +47,6 @@ import cn.taketoday.jdbc.datasource.DelegatingDataSource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link DataSourceJmxConfiguration}.
- *
  * @author Stephane Nicoll
  * @author Tadaya Tsuyukubo
  */

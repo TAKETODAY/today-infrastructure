@@ -277,18 +277,18 @@ class ConfigurationClassBeanDefinitionReader {
    */
   private boolean isDisableAllDependencyInjection(ConfigurationClass configClass) {
     if (!configClass.metadata.isAnnotated(DisableAllDependencyInjection.class)) {
-      String enclosingClassName = configClass.metadata.getEnclosingClassName();
-      while (enclosingClassName != null) {
-        try {
+      try {
+        String enclosingClassName = configClass.metadata.getEnclosingClassName();
+        while (enclosingClassName != null) {
           AnnotationMetadata enclosingMetadata = bootstrapContext.getAnnotationMetadata(enclosingClassName);
           if (enclosingMetadata.isAnnotated(DisableAllDependencyInjection.class)) {
             return true;
           }
           enclosingClassName = enclosingMetadata.getEnclosingClassName();
         }
-        catch (IOException e) {
-          logger.error("Failed to read class file via ASM for determining DI status order", e);
-        }
+      }
+      catch (IOException e) {
+        logger.error("Failed to read class file via ASM for determining DI status order", e);
       }
       return false;
     }

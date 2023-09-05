@@ -27,6 +27,7 @@ import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -73,6 +74,7 @@ import static cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type
  * @author Brian Clozel
  * @since 4.0 2022/10/21 12:12
  */
+@Lazy
 @DisableDIAutoConfiguration
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnClass(ReactiveHttpInputMessage.class)
