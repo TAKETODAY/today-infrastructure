@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,8 +99,7 @@ public abstract class InfraCondition implements Condition {
     return message;
   }
 
-  private void recordEvaluation(ConditionContext context,
-          String classOrMethodName, ConditionOutcome outcome) {
+  private void recordEvaluation(ConditionContext context, String classOrMethodName, ConditionOutcome outcome) {
     if (context.getBeanFactory() != null) {
       ConditionEvaluationReport.get(context.getBeanFactory())
               .recordConditionEvaluation(classOrMethodName, this, outcome);
@@ -128,8 +124,8 @@ public abstract class InfraCondition implements Condition {
    * @param conditions conditions to test
    * @return {@code true} if any condition matches.
    */
-  protected final boolean anyMatches(
-          ConditionContext context, AnnotatedTypeMetadata metadata, Condition... conditions) {
+  protected final boolean anyMatches(ConditionContext context,
+          AnnotatedTypeMetadata metadata, Condition... conditions) {
     for (Condition condition : conditions) {
       if (matches(context, metadata, condition)) {
         return true;
@@ -146,8 +142,8 @@ public abstract class InfraCondition implements Condition {
    * @param condition condition to test
    * @return {@code true} if the condition matches.
    */
-  protected final boolean matches(
-          ConditionContext context, AnnotatedTypeMetadata metadata, Condition condition) {
+  protected final boolean matches(ConditionContext context,
+          AnnotatedTypeMetadata metadata, Condition condition) {
     if (condition instanceof InfraCondition) {
       return ((InfraCondition) condition).getMatchOutcome(context, metadata).isMatch();
     }

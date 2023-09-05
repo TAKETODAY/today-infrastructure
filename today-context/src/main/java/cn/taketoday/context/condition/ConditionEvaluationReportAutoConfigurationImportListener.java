@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +29,11 @@ import cn.taketoday.context.annotation.config.AutoConfigurationImportListener;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/5 23:24
  */
-class ConditionEvaluationReportAutoConfigurationImportListener
-        implements AutoConfigurationImportListener {
+class ConditionEvaluationReportAutoConfigurationImportListener implements AutoConfigurationImportListener {
 
   private final ConfigurableBeanFactory beanFactory;
+
+  private ConditionEvaluationReport report;
 
   ConditionEvaluationReportAutoConfigurationImportListener(ConfigurableBeanFactory beanFactory) {
     this.beanFactory = beanFactory;
@@ -43,7 +41,11 @@ class ConditionEvaluationReportAutoConfigurationImportListener
 
   @Override
   public void onAutoConfigurationImportEvent(AutoConfigurationImportEvent event) {
-    ConditionEvaluationReport report = ConditionEvaluationReport.get(this.beanFactory);
+    ConditionEvaluationReport report = this.report;
+    if (report == null) {
+      report = ConditionEvaluationReport.get(this.beanFactory);
+      this.report = report;
+    }
     report.recordEvaluationCandidates(event.getCandidateConfigurations());
     report.recordExclusions(event.getExclusions());
   }
