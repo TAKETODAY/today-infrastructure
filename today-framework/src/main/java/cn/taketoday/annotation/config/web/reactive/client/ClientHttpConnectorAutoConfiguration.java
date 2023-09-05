@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.annotation.config.web.reactive.client;
 
 import cn.taketoday.annotation.config.ssl.SslAutoConfiguration;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
@@ -33,6 +31,7 @@ import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link ClientHttpConnector}.
@@ -47,7 +46,8 @@ import cn.taketoday.web.reactive.function.client.WebClient;
  * @since 4.0
  */
 @AutoConfiguration
-@ConditionalOnClass(WebClient.class)
+@DisableAllDependencyInjection
+@ConditionalOnClass({ WebClient.class, Mono.class })
 @AutoConfigureAfter(SslAutoConfiguration.class)
 @Import({ ClientHttpConnectorFactoryConfiguration.ReactorNetty.class,
         ClientHttpConnectorFactoryConfiguration.JettyClient.class,

@@ -55,16 +55,16 @@ class TaskSchedulingConfigurations {
 
     @Component(name = "taskScheduler")
     @ConditionalOnThreading(Threading.VIRTUAL)
-    SimpleAsyncTaskScheduler taskSchedulerVirtualThreads(SimpleAsyncTaskSchedulerBuilder builder) {
+    static SimpleAsyncTaskScheduler taskSchedulerVirtualThreads(SimpleAsyncTaskSchedulerBuilder builder) {
       return builder.build();
     }
 
     @Component
     @ConditionalOnThreading(Threading.PLATFORM)
-    ThreadPoolTaskScheduler taskScheduler(TaskSchedulerBuilder taskSchedulerBuilder,
-        ObjectProvider<ThreadPoolTaskSchedulerBuilder> threadPoolTaskSchedulerBuilderProvider) {
+    static ThreadPoolTaskScheduler taskScheduler(TaskSchedulerBuilder taskSchedulerBuilder,
+            ObjectProvider<ThreadPoolTaskSchedulerBuilder> threadPoolTaskSchedulerBuilderProvider) {
       ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder = threadPoolTaskSchedulerBuilderProvider
-          .getIfUnique();
+              .getIfUnique();
       if (threadPoolTaskSchedulerBuilder != null) {
         return threadPoolTaskSchedulerBuilder.build();
       }
@@ -79,8 +79,8 @@ class TaskSchedulingConfigurations {
 
     @Component
     @ConditionalOnMissingBean
-    TaskSchedulerBuilder taskSchedulerBuilder(TaskSchedulingProperties properties,
-        ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
+    static TaskSchedulerBuilder taskSchedulerBuilder(TaskSchedulingProperties properties,
+            ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
       TaskSchedulerBuilder builder = new TaskSchedulerBuilder();
       builder = builder.poolSize(properties.getPool().getSize());
       TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
@@ -99,9 +99,9 @@ class TaskSchedulingConfigurations {
 
     @Component
     @ConditionalOnMissingBean({ TaskSchedulerBuilder.class, ThreadPoolTaskSchedulerBuilder.class })
-    ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
-        ObjectProvider<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers,
-        ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
+    static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
+            ObjectProvider<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers,
+            ObjectProvider<TaskSchedulerCustomizer> taskSchedulerCustomizers) {
       TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();
       ThreadPoolTaskSchedulerBuilder builder = new ThreadPoolTaskSchedulerBuilder();
       builder = builder.poolSize(properties.getPool().getSize());
@@ -128,7 +128,7 @@ class TaskSchedulingConfigurations {
     private final ObjectProvider<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers;
 
     SimpleAsyncTaskSchedulerBuilderConfiguration(TaskSchedulingProperties properties,
-        ObjectProvider<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+            ObjectProvider<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
       this.properties = properties;
       this.taskSchedulerCustomizers = taskSchedulerCustomizers;
     }
@@ -152,7 +152,7 @@ class TaskSchedulingConfigurations {
     private SimpleAsyncTaskSchedulerBuilder builder() {
       SimpleAsyncTaskSchedulerBuilder builder = new SimpleAsyncTaskSchedulerBuilder();
       builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-      builder = builder.customizers(taskSchedulerCustomizers.orderedStream()::iterator);
+      builder = builder.customizers(taskSchedulerCustomizers);
       var simple = properties.getSimple();
       builder = builder.concurrencyLimit(simple.getConcurrencyLimit());
       return builder;

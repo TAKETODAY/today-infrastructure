@@ -20,9 +20,8 @@ package cn.taketoday.annotation.config.web.reactive.client;
 import java.util.List;
 
 import cn.taketoday.annotation.config.http.CodecsAutoConfiguration;
-import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
@@ -32,7 +31,9 @@ import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.stereotype.Prototype;
 import cn.taketoday.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link WebClient}.
@@ -47,23 +48,24 @@ import cn.taketoday.web.reactive.function.client.WebClient;
  * @since 4.0
  */
 @AutoConfiguration(after = { CodecsAutoConfiguration.class, ClientHttpConnectorAutoConfiguration.class })
-@ConditionalOnClass(WebClient.class)
+@ConditionalOnClass({ WebClient.class, Mono.class })
+@DisableAllDependencyInjection
 public class WebClientAutoConfiguration {
 
-  @Component
-  @Scope("prototype")
+  @Prototype
   @ConditionalOnMissingBean
-  public WebClient.Builder webClientBuilder(ObjectProvider<WebClientCustomizer> customizerProvider) {
+  static WebClient.Builder webClientBuilder(List<WebClientCustomizer> customizers) {
     WebClient.Builder builder = WebClient.builder();
-    customizerProvider.orderedStream().forEach((customizer) -> customizer.customize(builder));
+    for (WebClientCustomizer customizer : customizers) {
+      customizer.customize(builder);
+    }
     return builder;
   }
 
   @Component
   @ConditionalOnMissingBean(WebClientSsl.class)
   @ConditionalOnBean(SslBundles.class)
-  AutoConfiguredWebClientSsl webClientSsl(ClientHttpConnectorFactory<?> clientHttpConnectorFactory,
-          SslBundles sslBundles) {
+  static AutoConfiguredWebClientSsl webClientSsl(ClientHttpConnectorFactory<?> clientHttpConnectorFactory, SslBundles sslBundles) {
     return new AutoConfiguredWebClientSsl(clientHttpConnectorFactory, sslBundles);
   }
 
@@ -74,7 +76,7 @@ public class WebClientAutoConfiguration {
     @Component
     @ConditionalOnMissingBean
     @Order(0)
-    public WebClientCodecCustomizer exchangeStrategiesCustomizer(List<CodecCustomizer> codecCustomizers) {
+    static WebClientCodecCustomizer exchangeStrategiesCustomizer(List<CodecCustomizer> codecCustomizers) {
       return new WebClientCodecCustomizer(codecCustomizers);
     }
 

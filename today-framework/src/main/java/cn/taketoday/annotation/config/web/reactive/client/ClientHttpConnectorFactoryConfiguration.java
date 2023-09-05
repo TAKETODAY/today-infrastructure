@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +46,6 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(reactor.netty.http.client.HttpClient.class)
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  @DisableAllDependencyInjection
   static class ReactorNetty {
 
     @Component
@@ -70,7 +66,6 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(org.eclipse.jetty.reactive.client.ReactiveRequest.class)
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  @DisableAllDependencyInjection
   static class JettyClient {
 
     @Component
@@ -89,7 +84,6 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass({ HttpAsyncClients.class, AsyncRequestProducer.class, ReactiveResponseConsumer.class })
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  @DisableAllDependencyInjection
   static class HttpClient5 {
 
     @Component
@@ -102,7 +96,6 @@ class ClientHttpConnectorFactoryConfiguration {
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(java.net.http.HttpClient.class)
   @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  @DisableAllDependencyInjection
   static class JdkClient {
 
     @Component

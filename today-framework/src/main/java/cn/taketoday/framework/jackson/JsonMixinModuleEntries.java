@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +68,7 @@ public final class JsonMixinModuleEntries {
    * @return an instance with the result of the scanning
    */
   public static JsonMixinModuleEntries scan(ApplicationContext context, Collection<String> basePackages) {
-    return JsonMixinModuleEntries.create((builder) -> {
+    return JsonMixinModuleEntries.create(builder -> {
       if (ObjectUtils.isEmpty(basePackages)) {
         return;
       }
@@ -79,12 +76,12 @@ public final class JsonMixinModuleEntries {
       scanner.setEnvironment(context.getEnvironment());
       scanner.setResourceLoader(context);
       scanner.addIncludeFilter(new AnnotationTypeFilter(JsonMixin.class));
-      scanner.setCandidateComponentPredicate((annotationMetadata) -> true);
+      scanner.setCandidateComponentPredicate(annotationMetadata -> true);
       for (String basePackage : basePackages) {
         if (StringUtils.hasText(basePackage)) {
           for (BeanDefinition candidate : scanner.findCandidateComponents(basePackage)) {
-            Class<?> mixinClass = ClassUtils.resolveClassName(candidate.getBeanClassName(),
-                    context.getClassLoader());
+            Class<?> mixinClass = ClassUtils.resolveClassName(
+                    candidate.getBeanClassName(), context.getClassLoader());
             registerMixinClass(builder, mixinClass);
           }
         }

@@ -55,7 +55,7 @@ class TaskExecutorConfigurations {
   static class TaskExecutorConfiguration {
 
     @Bean(name = { TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME,
-        AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
+            AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
     @ConditionalOnThreading(Threading.VIRTUAL)
     SimpleAsyncTaskExecutor applicationTaskExecutorVirtualThreads(SimpleAsyncTaskExecutorBuilder builder) {
       return builder.build();
@@ -63,12 +63,12 @@ class TaskExecutorConfigurations {
 
     @Lazy
     @Bean(name = { TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME,
-        AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
+            AsyncAnnotationBeanPostProcessor.DEFAULT_TASK_EXECUTOR_BEAN_NAME })
     @ConditionalOnThreading(Threading.PLATFORM)
     ThreadPoolTaskExecutor applicationTaskExecutor(TaskExecutorBuilder taskExecutorBuilder,
-        ObjectProvider<ThreadPoolTaskExecutorBuilder> threadPoolTaskExecutorBuilderProvider) {
+            ObjectProvider<ThreadPoolTaskExecutorBuilder> threadPoolTaskExecutorBuilderProvider) {
       ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder = threadPoolTaskExecutorBuilderProvider
-          .getIfUnique();
+              .getIfUnique();
       if (threadPoolTaskExecutorBuilder != null) {
         return threadPoolTaskExecutorBuilder.build();
       }
@@ -85,8 +85,8 @@ class TaskExecutorConfigurations {
     @ConditionalOnMissingBean
     @Deprecated
     TaskExecutorBuilder taskExecutorBuilder(TaskExecutionProperties properties,
-        ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers,
-        ObjectProvider<TaskDecorator> taskDecorator) {
+            ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers,
+            ObjectProvider<TaskDecorator> taskDecorator) {
       TaskExecutionProperties.Pool pool = properties.getPool();
       TaskExecutorBuilder builder = new TaskExecutorBuilder();
       builder = builder.queueCapacity(pool.getQueueCapacity());
@@ -98,7 +98,7 @@ class TaskExecutorConfigurations {
       builder = builder.awaitTermination(shutdown.isAwaitTermination());
       builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
       builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-      builder = builder.customizers(taskExecutorCustomizers.orderedStream()::iterator);
+      builder = builder.customizers(taskExecutorCustomizers);
       builder = builder.taskDecorator(taskDecorator.getIfUnique());
       return builder;
     }
@@ -112,9 +112,9 @@ class TaskExecutorConfigurations {
     @Bean
     @ConditionalOnMissingBean({ TaskExecutorBuilder.class, ThreadPoolTaskExecutorBuilder.class })
     ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder(TaskExecutionProperties properties,
-        ObjectProvider<ThreadPoolTaskExecutorCustomizer> threadPoolTaskExecutorCustomizers,
-        ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers,
-        ObjectProvider<TaskDecorator> taskDecorator) {
+            ObjectProvider<ThreadPoolTaskExecutorCustomizer> threadPoolTaskExecutorCustomizers,
+            ObjectProvider<TaskExecutorCustomizer> taskExecutorCustomizers,
+            ObjectProvider<TaskDecorator> taskDecorator) {
       TaskExecutionProperties.Pool pool = properties.getPool();
       ThreadPoolTaskExecutorBuilder builder = new ThreadPoolTaskExecutorBuilder();
       builder = builder.queueCapacity(pool.getQueueCapacity());
@@ -126,7 +126,7 @@ class TaskExecutorConfigurations {
       builder = builder.awaitTermination(shutdown.isAwaitTermination());
       builder = builder.awaitTerminationPeriod(shutdown.getAwaitTerminationPeriod());
       builder = builder.threadNamePrefix(properties.getThreadNamePrefix());
-      builder = builder.customizers(threadPoolTaskExecutorCustomizers.orderedStream()::iterator);
+      builder = builder.customizers(threadPoolTaskExecutorCustomizers);
       builder = builder.taskDecorator(taskDecorator.getIfUnique());
       // Apply the deprecated TaskExecutorCustomizers, too
       builder = builder.additionalCustomizers(taskExecutorCustomizers.orderedStream().map(this::adapt).toList());
@@ -149,8 +149,8 @@ class TaskExecutorConfigurations {
     private final ObjectProvider<TaskDecorator> taskDecorator;
 
     SimpleAsyncTaskExecutorBuilderConfiguration(TaskExecutionProperties properties,
-        ObjectProvider<SimpleAsyncTaskExecutorCustomizer> taskExecutorCustomizers,
-        ObjectProvider<TaskDecorator> taskDecorator) {
+            ObjectProvider<SimpleAsyncTaskExecutorCustomizer> taskExecutorCustomizers,
+            ObjectProvider<TaskDecorator> taskDecorator) {
       this.properties = properties;
       this.taskExecutorCustomizers = taskExecutorCustomizers;
       this.taskDecorator = taskDecorator;
