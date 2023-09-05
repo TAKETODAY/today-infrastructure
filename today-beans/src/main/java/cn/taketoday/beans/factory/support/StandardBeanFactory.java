@@ -1554,7 +1554,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
     Class<?> type = descriptor.getDependencyType();
 
-    if (descriptor instanceof StreamDependencyDescriptor) {
+    if (descriptor instanceof StreamDependencyDescriptor streamDescriptor) {
       Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
       if (autowiredBeanNames != null) {
         autowiredBeanNames.addAll(matchingBeans.keySet());
@@ -1562,7 +1562,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       Stream<Object> stream = matchingBeans.keySet().stream()
               .map(name -> descriptor.resolveCandidate(name, type, this))
               .filter(Objects::nonNull);
-      if (((StreamDependencyDescriptor) descriptor).isOrdered()) {
+      if (streamDescriptor.isOrdered()) {
         stream = stream.sorted(adaptOrderComparator(matchingBeans));
       }
       return stream;
@@ -1585,7 +1585,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         autowiredBeanNames.addAll(matchingBeans.keySet());
       }
       Object result = convertIfNecessary(matchingBeans.values(), resolvedArrayType, typeConverter);
-      if (result instanceof Object[] array && array.length > 1) {
+      if (result instanceof Object[] array && array.length > 1 && descriptor.isOrdered()) {
         Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
         if (comparator != null) {
           Arrays.sort(array, comparator);
@@ -1626,8 +1626,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     if (elementType == null) {
       return null;
     }
-    Map<String, Object> matchingBeans = findAutowireCandidates(beanName, elementType,
-            new MultiElementDescriptor(descriptor));
+    Map<String, Object> matchingBeans = findAutowireCandidates(
+            beanName, elementType, new MultiElementDescriptor(descriptor));
     if (matchingBeans.isEmpty()) {
       return null;
     }
@@ -1635,7 +1635,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       autowiredBeanNames.addAll(matchingBeans.keySet());
     }
     Object result = convertIfNecessary(matchingBeans.values(), descriptor.getDependencyType(), typeConverter);
-    if (result instanceof List<?> list && list.size() > 1) {
+    if (result instanceof List<?> list && list.size() > 1 && descriptor.isOrdered()) {
       Comparator<Object> comparator = adaptDependencyComparator(matchingBeans);
       if (comparator != null) {
         list.sort(comparator);
@@ -1657,8 +1657,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     if (valueType == null) {
       return null;
     }
-    Map<String, Object> matchingBeans = findAutowireCandidates(beanName, valueType,
-            new MultiElementDescriptor(descriptor));
+    Map<String, Object> matchingBeans = findAutowireCandidates(
+            beanName, valueType, new MultiElementDescriptor(descriptor));
     if (matchingBeans.isEmpty()) {
       return null;
     }
@@ -2126,6 +2126,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       this.ordered = ordered;
     }
 
+    @Override
     public boolean isOrdered() {
       return this.ordered;
     }

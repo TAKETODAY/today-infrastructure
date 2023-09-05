@@ -30,6 +30,7 @@ import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
+import cn.taketoday.beans.factory.annotation.NonOrdered;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -48,6 +49,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0 2021/12/22 21:32
  */
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -78,6 +80,8 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
   @Nullable
   private transient volatile TypeDescriptor typeDescriptor;
+
+  private volatile Boolean ordered;
 
   /**
    * Create a new descriptor for a method or constructor parameter.
@@ -179,14 +183,6 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     }
   }
 
-  public boolean isMap() {
-    return Map.class.isAssignableFrom(getDependencyType());
-  }
-
-  public boolean dependencyIs(Class<?> type) {
-    return type == getDependencyType();
-  }
-
   /**
    * Check whether the underlying field is annotated with any variant of a
    * {@code Nullable} annotation, e.g. {@code jakarta.annotation.Nullable} or
@@ -209,6 +205,15 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    */
   public boolean isEager() {
     return this.eager;
+  }
+
+  public boolean isOrdered() {
+    Boolean ordered = this.ordered;
+    if (ordered == null) {
+      ordered = getAnnotation(NonOrdered.class) == null;
+      this.ordered = ordered;
+    }
+    return ordered;
   }
 
   /**
