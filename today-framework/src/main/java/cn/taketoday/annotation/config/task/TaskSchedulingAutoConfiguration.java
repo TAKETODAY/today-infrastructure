@@ -79,7 +79,7 @@ public class TaskSchedulingAutoConfiguration {
     }
 
     @Component
-    @ConditionalOnMissingBean({ ThreadPoolTaskSchedulerBuilder.class })
+    @ConditionalOnMissingBean
     static ThreadPoolTaskSchedulerBuilder threadPoolTaskSchedulerBuilder(TaskSchedulingProperties properties,
             ObjectProvider<ThreadPoolTaskSchedulerCustomizer> threadPoolTaskSchedulerCustomizers) {
       TaskSchedulingProperties.Shutdown shutdown = properties.getShutdown();

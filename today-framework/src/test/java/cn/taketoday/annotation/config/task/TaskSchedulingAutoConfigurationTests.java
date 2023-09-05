@@ -46,7 +46,6 @@ import cn.taketoday.scheduling.concurrent.ThreadPoolTaskScheduler;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 import cn.taketoday.scheduling.support.SimpleAsyncTaskSchedulerBuilder;
 import cn.taketoday.scheduling.support.SimpleAsyncTaskSchedulerCustomizer;
-import cn.taketoday.scheduling.support.TaskSchedulerCustomizer;
 import cn.taketoday.scheduling.support.ThreadPoolTaskSchedulerBuilder;
 import cn.taketoday.scheduling.support.ThreadPoolTaskSchedulerCustomizer;
 import cn.taketoday.test.util.ReflectionTestUtils;
@@ -87,7 +86,7 @@ class TaskSchedulingAutoConfigurationTests {
   void shouldNotSupplyThreadPoolTaskSchedulerBuilderIfCustomTaskSchedulerBuilderIsPresent() {
     this.contextRunner.withUserConfiguration(SchedulingConfiguration.class)
             .run((context) -> {
-              assertThat(context).doesNotHaveBean(ThreadPoolTaskSchedulerBuilder.class);
+              assertThat(context).hasSingleBean(ThreadPoolTaskSchedulerBuilder.class);
               assertThat(context).hasSingleBean(ThreadPoolTaskScheduler.class);
             });
   }
@@ -165,12 +164,12 @@ class TaskSchedulingAutoConfigurationTests {
   @Test
   void enableSchedulingWithNoTaskExecutorAppliesTaskSchedulerCustomizers() {
     this.contextRunner.withPropertyValues("infra.task.scheduling.thread-name-prefix=scheduling-test-")
-            .withUserConfiguration(SchedulingConfiguration.class, TaskSchedulerCustomizerConfiguration.class)
+            .withUserConfiguration(SchedulingConfiguration.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(TaskExecutor.class);
               TestBean bean = context.getBean(TestBean.class);
               assertThat(bean.latch.await(30, TimeUnit.SECONDS)).isTrue();
-              assertThat(bean.threadNames).allMatch((name) -> name.contains("customized-scheduler-"));
+              assertThat(bean.threadNames).allMatch((name) -> name.contains("scheduling-test-"));
             });
   }
 
@@ -250,16 +249,6 @@ class TaskSchedulingAutoConfigurationTests {
     @Bean
     ScheduledExecutorService customScheduledExecutorService() {
       return Executors.newScheduledThreadPool(2);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class TaskSchedulerCustomizerConfiguration {
-
-    @Bean
-    TaskSchedulerCustomizer testTaskSchedulerCustomizer() {
-      return ((taskScheduler) -> taskScheduler.setThreadNamePrefix("customized-scheduler-"));
     }
 
   }
