@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import cn.taketoday.lang.ClassInstantiator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
@@ -72,7 +70,8 @@ public class MockTodayStrategies extends TodayStrategies {
   @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> T instantiateStrategy(String implementationName, Class<T> type, Instantiator instantiator, FailureHandler failureHandler) {
+  protected <T> T instantiateStrategy(String implementationName,
+          Class<T> type, ClassInstantiator instantiator, FailureHandler failureHandler) {
     if (implementationName.startsWith("!")) {
       Object implementation = this.implementations.get(implementationName);
       if (implementation != null) {

@@ -544,7 +544,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
-  public <T> List<T> load(Class<T> strategyType, Instantiator instantiator) {
+  public <T> List<T> load(Class<T> strategyType, ClassInstantiator instantiator) {
     return load(strategyType, instantiator, null);
   }
 
@@ -608,7 +608,7 @@ public class TodayStrategies {
    * @return Returns strategy object list that can be modified
    */
   public <T> List<T> load(Class<T> strategyType,
-          Instantiator instantiator, @Nullable FailureHandler failureHandler) {
+          ClassInstantiator instantiator, @Nullable FailureHandler failureHandler) {
     Assert.notNull(strategyType, "'strategyType' is required");
     Assert.notNull(instantiator, "'instantiator' is required");
 
@@ -643,7 +643,7 @@ public class TodayStrategies {
 
   @Nullable
   protected <T> T instantiateStrategy(String implementationName, Class<T> type,
-          Instantiator instantiator, FailureHandler failureHandler) {
+          ClassInstantiator instantiator, FailureHandler failureHandler) {
     try {
       Class<T> implementation = ClassUtils.forName(implementationName, classLoader);
       if (!type.isAssignableFrom(implementation)) {
@@ -734,7 +734,7 @@ public class TodayStrategies {
    * be loaded or if an error occurs while instantiating any strategy
    */
   public static <T> List<T> find(Class<T> strategyType,
-          @Nullable ClassLoader classLoader, Instantiator instantiator) {
+          @Nullable ClassLoader classLoader, ClassInstantiator instantiator) {
     return forDefaultResourceLocation(classLoader).load(strategyType, instantiator);
   }
 
@@ -753,7 +753,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
-  public static <T> List<T> find(Class<T> strategyType, Instantiator instantiator) {
+  public static <T> List<T> find(Class<T> strategyType, ClassInstantiator instantiator) {
     return forDefaultResourceLocation().load(strategyType, instantiator);
   }
 
@@ -941,17 +941,9 @@ public class TodayStrategies {
   }
 
   /**
-   * Strategy for instantiate strategy.
-   */
-  public interface Instantiator {
-
-    <T> T instantiate(Class<T> implementation) throws Exception;
-  }
-
-  /**
    * Internal instantiator used to create the strategy instance.
    */
-  static final class DefaultInstantiator implements Instantiator {
+  static final class DefaultInstantiator implements ClassInstantiator {
 
     @Nullable
     private final ArgumentResolver argumentResolver;

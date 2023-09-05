@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,9 +31,9 @@ import cn.taketoday.beans.support.BeanInstantiatorFactory;
 import cn.taketoday.beans.support.ReflectiveInstantiatorFactory;
 import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.ClassInstantiator;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.function.SingletonSupplier;
 
 /**
@@ -47,7 +44,7 @@ import cn.taketoday.util.function.SingletonSupplier;
  * @since 4.0
  */
 @Experimental
-public class BeanFactoryAwareInstantiator implements TodayStrategies.Instantiator {
+public class BeanFactoryAwareInstantiator implements ClassInstantiator {
   public static final String BEAN_NAME = "beanFactoryAwareInstantiator";
 
   private final BeanFactory beanFactory;

@@ -15,25 +15,16 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.scheduling.support;
-
-import cn.taketoday.scheduling.concurrent.ThreadPoolTaskScheduler;
+package cn.taketoday.lang;
 
 /**
- * Callback interface that can be used to customize a {@link ThreadPoolTaskScheduler}.
+ * Strategy interface for instantiate given implementation.
  *
- * @author Stephane Nicoll
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/9/5 15:43
  */
-@Deprecated
-@FunctionalInterface
-public interface TaskSchedulerCustomizer {
+public interface ClassInstantiator {
 
-  /**
-   * Callback to customize a {@link ThreadPoolTaskScheduler} instance.
-   *
-   * @param taskScheduler the task scheduler to customize
-   */
-  void customize(ThreadPoolTaskScheduler taskScheduler);
+  <T> T instantiate(Class<T> implementation) throws Exception;
 
 }

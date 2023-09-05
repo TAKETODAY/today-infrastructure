@@ -220,6 +220,25 @@ public abstract class AnnotationUtils {
    * (at type, method or field level).
    *
    * @param clazz the class to introspect
+   * @param annotationType1 the searchable annotation type
+   * @param annotationType2 the searchable annotation type
+   * @return {@code false} if the class is known to have no such annotations at any level;
+   * {@code true} otherwise. Callers will usually perform full method/field introspection
+   * if {@code true} is being returned here.
+   * @see #isCandidateClass(Class, String)
+   */
+  public static boolean isCandidateClass(Class<?> clazz,
+          @Nullable Class<? extends Annotation> annotationType1,
+          @Nullable Class<? extends Annotation> annotationType2) {
+    return isCandidateClass(clazz, annotationType1)
+            || isCandidateClass(clazz, annotationType2);
+  }
+
+  /**
+   * Determine whether the given class is a candidate for carrying the specified annotation
+   * (at type, method or field level).
+   *
+   * @param clazz the class to introspect
    * @param annotationName the fully-qualified name of the searchable annotation type
    * @return {@code false} if the class is known to have no such annotations at any level;
    * {@code true} otherwise. Callers will usually perform full method/field introspection

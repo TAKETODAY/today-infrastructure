@@ -61,9 +61,9 @@ import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.ClassInstantiator;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -96,8 +96,7 @@ import cn.taketoday.util.CollectionUtils;
  * @since 4.0
  */
 @Experimental
-public class BootstrapContext extends BeanDefinitionCustomizers
-        implements TodayStrategies.Instantiator, EnvironmentCapable {
+public class BootstrapContext extends BeanDefinitionCustomizers implements ClassInstantiator, EnvironmentCapable {
 
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
