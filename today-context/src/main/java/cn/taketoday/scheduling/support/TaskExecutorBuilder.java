@@ -46,7 +46,7 @@ import cn.taketoday.util.PropertyMapper;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class TaskExecutorBuilder {
   @Nullable
   private final Integer queueCapacity;
