@@ -30,16 +30,14 @@ import cn.taketoday.annotation.config.web.WebProperties.Resources.Chain.Strategy
 import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
-import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -108,15 +106,12 @@ import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration
  * config framework
  * </p>
  */
-@AutoConfiguration(after = {
+@DisableDIAutoConfiguration(after = {
         DispatcherServletAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,
         ValidationAutoConfiguration.class
 })
 @ConditionalOnWebApplication
-@DisableDependencyInjection
-@DisableAllDependencyInjection
-@Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
 @EnableConfigurationProperties({ WebMvcProperties.class, WebProperties.class })
@@ -215,6 +210,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     return resolver;
   }
 
+  @Override
   @Component
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
   public LocaleResolver webLocaleResolver() {

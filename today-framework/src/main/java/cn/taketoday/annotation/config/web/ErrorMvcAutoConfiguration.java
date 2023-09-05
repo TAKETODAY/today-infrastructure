@@ -29,7 +29,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
@@ -81,15 +81,9 @@ import cn.taketoday.web.view.View;
 // Load before the main WebMvcAutoConfiguration so that the error View is available
 @ConditionalOnWebApplication
 @ConditionalOnClass({ DispatcherHandler.class })
-@AutoConfiguration(before = WebMvcAutoConfiguration.class)
+@DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
 public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
-
-  private final ServerProperties serverProperties;
-
-  public ErrorMvcAutoConfiguration(ServerProperties serverProperties) {
-    this.serverProperties = serverProperties;
-  }
 
   @Component
   @ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)
@@ -99,7 +93,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
-  public BasicErrorController basicErrorController(ErrorAttributes errorAttributes,
+  static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, ServerProperties serverProperties,
           List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     return new BasicErrorController(errorAttributes,
             serverProperties.getError(), errorViewResolvers, returnValueHandler);
@@ -107,7 +101,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
 
   @Component
   @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-  ErrorPageCustomizer errorPageCustomizer(DispatcherServletPath dispatcherServletPath) {
+  static ErrorPageCustomizer errorPageCustomizer(ServerProperties serverProperties, DispatcherServletPath dispatcherServletPath) {
     return new ErrorPageCustomizer(serverProperties, dispatcherServletPath);
   }
 

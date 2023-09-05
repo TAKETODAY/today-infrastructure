@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +43,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 /**
- * Tests for {@link ClientHttpConnectorFactoryConfiguration}.
+ * Tests for {@link ClientHttpConnectorAutoConfiguration}.
  *
  * @author Phillip Webb
  * @author Brian Clozel
@@ -83,7 +80,7 @@ class ClientHttpConnectorFactoryConfigurationTests {
 
   private JettyClientHttpConnectorFactory getJettyClientHttpConnectorFactory(
           JettyResourceFactory jettyResourceFactory) {
-    ClientHttpConnectorFactoryConfiguration.JettyClient jettyClient = new ClientHttpConnectorFactoryConfiguration.JettyClient();
+    ClientHttpConnectorAutoConfiguration.JettyClient jettyClient = new ClientHttpConnectorAutoConfiguration.JettyClient();
     // We shouldn't usually call this method directly since it's on a non-proxy config
     return ReflectionTestUtils.invokeMethod(jettyClient, "jettyClientHttpConnectorFactory", jettyResourceFactory);
   }
@@ -94,7 +91,7 @@ class ClientHttpConnectorFactoryConfigurationTests {
     JksSslStoreBundle stores = new JksSslStoreBundle(storeDetails, storeDetails);
     SslBundle sslBundle = spy(SslBundle.of(stores, SslBundleKey.of("password")));
     new ReactiveWebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorFactoryConfiguration.ReactorNetty.class))
+            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorAutoConfiguration.ReactorNetty.class))
             .withUserConfiguration(CustomHttpClientMapper.class)
             .run((context) -> {
               context.getBean(ReactorClientHttpConnectorFactory.class).createClientHttpConnector(sslBundle);
@@ -107,7 +104,7 @@ class ClientHttpConnectorFactoryConfigurationTests {
   void shouldNotConfigureReactiveHttpClient5WhenHttpCore5ReactiveJarIsMissing() {
     new ReactiveWebApplicationContextRunner()
             .withClassLoader(new FilteredClassLoader("org.apache.hc.core5.reactive"))
-            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorFactoryConfiguration.HttpClient5.class))
+            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorAutoConfiguration.HttpClient5.class))
             .run((context) -> assertThat(context).doesNotHaveBean(HttpComponentsClientHttpConnector.class));
   }
 

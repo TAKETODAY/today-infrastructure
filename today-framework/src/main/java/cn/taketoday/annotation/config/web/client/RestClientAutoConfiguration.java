@@ -20,10 +20,9 @@ package cn.taketoday.annotation.config.web.client;
 import java.util.List;
 
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -31,6 +30,8 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.stereotype.Prototype;
 import cn.taketoday.web.client.RestClient;
 import cn.taketoday.web.client.config.ClientHttpRequestFactories;
 import cn.taketoday.web.client.config.ClientHttpRequestFactorySettings;
@@ -47,12 +48,13 @@ import cn.taketoday.web.client.config.RestClientCustomizer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
+@Lazy
+@DisableDIAutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
 @ConditionalOnClass(RestClient.class)
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestClientAutoConfiguration {
 
-  @Bean
+  @Component
   @ConditionalOnMissingBean
   @Order(Ordered.LOWEST_PRECEDENCE)
   static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
@@ -60,8 +62,7 @@ public class RestClientAutoConfiguration {
     return new HttpMessageConvertersRestClientCustomizer(messageConverters);
   }
 
-  @Bean
-  @Scope("prototype")
+  @Prototype
   @ConditionalOnMissingBean
   static RestClient.Builder restClientBuilder(List<RestClientCustomizer> customizerProvider) {
     RestClient.Builder builder = RestClient.builder()

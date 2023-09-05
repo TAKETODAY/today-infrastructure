@@ -20,10 +20,9 @@ package cn.taketoday.annotation.config.web.client;
 import java.util.List;
 
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.http.converter.HttpMessageConverters;
@@ -38,9 +37,9 @@ import cn.taketoday.web.client.config.RestTemplateRequestCustomizer;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 14:40
  */
-@DisableAllDependencyInjection
+@Lazy
 @ConditionalOnClass(RestTemplate.class)
-@AutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = HttpMessageConvertersAutoConfiguration.class)
 @Conditional(NotReactiveWebApplicationCondition.class)
 public class RestTemplateAutoConfiguration {
 

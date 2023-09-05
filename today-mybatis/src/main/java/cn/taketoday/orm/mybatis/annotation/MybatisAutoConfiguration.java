@@ -34,13 +34,15 @@ import cn.taketoday.annotation.config.jdbc.DataSourceAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
@@ -76,9 +78,10 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 02:17
  */
+@Lazy
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(MybatisProperties.class)
-@AutoConfiguration(after = DataSourceAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)
 @ConditionalOnClass({ SqlSessionFactory.class, SqlSessionFactoryBean.class })
 public class MybatisAutoConfiguration implements InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(MybatisAutoConfiguration.class);
@@ -211,6 +214,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
    * you can explicitly use {@link MapperScan} but this will get typed mappers working
    * correctly, out-of-the-box, similar to using Framework Data JPA repositories.
    */
+  @DisableDependencyInjection
   public static class AutoConfiguredMapperScannerRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
@@ -265,6 +269,7 @@ public class MybatisAutoConfiguration implements InitializingBean {
    * If mapper registering configuration or mapper scanning configuration not present, this configuration allow to scan
    * mappers based on the same component-scanning path asFramework itself.
    */
+  @DisableDependencyInjection
   @cn.taketoday.context.annotation.Configuration
   @Import(AutoConfiguredMapperScannerRegistrar.class)
   @ConditionalOnMissingBean({ MapperFactoryBean.class, MapperScannerConfigurer.class })

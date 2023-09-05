@@ -20,13 +20,12 @@ package cn.taketoday.annotation.config.web.servlet;
 import java.util.Set;
 
 import cn.taketoday.annotation.config.web.WebMvcProperties;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionMessage.Style;
@@ -62,12 +61,11 @@ import jakarta.servlet.ServletRegistration;
  * @since 4.0
  */
 @Lazy
-@DisableAllDependencyInjection
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(WebMvcProperties.class)
 @ConditionalOnClass({ DispatcherServlet.class, ServletRegistration.class })
-@AutoConfiguration(after = ServletWebServerFactoryAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = ServletWebServerFactoryAutoConfiguration.class)
 public class DispatcherServletAutoConfiguration {
 
   /**

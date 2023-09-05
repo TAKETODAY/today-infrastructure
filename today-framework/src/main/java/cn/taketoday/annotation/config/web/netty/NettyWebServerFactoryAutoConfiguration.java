@@ -19,13 +19,13 @@ package cn.taketoday.annotation.config.web.netty;
 
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcProperties;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
@@ -58,11 +58,11 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/5 17:39
  */
-@DisableAllDependencyInjection
+@Lazy
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.NETTY)
 @EnableConfigurationProperties(ServerProperties.class)
-@AutoConfiguration(after = ErrorMvcAutoConfiguration.class)
+@DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
 
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

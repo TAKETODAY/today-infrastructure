@@ -18,7 +18,8 @@
 package cn.taketoday.annotation.config.context;
 
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
@@ -34,7 +35,8 @@ import cn.taketoday.context.properties.EnableConfigurationProperties;
  * @see ConfigurationProperties
  * @since 4.0
  */
-@AutoConfiguration
+@Lazy
+@DisableDIAutoConfiguration
 @DisableDependencyInjection
 @EnableConfigurationProperties
 public class ConfigurationPropertiesAutoConfiguration {

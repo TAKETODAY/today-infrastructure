@@ -24,10 +24,9 @@ import org.eclipse.jetty.websocket.servlet.WebSocketUpgradeFilter;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
@@ -50,8 +49,7 @@ import jakarta.servlet.DispatcherType;
  */
 @Lazy
 @EnableWebSocket
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnClass(WebSocketHandlerMapping.class)
 public class WebSocketAutoConfiguration {
 
@@ -102,7 +100,7 @@ public class WebSocketAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-    UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
+    static UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
       return new UndertowWebSocketServletWebServerCustomizer();
     }
 

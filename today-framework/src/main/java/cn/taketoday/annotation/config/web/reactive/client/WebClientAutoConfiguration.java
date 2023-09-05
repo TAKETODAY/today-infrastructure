@@ -20,9 +20,9 @@ package cn.taketoday.annotation.config.web.reactive.client;
 import java.util.List;
 
 import cn.taketoday.annotation.config.http.CodecsAutoConfiguration;
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -47,9 +47,9 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@AutoConfiguration(after = { CodecsAutoConfiguration.class, ClientHttpConnectorAutoConfiguration.class })
+@Lazy
+@DisableDIAutoConfiguration(after = { CodecsAutoConfiguration.class, ClientHttpConnectorAutoConfiguration.class })
 @ConditionalOnClass({ WebClient.class, Mono.class })
-@DisableAllDependencyInjection
 public class WebClientAutoConfiguration {
 
   @Prototype

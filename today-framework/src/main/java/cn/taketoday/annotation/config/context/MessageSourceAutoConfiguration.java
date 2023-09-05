@@ -27,15 +27,15 @@ import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ImportRuntimeHints;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionMessage;
 import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.condition.SearchStrategy;
-import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.ResourceBundleMessageSource;
@@ -56,19 +56,14 @@ import cn.taketoday.util.StringUtils;
  * @author Eddú Meléndez
  * @since 4.0
  */
-@AutoConfiguration
+@Lazy
+@DisableDIAutoConfiguration
 @ConditionalOnMissingBean(name = AbstractApplicationContext.MESSAGE_SOURCE_BEAN_NAME, search = SearchStrategy.CURRENT)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @Conditional(MessageSourceAutoConfiguration.ResourceBundleCondition.class)
-@EnableConfigurationProperties
+@EnableConfigurationProperties(MessageSourceProperties.class)
 @ImportRuntimeHints(MessageSourceAutoConfiguration.Hints.class)
 public class MessageSourceAutoConfiguration {
-
-  @Component
-  @ConfigurationProperties(prefix = "infra.messages")
-  public static MessageSourceProperties messageSourceProperties() {
-    return new MessageSourceProperties();
-  }
 
   @Component
   public static MessageSource messageSource(MessageSourceProperties properties) {

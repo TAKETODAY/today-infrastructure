@@ -17,18 +17,28 @@
 
 package cn.taketoday.annotation.config.web.servlet;
 
+import org.apache.catalina.startup.Tomcat;
+import org.apache.coyote.UpgradeProtocol;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.Loader;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.xnio.SslClientAuthMode;
+
 import java.util.List;
 
-import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.annotation.config.AutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
+import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
+import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
@@ -36,19 +46,33 @@ import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.framework.web.embedded.jetty.JettyServerCustomizer;
+import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
+import cn.taketoday.framework.web.embedded.tomcat.TomcatConnectorCustomizer;
+import cn.taketoday.framework.web.embedded.tomcat.TomcatContextCustomizer;
+import cn.taketoday.framework.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
+import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
+import cn.taketoday.framework.web.embedded.undertow.UndertowBuilderCustomizer;
+import cn.taketoday.framework.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
+import cn.taketoday.framework.web.embedded.undertow.UndertowServletWebServerFactory;
 import cn.taketoday.framework.web.server.ErrorPageRegistrarBeanPostProcessor;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
 import cn.taketoday.framework.web.servlet.WebListenerRegistrar;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
+import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.servlet.filter.ForwardedHeaderFilter;
+import io.undertow.Undertow;
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletRequest;
+
+import static cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for servlet web servers.
@@ -61,18 +85,12 @@ import jakarta.servlet.ServletRequest;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/27 21:51
  */
-@AutoConfiguration
-@DisableAllDependencyInjection
+@DisableDIAutoConfiguration
 @ConditionalOnClass(ServletRequest.class)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.SERVLET)
 @EnableConfigurationProperties(ServerProperties.class)
-@Import({
-        ServletWebServerFactoryAutoConfiguration.BeanPostProcessorsRegistrar.class,
-        ServletWebServerFactoryConfiguration.EmbeddedTomcat.class,
-        ServletWebServerFactoryConfiguration.EmbeddedJetty.class,
-        ServletWebServerFactoryConfiguration.EmbeddedUndertow.class
-})
+@Import(BeanPostProcessorsRegistrar.class)
 public class ServletWebServerFactoryAutoConfiguration {
 
   @Component
@@ -97,10 +115,10 @@ public class ServletWebServerFactoryAutoConfiguration {
   static class ForwardedHeaderFilterConfiguration {
 
     @Component
-    FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter(ServerProperties properties) {
+    static FilterRegistrationBean<ForwardedHeaderFilter> forwardedHeaderFilter(ServerProperties properties) {
       ForwardedHeaderFilter filter = new ForwardedHeaderFilter();
 
-      if (ClassUtils.isPresent("org.apache.catalina.startup.Tomcat", getClass().getClassLoader())) {
+      if (ClassUtils.isPresent("org.apache.catalina.startup.Tomcat", ForwardedHeaderFilterConfiguration.class.getClassLoader())) {
         filter.setRelativeRedirects(properties.getTomcat().isUseRelativeRedirects());
       }
 
@@ -112,10 +130,74 @@ public class ServletWebServerFactoryAutoConfiguration {
 
   }
 
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass({ Servlet.class, Tomcat.class, UpgradeProtocol.class })
+  @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
+  static class EmbeddedTomcat {
+
+    @Component
+    static TomcatServletWebServerFactory tomcatServletWebServerFactory(
+            ObjectProvider<TomcatContextCustomizer> contextCustomizers,
+            ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
+            ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
+      TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
+      contextCustomizers.addOrderedTo(factory.getTomcatContextCustomizers());
+      connectorCustomizers.addOrderedTo(factory.getTomcatConnectorCustomizers());
+      protocolHandlerCustomizers.addOrderedTo(factory.getTomcatProtocolHandlerCustomizers());
+      return factory;
+    }
+
+  }
+
+  /**
+   * Nested configuration if Jetty is being used.
+   */
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass({ Servlet.class, Server.class, Loader.class, WebAppContext.class })
+  @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
+  static class EmbeddedJetty {
+
+    @Component
+    static JettyServletWebServerFactory JettyServletWebServerFactory(
+            ObjectProvider<JettyServerCustomizer> serverCustomizers) {
+      JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
+      serverCustomizers.addOrderedTo(factory.getServerCustomizers());
+      return factory;
+    }
+
+  }
+
+  /**
+   * Nested configuration if Undertow is being used.
+   */
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnClass({ Servlet.class, Undertow.class, SslClientAuthMode.class })
+  @ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
+  static class EmbeddedUndertow {
+
+    @Component
+    static UndertowServletWebServerFactory undertowServletWebServerFactory(
+            ObjectProvider<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers,
+            ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
+      UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
+      builderCustomizers.addOrderedTo(factory.getBuilderCustomizers());
+      deploymentInfoCustomizers.addOrderedTo(factory.getDeploymentInfoCustomizers());
+      return factory;
+    }
+
+    @Component
+    static UndertowServletWebServerFactoryCustomizer undertowServletWebServerFactoryCustomizer(
+            ServerProperties serverProperties) {
+      return new UndertowServletWebServerFactoryCustomizer(serverProperties);
+    }
+
+  }
+
   /**
    * Registers a {@link WebServerFactoryCustomizerBeanPostProcessor}. Registered via
    * {@link ImportBeanDefinitionRegistrar} for early registration.
    */
+  @DisableDependencyInjection
   public static class BeanPostProcessorsRegistrar implements ImportBeanDefinitionRegistrar {
 
     @Override
