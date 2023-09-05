@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,13 +67,11 @@ final class ConfigurationClass {
 
   public final LinkedHashSet<ComponentMethod> componentMethods = new LinkedHashSet<>();
 
-  public final Map<ImportBeanDefinitionRegistrar, AnnotationMetadata>
-          importBeanDefinitionRegistrars = new LinkedHashMap<>();
+  public final LinkedHashMap<String, Class<? extends BeanDefinitionReader>> importedResources = new LinkedHashMap<>();
 
-  public final Map<String, Class<? extends BeanDefinitionReader>> importedResources =
-          new LinkedHashMap<>();
+  public final LinkedHashMap<ImportBeanDefinitionRegistrar, AnnotationMetadata> importBeanDefinitionRegistrars = new LinkedHashMap<>();
 
-  final HashSet<String> skippedComponentMethods = new HashSet<>();
+  public final HashSet<String> skippedComponentMethods = new HashSet<>();
 
   /**
    * Create a new {@link ConfigurationClass} with the given name.

@@ -182,9 +182,8 @@ public abstract class AnnotationConfigUtils {
     }
   }
 
-  private static void registerPostProcessor(
-          BeanDefinitionRegistry registry, RootBeanDefinition definition,
-          String beanName, @Nullable Consumer<BeanDefinitionHolder> consumer) {
+  private static void registerPostProcessor(BeanDefinitionRegistry registry,
+          RootBeanDefinition definition, String beanName, @Nullable Consumer<BeanDefinitionHolder> consumer) {
 
     definition.setEnableDependencyInjection(false);
     definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
@@ -209,7 +208,7 @@ public abstract class AnnotationConfigUtils {
   }
 
   public static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) {
-    applyAnnotationMetadata(abd);
+    applyAnnotationMetadata(abd, true);
   }
 
   static BeanDefinitionHolder applyScopedProxyMode(
@@ -223,16 +222,16 @@ public abstract class AnnotationConfigUtils {
     return ScopedProxyCreator.createScopedProxy(definition, registry, proxyTargetClass);
   }
 
-  public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition) {
+  public static void applyAnnotationMetadata(AnnotatedBeanDefinition definition, boolean detectDIStatus) {
     AnnotatedTypeMetadata metadata = definition.getFactoryMethodMetadata();
     if (metadata == null) {
       metadata = definition.getMetadata();
     }
     MergedAnnotations annotations = metadata.getAnnotations();
-    applyAnnotationMetadata(annotations, definition);
+    applyAnnotationMetadata(annotations, definition, detectDIStatus);
   }
 
-  public static void applyAnnotationMetadata(MergedAnnotations annotations, BeanDefinition definition) {
+  public static void applyAnnotationMetadata(MergedAnnotations annotations, BeanDefinition definition, boolean detectDIStatus) {
     if (annotations.isPresent(Primary.class)) {
       definition.setPrimary(true);
     }
@@ -265,13 +264,14 @@ public abstract class AnnotationConfigUtils {
       definition.setDescription(description.getStringValue());
     }
 
-    if (annotations.isPresent(EnableDependencyInjection.class)) {
-      definition.setEnableDependencyInjection(true);
+    if (detectDIStatus) {
+      if (annotations.isPresent(EnableDependencyInjection.class)) {
+        definition.setEnableDependencyInjection(true);
+      }
+      else if (annotations.isPresent(DisableDependencyInjection.class)) {
+        definition.setEnableDependencyInjection(false);
+      }
     }
-    else if (annotations.isPresent(DisableDependencyInjection.class)) {
-      definition.setEnableDependencyInjection(false);
-    }
-
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,14 +27,13 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.bytecode.proxy.Enhancer;
+import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.event.EventListenerFactory;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -98,12 +94,10 @@ public abstract class ConfigurationClassUtils {
    * to be auto-registered as well), and mark it accordingly.
    *
    * @param beanDef the bean definition to check
-   * @param metadataReaderFactory the current factory in use by the caller
+   * @param bootstrapContext the current bootstrap context
    * @return whether the candidate qualifies as (any kind of) configuration class
    */
-  static boolean checkConfigurationClassCandidate(
-          BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
-
+  static boolean checkConfigurationClassCandidate(BeanDefinition beanDef, BootstrapContext bootstrapContext) {
     String className = beanDef.getBeanClassName();
     if (className == null || beanDef.getFactoryMethodName() != null) {
       return false;
@@ -129,8 +123,7 @@ public abstract class ConfigurationClassUtils {
     }
     else {
       try {
-        MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(className);
-        metadata = metadataReader.getAnnotationMetadata();
+        metadata = bootstrapContext.getAnnotationMetadata(className);
       }
       catch (IOException ex) {
         if (log.isDebugEnabled()) {

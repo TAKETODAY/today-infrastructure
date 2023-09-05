@@ -86,7 +86,6 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
 import cn.taketoday.javapoet.ParameterizedTypeName;
@@ -306,7 +305,6 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     ArrayList<BeanDefinitionHolder> configCandidates = new ArrayList<>();
     String[] candidateNames = registry.getBeanDefinitionNames();
     BootstrapContext bootstrapContext = obtainBootstrapContext();
-    MetadataReaderFactory metadataReaderFactory = bootstrapContext.getMetadataReaderFactory();
     for (String beanName : candidateNames) {
       BeanDefinition beanDef = registry.getBeanDefinition(beanName);
       if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
@@ -314,7 +312,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
           log.debug("Bean definition has already been processed as a configuration class: {}", beanDef);
         }
       }
-      else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, metadataReaderFactory)) {
+      else if (ConfigurationClassUtils.checkConfigurationClassCandidate(beanDef, bootstrapContext)) {
         configCandidates.add(new BeanDefinitionHolder(beanDef, beanName));
       }
     }
@@ -375,7 +373,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
         for (String candidateName : newCandidateNames) {
           if (!oldCandidateNames.contains(candidateName)) {
             BeanDefinition bd = registry.getBeanDefinition(candidateName);
-            if (bd != null && ConfigurationClassUtils.checkConfigurationClassCandidate(bd, metadataReaderFactory)
+            if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, bootstrapContext)
                     && !alreadyParsedClasses.contains(bd.getBeanClassName())) {
               candidates.add(new BeanDefinitionHolder(bd, candidateName));
             }

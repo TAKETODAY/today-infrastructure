@@ -58,7 +58,6 @@ import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.StandardAnnotationMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
-import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AssignableTypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -265,14 +264,13 @@ class ConfigurationClassParser {
         // The config class is annotated with @ComponentScan -> perform the scan immediately
         Set<BeanDefinitionHolder> scannedBeanDefinitions =
                 componentScanParser.parse(componentScan, sourceClass.metadata.getClassName());
-        MetadataReaderFactory metadataReaderFactory = bootstrapContext.getMetadataReaderFactory();
         // Check the set of scanned definitions for any further config classes and parse recursively if needed
         for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
           BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
           if (bdCand == null) {
             bdCand = holder.getBeanDefinition();
           }
-          if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, metadataReaderFactory)) {
+          if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, bootstrapContext)) {
             parse(bdCand.getBeanClassName(), holder.getBeanName());
           }
         }

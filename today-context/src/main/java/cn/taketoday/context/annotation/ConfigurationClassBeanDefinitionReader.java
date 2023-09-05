@@ -17,6 +17,7 @@
 
 package cn.taketoday.context.annotation;
 
+import java.io.IOException;
 import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -74,8 +75,8 @@ class ConfigurationClassBeanDefinitionReader {
   private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
   private final ImportRegistry importRegistry;
-  private final BeanNameGenerator importBeanNameGenerator;
   private final BootstrapContext bootstrapContext;
+  private final BeanNameGenerator importBeanNameGenerator;
 
   /**
    * Create a new {@link ConfigurationClassBeanDefinitionReader} instance
@@ -116,12 +117,13 @@ class ConfigurationClassBeanDefinitionReader {
       importRegistry.removeImportingClass(configClass.metadata.getClassName());
     }
     else {
+      boolean disableAllDependencyInjection = isDisableAllDependencyInjection(configClass);
       if (configClass.isImported()) {
-        registerBeanDefinitionForImportedConfigurationClass(configClass);
+        registerBeanDefinitionForImportedConfigurationClass(configClass, disableAllDependencyInjection);
       }
 
       for (ComponentMethod componentMethod : configClass.componentMethods) {
-        loadBeanDefinitionsForComponentMethod(componentMethod);
+        loadBeanDefinitionsForComponentMethod(componentMethod, disableAllDependencyInjection);
       }
 
       loadBeanDefinitionsFromImportedResources(configClass.importedResources);
@@ -132,19 +134,22 @@ class ConfigurationClassBeanDefinitionReader {
   /**
    * Register the {@link Configuration} class itself as a bean definition.
    */
-  private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
+  private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass, boolean disableAllDependencyInjection) {
     var configBeanDef = new AnnotatedGenericBeanDefinition(configClass.metadata);
 
     ScopeMetadata scopeMetadata = scopeMetadataResolver.resolveScopeMetadata(configBeanDef);
     configBeanDef.setScope(scopeMetadata.getScopeName());
     String configBeanName = importBeanNameGenerator.generateBeanName(configBeanDef, bootstrapContext.getRegistry());
-    AnnotationConfigUtils.processCommonDefinitionAnnotations(configBeanDef);
+    AnnotationConfigUtils.applyAnnotationMetadata(configBeanDef, false);
 
     BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
     definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(
             scopeMetadata, definitionHolder, bootstrapContext.getRegistry());
     bootstrapContext.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
     configClass.setBeanName(configBeanName);
+
+    boolean enableDependencyInjection = isEnableDependencyInjection(configClass.metadata.getAnnotations(), disableAllDependencyInjection);
+    configBeanDef.setEnableDependencyInjection(enableDependencyInjection);
 
     if (logger.isTraceEnabled()) {
       logger.trace("Registered bean definition for imported class '{}'", configBeanName);
@@ -155,20 +160,20 @@ class ConfigurationClassBeanDefinitionReader {
    * Read the given {@link ComponentMethod}, registering bean definitions
    * with the BeanDefinitionRegistry based on its contents.
    */
-  private void loadBeanDefinitionsForComponentMethod(ComponentMethod componentMethod) {
+  private void loadBeanDefinitionsForComponentMethod(ComponentMethod componentMethod, boolean disableAllDependencyInjection) {
     ConfigurationClass configClass = componentMethod.configurationClass;
-    MethodMetadata metadata = componentMethod.metadata;
-    String methodName = metadata.getMethodName();
+    MethodMetadata methodMetadata = componentMethod.metadata;
+    String methodName = methodMetadata.getMethodName();
 
     // Do we need to mark the bean as skipped by its condition?
-    if (bootstrapContext.shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN)) {
+    if (bootstrapContext.shouldSkip(methodMetadata, ConfigurationPhase.REGISTER_BEAN)) {
       configClass.skippedComponentMethods.add(methodName);
       return;
     }
     if (configClass.skippedComponentMethods.contains(methodName)) {
       return;
     }
-    MergedAnnotations annotations = metadata.getAnnotations();
+    MergedAnnotations annotations = methodMetadata.getAnnotations();
     MergedAnnotation<Component> component = annotations.get(Component.class);
     Assert.state(component.isPresent(), "No @Component annotation attributes");
 
@@ -191,24 +196,21 @@ class ConfigurationClassBeanDefinitionReader {
       return;
     }
 
-    AnnotationMetadata annotationMetadata = configClass.metadata;
-    ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, metadata, beanName);
+    ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, methodMetadata, beanName);
     beanDef.setSource(configClass.resource);
     beanDef.setResource(configClass.resource);
 
-    boolean disableDependencyInjectionAll = annotationMetadata.isAnnotated(
-            DisableAllDependencyInjection.class.getName());
-    boolean enableDependencyInjection = isEnableDependencyInjection(annotations, disableDependencyInjectionAll);
+    boolean enableDI = isEnableDependencyInjection(annotations, disableAllDependencyInjection);
+    beanDef.setEnableDependencyInjection(enableDI);
 
-    beanDef.setEnableDependencyInjection(enableDependencyInjection);
-
-    if (metadata.isStatic()) {
+    AnnotationMetadata configClassMetadata = configClass.metadata;
+    if (methodMetadata.isStatic()) {
       // static @Component method
-      if (annotationMetadata instanceof StandardAnnotationMetadata) {
-        beanDef.setBeanClass(((StandardAnnotationMetadata) annotationMetadata).getIntrospectedClass());
+      if (configClassMetadata instanceof StandardAnnotationMetadata) {
+        beanDef.setBeanClass(((StandardAnnotationMetadata) configClassMetadata).getIntrospectedClass());
       }
       else {
-        beanDef.setBeanClassName(annotationMetadata.getClassName());
+        beanDef.setBeanClassName(configClassMetadata.getClassName());
       }
       beanDef.setUniqueFactoryMethodName(methodName);
     }
@@ -217,12 +219,12 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setFactoryBeanName(configClass.beanName);
       beanDef.setUniqueFactoryMethodName(methodName);
     }
-    if (metadata instanceof StandardMethodMetadata sam) {
+    if (methodMetadata instanceof StandardMethodMetadata sam) {
       beanDef.setResolvedFactoryMethod(sam.getIntrospectedMethod());
     }
 
     beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
-    AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef);
+    AnnotationConfigUtils.applyAnnotationMetadata(beanDef, false);
 
     if (!component.getBoolean("autowireCandidate")) {
       beanDef.setAutowireCandidate(false);
@@ -253,7 +255,7 @@ class ConfigurationClassBeanDefinitionReader {
       BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(
               new BeanDefinitionHolder(beanDef, beanName), bootstrapContext.getRegistry(), proxyMode == ScopedProxyMode.TARGET_CLASS);
       beanDefToRegister = new ConfigurationClassBeanDefinition(
-              (RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, metadata, beanName);
+              (RootBeanDefinition) proxyDef.getBeanDefinition(), configClass, methodMetadata, beanName);
     }
     else {
       beanDefToRegister = beanDef;
@@ -262,15 +264,40 @@ class ConfigurationClassBeanDefinitionReader {
     // Replace the original bean definition with the target one, if necessary
     if (logger.isTraceEnabled()) {
       logger.trace("Registering bean definition for @Component method {}.{}()",
-              annotationMetadata.getClassName(), beanName);
+              configClassMetadata.getClassName(), beanName);
     }
 
     bootstrapContext.registerBeanDefinition(beanName, beanDefToRegister);
   }
 
-  private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableDependencyInjectionAll) {
+  /**
+   * disable all member class DI
+   *
+   * @param configClass current config class
+   */
+  private boolean isDisableAllDependencyInjection(ConfigurationClass configClass) {
+    if (!configClass.metadata.isAnnotated(DisableAllDependencyInjection.class)) {
+      String enclosingClassName = configClass.metadata.getEnclosingClassName();
+      while (enclosingClassName != null) {
+        try {
+          AnnotationMetadata enclosingMetadata = bootstrapContext.getAnnotationMetadata(enclosingClassName);
+          if (enclosingMetadata.isAnnotated(DisableAllDependencyInjection.class)) {
+            return true;
+          }
+          enclosingClassName = enclosingMetadata.getEnclosingClassName();
+        }
+        catch (IOException e) {
+          logger.error("Failed to read class file via ASM for determining DI status order", e);
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+
+  private boolean isEnableDependencyInjection(MergedAnnotations annotations, boolean disableAllDependencyInjection) {
     return annotations.isPresent(EnableDependencyInjection.class)
-            || !(disableDependencyInjectionAll || annotations.isPresent(DisableDependencyInjection.class));
+            || !(disableAllDependencyInjection || annotations.isPresent(DisableDependencyInjection.class));
   }
 
   protected boolean isOverriddenByExistingDefinition(ComponentMethod componentMethod, String beanName) {
