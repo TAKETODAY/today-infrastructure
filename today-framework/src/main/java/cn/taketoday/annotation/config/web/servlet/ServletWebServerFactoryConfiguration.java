@@ -70,7 +70,7 @@ class ServletWebServerFactoryConfiguration {
   static class EmbeddedTomcat {
 
     @Component
-    TomcatServletWebServerFactory tomcatServletWebServerFactory(
+    static TomcatServletWebServerFactory tomcatServletWebServerFactory(
             ObjectProvider<TomcatContextCustomizer> contextCustomizers,
             ObjectProvider<TomcatConnectorCustomizer> connectorCustomizers,
             ObjectProvider<TomcatProtocolHandlerCustomizer<?>> protocolHandlerCustomizers) {
@@ -92,7 +92,7 @@ class ServletWebServerFactoryConfiguration {
   static class EmbeddedJetty {
 
     @Component
-    JettyServletWebServerFactory JettyServletWebServerFactory(
+    static JettyServletWebServerFactory JettyServletWebServerFactory(
             ObjectProvider<JettyServerCustomizer> serverCustomizers) {
       JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
       serverCustomizers.addOrderedTo(factory.getServerCustomizers());
@@ -110,7 +110,7 @@ class ServletWebServerFactoryConfiguration {
   static class EmbeddedUndertow {
 
     @Component
-    UndertowServletWebServerFactory undertowServletWebServerFactory(
+    static UndertowServletWebServerFactory undertowServletWebServerFactory(
             ObjectProvider<UndertowDeploymentInfoCustomizer> deploymentInfoCustomizers,
             ObjectProvider<UndertowBuilderCustomizer> builderCustomizers) {
       UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
@@ -120,7 +120,7 @@ class ServletWebServerFactoryConfiguration {
     }
 
     @Component
-    UndertowServletWebServerFactoryCustomizer undertowServletWebServerFactoryCustomizer(
+    static UndertowServletWebServerFactoryCustomizer undertowServletWebServerFactoryCustomizer(
             ServerProperties serverProperties) {
       return new UndertowServletWebServerFactoryCustomizer(serverProperties);
     }
