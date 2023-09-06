@@ -17,12 +17,8 @@
 
 package cn.taketoday.annotation.config.freemarker;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcProperties;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfigureAfter;
@@ -34,9 +30,6 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.framework.annotation.ConditionalOnNotWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.template.TemplateLocation;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
 import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactoryBean;
@@ -58,10 +51,6 @@ import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 @EnableConfigurationProperties(FreeMarkerProperties.class)
 @ConditionalOnClass({ freemarker.template.Configuration.class, FreeMarkerConfigurationFactory.class })
 public class FreeMarkerAutoConfiguration {
-
-  public FreeMarkerAutoConfiguration(ApplicationContext context, FreeMarkerProperties properties) {
-    checkTemplateLocationExists(properties, context);
-  }
 
   @Lazy
   @ConditionalOnNotWebApplication
@@ -108,30 +97,6 @@ public class FreeMarkerAutoConfiguration {
       return resolver;
     }
 
-  }
-
-  public void checkTemplateLocationExists(FreeMarkerProperties properties, ApplicationContext context) {
-    Logger logger = LoggerFactory.getLogger(FreeMarkerAutoConfiguration.class);
-    if (logger.isWarnEnabled() && properties.isCheckTemplateLocation()) {
-      List<TemplateLocation> locations = getLocations(properties);
-      for (TemplateLocation location : locations) {
-        if (location.exists(context)) {
-          return;
-        }
-      }
-      logger.warn("Cannot find template location(s): {} (please add some templates, "
-              + "check your FreeMarker configuration, or set "
-              + "freemarker.check-template-location=false)", locations);
-    }
-  }
-
-  private List<TemplateLocation> getLocations(FreeMarkerProperties properties) {
-    var locations = new ArrayList<TemplateLocation>();
-    for (String templateLoaderPath : properties.getTemplateLoaderPath()) {
-      TemplateLocation location = new TemplateLocation(templateLoaderPath);
-      locations.add(location);
-    }
-    return locations;
   }
 
 }

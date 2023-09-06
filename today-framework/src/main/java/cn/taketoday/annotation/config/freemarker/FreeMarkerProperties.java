@@ -17,12 +17,20 @@
 
 package cn.taketoday.annotation.config.freemarker;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.framework.template.AbstractTemplateViewResolverProperties;
+import cn.taketoday.framework.template.TemplateLocation;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
 
 /**
@@ -34,7 +42,7 @@ import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
  * @since 4.0
  */
 @ConfigurationProperties(prefix = "freemarker")
-public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties {
+public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties implements InitializingBean, ApplicationContextAware {
 
   public static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
 
@@ -59,6 +67,8 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
    * considered.
    */
   private boolean preferFileSystemAccess;
+
+  private ApplicationContext applicationContext;
 
   public FreeMarkerProperties() {
     super(DEFAULT_PREFIX, DEFAULT_SUFFIX);
@@ -96,6 +106,31 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
     settings.put("recognize_standard_file_extensions", "true");
     settings.putAll(getSettings());
     factory.setFreemarkerSettings(settings);
+  }
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    checkTemplateLocationExists(this, applicationContext);
+  }
+
+  private void checkTemplateLocationExists(FreeMarkerProperties properties, ApplicationContext context) {
+    Logger logger = LoggerFactory.getLogger(FreeMarkerProperties.class);
+    if (logger.isWarnEnabled() && properties.isCheckTemplateLocation()) {
+      for (String templateLoaderPath : properties.getTemplateLoaderPath()) {
+        TemplateLocation location = new TemplateLocation(templateLoaderPath);
+        if (location.exists(context)) {
+          return;
+        }
+      }
+      logger.warn("Cannot find template location(s): {} (please add some templates, "
+                      + "check your FreeMarker configuration, or set freemarker.check-template-location=false)",
+              Arrays.toString(properties.getTemplateLoaderPath()));
+    }
   }
 
 }
