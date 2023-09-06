@@ -17,18 +17,9 @@
 
 package cn.taketoday.annotation.config.jdbc;
 
-import com.zaxxer.hikari.HikariConfigMXBean;
-import com.zaxxer.hikari.HikariDataSource;
-
-import org.apache.tomcat.jdbc.pool.DataSourceProxy;
-import org.apache.tomcat.jdbc.pool.PoolConfiguration;
-
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 import javax.sql.XADataSource;
 
-import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
@@ -42,18 +33,12 @@ import cn.taketoday.context.condition.ConditionOutcome;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
-import cn.taketoday.context.condition.ConditionalOnSingleCandidate;
 import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.jdbc.config.DataSourceBuilder;
-import cn.taketoday.jdbc.config.DataSourceUnwrapper;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import cn.taketoday.jmx.export.MBeanExporter;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -85,55 +70,8 @@ public class DataSourceAutoConfiguration {
   @ConditionalOnMissingBean({ DataSource.class, XADataSource.class })
   @Import({ DataSourceConfiguration.Hikari.class, DataSourceConfiguration.Tomcat.class,
           DataSourceConfiguration.Dbcp2.class, DataSourceConfiguration.OracleUcp.class,
-          DataSourceConfiguration.Generic.class, JmxConfig.class })
+          DataSourceConfiguration.Generic.class, DataSourceJmxConfiguration.class })
   protected static class PooledDataSourceConfiguration {
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnProperty(prefix = "infra.jmx", name = "enabled", havingValue = "true", matchIfMissing = true)
-  static class JmxConfig {
-
-    @Configuration(proxyBeanMethods = false)
-    @ConditionalOnClass(HikariDataSource.class)
-    @ConditionalOnSingleCandidate(DataSource.class)
-    static class Hikari {
-
-      Hikari(DataSource dataSource, ObjectProvider<MBeanExporter> mBeanExporter) {
-        HikariDataSource hikariDataSource = DataSourceUnwrapper.unwrap(
-                dataSource, HikariConfigMXBean.class, HikariDataSource.class);
-        if (hikariDataSource != null && hikariDataSource.isRegisterMbeans()) {
-          mBeanExporter.ifUnique(exporter -> exporter.addExcludedBean("dataSource"));
-        }
-      }
-
-    }
-
-    @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(prefix = "datasource.tomcat", name = "jmx-enabled")
-    @ConditionalOnClass(DataSourceProxy.class)
-    @ConditionalOnSingleCandidate(DataSource.class)
-    static class TomcatDataSourceJmxConfiguration {
-
-      @Component
-      @Nullable
-      @ConditionalOnMissingBean(name = "dataSourceMBean")
-      static Object dataSourceMBean(DataSource dataSource) {
-        DataSourceProxy dataSourceProxy = DataSourceUnwrapper.unwrap(
-                dataSource, PoolConfiguration.class, DataSourceProxy.class);
-        if (dataSourceProxy != null) {
-          try {
-            return dataSourceProxy.createPool().getJmxPool();
-          }
-          catch (SQLException ex) {
-            LoggerFactory.getLogger(TomcatDataSourceJmxConfiguration.class)
-                    .warn("Cannot expose DataSource to JMX (could not connect)");
-          }
-        }
-        return null;
-      }
-
-    }
 
   }
 
