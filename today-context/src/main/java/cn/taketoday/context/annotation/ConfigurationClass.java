@@ -20,7 +20,6 @@ package cn.taketoday.context.annotation;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 
 import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
@@ -192,7 +191,7 @@ final class ConfigurationClass {
 
     // A configuration class may not contain overloaded bean methods unless it declares enforceUniqueMethods=false
     if (annotation.isPresent() && annotation.getBoolean("enforceUniqueMethods")) {
-      Map<String, MethodMetadata> beanMethodsByName = new LinkedHashMap<>();
+      LinkedHashMap<String, MethodMetadata> beanMethodsByName = new LinkedHashMap<>();
       for (ComponentMethod beanMethod : componentMethods) {
         MethodMetadata current = beanMethod.metadata;
         MethodMetadata existing = beanMethodsByName.put(current.getMethodName(), current);
