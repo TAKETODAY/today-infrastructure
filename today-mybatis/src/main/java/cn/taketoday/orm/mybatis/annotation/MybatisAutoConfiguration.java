@@ -40,7 +40,6 @@ import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfigurationPackages;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -78,7 +77,6 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/1 02:17
  */
-@Lazy
 @ConditionalOnSingleCandidate(DataSource.class)
 @EnableConfigurationProperties(MybatisProperties.class)
 @DisableDIAutoConfiguration(after = DataSourceAutoConfiguration.class)
@@ -100,8 +98,8 @@ public class MybatisAutoConfiguration implements InitializingBean {
   @SuppressWarnings("rawtypes")
   public MybatisAutoConfiguration(MybatisProperties properties, ResourceLoader resourceLoader,
           ObjectProvider<Interceptor[]> interceptorsProvider,
-          ObjectProvider<DatabaseIdProvider> databaseIdProvider,
           ObjectProvider<TypeHandler[]> typeHandlersProvider,
+          ObjectProvider<DatabaseIdProvider> databaseIdProvider,
           ObjectProvider<LanguageDriver[]> languageDriversProvider,
           ObjectProvider<ConfigurationCustomizer> configurationCustomizersProvider,
           ObjectProvider<SqlSessionFactoryBeanCustomizer> sqlSessionFactoryBeanCustomizers) {

@@ -223,6 +223,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
    *
    * @return a specified VFS
    */
+  @Nullable
   public Class<? extends VFS> getVfs() {
     return this.vfs;
   }
@@ -232,7 +233,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
    *
    * @param vfs a VFS
    */
-  public void setVfs(Class<? extends VFS> vfs) {
+  public void setVfs(@Nullable Class<? extends VFS> vfs) {
     this.vfs = vfs;
   }
 
@@ -241,6 +242,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
    *
    * @return a specified Cache
    */
+  @Nullable
   public Cache getCache() {
     return this.cache;
   }
@@ -250,7 +252,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
    *
    * @param cache a Cache
    */
-  public void setCache(Cache cache) {
+  public void setCache(@Nullable Cache cache) {
     this.cache = cache;
   }
 
@@ -475,7 +477,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
     Assert.state((configuration == null && configLocation == null) || !(configuration != null && configLocation != null),
             "Property 'configuration' and 'configLocation' can not specified with together");
 
-    this.sqlSessionFactory = buildSqlSessionFactory();
+    this.sqlSessionFactory = buildSqlSessionFactory(dataSource);
   }
 
   /**
@@ -488,7 +490,7 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>,
    * @return SqlSessionFactory
    * @throws Exception if configuration is failed
    */
-  protected SqlSessionFactory buildSqlSessionFactory() throws Exception {
+  protected SqlSessionFactory buildSqlSessionFactory(DataSource dataSource) throws Exception {
     final Configuration targetConfiguration;
     XMLConfigBuilder xmlConfigBuilder = null;
     if (configuration != null) {
