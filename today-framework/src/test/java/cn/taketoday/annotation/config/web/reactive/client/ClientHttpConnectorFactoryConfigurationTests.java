@@ -80,7 +80,7 @@ class ClientHttpConnectorFactoryConfigurationTests {
 
   private JettyClientHttpConnectorFactory getJettyClientHttpConnectorFactory(
           JettyResourceFactory jettyResourceFactory) {
-    ClientHttpConnectorAutoConfiguration.JettyClient jettyClient = new ClientHttpConnectorAutoConfiguration.JettyClient();
+    ClientHttpConnectorFactoryConfiguration.JettyClient jettyClient = new ClientHttpConnectorFactoryConfiguration.JettyClient();
     // We shouldn't usually call this method directly since it's on a non-proxy config
     return ReflectionTestUtils.invokeMethod(jettyClient, "jettyClientHttpConnectorFactory", jettyResourceFactory);
   }
@@ -91,7 +91,7 @@ class ClientHttpConnectorFactoryConfigurationTests {
     JksSslStoreBundle stores = new JksSslStoreBundle(storeDetails, storeDetails);
     SslBundle sslBundle = spy(SslBundle.of(stores, SslBundleKey.of("password")));
     new ReactiveWebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorAutoConfiguration.ReactorNetty.class))
+            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorFactoryConfiguration.ReactorNetty.class))
             .withUserConfiguration(CustomHttpClientMapper.class)
             .run((context) -> {
               context.getBean(ReactorClientHttpConnectorFactory.class).createClientHttpConnector(sslBundle);
@@ -104,7 +104,7 @@ class ClientHttpConnectorFactoryConfigurationTests {
   void shouldNotConfigureReactiveHttpClient5WhenHttpCore5ReactiveJarIsMissing() {
     new ReactiveWebApplicationContextRunner()
             .withClassLoader(new FilteredClassLoader("org.apache.hc.core5.reactive"))
-            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorAutoConfiguration.HttpClient5.class))
+            .withConfiguration(AutoConfigurations.of(ClientHttpConnectorFactoryConfiguration.HttpClient5.class))
             .run((context) -> assertThat(context).doesNotHaveBean(HttpComponentsClientHttpConnector.class));
   }
 

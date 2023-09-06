@@ -17,13 +17,8 @@
 
 package cn.taketoday.annotation.config.web.reactive.client;
 
-import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
-import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
-
 import cn.taketoday.annotation.config.ssl.SslAutoConfiguration;
-import cn.taketoday.beans.factory.ObjectProvider;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.AutoConfigureAfter;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
@@ -33,8 +28,6 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
-import cn.taketoday.http.client.reactive.JettyResourceFactory;
-import cn.taketoday.http.client.reactive.ReactorResourceFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -55,6 +48,10 @@ import reactor.core.publisher.Mono;
 @DisableDIAutoConfiguration
 @ConditionalOnClass({ WebClient.class, Mono.class })
 @AutoConfigureAfter(SslAutoConfiguration.class)
+@Import({ ClientHttpConnectorFactoryConfiguration.ReactorNetty.class,
+        ClientHttpConnectorFactoryConfiguration.JettyClient.class,
+        ClientHttpConnectorFactoryConfiguration.HttpClient5.class,
+        ClientHttpConnectorFactoryConfiguration.JdkClient.class })
 public class ClientHttpConnectorAutoConfiguration {
 
   @Lazy
@@ -70,68 +67,6 @@ public class ClientHttpConnectorAutoConfiguration {
   @ConditionalOnBean(ClientHttpConnector.class)
   static WebClientCustomizer webClientHttpConnectorCustomizer(ClientHttpConnector clientHttpConnector) {
     return builder -> builder.clientConnector(clientHttpConnector);
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(reactor.netty.http.client.HttpClient.class)
-  @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  static class ReactorNetty {
-
-    @Component
-    @ConditionalOnMissingBean
-    static ReactorResourceFactory reactorServerResourceFactory() {
-      return new ReactorResourceFactory();
-    }
-
-    @Component
-    static ReactorClientHttpConnectorFactory reactorClientHttpConnectorFactory(
-            ReactorResourceFactory reactorResourceFactory,
-            ObjectProvider<ReactorNettyHttpClientMapper> mapperProvider) {
-      return new ReactorClientHttpConnectorFactory(reactorResourceFactory, mapperProvider);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(org.eclipse.jetty.reactive.client.ReactiveRequest.class)
-  @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  static class JettyClient {
-
-    @Component
-    @ConditionalOnMissingBean
-    static JettyResourceFactory jettyClientResourceFactory() {
-      return new JettyResourceFactory();
-    }
-
-    @Component
-    static JettyClientHttpConnectorFactory jettyClientHttpConnectorFactory(JettyResourceFactory jettyResourceFactory) {
-      return new JettyClientHttpConnectorFactory(jettyResourceFactory);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass({ HttpAsyncClients.class, AsyncRequestProducer.class, ReactiveResponseConsumer.class })
-  @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  static class HttpClient5 {
-
-    @Component
-    static HttpComponentsClientHttpConnectorFactory httpComponentsClientHttpConnectorFactory() {
-      return new HttpComponentsClientHttpConnectorFactory();
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(java.net.http.HttpClient.class)
-  @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  static class JdkClient {
-
-    @Component
-    static JdkClientHttpConnectorFactory jdkClientHttpConnectorFactory() {
-      return new JdkClientHttpConnectorFactory();
-    }
-
   }
 
 }
