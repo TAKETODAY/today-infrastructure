@@ -52,7 +52,6 @@ import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 @ConditionalOnClass({ freemarker.template.Configuration.class, FreeMarkerConfigurationFactory.class })
 public class FreeMarkerAutoConfiguration {
 
-  @Lazy
   @ConditionalOnNotWebApplication
   @Configuration(proxyBeanMethods = false)
   static class FreeMarkerNonWebConfiguration {
@@ -67,7 +66,6 @@ public class FreeMarkerAutoConfiguration {
 
   }
 
-  @Lazy
   @ConditionalOnWebApplication
   @Configuration(proxyBeanMethods = false)
   @AutoConfigureAfter(WebMvcAutoConfiguration.class)

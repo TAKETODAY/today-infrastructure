@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.properties.ConfigurationProperties;
@@ -41,8 +42,10 @@ import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@DisableDependencyInjection
 @ConfigurationProperties(prefix = "freemarker")
-public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties implements InitializingBean, ApplicationContextAware {
+public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
+        implements InitializingBean, ApplicationContextAware {
 
   public static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
 
@@ -115,13 +118,13 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
 
   @Override
   public void afterPropertiesSet() throws Exception {
-    checkTemplateLocationExists(this, applicationContext);
+    checkTemplateLocationExists(applicationContext);
   }
 
-  private void checkTemplateLocationExists(FreeMarkerProperties properties, ApplicationContext context) {
+  private void checkTemplateLocationExists(ApplicationContext context) {
     Logger logger = LoggerFactory.getLogger(FreeMarkerProperties.class);
-    if (logger.isWarnEnabled() && properties.isCheckTemplateLocation()) {
-      for (String templateLoaderPath : properties.getTemplateLoaderPath()) {
+    if (logger.isWarnEnabled() && isCheckTemplateLocation()) {
+      for (String templateLoaderPath : getTemplateLoaderPath()) {
         TemplateLocation location = new TemplateLocation(templateLoaderPath);
         if (location.exists(context)) {
           return;
@@ -129,7 +132,7 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
       }
       logger.warn("Cannot find template location(s): {} (please add some templates, "
                       + "check your FreeMarker configuration, or set freemarker.check-template-location=false)",
-              Arrays.toString(properties.getTemplateLoaderPath()));
+              Arrays.toString(getTemplateLoaderPath()));
     }
   }
 
