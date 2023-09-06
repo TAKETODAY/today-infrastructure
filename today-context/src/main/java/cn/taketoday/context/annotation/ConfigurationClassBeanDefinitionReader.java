@@ -17,7 +17,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.io.IOException;
 import java.io.Serial;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -287,7 +286,7 @@ class ConfigurationClassBeanDefinitionReader {
           enclosingClassName = enclosingMetadata.getEnclosingClassName();
         }
       }
-      catch (IOException e) {
+      catch (Exception e) {
         logger.error("Failed to read class file via ASM for determining DI status order", e);
       }
       return false;
