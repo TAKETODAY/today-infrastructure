@@ -1,6 +1,7 @@
 # TODAY Infrastructure
 
-🍎 A Java library for applications software infrastructure.
+![Logo](./logo.svg) A Java library for applications software infrastructure.
+
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
 [![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
