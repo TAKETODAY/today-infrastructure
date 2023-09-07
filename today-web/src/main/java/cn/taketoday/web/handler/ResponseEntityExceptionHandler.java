@@ -139,7 +139,7 @@ public class ResponseEntityExceptionHandler {
         return handleMissingPathVariable(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MissingRequestParameterException subEx) {
-        return handleMissingServletRequestParameter(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
+        return handleMissingRequestParameter(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else if (ex instanceof MissingRequestPartException subEx) {
         return handleMissingRequestPart(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
@@ -282,7 +282,7 @@ public class ResponseEntityExceptionHandler {
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleMissingServletRequestParameter(
+  protected ResponseEntity<Object> handleMissingRequestParameter(
           MissingRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
