@@ -64,6 +64,7 @@ import cn.taketoday.context.properties.processor.metadata.ItemMetadata;
  */
 @SupportedAnnotationTypes({ ConfigurationMetadataAnnotationProcessor.AUTO_CONFIGURATION_ANNOTATION,
         ConfigurationMetadataAnnotationProcessor.CONFIGURATION_PROPERTIES_ANNOTATION,
+        ConfigurationMetadataAnnotationProcessor.DisableDIAUTO_CONFIGURATION_ANNOTATION,
         "cn.taketoday.context.annotation.Configuration" })
 public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor {
 
@@ -84,6 +85,8 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
   static final String NAME_ANNOTATION = "cn.taketoday.context.properties.bind.Name";
 
   static final String AUTO_CONFIGURATION_ANNOTATION = "cn.taketoday.context.annotation.config.AutoConfiguration";
+
+  static final String DisableDIAUTO_CONFIGURATION_ANNOTATION = "cn.taketoday.context.annotation.config.DisableDIAutoConfiguration";
 
   private static final Set<String> SUPPORTED_OPTIONS = Collections.singleton(ADDITIONAL_METADATA_LOCATIONS_OPTION);
 

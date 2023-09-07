@@ -64,7 +64,9 @@ import javax.tools.StandardLocation;
         "cn.taketoday.context.annotation.config.AutoConfigureBefore",
         "cn.taketoday.context.annotation.config.AutoConfigureAfter",
         "cn.taketoday.context.annotation.config.AutoConfigureOrder",
-        "cn.taketoday.context.annotation.config.AutoConfiguration" })
+        "cn.taketoday.context.annotation.config.AutoConfiguration",
+        "cn.taketoday.context.annotation.config.DisableDIAutoConfiguration"
+})
 public class AnnotationConfigAnnotationProcessor extends AbstractProcessor {
 
   protected static final String PROPERTIES_PATH = "META-INF/infra-autoconfigure-metadata.properties";
@@ -104,6 +106,14 @@ public class AnnotationConfigAnnotationProcessor extends AbstractProcessor {
     generators.add(PropertyGenerator.of(annotationPackage, "AutoConfigureAfter", true)
             .withAnnotation(ValueExtractor.allFrom("value", "name"))
             .withAnnotation("AutoConfiguration", ValueExtractor.allFrom("after", "afterName")));
+
+    generators.add(PropertyGenerator.of(annotationPackage, "AutoConfigureBefore", true)
+            .withAnnotation(ValueExtractor.allFrom("value", "name"))
+            .withAnnotation("DisableDIAutoConfiguration", ValueExtractor.allFrom("before", "beforeName")));
+    generators.add(PropertyGenerator.of(annotationPackage, "AutoConfigureAfter", true)
+            .withAnnotation(ValueExtractor.allFrom("value", "name"))
+            .withAnnotation("DisableDIAutoConfiguration", ValueExtractor.allFrom("after", "afterName")));
+
     generators.add(PropertyGenerator.of(annotationPackage, "AutoConfigureOrder")
             .withAnnotation(ValueExtractor.allFrom("value")));
   }

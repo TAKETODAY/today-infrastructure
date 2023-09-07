@@ -29,7 +29,6 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportRuntimeHints;
-import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
@@ -70,7 +69,6 @@ import cn.taketoday.stereotype.Component;
         JacksonAutoConfiguration.class,
         JsonbAutoConfiguration.class
 })
-@Lazy
 @ConditionalOnClass(HttpMessageConverter.class)
 @Conditional(HttpMessageConvertersAutoConfiguration.NotReactiveWebApplicationCondition.class)
 @Import({ GsonHttpMessageConvertersConfiguration.class, JsonbHttpMessageConvertersConfiguration.class })

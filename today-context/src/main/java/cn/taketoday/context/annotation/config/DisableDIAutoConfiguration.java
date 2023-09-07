@@ -48,7 +48,9 @@ import cn.taketoday.core.annotation.AliasFor;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/9/5 20:48
  */
-@AutoConfiguration
+@Configuration(proxyBeanMethods = false)
+@AutoConfigureBefore
+@AutoConfigureAfter
 @DisableDependencyInjection
 @DisableAllDependencyInjection
 @Retention(RetentionPolicy.RUNTIME)
@@ -69,7 +71,7 @@ public @interface DisableDIAutoConfiguration {
    * @return the explicit component name, if any (or empty String otherwise)
    * @see AnnotationBeanNameGenerator
    */
-  @AliasFor(annotation = AutoConfiguration.class)
+  @AliasFor(annotation = Configuration.class)
   String value() default "";
 
   /**
@@ -77,7 +79,7 @@ public @interface DisableDIAutoConfiguration {
    *
    * @return the classes
    */
-  @AliasFor(annotation = AutoConfiguration.class)
+  @AliasFor(annotation = AutoConfigureBefore.class, attribute = "value")
   Class<?>[] before() default {};
 
   /**
@@ -85,7 +87,7 @@ public @interface DisableDIAutoConfiguration {
    *
    * @return the class names
    */
-  @AliasFor(annotation = AutoConfiguration.class)
+  @AliasFor(annotation = AutoConfigureBefore.class, attribute = "name")
   String[] beforeName() default {};
 
   /**
@@ -93,7 +95,7 @@ public @interface DisableDIAutoConfiguration {
    *
    * @return the classes
    */
-  @AliasFor(annotation = AutoConfiguration.class)
+  @AliasFor(annotation = AutoConfigureAfter.class, attribute = "value")
   Class<?>[] after() default {};
 
   /**
@@ -101,7 +103,7 @@ public @interface DisableDIAutoConfiguration {
    *
    * @return the class names
    */
-  @AliasFor(annotation = AutoConfiguration.class)
+  @AliasFor(annotation = AutoConfigureAfter.class, attribute = "name")
   String[] afterName() default {};
 
 }

@@ -83,6 +83,7 @@ class ConfigurationMetadataAnnotationProcessorTests extends AbstractMetadataGene
     assertThat(new ConfigurationMetadataAnnotationProcessor().getSupportedAnnotationTypes())
             .containsExactlyInAnyOrder("cn.taketoday.context.annotation.config.AutoConfiguration",
                     "cn.taketoday.context.properties.ConfigurationProperties",
+                    "cn.taketoday.context.annotation.config.DisableDIAutoConfiguration",
                     "cn.taketoday.context.annotation.Configuration");
   }
 
