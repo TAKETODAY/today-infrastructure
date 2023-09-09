@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,9 @@
 
 package cn.taketoday.web.socket.annotation;
 
-import cn.taketoday.web.BadRequestException;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -40,11 +38,11 @@ public class WebSocketSessionParameterResolver implements ParameterResolvingStra
   }
 
   @Override
-  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) {
     final Object attribute = context.getAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY);
     if (attribute instanceof WebSocketSession) {
       return attribute;
     }
-    throw new BadRequestException("must be a websocket request");
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "must be a websocket request");
   }
 }
