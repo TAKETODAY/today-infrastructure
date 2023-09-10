@@ -49,7 +49,7 @@ public class TomcatHttpServer extends AbstractHttpServer {
    * system property as the {@code baseDir}.
    */
   public TomcatHttpServer() {
-    this(ApplicationTemp.instance.getDir().getAbsolutePath());
+    this(ApplicationTemp.instance.getDir().toFile().getAbsolutePath());
   }
 
   public TomcatHttpServer(String baseDir) {
@@ -79,7 +79,7 @@ public class TomcatHttpServer extends AbstractHttpServer {
 
     ServletHttpHandlerAdapter servlet = initServletAdapter();
 
-    File base = ApplicationTemp.instance.getDir();
+    File base = ApplicationTemp.instance.getDir().toFile();
     Context rootContext = tomcatServer.addContext(this.contextPath, base.getAbsolutePath());
     Tomcat.addServlet(rootContext, "httpHandlerServlet", servlet).setAsyncSupported(true);
     rootContext.addServletMappingDecoded(this.servletMapping, "httpHandlerServlet");

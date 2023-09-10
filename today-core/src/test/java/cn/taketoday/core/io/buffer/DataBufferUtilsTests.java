@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +40,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -74,7 +72,7 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
 
   DataBufferUtilsTests() throws Exception {
     this.resource = new ClassPathResource("DataBufferUtilsTests.txt", getClass());
-    this.tempFile = Files.createTempFile("DataBufferUtilsTests", null);
+    this.tempFile = ApplicationTemp.createFile("DataBufferUtilsTests");
   }
 
   @ParameterizedDataBufferAllocatingTest
@@ -554,7 +552,8 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
                     .readByteChannel(() -> FileChannel.open(source, StandardOpenOption.READ),
                             super.bufferFactory, 3);
 
-    Path destination = Files.createTempFile("DataBufferUtilsTests", null);
+    Path destination = getDestination("DataBufferUtilsTests.");
+
     WritableByteChannel channel = Files.newByteChannel(destination, StandardOpenOption.WRITE);
 
     DataBufferUtils.write(sourceFlux, channel)
@@ -587,7 +586,8 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
             () -> AsynchronousFileChannel.open(source, StandardOpenOption.READ),
             super.bufferFactory, 3);
 
-    Path destination = Files.createTempFile("DataBufferUtilsTests", null);
+    Path destination = getDestination("DataBufferUtilsTests.");
+
     AsynchronousFileChannel channel =
             AsynchronousFileChannel.open(destination, StandardOpenOption.WRITE);
 
@@ -616,6 +616,10 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
                     });
 
     latch.await();
+  }
+
+  private static Path getDestination(String name) {
+    return ApplicationTemp.createFile(name);
   }
 
   @ParameterizedDataBufferAllocatingTest
@@ -986,7 +990,8 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
   @ParameterizedDataBufferAllocatingTest
   void propagateContextPath(DataBufferFactory bufferFactory) throws IOException {
     Path path = Paths.get(this.resource.getURI());
-    Path out = Files.createTempFile("data-buffer-utils-tests", ".tmp");
+
+    Path out = getDestination("data-buffer-utils-tests.");
 
     Flux<Void> result = DataBufferUtils.read(path, bufferFactory, 1024, StandardOpenOption.READ)
             .transformDeferredContextual((f, ctx) -> {

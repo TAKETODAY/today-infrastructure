@@ -180,7 +180,7 @@ public class SessionProperties {
 
   public static File getValidStoreDir(@Nullable ApplicationTemp applicationTemp, @Nullable File dir, boolean mkdirs) {
     if (dir == null) {
-      return Objects.requireNonNullElse(applicationTemp, ApplicationTemp.instance).getDir(SESSION_TEMP_DIR);
+      return Objects.requireNonNullElse(applicationTemp, ApplicationTemp.instance).getDir(SESSION_TEMP_DIR).toFile();
     }
     if (!dir.isAbsolute()) {
       dir = new File(new ApplicationHome().getDir(), dir.getPath());

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -552,13 +549,13 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private String buildToString() {
     if (this.elements.canShortcutWithSource(ElementType.UNIFORM, ElementType.DASHED)) {
-      return this.elements.getSource().toString();
+      return this.elements.source.toString();
     }
     int elements = getNumberOfElements();
     StringBuilder result = new StringBuilder(elements * 8);
     for (int i = 0; i < elements; i++) {
       boolean indexed = isIndexed(i);
-      if (result.length() > 0 && !indexed) {
+      if (!result.isEmpty() && !indexed) {
         result.append('.');
       }
       if (indexed) {
@@ -637,7 +634,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       Assert.isTrue(returnNullIfInvalid, "Name must not be null");
       return null;
     }
-    if (name.length() == 0) {
+    if (name.isEmpty()) {
       return Elements.EMPTY;
     }
     if (name.charAt(0) == '.' || name.charAt(name.length() - 1) == '.') {
@@ -699,7 +696,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   static ConfigurationPropertyName adapt(CharSequence name, char separator,
           @Nullable Function<CharSequence, CharSequence> elementValueProcessor) {
     Assert.notNull(name, "Name must not be null");
-    if (name.length() == 0) {
+    if (name.isEmpty()) {
       return EMPTY;
     }
     Elements elements = new ElementsParser(name, separator).parse(elementValueProcessor);
@@ -764,7 +761,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null);
 
-    private final CharSequence source;
+    public final CharSequence source;
 
     private final int size;
 
@@ -785,8 +782,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     @Nullable
     private final CharSequence[] resolved;
 
-    Elements(CharSequence source, int size, int[] start, int[] end, ElementType[] type,
-            @Nullable CharSequence[] resolved) {
+    Elements(CharSequence source, int size, int[] start, int[] end,
+            ElementType[] type, @Nullable CharSequence[] resolved) {
       super();
       this.source = source;
       this.size = size;
@@ -865,10 +862,6 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     ElementType getType(int index) {
       return this.type[index];
-    }
-
-    CharSequence getSource() {
-      return this.source;
     }
 
     /**

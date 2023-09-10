@@ -221,7 +221,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    * @return the temp dir for given server.
    */
   protected final File createTempDir(String prefix) {
-    File tempDir = applicationTemp.getDir(prefix + "-" + getPort());
+    File tempDir = applicationTemp.getDir(prefix + "-" + getPort()).toFile();
     tempDir.deleteOnExit();
     return tempDir;
   }

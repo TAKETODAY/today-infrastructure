@@ -178,7 +178,7 @@ public class PemFileWriter {
   private final Path tempDir;
 
   public PemFileWriter() throws IOException {
-    this.tempDir = ApplicationTemp.createDirectory("buildpack-platform-docker-ssl-tests").toPath();
+    this.tempDir = ApplicationTemp.createDirectory("buildpack-platform-docker-ssl-tests");
   }
 
   Path writeFile(String name, String... contents) throws IOException {

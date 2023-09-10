@@ -83,7 +83,7 @@ class MavenBuild {
 
   private File createTempDirectory() {
     try {
-      File file = ApplicationTemp.createDirectory("maven-build");
+      File file = ApplicationTemp.createDirectory("maven-build").toFile();
       file.deleteOnExit();
       return file.getCanonicalFile();
     }

@@ -56,6 +56,7 @@ import cn.taketoday.buildpack.platform.io.IOBiConsumer;
 import cn.taketoday.buildpack.platform.io.TarArchive;
 import cn.taketoday.buildpack.platform.json.JsonStream;
 import cn.taketoday.buildpack.platform.json.SharedObjectMapper;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
@@ -376,7 +377,7 @@ public class DockerApi {
     }
 
     private Path copyToTemp(TarArchiveInputStream in) throws IOException {
-      Path path = Files.createTempFile("create-builder-scratch-", null);
+      Path path = ApplicationTemp.createFile("create-builder-scratch");
       try (OutputStream out = Files.newOutputStream(path)) {
         StreamUtils.copy(in, out);
       }
@@ -394,8 +395,7 @@ public class DockerApi {
    */
   public class ContainerApi {
 
-    ContainerApi() {
-    }
+    ContainerApi() { }
 
     /**
      * Create a new container a {@link ContainerConfig}.

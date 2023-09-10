@@ -277,6 +277,13 @@ public class Application {
   }
 
   /**
+   * Application temp
+   */
+  public ApplicationTemp getApplicationTemp() {
+    return applicationTemp;
+  }
+
+  /**
    * Set a specific main application class that will be used as a log source and to
    * obtain version information. By default the main application class will be deduced.
    * Can be set to {@code null} if there is no explicit application class.

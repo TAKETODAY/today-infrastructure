@@ -23,6 +23,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -72,7 +73,7 @@ public class ApplicationTemp {
 
   @Override
   public String toString() {
-    return getDir().getAbsolutePath();
+    return getDir().toString();
   }
 
   /**
@@ -80,8 +81,8 @@ public class ApplicationTemp {
    *
    * @return the application temp directory
    */
-  public File getDir() {
-    return getPath().toFile();
+  public Path getDir() {
+    return getPath();
   }
 
   /**
@@ -90,8 +91,104 @@ public class ApplicationTemp {
    * @param subDir the sub-directory name
    * @return a sub-directory
    */
-  public File getDir(String subDir) {
-    return createDirectory(getPath().resolve(subDir)).toFile();
+  public Path getDir(@Nullable String subDir) {
+    if (subDir != null) {
+      return createDirectory(getPath().resolve(subDir));
+    }
+    return getPath();
+  }
+
+  /**
+   * Creates a new empty file in the specified directory, using the given
+   * prefix and suffix strings to generate its name. The resulting
+   * {@code Path} is associated with the same {@code FileSystem} as the given
+   * directory.
+   *
+   * <p> The details as to how the name of the file is constructed is
+   * implementation dependent and therefore not specified. Where possible
+   * the {@code prefix} and {@code suffix} are used to construct candidate
+   * names in the same manner as the {@link
+   * java.io.File#createTempFile(String, String, File)} method.
+   *
+   * <p> As with the {@code File.createTempFile} methods, this method is only
+   * part of a temporary-file facility. Where used as a <em>work files</em>,
+   * the resulting file may be opened using the {@link
+   * StandardOpenOption#DELETE_ON_CLOSE DELETE_ON_CLOSE} option so that the
+   * file is deleted when the appropriate {@code close} method is invoked.
+   * Alternatively, a {@link Runtime#addShutdownHook shutdown-hook}, or the
+   * {@link java.io.File#deleteOnExit} mechanism may be used to delete the
+   * file automatically.
+   *
+   * <p> The {@code attrs} parameter is optional {@link FileAttribute
+   * file-attributes} to set atomically when creating the file. Each attribute
+   * is identified by its {@link FileAttribute#name name}. If more than one
+   * attribute of the same name is included in the array then all but the last
+   * occurrence is ignored. When no file attributes are specified, then the
+   * resulting file may have more restrictive access permissions to files
+   * created by the {@link java.io.File#createTempFile(String, String, File)}
+   * method.
+   *
+   * @param subDir the path to directory in which to create the file
+   * @param prefix the prefix string to be used in generating the file's name;
+   * may be {@code null}
+   * @return the path to the newly created file that did not exist before
+   * this method was invoked
+   * @throws IllegalArgumentException if the prefix or suffix parameters cannot be used to generate
+   * a candidate file name
+   * @throws IllegalStateException if an I/O error occurs or {@code dir} does not exist
+   */
+  public Path createFile(@Nullable String subDir, String prefix) {
+    return createFile(subDir, prefix, null);
+  }
+
+  /**
+   * Creates a new empty file in the specified directory, using the given
+   * prefix and suffix strings to generate its name. The resulting
+   * {@code Path} is associated with the same {@code FileSystem} as the given
+   * directory.
+   *
+   * <p> The details as to how the name of the file is constructed is
+   * implementation dependent and therefore not specified. Where possible
+   * the {@code prefix} and {@code suffix} are used to construct candidate
+   * names in the same manner as the {@link
+   * java.io.File#createTempFile(String, String, File)} method.
+   *
+   * <p> As with the {@code File.createTempFile} methods, this method is only
+   * part of a temporary-file facility. Where used as a <em>work files</em>,
+   * the resulting file may be opened using the {@link
+   * StandardOpenOption#DELETE_ON_CLOSE DELETE_ON_CLOSE} option so that the
+   * file is deleted when the appropriate {@code close} method is invoked.
+   * Alternatively, a {@link Runtime#addShutdownHook shutdown-hook}, or the
+   * {@link java.io.File#deleteOnExit} mechanism may be used to delete the
+   * file automatically.
+   *
+   * <p> The {@code attrs} parameter is optional {@link FileAttribute
+   * file-attributes} to set atomically when creating the file. Each attribute
+   * is identified by its {@link FileAttribute#name name}. If more than one
+   * attribute of the same name is included in the array then all but the last
+   * occurrence is ignored. When no file attributes are specified, then the
+   * resulting file may have more restrictive access permissions to files
+   * created by the {@link java.io.File#createTempFile(String, String, File)}
+   * method.
+   *
+   * @param subDir the path to directory in which to create the file
+   * @param prefix the prefix string to be used in generating the file's name;
+   * may be {@code null}
+   * @param suffix the suffix string to be used in generating the file's name;
+   * may be {@code null}, in which case "{@code .tmp}" is used
+   * @return the path to the newly created file that did not exist before
+   * this method was invoked
+   * @throws IllegalArgumentException if the prefix or suffix parameters cannot be used to generate
+   * a candidate file name
+   * @throws IllegalStateException if an I/O error occurs or {@code dir} does not exist
+   */
+  public Path createFile(@Nullable String subDir, @Nullable String prefix, @Nullable String suffix) {
+    try {
+      return Files.createTempFile(getDir(subDir), prefix, suffix);
+    }
+    catch (IOException e) {
+      throw new IllegalStateException("Files.createTempFile IO error", e);
+    }
   }
 
   private Path getPath() {
@@ -161,8 +258,15 @@ public class ApplicationTemp {
   /**
    * Using default instance to create temp directory
    */
-  public static File createDirectory(String subDir) {
+  public static Path createDirectory(String subDir) {
     return instance.getDir(subDir);
+  }
+
+  /**
+   * Using default instance to create temp file
+   */
+  public static Path createFile(String prefix) {
+    return instance.createFile(null, prefix);
   }
 
 }

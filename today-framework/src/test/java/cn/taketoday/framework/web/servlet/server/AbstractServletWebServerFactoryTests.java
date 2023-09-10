@@ -823,7 +823,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     AbstractServletWebServerFactory factory = getFactory();
     File dir = factory.getValidSessionStoreDir(false);
     assertThat(dir).hasName("server-sessions");
-    assertThat(dir).hasParent(new ApplicationTemp().getDir());
+    assertThat(dir).hasParent(new ApplicationTemp().getDir().toFile());
   }
 
   @Test

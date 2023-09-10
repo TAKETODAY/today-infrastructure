@@ -97,7 +97,7 @@ public class InfraMockServletContext extends MockServletContext {
       try {
         if (this.emptyRootDirectory == null) {
           synchronized(this) {
-            File tempDirectory = ApplicationTemp.createDirectory("spr-servlet");
+            File tempDirectory = ApplicationTemp.createDirectory("spr-servlet").toFile();
             tempDirectory.deleteOnExit();
             this.emptyRootDirectory = tempDirectory;
           }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +42,7 @@ class ApplicationTempTests {
 
   @BeforeEach
   @AfterEach
-  void cleanup() {
+  void cleanup() throws IOException {
     FileSystemUtils.deleteRecursively(new ApplicationTemp().getDir());
   }
 
@@ -61,9 +58,9 @@ class ApplicationTempTests {
   void differentBasedOnUserDir() {
     String userDir = System.getProperty("user.dir");
     try {
-      File t1 = new ApplicationTemp().getDir();
+      Path t1 = new ApplicationTemp().getDir();
       System.setProperty("user.dir", "abc");
-      File t2 = new ApplicationTemp().getDir();
+      Path t2 = new ApplicationTemp().getDir();
       assertThat(t1).isEqualTo(t2);
     }
     finally {
@@ -74,17 +71,17 @@ class ApplicationTempTests {
   @Test
   void getSubDir() {
     ApplicationTemp temp = new ApplicationTemp();
-    assertThat(temp.getDir("abc")).isEqualTo(new File(temp.getDir(), "abc"));
+    assertThat(temp.getDir("abc")).isEqualTo(new File(temp.getDir().toFile(), "abc").toPath());
   }
 
   @Test
   void posixPermissions() throws IOException {
     ApplicationTemp temp = new ApplicationTemp();
-    Path path = temp.getDir().toPath();
+    Path path = temp.getDir();
     FileSystem fileSystem = path.getFileSystem();
     if (fileSystem.supportedFileAttributeViews().contains("posix")) {
       assertDirectoryPermissions(path);
-      assertDirectoryPermissions(temp.getDir("sub").toPath());
+      assertDirectoryPermissions(temp.getDir("sub"));
     }
   }
 

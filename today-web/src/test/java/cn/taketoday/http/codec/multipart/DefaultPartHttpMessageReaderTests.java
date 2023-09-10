@@ -364,23 +364,22 @@ public class DefaultPartHttpMessageReaderTests {
       FilePart filePart = (FilePart) part;
       assertThat(filePart.filename()).isEqualTo(filename);
 
-      File directory = ApplicationTemp.createDirectory("DefaultMultipartMessageReaderTests");
+      File directory = ApplicationTemp.createDirectory("DefaultMultipartMessageReaderTests").toFile();
       File tempFile = new File(directory, "DefaultMultipartMessageReaderTests." + System.currentTimeMillis());
       directory.deleteOnExit();
-      filePart.transferTo(tempFile)
-              .subscribe(null,
-                      throwable -> {
-                        throw Exceptions.bubble(throwable);
-                      },
-                      () -> {
-                        try {
-                          verifyContents(tempFile.toPath(), contents);
-                        }
-                        finally {
-                          latch.countDown();
-                        }
+      filePart.transferTo(tempFile).subscribe(null,
+              throwable -> {
+                throw Exceptions.bubble(throwable);
+              },
+              () -> {
+                try {
+                  verifyContents(tempFile.toPath(), contents);
+                }
+                finally {
+                  latch.countDown();
+                }
 
-                      });
+              });
     }
     catch (Exception ex) {
       throw new AssertionError(ex);

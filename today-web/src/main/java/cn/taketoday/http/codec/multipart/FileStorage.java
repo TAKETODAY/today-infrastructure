@@ -17,7 +17,6 @@
 
 package cn.taketoday.http.codec.multipart;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -116,12 +115,12 @@ abstract class FileStorage {
 
     private static Mono<Path> tempDirectory() {
       return Mono.fromCallable(() -> {
-        File directory = ApplicationTemp.createDirectory(IDENTIFIER + StringUtils.getUUIDString());
+        Path directory = ApplicationTemp.createDirectory(IDENTIFIER + StringUtils.getUUIDString());
         if (logger.isDebugEnabled()) {
           logger.debug("Created temporary storage directory: {}", directory);
         }
-        directory.deleteOnExit();
-        return directory.toPath();
+        directory.toFile().deleteOnExit();
+        return directory;
       }).cache();
     }
   }

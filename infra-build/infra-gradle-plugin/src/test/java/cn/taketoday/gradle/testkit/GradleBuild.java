@@ -106,8 +106,7 @@ public class GradleBuild {
   }
 
   void before() throws IOException {
-
-    this.projectDir = ApplicationTemp.createDirectory("gradle-" + random.nextInt(Integer.MAX_VALUE));
+    this.projectDir = ApplicationTemp.createDirectory("gradle-" + random.nextInt(Integer.MAX_VALUE)).toFile();
   }
 
   void after() {
