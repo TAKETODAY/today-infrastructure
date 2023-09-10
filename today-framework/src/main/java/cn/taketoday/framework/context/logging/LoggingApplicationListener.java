@@ -58,6 +58,9 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
+import static cn.taketoday.context.properties.bind.Bindable.mapOf;
+import static cn.taketoday.context.properties.source.ConfigurationPropertyName.of;
+
 /**
  * An {@link ApplicationListener} that configures the {@link LoggingSystem}. If the
  * environment contains a {@code logging.config} property it will be used to bootstrap the
@@ -94,14 +97,11 @@ import cn.taketoday.util.StringUtils;
  */
 public class LoggingApplicationListener implements GenericApplicationListener {
 
-  private static final ConfigurationPropertyName LOGGING_LEVEL = ConfigurationPropertyName.of(
-          "logging.level");
+  private static final ConfigurationPropertyName LOGGING_LEVEL = of("logging.level");
 
-  private static final ConfigurationPropertyName LOGGING_GROUP = ConfigurationPropertyName.of(
-          "logging.group");
+  private static final ConfigurationPropertyName LOGGING_GROUP = of("logging.group");
 
-  private static final Bindable<Map<String, LogLevel>> STRING_LOGLEVEL_MAP = Bindable.mapOf(
-          String.class, LogLevel.class);
+  private static final Bindable<Map<String, LogLevel>> STRING_LOGLEVEL_MAP = mapOf(String.class, LogLevel.class);
 
   private static final Bindable<Map<String, List<String>>> STRING_STRINGS_MAP = Bindable.of(
           ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class).asMap());
@@ -256,6 +256,8 @@ public class LoggingApplicationListener implements GenericApplicationListener {
     if (this.loggingSystem == null) {
       this.loggingSystem = LoggingSystem.get(application.getClassLoader());
     }
+    // extra property
+    System.setProperty("LOG_TEMP", application.getApplicationTemp().getDir("logs").toString());
     initialize(event.getEnvironment(), application.getClassLoader());
   }
 
@@ -333,7 +335,7 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
   private boolean isSet(ConfigurableEnvironment environment, String property) {
     String value = environment.getProperty(property);
-    return (value != null && !value.equals("false"));
+    return value != null && !value.equals("false");
   }
 
   private void initializeSystem(ConfigurableEnvironment environment, LoggingSystem system, LogFile logFile) {
