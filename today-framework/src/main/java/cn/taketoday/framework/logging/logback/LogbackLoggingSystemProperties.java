@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,16 +50,6 @@ public class LogbackLoggingSystemProperties extends LoggingSystemProperties {
   }
 
   /**
-   * Create a new {@link LogbackLoggingSystemProperties} instance.
-   *
-   * @param environment the source environment
-   * @param setter setter used to apply the property
-   */
-  public LogbackLoggingSystemProperties(Environment environment, BiConsumer<String, String> setter) {
-    super(environment, setter);
-  }
-
-  /**
    * Create a new {@link LoggingSystemProperties} instance.
    *
    * @param environment the source environment
@@ -105,8 +92,7 @@ public class LogbackLoggingSystemProperties extends LoggingSystemProperties {
     applyRollingPolicy(property, resolver, String.class);
   }
 
-  private <T> void applyRollingPolicy(RollingPolicySystemProperty property,
-          PropertyResolver resolver, Class<T> type) {
+  private <T> void applyRollingPolicy(RollingPolicySystemProperty property, PropertyResolver resolver, Class<T> type) {
     T value = getProperty(resolver, property.getApplicationPropertyName(), type);
     if (value == null) {
       value = getProperty(resolver, property.getDeprecatedApplicationPropertyName(), type);

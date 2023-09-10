@@ -356,7 +356,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
 
   @Override
   public void setLogLevel(String loggerName, LogLevel level) {
-    ch.qos.logback.classic.Logger logger = getLogger(loggerName);
+    var logger = getLogger(loggerName);
     if (logger != null) {
       logger.setLevel(LEVELS.convertSystemToNative(level));
     }

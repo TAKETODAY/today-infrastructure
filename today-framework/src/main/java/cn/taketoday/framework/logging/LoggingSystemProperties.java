@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,7 +138,7 @@ public class LoggingSystemProperties {
   }
 
   private void setApplicationNameSystemProperty(PropertyResolver resolver) {
-    if (resolver.getProperty("logging.include-application-name", Boolean.class, Boolean.TRUE)) {
+    if (resolver.getFlag("logging.include-application-name", true)) {
       String applicationName = resolver.getProperty("app.name");
       if (StringUtils.hasText(applicationName)) {
         setSystemProperty(LoggingSystemProperty.APPLICATION_NAME.getEnvironmentVariableName(),

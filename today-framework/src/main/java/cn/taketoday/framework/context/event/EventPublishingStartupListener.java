@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +55,13 @@ import cn.taketoday.util.ErrorHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class EventPublishingStartupListener implements ApplicationStartupListener, Ordered {
+public class EventPublishingStartupListener implements ApplicationStartupListener, Ordered, ErrorHandler {
+  private volatile Logger logger;
 
   private final Application application;
+
   private final ApplicationArguments args;
+
   private final SimpleApplicationEventMulticaster initialMulticaster;
 
   public EventPublishingStartupListener(Application application, ApplicationArguments args) {
@@ -130,9 +130,24 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
           initialMulticaster.addApplicationListener(listener);
         }
       }
-      initialMulticaster.setErrorHandler(new LoggingErrorHandler());
+      initialMulticaster.setErrorHandler(this);
       initialMulticaster.multicastEvent(event);
     }
+  }
+
+  @Override
+  public void handleError(Throwable throwable) {
+    Logger logger = this.logger;
+    if (logger == null) {
+      synchronized(this) {
+        logger = this.logger;
+        if (logger == null) {
+          logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
+          this.logger = logger;
+        }
+      }
+    }
+    logger.warn("Error calling ApplicationEventListener", throwable);
   }
 
   private void multicastInitialEvent(ApplicationEvent event) {
@@ -144,26 +159,6 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
     for (ApplicationListener<?> listener : application.getListeners()) {
       initialMulticaster.addApplicationListener(listener);
     }
-  }
-
-  private static class LoggingErrorHandler implements ErrorHandler {
-    private volatile Logger logger;
-
-    @Override
-    public void handleError(Throwable throwable) {
-      Logger logger = this.logger;
-      if (logger == null) {
-        synchronized(this) {
-          logger = this.logger;
-          if (logger == null) {
-            logger = LoggerFactory.getLogger(EventPublishingStartupListener.class);
-            this.logger = logger;
-          }
-        }
-      }
-      logger.warn("Error calling ApplicationEventListener", throwable);
-    }
-
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -55,13 +53,10 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
   }
 
   @Override
-  public void beforeInitialize() {
-
-  }
+  public void beforeInitialize() { }
 
   @Override
-  public void initialize(LoggingStartupContext startupContext,
-          @Nullable String configLocation, @Nullable LogFile logFile) {
+  public void initialize(LoggingStartupContext startupContext, @Nullable String configLocation, @Nullable LogFile logFile) {
     if (StringUtils.isNotEmpty(configLocation)) {
       initializeWithSpecificConfig(startupContext, configLocation, logFile);
       return;
@@ -69,8 +64,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
     initializeWithConventions(startupContext, logFile);
   }
 
-  private void initializeWithSpecificConfig(
-          LoggingStartupContext context, String configLocation, LogFile logFile) {
+  private void initializeWithSpecificConfig(LoggingStartupContext context, String configLocation, LogFile logFile) {
     configLocation = SystemPropertyUtils.resolvePlaceholders(configLocation);
     loadConfiguration(context, configLocation, logFile);
   }
@@ -145,8 +139,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
     String[] locations = getStandardConfigLocations();
     for (int i = 0; i < locations.length; i++) {
       String extension = StringUtils.getFilenameExtension(locations[i]);
-      locations[i] = locations[i].substring(0, locations[i].length() - extension.length() - 1)
-              + "-infra." + extension;
+      locations[i] = locations[i].substring(0, locations[i].length() - extension.length() - 1) + "-infra." + extension;
     }
     return locations;
   }
@@ -157,8 +150,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    * @param startupContext the logging startup context
    * @param logFile the file to load or {@code null} if no log file is to be written
    */
-  protected abstract void loadDefaults(
-          LoggingStartupContext startupContext, @Nullable LogFile logFile);
+  protected abstract void loadDefaults(LoggingStartupContext startupContext, @Nullable LogFile logFile);
 
   /**
    * Load a specific configuration.
@@ -167,8 +159,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    * @param location the location of the configuration to load (never {@code null})
    * @param logFile the file to load or {@code null} if no log file is to be written
    */
-  protected abstract void loadConfiguration(
-          LoggingStartupContext context, String location, @Nullable LogFile logFile);
+  protected abstract void loadConfiguration(LoggingStartupContext context, String location, @Nullable LogFile logFile);
 
   /**
    * Reinitialize the logging system if required. Called when
@@ -178,9 +169,7 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    *
    * @param startupContext the logging startup context
    */
-  protected void reinitialize(LoggingStartupContext startupContext) {
-
-  }
+  protected void reinitialize(LoggingStartupContext startupContext) { }
 
   protected final ClassLoader getClassLoader() {
     return this.classLoader;
@@ -205,11 +194,11 @@ public abstract class AbstractLoggingSystem extends LoggingSystem {
    * @return the default value resolver
    */
   protected Function<String, String> getDefaultValueResolver(Environment environment) {
-    String defaultLogCorrelationPattern = getDefaultLogCorrelationPattern();
-    return (name) -> {
+    return name -> {
+      String defaultLogCorrelationPattern = getDefaultLogCorrelationPattern();
       if (StringUtils.isNotEmpty(defaultLogCorrelationPattern)
-              && LoggingSystemProperty.CORRELATION_PATTERN.getApplicationPropertyName().equals(name)
-              && environment.getProperty(LoggingSystem.EXPECT_CORRELATION_ID_PROPERTY, Boolean.class, false)) {
+              && Objects.equals(name, LoggingSystemProperty.CORRELATION_PATTERN.getApplicationPropertyName())
+              && environment.getFlag(LoggingSystem.EXPECT_CORRELATION_ID_PROPERTY, false)) {
         return defaultLogCorrelationPattern;
       }
       return null;
