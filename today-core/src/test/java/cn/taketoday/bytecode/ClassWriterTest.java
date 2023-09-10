@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +98,8 @@ public class ClassWriterTest extends AsmTest {
             "firstRecordComponent",
             "lastRecordComponent",
             "firstAttribute",
-            "compute"
+            "compute",
+            "classLoader"
     );
     // IMPORTANT: if this fails, update the string list AND update the logic that resets the
     // ClassWriter fields in ClassWriter.toByteArray(), if needed (this logic is used to do a
