@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode;
 
 /**
@@ -25,6 +23,7 @@ package cn.taketoday.bytecode;
  *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href= "https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7">JVMS
  * 4.7</a>
  * @see <a href= "https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.3">JVMS
@@ -110,13 +109,8 @@ public class Attribute {
    * is not a Code attribute.
    * @return a <i>new</i> {@link Attribute} object corresponding to the specified bytes.
    */
-  protected Attribute read(
-          final ClassReader classReader,
-          final int offset,
-          final int length,
-          final char[] charBuffer,
-          final int codeAttributeOffset,
-          final Label[] labels) {
+  protected Attribute read(final ClassReader classReader, final int offset, final int length,
+          final char[] charBuffer, final int codeAttributeOffset, final Label[] labels) {
     Attribute attribute = new Attribute(type);
     attribute.content = new byte[length];
     System.arraycopy(classReader.classFileBuffer, offset, attribute.content, 0, length);
@@ -142,12 +136,8 @@ public class Attribute {
    * attribute, or -1 if this attribute is not a Code attribute.
    * @return the byte array form of this attribute.
    */
-  protected ByteVector write(
-          final ClassWriter classWriter,
-          final byte[] code,
-          final int codeLength,
-          final int maxStack,
-          final int maxLocals) {
+  protected ByteVector write(final ClassWriter classWriter, final byte[] code,
+          final int codeLength, final int maxStack, final int maxLocals) {
     return new ByteVector(content);
   }
 
@@ -176,11 +166,10 @@ public class Attribute {
    * the attribute headers.
    */
   final int computeAttributesSize(final SymbolTable symbolTable) {
-    final byte[] code = null;
     final int codeLength = 0;
     final int maxStack = -1;
     final int maxLocals = -1;
-    return computeAttributesSize(symbolTable, code, codeLength, maxStack, maxLocals);
+    return computeAttributesSize(symbolTable, null, codeLength, maxStack, maxLocals);
   }
 
   /**
@@ -202,12 +191,8 @@ public class Attribute {
    * @return the size of all the attributes in this attribute list. This size includes the size of
    * the attribute headers.
    */
-  final int computeAttributesSize(
-          final SymbolTable symbolTable,
-          final byte[] code,
-          final int codeLength,
-          final int maxStack,
-          final int maxLocals) {
+  final int computeAttributesSize(final SymbolTable symbolTable,
+          final byte[] code, final int codeLength, final int maxStack, final int maxLocals) {
     final ClassWriter classWriter = symbolTable.classWriter;
     int size = 0;
     Attribute attribute = this;
@@ -231,12 +216,11 @@ public class Attribute {
    * @return the size of all the attributes in bytes. This size includes the size of the attribute
    * headers.
    */
-  static int computeAttributesSize(
-          final SymbolTable symbolTable, final int accessFlags, final int signatureIndex) {
+  static int computeAttributesSize(final SymbolTable symbolTable, final int accessFlags, final int signatureIndex) {
     int size = 0;
     // Before Java 1.5, synthetic fields are represented with a Synthetic attribute.
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0
-            && symbolTable.getMajorVersion() < Opcodes.V1_5) {
+            && symbolTable.majorVersion < Opcodes.V1_5) {
       // Synthetic attributes always use 6 bytes.
       symbolTable.addConstantUtf8(Constants.SYNTHETIC);
       size += 6;
@@ -264,11 +248,10 @@ public class Attribute {
    * @param output where the attributes must be written.
    */
   final void putAttributes(final SymbolTable symbolTable, final ByteVector output) {
-    final byte[] code = null;
     final int codeLength = 0;
     final int maxStack = -1;
     final int maxLocals = -1;
-    putAttributes(symbolTable, code, codeLength, maxStack, maxLocals, output);
+    putAttributes(symbolTable, null, codeLength, maxStack, maxLocals, output);
   }
 
   /**
@@ -289,13 +272,8 @@ public class Attribute {
    * Code attributes, or -1 if they are not Code attribute.
    * @param output where the attributes must be written.
    */
-  final void putAttributes(
-          final SymbolTable symbolTable,
-          final byte[] code,
-          final int codeLength,
-          final int maxStack,
-          final int maxLocals,
-          final ByteVector output) {
+  final void putAttributes(final SymbolTable symbolTable, final byte[] code,
+          final int codeLength, final int maxStack, final int maxLocals, final ByteVector output) {
     final ClassWriter classWriter = symbolTable.classWriter;
     Attribute attribute = this;
     while (attribute != null) {
@@ -318,19 +296,15 @@ public class Attribute {
    * @param signatureIndex the constant pool index of a field, method of class signature.
    * @param output where the attributes must be written.
    */
-  static void putAttributes(
-          final SymbolTable symbolTable,
-          final int accessFlags,
-          final int signatureIndex,
-          final ByteVector output) {
+  static void putAttributes(final SymbolTable symbolTable,
+          final int accessFlags, final int signatureIndex, final ByteVector output) {
     // Before Java 1.5, synthetic fields are represented with a Synthetic attribute.
     if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0
-            && symbolTable.getMajorVersion() < Opcodes.V1_5) {
+            && symbolTable.majorVersion < Opcodes.V1_5) {
       output.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
     }
     if (signatureIndex != 0) {
-      output
-              .putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
+      output.putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
               .putInt(2)
               .putShort(signatureIndex);
     }

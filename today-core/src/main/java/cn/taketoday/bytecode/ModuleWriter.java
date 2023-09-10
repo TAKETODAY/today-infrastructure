@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode;
 
 /**
@@ -25,6 +23,7 @@ package cn.taketoday.bytecode;
  *
  * @author Remi Forax
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25">JVMS
  * 4.7.25</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.26">JVMS
@@ -111,8 +110,7 @@ final class ModuleWriter extends ModuleVisitor {
 
   @Override
   public void visitRequire(final String module, final int access, final String version) {
-    requires
-            .putShort(symbolTable.addConstantModule(module).index)
+    requires.putShort(symbolTable.addConstantModule(module).index)
             .putShort(access)
             .putShort(version == null ? 0 : symbolTable.addConstantUtf8(version));
     requiresCount++;
@@ -213,8 +211,7 @@ final class ModuleWriter extends ModuleVisitor {
     // 6 bytes for name, flags and version, and 5 * 2 bytes for counts.
     int moduleAttributeLength =
             16 + requires.length + exports.length + opens.length + usesIndex.length + provides.length;
-    output
-            .putShort(symbolTable.addConstantUtf8(Constants.MODULE))
+    output.putShort(symbolTable.addConstantUtf8(Constants.MODULE))
             .putInt(moduleAttributeLength)
             .putShort(moduleNameIndex)
             .putShort(moduleFlags)
@@ -230,15 +227,13 @@ final class ModuleWriter extends ModuleVisitor {
             .putShort(providesCount)
             .putByteArray(provides.data, 0, provides.length);
     if (packageCount > 0) {
-      output
-              .putShort(symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES))
+      output.putShort(symbolTable.addConstantUtf8(Constants.MODULE_PACKAGES))
               .putInt(2 + packageIndex.length)
               .putShort(packageCount)
               .putByteArray(packageIndex.data, 0, packageIndex.length);
     }
     if (mainClassIndex > 0) {
-      output
-              .putShort(symbolTable.addConstantUtf8(Constants.MODULE_MAIN_CLASS))
+      output.putShort(symbolTable.addConstantUtf8(Constants.MODULE_MAIN_CLASS))
               .putInt(2)
               .putShort(mainClassIndex);
     }

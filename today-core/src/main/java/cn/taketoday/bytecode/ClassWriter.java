@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * A {@link ClassVisitor} that generates a corresponding ClassFile structure, as defined in the Java
@@ -26,6 +26,7 @@ package cn.taketoday.bytecode;
  * modified class from one or more existing Java classes.
  *
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html">JVMS 4</a>
  */
 public class ClassWriter extends ClassVisitor {
@@ -213,6 +214,14 @@ public class ClassWriter extends ClassVisitor {
    */
   private int compute;
 
+  /**
+   * the {@link ClassLoader} to be used by the default implementation of {@link
+   * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
+   * default.
+   */
+  @Nullable
+  private final ClassLoader classLoader;
+
   // -----------------------------------------------------------------------------------------------
   // Constructor
   // -----------------------------------------------------------------------------------------------
@@ -224,7 +233,21 @@ public class ClassWriter extends ClassVisitor {
    * be zero or more of {@link #COMPUTE_MAXS} and {@link #COMPUTE_FRAMES}.
    */
   public ClassWriter(final int flags) {
-    this(null, flags);
+    this(null, flags, null);
+  }
+
+  /**
+   * Constructs a new {@link ClassWriter} object.
+   *
+   * @param flags option flags that can be used to modify the default behavior of this class. Must
+   * be zero or more of {@link #COMPUTE_MAXS} and {@link #COMPUTE_FRAMES}.
+   * @param classLoader the {@link ClassLoader} to be used by the default implementation of {@link
+   * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
+   * default.
+   * @see #getClassLoader()
+   */
+  public ClassWriter(final int flags, @Nullable ClassLoader classLoader) {
+    this(null, flags, classLoader);
   }
 
   /**
@@ -252,6 +275,37 @@ public class ClassWriter extends ClassVisitor {
    * maximum stack size nor the stack frames will be computed for these methods</i>.
    */
   public ClassWriter(final ClassReader classReader, final int flags) {
+    this(classReader, flags, null);
+  }
+
+  /**
+   * Constructs a new {@link ClassWriter} object and enables optimizations for "mostly add" bytecode
+   * transformations. These optimizations are the following:
+   *
+   * <ul>
+   *   <li>The constant pool and bootstrap methods from the original class are copied as is in the
+   *       new class, which saves time. New constant pool entries and new bootstrap methods will be
+   *       added at the end if necessary, but unused constant pool entries or bootstrap methods
+   *       <i>won't be removed</i>.
+   *   <li>Methods that are not transformed are copied as is in the new class, directly from the
+   *       original class bytecode (i.e. without emitting visit events for all the method
+   *       instructions), which saves a <i>lot</i> of time. Untransformed methods are detected by
+   *       the fact that the {@link ClassReader} receives {@link MethodVisitor} objects that come
+   *       from a {@link ClassWriter} (and not from any other {@link ClassVisitor} instance).
+   * </ul>
+   *
+   * @param classReader the {@link ClassReader} used to read the original class. It will be used to
+   * copy the entire constant pool and bootstrap methods from the original class and also to
+   * copy other fragments of original bytecode where applicable.
+   * @param flags option flags that can be used to modify the default behavior of this class. Must
+   * be zero or more of {@link #COMPUTE_MAXS} and {@link #COMPUTE_FRAMES}. <i>These option flags
+   * do not affect methods that are copied as is in the new class. This means that neither the
+   * maximum stack size nor the stack frames will be computed for these methods</i>.
+   * @param classLoader the {@link ClassLoader} to be used by the default implementation of {@link
+   * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
+   * default.
+   */
+  public ClassWriter(final ClassReader classReader, final int flags, final @Nullable ClassLoader classLoader) {
     this.flags = flags;
     this.symbolTable = classReader == null ? new SymbolTable(this) : new SymbolTable(this, classReader);
     if ((flags & COMPUTE_FRAMES) != 0) {
@@ -263,6 +317,7 @@ public class ClassWriter extends ClassVisitor {
     else {
       this.compute = MethodWriter.COMPUTE_NOTHING;
     }
+    this.classLoader = classLoader;
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -285,13 +340,8 @@ public class ClassWriter extends ClassVisitor {
   // -----------------------------------------------------------------------------------------------
 
   @Override
-  public final void visit(
-          final int version,
-          final int access,
-          final String name,
-          final String signature,
-          final String superName,
-          final String[] interfaces) {
+  public final void visit(final int version, final int access, final String name,
+          final String signature, final String superName, final String[] interfaces) {
     this.version = version;
     this.accessFlags = access;
     SymbolTable symbolTable = this.symbolTable;
@@ -329,11 +379,8 @@ public class ClassWriter extends ClassVisitor {
           final String name, final int access, final String version) {
     final SymbolTable symbolTable = this.symbolTable;
     return moduleWriter =
-            new ModuleWriter(
-                    symbolTable,
-                    symbolTable.addConstantModule(name).index,
-                    access,
-                    version == null ? 0 : symbolTable.addConstantUtf8(version));
+            new ModuleWriter(symbolTable, symbolTable.addConstantModule(name).index,
+                    access, version == null ? 0 : symbolTable.addConstantUtf8(version));
   }
 
   @Override
@@ -445,12 +492,8 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
-  public final FieldVisitor visitField(
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final Object value) {
+  public final FieldVisitor visitField(final int access, final String name,
+          final String descriptor, final String signature, final Object value) {
     FieldWriter fieldWriter =
             new FieldWriter(symbolTable, access, name, descriptor, signature, value);
     if (firstField == null) {
@@ -463,12 +506,8 @@ public class ClassWriter extends ClassVisitor {
   }
 
   @Override
-  public final MethodVisitor visitMethod(
-          final int access,
-          final String name,
-          final String descriptor,
-          final String signature,
-          final String[] exceptions) {
+  public final MethodVisitor visitMethod(final int access, final String name,
+          final String descriptor, final String signature, final String[] exceptions) {
     MethodWriter methodWriter =
             new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions, compute);
     if (firstMethod == null) {
@@ -627,9 +666,9 @@ public class ClassWriter extends ClassVisitor {
     // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
     // statements can add attribute names to the constant pool, thereby changing its size!
     size += symbolTable.getConstantPoolLength();
-    int constantPoolCount = symbolTable.getConstantPoolCount();
+    int constantPoolCount = symbolTable.constantPoolCount;
     if (constantPoolCount > 0xFFFF) {
-      throw new ClassTooLargeException(symbolTable.getClassName(), constantPoolCount);
+      throw new ClassTooLargeException(symbolTable.className, constantPoolCount);
     }
 
     // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in
@@ -696,13 +735,9 @@ public class ClassWriter extends ClassVisitor {
     if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
       result.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
     }
-    AnnotationWriter.putAnnotations(
-            symbolTable,
-            lastRuntimeVisibleAnnotation,
-            lastRuntimeInvisibleAnnotation,
-            lastRuntimeVisibleTypeAnnotation,
-            lastRuntimeInvisibleTypeAnnotation,
-            result);
+    AnnotationWriter.putAnnotations(symbolTable,
+            lastRuntimeVisibleAnnotation, lastRuntimeInvisibleAnnotation,
+            lastRuntimeVisibleTypeAnnotation, lastRuntimeInvisibleTypeAnnotation, result);
     symbolTable.putBootstrapMethods(result);
     if (moduleWriter != null) {
       moduleWriter.putAttributes(result);
@@ -905,8 +940,7 @@ public class ClassWriter extends ClassVisitor {
    * boolean)}.
    */
   @Deprecated
-  public int newHandle(
-          final int tag, final String owner, final String name, final String descriptor) {
+  public int newHandle(final int tag, final String owner, final String name, final String descriptor) {
     return newHandle(tag, owner, name, descriptor, tag == Opcodes.H_INVOKEINTERFACE);
   }
 
@@ -925,12 +959,8 @@ public class ClassWriter extends ClassVisitor {
    * @param isInterface true if the owner is an interface.
    * @return the index of a new or already existing method type reference item.
    */
-  public int newHandle(
-          final int tag,
-          final String owner,
-          final String name,
-          final String descriptor,
-          final boolean isInterface) {
+  public int newHandle(final int tag, final String owner,
+          final String name, final String descriptor, final boolean isInterface) {
     return symbolTable.addConstantMethodHandle(tag, owner, name, descriptor, isInterface).index;
   }
 
@@ -945,14 +975,10 @@ public class ClassWriter extends ClassVisitor {
    * @param bootstrapMethodArguments the bootstrap method constant arguments.
    * @return the index of a new or already existing dynamic constant reference item.
    */
-  public int newConstantDynamic(
-          final String name,
-          final String descriptor,
-          final Handle bootstrapMethodHandle,
-          final Object... bootstrapMethodArguments) {
+  public int newConstantDynamic(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     return symbolTable.addConstantDynamic(
-            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments)
-            .index;
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments).index;
   }
 
   /**
@@ -966,14 +992,10 @@ public class ClassWriter extends ClassVisitor {
    * @param bootstrapMethodArguments the bootstrap method constant arguments.
    * @return the index of a new or already existing invokedynamic reference item.
    */
-  public int newInvokeDynamic(
-          final String name,
-          final String descriptor,
-          final Handle bootstrapMethodHandle,
-          final Object... bootstrapMethodArguments) {
+  public int newInvokeDynamic(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     return symbolTable.addConstantInvokeDynamic(
-            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments)
-            .index;
+            name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments).index;
   }
 
   /**
@@ -1001,8 +1023,7 @@ public class ClassWriter extends ClassVisitor {
    * @param isInterface {@literal true} if {@code owner} is an interface.
    * @return the index of a new or already existing method reference item.
    */
-  public int newMethod(
-          final String owner, final String name, final String descriptor, final boolean isInterface) {
+  public int newMethod(final String owner, final String name, final String descriptor, final boolean isInterface) {
     return symbolTable.addConstantMethodref(owner, name, descriptor, isInterface).index;
   }
 
@@ -1077,6 +1098,7 @@ public class ClassWriter extends ClassVisitor {
    * @return ClassLoader
    */
   protected ClassLoader getClassLoader() {
-    return getClass().getClassLoader();
+    return classLoader == null ? getClass().getClassLoader() : classLoader;
   }
+
 }

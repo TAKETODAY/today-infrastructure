@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +23,8 @@ import cn.taketoday.bytecode.BytecodeCompiler;
 import cn.taketoday.bytecode.ClassWriter;
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
-import cn.taketoday.expression.Expression;
 import cn.taketoday.bytecode.core.CodeFlow;
+import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.CompiledExpression;
 import cn.taketoday.expression.spel.SpelParserConfiguration;
 import cn.taketoday.expression.spel.ast.SpelNodeImpl;
@@ -65,6 +62,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class SpelCompiler extends BytecodeCompiler implements Opcodes {
@@ -133,7 +131,7 @@ public final class SpelCompiler extends BytecodeCompiler implements Opcodes {
   private Class<? extends CompiledExpression> createExpressionClass(SpelNodeImpl expressionToCompile) {
     // Create class outline 'spel/ExNNN extends cn.taketoday.expression.spel.CompiledExpression'
     String className = "spel/Ex" + getNextSuffix();
-    ClassWriter cw = new ExpressionClassWriter();
+    ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, childClassLoader);
     cw.visit(V1_8, ACC_PUBLIC, className, null, "cn/taketoday/expression/spel/CompiledExpression", null);
 
     // Create default constructor
@@ -182,6 +180,7 @@ public final class SpelCompiler extends BytecodeCompiler implements Opcodes {
     // TODO need to make this conditionally occur based on a debug flag
     // dump(expressionToCompile.toStringAST(), clazzName, data);
     className = StringUtils.replace(className, "/", ".");
+
     return compile(className, data);
   }
 
@@ -234,21 +233,6 @@ public final class SpelCompiler extends BytecodeCompiler implements Opcodes {
   public static void revertToInterpreted(Expression expression) {
     if (expression instanceof SpelExpression) {
       ((SpelExpression) expression).revertToInterpreted();
-    }
-  }
-
-  /**
-   * An ASM ClassWriter extension bound to the SpelCompiler's ClassLoader.
-   */
-  private class ExpressionClassWriter extends ClassWriter {
-
-    public ExpressionClassWriter() {
-      super(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-    }
-
-    @Override
-    protected ClassLoader getClassLoader() {
-      return childClassLoader;
     }
   }
 

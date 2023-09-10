@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -210,7 +207,7 @@ final class FieldWriter extends FieldVisitor {
    * @param output where the field_info structure must be put.
    */
   void putFieldInfo(final ByteVector output) {
-    boolean useSyntheticAttribute = symbolTable.getMajorVersion() < Opcodes.V1_5;
+    boolean useSyntheticAttribute = symbolTable.majorVersion < Opcodes.V1_5;
     // Put the access_flags, name_index and descriptor_index fields.
     int mask = useSyntheticAttribute ? Opcodes.ACC_SYNTHETIC : 0;
     output.putShort(accessFlags & ~mask).putShort(nameIndex).putShort(descriptorIndex);
