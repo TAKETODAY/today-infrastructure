@@ -26,7 +26,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
@@ -73,7 +72,7 @@ public abstract class AbstractLoggingSystemTests {
   }
 
   protected final LogFile getLogFile(String file, @Nullable String path, boolean applyToSystemProperties) {
-    LogFile logFile = new LogFile(file, path, ApplicationTemp.instance);
+    LogFile logFile = new LogFile(file, path);
     if (applyToSystemProperties) {
       logFile.applyToSystemProperties();
     }
