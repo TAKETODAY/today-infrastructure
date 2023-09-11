@@ -187,9 +187,9 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
 
     // ContextCustomizerFactory
     Stream.of(
-            "org.springframework.test.context.support.DynamicPropertiesContextCustomizerFactory",
-            "org.springframework.test.context.web.socket.MockServerContainerContextCustomizerFactory",
-            "org.springframework.test.context.aot.samples.basic.ImportsContextCustomizerFactory"
+            "cn.taketoday.test.context.support.DynamicPropertiesContextCustomizerFactory",
+            "cn.taketoday.test.context.web.socket.MockServerContainerContextCustomizerFactory",
+            "cn.taketoday.test.context.aot.samples.basic.ImportsContextCustomizerFactory"
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_DECLARED_CONSTRUCTORS));
 
     Stream.of(
