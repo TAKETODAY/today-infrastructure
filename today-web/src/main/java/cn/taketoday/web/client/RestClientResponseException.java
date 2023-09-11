@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -171,7 +168,7 @@ public class RestClientResponseException extends RestClientException {
    */
   @Nullable
   public <E> E getResponseBodyAs(Class<E> targetType) {
-    return getResponseBodyAs(ResolvableType.forClass(targetType));
+    return decodeBody(ResolvableType.forClass(targetType));
   }
 
   /**
@@ -180,12 +177,12 @@ public class RestClientResponseException extends RestClientException {
    */
   @Nullable
   public <E> E getResponseBodyAs(ParameterizedTypeReference<E> targetType) {
-    return getResponseBodyAs(ResolvableType.forType(targetType.getType()));
+    return decodeBody(ResolvableType.forType(targetType.getType()));
   }
 
   @SuppressWarnings("unchecked")
   @Nullable
-  private <E> E getResponseBodyAs(ResolvableType targetType) {
+  private <E> E decodeBody(ResolvableType targetType) {
     Assert.state(this.bodyConvertFunction != null, "Function to convert body not set");
     return (E) this.bodyConvertFunction.apply(targetType);
   }

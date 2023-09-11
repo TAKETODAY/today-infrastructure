@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +26,8 @@ import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Decoder;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -52,6 +49,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -238,6 +236,9 @@ class DefaultClientResponse implements ClientResponse {
 
   private Function<ResolvableType, ?> initDecodeFunction(byte[] body, @Nullable MediaType contentType) {
     return targetType -> {
+      if (ObjectUtils.isEmpty(body)) {
+        return null;
+      }
       Decoder<?> decoder = null;
       for (HttpMessageReader<?> reader : strategies().messageReaders()) {
         if (reader.canRead(targetType, contentType)) {
