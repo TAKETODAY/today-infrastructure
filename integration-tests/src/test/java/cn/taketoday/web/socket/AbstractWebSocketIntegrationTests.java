@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +41,6 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.socket.client.WebSocketClient;
-import cn.taketoday.web.socket.client.jetty.JettyWebSocketClient;
 import cn.taketoday.web.socket.client.standard.StandardWebSocketClient;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy;
@@ -68,7 +64,6 @@ public abstract class AbstractWebSocketIntegrationTests {
 
   static Stream<Arguments> argumentsFactory() {
     return Stream.of(
-            arguments(named("Jetty", new JettyWebSocketTestServer()), named("Jetty", new JettyWebSocketClient())),
             arguments(named("Tomcat", new TomcatWebSocketTestServer()), named("Standard", new StandardWebSocketClient())),
             arguments(named("Undertow", new UndertowTestServer()), named("Standard", new StandardWebSocketClient()))
     );

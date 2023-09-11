@@ -17,30 +17,16 @@
 
 package cn.taketoday.http.server.reactive;
 
-import org.eclipse.jetty.http.HttpFields;
-import org.eclipse.jetty.server.HttpOutput;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.ee10.servlet.HttpOutput;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
-import cn.taketoday.core.io.buffer.DataBuffer.ByteBufferIterator;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
-import cn.taketoday.http.DefaultHttpHeaders;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.MediaType;
-import cn.taketoday.http.support.JettyHeadersAdapter;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.MultiValueMap;
 import jakarta.servlet.AsyncContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
 
 /**
  * {@link ServletHttpHandlerAdapter} extension that uses Jetty APIs for writing
@@ -58,86 +44,28 @@ public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
   }
 
   @Override
-  protected ServletServerHttpRequest createRequest(HttpServletRequest request, AsyncContext context)
-          throws IOException, URISyntaxException {
+  protected ServletServerHttpResponse createResponse(HttpServletResponse response,
+          AsyncContext context, ServletServerHttpRequest request) throws IOException {
 
-    Assert.notNull(getServletPath(), "Servlet path is not initialized");
-    return new JettyServerHttpRequest(
-            request, context, getServletPath(), getDataBufferFactory(), getBufferSize());
-  }
-
-  @Override
-  protected ServletServerHttpResponse createResponse(
-          HttpServletResponse response, AsyncContext context, ServletServerHttpRequest request) throws IOException {
-
-    return new JettyServerHttpResponse(
+    return new Jetty12ServerHttpResponse(
             response, context, getDataBufferFactory(), getBufferSize(), request);
   }
 
-  private static final class JettyServerHttpRequest extends ServletServerHttpRequest {
+  private static final class Jetty12ServerHttpResponse extends ServletServerHttpResponse {
 
-    JettyServerHttpRequest(HttpServletRequest request, AsyncContext asyncContext,
-            String servletPath, DataBufferFactory bufferFactory, int bufferSize)
-            throws IOException, URISyntaxException {
+    Jetty12ServerHttpResponse(HttpServletResponse response, AsyncContext asyncContext,
+            DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request)
+            throws IOException {
 
-      super(createHeaders(request), request, asyncContext, servletPath, bufferFactory, bufferSize);
-    }
-
-    private static MultiValueMap<String, String> createHeaders(HttpServletRequest servletRequest) {
-      Request request = getRequest(servletRequest);
-      HttpFields.Mutable fields = HttpFields.build(request.getHttpFields());
-      return new JettyHeadersAdapter(fields);
-    }
-
-    private static Request getRequest(HttpServletRequest request) {
-      if (request instanceof Request jettyRequest) {
-        return jettyRequest;
-      }
-      else if (request instanceof HttpServletRequestWrapper wrapper) {
-        HttpServletRequest wrappedRequest = (HttpServletRequest) wrapper.getRequest();
-        return getRequest(wrappedRequest);
-      }
-      else {
-        throw new IllegalArgumentException(
-                "Cannot convert [" + request.getClass() + "] to org.eclipse.jetty.server.Request");
-      }
-    }
-  }
-
-  private static final class JettyServerHttpResponse extends ServletServerHttpResponse {
-
-    JettyServerHttpResponse(
-            HttpServletResponse response, AsyncContext asyncContext,
-            DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
-
-      super(createHeaders(response), response, asyncContext, bufferFactory, bufferSize, request);
-    }
-
-    private static HttpHeaders createHeaders(HttpServletResponse servletResponse) {
-      Response response = getResponse(servletResponse);
-      HttpFields.Mutable fields = response.getHttpFields();
-      return new DefaultHttpHeaders(new JettyHeadersAdapter(fields));
-    }
-
-    private static Response getResponse(HttpServletResponse response) {
-      if (response instanceof Response jettyResponse) {
-        return jettyResponse;
-      }
-      else if (response instanceof HttpServletResponseWrapper wrapper) {
-        HttpServletResponse wrappedResponse = (HttpServletResponse) wrapper.getResponse();
-        return getResponse(wrappedResponse);
-      }
-      else {
-        throw new IllegalArgumentException(
-                "Cannot convert [" + response.getClass() + "] to org.eclipse.jetty.server.Response");
-      }
+      super(response, asyncContext, bufferFactory, bufferSize, request);
     }
 
     @Override
     protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-      if (getOutputStream() instanceof HttpOutput httpOutput) {
+      OutputStream output = getOutputStream();
+      if (output instanceof HttpOutput httpOutput) {
         int len = 0;
-        try (ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
+        try (DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
           while (iterator.hasNext() && httpOutput.isReady()) {
             ByteBuffer byteBuffer = iterator.next();
             len += byteBuffer.remaining();
@@ -147,30 +75,6 @@ public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
         return len;
       }
       return super.writeToOutputStream(dataBuffer);
-    }
-
-    @Override
-    protected void applyHeaders() {
-      HttpServletResponse response = getNativeResponse();
-      MediaType contentType = null;
-      try {
-        contentType = getHeaders().getContentType();
-      }
-      catch (Exception ex) {
-        String rawContentType = getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
-        response.setContentType(rawContentType);
-      }
-      if (response.getContentType() == null && contentType != null) {
-        response.setContentType(contentType.toString());
-      }
-      Charset charset = (contentType != null ? contentType.getCharset() : null);
-      if (response.getCharacterEncoding() == null && charset != null) {
-        response.setCharacterEncoding(charset.name());
-      }
-      long contentLength = getHeaders().getContentLength();
-      if (contentLength != -1) {
-        response.setContentLengthLong(contentLength);
-      }
     }
   }
 

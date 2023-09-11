@@ -13,14 +13,14 @@ dependencies {
     exclude group: "org.apache.tomcat", module: "tomcat-websocket-api"
   }
   optional("org.glassfish.tyrus:tyrus-container-servlet")
-  optional("org.eclipse.jetty:jetty-webapp") {
+  optional("org.eclipse.jetty.ee10:jetty-ee10-webapp") {
     exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
   }
-  optional("org.eclipse.jetty.websocket:websocket-jetty-server") {
+  optional("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server")
+  optional("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server") {
     exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
   }
-  optional("org.eclipse.jetty.websocket:websocket-jetty-client")
-  optional("org.eclipse.jetty:jetty-client")
+
   optional("io.undertow:undertow-servlet")
   optional("io.undertow:undertow-websockets-jsr")
   optional("com.fasterxml.jackson.core:jackson-databind")

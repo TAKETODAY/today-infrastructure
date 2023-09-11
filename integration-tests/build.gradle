@@ -139,6 +139,14 @@ dependencies {
   testImplementation(testFixtures(project(":today-tx")))
   testImplementation(testFixtures(project(":today-jcache")))
 
+  testImplementation("org.eclipse.jetty.ee10:jetty-ee10-webapp") {
+    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
+  }
+  testImplementation("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server")
+  testImplementation("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server") {
+    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
+  }
+
 }
 
 

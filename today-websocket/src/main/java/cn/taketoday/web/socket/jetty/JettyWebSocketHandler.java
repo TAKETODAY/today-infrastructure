@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +17,14 @@
 
 package cn.taketoday.web.socket.jetty;
 
+import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Frame;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketFrame;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketOpen;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.core.OpCode;
 
@@ -66,8 +64,8 @@ public class JettyWebSocketHandler {
     this.wsSession = wsSession;
   }
 
-  @OnWebSocketConnect
-  public void onWebSocketConnect(Session session) {
+  @OnWebSocketOpen
+  public void onWebSocketOpen(Session session) {
     try {
       this.wsSession.initializeNativeSession(session);
       this.webSocketHandler.onOpen(this.wsSession);
@@ -89,8 +87,8 @@ public class JettyWebSocketHandler {
   }
 
   @OnWebSocketMessage
-  public void onWebSocketBinary(byte[] payload, int offset, int length) {
-    BinaryMessage message = new BinaryMessage(payload, offset, length, true);
+  public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
+    BinaryMessage message = new BinaryMessage(payload, true);
     try {
       this.webSocketHandler.handleMessage(this.wsSession, message);
     }
@@ -100,7 +98,7 @@ public class JettyWebSocketHandler {
   }
 
   @OnWebSocketFrame
-  public void onWebSocketFrame(Frame frame) {
+  public void onWebSocketFrame(Frame frame, Callback callback) {
     if (OpCode.PONG == frame.getOpCode()) {
       ByteBuffer payload = frame.getPayload() != null ? frame.getPayload() : EMPTY_PAYLOAD;
       PongMessage message = new PongMessage(payload);

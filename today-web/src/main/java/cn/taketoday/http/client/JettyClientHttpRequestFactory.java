@@ -18,7 +18,7 @@
 package cn.taketoday.http.client;
 
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.Request;
 
 import java.io.IOException;
 import java.net.URI;
@@ -37,8 +37,7 @@ import cn.taketoday.lang.Assert;
  * @see <a href="https://www.eclipse.org/jetty/documentation/jetty-11/programming-guide/index.html#pg-client-http">Jetty HttpClient</a>
  * @since 4.0
  */
-public class JettyClientHttpRequestFactory
-        implements ClientHttpRequestFactory, InitializingBean, DisposableBean {
+public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, InitializingBean, DisposableBean {
 
   private final HttpClient httpClient;
 

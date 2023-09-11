@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +17,14 @@
 
 package cn.taketoday.web.socket.jetty;
 
+import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
@@ -52,32 +52,32 @@ public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
 
   @Override
   public void sendText(String text) throws IOException {
-    obtainNativeSession().getRemote().sendString(text);
+    useSession((session, callback) -> session.sendText(text, callback));
   }
 
   @Override
   public void sendPartialText(String partialMessage, boolean isLast) throws IOException {
-    obtainNativeSession().getRemote().sendPartialString(partialMessage, isLast);
+    useSession((session, callback) -> session.sendPartialText(partialMessage, isLast, callback));
   }
 
   @Override
   public void sendBinary(BinaryMessage data) throws IOException {
-    obtainNativeSession().getRemote().sendBytes(data.getPayload());
+    useSession((session, callback) -> session.sendBinary(data.getPayload(), callback));
   }
 
   @Override
   public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-    obtainNativeSession().getRemote().sendPartialBytes(partialByte, isLast);
+    useSession((session, callback) -> session.sendPartialBinary(partialByte, isLast, callback));
   }
 
   @Override
   public void sendPing(PingMessage message) throws IOException {
-    obtainNativeSession().getRemote().sendPing(message.getPayload());
+    useSession((session, callback) -> session.sendPing(message.getPayload(), callback));
   }
 
   @Override
   public void sendPong(PongMessage message) throws IOException {
-    obtainNativeSession().getRemote().sendPong(message.getPayload());
+    useSession((session, callback) -> session.sendPong(message.getPayload(), callback));
   }
 
   @Override
@@ -93,48 +93,77 @@ public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
   @Nullable
   @Override
   public String getAcceptedProtocol() {
+    checkNativeSessionInitialized();
     return acceptedProtocol;
   }
 
   @Override
   public long getMaxIdleTimeout() {
-    return obtainNativeSession().getPolicy().getIdleTimeout().toMillis();
+    return obtainNativeSession().getIdleTimeout().toMillis();
   }
 
   @Override
   public void setMaxIdleTimeout(long timeout) {
-    obtainNativeSession().getPolicy().setIdleTimeout(Duration.ofMillis(timeout));
+    obtainNativeSession().setIdleTimeout(Duration.ofMillis(timeout));
   }
 
   @Override
   public void setMaxBinaryMessageBufferSize(int max) {
-    obtainNativeSession().getPolicy().setMaxBinaryMessageSize(max);
+    obtainNativeSession().setMaxBinaryMessageSize(max);
   }
 
   @Override
   public int getMaxBinaryMessageBufferSize() {
-    return (int) obtainNativeSession().getPolicy().getMaxBinaryMessageSize();
+    return (int) obtainNativeSession().getMaxBinaryMessageSize();
   }
 
   @Override
   public void setMaxTextMessageBufferSize(int max) {
-    obtainNativeSession().getPolicy().setMaxTextMessageSize(max);
+    obtainNativeSession().setMaxTextMessageSize(max);
   }
 
   @Override
   public int getMaxTextMessageBufferSize() {
-    return (int) obtainNativeSession().getPolicy().getMaxTextMessageSize();
+    return (int) obtainNativeSession().getMaxTextMessageSize();
   }
 
   @Override
   public void close(CloseStatus status) throws IOException {
-    obtainNativeSession().close(status.getCode(), status.getReason());
+    useSession((session, callback) -> session.close(status.getCode(), status.getReason(), callback));
   }
 
   @Override
   public void initializeNativeSession(Session session) {
     super.initializeNativeSession(session);
     this.acceptedProtocol = session.getUpgradeResponse().getAcceptedSubProtocol();
+  }
+
+  private void useSession(SessionConsumer sessionConsumer) throws IOException {
+    try {
+      Callback.Completable completable = new Callback.Completable();
+      sessionConsumer.consume(obtainNativeSession(), completable);
+      completable.get();
+    }
+    catch (ExecutionException ex) {
+      Throwable cause = ex.getCause();
+
+      if (cause instanceof IOException ioEx) {
+        throw ioEx;
+      }
+      else if (cause instanceof UncheckedIOException uioEx) {
+        throw uioEx.getCause();
+      }
+      else {
+        throw new IOException(ex.getMessage(), cause);
+      }
+    }
+    catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  private interface SessionConsumer {
+    void consume(Session session, Callback callback) throws IOException;
   }
 
 }

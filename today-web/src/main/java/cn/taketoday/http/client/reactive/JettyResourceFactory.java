@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,8 @@
 
 package cn.taketoday.http.client.reactive;
 
+import org.eclipse.jetty.io.ArrayByteBufferPool;
 import org.eclipse.jetty.io.ByteBufferPool;
-import org.eclipse.jetty.io.MappedByteBufferPool;
 import org.eclipse.jetty.util.ProcessorUtils;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -45,6 +42,7 @@ import cn.taketoday.lang.Nullable;
  * and is expected typically to be declared as a managed bean.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class JettyResourceFactory implements InitializingBean, DisposableBean {
@@ -72,7 +70,7 @@ public class JettyResourceFactory implements InitializingBean, DisposableBean {
 
   /**
    * Configure the {@link ByteBufferPool} to use.
-   * <p>By default, initialized with a {@link MappedByteBufferPool}.
+   * <p>By default, initialized with a {@link ArrayByteBufferPool}.
    *
    * @param byteBufferPool the {@link ByteBuffer} pool to use
    */
@@ -136,26 +134,26 @@ public class JettyResourceFactory implements InitializingBean, DisposableBean {
       this.executor = threadPool;
     }
     if (this.byteBufferPool == null) {
-      this.byteBufferPool = new MappedByteBufferPool(
-              2048, this.executor instanceof ThreadPool.SizedThreadPool
-                    ? ((ThreadPool.SizedThreadPool) this.executor).getMaxThreads() / 2
-                    : ProcessorUtils.availableProcessors() * 2);
+      this.byteBufferPool = new ArrayByteBufferPool(0, 2048, 65536, // from HttpClient:202
+              this.executor instanceof ThreadPool.SizedThreadPool sizedThreadPool ?
+              sizedThreadPool.getMaxThreads() / 2 :
+              ProcessorUtils.availableProcessors() * 2);
     }
-    if (this.scheduler == null) {
+    if (scheduler == null) {
       this.scheduler = new ScheduledExecutorScheduler(name + "-scheduler", false);
     }
 
-    if (this.executor instanceof LifeCycle) {
-      ((LifeCycle) this.executor).start();
+    if (executor instanceof LifeCycle lifeCycle) {
+      lifeCycle.start();
     }
-    this.scheduler.start();
+    scheduler.start();
   }
 
   @Override
   public void destroy() throws Exception {
     try {
-      if (this.executor instanceof LifeCycle) {
-        ((LifeCycle) this.executor).stop();
+      if (this.executor instanceof LifeCycle lifeCycle) {
+        lifeCycle.stop();
       }
     }
     catch (Throwable ex) {
@@ -166,7 +164,9 @@ public class JettyResourceFactory implements InitializingBean, DisposableBean {
         this.scheduler.stop();
       }
     }
-    catch (Throwable ignore) { }
+    catch (Throwable ex) {
+      // ignore
+    }
   }
 
 }

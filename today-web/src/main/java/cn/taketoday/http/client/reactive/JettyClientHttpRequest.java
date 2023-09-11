@@ -17,17 +17,16 @@
 
 package cn.taketoday.http.client.reactive;
 
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.reactive.client.ContentChunk;
+import org.eclipse.jetty.client.Request;
+import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.reactive.client.ReactiveRequest;
-import org.eclipse.jetty.util.Callback;
 import org.reactivestreams.Publisher;
 
-import java.net.HttpCookie;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -39,19 +38,21 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.support.JettyHeadersAdapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoSink;
 
 /**
  * {@link ClientHttpRequest} implementation for the Jetty ReactiveStreams HTTP client.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://github.com/jetty-project/jetty-reactive-httpclient">Jetty ReactiveStreams HttpClient</a>
  * @since 4.0
  */
 class JettyClientHttpRequest extends AbstractClientHttpRequest {
 
   private final Request jettyRequest;
+
   private final DataBufferFactory bufferFactory;
+
   private final ReactiveRequest.Builder builder;
 
   public JettyClientHttpRequest(Request jettyRequest, DataBufferFactory bufferFactory) {
@@ -90,7 +91,9 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     return Mono.<Void>create(sink -> {
               ReactiveRequest.Content content = Flux.from(body)
-                      .map(buffer -> toContentChunk(buffer, sink))
+                      .concatMapIterable(this::toContentChunks)
+                      .concatWith(Mono.just(Content.Chunk.EOF))
+                      .doOnError(sink::error)
                       .as(chunks -> ReactiveRequest.Content.fromPublisher(chunks, getContentType()));
               builder.content(content);
               sink.success();
@@ -110,28 +113,28 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
     return contentType != null ? contentType.toString() : MediaType.APPLICATION_OCTET_STREAM_VALUE;
   }
 
-  private ContentChunk toContentChunk(DataBuffer dataBuffer, MonoSink<Void> sink) {
-    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
-    dataBuffer.toByteBuffer(byteBuffer);
-    return new ContentChunk(byteBuffer, new Callback() {
-      @Override
-      public void succeeded() {
-        DataBufferUtils.release(dataBuffer);
-      }
-
-      @Override
-      public void failed(Throwable t) {
-        DataBufferUtils.release(dataBuffer);
-        sink.error(t);
-      }
-    });
+  private List<Content.Chunk> toContentChunks(DataBuffer dataBuffer) {
+    ArrayList<Content.Chunk> result = new ArrayList<>(1);
+    DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers();
+    while (iterator.hasNext()) {
+      ByteBuffer byteBuffer = iterator.next();
+      boolean last = !iterator.hasNext();
+      Content.Chunk chunk = Content.Chunk.from(byteBuffer, false, () -> {
+        if (last) {
+          iterator.close();
+          DataBufferUtils.release(dataBuffer);
+        }
+      });
+      result.add(chunk);
+    }
+    return result;
   }
 
   @Override
   protected void applyCookies() {
-    for (Map.Entry<String, List<cn.taketoday.http.HttpCookie>> entry : getCookies().entrySet()) {
-      for (cn.taketoday.http.HttpCookie cookie : entry.getValue()) {
-        jettyRequest.cookie(new HttpCookie(cookie.getName(), cookie.getValue()));
+    for (var entry : getCookies().entrySet()) {
+      for (var cookie : entry.getValue()) {
+        jettyRequest.cookie(HttpCookie.build(cookie.getName(), cookie.getValue()).build());
       }
     }
   }
@@ -140,7 +143,7 @@ class JettyClientHttpRequest extends AbstractClientHttpRequest {
   protected void applyHeaders() {
     HttpHeaders headers = getHeaders();
     jettyRequest.headers(fields -> {
-      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+      for (var entry : headers.entrySet()) {
         String key = entry.getKey();
         for (String v : entry.getValue()) {
           fields.add(key, v);

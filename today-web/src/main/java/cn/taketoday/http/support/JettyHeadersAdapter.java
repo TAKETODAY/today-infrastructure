@@ -48,8 +48,6 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
 
   private final HttpFields headers;
 
-  private static final String IMMUTABLE_HEADER_ERROR = "Immutable headers";
-
   /**
    * Creates a new {@code JettyHeadersAdapter} based on the given
    * {@code HttpFields} instance.
@@ -68,18 +66,26 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
 
   @Override
   public void add(String key, @Nullable String value) {
-    if (!(this.headers instanceof HttpFields.Mutable mutableHttpFields)) {
-      throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
+    if (value != null) {
+      HttpFields.Mutable mutableHttpFields = mutableFields();
+      mutableHttpFields.add(key, value);
     }
-    mutableHttpFields.add(key, value);
+  }
+
+  @Override
+  public void addAll(String key, Collection<? extends String> values) {
+    values.forEach(value -> add(key, value));
   }
 
   @Override
   public void set(String key, @Nullable String value) {
-    if (!(this.headers instanceof HttpFields.Mutable mutableHttpFields)) {
-      throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
+    HttpFields.Mutable mutableHttpFields = mutableFields();
+    if (value != null) {
+      mutableHttpFields.put(key, value);
     }
-    mutableHttpFields.put(key, value);
+    else {
+      mutableHttpFields.remove(key);
+    }
   }
 
   @Override
@@ -127,9 +133,7 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
   @Nullable
   @Override
   public List<String> put(String key, List<String> value) {
-    if (!(this.headers instanceof HttpFields.Mutable mutableHttpFields)) {
-      throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
-    }
+    HttpFields.Mutable mutableHttpFields = mutableFields();
     List<String> oldValues = get(key);
     mutableHttpFields.put(key, value);
     return oldValues;
@@ -138,9 +142,7 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
   @Nullable
   @Override
   public List<String> remove(Object key) {
-    if (!(this.headers instanceof HttpFields.Mutable mutableHttpFields)) {
-      throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
-    }
+    HttpFields.Mutable mutableHttpFields = mutableFields();
     if (key instanceof String name) {
       List<String> oldValues = get(key);
       mutableHttpFields.remove(name);
@@ -156,9 +158,7 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
 
   @Override
   public void clear() {
-    if (!(this.headers instanceof HttpFields.Mutable mutableHttpFields)) {
-      throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
-    }
+    HttpFields.Mutable mutableHttpFields = mutableFields();
     mutableHttpFields.clear();
   }
 
@@ -186,6 +186,15 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
         return headers.size();
       }
     };
+  }
+
+  private HttpFields.Mutable mutableFields() {
+    if (this.headers instanceof HttpFields.Mutable mutableHttpFields) {
+      return mutableHttpFields;
+    }
+    else {
+      throw new IllegalStateException("Immutable headers");
+    }
   }
 
   @Override
@@ -228,9 +237,7 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
 
     @Override
     public List<String> setValue(List<String> value) {
-      if (!(headers instanceof HttpFields.Mutable mutableHttpFields)) {
-        throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
-      }
+      HttpFields.Mutable mutableHttpFields = mutableFields();
       List<String> previousValues = headers.getValuesList(this.key);
       mutableHttpFields.put(this.key, value);
       return previousValues;
@@ -274,9 +281,7 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
 
     @Override
     public void remove() {
-      if (!(headers instanceof HttpFields.Mutable mutableHttpFields)) {
-        throw new IllegalStateException(IMMUTABLE_HEADER_ERROR);
-      }
+      HttpFields.Mutable mutableHttpFields = mutableFields();
       if (this.currentName == null) {
         throw new IllegalStateException("No current Header in iterator");
       }
