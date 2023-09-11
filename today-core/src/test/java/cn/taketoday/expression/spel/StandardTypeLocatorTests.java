@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +18,11 @@
 package cn.taketoday.expression.spel;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-import java.util.List;
+import java.net.URL;
 
-import cn.taketoday.expression.EvaluationException;
-import cn.taketoday.expression.spel.SpelEvaluationException;
-import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.support.StandardTypeLocator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,32 +34,26 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Andy Clement
  */
 class StandardTypeLocatorTests {
+  final StandardTypeLocator locator = new StandardTypeLocator();
 
-  @Test
-  void testImports() throws EvaluationException {
-    StandardTypeLocator locator = new StandardTypeLocator();
-    assertThat(locator.findType("java.lang.Integer")).isEqualTo(Integer.class);
-    assertThat(locator.findType("java.lang.String")).isEqualTo(String.class);
+  @ParameterizedTest(name = "[{index}] {0} --> {1}")
+  @CsvSource(delimiterString = "-->", textBlock = """
+          Boolean           --> java.lang.Boolean
+          Character         --> java.lang.Character
+          Number            --> java.lang.Number
+          Integer           --> java.lang.Integer
+          String            --> java.lang.String
 
-    List<String> prefixes = locator.getImportPrefixes();
-    assertThat(prefixes.size()).isEqualTo(1);
-    assertThat(prefixes.contains("java.lang")).isTrue();
-    assertThat(prefixes.contains("java.util")).isFalse();
-
-    assertThat(locator.findType("Boolean")).isEqualTo(Boolean.class);
-    // currently does not know about java.util by default
-    // assertEquals(java.util.List.class,locator.findType("List"));
-
-    assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-                    locator.findType("URL"))
-            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.TYPE_NOT_FOUND));
-    locator.registerImport("java.net");
-    assertThat(locator.findType("URL")).isEqualTo(java.net.URL.class);
+          java.lang.Boolean --> java.lang.Boolean
+          java.lang.Integer --> java.lang.Integer
+          java.lang.String  --> java.lang.String
+          """)
+  void defaultImports(String typeName, Class<?> type) {
+    assertThat(locator.findType(typeName)).isEqualTo(type);
   }
 
   @Test
   void importClass() {
-    StandardTypeLocator locator = new StandardTypeLocator();
     assertThat(locator.findType("Integer")).isEqualTo(Integer.class);
     assertThat(locator.findType("String")).isEqualTo(String.class);
 
@@ -86,6 +76,25 @@ class StandardTypeLocatorTests {
     locator.registerAlias(B.class, "b");
 
     assertThat(locator.findType("b")).isEqualTo(B.class);
+  }
+
+  @Test
+  void importPrefixes() {
+    assertThat(locator.getImportPrefixes()).containsExactly("java.lang");
+  }
+
+  @Test
+  void typeNotFound() {
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> locator.findType("URL"))
+            .extracting(SpelEvaluationException::getMessageCode)
+            .isEqualTo(SpelMessage.TYPE_NOT_FOUND);
+  }
+
+  @Test
+  void registerImport() {
+    locator.registerImport("java.net");
+    assertThat(locator.findType("URL")).isEqualTo(URL.class);
   }
 
   static class A { }
