@@ -154,7 +154,7 @@ public abstract class ObjectUtils {
       return ((Optional<?>) obj).isEmpty();
     }
     if (obj instanceof CharSequence) {
-      return ((CharSequence) obj).length() == 0;
+      return ((CharSequence) obj).isEmpty();
     }
     if (obj instanceof Collection) {
       return ((Collection<?>) obj).isEmpty();
