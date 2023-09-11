@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,6 +57,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractJdbcInsert {
@@ -236,6 +234,28 @@ public abstract class AbstractJdbcInsert {
    */
   public int[] getInsertTypes() {
     return this.insertTypes;
+  }
+
+  /**
+   * Specify whether SQL identifiers should be quoted.
+   * <p>Defaults to {@code false}. If set to {@code true}, the identifier
+   * quote string for the underlying database will be used to quote SQL
+   * identifiers in generated SQL statements.
+   *
+   * @param quoteIdentifiers whether identifiers should be quoted
+   * @see java.sql.DatabaseMetaData#getIdentifierQuoteString()
+   */
+  public void setQuoteIdentifiers(boolean quoteIdentifiers) {
+    this.tableMetaDataContext.setQuoteIdentifiers(quoteIdentifiers);
+  }
+
+  /**
+   * Get the {@code quoteIdentifiers} flag.
+   *
+   * @see #setQuoteIdentifiers(boolean)
+   */
+  public boolean isQuoteIdentifiers() {
+    return this.tableMetaDataContext.isQuoteIdentifiers();
   }
 
   //-------------------------------------------------------------------------

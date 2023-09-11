@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,11 +46,11 @@ import static org.mockito.Mockito.verify;
  */
 class SimpleJdbcInsertTests {
 
-  private final Connection connection = mock(Connection.class);
+  private final Connection connection = mock();
 
-  private final DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+  private final DatabaseMetaData databaseMetaData = mock();
 
-  private final DataSource dataSource = mock(DataSource.class);
+  private final DataSource dataSource = mock();
 
   @BeforeEach
   void setUp() throws Exception {
@@ -66,9 +63,32 @@ class SimpleJdbcInsertTests {
     verify(connection).close();
   }
 
+  /**
+   * This method does not test any functionality but rather only that
+   * configuration methods can be chained without compiler errors.
+   */
+  @Test
+  // gh-31177
+  void methodChaining() throws Exception {
+    SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
+            .withCatalogName("my_catalog")
+            .withSchemaName("my_schema")
+            .withTableName("my_table")
+            .usingColumns("col1", "col2")
+            .usingGeneratedKeyColumns("id")
+            .usingQuotedIdentifiers()
+            .withoutTableColumnMetaDataAccess()
+            .includeSynonymsForTableColumnMetaData();
+
+    assertThat(insert).isNotNull();
+
+    // Satisfy the @AfterEach mock verification.
+    connection.close();
+  }
+
   @Test
   void noSuchTable() throws Exception {
-    ResultSet resultSet = mock(ResultSet.class);
+    ResultSet resultSet = mock();
     given(resultSet.next()).willReturn(false);
 
     given(databaseMetaData.getDatabaseProductName()).willReturn("MyDB");
@@ -89,13 +109,13 @@ class SimpleJdbcInsertTests {
   @Test
     // gh-26486
   void retrieveColumnNamesFromMetadata() throws Exception {
-    ResultSet tableResultSet = mock(ResultSet.class);
+    ResultSet tableResultSet = mock();
     given(tableResultSet.next()).willReturn(true, false);
 
     given(databaseMetaData.getUserName()).willReturn("me");
     given(databaseMetaData.getTables(null, null, "me", null)).willReturn(tableResultSet);
 
-    ResultSet columnResultSet = mock(ResultSet.class);
+    ResultSet columnResultSet = mock();
     given(databaseMetaData.getColumns(null, "me", null, null)).willReturn(columnResultSet);
     given(columnResultSet.next()).willReturn(true, true, false);
     given(columnResultSet.getString("COLUMN_NAME")).willReturn("col1", "col2");
@@ -113,13 +133,13 @@ class SimpleJdbcInsertTests {
   @Test
     // gh-26486
   void exceptionThrownWhileRetrievingColumnNamesFromMetadata() throws Exception {
-    ResultSet tableResultSet = mock(ResultSet.class);
+    ResultSet tableResultSet = mock();
     given(tableResultSet.next()).willReturn(true, false);
 
     given(databaseMetaData.getUserName()).willReturn("me");
     given(databaseMetaData.getTables(null, null, "me", null)).willReturn(tableResultSet);
 
-    ResultSet columnResultSet = mock(ResultSet.class);
+    ResultSet columnResultSet = mock();
     given(databaseMetaData.getColumns(null, "me", null, null)).willReturn(columnResultSet);
     // true, true, false --> simulates processing of two columns
     given(columnResultSet.next()).willReturn(true, true, false);
@@ -140,6 +160,46 @@ class SimpleJdbcInsertTests {
 
     verify(columnResultSet).close();
     verify(tableResultSet).close();
+  }
+
+  @Test
+  void usingColumns() {
+    SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
+            .withTableName("my_table")
+            .usingColumns("col1", "col2");
+
+    insert.compile();
+
+    assertThat(insert.getInsertString()).isEqualTo("INSERT INTO my_table (col1, col2) VALUES(?, ?)");
+  }
+
+  @Test
+    //  gh-24013
+  void usingColumnsAndQuotedIdentifiers() throws Exception {
+    SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
+            .withTableName("my_table")
+            .usingColumns("col1", "col2")
+            .usingQuotedIdentifiers();
+
+    given(databaseMetaData.getIdentifierQuoteString()).willReturn("`");
+
+    insert.compile();
+    assertThat(insert.getInsertString()).isEqualTo("INSERT INTO `my_table` (`col1`, `col2`) VALUES(?, ?)");
+  }
+
+  @Test
+    //  gh-24013
+  void usingColumnsAndQuotedIdentifiersWithSchemaName() throws Exception {
+    SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
+            .withSchemaName("my_schema")
+            .withTableName("my_table")
+            .usingColumns("col1", "col2")
+            .usingQuotedIdentifiers();
+
+    given(databaseMetaData.getIdentifierQuoteString()).willReturn("`");
+
+    insert.compile();
+    assertThat(insert.getInsertString()).isEqualTo("INSERT INTO `my_schema`.`my_table` (`col1`, `col2`) VALUES(?, ?)");
   }
 
 }

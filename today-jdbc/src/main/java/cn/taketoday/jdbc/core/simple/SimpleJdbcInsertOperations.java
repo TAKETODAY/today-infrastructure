@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +24,13 @@ import cn.taketoday.jdbc.support.KeyHolder;
 
 /**
  * Interface specifying the API for a Simple JDBC Insert implemented by {@link SimpleJdbcInsert}.
- * This interface is not often used directly, but provides the option to enhance testability,
+ *
+ * <p>This interface is not often used directly, but provides the option to enhance testability,
  * as it can easily be mocked or stubbed.
  *
  * @author Thomas Risberg
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface SimpleJdbcInsertOperations {
@@ -39,7 +39,7 @@ public interface SimpleJdbcInsertOperations {
    * Specify the table name to be used for the insert.
    *
    * @param tableName the name of the stored table
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations withTableName(String tableName);
 
@@ -47,7 +47,7 @@ public interface SimpleJdbcInsertOperations {
    * Specify the schema name, if any, to be used for the insert.
    *
    * @param schemaName the name of the schema
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations withSchemaName(String schemaName);
 
@@ -55,7 +55,7 @@ public interface SimpleJdbcInsertOperations {
    * Specify the catalog name, if any, to be used for the insert.
    *
    * @param catalogName the name of the catalog
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations withCatalogName(String catalogName);
 
@@ -63,31 +63,42 @@ public interface SimpleJdbcInsertOperations {
    * Specify the column names that the insert statement should be limited to use.
    *
    * @param columnNames one or more column names
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations usingColumns(String... columnNames);
 
   /**
-   * Specify the names of any columns that have auto generated keys.
+   * Specify the names of any columns that have auto-generated keys.
    *
    * @param columnNames one or more column names
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations usingGeneratedKeyColumns(String... columnNames);
 
   /**
+   * Specify that SQL identifiers should be quoted.
+   * <p>If this method is invoked, the identifier quote string for the underlying
+   * database will be used to quote SQL identifiers in generated SQL statements.
+   * In this context, SQL identifiers refer to schema, table, and column names.
+   *
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
+   * @see java.sql.DatabaseMetaData#getIdentifierQuoteString()
+   */
+  SimpleJdbcInsertOperations usingQuotedIdentifiers();
+
+  /**
    * Turn off any processing of column meta-data information obtained via JDBC.
    *
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations withoutTableColumnMetaDataAccess();
 
   /**
    * Include synonyms for the column meta-data lookups via JDBC.
    * <p>Note: This is only necessary to include for Oracle since other databases
-   * supporting synonyms seems to include the synonyms automatically.
+   * supporting synonyms seem to include the synonyms automatically.
    *
-   * @return the instance of this SimpleJdbcInsert
+   * @return this {@code SimpleJdbcInsert} (for method chaining)
    */
   SimpleJdbcInsertOperations includeSynonymsForTableColumnMetaData();
 

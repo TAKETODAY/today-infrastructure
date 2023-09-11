@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -38,6 +36,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Class to manage context meta-data used for the configuration
@@ -71,6 +70,9 @@ public class TableMetaDataContext {
 
   // Should we override default for including synonyms for meta-data lookups
   private boolean overrideIncludeSynonymsDefault = false;
+
+  // Are we quoting identifiers?
+  private boolean quoteIdentifiers = false;
 
   // The provider of table meta-data
   @Nullable
@@ -150,6 +152,28 @@ public class TableMetaDataContext {
    */
   public boolean isOverrideIncludeSynonymsDefault() {
     return this.overrideIncludeSynonymsDefault;
+  }
+
+  /**
+   * Specify whether we are quoting SQL identifiers.
+   * <p>Defaults to {@code false}. If set to {@code true}, the identifier
+   * quote string for the underlying database will be used to quote SQL
+   * identifiers in generated SQL statements.
+   *
+   * @param quoteIdentifiers whether identifiers should be quoted
+   * @see java.sql.DatabaseMetaData#getIdentifierQuoteString()
+   */
+  public void setQuoteIdentifiers(boolean quoteIdentifiers) {
+    this.quoteIdentifiers = quoteIdentifiers;
+  }
+
+  /**
+   * Are we quoting identifiers?
+   *
+   * @see #setQuoteIdentifiers(boolean)
+   */
+  public boolean isQuoteIdentifiers() {
+    return this.quoteIdentifiers;
   }
 
   /**
@@ -273,17 +297,41 @@ public class TableMetaDataContext {
    * @return the insert string to be used
    */
   public String createInsertString(String... generatedKeyNames) {
-    LinkedHashSet<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
+    Set<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
     for (String key : generatedKeyNames) {
       keys.add(key.toUpperCase());
     }
+
+    String identifierQuoteString = (isQuoteIdentifiers() ?
+                                    obtainMetaDataProvider().getIdentifierQuoteString() : null);
+    boolean quoting = StringUtils.hasText(identifierQuoteString);
+
     StringBuilder insertStatement = new StringBuilder();
     insertStatement.append("INSERT INTO ");
-    if (getSchemaName() != null) {
-      insertStatement.append(getSchemaName());
+
+    String schemaName = getSchemaName();
+    if (schemaName != null) {
+      if (quoting) {
+        insertStatement.append(identifierQuoteString);
+        insertStatement.append(this.metaDataProvider.schemaNameToUse(schemaName));
+        insertStatement.append(identifierQuoteString);
+      }
+      else {
+        insertStatement.append(schemaName);
+      }
       insertStatement.append('.');
     }
-    insertStatement.append(getTableName());
+
+    String tableName = getTableName();
+    if (quoting) {
+      insertStatement.append(identifierQuoteString);
+      insertStatement.append(this.metaDataProvider.tableNameToUse(tableName));
+      insertStatement.append(identifierQuoteString);
+    }
+    else {
+      insertStatement.append(tableName);
+    }
+
     insertStatement.append(" (");
     int columnCount = 0;
     for (String columnName : getTableColumns()) {
@@ -292,18 +340,26 @@ public class TableMetaDataContext {
         if (columnCount > 1) {
           insertStatement.append(", ");
         }
-        insertStatement.append(columnName);
+        if (quoting) {
+          insertStatement.append(identifierQuoteString);
+          insertStatement.append(this.metaDataProvider.columnNameToUse(columnName));
+          insertStatement.append(identifierQuoteString);
+        }
+        else {
+          insertStatement.append(columnName);
+        }
       }
     }
     insertStatement.append(") VALUES(");
     if (columnCount < 1) {
       if (this.generatedKeyColumnsUsed) {
         if (logger.isDebugEnabled()) {
-          logger.debug("Unable to locate non-key columns for table '{}' so an empty insert statement is generated", getTableName());
+          logger.debug("Unable to locate non-key columns for table '" +
+                  tableName + "' so an empty insert statement is generated");
         }
       }
       else {
-        String message = "Unable to locate columns for table '" + getTableName()
+        String message = "Unable to locate columns for table '" + tableName
                 + "' so an insert statement can't be generated.";
         if (isAccessTableColumnMetaData()) {
           message += " Consider specifying explicit column names -- for example, via SimpleJdbcInsert#usingColumns().";

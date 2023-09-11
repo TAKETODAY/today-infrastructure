@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +45,7 @@ import cn.taketoday.jdbc.support.KeyHolder;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see java.sql.DatabaseMetaData
  * @see JdbcTemplate
  * @since 4.0
@@ -55,8 +53,8 @@ import cn.taketoday.jdbc.support.KeyHolder;
 public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcInsertOperations {
 
   /**
-   * Constructor that takes one parameter with the JDBC DataSource to use when creating the
-   * JdbcTemplate.
+   * Constructor that accepts the JDBC {@link DataSource} to use when creating
+   * the {@link JdbcTemplate}.
    *
    * @param dataSource the {@code DataSource} to use
    * @see JdbcTemplate#setDataSource
@@ -66,7 +64,7 @@ public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcIn
   }
 
   /**
-   * Alternative Constructor that takes one parameter with the JdbcTemplate to be used.
+   * Alternative constructor that accepts the {@link JdbcTemplate} to be used.
    *
    * @param jdbcTemplate the {@code JdbcTemplate} to use
    * @see JdbcTemplate#setDataSource
@@ -106,13 +104,19 @@ public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcIn
   }
 
   @Override
-  public SimpleJdbcInsertOperations withoutTableColumnMetaDataAccess() {
+  public SimpleJdbcInsert usingQuotedIdentifiers() {
+    setQuoteIdentifiers(true);
+    return this;
+  }
+
+  @Override
+  public SimpleJdbcInsert withoutTableColumnMetaDataAccess() {
     setAccessTableColumnMetaData(false);
     return this;
   }
 
   @Override
-  public SimpleJdbcInsertOperations includeSynonymsForTableColumnMetaData() {
+  public SimpleJdbcInsert includeSynonymsForTableColumnMetaData() {
     setOverrideIncludeSynonymsDefault(true);
     return this;
   }
@@ -147,8 +151,8 @@ public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcIn
     return doExecuteAndReturnKeyHolder(parameterSource);
   }
 
-  @Override
   @SuppressWarnings("unchecked")
+  @Override
   public int[] executeBatch(Map<String, ?>... batch) {
     return doExecuteBatch(batch);
   }

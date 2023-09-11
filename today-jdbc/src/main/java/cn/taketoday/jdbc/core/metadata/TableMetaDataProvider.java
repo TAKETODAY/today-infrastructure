@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +33,8 @@ import cn.taketoday.lang.Nullable;
  * This is intended for internal use by the Simple JDBC classes.
  *
  * @author Thomas Risberg
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface TableMetaDataProvider {
@@ -50,7 +49,8 @@ public interface TableMetaDataProvider {
 
   /**
    * Initialize using provided database meta-data, table and column information.
-   * This initialization can be turned off by specifying that column meta-data should not be used.
+   * <p>This initialization can be turned off by specifying that column meta-data
+   * should not be used.
    *
    * @param databaseMetaData used to retrieve database specific information
    * @param catalogName name of catalog to use (or {@code null} if none)
@@ -58,43 +58,53 @@ public interface TableMetaDataProvider {
    * @param tableName name of the table
    * @throws SQLException in case of initialization failure
    */
-  void initializeWithTableColumnMetaData(
-          DatabaseMetaData databaseMetaData, @Nullable String catalogName,
+  void initializeWithTableColumnMetaData(DatabaseMetaData databaseMetaData, @Nullable String catalogName,
           @Nullable String schemaName, @Nullable String tableName) throws SQLException;
 
   /**
    * Get the table name formatted based on meta-data information.
-   * This could include altering the case.
+   * <p>This could include altering the case.
    */
   @Nullable
   String tableNameToUse(@Nullable String tableName);
 
   /**
+   * Get the column name formatted based on meta-data information.
+   * <p>This could include altering the case.
+   */
+  @Nullable
+  String columnNameToUse(@Nullable String columnName);
+
+  /**
    * Get the catalog name formatted based on meta-data information.
-   * This could include altering the case.
+   * <p>This could include altering the case.
    */
   @Nullable
   String catalogNameToUse(@Nullable String catalogName);
 
   /**
    * Get the schema name formatted based on meta-data information.
-   * This could include altering the case.
+   * <p>This could include altering the case.
    */
   @Nullable
   String schemaNameToUse(@Nullable String schemaName);
 
   /**
-   * Provide any modification of the catalog name passed in to match the meta-data currently used.
-   * The returned value will be used for meta-data lookups.
-   * This could include altering the case used or providing a base catalog if none is provided.
+   * Provide any modification of the catalog name passed in to match the meta-data
+   * currently used.
+   * <p>The returned value will be used for meta-data lookups.
+   * <p>This could include altering the case used or providing a base catalog
+   * if none is provided.
    */
   @Nullable
   String metaDataCatalogNameToUse(@Nullable String catalogName);
 
   /**
-   * Provide any modification of the schema name passed in to match the meta-data currently used.
-   * The returned value will be used for meta-data lookups.
-   * This could include altering the case used or providing a base schema if none is provided.
+   * Provide any modification of the schema name passed in to match the meta-data
+   * currently used.
+   * <p>The returned value will be used for meta-data lookups.
+   * <p>This could include altering the case used or providing a base schema
+   * if none is provided.
    */
   @Nullable
   String metaDataSchemaNameToUse(@Nullable String schemaName);
@@ -105,28 +115,35 @@ public interface TableMetaDataProvider {
   boolean isTableColumnMetaDataUsed();
 
   /**
-   * Does this database support the JDBC 3.0 feature of retrieving generated keys:
-   * {@link DatabaseMetaData#supportsGetGeneratedKeys()}?
+   * Does this database support the JDBC feature for retrieving generated keys?
+   *
+   * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
    */
   boolean isGetGeneratedKeysSupported();
 
   /**
-   * Does this database support a simple query to retrieve the generated key when
-   * the JDBC 3.0 feature of retrieving generated keys is not supported?
+   * Does this database support a simple query to retrieve generated keys when
+   * the JDBC feature for retrieving generated keys is not supported?
    *
    * @see #isGetGeneratedKeysSupported()
+   * @see #getSimpleQueryForGetGeneratedKey(String, String)
    */
   boolean isGetGeneratedKeysSimulated();
 
   /**
-   * Get the simple query to retrieve a generated key.
+   * Get the simple query to retrieve generated keys when the JDBC feature for
+   * retrieving generated keys is not supported.
+   *
+   * @see #isGetGeneratedKeysSimulated()
    */
   @Nullable
   String getSimpleQueryForGetGeneratedKey(String tableName, String keyColumnName);
 
   /**
-   * Does this database support a column name String array for retrieving generated keys:
-   * {@link java.sql.Connection#createStruct(String, Object[])}?
+   * Does this database support a column name String array for retrieving generated
+   * keys?
+   *
+   * @see java.sql.Connection#createStruct(String, Object[])
    */
   boolean isGeneratedKeysColumnNameArraySupported();
 
@@ -136,6 +153,16 @@ public interface TableMetaDataProvider {
    * @return a List of {@link TableParameterMetaData}
    */
   List<TableParameterMetaData> getTableParameterMetaData();
+
+  /**
+   * Get the string used to quote SQL identifiers.
+   * <p>This method returns a space ({@code " "}) if identifier quoting is not
+   * supported.
+   *
+   * @return database identifier quote string
+   * @see DatabaseMetaData#getIdentifierQuoteString()
+   */
+  String getIdentifierQuoteString();
 
   /**
    * Create a {@link TableMetaDataProvider} based on the database meta-data.
