@@ -33,7 +33,7 @@ import cn.taketoday.util.StringUtils;
  * @author Sam Brannen
  * @since 4.0
  */
-class YamlPropertySourceFactory implements PropertySourceFactory {
+public class YamlPropertySourceFactory implements PropertySourceFactory {
 
   @Override
   public PropertySource<?> createPropertySource(String name, EncodedResource encodedResource) {

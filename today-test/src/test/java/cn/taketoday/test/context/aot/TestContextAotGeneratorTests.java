@@ -53,6 +53,7 @@ import cn.taketoday.test.context.aot.samples.web.WebInfraJupiterTests;
 import cn.taketoday.test.context.aot.samples.web.WebInfraVintageTests;
 import cn.taketoday.test.context.aot.samples.xml.XmlInfraJupiterTests;
 import cn.taketoday.test.context.aot.samples.xml.XmlInfraVintageTests;
+import cn.taketoday.test.context.env.YamlPropertySourceFactory;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.util.function.ThrowingConsumer;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -186,9 +187,9 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
 
     // ContextCustomizerFactory
     Stream.of(
-            "cn.taketoday.test.context.support.DynamicPropertiesContextCustomizerFactory",
-            "cn.taketoday.test.context.web.socket.MockServerContainerContextCustomizerFactory",
-            "cn.taketoday.test.context.aot.samples.basic.ImportsContextCustomizerFactory"
+            "org.springframework.test.context.support.DynamicPropertiesContextCustomizerFactory",
+            "org.springframework.test.context.web.socket.MockServerContainerContextCustomizerFactory",
+            "org.springframework.test.context.aot.samples.basic.ImportsContextCustomizerFactory"
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_DECLARED_CONSTRUCTORS));
 
     Stream.of(
@@ -206,7 +207,19 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
 
     // @TestPropertySource(locations = ...)
     assertThat(resource().forResource("cn/taketoday/test/context/aot/samples/basic/BasicInfraVintageTests.properties"))
+            .as("@TestPropertySource(locations)")
             .accepts(runtimeHints);
+
+    // @YamlTestProperties(...)
+    assertThat(resource().forResource("cn/taketoday/test/context/aot/samples/basic/test1.yaml"))
+            .as("@YamlTestProperties: test1.yaml")
+            .accepts(runtimeHints);
+    assertThat(resource().forResource("cn/taketoday/test/context/aot/samples/basic/test2.yaml"))
+            .as("@YamlTestProperties: test2.yaml")
+            .accepts(runtimeHints);
+
+    // @TestPropertySource(factory = ...)
+    assertReflectionRegistered(runtimeHints, YamlPropertySourceFactory.class.getName(), INVOKE_DECLARED_CONSTRUCTORS);
 
     // @WebAppConfiguration(value = ...)
     assertThat(resource().forResource("META-INF/web-resources/resources/Infra.js")).accepts(runtimeHints);

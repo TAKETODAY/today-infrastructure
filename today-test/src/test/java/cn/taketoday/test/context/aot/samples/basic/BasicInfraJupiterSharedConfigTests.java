@@ -23,6 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.aot.samples.common.MessageService;
 import cn.taketoday.test.context.aot.samples.management.ManagementConfiguration;
+import cn.taketoday.test.context.env.YamlTestProperties;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @JUnitConfig({ BasicTestConfiguration.class, ManagementConfiguration.class })
 @TestPropertySource(properties = "test.engine = jupiter")
+// We cannot use `classpath*:` in AOT tests until gh-31088 is resolved.
+// @YamlTestProperties("classpath*:**/aot/samples/basic/test?.yaml")
+@YamlTestProperties({
+        "classpath:cn/taketoday/test/context/aot/samples/basic/test1.yaml",
+        "classpath:cn/taketoday/test/context/aot/samples/basic/test2.yaml"
+})
 public class BasicInfraJupiterSharedConfigTests {
 
   @Autowired
@@ -50,8 +57,7 @@ public class BasicInfraJupiterSharedConfigTests {
   void test() {
     assertThat(messageService.generateMessage()).isEqualTo("Hello, AOT!");
     assertThat(testEngine).isEqualTo("jupiter");
-    assertThat(context.getEnvironment().getProperty("test.engine"))
-            .as("@TestPropertySource").isEqualTo("jupiter");
+    BasicInfraJupiterTests.assertEnvProperties(context);
   }
 
 }

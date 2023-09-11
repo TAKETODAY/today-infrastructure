@@ -683,7 +683,7 @@ public abstract class AbstractServletWebServerFactoryTests {
     this.webServer = factory.getWebServer(exampleServletRegistration());
     this.webServer.start();
     ClientHttpResponse response = getClientResponse(
-            getLocalUrl("/org/springframework/boot/SpringApplication.class"));
+            getLocalUrl("/cn/taketoday/boot/SpringApplication.class"));
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
   }
 

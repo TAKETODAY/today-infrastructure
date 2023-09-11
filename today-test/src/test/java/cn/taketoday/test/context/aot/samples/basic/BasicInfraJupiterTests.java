@@ -22,11 +22,13 @@ import org.junit.jupiter.api.Nested;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.env.Environment;
 import cn.taketoday.test.context.ActiveProfiles;
 import cn.taketoday.test.context.TestExecutionListeners;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.aot.samples.common.MessageService;
 import cn.taketoday.test.context.aot.samples.management.ManagementConfiguration;
+import cn.taketoday.test.context.env.YamlTestProperties;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 
@@ -40,6 +42,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JUnitConfig({ BasicTestConfiguration.class, ManagementConfiguration.class })
 @TestExecutionListeners(listeners = BasicInfraJupiterTests.DummyTestExecutionListener.class, mergeMode = MERGE_WITH_DEFAULTS)
 @TestPropertySource(properties = "test.engine = jupiter")
+// We cannot use `classpath*:` in AOT tests until gh-31088 is resolved.
+// @YamlTestProperties("classpath*:**/aot/samples/basic/test?.yaml")
+@YamlTestProperties({
+        "classpath:cn/taketoday/test/context/aot/samples/basic/test1.yaml",
+        "classpath:cn/taketoday/test/context/aot/samples/basic/test2.yaml"
+})
 public class BasicInfraJupiterTests {
 
   @org.junit.jupiter.api.Test
@@ -47,8 +55,7 @@ public class BasicInfraJupiterTests {
           @Value("${test.engine}") String testEngine) {
     assertThat(messageService.generateMessage()).isEqualTo("Hello, AOT!");
     assertThat(testEngine).isEqualTo("jupiter");
-    assertThat(context.getEnvironment().getProperty("test.engine"))
-            .as("@TestPropertySource").isEqualTo("jupiter");
+    assertEnvProperties(context);
   }
 
   @Nested
@@ -62,10 +69,16 @@ public class BasicInfraJupiterTests {
       assertThat(messageService.generateMessage()).isEqualTo("¡Hola, AOT!");
       assertThat(foo).isEqualTo("bar");
       assertThat(testEngine).isEqualTo("jupiter");
-      assertThat(context.getEnvironment().getProperty("test.engine"))
-              .as("@TestPropertySource").isEqualTo("jupiter");
+      assertEnvProperties(context);
     }
 
+  }
+
+  static void assertEnvProperties(ApplicationContext context) {
+    Environment env = context.getEnvironment();
+    assertThat(env.getProperty("test.engine")).as("@TestPropertySource").isEqualTo("jupiter");
+    assertThat(env.getProperty("test1.prop")).as("@TestPropertySource").isEqualTo("yaml");
+    assertThat(env.getProperty("test2.prop")).as("@TestPropertySource").isEqualTo("yaml");
   }
 
   public static class DummyTestExecutionListener extends AbstractTestExecutionListener {
