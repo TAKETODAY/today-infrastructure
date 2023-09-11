@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +23,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.context.Lifecycle;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import reactor.netty.http.HttpResources;
@@ -35,17 +33,22 @@ import reactor.netty.resources.LoopResources;
 /**
  * Factory to manage Reactor Netty resources, i.e. {@link LoopResources} for
  * event loop threads, and {@link ConnectionProvider} for the connection pool,
- * within the lifecycle of a {@code ApplicationContext}.
+ * within the lifecycle of a Infra {@code ApplicationContext}.
  *
- * <p>This factory implements {@link InitializingBean} and {@link DisposableBean}
- * and is expected typically to be declared as a managed bean.
+ * <p>This factory implements {@link InitializingBean}, {@link DisposableBean}
+ * and {@link Lifecycle} and is expected typically to be declared as a
+ * Infra-managed bean.
+ *
+ * <p>Notice that after a {@link Lifecycle} stop/restart, new instances of
+ * the configured {@link LoopResources} and {@link ConnectionProvider} are
+ * created, so any references to those should be updated.
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ReactorResourceFactory implements InitializingBean, DisposableBean {
+public class ReactorResourceFactory implements InitializingBean, DisposableBean, Lifecycle {
 
   private boolean useGlobalResources = true;
 
@@ -65,6 +68,10 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean 
   private boolean manageConnectionProvider = false;
   private Duration shutdownTimeout = Duration.ofSeconds(LoopResources.DEFAULT_SHUTDOWN_TIMEOUT);
   private Duration shutdownQuietPeriod = Duration.ofSeconds(LoopResources.DEFAULT_SHUTDOWN_QUIET_PERIOD);
+
+  private volatile boolean running;
+
+  private final Object lifecycleMonitor = new Object();
 
   /**
    * Whether to use global Reactor Netty resources via {@link HttpResources}.
@@ -201,54 +208,83 @@ public class ReactorResourceFactory implements InitializingBean, DisposableBean 
 
   @Override
   public void afterPropertiesSet() {
-    if (this.useGlobalResources) {
-      Assert.isTrue(this.loopResources == null && this.connectionProvider == null,
-              "'useGlobalResources' is mutually exclusive with explicitly configured resources");
-      HttpResources httpResources = HttpResources.get();
-      if (this.globalResourcesConsumer != null) {
-        this.globalResourcesConsumer.accept(httpResources);
+    start();
+  }
+
+  @Override
+  public void destroy() {
+    stop();
+  }
+
+  @Override
+  public void start() {
+    synchronized(this.lifecycleMonitor) {
+      if (!isRunning()) {
+        if (this.useGlobalResources) {
+          Assert.isTrue(this.loopResources == null && this.connectionProvider == null,
+                  "'useGlobalResources' is mutually exclusive with explicitly configured resources");
+          HttpResources httpResources = HttpResources.get();
+          if (this.globalResourcesConsumer != null) {
+            this.globalResourcesConsumer.accept(httpResources);
+          }
+          this.connectionProvider = httpResources;
+          this.loopResources = httpResources;
+        }
+        else {
+          if (this.loopResources == null) {
+            this.manageLoopResources = true;
+            this.loopResources = this.loopResourcesSupplier.get();
+          }
+          if (this.connectionProvider == null) {
+            this.manageConnectionProvider = true;
+            this.connectionProvider = this.connectionProviderSupplier.get();
+          }
+        }
+        this.running = true;
       }
-      this.connectionProvider = httpResources;
-      this.loopResources = httpResources;
     }
-    else {
-      if (this.loopResources == null) {
-        this.manageLoopResources = true;
-        this.loopResources = this.loopResourcesSupplier.get();
-      }
-      if (this.connectionProvider == null) {
-        this.manageConnectionProvider = true;
-        this.connectionProvider = this.connectionProviderSupplier.get();
+
+  }
+
+  @Override
+  public void stop() {
+    synchronized(this.lifecycleMonitor) {
+      if (isRunning()) {
+        if (this.useGlobalResources) {
+          HttpResources.disposeLoopsAndConnectionsLater(this.shutdownQuietPeriod, this.shutdownTimeout).block();
+          this.connectionProvider = null;
+          this.loopResources = null;
+        }
+        else {
+          try {
+            ConnectionProvider provider = this.connectionProvider;
+            if (provider != null && this.manageConnectionProvider) {
+              this.connectionProvider = null;
+              provider.disposeLater().block();
+            }
+          }
+          catch (Throwable ex) {
+            // ignore
+          }
+
+          try {
+            LoopResources resources = this.loopResources;
+            if (resources != null && this.manageLoopResources) {
+              this.loopResources = null;
+              resources.disposeLater(this.shutdownQuietPeriod, this.shutdownTimeout).block();
+            }
+          }
+          catch (Throwable ex) {
+            // ignore
+          }
+        }
+        this.running = false;
       }
     }
   }
 
   @Override
-  public void destroy() {
-    if (this.useGlobalResources) {
-      HttpResources.disposeLoopsAndConnectionsLater(this.shutdownQuietPeriod, this.shutdownTimeout).block();
-    }
-    else {
-      try {
-        ConnectionProvider provider = this.connectionProvider;
-        if (provider != null && this.manageConnectionProvider) {
-          provider.disposeLater().block();
-        }
-      }
-      catch (Throwable ex) {
-        // ignore
-      }
-
-      try {
-        LoopResources resources = this.loopResources;
-        if (resources != null && this.manageLoopResources) {
-          resources.disposeLater(this.shutdownQuietPeriod, this.shutdownTimeout).block();
-        }
-      }
-      catch (Throwable ex) {
-        // ignore
-      }
-    }
+  public boolean isRunning() {
+    return this.running;
   }
-
 }
