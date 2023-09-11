@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,17 +54,25 @@ public class StandardTypeLocator extends DefaultAliasRegistry implements TypeLoc
   private final ArrayList<String> packages = new ArrayList<>(1);
 
   /**
-   * Create a StandardTypeLocator for the default ClassLoader
-   * (typically, the thread context ClassLoader).
+   * Create a {@code StandardTypeLocator} for the default {@link ClassLoader}
+   * (typically, the thread context {@code ClassLoader}).
+   * <p>Favor {@link #StandardTypeLocator(ClassLoader)} over this constructor
+   * in order to provide a specific {@link ClassLoader} that is able to reliably
+   * locate user types.
+   *
+   * @see ClassUtils#getDefaultClassLoader()
    */
   public StandardTypeLocator() {
     this(ClassUtils.getDefaultClassLoader());
   }
 
   /**
-   * Create a StandardTypeLocator for the given ClassLoader.
+   * Create a {@code StandardTypeLocator} for the given {@link ClassLoader}.
+   * <p>Favor this constructor over {@link #StandardTypeLocator()} in order
+   * to provide a specific {@link ClassLoader} that is able to reliably locate
+   * user types.
    *
-   * @param classLoader the ClassLoader to delegate to
+   * @param classLoader the {@code ClassLoader} to delegate to
    */
   public StandardTypeLocator(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
