@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +44,8 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ExceptionUtils;
@@ -78,6 +77,8 @@ import cn.taketoday.web.handler.HandlerWrapper;
  * @author TODAY 2018-06-25 20:03:11
  */
 public class HandlerMethod implements AsyncHandler {
+  /** Logger that is available to subclasses. */
+  protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
 
   /** @since 3.0 @Produce */
   @Nullable
@@ -272,6 +273,9 @@ public class HandlerMethod implements AsyncHandler {
 
       this.responseStatus = annotation.code();
       this.responseStatusReason = resolvedReason;
+      if (StringUtils.hasText(resolvedReason) && getMethod().getReturnType() != void.class) {
+        log.warn("Return value of [{}] will be ignored since @ResponseStatus 'reason' attribute is set.", getMethod());
+      }
     }
   }
 

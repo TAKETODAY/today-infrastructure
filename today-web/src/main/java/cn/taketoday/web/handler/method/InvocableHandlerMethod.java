@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +41,6 @@ import cn.taketoday.web.bind.support.SessionStatus;
  * @since 4.0 2022/4/8 23:12
  */
 public class InvocableHandlerMethod extends HandlerMethod {
-  /** Logger that is available to subclasses. */
-  protected static final Logger log = LoggerFactory.getLogger(InvocableHandlerMethod.class);
 
   private static final Object[] EMPTY_ARGS = new Object[0];
 
