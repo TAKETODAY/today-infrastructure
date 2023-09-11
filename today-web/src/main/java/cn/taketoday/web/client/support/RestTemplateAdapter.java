@@ -17,9 +17,7 @@
 
 package cn.taketoday.web.client.support;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Map;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpCookie;
@@ -83,23 +81,21 @@ public final class RestTemplateAdapter implements HttpExchangeAdapter {
   }
 
   private RequestEntity<?> newRequest(HttpRequestValues values) {
-    URI uri;
+    HttpMethod httpMethod = values.getHttpMethod();
+    Assert.notNull(httpMethod, "HttpMethod is required");
+
+    RequestEntity.BodyBuilder builder;
+
     if (values.getUri() != null) {
-      uri = values.getUri();
+      builder = RequestEntity.method(httpMethod, values.getUri());
     }
     else if (values.getUriTemplate() != null) {
-      String uriTemplate = values.getUriTemplate();
-      Map<String, String> variables = values.getUriVariables();
-      uri = this.restTemplate.getUriTemplateHandler().expand(uriTemplate, variables);
+      builder = RequestEntity.method(httpMethod, values.getUriTemplate(), values.getUriVariables());
     }
     else {
       throw new IllegalStateException("Neither full URL nor URI template");
     }
 
-    HttpMethod httpMethod = values.getHttpMethod();
-    Assert.notNull(httpMethod, "HttpMethod is required");
-
-    RequestEntity.BodyBuilder builder = RequestEntity.method(httpMethod, uri);
     builder.headers(values.getHeaders());
 
     if (!values.getCookies().isEmpty()) {
