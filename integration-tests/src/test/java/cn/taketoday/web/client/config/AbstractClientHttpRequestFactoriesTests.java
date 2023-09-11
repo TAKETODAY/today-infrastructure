@@ -39,6 +39,7 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.util.StreamUtils;
 import jakarta.servlet.ServletException;
@@ -59,6 +60,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @since 4.0 2022/11/1 23:10
  */
 @DirtiesUrlFactories
+@ClassPathExclusions("tomcat-embed-jasper*")
 abstract class AbstractClientHttpRequestFactoriesTests<T extends ClientHttpRequestFactory> {
 
   private final Class<T> requestFactoryType;
