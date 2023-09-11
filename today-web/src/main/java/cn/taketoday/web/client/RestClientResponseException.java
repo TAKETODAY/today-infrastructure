@@ -23,8 +23,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
@@ -168,7 +168,7 @@ public class RestClientResponseException extends RestClientException {
    */
   @Nullable
   public <E> E getResponseBodyAs(Class<E> targetType) {
-    return decodeBody(ResolvableType.forClass(targetType));
+    return getResponseBodyAs(ResolvableType.forClass(targetType));
   }
 
   /**
@@ -177,12 +177,12 @@ public class RestClientResponseException extends RestClientException {
    */
   @Nullable
   public <E> E getResponseBodyAs(ParameterizedTypeReference<E> targetType) {
-    return decodeBody(ResolvableType.forType(targetType.getType()));
+    return getResponseBodyAs(ResolvableType.forType(targetType.getType()));
   }
 
   @SuppressWarnings("unchecked")
   @Nullable
-  private <E> E decodeBody(ResolvableType targetType) {
+  private <E> E getResponseBodyAs(ResolvableType targetType) {
     Assert.state(this.bodyConvertFunction != null, "Function to convert body not set");
     return (E) this.bodyConvertFunction.apply(targetType);
   }

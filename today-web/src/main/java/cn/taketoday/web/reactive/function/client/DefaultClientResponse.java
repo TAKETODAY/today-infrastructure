@@ -49,7 +49,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.reactive.function.BodyExtractor;
 import cn.taketoday.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -236,7 +235,7 @@ class DefaultClientResponse implements ClientResponse {
 
   private Function<ResolvableType, ?> initDecodeFunction(byte[] body, @Nullable MediaType contentType) {
     return targetType -> {
-      if (ObjectUtils.isEmpty(body)) {
+      if (body == null || body.length == 0) {
         return null;
       }
       Decoder<?> decoder = null;

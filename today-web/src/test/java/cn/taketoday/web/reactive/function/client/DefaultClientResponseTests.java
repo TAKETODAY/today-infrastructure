@@ -180,7 +180,6 @@ public class DefaultClientResponseTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void toEntity() {
     byte[] bytes = "foo".getBytes(StandardCharsets.UTF_8);
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
@@ -197,7 +196,6 @@ public class DefaultClientResponseTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void toEntityWithUnknownStatusCode() {
     byte[] bytes = "foo".getBytes(StandardCharsets.UTF_8);
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
@@ -218,7 +216,6 @@ public class DefaultClientResponseTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void toEntityTypeReference() {
     byte[] bytes = "foo".getBytes(StandardCharsets.UTF_8);
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
@@ -235,7 +232,6 @@ public class DefaultClientResponseTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void toEntityList() {
     byte[] bytes = "foo".getBytes(StandardCharsets.UTF_8);
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
@@ -252,7 +248,6 @@ public class DefaultClientResponseTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void toEntityListWithUnknownStatusCode() {
     byte[] bytes = "foo".getBytes(StandardCharsets.UTF_8);
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
@@ -273,7 +268,6 @@ public class DefaultClientResponseTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   void toEntityListTypeReference() {
     byte[] bytes = "foo".getBytes(StandardCharsets.UTF_8);
     DataBuffer dataBuffer = DefaultDataBufferFactory.sharedInstance.wrap(bytes);
