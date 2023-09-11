@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.framework.ProxyFactory;
+import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.aop.testfixture.interceptor.NopInterceptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,7 +70,7 @@ public class ControlFlowPointcutTests {
     target.setAge(27);
     NopInterceptor nop = new NopInterceptor();
     ControlFlowPointcut cflow = new ControlFlowPointcut(One.class);
-    Pointcut settersUnderOne = Pointcuts.intersection(Pointcuts.SETTERS, cflow);
+    Pointcut settersUnderOne = Pointcut.intersection(Pointcut.SETTERS, cflow);
     ProxyFactory pf = new ProxyFactory(target);
     ITestBean proxied = (ITestBean) pf.getProxy();
     pf.addAdvisor(new DefaultPointcutAdvisor(settersUnderOne, nop));

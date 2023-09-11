@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +42,7 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.AfterReturningAdvice;
 import cn.taketoday.aop.DynamicIntroductionAdvice;
 import cn.taketoday.aop.MethodBeforeAdvice;
+import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.TargetSource;
 import cn.taketoday.aop.ThrowsAdvice;
 import cn.taketoday.aop.interceptor.DebugInterceptor;
@@ -55,7 +53,6 @@ import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.aop.support.DelegatingIntroductionInterceptor;
 import cn.taketoday.aop.support.DynamicMethodMatcherPointcut;
 import cn.taketoday.aop.support.NameMatchMethodPointcut;
-import cn.taketoday.aop.support.Pointcuts;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcutAdvisor;
 import cn.taketoday.aop.target.HotSwappableTargetSource;
 import cn.taketoday.aop.target.SingletonTargetSource;
@@ -1075,8 +1072,8 @@ public abstract class AbstractAopProxyTests {
 
     NameSaver saver = new NameSaver();
 
-    pc.addAdvisor(new DefaultPointcutAdvisor(Pointcuts.SETTERS, nameReverter));
-    pc.addAdvisor(new DefaultPointcutAdvisor(Pointcuts.SETTERS, saver));
+    pc.addAdvisor(new DefaultPointcutAdvisor(Pointcut.SETTERS, nameReverter));
+    pc.addAdvisor(new DefaultPointcutAdvisor(Pointcut.SETTERS, saver));
     ITestBean it = (ITestBean) createProxy(pc);
 
     String name1 = "tony";

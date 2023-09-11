@@ -39,7 +39,7 @@ import cn.taketoday.lang.Assert;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author TODAY 2021/2/1 18:18
- * @see Pointcuts
+ * @see Pointcut
  * @since 3.0
  */
 public class ComposablePointcut implements Pointcut, Serializable {
