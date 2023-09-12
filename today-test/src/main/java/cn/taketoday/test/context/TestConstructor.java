@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,9 +41,10 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  * on a test class, the default <em>test constructor autowire mode</em> will be
  * used. See {@link #TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME} for details on
  * how to change the default mode. Note, however, that a local declaration of
- * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired} on
- * a constructor takes precedence over both {@code @TestConstructor} and the default
- * mode.
+ * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}
+ * {@link jakarta.inject.Inject @jakarta.inject.Inject}, or
+ * {@link javax.inject.Inject @javax.inject.Inject} on a constructor takes
+ * precedence over both {@code @TestConstructor} and the default mode.
  *
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
@@ -64,6 +62,7 @@ import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
  * {@link NestedTestConfiguration @NestedTestConfiguration} for details.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.beans.factory.annotation.Autowired @Autowired
  * @see InfraExtension
  * @see JUnitConfig @ApplicationJUnitConfig
@@ -86,14 +85,14 @@ public @interface TestConstructor {
    * <p>Acceptable values include enum constants defined in {@link AutowireMode},
    * ignoring case. For example, the default may be changed to {@link AutowireMode#ALL}
    * by supplying the following JVM system property via the command line.
-   * <pre style="code">-Dcontext.test.constructor.autowire.mode=all</pre>
+   * <pre style="code">-Dinfra.test.constructor.autowire.mode=all</pre>
    * <p>If the property is not set to {@code ALL}, parameters for test class
    * constructors will be autowired according to {@link AutowireMode#ANNOTATED}
    * semantics by default.
    * <p>May alternatively be configured via the
    * {@link cn.taketoday.lang.TodayStrategies TodayStrategies}
    * mechanism.
-   * <p> this property may also be configured as a
+   * <p>this property may also be configured as a
    * <a href="https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params">JUnit
    * Platform configuration parameter</a>.
    *
@@ -111,6 +110,8 @@ public @interface TestConstructor {
    * @return an {@link AutowireMode} to take precedence over the global default
    * @see #TEST_CONSTRUCTOR_AUTOWIRE_MODE_PROPERTY_NAME
    * @see cn.taketoday.beans.factory.annotation.Autowired @Autowired
+   * @see jakarta.inject.Inject @jakarta.inject.Inject
+   * @see javax.inject.Inject @javax.inject.Inject
    * @see AutowireMode#ALL
    * @see AutowireMode#ANNOTATED
    */
@@ -127,7 +128,9 @@ public @interface TestConstructor {
     /**
      * All test constructor parameters will be autowired as if the constructor
      * itself were annotated with
-     * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}.
+     * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired},
+     * {@link jakarta.inject.Inject @jakarta.inject.Inject}, or
+     * {@link javax.inject.Inject @javax.inject.Inject}.
      *
      * @see #ANNOTATED
      */
@@ -139,7 +142,10 @@ public @interface TestConstructor {
      * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired},
      * {@link cn.taketoday.beans.factory.annotation.Qualifier @Qualifier},
      * or {@link cn.taketoday.beans.factory.annotation.Value @Value},
-     * or if the constructor itself is annotated with {@code @Autowired}.
+     * or if the constructor itself is annotated with
+     * {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired},
+     * {@link jakarta.inject.Inject @jakarta.inject.Inject}, or
+     * {@link javax.inject.Inject @javax.inject.Inject}.
      *
      * @see #ALL
      */

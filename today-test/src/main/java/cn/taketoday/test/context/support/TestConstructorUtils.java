@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,16 +17,22 @@
 
 package cn.taketoday.test.context.support;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestConstructor;
 import cn.taketoday.test.context.TestConstructor.AutowireMode;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * Utility methods for working with {@link TestConstructor @TestConstructor}.
@@ -37,10 +40,36 @@ import cn.taketoday.test.context.TestContextAnnotationUtils;
  * <p>Primarily intended for use within the framework.
  *
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TestConstructor
  * @since 4.0
  */
 public abstract class TestConstructorUtils {
+
+  private static final Logger logger = LoggerFactory.getLogger(TestConstructorUtils.class);
+
+  private static final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(2);
+
+  static {
+    autowiredAnnotationTypes.add(Autowired.class);
+
+    ClassLoader classLoader = TestConstructorUtils.class.getClassLoader();
+    try {
+      autowiredAnnotationTypes.add(ClassUtils.forName("jakarta.inject.Inject", classLoader));
+      logger.trace("'jakarta.inject.Inject' annotation found and supported for autowiring");
+    }
+    catch (ClassNotFoundException ex) {
+      // jakarta.inject API not available - simply skip.
+    }
+
+    try {
+      autowiredAnnotationTypes.add(ClassUtils.forName("javax.inject.Inject", classLoader));
+      logger.trace("'javax.inject.Inject' annotation found and supported for autowiring");
+    }
+    catch (ClassNotFoundException ex) {
+      // javax.inject API not available - simply skip.
+    }
+  }
 
   private TestConstructorUtils() {
   }
@@ -88,13 +117,13 @@ public abstract class TestConstructorUtils {
    * if no such value is found in {@link TodayStrategies}
    * @return {@code true} if the executable is an autowirable constructor
    * @see #isAutowirableConstructor(Constructor, Class, PropertyProvider)
-   * @since 4.0
+   * @since 5.3
    */
   public static boolean isAutowirableConstructor(Executable executable, Class<?> testClass,
           @Nullable PropertyProvider fallbackPropertyProvider) {
 
-    return (executable instanceof Constructor &&
-            isAutowirableConstructor((Constructor<?>) executable, testClass, fallbackPropertyProvider));
+    return (executable instanceof Constructor<?> constructor &&
+            isAutowirableConstructor(constructor, testClass, fallbackPropertyProvider));
   }
 
   /**
@@ -105,7 +134,9 @@ public abstract class TestConstructorUtils {
    * conditions is {@code true}.
    *
    * <ol>
-   * <li>The constructor is annotated with {@link Autowired @Autowired}.</li>
+   * <li>The constructor is annotated with {@link Autowired @Autowired},
+   * {@link jakarta.inject.Inject @jakarta.inject.Inject}, or
+   * {@link javax.inject.Inject @javax.inject.Inject}.</li>
    * <li>{@link TestConstructor @TestConstructor} is <em>present</em> or
    * <em>meta-present</em> on the test class with
    * {@link TestConstructor#autowireMode() autowireMode} set to
@@ -122,13 +153,13 @@ public abstract class TestConstructorUtils {
    * the value for the default <em>test constructor autowire mode</em> if no
    * such value is found in {@link TodayStrategies}
    * @return {@code true} if the constructor is autowirable
-   * @since 4.0
+   * @since 5.3
    */
   public static boolean isAutowirableConstructor(Constructor<?> constructor, Class<?> testClass,
           @Nullable PropertyProvider fallbackPropertyProvider) {
 
-    // Is the constructor annotated with @Autowired?
-    if (AnnotatedElementUtils.hasAnnotation(constructor, Autowired.class)) {
+    // Is the constructor annotated with @Autowired/@Inject?
+    if (isAnnotatedWithAutowiredOrInject(constructor)) {
       return true;
     }
 
@@ -152,6 +183,11 @@ public abstract class TestConstructorUtils {
     }
 
     return (autowireMode == AutowireMode.ALL);
+  }
+
+  private static boolean isAnnotatedWithAutowiredOrInject(Constructor<?> constructor) {
+    return autowiredAnnotationTypes.stream()
+            .anyMatch(annotationType -> AnnotatedElementUtils.hasAnnotation(constructor, annotationType));
   }
 
 }

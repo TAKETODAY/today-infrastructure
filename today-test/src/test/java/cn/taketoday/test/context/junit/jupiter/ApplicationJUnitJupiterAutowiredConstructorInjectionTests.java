@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.test.context.junit.jupiter;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -40,44 +38,71 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see JUnitJupiterConstructorInjectionTests
  * @since 4.0
  */
-@JUnitConfig(TestConfig.class)
-@TestPropertySource(properties = "enigma = 42")
 class ApplicationJUnitJupiterAutowiredConstructorInjectionTests {
 
-  final ApplicationContext applicationContext;
-  final Person dilbert;
-  final Dog dog;
-  final Integer enigma;
+  @Nested
+  class InfraAutowiredTests extends BaseClass {
 
-  @Autowired
-  ApplicationJUnitJupiterAutowiredConstructorInjectionTests(ApplicationContext applicationContext, Person dilbert, Dog dog,
-          @Value("${enigma}") Integer enigma) {
-
-    this.applicationContext = applicationContext;
-    this.dilbert = dilbert;
-    this.dog = dog;
-    this.enigma = enigma;
+    @Autowired
+    InfraAutowiredTests(ApplicationContext context, Person dilbert, Dog dog, @Value("${enigma}") Integer enigma) {
+      super(context, dilbert, dog, enigma);
+    }
   }
 
-  @Test
-  void applicationContextInjected() {
-    assertThat(applicationContext).as("ApplicationContext should have been injected by Spring").isNotNull();
-    assertThat(applicationContext.getBean("dilbert", Person.class)).isEqualTo(this.dilbert);
+  @Nested
+  class JakartaInjectTests extends BaseClass {
+
+    @jakarta.inject.Inject
+    JakartaInjectTests(ApplicationContext context, Person dilbert, Dog dog, @Value("${enigma}") Integer enigma) {
+      super(context, dilbert, dog, enigma);
+    }
   }
 
-  @Test
-  void beansInjected() {
-    assertThat(this.dilbert).as("Dilbert should have been @Autowired by Spring").isNotNull();
-    assertThat(this.dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
+  @Nested
+  class JavaxInjectTests extends BaseClass {
 
-    assertThat(this.dog).as("Dogbert should have been @Autowired by Spring").isNotNull();
-    assertThat(this.dog.getName()).as("Dog's name").isEqualTo("Dogbert");
+    @javax.inject.Inject
+    JavaxInjectTests(ApplicationContext context, Person dilbert, Dog dog, @Value("${enigma}") Integer enigma) {
+      super(context, dilbert, dog, enigma);
+    }
   }
 
-  @Test
-  void propertyPlaceholderInjected() {
-    assertThat(this.enigma).as("Enigma should have been injected via @Value by Spring").isNotNull();
-    assertThat(this.enigma).as("enigma").isEqualTo(42);
+  @JUnitConfig(TestConfig.class)
+  @TestPropertySource(properties = "enigma = 42")
+  private static abstract class BaseClass {
+
+    final ApplicationContext context;
+    final Person dilbert;
+    final Dog dog;
+    final Integer enigma;
+
+    BaseClass(ApplicationContext context, Person dilbert, Dog dog, Integer enigma) {
+      this.context = context;
+      this.dilbert = dilbert;
+      this.dog = dog;
+      this.enigma = enigma;
+    }
+
+    @Test
+    void applicationContextInjected() {
+      assertThat(context).as("ApplicationContext should have been injected").isNotNull();
+      assertThat(context.getBean("dilbert", Person.class)).isEqualTo(this.dilbert);
+    }
+
+    @Test
+    void beansInjected() {
+      assertThat(this.dilbert).as("Dilbert should have been injected").isNotNull();
+      assertThat(this.dilbert.getName()).as("Person's name").isEqualTo("Dilbert");
+
+      assertThat(this.dog).as("Dogbert should have been injected").isNotNull();
+      assertThat(this.dog.getName()).as("Dog's name").isEqualTo("Dogbert");
+    }
+
+    @Test
+    void propertyPlaceholderInjected() {
+      assertThat(this.enigma).as("Enigma should have been injected via @Value").isEqualTo(42);
+    }
+
   }
 
 }
