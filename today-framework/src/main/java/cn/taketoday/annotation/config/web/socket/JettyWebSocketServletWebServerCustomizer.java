@@ -18,7 +18,6 @@
 package cn.taketoday.annotation.config.web.socket;
 
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.webapp.AbstractConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.ee10.websocket.jakarta.server.JakartaWebSocketServerContainer;
 import org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServerContainer;
@@ -27,6 +26,7 @@ import org.eclipse.jetty.websocket.core.server.WebSocketMappings;
 import org.eclipse.jetty.websocket.core.server.WebSocketServerComponents;
 
 import cn.taketoday.core.Ordered;
+import cn.taketoday.framework.web.embedded.jetty.EmptyBuilderConfiguration;
 import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 
@@ -44,7 +44,7 @@ public class JettyWebSocketServletWebServerCustomizer
 
   @Override
   public void customize(JettyServletWebServerFactory factory) {
-    factory.addConfigurations(new AbstractConfiguration(new AbstractConfiguration.Builder()) {
+    factory.addConfigurations(new EmptyBuilderConfiguration() {
 
       @Override
       public void configure(WebAppContext context) {

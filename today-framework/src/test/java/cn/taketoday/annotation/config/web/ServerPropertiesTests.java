@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,21 +24,17 @@ import org.apache.catalina.valves.AccessLogValve;
 import org.apache.catalina.valves.RemoteIpValve;
 import org.apache.coyote.AbstractProtocol;
 import org.apache.tomcat.util.net.AbstractEndpoint;
-import org.eclipse.jetty.server.HttpChannel;
-import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
@@ -52,24 +45,12 @@ import cn.taketoday.framework.web.embedded.jetty.JettyWebServer;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.ServerProperties.Tomcat.Accesslog;
-import cn.taketoday.framework.web.servlet.ServletContextInitializer;
-import cn.taketoday.http.HttpEntity;
-import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.http.MediaType;
-import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.test.util.ReflectionTestUtils;
+import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.util.DataSize;
-import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.client.ResponseErrorHandler;
-import cn.taketoday.web.client.RestTemplate;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.undertow.UndertowOptions;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import reactor.netty.http.HttpDecoderSpec;
 import reactor.netty.http.server.HttpRequestDecoderSpec;
 
@@ -91,6 +72,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Bono
  * @author Parviz Rozikov
  */
+@DirtiesUrlFactories
 class ServerPropertiesTests {
 
   private final ServerProperties properties = new ServerProperties();
@@ -475,57 +457,10 @@ class ServerPropertiesTests {
   @Test
   void jettyMaxHttpFormPostSizeMatchesDefault() {
     JettyServletWebServerFactory jettyFactory = new JettyServletWebServerFactory(0);
-    JettyWebServer jetty = (JettyWebServer) jettyFactory
-            .getWebServer((ServletContextInitializer) (servletContext) -> servletContext
-                    .addServlet("formPost", new HttpServlet() {
-
-                      @Override
-                      protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-                              throws ServletException, IOException {
-                        req.getParameterMap();
-                      }
-
-                    }).addMapping("/form"));
-    jetty.start();
-    org.eclipse.jetty.server.Connector connector = jetty.getServer().getConnectors()[0];
-    final AtomicReference<Throwable> failure = new AtomicReference<>();
-    connector.addBean(new HttpChannel.Listener() {
-
-      @Override
-      public void onDispatchFailure(Request request, Throwable ex) {
-        failure.set(ex);
-      }
-
-    });
-    try {
-      RestTemplate template = new RestTemplate();
-      template.setErrorHandler(new ResponseErrorHandler() {
-
-        @Override
-        public boolean hasError(ClientHttpResponse response) throws IOException {
-          return false;
-        }
-
-        @Override
-        public void handleError(ClientHttpResponse response) throws IOException {
-
-        }
-
-      });
-      HttpHeaders headers = HttpHeaders.create();
-      headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-      MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-      body.add("data", "a".repeat(250000));
-      HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
-      template.postForEntity(URI.create("http://localhost:" + jetty.getPort() + "/form"), entity, Void.class);
-      assertThat(failure.get()).isNotNull();
-      String message = failure.get().getCause().getMessage();
-      int defaultMaxPostSize = Integer.parseInt(message.substring(message.lastIndexOf(' ')).trim());
-      assertThat(this.properties.getJetty().getMaxHttpFormPostSize().toBytes()).isEqualTo(defaultMaxPostSize);
-    }
-    finally {
-      jetty.stop();
-    }
+    JettyWebServer jetty = (JettyWebServer) jettyFactory.getWebServer();
+    Server server = jetty.getServer();
+    assertThat(this.properties.getJetty().getMaxHttpFormPostSize().toBytes())
+            .isEqualTo(((ServletContextHandler) server.getHandler()).getMaxFormContentSize());
   }
 
   @Test

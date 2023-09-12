@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +52,7 @@ import cn.taketoday.framework.web.server.ServerProperties.Jetty;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.test.util.ReflectionTestUtils;
+import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -67,6 +65,7 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author HaiTao Zhang
  */
+@DirtiesUrlFactories
 class JettyWebServerFactoryCustomizerTests {
 
   private MockEnvironment environment;

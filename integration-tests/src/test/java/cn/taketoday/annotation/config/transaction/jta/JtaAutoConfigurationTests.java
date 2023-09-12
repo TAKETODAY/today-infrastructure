@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +44,7 @@ import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.transaction.jta.UserTransactionAdapter;
@@ -66,6 +64,7 @@ import static org.mockito.Mockito.mock;
  * @author Kazuki Shimizu
  * @author Nishant Raut
  */
+@ClassPathExclusions("jetty-jndi-*.jar")
 class JtaAutoConfigurationTests {
 
   private AnnotationConfigApplicationContext context;
