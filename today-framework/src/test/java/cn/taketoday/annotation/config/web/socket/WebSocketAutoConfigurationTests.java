@@ -17,7 +17,7 @@
 
 package cn.taketoday.annotation.config.web.socket;
 
-import org.eclipse.jetty.websocket.servlet.WebSocketUpgradeFilter;
+import org.eclipse.jetty.ee10.websocket.servlet.WebSocketUpgradeFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

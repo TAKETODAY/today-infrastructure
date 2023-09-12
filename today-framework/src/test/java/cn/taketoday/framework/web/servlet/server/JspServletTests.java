@@ -22,10 +22,9 @@ import org.apache.catalina.core.StandardWrapper;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.jasper.EmbeddedServletOptions;
 import org.apache.jasper.servlet.JspServlet;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -125,7 +124,7 @@ public class JspServletTests {
     if (handler instanceof WebAppContext webAppContext) {
       return webAppContext;
     }
-    if (handler instanceof HandlerWrapper wrapper) {
+    if (handler instanceof Handler.Wrapper wrapper) {
       return findWebAppContext(wrapper.getHandler());
     }
     throw new IllegalStateException("No WebAppContext found");
