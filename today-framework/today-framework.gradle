@@ -92,7 +92,6 @@ dependencies {
   testImplementation 'org.eclipse.jetty:jetty-alpn-server'
   testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
   testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
-  testImplementation 'org.eclipse.jetty.http2:http2-server'
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))
