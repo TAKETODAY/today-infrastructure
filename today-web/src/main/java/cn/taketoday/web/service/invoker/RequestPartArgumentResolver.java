@@ -41,6 +41,7 @@ import cn.taketoday.web.multipart.MultipartFile;
  * <ul>
  * <li>String -- form field
  * <li>{@link Resource Resource} -- file part
+ * <li>{@link MultipartFile} -- uploaded file
  * <li>Object -- content to be encoded (e.g. to JSON)
  * <li>{@link HttpEntity} -- part content and headers although generally it's
  * easier to add headers through the returned builder
