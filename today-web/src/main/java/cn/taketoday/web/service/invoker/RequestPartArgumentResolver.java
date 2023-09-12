@@ -25,11 +25,13 @@ import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.RequestPart;
+import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * {@link HttpServiceArgumentResolver} for {@link RequestPart @RequestPart}
@@ -76,8 +78,17 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   @Override
   protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
     RequestPart annot = parameter.getParameterAnnotation(RequestPart.class);
-    return (annot == null ? null :
-            new NamedValueInfo(annot.name(), annot.required(), null, "request part", true));
+    boolean isMultiPartFile = parameter.nestedIfOptional().getNestedParameterType().equals(MultipartFile.class);
+    String label = isMultiPartFile ? "MultipartFile" : "request part";
+
+    if (annot != null) {
+      return new NamedValueInfo(annot.name(), annot.required(), null, label, true);
+    }
+    else if (isMultiPartFile) {
+      return new NamedValueInfo("", true, null, label, true);
+    }
+
+    return null;
   }
 
   @Override
@@ -106,11 +117,26 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
       }
     }
 
+    if (value instanceof MultipartFile multipartFile) {
+      value = toHttpEntity(name, multipartFile);
+    }
+
     requestValues.addRequestPart(name, value);
   }
 
   private static ParameterizedTypeReference<Object> asParameterizedTypeRef(MethodParameter nestedParam) {
     return ParameterizedTypeReference.forType(nestedParam.getNestedGenericParameterType());
+  }
+
+  private static Object toHttpEntity(String name, MultipartFile multipartFile) {
+    HttpHeaders headers = HttpHeaders.create();
+    if (multipartFile.getOriginalFilename() != null) {
+      headers.setContentDispositionFormData(name, multipartFile.getOriginalFilename());
+    }
+    if (multipartFile.getContentType() != null) {
+      headers.add(HttpHeaders.CONTENT_TYPE, multipartFile.getContentType());
+    }
+    return new HttpEntity<>(multipartFile.getResource(), headers);
   }
 
 }
