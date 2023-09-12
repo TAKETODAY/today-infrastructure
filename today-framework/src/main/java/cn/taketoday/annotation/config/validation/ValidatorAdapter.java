@@ -93,6 +93,18 @@ public class ValidatorAdapter implements SmartValidator, ApplicationContextAware
     }
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T unwrap(Class<T> type) {
+    if (type != null) {
+      if (type.isInstance(this.target)) {
+        return (T) this.target;
+      }
+      return this.target.unwrap(type);
+    }
+    return null;
+  }
+
   /**
    * Return a {@link Validator} that only implements the {@link Validator} interface,
    * wrapping it if necessary.
