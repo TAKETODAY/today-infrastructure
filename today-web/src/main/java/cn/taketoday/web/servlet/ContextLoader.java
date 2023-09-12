@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,6 +96,8 @@ public class ContextLoader {
    * Name of servlet context parameter (i.e., {@value}) that can specify the
    * config location for the root context, falling back to the implementation's
    * default otherwise.
+   *
+   * @see XmlWebApplicationContext#DEFAULT_CONFIG_LOCATION
    */
   public static final String CONFIG_LOCATION_PARAM = "contextConfigLocation";
 
@@ -214,7 +213,7 @@ public class ContextLoader {
    * @see #initWebApplicationContext(ServletContext)
    * @see #closeWebApplicationContext(ServletContext)
    */
-  public ContextLoader(WebApplicationContext context) {
+  public ContextLoader(@Nullable WebApplicationContext context) {
     this.context = context;
   }
 

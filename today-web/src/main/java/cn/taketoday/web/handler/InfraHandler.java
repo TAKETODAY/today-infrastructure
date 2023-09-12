@@ -59,8 +59,7 @@ import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/26 23:21
  */
-public abstract class InfraHandler
-        implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware, BeanNameAware {
+public abstract class InfraHandler implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware, BeanNameAware {
 
   /**
    * Default context class for InfraHandler.
@@ -398,8 +397,7 @@ public abstract class InfraHandler
    * @see #postProcessApplicationContext
    * @see ConfigurableApplicationContext#refresh()
    */
-  protected void applyInitializers(
-          ConfigurableApplicationContext context, List<ApplicationContextInitializer> initializers) {
+  protected void applyInitializers(ConfigurableApplicationContext context, List<ApplicationContextInitializer> initializers) {
     if (this.contextInitializerClasses != null) {
       for (String className : StringUtils.tokenizeToStringArray(this.contextInitializerClasses, INIT_PARAM_DELIMITERS)) {
         initializers.add(loadInitializer(className, context));
@@ -412,8 +410,7 @@ public abstract class InfraHandler
     }
   }
 
-  protected final ApplicationContextInitializer loadInitializer(
-          String className, ConfigurableApplicationContext context) {
+  protected final ApplicationContextInitializer loadInitializer(String className, ConfigurableApplicationContext context) {
     try {
       var initializerClass = ClassUtils.<ApplicationContextInitializer>
               forName(className, context.getClassLoader());
