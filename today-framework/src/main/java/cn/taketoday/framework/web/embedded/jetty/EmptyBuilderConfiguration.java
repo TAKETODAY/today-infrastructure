@@ -17,37 +17,16 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
-import org.eclipse.jetty.ee10.servlet.ServletHandler;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.webapp.AbstractConfiguration;
 
 /**
- * Jetty {@link WebAppContext} used by {@link JettyWebServer} to support deferred
- * initialization.
- *
- * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/9/12 15:37
  */
-class JettyEmbeddedWebAppContext extends WebAppContext {
+public class EmptyBuilderConfiguration extends AbstractConfiguration {
 
-  @Override
-  protected ServletHandler newServletHandler() {
-    return new JettyEmbeddedServletHandler();
-  }
-
-  void deferredInitialize() throws Exception {
-    ((JettyEmbeddedServletHandler) getServletHandler()).deferredInitialize();
-  }
-
-  private static class JettyEmbeddedServletHandler extends ServletHandler {
-
-    @Override
-    public void initialize() throws Exception { }
-
-    void deferredInitialize() throws Exception {
-      super.initialize();
-    }
-
+  protected EmptyBuilderConfiguration() {
+    super(new Builder());
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +17,14 @@
 
 package cn.taketoday.annotation.config.web.socket;
 
-import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.webapp.AbstractConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.JakartaWebSocketServerContainer;
+import org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServerContainer;
+import org.eclipse.jetty.ee10.websocket.servlet.WebSocketUpgradeFilter;
 import org.eclipse.jetty.websocket.core.server.WebSocketMappings;
 import org.eclipse.jetty.websocket.core.server.WebSocketServerComponents;
-import org.eclipse.jetty.websocket.jakarta.server.internal.JakartaWebSocketServerContainer;
-import org.eclipse.jetty.websocket.server.JettyWebSocketServerContainer;
-import org.eclipse.jetty.websocket.servlet.WebSocketUpgradeFilter;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
@@ -46,20 +44,20 @@ public class JettyWebSocketServletWebServerCustomizer
 
   @Override
   public void customize(JettyServletWebServerFactory factory) {
-    factory.addConfigurations(new AbstractConfiguration() {
+    factory.addConfigurations(new AbstractConfiguration(new AbstractConfiguration.Builder()) {
 
       @Override
       public void configure(WebAppContext context) {
+        ServletContextHandler contextHandler = context.getContext().getServletContextHandler();
         if (JettyWebSocketServerContainer.getContainer(context.getServletContext()) == null) {
-          WebSocketServerComponents.ensureWebSocketComponents(context.getServer(),
-                  context.getServletContext());
+          WebSocketServerComponents.ensureWebSocketComponents(context.getServer(), contextHandler);
           JettyWebSocketServerContainer.ensureContainer(context.getServletContext());
         }
+
         if (JakartaWebSocketServerContainer.getContainer(context.getServletContext()) == null) {
-          WebSocketServerComponents.ensureWebSocketComponents(context.getServer(),
-                  context.getServletContext());
+          WebSocketServerComponents.ensureWebSocketComponents(context.getServer(), contextHandler);
           WebSocketUpgradeFilter.ensureFilter(context.getServletContext());
-          WebSocketMappings.ensureMappings(context.getServletContext());
+          WebSocketMappings.ensureMappings(contextHandler);
           JakartaWebSocketServerContainer.ensureContainer(context.getServletContext());
         }
       }

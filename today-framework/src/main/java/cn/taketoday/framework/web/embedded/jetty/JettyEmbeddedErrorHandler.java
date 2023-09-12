@@ -17,18 +17,8 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
+import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Variation of Jetty's {@link ErrorPageErrorHandler} that supports all {@link HttpMethod
@@ -44,20 +34,9 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 class JettyEmbeddedErrorHandler extends ErrorPageErrorHandler {
 
-  private static final Set<String> HANDLED_HTTP_METHODS = new HashSet<>(Arrays.asList("GET", "POST", "HEAD"));
-
   @Override
   public boolean errorPageForMethod(String method) {
     return true;
-  }
-
-  @Override
-  public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-          throws IOException, ServletException {
-    if (!HANDLED_HTTP_METHODS.contains(baseRequest.getMethod())) {
-      baseRequest.setMethod("GET");
-    }
-    super.handle(target, baseRequest, request, response);
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +17,8 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
-import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.Configuration;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.webapp.Configuration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.lang.Assert;
@@ -36,7 +32,7 @@ import jakarta.servlet.ServletException;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServletContextInitializerConfiguration extends AbstractConfiguration {
+public class ServletContextInitializerConfiguration extends EmptyBuilderConfiguration {
 
   private final ServletContextInitializer[] initializers;
 
@@ -64,22 +60,13 @@ public class ServletContextInitializerConfiguration extends AbstractConfiguratio
 
   private void callInitializers(WebAppContext context) throws ServletException {
     try {
-      setExtendedListenerTypes(context, true);
-      for (ServletContextInitializer initializer : initializers) {
+      context.getContext().setExtendedListenerTypes(true);
+      for (ServletContextInitializer initializer : this.initializers) {
         initializer.onStartup(context.getServletContext());
       }
     }
     finally {
-      setExtendedListenerTypes(context, false);
-    }
-  }
-
-  private void setExtendedListenerTypes(WebAppContext context, boolean extended) {
-    try {
-      context.getServletContext().setExtendedListenerTypes(extended);
-    }
-    catch (NoSuchMethodError ex) {
-      // Not available on Jetty 8
+      context.getContext().setExtendedListenerTypes(false);
     }
   }
 

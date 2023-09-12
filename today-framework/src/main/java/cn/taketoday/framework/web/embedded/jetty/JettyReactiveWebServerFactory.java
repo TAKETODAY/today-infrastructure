@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,8 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.server.AbstractConnector;
 import org.eclipse.jetty.server.ConnectionFactory;
@@ -29,10 +28,7 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.ThreadPool;
 
 import java.net.InetSocketAddress;
@@ -180,7 +176,6 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    * Set the {@link JettyResourceFactory} to get the shared resources from.
    *
    * @param resourceFactory the server resources
-   * @since 4.0
    */
   public void setResourceFactory(@Nullable JettyResourceFactory resourceFactory) {
     this.resourceFactory = resourceFactory;
@@ -199,7 +194,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
     server.setStopTimeout(0);
     ServletHolder servletHolder = new ServletHolder(servlet);
     servletHolder.setAsyncSupported(true);
-    ServletContextHandler contextHandler = new ServletContextHandler(server, "/", false, false);
+    ServletContextHandler contextHandler = new ServletContextHandler("/", false, false);
     contextHandler.addServlet(servletHolder, "/");
     server.setHandler(addHandlerWrappers(contextHandler));
     JettyReactiveWebServerFactory.logger.info("Server initialized with port: {}", port);
@@ -257,14 +252,13 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
     return handler;
   }
 
-  private Handler applyWrapper(Handler handler, HandlerWrapper wrapper) {
+  private Handler applyWrapper(Handler handler, Handler.Wrapper wrapper) {
     wrapper.setHandler(handler);
     return wrapper;
   }
 
   private void customizeSsl(Ssl ssl, Server server, InetSocketAddress address) {
     new SslServerCustomizer(getHttp2(), address, ssl.getClientAuth(), getSslBundle()).customize(server);
-
   }
 
 }

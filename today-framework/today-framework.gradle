@@ -49,17 +49,11 @@ dependencies {
   optional 'org.projectlombok:lombok'
   optional 'org.yaml:snakeyaml'
   optional 'org.apache.tomcat.embed:tomcat-embed-core'
-  optional 'org.eclipse.jetty:jetty-webapp'
   optional 'io.undertow:undertow-core'
   optional 'io.undertow:undertow-servlet'
-  optional 'org.eclipse.jetty.http2:http2-server'
-  optional 'org.eclipse.jetty:jetty-alpn-server'
   optional 'org.hibernate.validator:hibernate-validator'
   optional 'org.apache.tomcat.embed:tomcat-embed-websocket'
   optional 'io.undertow:undertow-websockets-jsr'
-  optional 'org.eclipse.jetty.websocket:websocket-jetty-server'
-  optional 'org.eclipse.jetty.websocket:websocket-jakarta-server'
-  optional 'org.eclipse.jetty.websocket:websocket-jetty-client'
   optional 'io.projectreactor:reactor-core'
   optional 'io.projectreactor.tools:blockhound'
   optional 'org.apache.httpcomponents.core5:httpcore5'
@@ -70,13 +64,35 @@ dependencies {
   optional 'org.apache.tomcat:tomcat-jdbc:10.0.16'
   optional 'org.apache.commons:commons-dbcp2:2.9.0'
   optional 'org.apache.httpcomponents.client5:httpclient5'
-  optional 'org.eclipse.jetty:jetty-reactive-httpclient'
   optional 'org.apache.httpcomponents.core5:httpcore5-reactive'
   optional 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
   optional 'com.oracle.database.jdbc:ucp:21.7.0.0'
 
-//  compileOnly 'jakarta.servlet.jsp:jakarta.servlet.jsp-api'
-//  compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+  optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
+  optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-client'
+  optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
+
+  optional 'org.eclipse.jetty.ee10:jetty-ee10-servlets'
+  optional 'org.eclipse.jetty.ee10:jetty-ee10-webapp'
+  optional 'org.eclipse.jetty:jetty-webapp'
+  optional 'org.eclipse.jetty.http2:jetty-http2-server'
+  optional 'org.eclipse.jetty:jetty-alpn-server'
+  optional 'org.eclipse.jetty:jetty-reactive-httpclient'
+
+  testImplementation("org.eclipse.jetty:jetty-webapp") {
+    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
+    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
+  }
+
+  testImplementation 'org.eclipse.jetty.http2:http2-client'
+  testImplementation 'org.eclipse.jetty.http2:http2-http-client-transport'
+  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
+  testImplementation 'org.eclipse.jetty:jetty-http'
+  testImplementation 'org.eclipse.jetty:jetty-client'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
+  testImplementation 'org.eclipse.jetty.http2:http2-server'
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))
@@ -99,20 +115,6 @@ dependencies {
 
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
 
-  testImplementation("org.eclipse.jetty:jetty-webapp") {
-    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
-    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
-  }
-
-  testImplementation 'org.eclipse.jetty.http2:http2-client'
-  testImplementation 'org.eclipse.jetty.http2:http2-http-client-transport'
-  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
-  testImplementation 'org.eclipse.jetty:jetty-http'
-  testImplementation 'org.eclipse.jetty:jetty-client'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
-  testImplementation 'org.eclipse.jetty.http2:http2-server'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'

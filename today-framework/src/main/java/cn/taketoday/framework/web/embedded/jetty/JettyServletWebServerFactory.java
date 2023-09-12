@@ -17,7 +17,20 @@
 
 package cn.taketoday.framework.web.embedded.jetty;
 
+import org.eclipse.jetty.ee10.servlet.ErrorHandler;
+import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.ee10.servlet.ListenerHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletMapping;
+import org.eclipse.jetty.ee10.servlet.SessionHandler;
+import org.eclipse.jetty.ee10.servlet.Source;
+import org.eclipse.jetty.ee10.webapp.AbstractConfiguration;
+import org.eclipse.jetty.ee10.webapp.Configuration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.server.AbstractConnector;
@@ -27,31 +40,22 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.HttpCookieUtils;
+import org.eclipse.jetty.server.HttpStream;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.server.session.DefaultSessionCache;
-import org.eclipse.jetty.server.session.FileSessionDataStore;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
-import org.eclipse.jetty.servlet.ListenerHolder;
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlet.ServletMapping;
-import org.eclipse.jetty.servlet.Source;
-import org.eclipse.jetty.util.resource.JarResource;
+import org.eclipse.jetty.session.DefaultSessionCache;
+import org.eclipse.jetty.session.FileSessionDataStore;
+import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.resource.ResourceCollection;
+import org.eclipse.jetty.util.resource.ResourceFactory;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.Configuration;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -62,6 +66,7 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -86,11 +91,7 @@ import cn.taketoday.session.config.SameSite;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
 
 /**
  * {@link ServletWebServerFactory} that can be used to create a {@link JettyWebServer}.
@@ -232,7 +233,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     return handler;
   }
 
-  private Handler applyWrapper(Handler handler, HandlerWrapper wrapper) {
+  private Handler applyWrapper(Handler handler, Handler.Wrapper wrapper) {
     wrapper.setHandler(handler);
     return wrapper;
   }
@@ -304,18 +305,20 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   private void configureDocumentRoot(WebAppContext handler) {
     File docBase = getDocBase();
     try {
+      ResourceFactory resourceFactory = handler.getResourceFactory();
       ArrayList<Resource> resources = new ArrayList<>();
       Resource rootResource = docBase.isDirectory()
-                              ? Resource.newResource(docBase.getCanonicalFile())
-                              : JarResource.newJarResource(Resource.newResource(docBase));
+                              ? resourceFactory.newResource(docBase.getCanonicalFile().toURI())
+                              : resourceFactory.newJarFileResource(docBase.toURI());
       resources.add(rootResource);
+      URLResourceFactory urlResourceFactory = new URLResourceFactory();
       for (URL resourceJarUrl : getUrlsOfJarsWithMetaInfResources()) {
-        Resource resource = createResource(resourceJarUrl);
-        if (resource.exists() && resource.isDirectory()) {
+        Resource resource = createResource(resourceJarUrl, resourceFactory, urlResourceFactory);
+        if (resource != null) {
           resources.add(resource);
         }
       }
-      handler.setBaseResource(new ResourceCollection(resources.toArray(new Resource[0])));
+      handler.setBaseResource(ResourceFactory.combine(resources));
     }
     catch (Exception ex) {
       throw new IllegalStateException(ex);
@@ -331,14 +334,19 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     return createTempDir("jetty-docbase");
   }
 
-  private Resource createResource(URL url) throws Exception {
+  @Nullable
+  private Resource createResource(URL url, ResourceFactory resourceFactory,
+          URLResourceFactory urlResourceFactory) throws Exception {
     if ("file".equals(url.getProtocol())) {
       File file = new File(url.toURI());
       if (file.isFile()) {
-        return Resource.newResource("jar:" + url + "!/META-INF/resources");
+        return resourceFactory.newResource("jar:" + url + "!/META-INF/resources/");
+      }
+      if (file.isDirectory()) {
+        return resourceFactory.newResource(url).resolve("META-INF/resources/");
       }
     }
-    return Resource.newResource(url + "META-INF/resources");
+    return urlResourceFactory.newResource(url + "META-INF/resources/");
   }
 
   /**
@@ -402,10 +410,10 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @return a configuration object for adding error pages
    */
   private Configuration getErrorPageConfiguration() {
-    return new AbstractConfiguration() {
+    return new EmptyBuilderConfiguration() {
 
       @Override
-      public void configure(WebAppContext context) {
+      public void configure(WebAppContext context) throws Exception {
         JettyEmbeddedErrorHandler errorHandler = new JettyEmbeddedErrorHandler();
         context.setErrorHandler(errorHandler);
         addJettyErrorPages(errorHandler, getErrorPages());
@@ -420,11 +428,12 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @return a configuration object for adding mime type mappings
    */
   private Configuration getMimeTypeConfiguration() {
-    return new AbstractConfiguration() {
+    return new EmptyBuilderConfiguration() {
 
       @Override
-      public void configure(WebAppContext context) {
-        MimeTypes mimeTypes = context.getMimeTypes();
+      public void configure(WebAppContext context) throws Exception {
+        MimeTypes.Wrapper mimeTypes = (MimeTypes.Wrapper) context.getMimeTypes();
+        mimeTypes.setWrapped(new MimeTypes(null));
         for (MimeMappings.Mapping mapping : getMimeMappings()) {
           mimeTypes.addMimeMapping(mapping.getExtension(), mapping.getMimeType());
         }
@@ -589,7 +598,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   /**
    * {@link AbstractConfiguration} to apply {@code @WebListener} classes.
    */
-  private static class WebListenersConfiguration extends AbstractConfiguration {
+  private static class WebListenersConfiguration extends EmptyBuilderConfiguration {
 
     private final Set<String> classNames;
 
@@ -625,10 +634,10 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   }
 
   /**
-   * {@link HandlerWrapper} to apply {@link CookieSameSiteSupplier supplied}
+   * {@link Handler.Wrapper} to apply {@link CookieSameSiteSupplier supplied}
    * {@link SameSite} cookie values.
    */
-  private static class SuppliedSameSiteCookieHandlerWrapper extends HandlerWrapper {
+  private static class SuppliedSameSiteCookieHandlerWrapper extends Handler.Wrapper {
 
     private final List<CookieSameSiteSupplier> suppliers;
 
@@ -637,42 +646,58 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     }
 
     @Override
-    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
-      HttpServletResponse wrappedResponse = new ResponseWrapper(response);
-      super.handle(target, baseRequest, request, wrappedResponse);
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+      request.addHttpStreamWrapper(stream -> new SameSiteCookieHttpStreamWrapper(stream, request));
+      return super.handle(request, response, callback);
     }
 
-    class ResponseWrapper extends HttpServletResponseWrapper {
+    private final class SameSiteCookieHttpStreamWrapper extends HttpStream.Wrapper {
 
-      ResponseWrapper(HttpServletResponse response) {
-        super(response);
+      private final Request request;
+
+      private SameSiteCookieHttpStreamWrapper(HttpStream wrapped, Request request) {
+        super(wrapped);
+        this.request = request;
       }
 
       @Override
-      @SuppressWarnings("removal")
-      public void addCookie(Cookie cookie) {
-        SameSite sameSite = getSameSite(cookie);
-        if (sameSite != null) {
-          String comment = HttpCookie.getCommentWithoutAttributes(cookie.getComment());
-          String sameSiteComment = getSameSiteComment(sameSite);
-          cookie.setComment((comment != null) ? comment + sameSiteComment : sameSiteComment);
+      public void prepareResponse(HttpFields.Mutable headers) {
+        super.prepareResponse(headers);
+        ListIterator<HttpField> headerFields = headers.listIterator();
+        while (headerFields.hasNext()) {
+          var updatedField = applySameSiteIfNecessary(headerFields.next());
+          if (updatedField != null) {
+            headerFields.set(updatedField);
+          }
         }
-        super.addCookie(cookie);
-      }
-
-      private String getSameSiteComment(SameSite sameSite) {
-        return switch (sameSite) {
-          case LAX -> HttpCookie.SAME_SITE_LAX_COMMENT;
-          case NONE -> HttpCookie.SAME_SITE_NONE_COMMENT;
-          case STRICT -> HttpCookie.SAME_SITE_STRICT_COMMENT;
-        };
       }
 
       @Nullable
-      private SameSite getSameSite(Cookie cookie) {
-        for (CookieSameSiteSupplier supplier : SuppliedSameSiteCookieHandlerWrapper.this.suppliers) {
-          SameSite sameSite = supplier.getSameSite(cookie);
+      private HttpCookieUtils.SetCookieHttpField applySameSiteIfNecessary(HttpField headerField) {
+        HttpCookie cookie = HttpCookieUtils.getSetCookie(headerField);
+        if (cookie == null) {
+          return null;
+        }
+        SameSite sameSite = getSameSite(cookie);
+        if (sameSite == null) {
+          return null;
+        }
+        return new HttpCookieUtils.SetCookieHttpField(
+                HttpCookie.build(cookie)
+                        .sameSite(org.eclipse.jetty.http.HttpCookie.SameSite.from(sameSite.name()))
+                        .build(),
+                this.request.getConnectionMetaData().getHttpConfiguration().getResponseCookieCompliance());
+      }
+
+      @Nullable
+      private SameSite getSameSite(HttpCookie cookie) {
+        Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
+        for (Map.Entry<String, String> entry : cookie.getAttributes().entrySet()) {
+          servletCookie.setAttribute(entry.getKey(), entry.getValue());
+        }
+
+        for (CookieSameSiteSupplier supplier : suppliers) {
+          SameSite sameSite = supplier.getSameSite(servletCookie);
           if (sameSite != null) {
             return sameSite;
           }

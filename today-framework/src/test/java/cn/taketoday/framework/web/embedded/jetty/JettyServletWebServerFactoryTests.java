@@ -23,22 +23,20 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.awaitility.Awaitility;
+import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.ee10.webapp.ClassMatcher;
+import org.eclipse.jetty.ee10.webapp.Configuration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
-import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
-import org.eclipse.jetty.webapp.AbstractConfiguration;
-import org.eclipse.jetty.webapp.ClassMatcher;
-import org.eclipse.jetty.webapp.Configuration;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -375,9 +373,9 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     JettyServletWebServerFactory factory = getFactory();
     factory.setServerCustomizers(Collections.singletonList((server) -> {
       Handler handler = server.getHandler();
-      HandlerWrapper wrapper = new HandlerWrapper();
+      Handler.Wrapper wrapper = new Handler.Wrapper();
       wrapper.setHandler(handler);
-      HandlerCollection collection = new HandlerCollection();
+      Handler.Collection collection = new ContextHandlerCollection();
       collection.addHandler(wrapper);
       server.setHandler(collection);
     }));
@@ -497,7 +495,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
   @Test
   void errorHandlerCanBeOverridden() {
     JettyServletWebServerFactory factory = getFactory();
-    factory.addConfigurations(new AbstractConfiguration() {
+    factory.addConfigurations(new EmptyBuilderConfiguration() {
 
       @Override
       public void configure(WebAppContext context) throws Exception {
@@ -534,7 +532,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     if (handler instanceof WebAppContext webAppContext) {
       return webAppContext;
     }
-    if (handler instanceof HandlerWrapper wrapper) {
+    if (handler instanceof Handler.Wrapper wrapper) {
       return findWebAppContext(wrapper.getHandler());
     }
     throw new IllegalStateException("No WebAppContext found");
