@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +38,7 @@ import java.util.Optional;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -92,13 +92,20 @@ class RequestPartIntegrationTests {
     // Let server pick its own random, available port.
     server = new Server(0);
 
-    tempDirectory = Files.createTempDirectory("RequestPartIntegrationTests");
+    tempDirectory = ApplicationTemp.createDirectory("RequestPartIntegrationTests");
 
     ServletContextHandler handler = new ServletContextHandler();
     handler.setContextPath("/");
-    ServletHolder standardResolverServlet = new ServletHolder(DispatcherServlet.class);
-    standardResolverServlet.setInitParameter("contextConfigLocation", StandardMultipartResolverTestConfig.class.getName());
-    standardResolverServlet.setInitParameter("contextClass", AnnotationConfigWebApplicationContext.class.getName());
+
+    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    context.setServletContext(handler.getServletContext());
+    context.register(StandardMultipartResolverTestConfig.class);
+    context.register(DispatcherServlet.class);
+    context.refresh();
+
+    DispatcherServlet bean = context.getBean(DispatcherServlet.class);
+
+    ServletHolder standardResolverServlet = new ServletHolder(bean);
     standardResolverServlet.getRegistration().setMultipartConfig(new MultipartConfigElement(tempDirectory.toString()));
     handler.addServlet(standardResolverServlet, "/standard-resolver/*");
 
@@ -177,7 +184,7 @@ class RequestPartIntegrationTests {
   private void testCreate(String url, String basename) {
     MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
     parts.add("json-data", new HttpEntity<>(new TestData(basename)));
-    parts.add("file-data", new ClassPathResource("logo.jpg", getClass()));
+    parts.add("file-data", new ClassPathResource("logo.svg", getClass()));
     parts.add("empty-data", new HttpEntity<>(new byte[0])); // SPR-12860
 
     HttpHeaders headers = HttpHeaders.create();
@@ -185,7 +192,7 @@ class RequestPartIntegrationTests {
     parts.add("iso-8859-1-data", new HttpEntity<>(new byte[] { (byte) 0xC4 }, headers)); // SPR-13096
 
     URI location = restTemplate.postForLocation(url, parts);
-    assertThat(location.toString()).isEqualTo(("http://localhost:8080/test/" + basename + "/logo.jpg"));
+    assertThat(location.toString()).isEqualTo(("http://localhost:8080/test/" + basename + "/logo.svg"));
   }
 
   @Configuration
@@ -200,6 +207,7 @@ class RequestPartIntegrationTests {
 
   @Configuration
   @SuppressWarnings("unused")
+  @EnableWebMvc
   static class StandardMultipartResolverTestConfig extends RequestPartTestConfig {
 
   }
