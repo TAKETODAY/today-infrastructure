@@ -39,6 +39,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.jdbc.core.SqlParameterValue;
 import cn.taketoday.jdbc.core.namedparam.Customer;
+import cn.taketoday.jdbc.core.namedparam.MapSqlParameterSource;
 import cn.taketoday.jdbc.support.GeneratedKeyHolder;
 import cn.taketoday.jdbc.support.KeyHolder;
 
@@ -71,7 +72,7 @@ public class JdbcClientNamedParameterTests {
   private static final String INSERT_GENERATE_KEYS_PARSED =
           "insert into show (name) values(?)";
 
-  private static final String[] COLUMN_NAMES = new String[] { "id", "forename" };
+  private static final String[] COLUMN_NAMES = { "id", "forename" };
 
   private Connection connection = mock();
 
@@ -89,8 +90,10 @@ public class JdbcClientNamedParameterTests {
 
   private Map<String, Object> params = new HashMap<>();
 
+  private MapSqlParameterSource paramSource = new MapSqlParameterSource();
+
   @BeforeEach
-  public void setup() throws Exception {
+  void setup() throws Exception {
     given(dataSource.getConnection()).willReturn(connection);
     given(connection.prepareStatement(anyString())).willReturn(preparedStatement);
     given(preparedStatement.getConnection()).willReturn(connection);
@@ -100,7 +103,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryWithResultSetExtractor() throws SQLException {
+  void queryWithResultSetExtractor() throws SQLException {
     given(resultSet.next()).willReturn(true);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -127,7 +130,34 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryWithResultSetExtractorNoParameters() throws SQLException {
+  void queryWithResultSetExtractorParameterSource() throws SQLException {
+    given(resultSet.next()).willReturn(true);
+    given(resultSet.getInt("id")).willReturn(1);
+    given(resultSet.getString("forename")).willReturn("rod");
+
+    paramSource.addValue("id", new SqlParameterValue(Types.DECIMAL, 1));
+    paramSource.addValue("country", "UK");
+    Customer cust = client.sql(SELECT_NAMED_PARAMETERS).paramSource(paramSource).query(
+            rs -> {
+              rs.next();
+              Customer cust1 = new Customer();
+              cust1.setId(rs.getInt(COLUMN_NAMES[0]));
+              cust1.setForename(rs.getString(COLUMN_NAMES[1]));
+              return cust1;
+            });
+
+    assertThat(cust.getId()).as("Customer id was assigned correctly").isEqualTo(1);
+    assertThat(cust.getForename()).as("Customer forename was assigned correctly").isEqualTo("rod");
+    verify(connection).prepareStatement(SELECT_NAMED_PARAMETERS_PARSED);
+    verify(preparedStatement).setObject(1, 1, Types.DECIMAL);
+    verify(preparedStatement).setString(2, "UK");
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
+
+  @Test
+  void queryWithResultSetExtractorNoParameters() throws SQLException {
     given(resultSet.next()).willReturn(true);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -150,7 +180,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryWithRowCallbackHandler() throws SQLException {
+  void queryWithRowCallbackHandler() throws SQLException {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -158,12 +188,13 @@ public class JdbcClientNamedParameterTests {
     params.put("id", new SqlParameterValue(Types.DECIMAL, 1));
     params.put("country", "UK");
     final List<Customer> customers = new ArrayList<>();
-    client.sql(SELECT_NAMED_PARAMETERS).params(params).query(rs -> {
-      Customer cust = new Customer();
-      cust.setId(rs.getInt(COLUMN_NAMES[0]));
-      cust.setForename(rs.getString(COLUMN_NAMES[1]));
-      customers.add(cust);
-    });
+    client.sql(SELECT_NAMED_PARAMETERS).params(params).query(
+            rs -> {
+              Customer cust = new Customer();
+              cust.setId(rs.getInt(COLUMN_NAMES[0]));
+              cust.setForename(rs.getString(COLUMN_NAMES[1]));
+              customers.add(cust);
+            });
 
     assertThat(customers).hasSize(1);
     assertThat(customers.get(0).getId()).as("Customer id was assigned correctly").isEqualTo(1);
@@ -177,18 +208,47 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryWithRowCallbackHandlerNoParameters() throws SQLException {
+  void queryWithRowCallbackHandlerParameterSource() throws SQLException {
+    given(resultSet.next()).willReturn(true, false);
+    given(resultSet.getInt("id")).willReturn(1);
+    given(resultSet.getString("forename")).willReturn("rod");
+
+    paramSource.addValue("id", new SqlParameterValue(Types.DECIMAL, 1));
+    paramSource.addValue("country", "UK");
+    final List<Customer> customers = new ArrayList<>();
+    client.sql(SELECT_NAMED_PARAMETERS).paramSource(paramSource).query(
+            rs -> {
+              Customer cust = new Customer();
+              cust.setId(rs.getInt(COLUMN_NAMES[0]));
+              cust.setForename(rs.getString(COLUMN_NAMES[1]));
+              customers.add(cust);
+            });
+
+    assertThat(customers).hasSize(1);
+    assertThat(customers.get(0).getId()).as("Customer id was assigned correctly").isEqualTo(1);
+    assertThat(customers.get(0).getForename()).as("Customer forename was assigned correctly").isEqualTo("rod");
+    verify(connection).prepareStatement(SELECT_NAMED_PARAMETERS_PARSED);
+    verify(preparedStatement).setObject(1, 1, Types.DECIMAL);
+    verify(preparedStatement).setString(2, "UK");
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
+
+  @Test
+  void queryWithRowCallbackHandlerNoParameters() throws SQLException {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
 
     final List<Customer> customers = new ArrayList<>();
-    client.sql(SELECT_NO_PARAMETERS).query(rs -> {
-      Customer cust = new Customer();
-      cust.setId(rs.getInt(COLUMN_NAMES[0]));
-      cust.setForename(rs.getString(COLUMN_NAMES[1]));
-      customers.add(cust);
-    });
+    client.sql(SELECT_NO_PARAMETERS).query(
+            rs -> {
+              Customer cust = new Customer();
+              cust.setId(rs.getInt(COLUMN_NAMES[0]));
+              cust.setForename(rs.getString(COLUMN_NAMES[1]));
+              customers.add(cust);
+            });
 
     assertThat(customers).hasSize(1);
     assertThat(customers.get(0).getId()).as("Customer id was assigned correctly").isEqualTo(1);
@@ -200,7 +260,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryWithRowMapper() throws SQLException {
+  void queryWithRowMapper() throws SQLException {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -228,7 +288,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryWithRowMapperNoParameters() throws SQLException {
+  void queryWithRowMapperNoParameters() throws SQLException {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -252,7 +312,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryForObjectWithRowMapper() throws SQLException {
+  void queryForObjectWithRowMapper() throws SQLException {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -279,7 +339,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testQueryForStreamWithRowMapper() throws SQLException {
+  void queryForStreamWithRowMapper() throws SQLException {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt("id")).willReturn(1);
     given(resultSet.getString("forename")).willReturn("rod");
@@ -312,7 +372,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testUpdate() throws SQLException {
+  void update() throws SQLException {
     given(preparedStatement.executeUpdate()).willReturn(1);
 
     params.put("perfId", 1);
@@ -328,7 +388,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testUpdateWithTypedParameters() throws SQLException {
+  void updateWithTypedParameters() throws SQLException {
     given(preparedStatement.executeUpdate()).willReturn(1);
 
     params.put("perfId", new SqlParameterValue(Types.DECIMAL, 1));
@@ -344,7 +404,7 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
-  public void testUpdateAndGeneratedKeys() throws SQLException {
+  void updateAndGeneratedKeys() throws SQLException {
     given(resultSetMetaData.getColumnCount()).willReturn(1);
     given(resultSetMetaData.getColumnLabel(1)).willReturn("1");
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
