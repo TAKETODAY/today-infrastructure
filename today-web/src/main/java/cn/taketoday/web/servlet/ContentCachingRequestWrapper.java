@@ -18,7 +18,6 @@
 package cn.taketoday.web.servlet;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
@@ -31,6 +30,7 @@ import java.util.Map;
 
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.FastByteArrayOutputStream;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,7 +54,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
  */
 public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
-  private final ByteArrayOutputStream cachedContent;
+  private final FastByteArrayOutputStream cachedContent = new FastByteArrayOutputStream();
 
   @Nullable
   private final Integer contentCacheLimit;
@@ -72,8 +72,6 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    */
   public ContentCachingRequestWrapper(HttpServletRequest request) {
     super(request);
-    int contentLength = request.getContentLength();
-    this.cachedContent = new ByteArrayOutputStream(contentLength >= 0 ? contentLength : 1024);
     this.contentCacheLimit = null;
   }
 
@@ -86,13 +84,12 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    */
   public ContentCachingRequestWrapper(HttpServletRequest request, int contentCacheLimit) {
     super(request);
-    this.cachedContent = new ByteArrayOutputStream(contentCacheLimit);
     this.contentCacheLimit = contentCacheLimit;
   }
 
   @Override
   public ServletInputStream getInputStream() throws IOException {
-    if (inputStream == null) {
+    if (this.inputStream == null) {
       this.inputStream = new ContentCachingInputStream(getRequest().getInputStream());
     }
     return this.inputStream;
@@ -182,7 +179,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    * Return the cached request content as a byte array.
    * <p>The returned array will never be larger than the content cache limit.
    * <p><strong>Note:</strong> The byte array returned from this method
-   * reflects the amount of content that has has been read at the time when it
+   * reflects the amount of content that has been read at the time when it
    * is called. If the application does not read the content, this method
    * returns an empty array.
    *
@@ -203,21 +200,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    * @see #getContentAsByteArray()
    */
   public String getContentAsString() {
-    return getContentAsString(Charset.forName(getCharacterEncoding()));
-  }
-
-  /**
-   * Return the cached request content as a String, using the configured
-   * {@link Charset}.
-   * <p><strong>Note:</strong> The String returned from this method
-   * reflects the amount of content that has been read at the time when it
-   * is called. If the application does not read the content, this method
-   * returns an empty String.
-   *
-   * @see #getContentAsByteArray()
-   */
-  public String getContentAsString(Charset charset) {
-    return this.cachedContent.toString(charset);
+    return new String(cachedContent.toByteArray(), Charset.forName(getCharacterEncoding()));
   }
 
   /**
@@ -244,8 +227,8 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
 
     @Override
     public int read() throws IOException {
-      int ch = this.is.read();
-      if (ch != -1 && !this.overflow) {
+      int ch = is.read();
+      if (ch != -1 && !overflow) {
         if (contentCacheLimit != null && cachedContent.size() == contentCacheLimit) {
           this.overflow = true;
           handleContentOverflow(contentCacheLimit);
@@ -264,10 +247,10 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
       return count;
     }
 
-    private void writeToCache(final byte[] b, final int off, int count) {
+    private void writeToCache(final byte[] b, final int off, int count) throws IOException {
       if (!overflow && count > 0) {
-        if (contentCacheLimit != null &&
-                count + cachedContent.size() > contentCacheLimit) {
+        if (contentCacheLimit != null
+                && count + cachedContent.size() > contentCacheLimit) {
           this.overflow = true;
           cachedContent.write(b, off, contentCacheLimit - cachedContent.size());
           handleContentOverflow(contentCacheLimit);
