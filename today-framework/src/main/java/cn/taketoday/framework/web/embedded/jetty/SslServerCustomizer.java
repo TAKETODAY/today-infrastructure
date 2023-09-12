@@ -93,13 +93,13 @@ class SslServerCustomizer implements JettyServerCustomizer {
 
   private ServerConnector createServerConnector(Server server, SslContextFactory.Server sslContextFactory,
           HttpConfiguration config) {
-    if (!Http2.isEnabled(http2)) {
+    if (this.http2 == null || !this.http2.isEnabled()) {
       return createHttp11ServerConnector(config, sslContextFactory, server);
     }
     Assert.state(isJettyAlpnPresent(),
-            "An 'org.eclipse.jetty:jetty-alpn-*-server' dependency is required for HTTP/2 support.");
+            () -> "An 'org.eclipse.jetty:jetty-alpn-*-server' dependency is required for HTTP/2 support.");
     Assert.state(isJettyHttp2Present(),
-            "The 'org.eclipse.jetty.http2:http2-server' dependency is required for HTTP/2 support.");
+            () -> "The 'org.eclipse.jetty.http2:http2-server' dependency is required for HTTP/2 support.");
     return createHttp2ServerConnector(config, sslContextFactory, server);
   }
 
@@ -112,21 +112,8 @@ class SslServerCustomizer implements JettyServerCustomizer {
             sslConnectionFactory, connectionFactory);
   }
 
-  private SslConnectionFactory createSslConnectionFactory(SslContextFactory.Server sslContextFactory,
-          String protocol) {
-    try {
-      return new SslConnectionFactory(sslContextFactory, protocol);
-    }
-    catch (NoSuchMethodError ex) {
-      // Jetty 10
-      try {
-        return SslConnectionFactory.class.getConstructor(SslContextFactory.Server.class, String.class)
-                .newInstance(sslContextFactory, protocol);
-      }
-      catch (Exception ex2) {
-        throw new IllegalStateException(ex2);
-      }
-    }
+  private SslConnectionFactory createSslConnectionFactory(SslContextFactory.Server sslContextFactory, String protocol) {
+    return new SslConnectionFactory(sslContextFactory, protocol);
   }
 
   private boolean isJettyAlpnPresent() {
@@ -213,6 +200,7 @@ class SslServerCustomizer implements JettyServerCustomizer {
   static class SslValidatingServerConnector extends ServerConnector {
 
     private final SslBundleKey key;
+
     private final SslContextFactory sslContextFactory;
 
     SslValidatingServerConnector(SslBundleKey key, SslContextFactory sslContextFactory, Server server,

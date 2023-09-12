@@ -17,7 +17,7 @@
 
 package cn.taketoday.annotation.config.web.reactive;
 
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;

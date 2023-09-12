@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.annotation.config.web.embedded;
 
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.AbstractConnector;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
@@ -27,12 +25,10 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
@@ -147,17 +143,21 @@ public class JettyWebServerFactoryCustomizer
         setHandlerMaxHttpFormPostSize(server.getHandlers());
       }
 
-      private void setHandlerMaxHttpFormPostSize(Handler... handlers) {
+      private void setHandlerMaxHttpFormPostSize(List<Handler> handlers) {
         for (Handler handler : handlers) {
-          if (handler instanceof ContextHandler) {
-            ((ContextHandler) handler).setMaxFormContentSize(maxHttpFormPostSize);
-          }
-          else if (handler instanceof HandlerWrapper) {
-            setHandlerMaxHttpFormPostSize(((HandlerWrapper) handler).getHandler());
-          }
-          else if (handler instanceof HandlerCollection) {
-            setHandlerMaxHttpFormPostSize(((HandlerCollection) handler).getHandlers());
-          }
+          setHandlerMaxHttpFormPostSize(handler);
+        }
+      }
+
+      private void setHandlerMaxHttpFormPostSize(Handler handler) {
+        if (handler instanceof ServletContextHandler servletContextHandler) {
+          servletContextHandler.setMaxFormContentSize(maxHttpFormPostSize);
+        }
+        else if (handler instanceof Handler.Wrapper wrapper) {
+          setHandlerMaxHttpFormPostSize(wrapper.getHandler());
+        }
+        else if (handler instanceof Handler.Collection handlerColl) {
+          setHandlerMaxHttpFormPostSize(handlerColl.getHandlers());
         }
       }
 

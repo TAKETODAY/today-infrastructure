@@ -69,29 +69,13 @@ dependencies {
   optional 'com.oracle.database.jdbc:ucp:21.7.0.0'
 
   optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
-  optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-client'
   optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
 
   optional 'org.eclipse.jetty.ee10:jetty-ee10-servlets'
   optional 'org.eclipse.jetty.ee10:jetty-ee10-webapp'
-  optional 'org.eclipse.jetty:jetty-webapp'
   optional 'org.eclipse.jetty.http2:jetty-http2-server'
   optional 'org.eclipse.jetty:jetty-alpn-server'
   optional 'org.eclipse.jetty:jetty-reactive-httpclient'
-
-  testImplementation("org.eclipse.jetty:jetty-webapp") {
-    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
-    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
-  }
-
-  testImplementation 'org.eclipse.jetty.http2:http2-client'
-  testImplementation 'org.eclipse.jetty.http2:http2-http-client-transport'
-  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
-  testImplementation 'org.eclipse.jetty:jetty-http'
-  testImplementation 'org.eclipse.jetty:jetty-client'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))
@@ -138,16 +122,7 @@ dependencies {
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 
   testImplementation 'mysql:mysql-connector-java'
-  testImplementation 'org.eclipse.jetty.websocket:websocket-jetty-client'
-  testImplementation("org.eclipse.jetty.websocket:websocket-jakarta-server") {
-    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
-    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
-    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-websocket-api")
-  }
-  testImplementation("org.eclipse.jetty.websocket:websocket-jetty-server") {
-    exclude(group: "org.eclipse.jetty", module: "jetty-jndi")
-    exclude(group: "org.eclipse.jetty.toolchain", module: "jetty-jakarta-servlet-api")
-  }
+
 
   testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'
   testImplementation 'org.apache.commons:commons-dbcp2:2.9.0'
