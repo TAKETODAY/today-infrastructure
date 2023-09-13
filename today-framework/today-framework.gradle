@@ -76,6 +76,7 @@ dependencies {
   optional 'org.eclipse.jetty:jetty-alpn-server'
   optional 'org.eclipse.jetty.http2:jetty-http2-server'
   optional 'org.eclipse.jetty:jetty-reactive-httpclient'
+  optional 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
 
   testImplementation("org.eclipse.jetty:jetty-client")
   testImplementation("org.eclipse.jetty.http2:jetty-http2-client")

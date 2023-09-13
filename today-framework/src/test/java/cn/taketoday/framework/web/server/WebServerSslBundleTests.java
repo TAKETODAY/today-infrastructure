@@ -28,6 +28,7 @@ import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundleKey;
 import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.core.ssl.SslStoreBundle;
+import cn.taketoday.framework.web.MockPkcs11Security;
 import cn.taketoday.framework.web.MockPkcs11SecurityProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Scott Frederick
  * @author Phillip Webb
  */
+@MockPkcs11Security
 class WebServerSslBundleTests {
 
   @Test
