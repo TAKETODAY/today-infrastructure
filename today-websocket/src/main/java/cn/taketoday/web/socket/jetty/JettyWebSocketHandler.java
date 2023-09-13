@@ -88,12 +88,14 @@ public class JettyWebSocketHandler {
 
   @OnWebSocketMessage
   public void onWebSocketBinary(ByteBuffer payload, Callback callback) {
-    BinaryMessage message = new BinaryMessage(payload, true);
+    BinaryMessage message = new BinaryMessage(copyByteBuffer(payload), true);
     try {
       this.webSocketHandler.handleMessage(this.wsSession, message);
+      callback.succeed();
     }
     catch (Exception ex) {
-      tryCloseWithError(this.wsSession, ex);
+      callback.fail(ex);
+      ExceptionWebSocketHandlerDecorator.tryCloseWithError(this.wsSession, ex, logger);
     }
   }
 
@@ -101,14 +103,22 @@ public class JettyWebSocketHandler {
   public void onWebSocketFrame(Frame frame, Callback callback) {
     if (OpCode.PONG == frame.getOpCode()) {
       ByteBuffer payload = frame.getPayload() != null ? frame.getPayload() : EMPTY_PAYLOAD;
-      PongMessage message = new PongMessage(payload);
+      PongMessage message = new PongMessage(copyByteBuffer(payload));
       try {
         this.webSocketHandler.handleMessage(this.wsSession, message);
+        callback.succeed();
       }
       catch (Exception ex) {
-        tryCloseWithError(this.wsSession, ex);
+        callback.fail(ex);
+        ExceptionWebSocketHandlerDecorator.tryCloseWithError(this.wsSession, ex, logger);
       }
     }
+  }
+
+  private static ByteBuffer copyByteBuffer(ByteBuffer src) {
+    ByteBuffer dest = ByteBuffer.allocate(src.capacity());
+    dest.put(0, src, 0, src.remaining());
+    return dest;
   }
 
   @OnWebSocketClose
