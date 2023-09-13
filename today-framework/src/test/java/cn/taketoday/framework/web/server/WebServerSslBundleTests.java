@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundleKey;
 import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.core.ssl.SslStoreBundle;
+import cn.taketoday.framework.web.MockPkcs11SecurityProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -84,14 +82,13 @@ class WebServerSslBundleTests {
   @Test
   void whenFromJksPropertiesWithPkcs11StoreType() {
     Ssl ssl = new Ssl();
-    ssl.setKeyStorePassword("secret");
     ssl.setKeyStoreType("PKCS11");
+    ssl.setKeyStoreProvider(MockPkcs11SecurityProvider.NAME);
+    ssl.setKeyStore("src/test/resources/test.jks");
     ssl.setKeyPassword("password");
     ssl.setClientAuth(Ssl.ClientAuth.NONE);
-    SslBundle bundle = WebServerSslBundle.get(ssl);
-    assertThat(bundle).isNotNull();
-    assertThat(bundle.getStores().getKeyStorePassword()).isEqualTo("secret");
-    assertThat(bundle.getKey().getPassword()).isEqualTo("password");
+    assertThatIllegalStateException().isThrownBy(() -> WebServerSslBundle.get(ssl))
+            .withMessageContaining("must be empty or null for PKCS11 hardware key stores");
   }
 
   @Test

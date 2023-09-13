@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,17 +59,18 @@ class JksSslStoreBundleTests {
 
   @Test
   void whenTypePKCS11AndLocationThrowsException() {
-    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails("PKCS11", null, "ssl/test.jks", null);
-    JksSslStoreDetails trustStoreDetails = null;
-    JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
-    assertThatIllegalStateException().isThrownBy(bundle::getKeyStore)
+    assertThatIllegalStateException().isThrownBy(() -> {
+              JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails("PKCS11", null, "test.jks", null);
+              JksSslStoreDetails trustStoreDetails = null;
+              new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
+            })
             .withMessageContaining(
-                    "Unable to create key store: Location is 'ssl/test.jks', but must be empty or null for PKCS11 hardware key stores");
+                    "Unable to create key store: Location is 'test.jks', but must be empty or null for PKCS11 hardware key stores");
   }
 
   @Test
   void whenHasKeyStoreLocation() {
-    JksSslStoreDetails keyStoreDetails = JksSslStoreDetails.forLocation("classpath:ssl/test.jks")
+    JksSslStoreDetails keyStoreDetails = JksSslStoreDetails.forLocation("classpath:test.jks")
             .withPassword("secret");
     JksSslStoreDetails trustStoreDetails = null;
     JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
@@ -82,7 +80,7 @@ class JksSslStoreBundleTests {
   @Test
   void getTrustStoreWithLocations() {
     JksSslStoreDetails keyStoreDetails = null;
-    JksSslStoreDetails trustStoreDetails = JksSslStoreDetails.forLocation("classpath:ssl/test.jks")
+    JksSslStoreDetails trustStoreDetails = JksSslStoreDetails.forLocation("classpath:test.jks")
             .withPassword("secret");
     JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("test-alias", "password"));
@@ -90,7 +88,7 @@ class JksSslStoreBundleTests {
 
   @Test
   void whenHasKeyStoreType() {
-    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails("jks", null, "classpath:ssl/test.jks", "secret");
+    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails("jks", null, "classpath:test.jks", "secret");
     JksSslStoreDetails trustStoreDetails = null;
     JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("jks", "test-alias", "password"));
@@ -99,29 +97,29 @@ class JksSslStoreBundleTests {
   @Test
   void whenHasTrustStoreType() {
     JksSslStoreDetails keyStoreDetails = null;
-    JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails("jks", null, "classpath:ssl/test.jks", "secret");
+    JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails("jks", null, "classpath:test.jks", "secret");
     JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("jks", "test-alias", "password"));
   }
 
   @Test
   void whenHasKeyStoreProvider() {
-    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails(null, "com.example.KeyStoreProvider",
-            "classpath:ssl/test.jks", "secret");
-    JksSslStoreDetails trustStoreDetails = null;
-    JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
-    assertThatIllegalStateException().isThrownBy(bundle::getKeyStore)
-            .withMessageContaining("com.example.KeyStoreProvider");
+    assertThatIllegalStateException().isThrownBy(() -> {
+      JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails(null, "com.example.KeyStoreProvider",
+              "classpath:test.jks", "secret");
+      JksSslStoreDetails trustStoreDetails = null;
+      new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
+    }).withMessageContaining("com.example.KeyStoreProvider");
   }
 
   @Test
   void whenHasTrustStoreProvider() {
-    JksSslStoreDetails keyStoreDetails = null;
-    JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails(null, "com.example.KeyStoreProvider",
-            "classpath:ssl/test.jks", "secret");
-    JksSslStoreBundle bundle = new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
-    assertThatIllegalStateException().isThrownBy(bundle::getTrustStore)
-            .withMessageContaining("com.example.KeyStoreProvider");
+    assertThatIllegalStateException().isThrownBy(() -> {
+      JksSslStoreDetails keyStoreDetails = null;
+      JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails(null, "com.example.KeyStoreProvider",
+              "classpath:test.jks", "secret");
+      new JksSslStoreBundle(keyStoreDetails, trustStoreDetails);
+    }).withMessageContaining("com.example.KeyStoreProvider");
   }
 
   private Consumer<KeyStore> storeContainingCertAndKey(String keyAlias, String keyPassword) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,14 +58,12 @@ class SslConnectorCustomizerTests {
 
   private Tomcat tomcat;
 
-  private Connector connector;
-
   @BeforeEach
   void setup() {
     this.tomcat = new Tomcat();
-    this.connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-    this.connector.setPort(0);
-    this.tomcat.setConnector(this.connector);
+    Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+    connector.setPort(0);
+    this.tomcat.setConnector(connector);
   }
 
   @AfterEach
@@ -142,10 +137,11 @@ class SslConnectorCustomizerTests {
     ssl.setKeyStoreProvider(MockPkcs11SecurityProvider.NAME);
     ssl.setKeyStore("src/test/resources/test.jks");
     ssl.setKeyPassword("password");
-    SslConnectorCustomizer customizer = new SslConnectorCustomizer(ssl.getClientAuth(),
-            WebServerSslBundle.get(ssl));
-    assertThatIllegalStateException().isThrownBy(() -> customizer.customize(this.tomcat.getConnector()))
-            .withMessageContaining("must be empty or null for PKCS11 hardware key stores");
+    assertThatIllegalStateException().isThrownBy(() -> {
+      SslConnectorCustomizer customizer = new SslConnectorCustomizer(ssl.getClientAuth(),
+              WebServerSslBundle.get(ssl));
+      customizer.customize(this.tomcat.getConnector());
+    }).withMessageContaining("must be empty or null for PKCS11 hardware key stores");
   }
 
   @Test

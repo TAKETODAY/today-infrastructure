@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +37,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Scott Frederick
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class JksSslStoreBundle implements SslStoreBundle {
@@ -48,7 +46,10 @@ public class JksSslStoreBundle implements SslStoreBundle {
   private final JksSslStoreDetails keyStoreDetails;
 
   @Nullable
-  private final JksSslStoreDetails trustStoreDetails;
+  private final KeyStore keyStore;
+
+  @Nullable
+  private final KeyStore trustStore;
 
   /**
    * Create a new {@link JksSslStoreBundle} instance.
@@ -56,19 +57,20 @@ public class JksSslStoreBundle implements SslStoreBundle {
    * @param keyStoreDetails the key store details
    * @param trustStoreDetails the trust store details
    */
-  public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, @Nullable JksSslStoreDetails trustStoreDetails) {
+  public JksSslStoreBundle(@Nullable JksSslStoreDetails keyStoreDetails, JksSslStoreDetails trustStoreDetails) {
     this.keyStoreDetails = keyStoreDetails;
-    this.trustStoreDetails = trustStoreDetails;
+    this.keyStore = createKeyStore("key", this.keyStoreDetails);
+    this.trustStore = createKeyStore("trust", trustStoreDetails);
   }
 
-  @Override
   @Nullable
+  @Override
   public KeyStore getKeyStore() {
-    return createKeyStore("key", this.keyStoreDetails);
+    return this.keyStore;
   }
 
-  @Override
   @Nullable
+  @Override
   public String getKeyStorePassword() {
     return (this.keyStoreDetails != null) ? this.keyStoreDetails.password() : null;
   }
@@ -76,7 +78,7 @@ public class JksSslStoreBundle implements SslStoreBundle {
   @Override
   @Nullable
   public KeyStore getTrustStore() {
-    return createKeyStore("trust", this.trustStoreDetails);
+    return this.trustStore;
   }
 
   @Nullable

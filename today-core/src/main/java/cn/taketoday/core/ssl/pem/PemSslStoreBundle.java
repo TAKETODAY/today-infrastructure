@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,16 +40,10 @@ public class PemSslStoreBundle implements SslStoreBundle {
   private static final String DEFAULT_KEY_ALIAS = "ssl";
 
   @Nullable
-  private final PemSslStoreDetails keyStoreDetails;
+  private final KeyStore keyStore;
 
   @Nullable
-  private final PemSslStoreDetails trustStoreDetails;
-
-  @Nullable
-  private final String keyAlias;
-
-  @Nullable
-  private final String keyPassword;
+  private final KeyStore trustStore;
 
   /**
    * Create a new {@link PemSslStoreBundle} instance.
@@ -60,7 +51,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
    * @param keyStoreDetails the key store details
    * @param trustStoreDetails the trust store details
    */
-  public PemSslStoreBundle(PemSslStoreDetails keyStoreDetails, PemSslStoreDetails trustStoreDetails) {
+  public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails, @Nullable PemSslStoreDetails trustStoreDetails) {
     this(keyStoreDetails, trustStoreDetails, null);
   }
 
@@ -85,31 +76,32 @@ public class PemSslStoreBundle implements SslStoreBundle {
    * @param keyPassword the password to use for the key
    */
   public PemSslStoreBundle(@Nullable PemSslStoreDetails keyStoreDetails,
-          @Nullable PemSslStoreDetails trustStoreDetails, @Nullable String keyAlias,
-          @Nullable String keyPassword) {
-    this.keyAlias = keyAlias;
-    this.keyStoreDetails = keyStoreDetails;
-    this.trustStoreDetails = trustStoreDetails;
-    this.keyPassword = keyPassword;
+          @Nullable PemSslStoreDetails trustStoreDetails, @Nullable String keyAlias, @Nullable String keyPassword) {
+    this.keyStore = createKeyStore("key", keyStoreDetails, keyAlias, keyPassword);
+    this.trustStore = createKeyStore("trust", trustStoreDetails, keyAlias, keyPassword);
   }
 
+  @Nullable
   @Override
   public KeyStore getKeyStore() {
-    return createKeyStore("key", this.keyStoreDetails);
+    return this.keyStore;
   }
 
+  @Nullable
   @Override
   public String getKeyStorePassword() {
     return null;
   }
 
+  @Nullable
   @Override
   public KeyStore getTrustStore() {
-    return createKeyStore("trust", this.trustStoreDetails);
+    return this.trustStore;
   }
 
   @Nullable
-  private KeyStore createKeyStore(String name, @Nullable PemSslStoreDetails details) {
+  private KeyStore createKeyStore(String name, @Nullable PemSslStoreDetails details,
+          @Nullable String alias, @Nullable String keyPassword) {
     if (details == null || details.isEmpty()) {
       return null;
     }
@@ -122,7 +114,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
       String privateKeyContent = PemContent.load(details.privateKey());
       X509Certificate[] certificates = PemCertificateParser.parse(certificateContent);
       PrivateKey privateKey = PemPrivateKeyParser.parse(privateKeyContent, details.privateKeyPassword());
-      addCertificates(store, certificates, privateKey);
+      addCertificates(store, certificates, privateKey, (alias != null) ? alias : DEFAULT_KEY_ALIAS, keyPassword);
       return store;
     }
     catch (Exception ex) {
@@ -131,11 +123,10 @@ public class PemSslStoreBundle implements SslStoreBundle {
   }
 
   private void addCertificates(KeyStore keyStore, @Nullable X509Certificate[] certificates,
-          @Nullable PrivateKey privateKey) throws KeyStoreException {
-    String alias = (this.keyAlias != null) ? this.keyAlias : DEFAULT_KEY_ALIAS;
+          @Nullable PrivateKey privateKey, String alias, @Nullable String keyPassword) throws KeyStoreException {
     if (privateKey != null) {
-      keyStore.setKeyEntry(alias, privateKey,
-              (this.keyPassword != null) ? this.keyPassword.toCharArray() : null, certificates);
+      keyStore.setKeyEntry(alias, privateKey, (keyPassword != null) ? keyPassword.toCharArray() : null,
+              certificates);
     }
     else if (certificates != null) {
       for (int index = 0; index < certificates.length; index++) {
