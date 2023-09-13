@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.beans.factory.support;
 
 import java.io.Serial;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -382,6 +380,33 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
       return ResolvableType.forReturnType(factoryMethod);
     }
     return super.getResolvableType();
+  }
+
+  /**
+   * Determine preferred constructors to use for default construction, if any.
+   * Constructor arguments will be autowired if necessary.
+   * <p>the default implementation of this method takes the
+   * {@link #PREFERRED_CONSTRUCTORS_ATTRIBUTE} attribute into account.
+   * Subclasses are encouraged to preserve this through a {@code super} call,
+   * either before or after their own preferred constructor determination.
+   *
+   * @return one or more preferred constructors, or {@code null} if none
+   * (in which case the regular no-arg default constructor will be called)
+   */
+  @Nullable
+  public Constructor<?>[] getPreferredConstructors() {
+    Object attribute = getAttribute(PREFERRED_CONSTRUCTORS_ATTRIBUTE);
+    if (attribute == null) {
+      return null;
+    }
+    if (attribute instanceof Constructor<?> constructor) {
+      return new Constructor<?>[] { constructor };
+    }
+    if (attribute instanceof Constructor<?>[]) {
+      return (Constructor<?>[]) attribute;
+    }
+    throw new IllegalArgumentException("Invalid value type for attribute '" +
+            PREFERRED_CONSTRUCTORS_ATTRIBUTE + "': " + attribute.getClass().getName());
   }
 
   /**

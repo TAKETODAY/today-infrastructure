@@ -19,6 +19,7 @@ package cn.taketoday.beans.factory.aot;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.function.UnaryOperator;
@@ -246,6 +247,9 @@ class DefaultBeanRegistrationCodeFragmentsTests {
 
     if (constructorOrFactoryMethod instanceof Method method) {
       beanDefinition.setResolvedFactoryMethod(method);
+    }
+    else if (constructorOrFactoryMethod instanceof Constructor<?> constructor) {
+      beanDefinition.setAttribute(RootBeanDefinition.PREFERRED_CONSTRUCTORS_ATTRIBUTE, constructor);
     }
     return beanDefinition;
   }

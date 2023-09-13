@@ -1041,7 +1041,10 @@ final class ConstructorResolver {
     Constructor<?>[] ctors = beanFactory.determineConstructorsFromPostProcessors(type, beanName);
     if (ctors == null) {
       if (!mbd.hasConstructorArgumentValues()) {
-        ctors = new Constructor<?>[] { BeanUtils.getConstructor(type) };
+        ctors = mbd.getPreferredConstructors();
+        if (ObjectUtils.isEmpty(ctors)) {
+          ctors = new Constructor<?>[] { BeanUtils.getConstructor(type) };
+        }
       }
       if (ctors == null) {
         ctors = (mbd.isNonPublicAccessAllowed() ? type.getDeclaredConstructors() : type.getConstructors());

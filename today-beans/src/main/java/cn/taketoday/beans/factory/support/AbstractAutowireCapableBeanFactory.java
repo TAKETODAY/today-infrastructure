@@ -744,6 +744,12 @@ public abstract class AbstractAutowireCapableBeanFactory
       return autowireConstructor(beanName, merged, constructors, args);
     }
 
+    // Preferred constructors for default construction?
+    constructors = merged.getPreferredConstructors();
+    if (ObjectUtils.isNotEmpty(constructors)) {
+      return autowireConstructor(beanName, merged, constructors, args);
+    }
+
     if (beanClass != null && !merged.hasConstructorArgumentValues()) {
       Constructor<?> selected = BeanUtils.getConstructor(beanClass);
       if (selected != null && selected.getParameterCount() > 0) {

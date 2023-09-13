@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -153,6 +150,20 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * are "close" and "shutdown", if present on the specific bean class.
    */
   public static final String INFER_METHOD = "(inferred)";
+
+  /**
+   * The name of an attribute that can be
+   * {@link cn.taketoday.core.AttributeAccessor#setAttribute set} on a
+   * {@link cn.taketoday.beans.factory.config.BeanDefinition} so that
+   * bean definitions can indicate one or more preferred constructors. This is
+   * analogous to {@code @Autowired} annotated constructors on the bean class.
+   * <p>The attribute value may be a single {@link java.lang.reflect.Constructor}
+   * reference or an array thereof.
+   *
+   * @see cn.taketoday.beans.factory.annotation.Autowired
+   * @see cn.taketoday.beans.factory.support.RootBeanDefinition#getPreferredConstructors()
+   */
+  public static final String PREFERRED_CONSTRUCTORS_ATTRIBUTE = "preferredConstructors";
 
   @Nullable
   private volatile Object beanClass;
