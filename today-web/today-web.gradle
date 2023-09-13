@@ -73,8 +73,7 @@ dependencies {
   testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
   testImplementation("org.apache.tomcat:tomcat-util")
   testImplementation("org.apache.tomcat.embed:tomcat-embed-core")
-  testImplementation("org.eclipse.jetty:jetty-server")
-  testImplementation("org.eclipse.jetty:jetty-servlet")
+
   testImplementation("com.squareup.okhttp3:mockwebserver")
   testImplementation("org.skyscreamer:jsonassert")
   testImplementation("org.xmlunit:xmlunit-assertj")
@@ -82,8 +81,18 @@ dependencies {
   testImplementation("io.projectreactor.tools:blockhound")
   testImplementation("io.micrometer:micrometer-observation-test")
 
-  testImplementation 'org.eclipse.jetty.websocket:websocket-jetty-client:11.0.15'
-  testImplementation 'org.eclipse.jetty.websocket:websocket-jetty-server:11.0.15'
+  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
+  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
+
+  testImplementation 'org.eclipse.jetty.ee10:jetty-ee10-servlets'
+  testImplementation 'org.eclipse.jetty.ee10:jetty-ee10-webapp'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
+  testImplementation 'org.eclipse.jetty.http2:jetty-http2-server'
+  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
+  testImplementation("org.eclipse.jetty.ee10:jetty-ee10-servlet") {
+    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
+  }
 
   testRuntimeOnly("com.sun.mail:jakarta.mail")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
@@ -112,12 +121,7 @@ dependencies {
   testImplementation(testFixtures(project(":today-core")))
   testImplementation(testFixtures(project(":today-context")))
   testImplementation("jakarta.servlet:jakarta.servlet-api")
-  testImplementation("org.eclipse.jetty.ee10:jetty-ee10-servlet") {
-    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
-  }
-  testImplementation("org.eclipse.jetty:jetty-server") {
-    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
-  }
+
   testImplementation("commons-io:commons-io")
   testImplementation("org.mozilla:rhino")
   testImplementation("org.dom4j:dom4j") {
