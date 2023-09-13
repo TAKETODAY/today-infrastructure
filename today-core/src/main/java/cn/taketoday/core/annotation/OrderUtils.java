@@ -41,7 +41,7 @@ public abstract class OrderUtils {
   private static final String PRIORITY_ANNOTATION = "jakarta.annotation.Priority";
 
   /** Cache for @Order value (or NOT_ANNOTATED marker) per Class. */
-  private static final ConcurrentReferenceHashMap<AnnotatedElement, Object>
+  static final ConcurrentReferenceHashMap<AnnotatedElement, Object>
           orderCache = new ConcurrentReferenceHashMap<>(64);
 
   /**

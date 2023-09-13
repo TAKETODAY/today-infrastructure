@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,7 @@ import cn.taketoday.util.ReflectionUtils;
 final class AttributeMethods {
   static final AttributeMethods NONE = new AttributeMethods(null, Constant.EMPTY_METHODS);
 
-  private static final ConcurrentReferenceHashMap<Class<? extends Annotation>, AttributeMethods>
+  static final ConcurrentReferenceHashMap<Class<? extends Annotation>, AttributeMethods>
           cache = new ConcurrentReferenceHashMap<>();
 
   private static final Comparator<Method> methodComparator = (m1, m2) -> {

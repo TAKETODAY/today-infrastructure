@@ -1336,6 +1336,9 @@ public abstract class AnnotationUtils {
   public static void clearCache() {
     AnnotationTypeMappings.clearCache();
     AnnotationsScanner.clearCache();
+    AttributeMethods.cache.clear();
+    RepeatableContainers.cache.clear();
+    OrderUtils.orderCache.clear();
   }
 
   /**
