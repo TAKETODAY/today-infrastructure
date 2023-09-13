@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -176,7 +173,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   /**
    * Check the headers and determine the headers for the response of a pre-flight
    * request. The default implementation simply delegates to
-   * {@link CorsConfiguration#checkOrigin(String)}.
+   * {@link CorsConfiguration#checkHeaders}.
    */
   @Nullable
   protected List<String> checkHeaders(CorsConfiguration config, List<String> requestHeaders) {
