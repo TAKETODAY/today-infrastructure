@@ -33,7 +33,6 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
@@ -64,8 +63,7 @@ import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactoryTests;
-import cn.taketoday.test.classpath.ClassPathOverrides;
-import cn.taketoday.test.web.servlet.Servlet5ClassPathOverrides;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -86,14 +84,21 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Henri Kerola
  */
-@Servlet5ClassPathOverrides
-@ClassPathOverrides({ "org.eclipse.jetty:jetty-jndi:11.0.16",
-        "org.eclipse.jetty:jetty-server:11.0.16" })
+@ClassPathExclusions("tomcat-embed-jasper*")
 class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryTests {
 
   @Override
   protected JettyServletWebServerFactory getFactory() {
-    return new JettyServletWebServerFactory(0);
+    JettyServletWebServerFactory factory = new JettyServletWebServerFactory(0);
+    factory.addServerCustomizers((server) -> {
+      for (Connector connector : server.getConnectors()) {
+        if (connector instanceof ServerConnector serverConnector) {
+          // TODO Set the shutdown idle timeout in main code?
+          serverConnector.setShutdownIdleTimeout(10000);
+        }
+      }
+    });
+    return factory;
   }
 
   @Override
@@ -131,8 +136,14 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
 
   @Test
   @Override
-  @Disabled("Jetty 11 does not support User-Agent-based compression")
+  @Disabled("Jetty 12 does not support User-Agent-based compression")
   protected void noCompressionForUserAgent() {
+  }
+
+  @Test
+  @Override
+  @Disabled("Jetty 12 does not support SSL session tracking")
+  protected void sslSessionTracking() {
 
   }
 
@@ -375,9 +386,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
       Handler handler = server.getHandler();
       Handler.Wrapper wrapper = new Handler.Wrapper();
       wrapper.setHandler(handler);
-      Handler.Collection collection = new ContextHandlerCollection();
-      collection.addHandler(wrapper);
-      server.setHandler(collection);
+      server.setHandler(wrapper);
     }));
     this.webServer = factory.getWebServer(exampleServletRegistration());
     this.webServer.start();

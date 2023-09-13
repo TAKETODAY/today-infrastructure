@@ -917,7 +917,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   }
 
   @Test
-  void sslSessionTracking() {
+  protected void sslSessionTracking() {
     AbstractServletWebServerFactory factory = getFactory();
     Ssl ssl = new Ssl();
     ssl.setEnabled(true);

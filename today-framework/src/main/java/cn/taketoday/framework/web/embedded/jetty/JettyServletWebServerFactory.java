@@ -358,7 +358,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     Assert.notNull(context, "Context must not be null");
     ServletHolder holder = new ServletHolder();
     holder.setName("default");
-    holder.setClassName("org.eclipse.jetty.servlet.DefaultServlet");
+    holder.setClassName("org.eclipse.jetty.ee10.servlet.DefaultServlet");
     holder.setInitParameter("dirAllowed", "false");
     holder.setInitOrder(1);
     context.getServletHandler().addServletWithMapping(holder, "/");
