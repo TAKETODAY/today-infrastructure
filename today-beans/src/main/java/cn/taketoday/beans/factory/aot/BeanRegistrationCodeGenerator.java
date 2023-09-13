@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.beans.factory.aot;
 
-import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -52,18 +48,14 @@ class BeanRegistrationCodeGenerator implements BeanRegistrationCode {
 
   private final RegisteredBean registeredBean;
 
-  private final Executable constructorOrFactoryMethod;
-
   private final BeanRegistrationCodeFragments codeFragments;
 
   BeanRegistrationCodeGenerator(ClassName className, GeneratedMethods generatedMethods,
-          RegisteredBean registeredBean, Executable constructorOrFactoryMethod,
-          BeanRegistrationCodeFragments codeFragments) {
+          RegisteredBean registeredBean, BeanRegistrationCodeFragments codeFragments) {
 
     this.className = className;
     this.generatedMethods = generatedMethods;
     this.registeredBean = registeredBean;
-    this.constructorOrFactoryMethod = constructorOrFactoryMethod;
     this.codeFragments = codeFragments;
   }
 
@@ -91,8 +83,7 @@ class BeanRegistrationCodeGenerator implements BeanRegistrationCode {
             generationContext, this, this.registeredBean.getMergedBeanDefinition(),
             REJECT_ALL_ATTRIBUTES_FILTER));
     CodeBlock instanceSupplierCode = this.codeFragments.generateInstanceSupplierCode(
-            generationContext, this, this.constructorOrFactoryMethod,
-            this.instancePostProcessors.isEmpty());
+            generationContext, this, this.instancePostProcessors.isEmpty());
     code.add(this.codeFragments.generateSetBeanInstanceSupplierCode(generationContext,
             this, instanceSupplierCode, this.instancePostProcessors));
     code.add(this.codeFragments.generateReturnCode(generationContext, this));

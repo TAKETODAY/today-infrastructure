@@ -22,6 +22,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -32,8 +33,14 @@ import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
 import cn.taketoday.aot.hint.ExecutableMode;
+import cn.taketoday.aot.hint.ReflectionHints;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.InstanceSupplier;
 import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.javapoet.CodeBlock;
@@ -60,7 +67,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class InstanceSupplierCodeGenerator {
+public class InstanceSupplierCodeGenerator {
 
   private static final String REGISTERED_BEAN_PARAMETER_NAME = "registeredBean";
 
@@ -81,7 +88,16 @@ class InstanceSupplierCodeGenerator {
 
   private final boolean allowDirectSupplierShortcut;
 
-  InstanceSupplierCodeGenerator(GenerationContext generationContext,
+  /**
+   * Create a new instance.
+   *
+   * @param generationContext the generation context
+   * @param className the class name of the bean to instantiate
+   * @param generatedMethods the generated methods
+   * @param allowDirectSupplierShortcut whether a direct supplier may be used rather
+   * than always needing an {@link InstanceSupplier}
+   */
+  public InstanceSupplierCodeGenerator(GenerationContext generationContext,
           ClassName className, GeneratedMethods generatedMethods, boolean allowDirectSupplierShortcut) {
 
     this.className = className;
@@ -90,7 +106,15 @@ class InstanceSupplierCodeGenerator {
     this.allowDirectSupplierShortcut = allowDirectSupplierShortcut;
   }
 
-  CodeBlock generateCode(RegisteredBean registeredBean, Executable constructorOrFactoryMethod) {
+  /**
+   * Generate the instance supplier code.
+   *
+   * @param registeredBean the bean to handle
+   * @param constructorOrFactoryMethod the executable to use to create the bean
+   * @return the generated code
+   */
+  public CodeBlock generateCode(RegisteredBean registeredBean, Executable constructorOrFactoryMethod) {
+    registerRuntimeHintsIfNecessary(registeredBean, constructorOrFactoryMethod);
     if (constructorOrFactoryMethod instanceof Constructor<?> constructor) {
       return generateCodeForConstructor(registeredBean, constructor);
     }
@@ -99,6 +123,19 @@ class InstanceSupplierCodeGenerator {
     }
     throw new IllegalStateException(
             "No suitable executor found for " + registeredBean.getBeanName());
+  }
+
+  private void registerRuntimeHintsIfNecessary(RegisteredBean registeredBean, Executable constructorOrFactoryMethod) {
+    if (registeredBean.getBeanFactory() instanceof StandardBeanFactory dlbf) {
+      RuntimeHints runtimeHints = this.generationContext.getRuntimeHints();
+      ProxyRuntimeHintsRegistrar registrar = new ProxyRuntimeHintsRegistrar(dlbf.getAutowireCandidateResolver());
+      if (constructorOrFactoryMethod instanceof Method method) {
+        registrar.registerRuntimeHints(runtimeHints, method);
+      }
+      else if (constructorOrFactoryMethod instanceof Constructor<?> constructor) {
+        registrar.registerRuntimeHints(runtimeHints, constructor);
+      }
+    }
   }
 
   private CodeBlock generateCodeForConstructor(RegisteredBean registeredBean, Constructor<?> constructor) {
@@ -112,14 +149,15 @@ class InstanceSupplierCodeGenerator {
       return generateCodeForAccessibleConstructor(beanName, beanClass, constructor,
               dependsOnBean, declaringClass);
     }
-    return generateCodeForInaccessibleConstructor(beanName, beanClass, constructor, dependsOnBean);
+    return generateCodeForInaccessibleConstructor(beanName, beanClass, constructor, dependsOnBean,
+            hints -> hints.registerConstructor(constructor, ExecutableMode.INVOKE));
   }
 
   private CodeBlock generateCodeForAccessibleConstructor(String beanName, Class<?> beanClass,
           Constructor<?> constructor, boolean dependsOnBean, Class<?> declaringClass) {
 
-    this.generationContext.getRuntimeHints().reflection().registerConstructor(
-            constructor, ExecutableMode.INTROSPECT);
+    generationContext.getRuntimeHints().reflection()
+            .registerConstructor(constructor, ExecutableMode.INTROSPECT);
 
     if (!dependsOnBean && constructor.getParameterCount() == 0) {
       if (!this.allowDirectSupplierShortcut) {
@@ -137,11 +175,10 @@ class InstanceSupplierCodeGenerator {
     return generateReturnStatement(generatedMethod);
   }
 
-  private CodeBlock generateCodeForInaccessibleConstructor(String beanName,
-          Class<?> beanClass, Constructor<?> constructor, boolean dependsOnBean) {
+  private CodeBlock generateCodeForInaccessibleConstructor(String beanName, Class<?> beanClass,
+          Constructor<?> constructor, boolean dependsOnBean, Consumer<ReflectionHints> hints) {
 
-    this.generationContext.getRuntimeHints().reflection()
-            .registerConstructor(constructor, ExecutableMode.INVOKE);
+    hints.accept(generationContext.getRuntimeHints().reflection());
 
     GeneratedMethod generatedMethod = generateGetInstanceSupplierMethod(method -> {
       method.addJavadoc("Get the bean instance supplier for '$L'.", beanName);
@@ -302,10 +339,9 @@ class InstanceSupplierCodeGenerator {
   }
 
   private CodeBlock generateWithGeneratorCode(boolean hasArguments, CodeBlock newInstance) {
-    CodeBlock lambdaArguments =
-            hasArguments ?
-            CodeBlock.of("($L, $L)", REGISTERED_BEAN_PARAMETER_NAME, ARGS_PARAMETER_NAME) :
-            CodeBlock.of("($L)", REGISTERED_BEAN_PARAMETER_NAME);
+    CodeBlock lambdaArguments = hasArguments
+                                ? CodeBlock.of("($L, $L)", REGISTERED_BEAN_PARAMETER_NAME, ARGS_PARAMETER_NAME)
+                                : CodeBlock.of("($L)", REGISTERED_BEAN_PARAMETER_NAME);
     Builder code = CodeBlock.builder();
     code.add("\n");
     code.indent().indent();
@@ -335,9 +371,43 @@ class InstanceSupplierCodeGenerator {
 
   private boolean isThrowingCheckedException(Executable executable) {
     return Arrays.stream(executable.getGenericExceptionTypes())
-            .map(ResolvableType::forType)
-            .map(ResolvableType::toClass)
+            .map(ResolvableType::forType).map(ResolvableType::toClass)
             .anyMatch(Exception.class::isAssignableFrom);
+  }
+
+  private static class ProxyRuntimeHintsRegistrar {
+
+    private final AutowireCandidateResolver candidateResolver;
+
+    public ProxyRuntimeHintsRegistrar(AutowireCandidateResolver candidateResolver) {
+      this.candidateResolver = candidateResolver;
+    }
+
+    public void registerRuntimeHints(RuntimeHints runtimeHints, Method method) {
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      for (int i = 0; i < parameterTypes.length; i++) {
+        MethodParameter methodParam = new MethodParameter(method, i);
+        DependencyDescriptor dependencyDescriptor = new DependencyDescriptor(methodParam, true);
+        registerProxyIfNecessary(runtimeHints, dependencyDescriptor);
+      }
+    }
+
+    public void registerRuntimeHints(RuntimeHints runtimeHints, Constructor<?> constructor) {
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      for (int i = 0; i < parameterTypes.length; i++) {
+        MethodParameter methodParam = new MethodParameter(constructor, i);
+        DependencyDescriptor dependencyDescriptor = new DependencyDescriptor(
+                methodParam, true);
+        registerProxyIfNecessary(runtimeHints, dependencyDescriptor);
+      }
+    }
+
+    private void registerProxyIfNecessary(RuntimeHints runtimeHints, DependencyDescriptor dependencyDescriptor) {
+      Class<?> proxyType = this.candidateResolver.getLazyResolutionProxyClass(dependencyDescriptor, null);
+      if (proxyType != null && Proxy.isProxyClass(proxyType)) {
+        runtimeHints.proxies().registerJdkProxy(proxyType.getInterfaces());
+      }
+    }
   }
 
 }

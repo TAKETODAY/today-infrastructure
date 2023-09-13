@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +17,9 @@
 
 package cn.taketoday.beans.factory.aot;
 
-import java.lang.reflect.Executable;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference;
@@ -35,8 +32,20 @@ import cn.taketoday.javapoet.CodeBlock;
 
 /**
  * Generate the various fragments of code needed to register a bean.
+ * <p>
+ * A default implementation is provided that suits most needs and custom code
+ * fragments are only expected to be used by library authors having built custom
+ * arrangement on top of the core container.
+ * <p>
+ * Users are not expected to implement this interface directly, but rather extends
+ * from {@link BeanRegistrationCodeFragmentsDecorator} and only override the
+ * necessary method(s).
  *
  * @author Phillip Webb
+ * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see BeanRegistrationCodeFragmentsDecorator
+ * @see BeanRegistrationAotContribution#withCustomCodeFragments(UnaryOperator)
  * @since 4.0
  */
 public interface BeanRegistrationCodeFragments {
@@ -53,17 +62,20 @@ public interface BeanRegistrationCodeFragments {
 
   /**
    * Return the target for the registration. Used to determine where to write
-   * the code.
+   * the code. This should take into account visibility issue, such as
+   * package access of an element of the bean to register.
    *
    * @param registeredBean the registered bean
-   * @param constructorOrFactoryMethod the constructor or factory method
    * @return the target {@link ClassName}
    */
-  ClassName getTarget(RegisteredBean registeredBean,
-          Executable constructorOrFactoryMethod);
+  ClassName getTarget(RegisteredBean registeredBean);
 
   /**
    * Generate the code that defines the new bean definition instance.
+   * <p>
+   * This should declare a variable named {@value BEAN_DEFINITION_VARIABLE}
+   * so that further fragments can refer to the variable to further tune
+   * the bean definition.
    *
    * @param generationContext the generation context
    * @param beanType the bean type
@@ -87,6 +99,11 @@ public interface BeanRegistrationCodeFragments {
 
   /**
    * Generate the code that sets the instance supplier on the bean definition.
+   * <p>
+   * The {@code postProcessors} represent methods to be exposed once the
+   * instance has been created to further configure it. Each method should
+   * accept two parameters, the {@link RegisteredBean} and the bean
+   * instance, and should return the modified bean instance.
    *
    * @param generationContext the generation context
    * @param beanRegistrationCode the bean registration code
@@ -104,15 +121,13 @@ public interface BeanRegistrationCodeFragments {
    *
    * @param generationContext the generation context
    * @param beanRegistrationCode the bean registration code
-   * @param constructorOrFactoryMethod the constructor or factory method for
-   * the bean
    * @param allowDirectSupplierShortcut if direct suppliers may be used rather
    * than always needing an {@link InstanceSupplier}
    * @return the generated code
    */
   CodeBlock generateInstanceSupplierCode(
           GenerationContext generationContext, BeanRegistrationCode beanRegistrationCode,
-          Executable constructorOrFactoryMethod, boolean allowDirectSupplierShortcut);
+          boolean allowDirectSupplierShortcut);
 
   /**
    * Generate the return statement.
@@ -121,7 +136,6 @@ public interface BeanRegistrationCodeFragments {
    * @param beanRegistrationCode the bean registration code
    * @return the generated code
    */
-  CodeBlock generateReturnCode(
-          GenerationContext generationContext, BeanRegistrationCode beanRegistrationCode);
+  CodeBlock generateReturnCode(GenerationContext generationContext, BeanRegistrationCode beanRegistrationCode);
 
 }

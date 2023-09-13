@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.context.properties;
 
-import java.lang.reflect.Executable;
 import java.util.function.Predicate;
 
 import javax.lang.model.element.Modifier;
@@ -38,6 +34,7 @@ import cn.taketoday.beans.factory.support.InstanceSupplier;
 import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.properties.bind.BindMethod;
+import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.javapoet.CodeBlock;
 
 /**
@@ -87,9 +84,13 @@ class ConfigurationPropertiesBeanRegistrationAotProcessor implements BeanRegistr
     }
 
     @Override
+    public ClassName getTarget(RegisteredBean registeredBean) {
+      return ClassName.get(this.registeredBean.getBeanClass());
+    }
+
+    @Override
     public CodeBlock generateInstanceSupplierCode(GenerationContext generationContext,
-            BeanRegistrationCode beanRegistrationCode, Executable constructorOrFactoryMethod,
-            boolean allowDirectSupplierShortcut) {
+            BeanRegistrationCode beanRegistrationCode, boolean allowDirectSupplierShortcut) {
       GeneratedMethod generatedMethod = beanRegistrationCode.getMethods().add("getInstance", (method) -> {
         Class<?> beanClass = this.registeredBean.getBeanClass();
         method.addJavadoc("Get the bean instance for '$L'.", this.registeredBean.getBeanName())

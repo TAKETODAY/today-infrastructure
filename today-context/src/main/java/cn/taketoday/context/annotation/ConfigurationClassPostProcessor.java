@@ -58,6 +58,7 @@ import cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor;
 import cn.taketoday.beans.factory.aot.BeanRegistrationCode;
 import cn.taketoday.beans.factory.aot.BeanRegistrationCodeFragments;
 import cn.taketoday.beans.factory.aot.BeanRegistrationCodeFragmentsDecorator;
+import cn.taketoday.beans.factory.aot.InstanceSupplierCodeGenerator;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -255,13 +256,11 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
   @Nullable
   @Override
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
-    RootBeanDefinition mergedBeanDefinition = registeredBean.getMergedBeanDefinition();
-    Object configClassAttr = mergedBeanDefinition
+    Object configClassAttr = registeredBean.getMergedBeanDefinition()
             .getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);
     if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
-      Class<?> proxyClass = registeredBean.getBeanType().toClass();
       return BeanRegistrationAotContribution.withCustomCodeFragments(codeFragments ->
-              new ConfigurationClassProxyBeanRegistrationCodeFragments(codeFragments, proxyClass));
+              new ConfigurationClassProxyBeanRegistrationCodeFragments(codeFragments, registeredBean));
     }
     return null;
   }
@@ -677,12 +676,15 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
   private static class ConfigurationClassProxyBeanRegistrationCodeFragments extends BeanRegistrationCodeFragmentsDecorator {
 
+    private final RegisteredBean registeredBean;
+
     private final Class<?> proxyClass;
 
-    public ConfigurationClassProxyBeanRegistrationCodeFragments(BeanRegistrationCodeFragments codeFragments,
-            Class<?> proxyClass) {
+    public ConfigurationClassProxyBeanRegistrationCodeFragments(
+            BeanRegistrationCodeFragments codeFragments, RegisteredBean registeredBean) {
       super(codeFragments);
-      this.proxyClass = proxyClass;
+      this.registeredBean = registeredBean;
+      this.proxyClass = registeredBean.getBeanType().toClass();
     }
 
     @Override
@@ -698,11 +700,13 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     @Override
     public CodeBlock generateInstanceSupplierCode(GenerationContext generationContext,
-            BeanRegistrationCode beanRegistrationCode, Executable constructorOrFactoryMethod,
-            boolean allowDirectSupplierShortcut) {
-      Executable executableToUse = proxyExecutable(generationContext.getRuntimeHints(), constructorOrFactoryMethod);
-      return super.generateInstanceSupplierCode(generationContext, beanRegistrationCode,
-              executableToUse, allowDirectSupplierShortcut);
+            BeanRegistrationCode beanRegistrationCode, boolean allowDirectSupplierShortcut) {
+
+      Executable executableToUse = proxyExecutable(generationContext.getRuntimeHints(),
+              this.registeredBean.resolveConstructorOrFactoryMethod());
+      return new InstanceSupplierCodeGenerator(generationContext,
+              beanRegistrationCode.getClassName(), beanRegistrationCode.getMethods(), allowDirectSupplierShortcut)
+              .generateCode(this.registeredBean, executableToUse);
     }
 
     private Executable proxyExecutable(RuntimeHints runtimeHints, Executable userExecutable) {

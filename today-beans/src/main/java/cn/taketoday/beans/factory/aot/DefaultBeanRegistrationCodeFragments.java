@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import cn.taketoday.aot.generate.AccessControl;
 import cn.taketoday.aot.generate.GenerationContext;
@@ -43,6 +41,7 @@ import cn.taketoday.javapoet.ParameterizedTypeName;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * Internal {@link BeanRegistrationCodeFragments} implementation used by
@@ -60,20 +59,24 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
 
   private final BeanDefinitionMethodGeneratorFactory beanDefinitionMethodGeneratorFactory;
 
-  DefaultBeanRegistrationCodeFragments(BeanRegistrationsCode beanRegistrationsCode,
-          RegisteredBean registeredBean,
-          BeanDefinitionMethodGeneratorFactory beanDefinitionMethodGeneratorFactory) {
+  private final Supplier<Executable> constructorOrFactoryMethod;
 
-    this.beanRegistrationsCode = beanRegistrationsCode;
+  DefaultBeanRegistrationCodeFragments(BeanRegistrationsCode beanRegistrationsCode,
+          RegisteredBean registeredBean, BeanDefinitionMethodGeneratorFactory beanDefinitionMethodGeneratorFactory) {
+
     this.registeredBean = registeredBean;
+    this.beanRegistrationsCode = beanRegistrationsCode;
     this.beanDefinitionMethodGeneratorFactory = beanDefinitionMethodGeneratorFactory;
+    this.constructorOrFactoryMethod = SingletonSupplier.from(registeredBean::resolveConstructorOrFactoryMethod);
   }
 
   @Override
-  public ClassName getTarget(RegisteredBean registeredBean,
-          Executable constructorOrFactoryMethod) {
-
-    Class<?> target = extractDeclaringClass(registeredBean.getBeanType(), constructorOrFactoryMethod);
+  public ClassName getTarget(RegisteredBean registeredBean) {
+    if (hasInstanceSupplier()) {
+      throw new IllegalStateException("Default code generation is not supported for bean definitions "
+              + "declaring an instance supplier callback: " + registeredBean.getMergedBeanDefinition());
+    }
+    Class<?> target = extractDeclaringClass(registeredBean.getBeanType(), this.constructorOrFactoryMethod.get());
     while (target.getName().startsWith("java.") && registeredBean.isInnerBean()) {
       RegisteredBean parent = registeredBean.getParent();
       Assert.state(parent != null, "No parent available for inner bean");
@@ -223,12 +226,14 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
 
   @Override
   public CodeBlock generateInstanceSupplierCode(GenerationContext generationContext,
-          BeanRegistrationCode beanRegistrationCode,
-          Executable constructorOrFactoryMethod, boolean allowDirectSupplierShortcut) {
-
+          BeanRegistrationCode beanRegistrationCode, boolean allowDirectSupplierShortcut) {
+    if (hasInstanceSupplier()) {
+      throw new IllegalStateException("Default code generation is not supported for bean definitions declaring "
+              + "an instance supplier callback: " + this.registeredBean.getMergedBeanDefinition());
+    }
     return new InstanceSupplierCodeGenerator(generationContext,
             beanRegistrationCode.getClassName(), beanRegistrationCode.getMethods(), allowDirectSupplierShortcut)
-            .generateCode(this.registeredBean, constructorOrFactoryMethod);
+            .generateCode(this.registeredBean, this.constructorOrFactoryMethod.get());
   }
 
   @Override
@@ -238,6 +243,10 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
     CodeBlock.Builder code = CodeBlock.builder();
     code.addStatement("return $L", BEAN_DEFINITION_VARIABLE);
     return code.build();
+  }
+
+  private boolean hasInstanceSupplier() {
+    return this.registeredBean.getMergedBeanDefinition().getInstanceSupplier() != null;
   }
 
 }

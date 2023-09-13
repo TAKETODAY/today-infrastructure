@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,6 @@
 
 package cn.taketoday.beans.factory.aot;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;
@@ -33,14 +26,8 @@ import cn.taketoday.aot.generate.GeneratedMethod;
 import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference;
-import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.DependencyDescriptor;
-import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.RegisteredBean;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
@@ -61,8 +48,6 @@ class BeanDefinitionMethodGenerator {
 
   private final RegisteredBean registeredBean;
 
-  private final Executable constructorOrFactoryMethod;
-
   @Nullable
   private final String currentPropertyName;
 
@@ -81,20 +66,14 @@ class BeanDefinitionMethodGenerator {
           RegisteredBean registeredBean, @Nullable String currentPropertyName,
           List<BeanRegistrationAotContribution> aotContributions) {
 
-    RootBeanDefinition mbd = registeredBean.getMergedBeanDefinition();
-    if (mbd.getInstanceSupplier() != null && aotContributions.isEmpty()) {
-      throw new IllegalArgumentException("Code generation is not supported for bean definitions declaring an instance supplier callback : " + mbd);
-    }
-    this.registeredBean = registeredBean;
-    this.aotContributions = aotContributions;
-    this.currentPropertyName = currentPropertyName;
     this.methodGeneratorFactory = methodGeneratorFactory;
-    this.constructorOrFactoryMethod = registeredBean.resolveConstructorOrFactoryMethod();
+    this.registeredBean = registeredBean;
+    this.currentPropertyName = currentPropertyName;
+    this.aotContributions = aotContributions;
   }
 
   /**
-   * Generate the method that returns the {@link BeanDefinition} to be
-   * registered.
+   * Generate the method that returns the {@link BeanDefinition} to be registered.
    *
    * @param generationContext the generation context
    * @param beanRegistrationsCode the bean registrations code
@@ -103,9 +82,8 @@ class BeanDefinitionMethodGenerator {
   MethodReference generateBeanDefinitionMethod(GenerationContext generationContext,
           BeanRegistrationsCode beanRegistrationsCode) {
 
-    registerRuntimeHintsIfNecessary(generationContext.getRuntimeHints());
-    var codeFragments = getCodeFragments(generationContext, beanRegistrationsCode);
-    ClassName target = codeFragments.getTarget(this.registeredBean, this.constructorOrFactoryMethod);
+    BeanRegistrationCodeFragments codeFragments = getCodeFragments(generationContext, beanRegistrationsCode);
+    ClassName target = codeFragments.getTarget(this.registeredBean);
     if (isWritablePackageName(target)) {
       GeneratedClass generatedClass = lookupGeneratedClass(generationContext, target);
       GeneratedMethods generatedMethods = generatedClass.getMethods().withPrefix(getName());
@@ -185,14 +163,13 @@ class BeanDefinitionMethodGenerator {
           BeanRegistrationCodeFragments codeFragments, Modifier modifier) {
 
     BeanRegistrationCodeGenerator codeGenerator = new BeanRegistrationCodeGenerator(
-            className, generatedMethods, this.registeredBean,
-            this.constructorOrFactoryMethod, codeFragments);
+            className, generatedMethods, this.registeredBean, codeFragments);
 
     this.aotContributions.forEach(aotContribution -> aotContribution.applyTo(generationContext, codeGenerator));
 
     return generatedMethods.add("getBeanDefinition", method -> {
       method.addJavadoc("Get the $L definition for '$L'.",
-              (!this.registeredBean.isInnerBean()) ? "bean" : "inner-bean",
+              (this.registeredBean.isInnerBean() ? "inner-bean" : "bean"),
               getName());
       method.addModifiers(modifier, Modifier.STATIC);
       method.returns(BeanDefinition.class);
@@ -219,57 +196,10 @@ class BeanDefinitionMethodGenerator {
 
   private String getSimpleBeanName(String beanName) {
     int lastDot = beanName.lastIndexOf('.');
-    beanName = (lastDot != -1) ? beanName.substring(lastDot + 1) : beanName;
+    beanName = (lastDot != -1 ? beanName.substring(lastDot + 1) : beanName);
     int lastDollar = beanName.lastIndexOf('$');
-    beanName = (lastDollar != -1) ? beanName.substring(lastDollar + 1) : beanName;
+    beanName = (lastDollar != -1 ? beanName.substring(lastDollar + 1) : beanName);
     return StringUtils.uncapitalize(beanName);
-  }
-
-  private void registerRuntimeHintsIfNecessary(RuntimeHints runtimeHints) {
-    if (this.registeredBean.getBeanFactory() instanceof StandardBeanFactory std) {
-      ProxyRuntimeHintsRegistrar registrar = new ProxyRuntimeHintsRegistrar(std.getAutowireCandidateResolver());
-      if (this.constructorOrFactoryMethod instanceof Method method) {
-        registrar.registerRuntimeHints(runtimeHints, method);
-      }
-      else if (this.constructorOrFactoryMethod instanceof Constructor<?> constructor) {
-        registrar.registerRuntimeHints(runtimeHints, constructor);
-      }
-    }
-  }
-
-  private static class ProxyRuntimeHintsRegistrar {
-
-    private final AutowireCandidateResolver candidateResolver;
-
-    public ProxyRuntimeHintsRegistrar(AutowireCandidateResolver candidateResolver) {
-      this.candidateResolver = candidateResolver;
-    }
-
-    public void registerRuntimeHints(RuntimeHints runtimeHints, Method method) {
-      Class<?>[] parameterTypes = method.getParameterTypes();
-      for (int i = 0; i < parameterTypes.length; i++) {
-        MethodParameter methodParam = new MethodParameter(method, i);
-        DependencyDescriptor dependencyDescriptor = new DependencyDescriptor(methodParam, true);
-        registerProxyIfNecessary(runtimeHints, dependencyDescriptor);
-      }
-    }
-
-    public void registerRuntimeHints(RuntimeHints runtimeHints, Constructor<?> constructor) {
-      Class<?>[] parameterTypes = constructor.getParameterTypes();
-      for (int i = 0; i < parameterTypes.length; i++) {
-        MethodParameter methodParam = new MethodParameter(constructor, i);
-        DependencyDescriptor dependencyDescriptor = new DependencyDescriptor(
-                methodParam, true);
-        registerProxyIfNecessary(runtimeHints, dependencyDescriptor);
-      }
-    }
-
-    private void registerProxyIfNecessary(RuntimeHints runtimeHints, DependencyDescriptor dependencyDescriptor) {
-      Class<?> proxyType = this.candidateResolver.getLazyResolutionProxyClass(dependencyDescriptor, null);
-      if (proxyType != null && Proxy.isProxyClass(proxyType)) {
-        runtimeHints.proxies().registerJdkProxy(proxyType.getInterfaces());
-      }
-    }
   }
 
 }
