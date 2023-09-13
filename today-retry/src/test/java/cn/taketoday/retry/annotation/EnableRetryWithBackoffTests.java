@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +51,7 @@ public class EnableRetryWithBackoffTests {
     RandomService service = context.getBean(RandomService.class);
     service.service();
     List<Long> periods = context.getBean(PeriodSleeper.class).getPeriods();
-    assertThat(periods.get(0) > 1000).describedAs("Wrong periods: %s" + periods.toString()).isTrue();
+    assertThat(periods.get(0) > 1000).describedAs("Wrong periods: %s" + periods).isTrue();
     assertThat(service.getCount()).isEqualTo(3);
     context.close();
   }
@@ -77,8 +74,8 @@ public class EnableRetryWithBackoffTests {
     assertThat(service.getCount()).isEqualTo(3);
     List<Long> periods = context.getBean(PeriodSleeper.class).getPeriods();
     assertThat(context.getBean(PeriodSleeper.class).getPeriods().toString()).isNotEqualTo("[1000, 1100]");
-    assertThat(periods.get(0) > 1000).describedAs("Wrong periods: %s" + periods.toString()).isTrue();
-    assertThat(periods.get(1) > 1100 && periods.get(1) < 1210).describedAs("Wrong periods: %s" + periods.toString())
+    assertThat(periods.get(0) > 1000).describedAs("Wrong periods: %s", periods).isTrue();
+    assertThat(periods.get(1) > 1100 && periods.get(1) < 1210).describedAs("Wrong periods: %s", periods)
             .isTrue();
     context.close();
   }
@@ -91,8 +88,8 @@ public class EnableRetryWithBackoffTests {
     assertThat(service.getCount()).isEqualTo(3);
     List<Long> periods = context.getBean(PeriodSleeper.class).getPeriods();
     assertThat(context.getBean(PeriodSleeper.class).getPeriods().toString()).isNotEqualTo("[1000, 1100]");
-    assertThat(periods.get(0) > 1000).describedAs("Wrong periods: %s" + periods.toString()).isTrue();
-    assertThat(periods.get(1) > 1100 && periods.get(1) < 1210).describedAs("Wrong periods: %s" + periods.toString())
+    assertThat(periods.get(0) > 1000).describedAs("Wrong periods: %s", periods).isTrue();
+    assertThat(periods.get(1) > 1100 && periods.get(1) < 1210).describedAs("Wrong periods: %s", periods)
             .isTrue();
     context.close();
   }
