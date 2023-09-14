@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,11 +88,11 @@ class ApplicationPluginActionIntegrationTests {
     assertThat(this.gradleBuild.build("infraDistZip").task(":infraDistZip").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     String name = this.gradleBuild.getProjectDir().getName();
-    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra.zip");
+    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra-app.zip");
     assertThat(distribution).isFile();
-    assertThat(zipEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra/", name + "-infra/lib/",
-            name + "-infra/lib/" + name + ".jar", name + "-infra/bin/", name + "-infra/bin/" + name,
-            name + "-infra/bin/" + name + ".bat");
+    assertThat(zipEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra-app/", name + "-infra-app/lib/",
+            name + "-infra-app/lib/" + name + ".jar", name + "-infra-app/bin/", name + "-infra-app/bin/" + name,
+            name + "-infra-app/bin/" + name + ".bat");
   }
 
   @TestTemplate
@@ -103,11 +100,11 @@ class ApplicationPluginActionIntegrationTests {
     assertThat(this.gradleBuild.build("infraDistTar").task(":infraDistTar").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     String name = this.gradleBuild.getProjectDir().getName();
-    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra.tar");
+    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra-app.tar");
     assertThat(distribution).isFile();
-    assertThat(tarEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra/", name + "-infra/lib/",
-            name + "-infra/lib/" + name + ".jar", name + "-infra/bin/", name + "-infra/bin/" + name,
-            name + "-infra/bin/" + name + ".bat");
+    assertThat(tarEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra-app/", name + "-infra-app/lib/",
+            name + "-infra-app/lib/" + name + ".jar", name + "-infra-app/bin/", name + "-infra-app/bin/" + name,
+            name + "-infra-app/bin/" + name + ".bat");
   }
 
   @TestTemplate
@@ -115,11 +112,11 @@ class ApplicationPluginActionIntegrationTests {
     assertThat(this.gradleBuild.build("infraDistZip").task(":infraDistZip").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     String name = this.gradleBuild.getProjectDir().getName();
-    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra.zip");
+    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra-app.zip");
     assertThat(distribution).isFile();
-    assertThat(zipEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra/", name + "-infra/lib/",
-            name + "-infra/lib/" + name + ".war", name + "-infra/bin/", name + "-infra/bin/" + name,
-            name + "-infra/bin/" + name + ".bat");
+    assertThat(zipEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra-app/", name + "-infra-app/lib/",
+            name + "-infra-app/lib/" + name + ".war", name + "-infra-app/bin/", name + "-infra-app/bin/" + name,
+            name + "-infra-app/bin/" + name + ".bat");
   }
 
   @TestTemplate
@@ -127,23 +124,23 @@ class ApplicationPluginActionIntegrationTests {
     assertThat(this.gradleBuild.build("infraDistTar").task(":infraDistTar").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     String name = this.gradleBuild.getProjectDir().getName();
-    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra.tar");
+    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra-app.tar");
     assertThat(distribution).isFile();
-    assertThat(tarEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra/", name + "-infra/lib/",
-            name + "-infra/lib/" + name + ".war", name + "-infra/bin/", name + "-infra/bin/" + name,
-            name + "-infra/bin/" + name + ".bat");
+    assertThat(tarEntryNames(distribution)).containsExactlyInAnyOrder(name + "-infra-app/", name + "-infra-app/lib/",
+            name + "-infra-app/lib/" + name + ".war", name + "-infra-app/bin/", name + "-infra-app/bin/" + name,
+            name + "-infra-app/bin/" + name + ".bat");
   }
 
   @TestTemplate
   void applicationNameCanBeUsedToCustomizeDistributionName() throws IOException {
     assertThat(this.gradleBuild.build("infraDistTar").task(":infraDistTar").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
-    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/custom-infra.tar");
+    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/custom-infra-app.tar");
     assertThat(distribution).isFile();
     String name = this.gradleBuild.getProjectDir().getName();
-    assertThat(tarEntryNames(distribution)).containsExactlyInAnyOrder("custom-infra/", "custom-infra/lib/",
-            "custom-infra/lib/" + name + ".jar", "custom-infra/bin/", "custom-infra/bin/custom",
-            "custom-infra/bin/custom.bat");
+    assertThat(tarEntryNames(distribution)).containsExactlyInAnyOrder("custom-infra-app/", "custom-infra-app/lib/",
+            "custom-infra-app/lib/" + name + ".jar", "custom-infra-app/bin/", "custom-infra-app/bin/custom",
+            "custom-infra-app/bin/custom.bat");
   }
 
   @TestTemplate
@@ -151,11 +148,11 @@ class ApplicationPluginActionIntegrationTests {
     assertThat(this.gradleBuild.build("infraDistTar").task(":infraDistTar").getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     String name = this.gradleBuild.getProjectDir().getName();
-    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra.tar");
+    File distribution = new File(this.gradleBuild.getProjectDir(), "build/distributions/" + name + "-infra-app.tar");
     assertThat(distribution).isFile();
     tarEntries(distribution, (entry) -> {
       int filePermissions = entry.getMode() & 0777;
-      if (entry.isFile() && !entry.getName().startsWith(name + "-infra/bin/")) {
+      if (entry.isFile() && !entry.getName().startsWith(name + "-infra-app/bin/")) {
         assertThat(filePermissions).isEqualTo(0644);
       }
       else {

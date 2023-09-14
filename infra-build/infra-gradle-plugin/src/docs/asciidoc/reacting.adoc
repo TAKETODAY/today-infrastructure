@@ -58,7 +58,7 @@ When Gradle's {application-plugin}[`application` plugin] is applied to a project
 
 1. Creates a `CreateStartScripts` task named `infraStartScripts` that will create scripts that launch the artifact in the `infraArchives` configuration using `java -jar`.
    The task is configured to use the `applicationDefaultJvmArgs` property as a convention for its `defaultJvmOpts` property.
-2. Creates a new distribution named `boot` and configures it to contain the artifact in the `infraArchives` configuration in its `lib` directory and the start scripts in its `bin` directory.
+2. Creates a new distribution named `infra` and configures it to contain the artifact in the `infraArchives` configuration in its `lib` directory and the start scripts in its `bin` directory.
 3. Configures the `infraRun` task to use the `mainClassName` property as a convention for its `main` property.
 4. Configures the `infraRun` and `infraTestRun` tasks to use the `applicationDefaultJvmArgs` property as a convention for their `jvmArgs` property.
 5. Configures the `infraJar` task to use the `mainClassName` property as a convention for the `Start-Class` entry in its manifest.

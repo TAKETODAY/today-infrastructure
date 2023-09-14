@@ -54,10 +54,10 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     DistributionContainer distributions = project.getExtensions().getByType(DistributionContainer.class);
     Distribution distribution = distributions.create("infra");
     distribution.getDistributionBaseName()
-            .convention((project.provider(() -> javaApplication.getApplicationName() + "-infra")));
+            .convention(project.provider(() -> javaApplication.getApplicationName() + "-infra-app"));
     TaskProvider<CreateStartScripts> infraStartScripts = project.getTasks()
             .register("infraStartScripts", CreateStartScripts.class,
-                    (task) -> configureCreateStartScripts(project, javaApplication, distribution, task));
+                    (CreateStartScripts task) -> configureCreateStartScripts(project, javaApplication, distribution, task));
     CopySpec binCopySpec = project.copySpec().into("bin").from(infraStartScripts);
     binCopySpec.setFileMode(0755);
     distribution.getContents().with(binCopySpec);
@@ -69,23 +69,24 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     applyApplicationDefaultJvmArgsToRunTask(tasks, javaApplication, InfraApplicationPlugin.INFRA_TEST_RUN_TASK_NAME);
   }
 
-  private void applyApplicationDefaultJvmArgsToRunTask(TaskContainer tasks, JavaApplication javaApplication,
-          String taskName) {
+  private void applyApplicationDefaultJvmArgsToRunTask(TaskContainer tasks, JavaApplication javaApplication, String taskName) {
     tasks.named(taskName, InfraRun.class)
-            .configure((infraRun) -> infraRun.getConventionMapping()
+            .configure(infraRun -> infraRun.getConventionMapping()
                     .map("jvmArgs", javaApplication::getApplicationDefaultJvmArgs));
   }
 
   private void configureCreateStartScripts(Project project, JavaApplication javaApplication,
           Distribution distribution, CreateStartScripts createStartScripts) {
-    createStartScripts
-            .setDescription("Generates OS-specific start scripts to run the project as a Infra application.");
+    createStartScripts.setDescription("Generates OS-specific start scripts to run the project as a Infra application.");
+
     ((TemplateBasedScriptGenerator) createStartScripts.getUnixStartScriptGenerator())
             .setTemplate(project.getResources().getText().fromString(loadResource("/unixStartScript.txt")));
+
     ((TemplateBasedScriptGenerator) createStartScripts.getWindowsStartScriptGenerator())
             .setTemplate(project.getResources().getText().fromString(loadResource("/windowsStartScript.txt")));
-    project.getConfigurations().all((configuration) -> {
-      if ("infraArchives".equals(configuration.getName())) {
+
+    project.getConfigurations().all(configuration -> {
+      if (InfraApplicationPlugin.INFRA_ARCHIVES_CONFIGURATION_NAME.equals(configuration.getName())) {
         distribution.getContents().with(artifactFilesToLibCopySpec(project, configuration));
         createStartScripts.setClasspath(configuration.getArtifacts().getFiles());
       }

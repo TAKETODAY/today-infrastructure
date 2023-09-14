@@ -52,6 +52,7 @@ import cn.taketoday.gradle.dsl.InfraApplicationExtension;
 import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.run.InfraRun;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -79,7 +80,7 @@ final class JavaPluginAction implements PluginApplicationAction {
 
   @Override
   public void execute(Project project) {
-    classifyJarTask(project);
+//    classifyJarTask(project);
     configureBuildTask(project);
     configureDevelopmentOnlyConfiguration(project);
     TaskProvider<ResolveMainClassName> resolveMainClassName = configureResolveMainClassNameTask(project);
@@ -95,9 +96,9 @@ final class JavaPluginAction implements PluginApplicationAction {
   }
 
   private void classifyJarTask(Project project) {
-    project.getTasks()
-            .named(JavaPlugin.JAR_TASK_NAME, Jar.class)
-            .configure((task) -> task.getArchiveClassifier().convention("plain"));
+//    project.getTasks()
+//            .named(JavaPlugin.JAR_TASK_NAME, Jar.class)
+//            .configure(task -> task.getArchiveClassifier().convention("plain"));
   }
 
   private void configureBuildTask(Project project) {
@@ -144,6 +145,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     });
   }
 
+  @Nullable
   private static String getJavaApplicationMainClass(ExtensionContainer extensions) {
     JavaApplication javaApplication = extensions.findByType(JavaApplication.class);
     if (javaApplication == null) {
@@ -152,32 +154,26 @@ final class JavaPluginAction implements PluginApplicationAction {
     return javaApplication.getMainClass().getOrNull();
   }
 
-  private TaskProvider<InfraJar> configureInfraJarTask(Project project,
-          TaskProvider<ResolveMainClassName> resolveMainClassName) {
-    SourceSet mainSourceSet = javaPluginExtension(project).getSourceSets()
-            .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    Configuration developmentOnly = project.getConfigurations()
-            .getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
-    Configuration productionRuntimeClasspath = project.getConfigurations()
-            .getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
-    Configuration runtimeClasspath = project.getConfigurations()
-            .getByName(mainSourceSet.getRuntimeClasspathConfigurationName());
+  private TaskProvider<InfraJar> configureInfraJarTask(Project project, TaskProvider<ResolveMainClassName> resolveMainClassName) {
+    SourceSet mainSourceSet = javaPluginExtension(project).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    Configuration runtimeClasspath = project.getConfigurations().getByName(mainSourceSet.getRuntimeClasspathConfigurationName());
+    Configuration developmentOnly = project.getConfigurations().getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration productionRuntimeClasspath = project.getConfigurations().getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
+
     Callable<FileCollection> classpath = () -> mainSourceSet.getRuntimeClasspath()
             .minus((developmentOnly.minus(productionRuntimeClasspath)))
             .filter(new JarTypeFileSpec());
+
     return project.getTasks().register(InfraApplicationPlugin.INFRA_JAR_TASK_NAME, InfraJar.class, (infraJar) -> {
-      infraJar.setDescription(
-              "Assembles an executable jar archive containing the main classes and their dependencies.");
-      infraJar.setGroup(BasePlugin.BUILD_GROUP);
+      infraJar.setDescription("Assembles an executable jar archive containing the main classes and their dependencies.");
       infraJar.classpath(classpath);
+      infraJar.setGroup(BasePlugin.BUILD_GROUP);
       Provider<String> manifestStartClass = project.provider(
               () -> (String) infraJar.getManifest().getAttributes().get("Start-Class"));
 
-      infraJar.getMainClass()
-              .convention(resolveMainClassName.flatMap((resolver) -> manifestStartClass.isPresent()
-                                                                     ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
-      infraJar.getTargetJavaVersion()
-              .set(project.provider(() -> javaPluginExtension(project).getTargetCompatibility()));
+      infraJar.getMainClass().convention(
+              resolveMainClassName.flatMap(resolver -> manifestStartClass.isPresent() ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
+      infraJar.getTargetJavaVersion().set(project.provider(() -> javaPluginExtension(project).getTargetCompatibility()));
       infraJar.resolvedArtifacts(runtimeClasspath.getIncoming().getArtifacts().getResolvedArtifacts());
     });
   }

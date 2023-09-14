@@ -31,6 +31,7 @@ import org.gradle.jvm.tasks.Jar;
 import java.io.File;
 
 import cn.taketoday.gradle.tasks.buildinfo.BuildInfo;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Entry point to Infra Gradle DSL.
@@ -89,15 +90,15 @@ public class InfraApplicationExtension {
    *
    * @param configurer the task configurer
    */
-  public void buildInfo(Action<BuildInfo> configurer) {
-    TaskContainer tasks = this.project.getTasks();
-    TaskProvider<BuildInfo> infraBuildInfo = tasks.register("infraBuildInfo", BuildInfo.class,
-            this::configureBuildInfoTask);
-    this.project.getPlugins().withType(JavaPlugin.class, (plugin) -> {
-      tasks.named(JavaPlugin.CLASSES_TASK_NAME).configure((task) -> task.dependsOn(infraBuildInfo));
-      infraBuildInfo.configure((buildInfo) -> buildInfo.getProperties()
+  public void buildInfo(@Nullable Action<BuildInfo> configurer) {
+    TaskContainer tasks = project.getTasks();
+    TaskProvider<BuildInfo> infraBuildInfo = tasks.register("infraBuildInfo", BuildInfo.class, this::configureBuildInfoTask);
+    project.getPlugins().withType(JavaPlugin.class, plugin -> {
+      tasks.named(JavaPlugin.CLASSES_TASK_NAME)
+              .configure(task -> task.dependsOn(infraBuildInfo));
+      infraBuildInfo.configure(buildInfo -> buildInfo.getProperties()
               .getArtifact()
-              .convention(this.project.provider(this::determineArtifactBaseName)));
+              .convention(project.provider(this::determineArtifactBaseName)));
     });
     if (configurer != null) {
       infraBuildInfo.configure(configurer);
@@ -121,11 +122,13 @@ public class InfraApplicationExtension {
             .getResourcesDir();
   }
 
+  @Nullable
   private String determineArtifactBaseName() {
     Jar artifactTask = findArtifactTask();
-    return (artifactTask != null) ? artifactTask.getArchiveBaseName().get() : null;
+    return artifactTask != null ? artifactTask.getArchiveBaseName().get() : null;
   }
 
+  @Nullable
   private Jar findArtifactTask() {
     Jar artifactTask = (Jar) this.project.getTasks().findByName("infraWar");
     if (artifactTask != null) {
