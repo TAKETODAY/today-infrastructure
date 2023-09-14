@@ -33,11 +33,12 @@ import org.gradle.jvm.application.scripts.TemplateBasedScriptGenerator;
 import org.gradle.jvm.application.tasks.CreateStartScripts;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.InputStream;
 import java.util.concurrent.Callable;
 
+import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.gradle.tasks.run.InfraRun;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Action that is executed in response to the {@link ApplicationPlugin} being applied.
@@ -80,10 +81,10 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     createStartScripts.setDescription("Generates OS-specific start scripts to run the project as a Infra application.");
 
     ((TemplateBasedScriptGenerator) createStartScripts.getUnixStartScriptGenerator())
-            .setTemplate(project.getResources().getText().fromString(loadResource("/unixStartScript.txt")));
+            .setTemplate(project.getResources().getText().fromString(loadResource("unixStartScript.txt")));
 
     ((TemplateBasedScriptGenerator) createStartScripts.getWindowsStartScriptGenerator())
-            .setTemplate(project.getResources().getText().fromString(loadResource("/windowsStartScript.txt")));
+            .setTemplate(project.getResources().getText().fromString(loadResource("windowsStartScript.txt")));
 
     project.getConfigurations().all(configuration -> {
       if (InfraApplicationPlugin.INFRA_ARCHIVES_CONFIGURATION_NAME.equals(configuration.getName())) {
@@ -113,18 +114,12 @@ final class ApplicationPluginAction implements PluginApplicationAction {
   }
 
   private String loadResource(String name) {
-    try (InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream(name))) {
-      char[] buffer = new char[4096];
-      int read;
-      StringWriter writer = new StringWriter();
-      while ((read = reader.read(buffer)) > 0) {
-        writer.write(buffer, 0, read);
-      }
-      return writer.toString();
+    ClassPathResource resource = new ClassPathResource(name);
+    try (InputStream inputStream = resource.getInputStream()) {
+      return StreamUtils.copyToString(inputStream);
     }
     catch (IOException ex) {
       throw new GradleException("Failed to read '" + name + "'", ex);
     }
   }
-
 }
