@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,14 +44,14 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
   @Test
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void testOverridingDifferentClassDefinedForMapping() {
-    BeanPropertyRowMapper mapper = new BeanPropertyRowMapper(Person.class);
+    BeanPropertyRowMapper mapper = RowMapper.forMappedClass(Person.class);
     assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
             .isThrownBy(() -> mapper.setMappedClass(Long.class));
   }
 
   @Test
   public void testOverridingSameClassDefinedForMapping() {
-    BeanPropertyRowMapper<Person> mapper = new BeanPropertyRowMapper<>(Person.class);
+    BeanPropertyRowMapper<Person> mapper = RowMapper.forMappedClass(Person.class);
     mapper.setMappedClass(Person.class);
   }
 
@@ -62,7 +59,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
   public void testStaticQueryWithRowMapper() throws Exception {
     Mock mock = new Mock();
     List<Person> result = mock.getJdbcTemplate().query( // language=MySQL
-            "select name, age, birth_date, balance from people", new BeanPropertyRowMapper<>(Person.class));
+            "select name, age, birth_date, balance from people", RowMapper.forMappedClass(Person.class));
     assertThat(result.size()).isEqualTo(1);
     verifyPerson(result.get(0));
     mock.verifyClosed();
@@ -72,7 +69,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
   public void testMappingWithInheritance() throws Exception {
     Mock mock = new Mock();
     List<ConcretePerson> result = mock.getJdbcTemplate().query( // language=MySQL
-            "select name, age, birth_date, balance from people", new BeanPropertyRowMapper<>(ConcretePerson.class));
+            "select name, age, birth_date, balance from people", RowMapper.forMappedClass(ConcretePerson.class));
     assertThat(result.size()).isEqualTo(1);
     verifyPerson(result.get(0));
     mock.verifyClosed();
@@ -94,7 +91,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     List<ExtendedPerson> result = mock.getJdbcTemplate().query( // language=MySQL
             "select name, age, birth_date, balance from people",
-            new BeanPropertyRowMapper<>(ExtendedPerson.class));
+            RowMapper.forMappedClass(ExtendedPerson.class));
     assertThat(result.size()).isEqualTo(1);
     ExtendedPerson bean = result.get(0);
     verifyPerson(bean);
@@ -111,7 +108,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
 
   @Test
   void mappingNullValue() throws Exception {
-    BeanPropertyRowMapper<Person> mapper = new BeanPropertyRowMapper<>(Person.class);
+    BeanPropertyRowMapper<Person> mapper = RowMapper.forMappedClass(Person.class);
     Mock mock = new Mock(MockType.TWO);
     assertThatExceptionOfType(TypeMismatchException.class).isThrownBy(() -> // language=MySQL
             mock.getJdbcTemplate().query("select name, null as age, birth_date, balance from people", mapper));
@@ -122,7 +119,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock(MockType.THREE);
     List<SpacePerson> result = mock.getJdbcTemplate().query( // language=MySQL
             "select last_name as \"Last Name\", age, birth_date, balance from people",
-            new BeanPropertyRowMapper<>(SpacePerson.class));
+            RowMapper.forMappedClass(SpacePerson.class));
     assertThat(result.size()).isEqualTo(1);
     verifyPerson(result.get(0));
     mock.verifyClosed();
@@ -133,7 +130,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock(MockType.THREE);
     List<DatePerson> result = mock.getJdbcTemplate().query( // language=MySQL
             "select last_name as \"Last Name\", age, birth_date, balance from people",
-            new BeanPropertyRowMapper<>(DatePerson.class));
+            RowMapper.forMappedClass(DatePerson.class));
     assertThat(result.size()).isEqualTo(1);
     verifyPerson(result.get(0));
     mock.verifyClosed();
@@ -144,7 +141,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     List<EmailPerson> result = mock.getJdbcTemplate().query( // language=MySQL
             "select name, age, birth_date, balance, e_mail from people",
-            new BeanPropertyRowMapper<>(EmailPerson.class));
+            RowMapper.forMappedClass(EmailPerson.class));
     assertThat(result).hasSize(1);
     verifyPerson(result.get(0));
     mock.verifyClosed();
@@ -160,7 +157,7 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
           "URL, u_r_l", // likely undesirable, but that's the status quo
   })
   void underscoreName(String input, String expected) {
-    BeanPropertyRowMapper<?> mapper = new BeanPropertyRowMapper<>(Object.class);
+    BeanPropertyRowMapper<?> mapper = RowMapper.forMappedClass(Object.class);
     assertThat(mapper.underscoreName(input)).isEqualTo(expected);
   }
 

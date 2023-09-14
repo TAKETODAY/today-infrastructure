@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the result type
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JdbcTemplate
  * @see RowCallbackHandler
  * @see RowMapper
@@ -68,5 +66,19 @@ public interface ResultSetExtractor<T> {
    */
   @Nullable
   T extractData(ResultSet rs) throws SQLException, DataAccessException;
+
+  // static
+
+  static <T> RowMapperResultSetExtractor<T> forRowMapper(RowMapper<T> mapper, int rowsExpected) {
+    return new RowMapperResultSetExtractor<>(mapper, rowsExpected);
+  }
+
+  static <T> RowMapperResultSetExtractor<T> forRowMapper(RowMapper<T> mapper) {
+    return new RowMapperResultSetExtractor<>(mapper);
+  }
+
+  static SqlRowSetResultSetExtractor forSqlRowSet() {
+    return new SqlRowSetResultSetExtractor();
+  }
 
 }

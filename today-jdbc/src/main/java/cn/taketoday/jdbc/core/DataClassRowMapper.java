@@ -27,7 +27,6 @@ import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -137,33 +136,6 @@ public class DataClassRowMapper<T> extends BeanPropertyRowMapper<T> {
     }
 
     return BeanUtils.newInstance(mappedConstructor, args);
-  }
-
-  /**
-   * Static factory method to create a new {@code DataClassRowMapper}.
-   *
-   * @param mappedClass the class that each row should be mapped to
-   * @see #forClass(Class, ConversionService)
-   */
-  public static <T> DataClassRowMapper<T> forClass(Class<T> mappedClass) {
-    return new DataClassRowMapper<>(mappedClass);
-  }
-
-  /**
-   * Static factory method to create a new {@code DataClassRowMapper}.
-   *
-   * @param mappedClass the class that each row should be mapped to
-   * @param conversionService the {@link ConversionService} for binding
-   * JDBC values to bean properties, or {@code null} for none
-   * @see #forClass(Class)
-   * @see #setConversionService
-   */
-  public static <T> DataClassRowMapper<T> forClass(
-          Class<T> mappedClass, @Nullable ConversionService conversionService) {
-
-    DataClassRowMapper<T> rowMapper = forClass(mappedClass);
-    rowMapper.setConversionService(conversionService);
-    return rowMapper;
   }
 
 }

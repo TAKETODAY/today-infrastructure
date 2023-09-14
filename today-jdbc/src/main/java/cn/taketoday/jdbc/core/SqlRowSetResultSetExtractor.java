@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +34,7 @@ import cn.taketoday.jdbc.support.rowset.SqlRowSet;
  * <p>The default implementation uses a standard JDBC CachedRowSet underneath.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #newCachedRowSet
  * @see cn.taketoday.jdbc.support.rowset.SqlRowSet
  * @see JdbcTemplate#queryForRowSet(String)

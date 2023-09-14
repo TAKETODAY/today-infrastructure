@@ -138,8 +138,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
    * @param checkFullyPopulated whether we're strictly validating that
    * all bean properties have been mapped from corresponding database fields
    */
-  public BeanPropertyRowMapper(
-          Class<T> mappedClass, boolean checkFullyPopulated) {
+  public BeanPropertyRowMapper(Class<T> mappedClass, boolean checkFullyPopulated) {
     this.checkFullyPopulated = checkFullyPopulated;
     initialize(mappedClass);
   }
@@ -414,33 +413,6 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
   @Nullable
   protected Object getColumnValue(ResultSet rs, int index, Class<?> paramType) throws SQLException {
     return JdbcUtils.getResultSetValue(rs, index, paramType);
-  }
-
-  /**
-   * Static factory method to create a new {@code BeanPropertyRowMapper}.
-   *
-   * @param mappedClass the class that each row should be mapped to
-   * @see #forMappedClass(Class, ConversionService)
-   */
-  public static <T> BeanPropertyRowMapper<T> forMappedClass(Class<T> mappedClass) {
-    return new BeanPropertyRowMapper<>(mappedClass);
-  }
-
-  /**
-   * Static factory method to create a new {@code BeanPropertyRowMapper}.
-   *
-   * @param mappedClass the class that each row should be mapped to
-   * @param conversionService the {@link ConversionService} for binding
-   * JDBC values to bean properties, or {@code null} for none
-   * @see #forMappedClass(Class)
-   * @see #setConversionService
-   */
-  public static <T> BeanPropertyRowMapper<T> forMappedClass(
-          Class<T> mappedClass, @Nullable ConversionService conversionService) {
-
-    BeanPropertyRowMapper<T> rowMapper = forMappedClass(mappedClass);
-    rowMapper.setConversionService(conversionService);
-    return rowMapper;
   }
 
 }

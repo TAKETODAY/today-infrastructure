@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +44,7 @@ import cn.taketoday.lang.Nullable;
  * @param <T> the result type
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JdbcTemplate
  * @see RowCallbackHandler
  * @see ResultSetExtractor
@@ -68,5 +66,43 @@ public interface RowMapper<T> {
    */
   @Nullable
   T mapRow(ResultSet rs, int rowNum) throws SQLException;
+
+  // Static Factory Methods
+
+  /**
+   * Static factory method to create a new {@code BeanPropertyRowMapper}.
+   *
+   * @param mappedClass the class that each row should be mapped to
+   */
+  static <T> BeanPropertyRowMapper<T> forMappedClass(Class<T> mappedClass) {
+    return new BeanPropertyRowMapper<>(mappedClass);
+  }
+
+  /**
+   * Static factory method to create a new {@code DataClassRowMapper}.
+   *
+   * @param mappedClass the class that each row should be mapped to
+   */
+  static <T> DataClassRowMapper<T> forDataClass(Class<T> mappedClass) {
+    return new DataClassRowMapper<>(mappedClass);
+  }
+
+  /**
+   * Static factory method to create a new {@code ColumnMapRowMapper}.
+   *
+   * @see ColumnMapRowMapper
+   */
+  static ColumnMapRowMapper forColumnMap() {
+    return new ColumnMapRowMapper();
+  }
+
+  /**
+   * Static factory method to create a new {@code SingleColumnRowMapper}.
+   *
+   * @param requiredType the type that each result object is expected to match
+   */
+  static <T> SingleColumnRowMapper<T> forSingleColumn(Class<T> requiredType) {
+    return new SingleColumnRowMapper<>(requiredType);
+  }
 
 }

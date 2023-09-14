@@ -38,7 +38,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     ConstructorPerson person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(ConstructorPerson.class));
+            RowMapper.forDataClass(ConstructorPerson.class));
     verifyPerson(person);
 
     mock.verifyClosed();
@@ -49,7 +49,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     ConstructorPersonWithGenerics person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(ConstructorPersonWithGenerics.class));
+            RowMapper.forDataClass(ConstructorPersonWithGenerics.class));
     assertThat(person.name()).isEqualTo("Bubba");
     assertThat(person.age()).isEqualTo(22L);
     assertThat(person.birthDate()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
@@ -63,7 +63,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock(MockType.FOUR);
     ConstructorPersonWithSetters person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birthdate, balance from people",
-            new DataClassRowMapper<>(ConstructorPersonWithSetters.class));
+            RowMapper.forDataClass(ConstructorPersonWithSetters.class));
     assertThat(person.name()).isEqualTo("BUBBA");
     assertThat(person.age()).isEqualTo(22L);
     assertThat(person.birthDate()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
@@ -77,7 +77,7 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     Mock mock = new Mock();
     RecordPerson person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birth_date, balance from people",
-            new DataClassRowMapper<>(RecordPerson.class));
+            RowMapper.forDataClass(RecordPerson.class));
     verifyPerson(person);
 
     mock.verifyClosed();

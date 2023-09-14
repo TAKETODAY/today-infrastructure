@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.support.DataAccessUtils;
 import cn.taketoday.jdbc.core.BatchPreparedStatementSetter;
-import cn.taketoday.jdbc.core.ColumnMapRowMapper;
 import cn.taketoday.jdbc.core.JdbcOperations;
 import cn.taketoday.jdbc.core.JdbcTemplate;
 import cn.taketoday.jdbc.core.PreparedStatementCallback;
@@ -38,9 +37,7 @@ import cn.taketoday.jdbc.core.PreparedStatementCreatorFactory;
 import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.core.RowCallbackHandler;
 import cn.taketoday.jdbc.core.RowMapper;
-import cn.taketoday.jdbc.core.SingleColumnRowMapper;
 import cn.taketoday.jdbc.core.SqlParameter;
-import cn.taketoday.jdbc.core.SqlRowSetResultSetExtractor;
 import cn.taketoday.jdbc.support.KeyHolder;
 import cn.taketoday.jdbc.support.rowset.SqlRowSet;
 import cn.taketoday.lang.Assert;
@@ -145,17 +142,13 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
   @Override
   @Nullable
-  public <T> T execute(String sql, SqlParameterSource paramSource, PreparedStatementCallback<T> action)
-          throws DataAccessException {
-
+  public <T> T execute(String sql, SqlParameterSource paramSource, PreparedStatementCallback<T> action) throws DataAccessException {
     return getJdbcOperations().execute(getPreparedStatementCreator(sql, paramSource), action);
   }
 
   @Override
   @Nullable
-  public <T> T execute(String sql, Map<String, ?> paramMap, PreparedStatementCallback<T> action)
-          throws DataAccessException {
-
+  public <T> T execute(String sql, Map<String, ?> paramMap, PreparedStatementCallback<T> action) throws DataAccessException {
     return execute(sql, new MapSqlParameterSource(paramMap), action);
   }
 
@@ -167,17 +160,13 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
   @Override
   @Nullable
-  public <T> T query(String sql, SqlParameterSource paramSource, ResultSetExtractor<T> rse)
-          throws DataAccessException {
-
+  public <T> T query(String sql, SqlParameterSource paramSource, ResultSetExtractor<T> rse) throws DataAccessException {
     return getJdbcOperations().query(getPreparedStatementCreator(sql, paramSource), rse);
   }
 
   @Override
   @Nullable
-  public <T> T query(String sql, Map<String, ?> paramMap, ResultSetExtractor<T> rse)
-          throws DataAccessException {
-
+  public <T> T query(String sql, Map<String, ?> paramMap, ResultSetExtractor<T> rse) throws DataAccessException {
     return query(sql, new MapSqlParameterSource(paramMap), rse);
   }
 
@@ -188,16 +177,12 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   }
 
   @Override
-  public void query(String sql, SqlParameterSource paramSource, RowCallbackHandler rch)
-          throws DataAccessException {
-
+  public void query(String sql, SqlParameterSource paramSource, RowCallbackHandler rch) throws DataAccessException {
     getJdbcOperations().query(getPreparedStatementCreator(sql, paramSource), rch);
   }
 
   @Override
-  public void query(String sql, Map<String, ?> paramMap, RowCallbackHandler rch)
-          throws DataAccessException {
-
+  public void query(String sql, Map<String, ?> paramMap, RowCallbackHandler rch) throws DataAccessException {
     query(sql, new MapSqlParameterSource(paramMap), rch);
   }
 
@@ -207,16 +192,12 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   }
 
   @Override
-  public <T> List<T> query(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper)
-          throws DataAccessException {
-
+  public <T> List<T> query(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper) throws DataAccessException {
     return getJdbcOperations().query(getPreparedStatementCreator(sql, paramSource), rowMapper);
   }
 
   @Override
-  public <T> List<T> query(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper)
-          throws DataAccessException {
-
+  public <T> List<T> query(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper) throws DataAccessException {
     return query(sql, new MapSqlParameterSource(paramMap), rowMapper);
   }
 
@@ -226,98 +207,78 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   }
 
   @Override
-  public <T> Stream<T> queryForStream(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper)
-          throws DataAccessException {
-
+  public <T> Stream<T> queryForStream(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper) throws DataAccessException {
     return getJdbcOperations().queryForStream(getPreparedStatementCreator(sql, paramSource), rowMapper);
   }
 
   @Override
-  public <T> Stream<T> queryForStream(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper)
-          throws DataAccessException {
-
+  public <T> Stream<T> queryForStream(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper) throws DataAccessException {
     return queryForStream(sql, new MapSqlParameterSource(paramMap), rowMapper);
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper)
-          throws DataAccessException {
-
+  public <T> T queryForObject(String sql, SqlParameterSource paramSource, RowMapper<T> rowMapper) throws DataAccessException {
     List<T> results = getJdbcOperations().query(getPreparedStatementCreator(sql, paramSource), rowMapper);
     return DataAccessUtils.nullableSingleResult(results);
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper)
-          throws DataAccessException {
-
+  public <T> T queryForObject(String sql, Map<String, ?> paramMap, RowMapper<T> rowMapper) throws DataAccessException {
     return queryForObject(sql, new MapSqlParameterSource(paramMap), rowMapper);
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, SqlParameterSource paramSource, Class<T> requiredType)
-          throws DataAccessException {
-
-    return queryForObject(sql, paramSource, new SingleColumnRowMapper<>(requiredType));
+  public <T> T queryForObject(String sql, SqlParameterSource paramSource, Class<T> requiredType) throws DataAccessException {
+    return queryForObject(sql, paramSource, RowMapper.forSingleColumn(requiredType));
   }
 
   @Override
   @Nullable
-  public <T> T queryForObject(String sql, Map<String, ?> paramMap, Class<T> requiredType)
-          throws DataAccessException {
-
-    return queryForObject(sql, paramMap, new SingleColumnRowMapper<>(requiredType));
+  public <T> T queryForObject(String sql, Map<String, ?> paramMap, Class<T> requiredType) throws DataAccessException {
+    return queryForObject(sql, paramMap, RowMapper.forSingleColumn(requiredType));
   }
 
   @Override
   public Map<String, Object> queryForMap(String sql, SqlParameterSource paramSource) throws DataAccessException {
-    Map<String, Object> result = queryForObject(sql, paramSource, new ColumnMapRowMapper());
+    Map<String, Object> result = queryForObject(sql, paramSource, RowMapper.forColumnMap());
     Assert.state(result != null, "No result map");
     return result;
   }
 
   @Override
   public Map<String, Object> queryForMap(String sql, Map<String, ?> paramMap) throws DataAccessException {
-    Map<String, Object> result = queryForObject(sql, paramMap, new ColumnMapRowMapper());
+    Map<String, Object> result = queryForObject(sql, paramMap, RowMapper.forColumnMap());
     Assert.state(result != null, "No result map");
     return result;
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, SqlParameterSource paramSource, Class<T> elementType)
-          throws DataAccessException {
-
-    return query(sql, paramSource, new SingleColumnRowMapper<>(elementType));
+  public <T> List<T> queryForList(String sql, SqlParameterSource paramSource, Class<T> elementType) throws DataAccessException {
+    return query(sql, paramSource, RowMapper.forSingleColumn(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql, Map<String, ?> paramMap, Class<T> elementType)
-          throws DataAccessException {
-
+  public <T> List<T> queryForList(String sql, Map<String, ?> paramMap, Class<T> elementType) throws DataAccessException {
     return queryForList(sql, new MapSqlParameterSource(paramMap), elementType);
   }
 
   @Override
-  public List<Map<String, Object>> queryForList(String sql, SqlParameterSource paramSource)
-          throws DataAccessException {
-
-    return query(sql, paramSource, new ColumnMapRowMapper());
+  public List<Map<String, Object>> queryForList(String sql, SqlParameterSource paramSource) throws DataAccessException {
+    return query(sql, paramSource, RowMapper.forColumnMap());
   }
 
   @Override
-  public List<Map<String, Object>> queryForList(String sql, Map<String, ?> paramMap)
-          throws DataAccessException {
-
+  public List<Map<String, Object>> queryForList(String sql, Map<String, ?> paramMap) throws DataAccessException {
     return queryForList(sql, new MapSqlParameterSource(paramMap));
   }
 
   @Override
   public SqlRowSet queryForRowSet(String sql, SqlParameterSource paramSource) throws DataAccessException {
     SqlRowSet result = getJdbcOperations().query(
-            getPreparedStatementCreator(sql, paramSource), new SqlRowSetResultSetExtractor());
+            getPreparedStatementCreator(sql, paramSource), ResultSetExtractor.forSqlRowSet());
     Assert.state(result != null, "No result");
     return result;
   }
@@ -338,16 +299,13 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
   }
 
   @Override
-  public int update(String sql, SqlParameterSource paramSource, KeyHolder generatedKeyHolder)
-          throws DataAccessException {
-
+  public int update(String sql, SqlParameterSource paramSource, KeyHolder generatedKeyHolder) throws DataAccessException {
     return update(sql, paramSource, generatedKeyHolder, null);
   }
 
   @Override
-  public int update(
-          String sql, SqlParameterSource paramSource, KeyHolder generatedKeyHolder, @Nullable String[] keyColumnNames)
-          throws DataAccessException {
+  public int update(String sql, SqlParameterSource paramSource,
+          KeyHolder generatedKeyHolder, @Nullable String[] keyColumnNames) throws DataAccessException {
 
     PreparedStatementCreator psc = getPreparedStatementCreator(sql, paramSource, pscf -> {
       if (keyColumnNames != null) {
@@ -419,9 +377,8 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * @see PreparedStatementCreatorFactory#PreparedStatementCreatorFactory(String, List)
    * @see PreparedStatementCreatorFactory#newPreparedStatementCreator(Object[])
    */
-  protected PreparedStatementCreator getPreparedStatementCreator(
-          String sql, SqlParameterSource paramSource,
-          @Nullable Consumer<PreparedStatementCreatorFactory> customizer) {
+  protected PreparedStatementCreator getPreparedStatementCreator(String sql,
+          SqlParameterSource paramSource, @Nullable Consumer<PreparedStatementCreatorFactory> customizer) {
 
     ParsedSql parsedSql = getParsedSql(sql);
     PreparedStatementCreatorFactory pscf = getPreparedStatementCreatorFactory(parsedSql, paramSource);
