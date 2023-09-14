@@ -82,7 +82,7 @@ public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, 
    * <p>Default is 5 seconds.
    */
   public void setConnectTimeout(Duration connectTimeout) {
-    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    Assert.notNull(connectTimeout, "ConnectTimeout is required");
     this.httpClient.setConnectTimeout(connectTimeout.toMillis());
   }
 
@@ -100,7 +100,7 @@ public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, 
    * <p>Default is 10 seconds.
    */
   public void setReadTimeout(Duration readTimeout) {
-    Assert.notNull(readTimeout, "ReadTimeout must not be null");
+    Assert.notNull(readTimeout, "ReadTimeout is required");
     this.readTimeout = readTimeout.toMillis();
   }
 
@@ -109,9 +109,14 @@ public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, 
     startHttpClient();
   }
 
-  private void startHttpClient() throws Exception {
+  private void startHttpClient() throws IOException {
     if (!this.httpClient.isStarted()) {
-      this.httpClient.start();
+      try {
+        this.httpClient.start();
+      }
+      catch (Exception ex) {
+        throw new IOException("Could not start HttpClient: " + ex.getMessage(), ex);
+      }
     }
   }
 
@@ -126,12 +131,7 @@ public class JettyClientHttpRequestFactory implements ClientHttpRequestFactory, 
 
   @Override
   public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) throws IOException {
-    try {
-      startHttpClient();
-    }
-    catch (Exception ex) {
-      throw new IOException("Could not start HttpClient: " + ex.getMessage(), ex);
-    }
+    startHttpClient();
 
     Request request = this.httpClient.newRequest(uri).method(httpMethod.name());
     return new JettyClientHttpRequest(request, this.readTimeout);
