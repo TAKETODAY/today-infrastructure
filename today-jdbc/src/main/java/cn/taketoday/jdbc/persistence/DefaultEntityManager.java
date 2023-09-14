@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +40,6 @@ import cn.taketoday.jdbc.GeneratedKeysException;
 import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.core.ConnectionCallback;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
@@ -53,7 +49,6 @@ import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
 import cn.taketoday.util.CollectionUtils;
@@ -186,33 +181,33 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
               ObjectUtils.toHexString(entity), returnGeneratedKeys), sql);
     }
 
-    PropertyUpdateStrategy finalStrategy = strategy;
-    execute("Persist entity", new ConnectionCallback<Void>() {
-
-      @Nullable
-      @Override
-      public Void doInConnection(@NonNull Connection connection) throws SQLException, DataAccessException {
-        try (PreparedStatement statement = prepareStatement(connection, sql, returnGeneratedKeys)) {
-          setPersistParameter(entity, statement, finalStrategy, entityMetadata);
-          // execute
-          int updateCount = statement.executeUpdate();
-          assertUpdateCount(sql, updateCount, 1);
-
-          if (returnGeneratedKeys) {
-            try {
-              ResultSet generatedKeys = statement.getGeneratedKeys();
-              if (generatedKeys.next()) {
-                entityMetadata.idProperty.setProperty(entity, generatedKeys, 1);
-              }
-            }
-            catch (SQLException e) {
-              throw new GeneratedKeysException("Cannot get generated keys", e);
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    try {
+      try (PreparedStatement statement = prepareStatement(con, sql, returnGeneratedKeys)) {
+        setPersistParameter(entity, statement, strategy, entityMetadata);
+        // execute
+        int updateCount = statement.executeUpdate();
+        assertUpdateCount(sql, updateCount, 1);
+        if (returnGeneratedKeys) {
+          try {
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+              entityMetadata.idProperty.setProperty(entity, generatedKeys, 1);
             }
           }
+          catch (SQLException e) {
+            throw new GeneratedKeysException("Cannot get generated keys", e);
+          }
         }
-        return null;
       }
-    });
+    }
+    catch (SQLException ex) {
+      throw translateException("Persist entity", sql, ex);
+    }
+    finally {
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
   }
 
   private static void assertUpdateCount(String sql, int actualCount, int expectCount) {
@@ -280,8 +275,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }, strategy);
   }
 
-  private static void setPersistParameter(
-          Object entity, PreparedStatement statement,
+  private static void setPersistParameter(Object entity, PreparedStatement statement,
           PropertyUpdateStrategy strategy, EntityMetadata entityMetadata) throws SQLException {
     int idx = 1;
     for (EntityProperty property : entityMetadata.entityProperties) {
@@ -932,22 +926,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       sql.append(" VALUES (").append(placeholderBuf.substring(2)).append(")");
     }
     return sql.toString();
-  }
-
-  @Nullable
-  public <T> T execute(String task, ConnectionCallback<T> action) throws DataAccessException {
-    DataSource dataSource = obtainDataSource();
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    try {
-      return action.doInConnection(con);
-    }
-    catch (SQLException ex) {
-      String sql = getSql(action);
-      throw translateException(task, sql, ex);
-    }
-    finally {
-      DataSourceUtils.releaseConnection(con, dataSource);
-    }
   }
 
   final class EntityIterator<T> extends ResultSetIterator<T> {
