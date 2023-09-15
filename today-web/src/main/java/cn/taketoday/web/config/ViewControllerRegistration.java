@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,13 @@
 
 package cn.taketoday.web.config;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestToViewNameTranslator;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
 import cn.taketoday.web.view.DefaultRequestToViewNameTranslator;
@@ -65,7 +65,7 @@ public class ViewControllerRegistration {
    *
    * @see DefaultRequestToViewNameTranslator
    */
-  public ViewControllerRegistration setViewName(String viewName) {
+  public ViewControllerRegistration setViewName(@Nullable String viewName) {
     this.controller.setViewName(viewName);
     return this;
   }
@@ -82,7 +82,17 @@ public class ViewControllerRegistration {
    * Set the result
    */
   public ViewControllerRegistration setReturnValue(Object returnValue) {
-    this.controller.setResult(returnValue);
+    this.controller.setReturnValue(returnValue);
+    return this;
+  }
+
+  public ViewControllerRegistration setReturnValue(Supplier<Object> objectSupplier) {
+    this.controller.setReturnValue(objectSupplier);
+    return this;
+  }
+
+  public ViewControllerRegistration setReturnValue(HttpRequestHandler handler) {
+    this.controller.setReturnValue(handler);
     return this;
   }
 

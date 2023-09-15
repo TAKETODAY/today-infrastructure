@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,13 @@
 
 package cn.taketoday.web.handler.mvc;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.RedirectModel;
@@ -50,6 +50,7 @@ public class ParameterizableViewController extends AbstractController {
   private HttpStatusCode statusCode;
 
   private boolean statusOnly;
+
   @Nullable
   private String contentType;
 
@@ -144,7 +145,7 @@ public class ParameterizableViewController extends AbstractController {
    * Set a result object to return.
    * Will override any pre-existing view name or View.
    */
-  public void setResult(@Nullable Object returnValue) {
+  public void setReturnValue(@Nullable Object returnValue) {
     this.returnValue = returnValue;
   }
 
@@ -176,7 +177,7 @@ public class ParameterizableViewController extends AbstractController {
    * @see #getViewName()
    */
   @Override
-  protected Object handleRequestInternal(RequestContext request) {
+  protected Object handleRequestInternal(RequestContext request) throws Throwable {
     String contentType = getContentType();
     if (contentType != null) {
       request.setContentType(contentType);
@@ -203,6 +204,12 @@ public class ParameterizableViewController extends AbstractController {
 
     Object result = getReturnValue();
     if (viewName == null && !(result instanceof View) && result != null) {
+      if (result instanceof Supplier<?> supplier) {
+        return supplier.get();
+      }
+      if (result instanceof HttpRequestHandler handler) {
+        return handler.handleRequest(request);
+      }
       return result;
     }
 
@@ -232,7 +239,9 @@ public class ParameterizableViewController extends AbstractController {
       sb.append("status=").append(this.statusCode);
     }
     if (this.returnValue != null) {
-      sb.append(sb.length() != 0 ? ", " : "");
+      if (sb.isEmpty()) {
+        sb.append(", ");
+      }
       String viewName = getViewName();
       sb.append("view=").append(viewName != null ? "\"" + viewName + "\"" : this.returnValue);
     }

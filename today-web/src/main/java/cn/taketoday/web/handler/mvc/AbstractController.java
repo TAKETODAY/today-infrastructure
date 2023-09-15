@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,7 +149,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
   @Override
   @Nullable
-  public Object handleRequest(RequestContext request) throws Exception {
+  public Object handleRequest(RequestContext request) throws Throwable {
     if (HttpMethod.OPTIONS == request.getMethod()) {
       request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
@@ -184,6 +181,6 @@ public abstract class AbstractController extends WebContentGenerator implements 
    */
   @Nullable
   protected abstract Object handleRequestInternal(RequestContext request)
-          throws Exception;
+          throws Throwable;
 
 }
