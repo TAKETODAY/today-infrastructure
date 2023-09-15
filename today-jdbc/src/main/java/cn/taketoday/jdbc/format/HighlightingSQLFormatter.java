@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,8 +99,7 @@ public final class HighlightingSQLFormatter implements SQLFormatter {
     while (tokenizer.hasMoreTokens()) {
       String token = tokenizer.nextToken();
       switch (token) {
-        case "\"":
-        case "`": // for MySQL
+        case "\"", "`" -> { // for MySQL
           if (inString) {
             result.append(token);
           }
@@ -115,8 +111,8 @@ public final class HighlightingSQLFormatter implements SQLFormatter {
             inQuoted = true;
             result.append(quotedEscape).append(token);
           }
-          break;
-        case "'":
+        }
+        case "'" -> {
           if (inQuoted) {
             result.append('\'');
           }
@@ -128,14 +124,15 @@ public final class HighlightingSQLFormatter implements SQLFormatter {
             inString = true;
             result.append(stringEscape).append('\'');
           }
-          break;
-        default:
+        }
+        default -> {
           if (KEYWORDS.contains(token.toUpperCase())) {
             result.append(keywordEscape).append(token).append(normalEscape);
           }
           else {
             result.append(token);
           }
+        }
       }
     }
     return result.toString();

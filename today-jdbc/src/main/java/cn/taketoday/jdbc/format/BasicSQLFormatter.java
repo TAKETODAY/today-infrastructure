@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -398,7 +395,7 @@ public class BasicSQLFormatter implements SQLFormatter {
     }
 
     private static boolean isFunctionName(String tok) {
-      if (tok == null || tok.length() == 0) {
+      if (tok == null || tok.isEmpty()) {
         return false;
       }
 
@@ -418,9 +415,7 @@ public class BasicSQLFormatter implements SQLFormatter {
 
     private void newline() {
       result.append(System.lineSeparator());
-      for (int i = 0; i < indent; i++) {
-        result.append(INDENT_STRING);
-      }
+      result.append(INDENT_STRING.repeat(Math.max(0, indent)));
       beginLine = true;
     }
   }

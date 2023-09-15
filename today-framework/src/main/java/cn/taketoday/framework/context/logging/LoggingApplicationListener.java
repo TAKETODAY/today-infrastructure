@@ -157,8 +157,8 @@ public class LoggingApplicationListener implements GenericApplicationListener {
     loggers.add("web", "cn.taketoday.framework.web.servlet.ServletContextInitializerBeans");
     loggers.add("sql", "cn.taketoday.jdbc.core");
     loggers.add("sql", "org.hibernate.SQL");
-    loggers.add("sql", "today.infra.SQL");
-    loggers.add("sql", "today.infra.SQL_SLOW");
+    loggers.add("sql", "today.SQL");
+    loggers.add("sql", "today.SQL_SLOW");
     loggers.add("sql", "org.jooq.tools.LoggerListener");
     DEFAULT_GROUP_LOGGERS = Collections.unmodifiableMap(loggers);
   }

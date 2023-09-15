@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +34,8 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0 2022/9/12 19:19
  */
 public class SqlStatementLogger {
-  private static final Logger sqlLogger = LoggerFactory.getLogger("today.infra.SQL");
-  private static final Logger slowLogger = LoggerFactory.getLogger("today.infra.SQL_SLOW");
+  private static final Logger sqlLogger = LoggerFactory.getLogger("today.SQL");
+  private static final Logger slowLogger = LoggerFactory.getLogger("today.SQL_SLOW");
 
   public static final SqlStatementLogger sharedInstance = new SqlStatementLogger(
           TodayStrategies.getFlag("sql.logToStdout", false),
@@ -95,7 +92,7 @@ public class SqlStatementLogger {
    * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
    */
   public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, long logSlowQuery) {
-    this(logToStdout, format, highlight, false, 0);
+    this(logToStdout, format, highlight, false, logSlowQuery);
   }
 
   /**
