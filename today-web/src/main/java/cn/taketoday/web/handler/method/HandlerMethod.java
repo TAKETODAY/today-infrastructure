@@ -186,8 +186,7 @@ public class HandlerMethod implements AsyncHandler {
    * Variant of {@link #HandlerMethod(String, BeanFactory, Method)} that
    * also accepts a {@link MessageSource}.
    */
-  public HandlerMethod(
-          String beanName, BeanFactory beanFactory,
+  public HandlerMethod(String beanName, BeanFactory beanFactory,
           @Nullable MessageSource messageSource, Method method) {
     Assert.notNull(method, "Method is required");
     Assert.hasText(beanName, "Bean name is required");
@@ -544,20 +543,6 @@ public class HandlerMethod implements AsyncHandler {
 
   @Override
   public String toString() {
-//    Class<?> declaringClass = method.getDeclaringClass();
-//    String simpleName = declaringClass.getSimpleName();
-//
-//    StringBuilder builder = new StringBuilder();
-//    builder.append(simpleName)
-//            .append('#')
-//            .append(method.getName())
-//            .append('(');
-//
-//    if (ObjectUtils.isNotEmpty(parameters)) {
-//      builder.append(StringUtils.arrayToDelimitedString(parameters, ", "));
-//    }
-//
-//    builder.append(')');
     return description;
   }
 

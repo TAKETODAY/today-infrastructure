@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +58,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void handleRequestWithViewName() throws Exception {
+  public void handleRequestWithViewName() throws Throwable {
     String viewName = "testView";
     this.controller.setViewName(viewName);
     ModelAndView mav = handleRequest();
@@ -69,7 +66,7 @@ class ParameterizableViewControllerTests {
     assertThat(mav.getModel().isEmpty()).isTrue();
   }
 
-  private ModelAndView handleRequest() throws Exception {
+  private ModelAndView handleRequest() throws Throwable {
     Object result = this.controller.handleRequest(context);
     if (result instanceof ModelAndView modelAndView) {
       return modelAndView;
@@ -78,14 +75,14 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void handleRequestWithoutViewName() throws Exception {
+  public void handleRequestWithoutViewName() throws Throwable {
     ModelAndView mav = handleRequest();
     assertThat(mav.getViewName()).isNull();
     assertThat(mav.getModel().isEmpty()).isTrue();
   }
 
   @Test
-  public void handleRequestWithFlashAttributes() throws Exception {
+  public void handleRequestWithFlashAttributes() throws Throwable {
     this.request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
     ModelAndView mav = handleRequest();
     assertThat(mav.getModel().size()).isEqualTo(1);
@@ -93,7 +90,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void handleRequestHttpOptions() throws Exception {
+  public void handleRequestHttpOptions() throws Throwable {
     this.request.setMethod(HttpMethod.OPTIONS.name());
     ModelAndView mav = handleRequest();
 
@@ -103,20 +100,20 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void defaultViewName() throws Exception {
+  public void defaultViewName() throws Throwable {
     ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView.getViewName()).isNull();
   }
 
   @Test
-  public void viewName() throws Exception {
+  public void viewName() throws Throwable {
     this.controller.setViewName("view");
     ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView.getViewName()).isEqualTo("view");
   }
 
   @Test
-  public void viewNameAndStatus() throws Exception {
+  public void viewNameAndStatus() throws Throwable {
     this.controller.setViewName("view");
     this.controller.setStatusCode(HttpStatus.NOT_FOUND);
     ModelAndView modelAndView = handleRequest();
@@ -125,7 +122,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void viewNameAndStatus204() throws Exception {
+  public void viewNameAndStatus204() throws Throwable {
     this.controller.setStatusCode(HttpStatus.NO_CONTENT);
     ModelAndView modelAndView = handleRequest();
     assertThat(modelAndView).isNull();
@@ -133,7 +130,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void redirectStatus() throws Exception {
+  public void redirectStatus() throws Throwable {
     this.controller.setStatusCode(HttpStatus.PERMANENT_REDIRECT);
     this.controller.setViewName("/foo");
     ModelAndView modelAndView = handleRequest();
@@ -144,7 +141,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void redirectStatusWithRedirectPrefix() throws Exception {
+  public void redirectStatusWithRedirectPrefix() throws Throwable {
     this.controller.setStatusCode(HttpStatus.PERMANENT_REDIRECT);
     this.controller.setViewName("redirect:/foo");
     ModelAndView modelAndView = handleRequest();
@@ -155,7 +152,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void redirectView() throws Exception {
+  public void redirectView() throws Throwable {
     RedirectView view = new RedirectView("/foo");
     this.controller.setView(view);
     ModelAndView modelAndView = handleRequest();
@@ -163,7 +160,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void statusOnly() throws Exception {
+  public void statusOnly() throws Throwable {
     this.controller.setStatusCode(HttpStatus.NOT_FOUND);
     this.controller.setStatusOnly(true);
     ModelAndView modelAndView = handleRequest();

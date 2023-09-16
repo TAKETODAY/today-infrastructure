@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +47,7 @@ import static org.mockito.Mockito.verify;
 class ControllerTests {
 
   @Test
-  public void parameterizableViewController() throws Exception {
+  public void parameterizableViewController() throws Throwable {
     String viewName = "viewName";
     ParameterizableViewController pvc = new ParameterizableViewController();
     pvc.setViewName(viewName);
@@ -65,28 +62,28 @@ class ControllerTests {
   }
 
   @Test
-  public void servletForwardingController() throws Exception {
+  public void servletForwardingController() throws Throwable {
     ServletForwardingController sfc = new ServletForwardingController();
     sfc.setServletName("action");
     doTestServletForwardingController(sfc, false);
   }
 
   @Test
-  public void servletForwardingControllerWithInclude() throws Exception {
+  public void servletForwardingControllerWithInclude() throws Throwable {
     ServletForwardingController sfc = new ServletForwardingController();
     sfc.setServletName("action");
     doTestServletForwardingController(sfc, true);
   }
 
   @Test
-  public void servletForwardingControllerWithBeanName() throws Exception {
+  public void servletForwardingControllerWithBeanName() throws Throwable {
     ServletForwardingController sfc = new ServletForwardingController();
     sfc.setBeanName("action");
     doTestServletForwardingController(sfc, false);
   }
 
   private void doTestServletForwardingController(ServletForwardingController sfc, boolean include)
-          throws Exception {
+          throws Throwable {
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -121,7 +118,7 @@ class ControllerTests {
   }
 
   @Test
-  public void servletWrappingController() throws Exception {
+  public void servletWrappingController() throws Throwable {
     HttpServletRequest request = new MockHttpServletRequest("GET", "/somePath");
     HttpServletResponse response = new MockHttpServletResponse();
 
@@ -150,7 +147,7 @@ class ControllerTests {
   }
 
   @Test
-  public void servletWrappingControllerWithBeanName() throws Exception {
+  public void servletWrappingControllerWithBeanName() throws Throwable {
     HttpServletRequest request = new MockHttpServletRequest("GET", "/somePath");
     HttpServletResponse response = new MockHttpServletResponse();
 

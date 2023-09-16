@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.web.BindingContext;
-import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -41,7 +37,6 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -57,6 +52,7 @@ import cn.taketoday.web.view.RedirectModelManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ParameterResolvingStrategy
  * @see HandlerMethodReturnValueHandler
+ * @see RequestMappingHandlerMapping
  * @since 4.0 2022/4/8 22:46
  */
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
@@ -64,9 +60,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Nullable
   private ParameterResolvingRegistry resolvingRegistry;
-
-  @Nullable
-  private ReturnValueHandlerManager returnValueHandlerManager;
 
   @Nullable
   private WebBindingInitializer webBindingInitializer;
@@ -98,23 +91,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
     this.resolvingRegistry = resolvingRegistry;
-  }
-
-  /**
-   * Configure the complete list of supported return value types thus
-   * overriding handlers that would otherwise be configured by default.
-   */
-  public void setReturnValueHandlerManager(@Nullable ReturnValueHandlerManager manager) {
-    this.returnValueHandlerManager = manager;
-  }
-
-  /**
-   * Return the configured handlers, or possibly {@code null} if not
-   * initialized yet via {@link #afterPropertiesSet()}.
-   */
-  @Nullable
-  public ReturnValueHandlerManager getReturnValueHandlerManager() {
-    return this.returnValueHandlerManager;
   }
 
   /**
@@ -232,19 +208,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
       this.resolvingRegistry = resolvingRegistry;
     }
 
-    if (returnValueHandlerManager == null) {
-      var manager = BeanFactoryUtils.find(context, ReturnValueHandlerManager.class);
-      if (manager == null) {
-        manager = new ReturnValueHandlerManager();
-        manager.setApplicationContext(context);
-        manager.registerDefaultHandlers();
-      }
-      this.returnValueHandlerManager = manager;
-    }
-
     this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,
-            new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer),
-            returnValueHandlerManager);
+            new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer)
+    );
 
     this.modelHandler = new ModelHandler(methodResolver);
 
@@ -324,9 +290,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
   @Nullable
-  protected Object invokeHandlerMethod(
-          RequestContext request, HandlerMethod handlerMethod) throws Throwable {
-
+  protected Object invokeHandlerMethod(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
     BindingContext binding = new InitBinderBindingContext(
             modelHandler, getWebBindingInitializer(), methodResolver, handlerMethod);
 
@@ -340,14 +304,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
     binding.initModel(request);
 
-    var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
-    Object returnValue = invocableMethod.invokeAndHandle(request);
-
-    if (request.isConcurrentHandlingStarted()) {
-      return HttpRequestHandler.NONE_RETURN_VALUE;
+    if (handlerMethod instanceof InvocableHandlerMethod invocableMethod) {
+      return invocableMethod.invokeAndHandle(request);
     }
 
-    return returnValue;
+    var invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
+    return invocableMethod.invokeAndHandle(request);
   }
 
 }

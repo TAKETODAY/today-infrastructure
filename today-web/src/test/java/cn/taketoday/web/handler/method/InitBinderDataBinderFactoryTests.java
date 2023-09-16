@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +31,6 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
@@ -132,7 +128,7 @@ class InitBinderDataBinderFactoryTests {
     InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(handler, method, parameterFactory);
 
     ControllerMethodResolver methodResolver = new ControllerMethodResolver(null,
-            new DefaultSessionAttributeStore(), parameterFactory, new ReturnValueHandlerManager());
+            new DefaultSessionAttributeStore(), parameterFactory);
 
     ModelHandler modelHandler = new ModelHandler(methodResolver);
 

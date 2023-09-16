@@ -14,6 +14,8 @@ dependencies {
   testImplementation(project(":today-context"))
   testImplementation(project(":today-core"))
   testImplementation(project(":today-mybatis"))
+  testImplementation(project(":today-starter:today-starter-test"))
+
   testImplementation(testFixtures(project(":today-aop")))
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))
@@ -78,7 +80,7 @@ dependencies {
   testImplementation 'jakarta.persistence:jakarta.persistence-api'
   testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
   testImplementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
-  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+//  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile'
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 

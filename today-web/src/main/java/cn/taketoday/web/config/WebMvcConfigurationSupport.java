@@ -692,11 +692,13 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(RequestMappingHandlerMapping.class)
   RequestMappingHandlerMapping requestMappingHandlerMapping(
-          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
+          @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
+          ParameterResolvingRegistry parameterResolvingRegistry) {
 
     var mapping = createRequestMappingHandlerMapping();
     mapping.setOrder(0);
     mapping.setContentNegotiationManager(contentNegotiationManager);
+    mapping.setResolvingRegistry(parameterResolvingRegistry);
 
     initHandlerMapping(mapping);
 
@@ -958,7 +960,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
           @Nullable SessionManager sessionManager,
           @Nullable RedirectModelManager redirectModelManager,
           @Nullable WebBindingInitializer webBindingInitializer,
-          ReturnValueHandlerManager returnValueHandlerManager,
           ParameterResolvingRegistry parameterResolvingRegistry,
           @Qualifier("mvcValidator") Validator validator,
           @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
@@ -968,7 +969,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     adapter.setSessionManager(sessionManager);
     adapter.setRedirectModelManager(redirectModelManager);
     adapter.setResolvingRegistry(parameterResolvingRegistry);
-    adapter.setReturnValueHandlerManager(returnValueHandlerManager);
     if (webBindingInitializer == null) {
       webBindingInitializer = getWebBindingInitializer(conversionService, validator);
     }

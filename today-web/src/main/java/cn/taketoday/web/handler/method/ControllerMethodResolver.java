@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +37,6 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -66,20 +62,21 @@ final class ControllerMethodResolver {
 
   private final Map<Class<?>, Set<Method>> initBinderCache = new ConcurrentHashMap<>(64);
 
-  private final Map<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
-  private final Map<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
-  private final Map<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
-  private final Map<HandlerMethod, ResultableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
+  private final LinkedHashMap<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
+
+  private final ConcurrentHashMap<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
+
+  private final LinkedHashMap<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
+
+  private final ConcurrentHashMap<HandlerMethod, InvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
 
   private final SessionAttributeStore sessionAttributeStore;
   private final ResolvableParameterFactory resolvableParameterFactory;
-  private final ReturnValueHandlerManager returnValueHandlerManager;
 
-  ControllerMethodResolver(@Nullable ApplicationContext context, SessionAttributeStore sessionStore,
-          ResolvableParameterFactory parameterFactory, ReturnValueHandlerManager returnValueHandlerManager) {
+  ControllerMethodResolver(@Nullable ApplicationContext context,
+          SessionAttributeStore sessionStore, ResolvableParameterFactory parameterFactory) {
     this.sessionAttributeStore = sessionStore;
     this.resolvableParameterFactory = parameterFactory;
-    this.returnValueHandlerManager = returnValueHandlerManager;
 
     if (context != null) {
       initControllerAdviceCache(context);
@@ -189,15 +186,14 @@ final class ControllerMethodResolver {
   }
 
   /**
-   * Create a {@link ResultableHandlerMethod} from the given {@link HandlerMethod} definition.
+   * Create a {@link InvocableHandlerMethod} from the given {@link HandlerMethod} definition.
    *
    * @param handlerMethod the {@link HandlerMethod} definition
-   * @return the corresponding {@link ResultableHandlerMethod} (or custom subclass thereof)
+   * @return the corresponding {@link InvocableHandlerMethod} (or custom subclass thereof)
    */
-  public ResultableHandlerMethod createHandlerMethod(HandlerMethod handlerMethod) {
+  public InvocableHandlerMethod createHandlerMethod(HandlerMethod handlerMethod) {
     return invocableHandlerMethodMap.computeIfAbsent(handlerMethod,
-            handler -> new ResultableHandlerMethod(
-                    handler, returnValueHandlerManager, resolvableParameterFactory));
+            handler -> new InvocableHandlerMethod(handler, resolvableParameterFactory));
   }
 
   private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {

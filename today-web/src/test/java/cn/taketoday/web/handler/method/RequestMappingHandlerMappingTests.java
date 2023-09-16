@@ -48,6 +48,7 @@ import cn.taketoday.web.service.annotation.HttpExchange;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
@@ -63,11 +64,11 @@ class RequestMappingHandlerMappingTests {
   @SuppressWarnings("unused")
   static Stream<Arguments> pathPatternsArguments() {
     RequestMappingHandlerMapping mapping1 = new RequestMappingHandlerMapping();
-    StaticWebApplicationContext wac1 = new StaticWebApplicationContext();
+    StaticWebApplicationContext wac1 = new StaticWebApplicationContext(new MockServletContext());
     mapping1.setApplicationContext(wac1);
 
     RequestMappingHandlerMapping mapping2 = new RequestMappingHandlerMapping();
-    StaticWebApplicationContext wac2 = new StaticWebApplicationContext();
+    StaticWebApplicationContext wac2 = new StaticWebApplicationContext(new MockServletContext());
     mapping2.setApplicationContext(wac2);
 
     return Stream.of(Arguments.of(mapping1, wac1), Arguments.of(mapping2, wac2));
@@ -76,7 +77,7 @@ class RequestMappingHandlerMappingTests {
   @Test
   void builderConfiguration() {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
 
     RequestMappingInfo.BuilderConfiguration config = mapping.getBuilderConfiguration();
     assertThat(config).isNotNull();
@@ -89,7 +90,7 @@ class RequestMappingHandlerMappingTests {
   void resolveEmbeddedValuesInPatterns(RequestMappingHandlerMapping mapping) {
 
     mapping.setEmbeddedValueResolver(
-        value -> "/${pattern}/bar".equals(value) ? "/foo/bar" : value
+            value -> "/${pattern}/bar".equals(value) ? "/foo/bar" : value
     );
 
     String[] patterns = new String[] { "/foo", "/${pattern}/bar" };
@@ -103,7 +104,7 @@ class RequestMappingHandlerMappingTests {
 
     mapping.setEmbeddedValueResolver(value -> "/${prefix}".equals(value) ? "/api" : value);
     mapping.setPathPrefixes(Collections.singletonMap(
-        "/${prefix}", HandlerTypePredicate.forAnnotation(RestController.class)));
+            "/${prefix}", HandlerTypePredicate.forAnnotation(RestController.class)));
     mapping.afterPropertiesSet();
 
     Method method = UserController.class.getMethod("getUser");
@@ -138,12 +139,12 @@ class RequestMappingHandlerMappingTests {
   void resolveRequestMappingViaComposedAnnotation(RequestMappingHandlerMapping mapping) {
 
     RequestMappingInfo info = assertComposedAnnotationMapping(
-        mapping, "postJson", "/postJson", HttpMethod.POST);
+            mapping, "postJson", "/postJson", HttpMethod.POST);
 
     assertThat(info.getConsumesCondition().getConsumableMediaTypes().iterator().next().toString())
-        .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+            .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
     assertThat(info.getProducesCondition().getProducibleMediaTypes().iterator().next().toString())
-        .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+            .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
   }
 
   @Test
@@ -162,9 +163,9 @@ class RequestMappingHandlerMappingTests {
     wac.refresh();
     mapping.afterPropertiesSet();
     RequestMappingInfo result = mapping.getHandlerMethods().keySet().stream()
-        .filter(info -> info.getPatternValues().equals(Collections.singleton("/post")))
-        .findFirst()
-        .orElseThrow(() -> new AssertionError("No /post"));
+            .filter(info -> info.getPatternValues().equals(Collections.singleton("/post")))
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("No /post"));
 
     assertThat(result.getConsumesCondition().isBodyRequired()).isFalse();
   }
@@ -198,16 +199,16 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithDefaultValues() throws NoSuchMethodException {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
-        HttpExchangeController.class.getMethod("defaultValuesExchange"),
-        HttpExchangeController.class);
+            HttpExchangeController.class.getMethod("defaultValuesExchange"),
+            HttpExchangeController.class);
 
     assertThat(mappingInfo.getPathPatternsCondition().getPatterns())
-        .extracting(PathPattern::toString)
-        .containsOnly("/exchange");
+            .extracting(PathPattern::toString)
+            .containsOnly("/exchange");
 
     assertThat(mappingInfo.getMethodsCondition().getMethods()).isEmpty();
     assertThat(mappingInfo.getParamsCondition().getExpressions()).isEmpty();
@@ -220,28 +221,28 @@ class RequestMappingHandlerMappingTests {
   @Test
   void httpExchangeWithCustomValues() throws Exception {
     RequestMappingHandlerMapping mapping = new RequestMappingHandlerMapping();
-    mapping.setApplicationContext(new StaticWebApplicationContext());
+    mapping.setApplicationContext(new StaticWebApplicationContext(new MockServletContext()));
     mapping.afterPropertiesSet();
 
     RequestMappingInfo mappingInfo = mapping.getMappingForMethod(
-        HttpExchangeController.class.getMethod("customValuesExchange"),
-        HttpExchangeController.class);
+            HttpExchangeController.class.getMethod("customValuesExchange"),
+            HttpExchangeController.class);
 
     assertThat(mappingInfo.getPathPatternsCondition().getPatterns())
-        .extracting(PathPattern::toString)
-        .containsOnly("/exchange/custom");
+            .extracting(PathPattern::toString)
+            .containsOnly("/exchange/custom");
 
     assertThat(mappingInfo.getMethodsCondition().getMethods()).containsOnly(HttpMethod.POST);
     assertThat(mappingInfo.getParamsCondition().getExpressions()).isEmpty();
     assertThat(mappingInfo.getHeadersCondition().getExpressions()).isEmpty();
 
     assertThat(mappingInfo.getConsumesCondition().getExpressions())
-        .extracting("mediaType")
-        .containsOnly(MediaType.APPLICATION_JSON);
+            .extracting("mediaType")
+            .containsOnly(MediaType.APPLICATION_JSON);
 
     assertThat(mappingInfo.getProducesCondition().getExpressions())
-        .extracting("mediaType")
-        .containsOnly(MediaType.valueOf("text/plain;charset=UTF-8"));
+            .extracting("mediaType")
+            .containsOnly(MediaType.valueOf("text/plain;charset=UTF-8"));
   }
 
   private RequestMappingInfo assertComposedAnnotationMapping(HttpMethod requestMethod) throws Exception {
@@ -256,7 +257,7 @@ class RequestMappingHandlerMappingTests {
   }
 
   private RequestMappingInfo assertComposedAnnotationMapping(
-      RequestMappingHandlerMapping mapping, String methodName, String path, HttpMethod requestMethod) {
+          RequestMappingHandlerMapping mapping, String methodName, String path, HttpMethod requestMethod) {
 
     Class<?> clazz = ComposedAnnotationController.class;
     Method method = ReflectionUtils.getMethod(clazz, methodName, (Class<?>[]) null);

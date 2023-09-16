@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +40,6 @@ import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
-import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -125,7 +121,7 @@ class ModelHandlerOrderingTests {
     Collections.shuffle(modelMethods);
 
     ControllerMethodResolver methodResolver = new ControllerMethodResolver(
-            null, sessionAttributeStore, parameterFactory, new ReturnValueHandlerManager());
+            null, sessionAttributeStore, parameterFactory);
 
     ModelHandler factory = new ModelHandler(methodResolver);
     factory.initModel(this.webRequest, this.mavContainer, new HandlerMethod(controller, "handle"));

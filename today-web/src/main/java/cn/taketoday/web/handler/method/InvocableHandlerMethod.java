@@ -17,17 +17,23 @@
 
 package cn.taketoday.web.handler.method;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.context.MessageSource;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.support.SessionStatus;
+import cn.taketoday.web.view.View;
 
 /**
  * Extension of {@link HandlerMethod} that invokes the underlying method with
@@ -60,6 +66,55 @@ public class InvocableHandlerMethod extends HandlerMethod {
   public InvocableHandlerMethod(Object bean, Method method, ResolvableParameterFactory factory) {
     super(bean, method);
     this.resolvableParameters = factory.getParameters(this);
+  }
+
+  public InvocableHandlerMethod(String beanName, BeanFactory beanFactory,
+          @Nullable MessageSource messageSource, Method method, ResolvableParameterFactory factory) {
+    super(beanName, beanFactory, messageSource, method);
+    this.resolvableParameters = factory.getParameters(this);
+  }
+
+  /**
+   * Invoke the method and handle the status
+   *
+   * @param request the current request
+   */
+  @Nullable
+  public Object invokeAndHandle(RequestContext request) throws Throwable {
+    Object returnValue = invokeForRequest(request, (Object[]) null);
+    applyResponseStatus(request);
+
+    if (returnValue == null) {
+      if (request.isNotModified() || getResponseStatus() != null) {
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      }
+    }
+    else if (StringUtils.hasText(getResponseStatusReason())) {
+      return HttpRequestHandler.NONE_RETURN_VALUE;
+    }
+
+    return returnValue;
+  }
+
+  /**
+   * Set the response status according to the {@link ResponseStatus} annotation.
+   */
+  private void applyResponseStatus(RequestContext response) throws IOException {
+    HttpStatusCode status = getResponseStatus();
+    if (status == null) {
+      return;
+    }
+
+    String reason = getResponseStatusReason();
+    if (StringUtils.hasText(reason)) {
+      response.sendError(status.value(), reason);
+    }
+    else {
+      response.setStatus(status.value());
+    }
+
+    // To be picked up by RedirectView
+    response.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
   }
 
   /**

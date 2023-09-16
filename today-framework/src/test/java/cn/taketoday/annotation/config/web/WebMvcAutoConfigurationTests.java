@@ -88,6 +88,7 @@ import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
@@ -143,7 +144,7 @@ public class WebMvcAutoConfigurationTests {
   void handlerAdaptersCreated() {
     this.contextRunner.run((context) -> {
       assertThat(context).getBeans(HandlerAdapter.class).hasSize(2);
-      assertThat(context.getBean(RequestMappingHandlerAdapter.class).getReturnValueHandlerManager().getMessageConverters()).isNotEmpty()
+      assertThat(context.getBean(ReturnValueHandlerManager.class).getMessageConverters()).isNotEmpty()
               .isEqualTo(context.getBean(HttpMessageConverters.class).getConverters());
     });
   }

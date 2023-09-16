@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,11 +63,11 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
  * {@link HandlerAdapterProvider HandlerAdapterCapable}
  * to specific a HandlerAdapter at startup time
  *
- * @author TODAY <br>
- * 2019-12-08 20:23
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HandlerAdapterProvider
  * @see NotFoundHandler
  * @see cn.taketoday.web.servlet.ServletHandlerAdapter
+ * @since 2019-12-08 20:23
  */
 public interface HandlerAdapter {
 

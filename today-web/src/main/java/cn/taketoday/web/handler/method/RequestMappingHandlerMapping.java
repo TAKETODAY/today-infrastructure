@@ -25,6 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
@@ -42,6 +45,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.condition.AbstractRequestCondition;
 import cn.taketoday.web.handler.condition.CompositeRequestCondition;
@@ -69,6 +73,13 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
   private final RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
+
+  @Nullable
+  private ParameterResolvingRegistry resolvingRegistry;
+
+  private ResolvableParameterFactory parameterFactory;
+
+  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
 
   /**
    * Configure path prefixes to apply to controller methods.
@@ -110,8 +121,34 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     return this.contentNegotiationManager;
   }
 
+  /**
+   * Set the ParameterNameDiscoverer to use for resolving method parameter names if needed
+   * (e.g. for default attribute names).
+   * <p>Default is a {@link cn.taketoday.core.DefaultParameterNameDiscoverer}.
+   */
+  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
+  public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
+    this.resolvingRegistry = resolvingRegistry;
+  }
+
   @Override
   public void afterPropertiesSet() {
+    ApplicationContext context = obtainApplicationContext();
+    if (resolvingRegistry == null) {
+      var resolvingRegistry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
+      if (resolvingRegistry == null) {
+        resolvingRegistry = new ParameterResolvingRegistry();
+        resolvingRegistry.setApplicationContext(context);
+        resolvingRegistry.registerDefaultStrategies();
+      }
+      this.resolvingRegistry = resolvingRegistry;
+    }
+
+    this.parameterFactory = new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer);
+
     config.setPatternParser(getPatternParser());
     config.setContentNegotiationManager(getContentNegotiationManager());
 
@@ -139,9 +176,19 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   @Override
   protected boolean isHandler(Class<?> beanType) {
     var annotations = MergedAnnotations.from(
-        beanType, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
+            beanType, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
     return annotations.isPresent(Controller.class)
-        || annotations.isPresent(RequestMapping.class);
+            || annotations.isPresent(RequestMapping.class);
+  }
+
+  @Override
+  protected HandlerMethod createHandlerMethod(Object handler, Method method) {
+    if (handler instanceof String beanName) {
+      ApplicationContext context = obtainApplicationContext();
+      return new InvocableHandlerMethod(beanName,
+              context.getAutowireCapableBeanFactory(), context, method, parameterFactory);
+    }
+    return new InvocableHandlerMethod(handler, method, parameterFactory);
   }
 
   /**
@@ -171,9 +218,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       String prefix = getPathPrefix(handlerType);
       if (prefix != null) {
         info = RequestMappingInfo.paths(prefix)
-            .options(config)
-            .build()
-            .combine(info);
+                .options(config)
+                .build()
+                .combine(info);
       }
     }
     return info;
@@ -235,16 +282,16 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * result of merging annotation attributes within an annotation hierarchy.
    */
   protected RequestMappingInfo createRequestMappingInfo(
-      RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
+          RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 
     var builder = RequestMappingInfo.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
-        .params(requestMapping.params())
-        .methods(requestMapping.method())
-        .combine(requestMapping.combine())
-        .headers(requestMapping.headers())
-        .consumes(requestMapping.consumes())
-        .produces(requestMapping.produces())
-        .mappingName(requestMapping.name());
+            .params(requestMapping.params())
+            .methods(requestMapping.method())
+            .combine(requestMapping.combine())
+            .headers(requestMapping.headers())
+            .consumes(requestMapping.consumes())
+            .produces(requestMapping.produces())
+            .mappingName(requestMapping.name());
 
     if (customCondition != null) {
       builder.customCondition(customCondition);
@@ -259,14 +306,14 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * annotation hierarchy.
    */
   protected RequestMappingInfo createRequestMappingInfo(
-      HttpExchange httpExchange, @Nullable RequestCondition<?> customCondition) {
+          HttpExchange httpExchange, @Nullable RequestCondition<?> customCondition) {
 
     var builder = RequestMappingInfo.paths(
-            resolveEmbeddedValuesInPatterns(toStringArray(httpExchange.value())))
-        .methods(toMethodArray(httpExchange.method()))
-        .consumes(toStringArray(httpExchange.contentType()))
-        .combine(true)
-        .produces(httpExchange.accept());
+                    resolveEmbeddedValuesInPatterns(toStringArray(httpExchange.value())))
+            .methods(toMethodArray(httpExchange.method()))
+            .consumes(toStringArray(httpExchange.contentType()))
+            .combine(true)
+            .produces(httpExchange.accept());
 
     if (customCondition != null) {
       builder.customCondition(customCondition);
@@ -393,7 +440,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     }
     else if (!allowCredentials.isEmpty()) {
       throw new IllegalStateException("@CrossOrigin's allowCredentials value must be \"true\", \"false\", " +
-          "or an empty string (\"\"): current value is [" + allowCredentials + "]");
+              "or an empty string (\"\"): current value is [" + allowCredentials + "]");
     }
 
     if (annotation.maxAge() >= 0) {

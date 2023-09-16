@@ -248,30 +248,6 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Find {@link ReturnValueHandler} for handler and handler execution result
-   *
-   * @param handler HTTP handler
-   * @param returnValue Handler execution result
-   * @return {@link ReturnValueHandler}
-   * @throws ReturnValueHandlerNotFoundException If there isn't a {@link ReturnValueHandler} for target handler and
-   * handler execution result
-   */
-  public ReturnValueHandler lookupReturnValueHandler(
-          @Nullable Object handler, @Nullable Object returnValue) {
-    if (handler instanceof ReturnValueHandler) {
-      return (ReturnValueHandler) handler;
-    }
-    ReturnValueHandler selected = returnValueHandler.selectHandler(handler, returnValue);
-    if (selected == null) {
-      if (returnValue == null && handler != null) {
-        throw new ReturnValueHandlerNotFoundException(handler);
-      }
-      throw new ReturnValueHandlerNotFoundException(returnValue, handler);
-    }
-    return selected;
-  }
-
-  /**
    * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
    * This exception can then be caught with a HandlerExceptionHandler or an
    * {@code @ExceptionHandler} controller method.
@@ -385,8 +361,21 @@ public class DispatcherHandler extends InfraHandler {
 
     // Did the handler return a view to render?
     if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      lookupReturnValueHandler(handler, returnValue)
-              .handleReturnValue(request, handler, returnValue);
+      ReturnValueHandler selected;
+      if (handler instanceof ReturnValueHandler) {
+        selected = (ReturnValueHandler) handler;
+      }
+      else {
+        selected = returnValueHandler.selectHandler(handler, returnValue);
+        if (selected == null) {
+          if (returnValue == null && handler != null) {
+            throw new ReturnValueHandlerNotFoundException(handler);
+          }
+          throw new ReturnValueHandlerNotFoundException(returnValue, handler);
+        }
+      }
+
+      selected.handleReturnValue(request, handler, returnValue);
     }
   }
 
