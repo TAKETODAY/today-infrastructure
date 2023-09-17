@@ -24,10 +24,12 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
+import cn.taketoday.context.condition.ConditionalOnBean;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
@@ -60,6 +62,13 @@ public class RestClientAutoConfiguration {
   static HttpMessageConvertersRestClientCustomizer httpMessageConvertersRestClientCustomizer(
           @Nullable HttpMessageConverters messageConverters) {
     return new HttpMessageConvertersRestClientCustomizer(messageConverters);
+  }
+
+  @Component
+  @ConditionalOnBean(SslBundles.class)
+  @ConditionalOnMissingBean(RestClientSsl.class)
+  static AutoConfiguredRestClientSsl restClientSsl(SslBundles sslBundles) {
+    return new AutoConfiguredRestClientSsl(sslBundles);
   }
 
   @Prototype

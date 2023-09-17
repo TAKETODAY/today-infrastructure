@@ -25,6 +25,7 @@ import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguratio
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -47,6 +48,20 @@ class RestClientAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(RestClientAutoConfiguration.class));
+
+  @Test
+  void shouldSupplyBeans() {
+    this.contextRunner.run((context) -> {
+      assertThat(context).hasSingleBean(HttpMessageConvertersRestClientCustomizer.class);
+      assertThat(context).hasSingleBean(RestClient.Builder.class);
+    });
+  }
+
+  @Test
+  void shouldSupplyRestClientSslIfSslBundlesIsThere() {
+    this.contextRunner.withBean(SslBundles.class, () -> mock(SslBundles.class))
+            .run((context) -> assertThat(context).hasSingleBean(RestClientSsl.class));
+  }
 
   @Test
   void shouldCreateBuilder() {
