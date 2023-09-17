@@ -375,7 +375,12 @@ public class DispatcherHandler extends InfraHandler {
         }
       }
 
-      selected.handleReturnValue(request, handler, returnValue);
+      try {
+        selected.handleReturnValue(request, handler, returnValue);
+      }
+      catch (Throwable e) {
+        processDispatchResult(request, handler, null, e);
+      }
     }
   }
 
