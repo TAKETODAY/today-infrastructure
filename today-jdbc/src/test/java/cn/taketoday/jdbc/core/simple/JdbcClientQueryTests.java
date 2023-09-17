@@ -17,7 +17,6 @@
 
 package cn.taketoday.jdbc.core.simple;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +35,7 @@ import java.util.Optional;
 import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -47,9 +47,9 @@ import static org.mockito.Mockito.verify;
  */
 public class JdbcClientQueryTests {
 
-  private Connection connection = mock();
-
   private DataSource dataSource = mock();
+
+  private Connection connection = mock();
 
   private PreparedStatement preparedStatement = mock();
 
@@ -62,17 +62,10 @@ public class JdbcClientQueryTests {
   @BeforeEach
   public void setup() throws Exception {
     given(dataSource.getConnection()).willReturn(connection);
-    given(resultSetMetaData.getColumnCount()).willReturn(1);
-    given(resultSetMetaData.getColumnLabel(1)).willReturn("age");
     given(connection.prepareStatement(anyString())).willReturn(preparedStatement);
     given(preparedStatement.executeQuery()).willReturn(resultSet);
-  }
-
-  @AfterEach
-  public void verifyClose() throws Exception {
-    verify(preparedStatement).close();
-    verify(resultSet).close();
-    verify(connection).close();
+    given(resultSetMetaData.getColumnCount()).willReturn(1);
+    given(resultSetMetaData.getColumnLabel(1)).willReturn("age");
   }
 
   // Indexed parameters
@@ -92,6 +85,9 @@ public class JdbcClientQueryTests {
 
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -104,6 +100,9 @@ public class JdbcClientQueryTests {
     assertThat(li.size()).as("All rows returned").isEqualTo(0);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -119,6 +118,9 @@ public class JdbcClientQueryTests {
     assertThat(li.get(0).get("age")).as("First row is Integer").isEqualTo(11);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -135,6 +137,9 @@ public class JdbcClientQueryTests {
     assertThat(li.get(0)).as("First row is Integer").isEqualTo(11);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -150,10 +155,13 @@ public class JdbcClientQueryTests {
     assertThat(map.get("age")).as("Row is Integer").isEqualTo(11);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithIndexedParamAndRowMapper() throws Exception {
+  public void testQueryForIntegerWithIndexedParamAndRowMapper() throws Exception {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt(1)).willReturn(22);
 
@@ -164,6 +172,9 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -178,10 +189,13 @@ public class JdbcClientQueryTests {
     assertThat(value.get()).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithIndexedParamAndInteger() throws Exception {
+  public void testQueryForIntegerWithIndexedParam() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getObject(1)).willReturn(22);
@@ -193,6 +207,9 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -208,6 +225,15 @@ public class JdbcClientQueryTests {
     assertThat(i).as("Return of an int").isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
+
+  @Test
+  public void testQueryForObjectWithIndexedParamAndList() {
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            client.sql("SELECT AGE FROM CUSTMR WHERE ID IN (?)").param(Arrays.asList(3, 4)).query().singleValue());
   }
 
   // Named parameters
@@ -228,6 +254,9 @@ public class JdbcClientQueryTests {
 
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -241,6 +270,9 @@ public class JdbcClientQueryTests {
     assertThat(li.size()).as("All rows returned").isEqualTo(0);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -257,6 +289,9 @@ public class JdbcClientQueryTests {
     assertThat(li.get(0).get("age")).as("First row is Integer").isEqualTo(11);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -273,6 +308,9 @@ public class JdbcClientQueryTests {
     assertThat(li.get(0)).as("First row is Integer").isEqualTo(11);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -288,10 +326,13 @@ public class JdbcClientQueryTests {
     assertThat(map.get("age")).as("Row is Integer").isEqualTo(11);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndRowMapper() throws Exception {
+  public void testQueryForIntegerWithNamedParamAndRowMapper() throws Exception {
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt(1)).willReturn(22);
 
@@ -303,10 +344,13 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndMappedSimpleValue() throws Exception {
+  public void testQueryForIntegerWithNamedParamAndMappedSimpleValue() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt(1)).willReturn(22);
@@ -319,10 +363,13 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndMappedRecord() throws Exception {
+  public void testQueryForMappedRecordWithNamedParam() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.findColumn("age")).willReturn(1);
     given(resultSet.next()).willReturn(true, false);
@@ -336,10 +383,13 @@ public class JdbcClientQueryTests {
     assertThat(value.age()).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndMappedFieldHolder() throws Exception {
+  public void testQueryForMappedFieldHolderWithNamedParam() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getInt(1)).willReturn(22);
@@ -352,10 +402,13 @@ public class JdbcClientQueryTests {
     assertThat(value.age).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndInteger() throws Exception {
+  public void testQueryForIntegerWithNamedParam() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getObject(1)).willReturn(22);
@@ -367,10 +420,13 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndList() throws Exception {
+  public void testQueryForIntegerWithNamedParamAndList() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getObject(1)).willReturn(22);
@@ -382,10 +438,14 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID IN (?, ?)");
     verify(preparedStatement).setObject(1, 3);
+    verify(preparedStatement).setObject(2, 4);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
-  public void testQueryForObjectWithNamedParamAndListOfExpressionLists() throws Exception {
+  public void testQueryForIntegerWithNamedParamAndListOfExpressionLists() throws Exception {
     given(resultSet.getMetaData()).willReturn(resultSetMetaData);
     given(resultSet.next()).willReturn(true, false);
     given(resultSet.getObject(1)).willReturn(22);
@@ -400,6 +460,12 @@ public class JdbcClientQueryTests {
     assertThat(value).isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE (ID, NAME) IN ((?, ?), (?, ?))");
     verify(preparedStatement).setObject(1, 3);
+    verify(preparedStatement).setString(2, "Rod");
+    verify(preparedStatement).setObject(3, 4);
+    verify(preparedStatement).setString(4, "Juergen");
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -415,6 +481,9 @@ public class JdbcClientQueryTests {
     assertThat(i).as("Return of an int").isEqualTo(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -430,6 +499,9 @@ public class JdbcClientQueryTests {
     assertThat(l).as("Return of a long").isEqualTo(87);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3, Types.INTEGER);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -446,6 +518,9 @@ public class JdbcClientQueryTests {
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID IN (?, ?)");
     verify(preparedStatement).setObject(1, 3);
     verify(preparedStatement).setObject(2, 5);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -461,6 +536,9 @@ public class JdbcClientQueryTests {
     assertThat(l).as("Return of a long").isEqualTo(87);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3, Types.INTEGER);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   @Test
@@ -476,6 +554,9 @@ public class JdbcClientQueryTests {
     assertThat(l).as("Return of a long").isEqualTo(87);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3, Types.INTEGER);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
   }
 
   static class ParameterBean {
