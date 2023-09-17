@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +47,6 @@ import cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.standard.StandardWebSocketUpgradeStrategy;
 import cn.taketoday.web.socket.server.standard.TomcatRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.standard.WebSphereRequestUpgradeStrategy;
 
 import static cn.taketoday.util.ClassUtils.isPresent;
 
@@ -83,14 +79,11 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
   private static final boolean undertowWsPresent;
 
-  private static final boolean websphereWsPresent;
-
   static {
     ClassLoader classLoader = AbstractHandshakeHandler.class.getClassLoader();
     tomcatWsPresent = isPresent("org.apache.tomcat.websocket.server.WsHttpUpgradeHandler", classLoader);
-    jettyWsPresent = isPresent("org.eclipse.jetty.websocket.server.JettyWebSocketServerContainer", classLoader);
+    jettyWsPresent = isPresent("org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServerContainer", classLoader);
     undertowWsPresent = isPresent("io.undertow.websockets.jsr.ServerWebSocketContainer", classLoader);
-    websphereWsPresent = isPresent("com.ibm.websphere.wsoc.WsWsocServerContainer", classLoader);
   }
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -344,9 +337,6 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     }
     else if (undertowWsPresent) {
       return new UndertowRequestUpgradeStrategy();
-    }
-    else if (websphereWsPresent) {
-      return new WebSphereRequestUpgradeStrategy();
     }
     else {
       // Let's assume Jakarta WebSocket API 2.1+
