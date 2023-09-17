@@ -19,6 +19,7 @@ package cn.taketoday.test.context;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.test.context.support.AbstractContextLoader;
+import cn.taketoday.test.context.support.ContextCustomizerFactories;
 
 /**
  * Strategy interface for customizing {@link ConfigurableApplicationContext
@@ -36,6 +37,7 @@ import cn.taketoday.test.context.support.AbstractContextLoader;
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContextCustomizerFactory
+ * @see ContextCustomizerFactories @ContextCustomizerFactories
  * @see AbstractContextLoader#customizeContext
  * @since 4.0
  */

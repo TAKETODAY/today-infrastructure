@@ -20,6 +20,7 @@ package cn.taketoday.test.context;
 import java.util.List;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.test.context.support.ContextCustomizerFactories;
 
 /**
  * Factory for creating {@link ContextCustomizer ContextCustomizers}.
@@ -33,9 +34,15 @@ import cn.taketoday.lang.Nullable;
  * mechanism for loading factories configured in all {@code META-INF/today.strategies}
  * files on the classpath.
  *
+ * <p>it is also possible to register factories
+ * declaratively via the {@link ContextCustomizerFactories @ContextCustomizerFactories}
+ * annotation.
+ *
  * @author Phillip Webb
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ContextCustomizer
+ * @see ContextCustomizerFactories @ContextCustomizerFactories
  * @since 4.0
  */
 @FunctionalInterface
