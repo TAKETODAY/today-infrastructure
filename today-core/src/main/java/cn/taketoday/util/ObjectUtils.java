@@ -542,192 +542,48 @@ public abstract class ObjectUtils {
   }
 
   /**
-   * Return as hash code for the given object; typically the value of
+   * Return a hash code for the given object; typically the value of
    * {@code Object#hashCode()}}. If the object is an array,
-   * this method will delegate to any of the {@code nullSafeHashCode}
-   * methods for arrays in this class. If the object is {@code null},
-   * this method returns 0.
+   * this method will delegate to any of the {@code Arrays.hashCode}
+   * methods. If the object is {@code null}, this method returns 0.
    *
    * @see Object#hashCode()
-   * @see #nullSafeHashCode(Object[])
-   * @see #nullSafeHashCode(boolean[])
-   * @see #nullSafeHashCode(byte[])
-   * @see #nullSafeHashCode(char[])
-   * @see #nullSafeHashCode(double[])
-   * @see #nullSafeHashCode(float[])
-   * @see #nullSafeHashCode(int[])
-   * @see #nullSafeHashCode(long[])
-   * @see #nullSafeHashCode(short[])
+   * @see Arrays
    */
   public static int nullSafeHashCode(@Nullable Object obj) {
     if (obj == null) {
       return 0;
     }
     if (obj.getClass().isArray()) {
-      if (obj instanceof Object[]) {
-        return nullSafeHashCode((Object[]) obj);
+      if (obj instanceof Object[] objects) {
+        return Arrays.hashCode(objects);
       }
-      if (obj instanceof boolean[]) {
-        return nullSafeHashCode((boolean[]) obj);
+      if (obj instanceof boolean[] booleans) {
+        return Arrays.hashCode(booleans);
       }
-      if (obj instanceof byte[]) {
-        return nullSafeHashCode((byte[]) obj);
+      if (obj instanceof byte[] bytes) {
+        return Arrays.hashCode(bytes);
       }
-      if (obj instanceof char[]) {
-        return nullSafeHashCode((char[]) obj);
+      if (obj instanceof char[] chars) {
+        return Arrays.hashCode(chars);
       }
-      if (obj instanceof double[]) {
-        return nullSafeHashCode((double[]) obj);
+      if (obj instanceof double[] doubles) {
+        return Arrays.hashCode(doubles);
       }
-      if (obj instanceof float[]) {
-        return nullSafeHashCode((float[]) obj);
+      if (obj instanceof float[] floats) {
+        return Arrays.hashCode(floats);
       }
-      if (obj instanceof int[]) {
-        return nullSafeHashCode((int[]) obj);
+      if (obj instanceof int[] ints) {
+        return Arrays.hashCode(ints);
       }
-      if (obj instanceof long[]) {
-        return nullSafeHashCode((long[]) obj);
+      if (obj instanceof long[] longs) {
+        return Arrays.hashCode(longs);
       }
-      if (obj instanceof short[]) {
-        return nullSafeHashCode((short[]) obj);
+      if (obj instanceof short[] shorts) {
+        return Arrays.hashCode(shorts);
       }
     }
     return obj.hashCode();
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable Object[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (Object element : array) {
-      hash = MULTIPLIER * hash + nullSafeHashCode(element);
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable boolean[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (boolean element : array) {
-      hash = MULTIPLIER * hash + Boolean.hashCode(element);
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable byte[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (byte element : array) {
-      hash = MULTIPLIER * hash + element;
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable char[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (char element : array) {
-      hash = MULTIPLIER * hash + element;
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable double[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (double element : array) {
-      hash = MULTIPLIER * hash + Double.hashCode(element);
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable float[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (float element : array) {
-      hash = MULTIPLIER * hash + Float.hashCode(element);
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable int[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (int element : array) {
-      hash = MULTIPLIER * hash + element;
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable long[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (long element : array) {
-      hash = MULTIPLIER * hash + Long.hashCode(element);
-    }
-    return hash;
-  }
-
-  /**
-   * Return a hash code based on the contents of the specified array.
-   * If {@code array} is {@code null}, this method returns 0.
-   */
-  public static int nullSafeHashCode(@Nullable short[] array) {
-    if (array == null) {
-      return 0;
-    }
-    int hash = INITIAL_HASH;
-    for (short element : array) {
-      hash = MULTIPLIER * hash + element;
-    }
-    return hash;
   }
 
   //---------------------------------------------------------------------

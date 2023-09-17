@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,10 +169,7 @@ public class BeanDefinitionHolder extends BeanNameHolder implements BeanMetadata
 
   @Override
   public int hashCode() {
-    int hashCode = this.beanDefinition.hashCode();
-    hashCode = 29 * hashCode + this.beanName.hashCode();
-    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(this.aliases);
-    return hashCode;
+    return ObjectUtils.nullSafeHash(this.beanDefinition, this.beanName, this.aliases);
   }
 
   @Nullable
