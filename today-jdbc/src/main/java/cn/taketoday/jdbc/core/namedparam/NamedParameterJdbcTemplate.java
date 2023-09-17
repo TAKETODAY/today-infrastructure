@@ -43,6 +43,7 @@ import cn.taketoday.jdbc.support.rowset.SqlRowSet;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentLruCache;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Template class with a basic set of JDBC operations, allowing the use
@@ -346,6 +347,45 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
                 return batchArgs.length;
               }
             });
+  }
+
+  @Override
+  public int[] batchUpdate(String sql, SqlParameterSource[] batchArgs, KeyHolder generatedKeyHolder) {
+    return batchUpdate(sql, batchArgs, generatedKeyHolder, null);
+  }
+
+  @Override
+  public int[] batchUpdate(String sql, SqlParameterSource[] batchArgs,
+          KeyHolder generatedKeyHolder, @Nullable String[] keyColumnNames) {
+
+    if (ObjectUtils.isEmpty(batchArgs)) {
+      return new int[0];
+    }
+
+    ParsedSql parsedSql = getParsedSql(sql);
+    SqlParameterSource paramSource = batchArgs[0];
+    PreparedStatementCreatorFactory pscf = getPreparedStatementCreatorFactory(parsedSql, paramSource);
+    if (keyColumnNames != null) {
+      pscf.setGeneratedKeysColumnNames(keyColumnNames);
+    }
+    else {
+      pscf.setReturnGeneratedKeys(true);
+    }
+    Object[] params = NamedParameterUtils.buildValueArray(parsedSql, paramSource, null);
+    PreparedStatementCreator psc = pscf.newPreparedStatementCreator(params);
+    return getJdbcOperations().batchUpdate(psc, new BatchPreparedStatementSetter() {
+
+      @Override
+      public void setValues(PreparedStatement ps, int i) throws SQLException {
+        Object[] values = NamedParameterUtils.buildValueArray(parsedSql, batchArgs[i], null);
+        pscf.newPreparedStatementSetter(values).setValues(ps);
+      }
+
+      @Override
+      public int getBatchSize() {
+        return batchArgs.length;
+      }
+    }, generatedKeyHolder);
   }
 
   /**
