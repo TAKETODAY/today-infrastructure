@@ -22,4 +22,5 @@
 cn.taketoday.test.context.TestExecutionListener = org.example.FooListener
 
 cn.taketoday.test.context.ContextCustomizerFactory =\
-	cn.taketoday.test.context.aot.samples.basic.ImportsContextCustomizerFactory
+	cn.taketoday.test.context.aot.samples.basic.ImportsContextCustomizerFactory,\
+  cn.taketoday.test.context.customizers.GlobalFruitContextCustomizerFactory
