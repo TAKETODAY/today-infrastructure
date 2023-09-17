@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +47,7 @@ import reactor.util.context.Context;
  * Subscribes to a buffer stream and produces a flux of {@link Token} instances.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class MultipartParser extends BaseSubscriber<DataBuffer> {
@@ -507,7 +505,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           log.trace("Boundary found @{} in {}", endIdx, buffer);
         }
         DataBuffer boundaryBuffer = buffer.split(endIdx + 1);
-        int len = endIdx - this.boundaryLength + 1;
+        int len = endIdx - this.boundaryLength + 1 - boundaryBuffer.readPosition();
         if (len > 0) {
           // whole boundary in buffer.
           // slice off the body part, and flush
@@ -522,10 +520,11 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           DataBufferUtils.release(boundaryBuffer);
           DataBuffer prev;
           while ((prev = this.queue.pollLast()) != null) {
-            int prevLen = prev.readableByteCount() + len;
+            int prevByteCount = prev.readableByteCount();
+            int prevLen = prevByteCount + len;
             if (prevLen > 0) {
               // slice body part of previous buffer, and flush it
-              DataBuffer body = prev.split(prevLen);
+              DataBuffer body = prev.split(prevLen + prev.readPosition());
               DataBufferUtils.release(prev);
               enqueue(body);
               flush();
@@ -534,7 +533,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
             else {
               // previous buffer only contains boundary bytes
               DataBufferUtils.release(prev);
-              len += prev.readableByteCount();
+              len += prevByteCount;
             }
           }
         }
