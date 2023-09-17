@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +34,7 @@ import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
+import cn.taketoday.http.client.reactive.ReactorResourceFactory;
 import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.reactive.function.client.WebClient;
@@ -51,6 +49,7 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
@@ -82,6 +81,23 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
     assertThat(this.webServer.getPort()).isEqualTo(-1);
+  }
+
+  @Test
+  void resourceFactoryAndWebServerLifecycle() {
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    factory.setPort(0);
+    ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
+    factory.setResourceFactory(resourceFactory);
+    this.webServer = factory.getWebServer(new EchoHandler());
+    assertThatNoException().isThrownBy(() -> {
+      resourceFactory.start();
+      this.webServer.start();
+      this.webServer.stop();
+      resourceFactory.stop();
+      resourceFactory.start();
+      this.webServer.start();
+    });
   }
 
   private void portMatchesRequirement(PortInUseException exception) {
@@ -203,7 +219,7 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
 
     NoPortNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout,
             Shutdown shutdown) {
-      super(httpServer, handlerAdapter, lifecycleTimeout, shutdown);
+      super(httpServer, handlerAdapter, lifecycleTimeout, shutdown, null);
     }
 
     @Override

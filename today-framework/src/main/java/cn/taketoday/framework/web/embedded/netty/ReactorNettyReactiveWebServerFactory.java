@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import java.util.Set;
 
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
@@ -42,12 +40,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
-import reactor.netty.resources.LoopResources;
 
 /**
  * {@link ReactiveWebServerFactory} that can be used to create {@link ReactorNettyWebServer}s.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebServerFactory {
@@ -79,10 +77,9 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
     return webServer;
   }
 
-  ReactorNettyWebServer createNettyWebServer(
-          HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
+  ReactorNettyWebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
           @Nullable Duration lifecycleTimeout, Shutdown shutdown) {
-    return new ReactorNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, shutdown);
+    return new ReactorNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, shutdown, resourceFactory);
   }
 
   /**
@@ -155,19 +152,11 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   private HttpServer createHttpServer() {
-    HttpServer server = HttpServer.create();
-    if (this.resourceFactory != null) {
-      LoopResources resources = this.resourceFactory.getLoopResources();
-      Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
-      server = server.runOn(resources).bindAddress(this::getListenAddress);
-    }
-    else {
-      server = server.bindAddress(this::getListenAddress);
-    }
+    HttpServer server = HttpServer.create().bindAddress(this::getListenAddress);
     if (Ssl.isEnabled(getSsl())) {
       server = customizeSslConfiguration(getSsl(), server);
     }
-    if (getCompression() != null && getCompression().isEnabled()) {
+    if (Compression.isEnabled(getCompression())) {
       CompressionCustomizer compressionCustomizer = new CompressionCustomizer(getCompression());
       server = compressionCustomizer.apply(server);
     }

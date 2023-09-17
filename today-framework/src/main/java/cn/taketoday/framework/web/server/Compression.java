@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +89,16 @@ public class Compression {
 
   public void setMinResponseSize(DataSize minSize) {
     this.minResponseSize = minSize;
+  }
+
+  /**
+   * Returns if Http2 is enabled for the given instance.
+   *
+   * @param compression the {@link Http2} instance or {@code null}
+   * @return {@code true} is Http2 is enabled
+   */
+  public static boolean isEnabled(@Nullable Compression compression) {
+    return compression != null && compression.enabled;
   }
 
 }

@@ -41,6 +41,7 @@ import java.util.Set;
 
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
@@ -243,7 +244,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
   }
 
   private Handler addHandlerWrappers(Handler handler) {
-    if (getCompression() != null && getCompression().isEnabled()) {
+    if (Compression.isEnabled(getCompression())) {
       handler = applyWrapper(handler, JettyHandlerWrappers.createGzipHandlerWrapper(getCompression()));
     }
     if (StringUtils.hasText(getServerHeader())) {

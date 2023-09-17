@@ -59,11 +59,12 @@ class SslServerCustomizer implements JettyServerCustomizer {
 
   private final InetSocketAddress address;
 
+  @Nullable
   private final ClientAuth clientAuth;
 
   private final SslBundle sslBundle;
 
-  SslServerCustomizer(@Nullable Http2 http2, InetSocketAddress address, ClientAuth clientAuth, SslBundle sslBundle) {
+  SslServerCustomizer(@Nullable Http2 http2, InetSocketAddress address, @Nullable ClientAuth clientAuth, SslBundle sslBundle) {
     this.address = address;
     this.clientAuth = clientAuth;
     this.sslBundle = sslBundle;
@@ -159,7 +160,7 @@ class SslServerCustomizer implements JettyServerCustomizer {
    * @param factory the Jetty {@link Server SslContextFactory.Server}.
    * @param clientAuth the client authentication mode
    */
-  protected void configureSsl(SslContextFactory.Server factory, ClientAuth clientAuth) {
+  protected void configureSsl(SslContextFactory.Server factory, @Nullable ClientAuth clientAuth) {
     SslBundleKey key = this.sslBundle.getKey();
     SslOptions options = this.sslBundle.getOptions();
     SslStoreBundle stores = this.sslBundle.getStores();
@@ -189,7 +190,7 @@ class SslServerCustomizer implements JettyServerCustomizer {
     }
   }
 
-  private void configureSslClientAuth(SslContextFactory.Server factory, ClientAuth clientAuth) {
+  private void configureSslClientAuth(SslContextFactory.Server factory, @Nullable ClientAuth clientAuth) {
     factory.setWantClientAuth(clientAuth == ClientAuth.WANT || clientAuth == ClientAuth.NEED);
     factory.setNeedClientAuth(clientAuth == ClientAuth.NEED);
   }

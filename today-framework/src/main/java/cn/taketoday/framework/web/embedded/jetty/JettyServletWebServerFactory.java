@@ -73,6 +73,7 @@ import java.util.Set;
 
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.framework.web.server.Compression;
 import cn.taketoday.framework.web.server.ErrorPage;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.MimeMappings;
@@ -221,7 +222,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   }
 
   private Handler addHandlerWrappers(Handler handler) {
-    if (getCompression() != null && getCompression().isEnabled()) {
+    if (Compression.isEnabled(getCompression())) {
       handler = applyWrapper(handler, JettyHandlerWrappers.createGzipHandlerWrapper(getCompression()));
     }
     if (StringUtils.hasText(getServerHeader())) {
