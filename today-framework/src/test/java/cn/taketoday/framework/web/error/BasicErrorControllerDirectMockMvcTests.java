@@ -52,10 +52,12 @@ import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import jakarta.servlet.ServletException;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link BasicErrorController} using {@link MockMvc} but not
@@ -109,9 +111,8 @@ class BasicErrorControllerDirectMockMvcTests {
   void errorPageNotAvailableWithWhitelabelDisabled() throws Exception {
     setup((ConfigurableWebApplicationContext) new Application(WebMvcIncludedConfiguration.class)
             .run("--server.port=0", "--server.error.whitelabel.enabled=false"));
-
-    this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
-            .andExpect(status().is(500));
+    assertThatExceptionOfType(ServletException.class)
+            .isThrownBy(() -> this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML)));
   }
 
   @Test
