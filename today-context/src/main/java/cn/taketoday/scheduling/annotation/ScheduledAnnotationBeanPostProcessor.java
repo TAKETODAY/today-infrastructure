@@ -447,16 +447,14 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
       }
 
       // At this point we don't need to differentiate between initial delay set or not anymore
-      if (initialDelay.isNegative()) {
-        initialDelay = Duration.ZERO;
-      }
+      Duration delayToUse = initialDelay.isNegative() ? Duration.ZERO : initialDelay;
 
       // Check fixed delay
       Duration fixedDelay = toDuration(scheduled.fixedDelay(), scheduled.timeUnit());
       if (!fixedDelay.isNegative()) {
         Assert.isTrue(!processedSchedule, errorMessage);
         processedSchedule = true;
-        tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay)));
+        tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse)));
       }
 
       String fixedDelayString = scheduled.fixedDelayString();
@@ -474,7 +472,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
             throw new IllegalArgumentException(
                     "Invalid fixedDelayString value \"" + fixedDelayString + "\" - cannot parse into long");
           }
-          tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay)));
+          tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse)));
         }
       }
 
@@ -483,7 +481,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
       if (!fixedRate.isNegative()) {
         Assert.isTrue(!processedSchedule, errorMessage);
         processedSchedule = true;
-        tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay)));
+        tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse)));
       }
       String fixedRateString = scheduled.fixedRateString();
       if (StringUtils.hasText(fixedRateString)) {
@@ -500,7 +498,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
             throw new IllegalArgumentException(
                     "Invalid fixedRateString value \"" + fixedRateString + "\" - cannot parse into long");
           }
-          tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay)));
+          tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse)));
         }
       }
 
@@ -508,7 +506,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
         if (initialDelay.isNegative()) {
           throw new IllegalArgumentException("One-time task only supported with specified initial delay");
         }
-        tasks.add(this.registrar.scheduleOneTimeTask(new OneTimeTask(runnable, initialDelay)));
+        tasks.add(this.registrar.scheduleOneTimeTask(new OneTimeTask(runnable, delayToUse)));
       }
 
       // Finally register the scheduled tasks
