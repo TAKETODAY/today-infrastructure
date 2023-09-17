@@ -88,6 +88,9 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
   @Nullable
   private List<IntervalTask> fixedDelayTasks;
 
+  @Nullable
+  private List<DelayedTask> oneTimeTasks;
+
   private final HashMap<Task, ScheduledTask> unresolvedTasks = new HashMap<>(16);
   private final LinkedHashSet<ScheduledTask> scheduledTasks = new LinkedHashSet<>(16);
 
@@ -348,13 +351,36 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
   }
 
   /**
+   * Add a Runnable task to be triggered once after the given initial delay.
+   *
+   * @see TaskScheduler#schedule(Runnable, Instant)
+   */
+  public void addOneTimeTask(Runnable task, Duration initialDelay) {
+    addOneTimeTask(new OneTimeTask(task, initialDelay));
+  }
+
+  /**
+   * Add a one-time {@link DelayedTask}.
+   *
+   * @see TaskScheduler#schedule(Runnable, Instant)
+   * @see OneTimeTask
+   */
+  public void addOneTimeTask(DelayedTask task) {
+    if (this.oneTimeTasks == null) {
+      this.oneTimeTasks = new ArrayList<>();
+    }
+    this.oneTimeTasks.add(task);
+  }
+
+  /**
    * Return whether this {@code ScheduledTaskRegistrar} has any tasks registered.
    */
   public boolean hasTasks() {
     return CollectionUtils.isNotEmpty(this.triggerTasks)
             || CollectionUtils.isNotEmpty(this.cronTasks)
             || CollectionUtils.isNotEmpty(this.fixedRateTasks)
-            || CollectionUtils.isNotEmpty(this.fixedDelayTasks);
+            || CollectionUtils.isNotEmpty(this.fixedDelayTasks)
+            || CollectionUtils.isNotEmpty(this.oneTimeTasks);
   }
 
   /**
@@ -401,6 +427,16 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
         }
         else {
           addScheduledTask(scheduleFixedDelayTask(new FixedDelayTask(task)));
+        }
+      }
+    }
+    if (this.oneTimeTasks != null) {
+      for (DelayedTask task : this.oneTimeTasks) {
+        if (task instanceof OneTimeTask oneTimeTask) {
+          addScheduledTask(scheduleOneTimeTask(oneTimeTask));
+        }
+        else {
+          addScheduledTask(scheduleOneTimeTask(new OneTimeTask(task)));
         }
       }
     }
@@ -527,6 +563,32 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
       this.unresolvedTasks.put(task, scheduledTask);
     }
     return newTask ? scheduledTask : null;
+  }
+
+  /**
+   * Schedule the specified one-time task, either right away if possible
+   * or on initialization of the scheduler.
+   *
+   * @return a handle to the scheduled task, allowing to cancel it
+   * (or {@code null} if processing a previously registered task)
+   */
+  @Nullable
+  public ScheduledTask scheduleOneTimeTask(OneTimeTask task) {
+    ScheduledTask scheduledTask = this.unresolvedTasks.remove(task);
+    boolean newTask = false;
+    if (scheduledTask == null) {
+      scheduledTask = new ScheduledTask(task);
+      newTask = true;
+    }
+    if (this.taskScheduler != null) {
+      Instant startTime = this.taskScheduler.getClock().instant().plus(task.getInitialDelayDuration());
+      scheduledTask.future = this.taskScheduler.schedule(task.getRunnable(), startTime);
+    }
+    else {
+      addOneTimeTask(task);
+      this.unresolvedTasks.put(task, scheduledTask);
+    }
+    return (newTask ? scheduledTask : null);
   }
 
   /**

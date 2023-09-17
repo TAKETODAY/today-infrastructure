@@ -67,6 +67,7 @@ import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.config.CronTask;
 import cn.taketoday.scheduling.config.FixedDelayTask;
 import cn.taketoday.scheduling.config.FixedRateTask;
+import cn.taketoday.scheduling.config.OneTimeTask;
 import cn.taketoday.scheduling.config.ScheduledTask;
 import cn.taketoday.scheduling.config.ScheduledTaskHolder;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
@@ -398,8 +399,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   private void processScheduledTask(Scheduled scheduled, Runnable runnable, Method method, Object bean) {
     try {
       boolean processedSchedule = false;
-      String errorMessage =
-              "Exactly one of the 'cron', 'fixedDelay(String)', or 'fixedRate(String)' attributes is required";
+      String errorMessage = "Exactly one of the 'cron', 'fixedDelay' or 'fixedRate' attributes is required";
 
       LinkedHashSet<ScheduledTask> tasks = new LinkedHashSet<>(4);
 
@@ -504,8 +504,12 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
         }
       }
 
-      // Check whether we had any attribute set
-      Assert.isTrue(processedSchedule, errorMessage);
+      if (!processedSchedule) {
+        if (initialDelay.isNegative()) {
+          throw new IllegalArgumentException("One-time task only supported with specified initial delay");
+        }
+        tasks.add(this.registrar.scheduleOneTimeTask(new OneTimeTask(runnable, initialDelay)));
+      }
 
       // Finally register the scheduled tasks
       synchronized(this.scheduledTasks) {
@@ -534,7 +538,13 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   }
 
   private static Duration toDuration(long value, TimeUnit timeUnit) {
-    return Duration.of(value, timeUnit.toChronoUnit());
+    try {
+      return Duration.of(value, timeUnit.toChronoUnit());
+    }
+    catch (Exception ex) {
+      throw new IllegalArgumentException(
+              "Unsupported unit " + timeUnit + " for value \"" + value + "\": " + ex.getMessage());
+    }
   }
 
   private static Duration toDuration(String value, TimeUnit timeUnit) {

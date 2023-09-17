@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,15 +27,14 @@ import cn.taketoday.lang.Assert;
  * context.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ScheduledTaskRegistrar#addFixedRateTask(IntervalTask)
  * @see ScheduledTaskRegistrar#addFixedDelayTask(IntervalTask)
  * @since 4.0
  */
-public class IntervalTask extends Task {
+public class IntervalTask extends DelayedTask {
 
   private final Duration interval;
-
-  private final Duration initialDelay;
 
   /**
    * Create a new {@code IntervalTask}.
@@ -79,23 +75,21 @@ public class IntervalTask extends Task {
    * @param initialDelay the initial delay before first execution of the task
    */
   public IntervalTask(Runnable runnable, Duration interval, Duration initialDelay) {
-    super(runnable);
+    super(runnable, initialDelay);
     Assert.notNull(interval, "Interval is required");
     Assert.notNull(initialDelay, "InitialDelay is required");
 
     this.interval = interval;
-    this.initialDelay = initialDelay;
   }
 
   /**
    * Copy constructor.
    */
   IntervalTask(IntervalTask task) {
-    super(task.getRunnable());
+    super(task);
     Assert.notNull(task, "IntervalTask is required");
 
     this.interval = task.getIntervalDuration();
-    this.initialDelay = task.getInitialDelayDuration();
   }
 
   /**
@@ -116,14 +110,7 @@ public class IntervalTask extends Task {
    * Return the initial delay before first execution of the task.
    */
   public long getInitialDelay() {
-    return this.initialDelay.toMillis();
-  }
-
-  /**
-   * Return the initial delay before first execution of the task.
-   */
-  public Duration getInitialDelayDuration() {
-    return this.initialDelay;
+    return getInitialDelayDuration().toMillis();
   }
 
 }
