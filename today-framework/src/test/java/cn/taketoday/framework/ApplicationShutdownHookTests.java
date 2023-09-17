@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -51,6 +49,7 @@ class ApplicationShutdownHookTests {
   @Test
   void shutdownHookIsNotAddedUntilContextIsRegistered() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
+    shutdownHook.enableShutdownHookAddition();
     assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isFalse();
     ConfigurableApplicationContext context = new GenericApplicationContext();
     shutdownHook.registerApplicationContext(context);
@@ -60,9 +59,21 @@ class ApplicationShutdownHookTests {
   @Test
   void shutdownHookIsNotAddedUntilHandlerIsRegistered() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
+    shutdownHook.enableShutdownHookAddition();
     assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isFalse();
     shutdownHook.handlers.add(() -> {
+    });
+    assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isTrue();
+  }
 
+  @Test
+  void shutdownHookIsNotAddedUntilAdditionIsEnabled() {
+    TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
+    shutdownHook.handlers.add(() -> {
+    });
+    assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isFalse();
+    shutdownHook.enableShutdownHookAddition();
+    shutdownHook.handlers.add(() -> {
     });
     assertThat(shutdownHook.isRuntimeShutdownHookAdded()).isTrue();
   }
@@ -110,7 +121,7 @@ class ApplicationShutdownHookTests {
   }
 
   @Test
-  void runDueToExitDuringRefreshWhenContextHasBeenClosedDoesNotDeadlock() throws InterruptedException {
+  void runDueToExitDuringRefreshWhenContextHasBeenClosedDoesNotDeadlock() {
     GenericApplicationContext context = new GenericApplicationContext();
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     shutdownHook.registerApplicationContext(context);
@@ -255,7 +266,7 @@ class ApplicationShutdownHookTests {
     }
 
     @Override
-    public StandardBeanFactory getBeanFactory() {
+    public ConfigurableBeanFactory getBeanFactory() {
       return this.beanFactory;
     }
 

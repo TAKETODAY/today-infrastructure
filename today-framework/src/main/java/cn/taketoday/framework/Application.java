@@ -322,6 +322,9 @@ public class Application {
    * @return a running {@link ApplicationContext}
    */
   public ConfigurableApplicationContext run(String... args) {
+    if (this.registerShutdownHook) {
+      Application.shutdownHook.enableShutdownHookAddition();
+    }
     long startTime = System.nanoTime();
     ApplicationArguments arguments = new ApplicationArguments(args);
     DefaultBootstrapContext bootstrapContext = createBootstrapContext();
