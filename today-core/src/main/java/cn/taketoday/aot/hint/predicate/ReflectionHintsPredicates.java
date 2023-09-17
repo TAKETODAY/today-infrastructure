@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -326,6 +323,14 @@ public class ReflectionHintsPredicates {
     }
 
     @Override
+    public boolean test(RuntimeHints runtimeHints) {
+      return (new TypeHintPredicate(TypeReference.of(this.executable.getDeclaringClass()))
+              .withAnyMemberCategory(getPublicMemberCategories())
+              .and(hints -> Modifier.isPublic(this.executable.getModifiers())))
+              .or(new TypeHintPredicate(TypeReference.of(this.executable.getDeclaringClass())).withAnyMemberCategory(getDeclaredMemberCategories()))
+              .or(exactMatch()).test(runtimeHints);
+    }
+
     MemberCategory[] getPublicMemberCategories() {
       if (this.executableMode == ExecutableMode.INTROSPECT) {
         return new MemberCategory[] { MemberCategory.INTROSPECT_PUBLIC_CONSTRUCTORS,
@@ -361,6 +366,16 @@ public class ReflectionHintsPredicates {
     }
 
     @Override
+    public boolean test(RuntimeHints runtimeHints) {
+      return (new TypeHintPredicate(TypeReference.of(this.executable.getDeclaringClass()))
+              .withAnyMemberCategory(getPublicMemberCategories())
+              .and(hints -> Modifier.isPublic(this.executable.getModifiers())))
+              .or(new TypeHintPredicate(TypeReference.of(this.executable.getDeclaringClass()))
+                      .withAnyMemberCategory(getDeclaredMemberCategories())
+                      .and(hints -> !Modifier.isPublic(this.executable.getModifiers())))
+              .or(exactMatch()).test(runtimeHints);
+    }
+
     MemberCategory[] getPublicMemberCategories() {
       if (this.executableMode == ExecutableMode.INTROSPECT) {
         return new MemberCategory[] { MemberCategory.INTROSPECT_PUBLIC_METHODS,
@@ -409,8 +424,7 @@ public class ReflectionHintsPredicates {
 
     private boolean memberCategoryMatch(TypeHint typeHint) {
       if (Modifier.isPublic(this.field.getModifiers())) {
-        return typeHint.getMemberCategories().contains(MemberCategory.PUBLIC_FIELDS) ||
-                typeHint.getMemberCategories().contains(MemberCategory.DECLARED_FIELDS);
+        return typeHint.getMemberCategories().contains(MemberCategory.PUBLIC_FIELDS);
       }
       else {
         return typeHint.getMemberCategories().contains(MemberCategory.DECLARED_FIELDS);

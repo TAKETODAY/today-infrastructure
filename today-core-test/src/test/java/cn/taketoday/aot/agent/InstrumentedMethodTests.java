@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +17,14 @@
 
 package cn.taketoday.aot.agent;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aot.hint.ExecutableMode;
 import cn.taketoday.aot.hint.MemberCategory;
@@ -411,15 +408,15 @@ class InstrumentedMethodTests {
     }
 
     @Test
-    void classGetMethodShouldMatchIntrospectDeclaredMethodsHint() {
+    void classGetMethodShouldNotMatchIntrospectDeclaredMethodsHint() {
       hints.reflection().registerType(String.class, MemberCategory.INTROSPECT_DECLARED_METHODS);
-      assertThatInvocationMatches(InstrumentedMethod.CLASS_GETMETHOD, this.stringGetToStringMethod);
+      assertThatInvocationDoesNotMatch(InstrumentedMethod.CLASS_GETMETHOD, this.stringGetToStringMethod);
     }
 
     @Test
-    void classGetMethodShouldMatchInvokeDeclaredMethodsHint() {
+    void classGetMethodShouldNotMatchInvokeDeclaredMethodsHint() {
       hints.reflection().registerType(String.class, MemberCategory.INVOKE_DECLARED_METHODS);
-      assertThatInvocationMatches(InstrumentedMethod.CLASS_GETMETHOD, this.stringGetToStringMethod);
+      assertThatInvocationDoesNotMatch(InstrumentedMethod.CLASS_GETMETHOD, this.stringGetToStringMethod);
     }
 
     @Test
@@ -547,9 +544,9 @@ class InstrumentedMethodTests {
     }
 
     @Test
-    void classGetFieldShouldMatchDeclaredFieldsHint() {
+    void classGetFieldShouldNotMatchDeclaredFieldsHint() {
       hints.reflection().registerType(PublicField.class, MemberCategory.DECLARED_FIELDS);
-      assertThatInvocationMatches(InstrumentedMethod.CLASS_GETFIELD, this.getPublicField);
+      assertThatInvocationDoesNotMatch(InstrumentedMethod.CLASS_GETFIELD, this.getPublicField);
     }
 
     @Test
