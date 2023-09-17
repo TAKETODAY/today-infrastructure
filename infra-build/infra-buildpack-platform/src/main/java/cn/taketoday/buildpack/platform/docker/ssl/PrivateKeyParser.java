@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -48,24 +48,24 @@ import cn.taketoday.lang.Assert;
  */
 final class PrivateKeyParser {
 
-  private static final String PKCS1_HEADER = "-+BEGIN\\s+RSA\\s+PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+";
+  private static final String PKCS1_RSA_HEADER = "-+BEGIN\\s+RSA\\s+PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+";
 
-  private static final String PKCS1_FOOTER = "-+END\\s+RSA\\s+PRIVATE\\s+KEY[^-]*-+";
+  private static final String PKCS1_RSA_FOOTER = "-+END\\s+RSA\\s+PRIVATE\\s+KEY[^-]*-+";
 
   private static final String PKCS8_HEADER = "-+BEGIN\\s+PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+";
 
   private static final String PKCS8_FOOTER = "-+END\\s+PRIVATE\\s+KEY[^-]*-+";
 
-  private static final String EC_HEADER = "-+BEGIN\\s+EC\\s+PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+";
+  private static final String SEC1_EC_HEADER = "-+BEGIN\\s+EC\\s+PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+";
 
-  private static final String EC_FOOTER = "-+END\\s+EC\\s+PRIVATE\\s+KEY[^-]*-+";
+  private static final String SEC1_EC_FOOTER = "-+END\\s+EC\\s+PRIVATE\\s+KEY[^-]*-+";
 
   private static final String BASE64_TEXT = "([a-z0-9+/=\\r\\n]+)";
 
   private static final List<PemParser> PEM_PARSERS = List.of(
-          new PemParser(PKCS1_HEADER, PKCS1_FOOTER, PrivateKeyParser::createKeySpecForPkcs1, "RSA"),
-          new PemParser(EC_HEADER, EC_FOOTER, PrivateKeyParser::createKeySpecForEc, "EC"),
-          new PemParser(PKCS8_HEADER, PKCS8_FOOTER, PKCS8EncodedKeySpec::new, "RSA", "EC", "DSA", "Ed25519")
+          new PemParser(PKCS1_RSA_HEADER, PKCS1_RSA_FOOTER, PrivateKeyParser::createKeySpecForPkcs1Rsa, "RSA"),
+          new PemParser(SEC1_EC_HEADER, SEC1_EC_FOOTER, PrivateKeyParser::createKeySpecForSec1Ec, "EC"),
+          new PemParser(PKCS8_HEADER, PKCS8_FOOTER, PKCS8EncodedKeySpec::new, "RSA", "RSASSA-PSS", "EC", "DSA", "EdDSA", "XDH")
   );
 
   /**
@@ -86,11 +86,11 @@ final class PrivateKeyParser {
   private PrivateKeyParser() {
   }
 
-  private static PKCS8EncodedKeySpec createKeySpecForPkcs1(byte[] bytes) {
+  private static PKCS8EncodedKeySpec createKeySpecForPkcs1Rsa(byte[] bytes) {
     return createKeySpecForAlgorithm(bytes, RSA_ALGORITHM, null);
   }
 
-  private static PKCS8EncodedKeySpec createKeySpecForEc(byte[] bytes) {
+  private static PKCS8EncodedKeySpec createKeySpecForSec1Ec(byte[] bytes) {
     DerElement ecPrivateKey = DerElement.of(bytes);
     Assert.state(ecPrivateKey.isType(ValueType.ENCODED, TagType.SEQUENCE),
             "Key spec should be an ASN.1 encoded sequence");
@@ -193,21 +193,17 @@ final class PrivateKeyParser {
     }
 
     private PrivateKey parse(byte[] bytes) {
-      try {
-        PKCS8EncodedKeySpec keySpec = this.keySpecFactory.apply(bytes);
-        for (String algorithm : this.algorithms) {
+      PKCS8EncodedKeySpec keySpec = this.keySpecFactory.apply(bytes);
+      for (String algorithm : this.algorithms) {
+        try {
           KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
-          try {
-            return keyFactory.generatePrivate(keySpec);
-          }
-          catch (InvalidKeySpecException ex) {
-          }
+          return keyFactory.generatePrivate(keySpec);
         }
-        return null;
+        catch (InvalidKeySpecException | NoSuchAlgorithmException ignored) {
+
+        }
       }
-      catch (GeneralSecurityException ex) {
-        throw new IllegalArgumentException("Unexpected key format", ex);
-      }
+      return null;
     }
 
   }
@@ -357,8 +353,7 @@ final class PrivateKeyParser {
     }
 
     static DerElement of(ByteBuffer bytes) {
-      Assert.isTrue(bytes.remaining() > 0, "bytes.remaining() must > 0");
-      return new DerElement(bytes);
+      return (bytes.remaining() > 0) ? new DerElement(bytes) : null;
     }
 
     enum ValueType {
