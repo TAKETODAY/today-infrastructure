@@ -144,7 +144,6 @@ public @interface Scheduled {
    * @return the delay as a String value &mdash; for example, a placeholder
    * or a {@link java.time.Duration#parse java.time.Duration} compliant value
    * @see #fixedDelay()
-   * @since 3.2.2
    */
   String fixedDelayString() default "";
 
