@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelNode;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -36,11 +34,11 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Andy Clement
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class InlineMap extends SpelNodeImpl {
 
-  // If the map is purely literals, it is a constant value and can be computed and cached
   @Nullable
   private final TypedValue constant;
 
@@ -70,27 +68,34 @@ public class InlineMap extends SpelNodeImpl {
           }
         }
         else if (!(c % 2 == 0 && child instanceof PropertyOrFieldReference)) {
-          return null;
+          if (!(child instanceof OpMinus opMinus) || !opMinus.isNegativeNumberLiteral()) {
+            return null;
+          }
         }
       }
     }
 
     Map<Object, Object> constantMap = new LinkedHashMap<>();
     int childCount = getChildCount();
+    ExpressionState expressionState = new ExpressionState(new StandardEvaluationContext());
     for (int c = 0; c < childCount; c++) {
       SpelNode keyChild = getChild(c++);
-      SpelNode valueChild = getChild(c);
       Object key;
-      Object value = null;
       if (keyChild instanceof Literal literal) {
         key = literal.getLiteralValue().getValue();
       }
       else if (keyChild instanceof PropertyOrFieldReference propertyOrFieldReference) {
         key = propertyOrFieldReference.getName();
       }
+      else if (keyChild instanceof OpMinus) {
+        key = keyChild.getValue(expressionState);
+      }
       else {
         return null;
       }
+
+      SpelNode valueChild = getChild(c);
+      Object value = null;
       if (valueChild instanceof Literal literal) {
         value = literal.getLiteralValue().getValue();
       }
@@ -99,6 +104,9 @@ public class InlineMap extends SpelNodeImpl {
       }
       else if (valueChild instanceof InlineMap inlineMap) {
         value = inlineMap.getConstantValue();
+      }
+      else if (valueChild instanceof OpMinus) {
+        value = valueChild.getValue(expressionState);
       }
       constantMap.put(key, value);
     }

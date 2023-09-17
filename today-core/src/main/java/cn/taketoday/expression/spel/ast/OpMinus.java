@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +21,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.Operation;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.NumberUtils;
@@ -48,12 +45,25 @@ import cn.taketoday.util.NumberUtils;
  * @author Juergen Hoeller
  * @author Giovanni Dall'Oglio Risso
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class OpMinus extends Operator {
 
   public OpMinus(int startPos, int endPos, SpelNodeImpl... operands) {
     super("-", startPos, endPos, operands);
+  }
+
+  /**
+   * Determine if this operator is a unary minus and its child is a
+   * {@linkplain Literal#isNumberLiteral() number literal}.
+   *
+   * @return {@code true} if it is a negative number literal
+   */
+  public boolean isNegativeNumberLiteral() {
+    return this.children.length == 1
+            && this.children[0] instanceof Literal literal
+            && literal.isNumberLiteral();
   }
 
   @Override

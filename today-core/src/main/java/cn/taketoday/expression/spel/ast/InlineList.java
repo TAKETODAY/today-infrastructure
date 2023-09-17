@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelNode;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -44,9 +42,8 @@ import cn.taketoday.lang.Nullable;
  */
 public class InlineList extends SpelNodeImpl {
 
-  // If the list is purely literals, it is a constant value and can be computed and cached
   @Nullable
-  private final TypedValue constant;  // TODO must be immutable list
+  private final TypedValue constant;
 
   public InlineList(int startPos, int endPos, SpelNodeImpl... args) {
     super(startPos, endPos, args);
@@ -70,19 +67,25 @@ public class InlineList extends SpelNodeImpl {
             return null;
           }
         }
-        else {
+        else if (!(child instanceof OpMinus opMinus) || !opMinus.isNegativeNumberLiteral()) {
           return null;
         }
       }
     }
 
     ArrayList<Object> constantList = new ArrayList<>();
-    for (SpelNodeImpl child : children) {
+    int childcount = getChildCount();
+    ExpressionState expressionState = new ExpressionState(new StandardEvaluationContext());
+    for (int c = 0; c < childcount; c++) {
+      SpelNode child = getChild(c);
       if (child instanceof Literal literal) {
         constantList.add(literal.getLiteralValue().getValue());
       }
       else if (child instanceof InlineList inlineList) {
         constantList.add(inlineList.getConstantValue());
+      }
+      else if (child instanceof OpMinus) {
+        constantList.add(child.getValue(expressionState));
       }
     }
     return new TypedValue(Collections.unmodifiableList(constantList));
