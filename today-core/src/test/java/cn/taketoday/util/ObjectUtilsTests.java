@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -931,6 +932,16 @@ class ObjectUtilsTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ObjectUtils.caseInsensitiveValueOf(Tropes.values(), "bogus"))
             .withMessage("Constant [bogus] does not exist in enum type cn.taketoday.util.ObjectUtilsTests$Tropes");
+  }
+
+  @Test
+  void nullSafeHashWithNull() {
+    assertThat(ObjectUtils.nullSafeHash((Object[]) null)).isEqualTo(0);
+  }
+
+  @Test
+  void nullSafeHashWithIntermediateNullElements() {
+    assertThat(ObjectUtils.nullSafeHash(3, null, 5)).isEqualTo(Objects.hash(3, null, 5));
   }
 
   @Nested

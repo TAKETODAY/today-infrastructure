@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +27,6 @@ import java.util.Objects;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Extension of {@link UriComponents} for opaque URIs.
@@ -172,10 +168,7 @@ final class OpaqueUriComponents extends UriComponents {
 
   @Override
   public int hashCode() {
-    int result = ObjectUtils.nullSafeHashCode(getScheme());
-    result = 31 * result + ObjectUtils.nullSafeHashCode(this.ssp);
-    result = 31 * result + ObjectUtils.nullSafeHashCode(getFragment());
-    return result;
+    return Objects.hash(getScheme(), this.ssp, getFragment());
   }
 
 }

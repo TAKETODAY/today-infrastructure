@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -589,14 +586,8 @@ final class HierarchicalUriComponents extends UriComponents {
 
   @Override
   public int hashCode() {
-    int result = ObjectUtils.nullSafeHashCode(getScheme());
-    result = 31 * result + ObjectUtils.nullSafeHashCode(this.userInfo);
-    result = 31 * result + ObjectUtils.nullSafeHashCode(this.host);
-    result = 31 * result + ObjectUtils.nullSafeHashCode(this.port);
-    result = 31 * result + this.path.hashCode();
-    result = 31 * result + this.queryParams.hashCode();
-    result = 31 * result + ObjectUtils.nullSafeHashCode(getFragment());
-    return result;
+    return Objects.hash(getScheme(), this.userInfo, this.host, this.port,
+            this.path, this.queryParams, getFragment());
   }
 
 // Nested types

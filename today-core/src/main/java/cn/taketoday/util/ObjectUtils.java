@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.TimeZone;
@@ -517,6 +518,27 @@ public abstract class ObjectUtils {
       return Arrays.equals((short[]) o1, (short[]) o2);
     }
     return false;
+  }
+
+  /**
+   * Return a hash code for the given elements, delegating to
+   * {@link #nullSafeHashCode(Object)} for each element. Contrary
+   * to {@link Objects#hash(Object...)}, this method can handle an
+   * element that is an array.
+   *
+   * @param elements the elements to be hashed
+   * @return a hash value of the elements
+   * @since 4.0
+   */
+  public static int nullSafeHash(@Nullable Object... elements) {
+    if (elements == null) {
+      return 0;
+    }
+    int result = 1;
+    for (Object element : elements) {
+      result = 31 * result + nullSafeHashCode(element);
+    }
+    return result;
   }
 
   /**
