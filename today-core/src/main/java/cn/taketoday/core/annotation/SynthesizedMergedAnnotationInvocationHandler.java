@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 
@@ -133,42 +129,9 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     int hashCode = 0;
     for (Method attribute : attributeMethods.attributes) {
       Object value = getAttributeValue(attribute, false);
-      hashCode += (127 * attribute.getName().hashCode()) ^ getValueHashCode(value);
+      hashCode += (127 * attribute.getName().hashCode()) ^ ObjectUtils.nullSafeHashCode(value);
     }
     return hashCode;
-  }
-
-  private int getValueHashCode(Object value) {
-    // Use Arrays.hashCode(...) since ObjectUtils doesn't comply
-    // with the requirements specified in Annotation#hashCode().
-    if (value instanceof boolean[]) {
-      return Arrays.hashCode((boolean[]) value);
-    }
-    if (value instanceof byte[]) {
-      return Arrays.hashCode((byte[]) value);
-    }
-    if (value instanceof char[]) {
-      return Arrays.hashCode((char[]) value);
-    }
-    if (value instanceof double[]) {
-      return Arrays.hashCode((double[]) value);
-    }
-    if (value instanceof float[]) {
-      return Arrays.hashCode((float[]) value);
-    }
-    if (value instanceof int[]) {
-      return Arrays.hashCode((int[]) value);
-    }
-    if (value instanceof long[]) {
-      return Arrays.hashCode((long[]) value);
-    }
-    if (value instanceof short[]) {
-      return Arrays.hashCode((short[]) value);
-    }
-    if (value instanceof Object[]) {
-      return Arrays.hashCode((Object[]) value);
-    }
-    return value.hashCode();
   }
 
   private String annotationToString() {
