@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +18,17 @@
 package cn.taketoday.mail.javamail;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
-import cn.taketoday.mail.MailException;
-import cn.taketoday.mail.MailSender;
 import cn.taketoday.mail.MailAuthenticationException;
+import cn.taketoday.mail.MailException;
 import cn.taketoday.mail.MailParseException;
 import cn.taketoday.mail.MailPreparationException;
 import cn.taketoday.mail.MailSendException;
+import cn.taketoday.mail.MailSender;
 import cn.taketoday.mail.SimpleMailMessage;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 /**
@@ -101,7 +101,9 @@ public interface JavaMailSender extends MailSender {
    * @throws MailSendException in case of failure when sending the message
    * @see #createMimeMessage
    */
-  void send(MimeMessage mimeMessage) throws MailException;
+  default void send(MimeMessage mimeMessage) throws MailException {
+    send(new MimeMessage[] { mimeMessage });
+  }
 
   /**
    * Send the given array of JavaMail MIME messages in batch.
@@ -126,7 +128,9 @@ public interface JavaMailSender extends MailSender {
    * @throws MailAuthenticationException in case of authentication failure
    * @throws MailSendException in case of failure when sending the message
    */
-  void send(MimeMessagePreparator mimeMessagePreparator) throws MailException;
+  default void send(MimeMessagePreparator mimeMessagePreparator) throws MailException {
+    send(new MimeMessagePreparator[] { mimeMessagePreparator });
+  }
 
   /**
    * Send the JavaMail MIME messages prepared by the given MimeMessagePreparators.
@@ -140,6 +144,25 @@ public interface JavaMailSender extends MailSender {
    * @throws MailAuthenticationException in case of authentication failure
    * @throws MailSendException in case of failure when sending a message
    */
-  void send(MimeMessagePreparator... mimeMessagePreparators) throws MailException;
+  default void send(MimeMessagePreparator... mimeMessagePreparators) throws MailException {
+    try {
+      List<MimeMessage> mimeMessages = new ArrayList<>(mimeMessagePreparators.length);
+      for (MimeMessagePreparator preparator : mimeMessagePreparators) {
+        MimeMessage mimeMessage = createMimeMessage();
+        preparator.prepare(mimeMessage);
+        mimeMessages.add(mimeMessage);
+      }
+      send(mimeMessages.toArray(new MimeMessage[0]));
+    }
+    catch (MailException ex) {
+      throw ex;
+    }
+    catch (MessagingException ex) {
+      throw new MailParseException(ex);
+    }
+    catch (Exception ex) {
+      throw new MailPreparationException(ex);
+    }
+  }
 
 }

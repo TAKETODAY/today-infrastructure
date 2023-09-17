@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,15 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.mail.MailAuthenticationException;
 import cn.taketoday.mail.MailException;
 import cn.taketoday.mail.MailParseException;
-import cn.taketoday.mail.MailPreparationException;
 import cn.taketoday.mail.MailSendException;
-import cn.taketoday.mail.SimpleMailMessage;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.mail.MailSender;
+import cn.taketoday.mail.SimpleMailMessage;
 import jakarta.activation.FileTypeMap;
 import jakarta.mail.Address;
 import jakarta.mail.AuthenticationFailedException;
@@ -134,10 +130,10 @@ public class JavaMailSenderImpl implements JavaMailSender {
   }
 
   /**
-   * Allow Map access to the JavaMail properties of this sender,
+   * Allow {@code Map} access to the JavaMail properties of this sender,
    * with the option to add or override specific entries.
    * <p>Useful for specifying entries directly, for example via
-   * "javaMailProperties[mail.smtp.auth]".
+   * {@code javaMailProperties[mail.smtp.auth]}.
    */
   public Properties getJavaMailProperties() {
     return this.javaMailProperties;
@@ -159,7 +155,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
 
   /**
    * Return the JavaMail {@code Session},
-   * lazily initializing it if hasn't been specified explicitly.
+   * lazily initializing it if it hasn't been specified explicitly.
    */
   public synchronized Session getSession() {
     if (this.session == null) {
@@ -287,11 +283,11 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * <p>A {@code FileTypeMap} specified here will be autodetected by
    * {@link MimeMessageHelper}, avoiding the need to specify the
    * {@code FileTypeMap} for each {@code MimeMessageHelper} instance.
-   * <p>For example, you can specify a custom instance of Framework's
+   * <p>For example, you can specify a custom instance of Spring's
    * {@link ConfigurableMimeFileTypeMap} here. If not explicitly specified,
    * a default {@code ConfigurableMimeFileTypeMap} will be used, containing
    * an extended set of MIME type mappings (as defined by the
-   * {@code mime.types} file contained in the Framework jar).
+   * {@code mime.types} file contained in the Spring jar).
    *
    * @see MimeMessageHelper#setFileTypeMap
    */
@@ -311,11 +307,6 @@ public class JavaMailSenderImpl implements JavaMailSender {
   //---------------------------------------------------------------------
   // Implementation of MailSender
   //---------------------------------------------------------------------
-
-  @Override
-  public void send(SimpleMailMessage simpleMessage) throws MailException {
-    send(new SimpleMailMessage[] { simpleMessage });
-  }
 
   @Override
   public void send(SimpleMailMessage... simpleMessages) throws MailException {
@@ -357,40 +348,8 @@ public class JavaMailSenderImpl implements JavaMailSender {
   }
 
   @Override
-  public void send(MimeMessage mimeMessage) throws MailException {
-    send(new MimeMessage[] { mimeMessage });
-  }
-
-  @Override
   public void send(MimeMessage... mimeMessages) throws MailException {
     doSend(mimeMessages, null);
-  }
-
-  @Override
-  public void send(MimeMessagePreparator mimeMessagePreparator) throws MailException {
-    send(new MimeMessagePreparator[] { mimeMessagePreparator });
-  }
-
-  @Override
-  public void send(MimeMessagePreparator... mimeMessagePreparators) throws MailException {
-    try {
-      List<MimeMessage> mimeMessages = new ArrayList<>(mimeMessagePreparators.length);
-      for (MimeMessagePreparator preparator : mimeMessagePreparators) {
-        MimeMessage mimeMessage = createMimeMessage();
-        preparator.prepare(mimeMessage);
-        mimeMessages.add(mimeMessage);
-      }
-      send(mimeMessages.toArray(new MimeMessage[0]));
-    }
-    catch (MailException ex) {
-      throw ex;
-    }
-    catch (MessagingException ex) {
-      throw new MailParseException(ex);
-    }
-    catch (Exception ex) {
-      throw new MailPreparationException(ex);
-    }
   }
 
   /**
@@ -398,14 +357,8 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * for. Throws a {@link MessagingException} if the connection attempt failed.
    */
   public void testConnection() throws MessagingException {
-    Transport transport = null;
-    try {
-      transport = connectTransport();
-    }
-    finally {
-      if (transport != null) {
-        transport.close();
-      }
+    try (Transport transport = connectTransport()) {
+
     }
   }
 
@@ -507,7 +460,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * @see #getPort()
    * @see #getUsername()
    * @see #getPassword()
-   * @since 4.0
+   * @since 4.1.2
    */
   protected Transport connectTransport() throws MessagingException {
     String username = getUsername();
@@ -529,7 +482,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * using the configured protocol.
    * <p>Can be overridden in subclasses, e.g. to return a mock Transport object.
    *
-   * @see Session#getTransport(String)
+   * @see jakarta.mail.Session#getTransport(String)
    * @see #getSession()
    * @see #getProtocol()
    */
