@@ -17,6 +17,7 @@
 package cn.taketoday.core.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReader;
@@ -710,7 +711,21 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
       if (rootPath == null) {
         // Resource.getFile() resolution as a fallback -
         // for custom URI formats and custom Resource implementations
-        rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
+        try {
+          rootPath = Path.of(rootDirResource.getFile().getAbsolutePath());
+        }
+        catch (FileNotFoundException ex) {
+          if (log.isDebugEnabled()) {
+            log.debug("Cannot search for matching files underneath {} in the file system: {}", rootDirResource, ex.getMessage());
+          }
+          return;
+        }
+        catch (Exception ex) {
+          if (log.isInfoEnabled()) {
+            log.info("Failed to resolve {} in the file system: {}", rootDirResource, ex.toString());
+          }
+          return;
+        }
       }
 
       if (!Files.exists(rootPath)) {
