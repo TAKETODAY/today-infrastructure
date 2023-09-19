@@ -261,8 +261,8 @@ class CglibAopProxy implements AopProxy, Serializable {
         int mod = method.getModifiers();
         if (!Modifier.isStatic(mod) && !Modifier.isPrivate(mod)) {
           if (Modifier.isFinal(mod)) {
-            if (log.isInfoEnabled() && implementsInterface(method, ifcs)) {
-              log.info("Unable to proxy interface-implementing method [{}] because " +
+            if (log.isWarnEnabled() && implementsInterface(method, ifcs)) {
+              log.warn("Unable to proxy interface-implementing method [{}] because " +
                       "it is marked as final: Consider using interface-based JDK proxies instead!", method);
             }
             if (log.isDebugEnabled()) {
