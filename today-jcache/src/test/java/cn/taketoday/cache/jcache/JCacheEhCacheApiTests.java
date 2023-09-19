@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.cache.jcache;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -29,8 +27,9 @@ import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
 
-import cn.taketoday.context.testfixture.cache.AbstractCacheTests;
 import cn.taketoday.context.testfixture.cache.AbstractValueAdaptingCacheTests;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Stephane Nicoll
@@ -48,12 +47,12 @@ public class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCach
   @BeforeEach
   public void setup() {
     this.cacheManager = getCachingProvider().getCacheManager();
-    this.cacheManager.createCache(AbstractCacheTests.CACHE_NAME, new MutableConfiguration<>());
-    this.cacheManager.createCache(AbstractValueAdaptingCacheTests.CACHE_NAME_NO_NULL, new MutableConfiguration<>());
-    this.nativeCache = this.cacheManager.getCache(AbstractCacheTests.CACHE_NAME);
+    this.cacheManager.createCache(CACHE_NAME, new MutableConfiguration<>());
+    this.cacheManager.createCache(CACHE_NAME_NO_NULL, new MutableConfiguration<>());
+    this.nativeCache = this.cacheManager.getCache(CACHE_NAME);
     this.cache = new JCacheCache(this.nativeCache);
     Cache<Object, Object> nativeCacheNoNull =
-            this.cacheManager.getCache(AbstractValueAdaptingCacheTests.CACHE_NAME_NO_NULL);
+            this.cacheManager.getCache(CACHE_NAME_NO_NULL);
     this.cacheNoNull = new JCacheCache(nativeCacheNoNull, false);
   }
 
@@ -75,12 +74,30 @@ public class JCacheEhCacheApiTests extends AbstractValueAdaptingCacheTests<JCach
 
   @Override
   protected JCacheCache getCache(boolean allowNull) {
-    return allowNull ? this.cache : this.cacheNoNull;
+    return (allowNull ? this.cache : this.cacheNoNull);
   }
 
   @Override
   protected Object getNativeCache() {
     return this.nativeCache;
+  }
+
+  @Test
+  void testPutIfAbsentNullValue() {
+    JCacheCache cache = getCache(true);
+
+    String key = createRandomKey();
+    String value = null;
+
+    assertThat(cache.get(key)).isNull();
+    assertThat(cache.putIfAbsent(key, value)).isNull();
+    assertThat(cache.get(key).get()).isEqualTo(value);
+    cn.taketoday.cache.Cache.ValueWrapper wrapper = cache.putIfAbsent(key, "anotherValue");
+    // A value is set but is 'null'
+    assertThat(wrapper).isNotNull();
+    assertThat(wrapper.get()).isNull();
+    // not changed
+    assertThat(cache.get(key).get()).isEqualTo(value);
   }
 
 }
