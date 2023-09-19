@@ -20,6 +20,7 @@ package cn.taketoday.context.support;
 import org.crac.CheckpointException;
 import org.crac.Core;
 import org.crac.RestoreException;
+import org.crac.management.CRaCMXBean;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactoryAware {
@@ -545,8 +547,11 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       // Barrier for prevent-shutdown thread not needed anymore
       this.barrier = null;
 
-      Duration timeTakenToRestart = Duration.ofNanos(System.nanoTime() - restartTime);
-      log.info("Infra-managed lifecycle restart completed in {} ms", timeTakenToRestart.toMillis());
+      long timeTakenToRestart = Duration.ofNanos(System.nanoTime() - restartTime).toMillis();
+      long timeTakenToRestoreJvm = CRaCMXBean.getCRaCMXBean().getUptimeSinceRestore();
+
+      log.info("Infra-managed lifecycle restart completed in {} ms (restored JVM running for {} ms)",
+              timeTakenToRestart, timeTakenToRestoreJvm);
     }
 
     private void awaitPreventShutdownBarrier() {
