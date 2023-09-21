@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -31,16 +29,19 @@ import cn.taketoday.lang.Constant;
 /**
  * Specifies the mapped column for a persistent property or field.
  * If no <code>Column</code> annotation is specified, the default values apply.
- * <pre>
+ * <pre> {@code
  *    Example 1:
  *
- *    &#064;Column(name="DESC")
- *    public String getDescription() { return description; }
+ *    @Column(name = "DESC")
+ *    public String getDescription() {
+ *      return description;
+ *    }
  *
- * </pre>
+ * }</pre>
  *
  * @author TODAY 2021/1/27 22:32
  */
+@Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD })
 public @interface Column {
