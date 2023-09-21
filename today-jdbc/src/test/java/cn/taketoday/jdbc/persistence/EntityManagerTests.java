@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.TestInstance;
 
 import java.lang.annotation.ElementType;
@@ -55,7 +51,6 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
-    // language=MySQL
     try (NamedQuery query = repositoryManager.createNamedQuery("""
             drop table if exists t_user;
             create table t_user
@@ -99,20 +94,19 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     entityManager.persist(userModel, true);
 
-    Assertions.assertThat(userModel.id).isNotNull();
+    assertThat(userModel.id).isNotNull();
 
-    // language=MySQL
     try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user where id=:id")) {
       query.addParameter("id", userModel.id);
       query.setAutoDerivingColumns(true);
 
       List<UserModel> userModels = query.fetch(UserModel.class);
-      Assertions.assertThat(userModels).hasSize(1);
+      assertThat(userModels).hasSize(1);
       UserModel userModelInDB = CollectionUtils.firstElement(userModels);
-      Assertions.assertThat(userModelInDB).isNotNull();
-      Assertions.assertThat(userModelInDB.age).isEqualTo(userModel.age);
-      Assertions.assertThat(userModelInDB.name).isEqualTo(userModel.name);
-      Assertions.assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
+      assertThat(userModelInDB).isNotNull();
+      assertThat(userModelInDB.age).isEqualTo(userModel.age);
+      assertThat(userModelInDB.name).isEqualTo(userModel.name);
+      assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
     }
   }
 
@@ -132,18 +126,17 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     entityManager.persist(entities);
 
-    // language=MySQL
     try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user")) {
       query.setAutoDerivingColumns(true);
 
       List<UserModel> userModels = query.fetch(UserModel.class);
-      Assertions.assertThat(userModels).hasSize(11).isEqualTo(entities);
+      assertThat(userModels).hasSize(11).isEqualTo(entities);
 
       UserModel userModelInDB = CollectionUtils.firstElement(userModels);
-      Assertions.assertThat(userModelInDB).isNotNull();
-      Assertions.assertThat(userModelInDB.age).isEqualTo(userModel.age);
-      Assertions.assertThat(userModelInDB.name).isEqualTo(userModel.name);
-      Assertions.assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
+      assertThat(userModelInDB).isNotNull();
+      assertThat(userModelInDB.age).isEqualTo(userModel.age);
+      assertThat(userModelInDB.name).isEqualTo(userModel.name);
+      assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
     }
 
   }
@@ -207,7 +200,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     list = entityManager.find(UserModel.class, userForm);
     System.out.println(list);
 
-    Assertions.assertThat(list).hasSize(entities.size()).isEqualTo(entities);
+    assertThat(list).hasSize(entities.size()).isEqualTo(entities);
 
     entityManager.iterate(UserModel.class, userForm, System.out::println);
   }
@@ -232,12 +225,12 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     createData(entityManager);
 
     UserModel byId = entityManager.findById(UserModel.class, 1);
-    Assertions.assertThat(byId).isNotNull().extracting("id").isEqualTo(1);
+    assertThat(byId).isNotNull().extracting("id").isEqualTo(1);
 
     entityManager.delete(UserModel.class, 1);
 
     byId = entityManager.findById(UserModel.class, 1);
-    Assertions.assertThat(byId).isNull();
+    assertThat(byId).isNull();
   }
 
   @ParameterizedRepositoryManagerTest
@@ -246,19 +239,19 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     createData(entityManager);
 
     UserModel byId = entityManager.findById(UserModel.class, 1);
-    Assertions.assertThat(byId).isNotNull().extracting("id").isEqualTo(1);
+    assertThat(byId).isNotNull().extracting("id").isEqualTo(1);
 
     UserModel userModel = UserModel.forId(1);
     entityManager.delete(userModel);
 
     byId = entityManager.findById(UserModel.class, 1);
-    Assertions.assertThat(byId).isNull();
+    assertThat(byId).isNull();
 
     for (int i = 1; i <= 10; i++) {
       byId = entityManager.findById(UserModel.class, i + 1);
       UserModel today = UserModel.male("TODAY", 10 + i - 1);
       today.id = i + 1;
-      Assertions.assertThat(byId).isEqualTo(today);
+      assertThat(byId).isEqualTo(today);
     }
 
     //
@@ -295,11 +288,11 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
             isNotNull("name")
                     .and(nested(isEqualsTo("age", 9))));
 
-    Assertions.assertThat(unique).isNotNull()
+    assertThat(unique).isNotNull()
             .extracting("id").isEqualTo(1);
 
-    Assertions.assertThat(unique).extracting("name").isEqualTo("TODAY");
-    Assertions.assertThat(unique).extracting("age").isEqualTo(9);
+    assertThat(unique).extracting("name").isEqualTo("TODAY");
+    assertThat(unique).extracting("age").isEqualTo(9);
 
     int deleteRows = entityManager.delete(unique);
     assertThat(deleteRows).isEqualTo(1);
@@ -308,7 +301,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     unique = entityManager.findUnique(UserModel.class,
             isNotNull("name")
                     .and(nested(isEqualsTo("age", 9))));
-    Assertions.assertThat(unique).isNull();
+    assertThat(unique).isNull();
   }
 
   @ParameterizedRepositoryManagerTest
@@ -322,8 +315,8 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     entityManager.updateBy(userModel, "id");
 
     UserModel model = entityManager.findById(UserModel.class, 1);
-    Assertions.assertThat(model).isNotNull();
-    Assertions.assertThat(model.getName()).isEqualTo(name);
+    assertThat(model).isNotNull();
+    assertThat(model.getName()).isEqualTo(name);
 
     // throw
 

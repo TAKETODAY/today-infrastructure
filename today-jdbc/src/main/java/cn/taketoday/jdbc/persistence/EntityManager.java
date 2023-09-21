@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +50,8 @@ public interface EntityManager {
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException;
+  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * persist an entity to underlying repository
@@ -77,7 +75,8 @@ public interface EntityManager {
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException;
+  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+          throws DataAccessException;
 
   /**
    * persist entities to underlying repository
@@ -94,7 +93,8 @@ public interface EntityManager {
    * @param entities entities instances
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException;
+  void persist(Iterable<?> entities, boolean returnGeneratedKeys)
+          throws DataAccessException;
 
   /**
    * persist entities to underlying repository
@@ -103,7 +103,8 @@ public interface EntityManager {
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException;
+  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * persist entities to underlying repository
@@ -114,8 +115,8 @@ public interface EntityManager {
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Iterable<?> entities,
-          @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException;
+  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+          throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -131,7 +132,7 @@ public interface EntityManager {
    * @param entity entity instance
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void updateById(Object entity, PropertyUpdateStrategy strategy);
+  void updateById(Object entity, @Nullable PropertyUpdateStrategy strategy);
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -149,7 +150,7 @@ public interface EntityManager {
    * @param where columnName or property name
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void updateBy(Object entity, String where, PropertyUpdateStrategy strategy);
+  void updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy);
 
   /**
    * Delete an entity.

@@ -55,6 +55,8 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
+ * Default EntityManager implementation
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/10 22:28
  */
@@ -74,10 +76,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
    */
   private boolean returnGeneratedKeys = true;
 
+  private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
+
   public DefaultEntityManager(RepositoryManager repositoryManager) {
-    this.repositoryManager = repositoryManager;
     setDataSource(repositoryManager.getDataSource());
     setExceptionTranslator(repositoryManager.getExceptionTranslator());
+    this.repositoryManager = repositoryManager;
+  }
+
+  public void setDefaultUpdateStrategy(PropertyUpdateStrategy defaultUpdateStrategy) {
+    Assert.notNull(defaultUpdateStrategy, "defaultUpdateStrategy is required");
+    this.defaultUpdateStrategy = defaultUpdateStrategy;
   }
 
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
@@ -154,12 +163,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void persist(Object entity) throws DataAccessException {
-    persist(entity, PropertyUpdateStrategy.always(), returnGeneratedKeys);
+    persist(entity, defaultUpdateStrategy(), returnGeneratedKeys);
   }
 
   @Override
   public void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(entity, PropertyUpdateStrategy.always(), returnGeneratedKeys);
+    persist(entity, defaultUpdateStrategy(), returnGeneratedKeys);
   }
 
   @Override
@@ -170,7 +179,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   public void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
     if (strategy == null) {
-      strategy = PropertyUpdateStrategy.always();
+      strategy = defaultUpdateStrategy();
     }
     Class<?> entityClass = entity.getClass();
     EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
@@ -225,12 +234,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void persist(Iterable<?> entities) throws DataAccessException {
-    persist(entities, PropertyUpdateStrategy.always(), returnGeneratedKeys);
+    persist(entities, defaultUpdateStrategy(), returnGeneratedKeys);
   }
 
   @Override
   public void persist(Iterable<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(entities, PropertyUpdateStrategy.always(), returnGeneratedKeys);
+    persist(entities, defaultUpdateStrategy(), returnGeneratedKeys);
   }
 
   @Override
@@ -239,9 +248,11 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
+  public void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+          throws DataAccessException //
+  {
     if (strategy == null) {
-      strategy = PropertyUpdateStrategy.always();
+      strategy = defaultUpdateStrategy();
     }
     repositoryManager.runInTransaction((connection, arg) -> {
       int maxBatchRecords = getMaxBatchRecords();
@@ -366,11 +377,14 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void updateById(Object entity) {
-    updateById(entity, PropertyUpdateStrategy.updateNoneNull());
+    updateById(entity, null);
   }
 
   @Override
-  public void updateById(Object entity, PropertyUpdateStrategy strategy) {
+  public void updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
+    if (strategy == null) {
+      strategy = defaultUpdateStrategy();
+    }
     Class<?> entityClass = entity.getClass();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     EntityProperty idProperty = metadata.idProperty;
@@ -426,11 +440,15 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public void updateBy(Object entity, String where) {
-    updateBy(entity, where, PropertyUpdateStrategy.updateNoneNull());
+    updateBy(entity, where, null);
   }
 
   @Override
-  public void updateBy(Object entity, String where, PropertyUpdateStrategy strategy) {
+  public void updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy) {
+    if (strategy == null) {
+      strategy = defaultUpdateStrategy();
+    }
+
     Class<?> entityClass = entity.getClass();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
@@ -762,8 +780,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   @SuppressWarnings("unchecked")
-  public <K, T> Map<K, T> find(Class<T> entityClass,
-          @Nullable QueryCondition conditions, String mapKey) throws DataAccessException {
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryCondition conditions, String mapKey)
+          throws DataAccessException //
+  {
     var entities = new LinkedHashMap<K, T>();
     try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
       EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
@@ -835,7 +854,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
 
-    if (columnNamesBuf.length() > 0) {
+    if (!columnNamesBuf.isEmpty()) {
       sql.append(columnNamesBuf.substring(2));
     }
 
@@ -845,7 +864,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement = null;
+    PreparedStatement statement;
     try {
       statement = prepareStatement(con, sql.toString(), false);
       int idx = 1;
@@ -861,8 +880,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass,
-          @Nullable QueryCondition conditions, Consumer<T> entityConsumer) throws DataAccessException {
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer)
+          throws DataAccessException //
+  {
     try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
       while (iterator.hasNext()) {
         entityConsumer.accept(iterator.next());
@@ -871,8 +891,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> ResultSetIterator<T> iterate(
-          Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
+  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     StringBuilder sql = new StringBuilder();
@@ -887,7 +906,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement = null;
+    PreparedStatement statement;
     try {
       statement = prepareStatement(con, sql.toString(), false);
       if (conditions != null) {
@@ -906,7 +925,15 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
   }
 
+  /**
+   * default PropertyUpdateStrategy
+   */
+  protected PropertyUpdateStrategy defaultUpdateStrategy() {
+    return defaultUpdateStrategy;
+  }
+
   //
+
   static String insert(EntityMetadata entityMetadata, Object entity, PropertyUpdateStrategy strategy) {
     StringBuilder sql = new StringBuilder();
     sql.append("INSERT INTO ").append(entityMetadata.tableName);
@@ -921,7 +948,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
 
-    if (columnNamesBuf.length() > 0) {
+    if (!columnNamesBuf.isEmpty()) {
       sql.append("(").append(columnNamesBuf.substring(2)).append(")");
       sql.append(" VALUES (").append(placeholderBuf.substring(2)).append(")");
     }
