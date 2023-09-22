@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +44,7 @@ import reactor.core.publisher.Mono;
  *
  * @param <T> the element type
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
@@ -81,16 +79,14 @@ public abstract class AbstractDataBufferDecoder<T> extends AbstractDecoder<T> {
   }
 
   @Override
-  public Flux<T> decode(
-          Publisher<DataBuffer> input, ResolvableType elementType,
+  public Flux<T> decode(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     return Flux.from(input)
             .mapNotNull(buffer -> decode(buffer, elementType, mimeType, hints));
   }
 
   @Override
-  public Mono<T> decodeToMono(
-          Publisher<DataBuffer> input, ResolvableType elementType,
+  public Mono<T> decodeToMono(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return DataBufferUtils.join(input, this.maxInMemorySize)

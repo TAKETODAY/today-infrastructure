@@ -17,6 +17,8 @@
 
 package cn.taketoday.core.codec;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -27,72 +29,73 @@ import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
 
 /**
- * Decode from a data buffer stream to a {@code String} stream, either splitting
+ * Decode from a data buffer stream to a {@code CharBuffer} stream, either splitting
  * or aggregating incoming data chunks to realign along newlines delimiters
- * and produce a stream of strings. This is useful for streaming but is also
- * necessary to ensure that that multibyte characters can be decoded correctly,
+ * and produce a stream of char buffers. This is useful for streaming but is also
+ * necessary to ensure that multi-byte characters can be decoded correctly,
  * avoiding split-character issues. The default delimiters used by default are
  * {@code \n} and {@code \r\n} but that can be customized.
  *
- * @author Sebastien Deleuze
- * @author Brian Clozel
+ * @author Markus Heiden
  * @author Arjen Poutsma
- * @author Mark Paluch
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see CharSequenceEncoder
  * @since 4.0
  */
-public final class StringDecoder extends AbstractCharSequenceDecoder<String> {
+public final class CharBufferDecoder extends AbstractCharSequenceDecoder<CharBuffer> {
 
-  private StringDecoder(List<String> delimiters, boolean stripDelimiter, MimeType... mimeTypes) {
+  public CharBufferDecoder(List<String> delimiters, boolean stripDelimiter, MimeType... mimeTypes) {
     super(delimiters, stripDelimiter, mimeTypes);
   }
 
   @Override
   public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-    return elementType.resolve() == String.class && super.canDecode(elementType, mimeType);
+    return elementType.resolve() == CharBuffer.class && super.canDecode(elementType, mimeType);
   }
 
   @Override
-  protected String decodeInternal(DataBuffer dataBuffer, Charset charset) {
-    return dataBuffer.toString(charset);
+  protected CharBuffer decodeInternal(DataBuffer dataBuffer, Charset charset) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    dataBuffer.toByteBuffer(byteBuffer);
+    return charset.decode(byteBuffer);
   }
 
   /**
-   * Create a {@code StringDecoder} for {@code "text/plain"}.
+   * Create a {@code CharBufferDecoder} for {@code "text/plain"}.
    */
-  public static StringDecoder textPlainOnly() {
+  public static CharBufferDecoder textPlainOnly() {
     return textPlainOnly(DEFAULT_DELIMITERS, true);
   }
 
   /**
-   * Create a {@code StringDecoder} for {@code "text/plain"}.
+   * Create a {@code CharBufferDecoder} for {@code "text/plain"}.
    *
    * @param delimiters delimiter strings to use to split the input stream
    * @param stripDelimiter whether to remove delimiters from the resulting
    * input strings
    */
-  public static StringDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
-    return new StringDecoder(delimiters, stripDelimiter, new MimeType("text", "plain", DEFAULT_CHARSET));
+  public static CharBufferDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
+    var textPlain = new MimeType("text", "plain", DEFAULT_CHARSET);
+    return new CharBufferDecoder(delimiters, stripDelimiter, textPlain);
   }
 
   /**
-   * Create a {@code StringDecoder} that supports all MIME types.
+   * Create a {@code CharBufferDecoder} that supports all MIME types.
    */
-  public static StringDecoder allMimeTypes() {
+  public static CharBufferDecoder allMimeTypes() {
     return allMimeTypes(DEFAULT_DELIMITERS, true);
   }
 
   /**
-   * Create a {@code StringDecoder} that supports all MIME types.
+   * Create a {@code CharBufferDecoder} that supports all MIME types.
    *
    * @param delimiters delimiter strings to use to split the input stream
    * @param stripDelimiter whether to remove delimiters from the resulting
    * input strings
    */
-  public static StringDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
-    return new StringDecoder(delimiters, stripDelimiter,
-            new MimeType("text", "plain", DEFAULT_CHARSET), MimeTypeUtils.ALL);
+  public static CharBufferDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
+    var textPlain = new MimeType("text", "plain", DEFAULT_CHARSET);
+    return new CharBufferDecoder(delimiters, stripDelimiter, textPlain, MimeTypeUtils.ALL);
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +21,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.reactivestreams.Publisher;
 
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.codec.StringDecoder;
+import cn.taketoday.core.codec.CharBufferDecoder;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -45,12 +43,15 @@ import reactor.core.publisher.Flux;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Jackson2JsonEncoder
  * @since 4.0
  */
 public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
-  private static final ResolvableType STRING_TYPE = ResolvableType.forClass(String.class);
-  private static final StringDecoder STRING_DECODER = StringDecoder.textPlainOnly(Arrays.asList(",", "\n"), false);
+
+  private static final ResolvableType CHAR_BUFFER_TYPE = ResolvableType.forClass(CharBuffer.class);
+
+  private static final CharBufferDecoder CHAR_BUFFER_DECODER = CharBufferDecoder.textPlainOnly(Arrays.asList(",", "\n"), false);
 
   public Jackson2JsonDecoder() {
     super(Jackson2ObjectMapperBuilder.json().build());
@@ -61,8 +62,7 @@ public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
   }
 
   @Override
-  protected Flux<DataBuffer> processInput(
-          Publisher<DataBuffer> input, ResolvableType elementType,
+  protected Flux<DataBuffer> processInput(Publisher<DataBuffer> input, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Flux<DataBuffer> flux = Flux.from(input);
@@ -72,16 +72,16 @@ public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
 
     // Jackson asynchronous parser only supports UTF-8
     Charset charset = mimeType.getCharset();
-    if (charset == null || StandardCharsets.UTF_8.equals(charset) || StandardCharsets.US_ASCII.equals(charset)) {
+    if (charset == null
+            || StandardCharsets.UTF_8.equals(charset)
+            || StandardCharsets.US_ASCII.equals(charset)) {
       return flux;
     }
 
-    // Potentially, the memory consumption of this conversion could be improved by using CharBuffers instead
-    // of allocating Strings, but that would require refactoring the buffer tokenization code from StringDecoder
-
+    // Re-encode as UTF-8.
     MimeType textMimeType = new MimeType(MimeTypeUtils.TEXT_PLAIN, charset);
-    Flux<String> decoded = STRING_DECODER.decode(input, STRING_TYPE, textMimeType, null);
-    return decoded.map(s -> DefaultDataBufferFactory.sharedInstance.wrap(s.getBytes(StandardCharsets.UTF_8)));
+    Flux<CharBuffer> decoded = CHAR_BUFFER_DECODER.decode(input, CHAR_BUFFER_TYPE, textMimeType, null);
+    return decoded.map(charBuffer -> DefaultDataBufferFactory.sharedInstance.wrap(StandardCharsets.UTF_8.encode(charBuffer)));
   }
 
 }
