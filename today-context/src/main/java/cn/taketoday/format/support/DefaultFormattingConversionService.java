@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,8 +38,8 @@ import cn.taketoday.util.ClassUtils;
  * as {@code DefaultConversionService} exposes its own
  * {@link DefaultConversionService#addDefaultConverters addDefaultConverters} method.
  *
- * <p>Automatically registers formatters for JSR-354 Money &amp; Currency, JSR-310 Date-Time
- * and/or Joda-Time 2.x, depending on the presence of the corresponding API on the classpath.
+ * <p>Automatically registers formatters for JSR-354 Money &amp; Currency and JSR-310 Date-Time
+ * depending on the presence of the corresponding API on the classpath.
  *
  * @author Chris Beams
  * @author Juergen Hoeller
@@ -84,9 +81,7 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
    * prior to calling {@link #addDefaultFormatters}.
    * @param registerDefaultFormatters whether to register default formatters
    */
-  public DefaultFormattingConversionService(
-          @Nullable StringValueResolver embeddedValueResolver, boolean registerDefaultFormatters) {
-
+  public DefaultFormattingConversionService(@Nullable StringValueResolver embeddedValueResolver, boolean registerDefaultFormatters) {
     if (embeddedValueResolver != null) {
       setEmbeddedValueResolver(embeddedValueResolver);
     }
