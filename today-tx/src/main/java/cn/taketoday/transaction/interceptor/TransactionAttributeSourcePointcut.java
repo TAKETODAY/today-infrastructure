@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
 import cn.taketoday.dao.support.PersistenceExceptionTranslator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionManager;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Abstract class that implements a Pointcut that matches if the underlying
@@ -85,13 +83,35 @@ class TransactionAttributeSourcePointcut extends StaticMethodMatcherPointcut imp
 
     @Override
     public boolean matches(Class<?> clazz) {
-      if (TransactionalProxy.class.isAssignableFrom(clazz)
-              || TransactionManager.class.isAssignableFrom(clazz)
-              || PersistenceExceptionTranslator.class.isAssignableFrom(clazz)) {
+      if (TransactionalProxy.class.isAssignableFrom(clazz) ||
+              TransactionManager.class.isAssignableFrom(clazz) ||
+              PersistenceExceptionTranslator.class.isAssignableFrom(clazz)) {
         return false;
       }
-      return transactionAttributeSource == null || transactionAttributeSource.isCandidateClass(clazz);
+      return (transactionAttributeSource == null || transactionAttributeSource.isCandidateClass(clazz));
     }
+
+    @Nullable
+    private TransactionAttributeSource getTransactionAttributeSource() {
+      return transactionAttributeSource;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      return (this == other || (other instanceof TransactionAttributeSourceClassFilter that &&
+              ObjectUtils.nullSafeEquals(transactionAttributeSource, that.getTransactionAttributeSource())));
+    }
+
+    @Override
+    public int hashCode() {
+      return TransactionAttributeSourceClassFilter.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return TransactionAttributeSourceClassFilter.class.getName() + ": " + transactionAttributeSource;
+    }
+
   }
 
 }

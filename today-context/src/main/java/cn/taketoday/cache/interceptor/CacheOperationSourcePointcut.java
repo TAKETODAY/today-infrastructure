@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,6 +84,27 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
         return false;
       }
       return (cacheOperationSource == null || cacheOperationSource.isCandidateClass(clazz));
+    }
+
+    @Nullable
+    private CacheOperationSource getCacheOperationSource() {
+      return cacheOperationSource;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      return (this == other || (other instanceof CacheOperationSourceClassFilter that &&
+              ObjectUtils.nullSafeEquals(cacheOperationSource, that.getCacheOperationSource())));
+    }
+
+    @Override
+    public int hashCode() {
+      return CacheOperationSourceClassFilter.class.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return CacheOperationSourceClassFilter.class.getName() + ": " + cacheOperationSource;
     }
   }
 

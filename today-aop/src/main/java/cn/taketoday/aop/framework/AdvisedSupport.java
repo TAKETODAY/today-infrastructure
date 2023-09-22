@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +48,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ObjectUtils;
 
 /**
  * Base class for AOP proxy configuration managers.
@@ -651,7 +647,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * advice class and the pointcut.
    *
    * @see #getConfigurationOnlyCopy()
-   * @see #getAdvisorKey()
+   * @see #advisorKey
    * @since 4.0
    */
   private static class AdvisorKeyEntry implements Advisor {
@@ -659,17 +655,21 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     private final Class<?> adviceType;
 
     @Nullable
-    private String classFilterKey;
+    private final String classFilterKey;
 
     @Nullable
-    private String methodMatcherKey;
+    private final String methodMatcherKey;
 
     public AdvisorKeyEntry(Advisor advisor) {
       this.adviceType = advisor.getAdvice().getClass();
       if (advisor instanceof PointcutAdvisor pointcutAdvisor) {
         Pointcut pointcut = pointcutAdvisor.getPointcut();
-        this.classFilterKey = ObjectUtils.identityToString(pointcut.getClassFilter());
-        this.methodMatcherKey = ObjectUtils.identityToString(pointcut.getMethodMatcher());
+        this.classFilterKey = pointcut.getClassFilter().toString();
+        this.methodMatcherKey = pointcut.getMethodMatcher().toString();
+      }
+      else {
+        this.classFilterKey = null;
+        this.methodMatcherKey = null;
       }
     }
 

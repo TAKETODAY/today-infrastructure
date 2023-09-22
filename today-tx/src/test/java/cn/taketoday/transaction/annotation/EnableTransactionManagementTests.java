@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
@@ -59,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Sam Brannen
  * @since 4.0
  */
-public class EnableTransactionManagementTests {
+class EnableTransactionManagementTests {
 
   @Test
   public void transactionProxyIsCreated() {
@@ -70,6 +68,25 @@ public class EnableTransactionManagementTests {
     Map<?, ?> services = ctx.getBeansWithAnnotation(Service.class);
     assertThat(services.containsKey("testBean")).as("Stereotype annotation not visible").isTrue();
     ctx.close();
+  }
+
+  @Test
+  public void cglibProxyClassIsCachedAcrossApplicationContexts() {
+    ConfigurableApplicationContext ctx;
+
+    // Round #1
+    ctx = new AnnotationConfigApplicationContext(EnableTxConfig.class, TxManagerConfig.class);
+    TransactionalTestBean bean1 = ctx.getBean(TransactionalTestBean.class);
+    assertThat(AopUtils.isCglibProxy(bean1)).as("testBean #1 is not a CGLIB proxy").isTrue();
+    ctx.close();
+
+    // Round #2
+    ctx = new AnnotationConfigApplicationContext(EnableTxConfig.class, TxManagerConfig.class);
+    TransactionalTestBean bean2 = ctx.getBean(TransactionalTestBean.class);
+    assertThat(AopUtils.isCglibProxy(bean2)).as("testBean #2 is not a CGLIB proxy").isTrue();
+    ctx.close();
+
+    assertThat(bean1.getClass()).isSameAs(bean2.getClass());
   }
 
   @Test

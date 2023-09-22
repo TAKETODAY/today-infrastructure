@@ -34,6 +34,7 @@ import cn.taketoday.aop.aspectj.InstantiationModelAwarePointcutAdvisor;
 import cn.taketoday.aop.aspectj.annotation.AbstractAspectJAdvisorFactory.AspectJAnnotation;
 import cn.taketoday.aop.support.DynamicMethodMatcherPointcut;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
 
 /**
  * Internal implementation of AspectJPointcutAdvisor.
@@ -273,8 +274,8 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 
       this.declaredPointcut = declaredPointcut;
       this.preInstantiationPointcut = preInstantiationPointcut;
-      if (aspectInstanceFactory instanceof LazySingletonAspectInstanceFactoryDecorator) {
-        this.aspectInstanceFactory = (LazySingletonAspectInstanceFactoryDecorator) aspectInstanceFactory;
+      if (aspectInstanceFactory instanceof LazySingletonAspectInstanceFactoryDecorator lazyFactory) {
+        this.aspectInstanceFactory = lazyFactory;
       }
     }
 
@@ -282,8 +283,8 @@ final class InstantiationModelAwarePointcutAdvisorImpl
     public boolean matches(Method method, Class<?> targetClass) {
       // We're either instantiated and matching on declared pointcut,
       // or uninstantiated matching on either pointcut...
-      return (isAspectMaterialized() && declaredPointcut.matches(method, targetClass))
-              || preInstantiationPointcut.getMethodMatcher().matches(method, targetClass);
+      return (isAspectMaterialized() && this.declaredPointcut.matches(method, targetClass)) ||
+              this.preInstantiationPointcut.getMethodMatcher().matches(method, targetClass);
     }
 
     @Override
@@ -296,6 +297,23 @@ final class InstantiationModelAwarePointcutAdvisorImpl
     private boolean isAspectMaterialized() {
       return aspectInstanceFactory == null || aspectInstanceFactory.isMaterialized();
     }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+      return (this == other || (other instanceof PerTargetInstantiationModelPointcut that &&
+              ObjectUtils.nullSafeEquals(this.declaredPointcut.getExpression(), that.declaredPointcut.getExpression())));
+    }
+
+    @Override
+    public int hashCode() {
+      return ObjectUtils.nullSafeHashCode(this.declaredPointcut.getExpression());
+    }
+
+    @Override
+    public String toString() {
+      return PerTargetInstantiationModelPointcut.class.getName() + ": " + this.declaredPointcut.getExpression();
+    }
+
   }
 
 }

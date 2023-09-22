@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
@@ -83,6 +81,25 @@ public class EnableCachingIntegrationTests {
 
     Object value = service.getSimple(key);
     assertCacheHit(key, value, cache);
+  }
+
+  @Test  // gh-31238
+  public void cglibProxyClassIsCachedAcrossApplicationContexts() {
+    ConfigurableApplicationContext ctx;
+
+    // Round #1
+    ctx = new AnnotationConfigApplicationContext(FooConfigCglib.class);
+    FooService service1 = ctx.getBean(FooService.class);
+    assertThat(AopUtils.isCglibProxy(service1)).as("FooService #1 is not a CGLIB proxy").isTrue();
+    ctx.close();
+
+    // Round #2
+    ctx = new AnnotationConfigApplicationContext(FooConfigCglib.class);
+    FooService service2 = ctx.getBean(FooService.class);
+    assertThat(AopUtils.isCglibProxy(service2)).as("FooService #2 is not a CGLIB proxy").isTrue();
+    ctx.close();
+
+    assertThat(service1.getClass()).isSameAs(service2.getClass());
   }
 
   @Test
