@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,14 @@ package cn.taketoday.beans.factory.aot;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import javax.lang.model.element.Modifier;
+
 import cn.taketoday.aot.generate.ClassNameGenerator;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference;
@@ -29,9 +34,9 @@ import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.aot.BeanRegistrationsAotContribution.Registration;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.GenericBeanWithBounds;
 import cn.taketoday.beans.testfixture.beans.Person;
 import cn.taketoday.beans.testfixture.beans.RecordBean;
@@ -46,16 +51,8 @@ import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
 import cn.taketoday.javapoet.ParameterizedTypeName;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import javax.lang.model.element.Modifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates.reflection;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link BeanRegistrationsAotContribution}.
@@ -150,7 +147,7 @@ class BeanRegistrationsAotContributionTests {
     BeanRegistrationsAotContribution contribution = createContribution(TestBean.class, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     assertThat(reflection().onType(TestBean.class)
-            .withMemberCategory(MemberCategory.INTROSPECT_DECLARED_METHODS))
+            .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS))
             .accepts(this.generationContext.getRuntimeHints());
   }
 
@@ -162,7 +159,8 @@ class BeanRegistrationsAotContributionTests {
     BeanRegistrationsAotContribution contribution = createContribution(RecordBean.class, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
     assertThat(reflection().onType(RecordBean.class)
-            .withMemberCategories(MemberCategory.INTROSPECT_DECLARED_METHODS, MemberCategory.INVOKE_DECLARED_METHODS))
+            .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS,
+                    MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS))
             .accepts(this.generationContext.getRuntimeHints());
   }
 
