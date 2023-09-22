@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +21,8 @@ import java.util.stream.Stream;
 
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
+import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link RuntimeHintsRegistrar} for Jakarta annotations.
@@ -39,10 +36,8 @@ class JakartaAnnotationsRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
   public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
-    if (ClassUtils.isPresent("jakarta.inject.Inject", classLoader)) {
-      Stream.of("jakarta.inject.Inject", "jakarta.inject.Qualifier").forEach(annotationType ->
-              hints.reflection().registerType(ClassUtils.resolveClassName(annotationType, classLoader)));
-    }
+    Stream.of("jakarta.inject.Inject", "jakarta.inject.Provider", "jakarta.inject.Qualifier").forEach(typeName ->
+            hints.reflection().registerType(TypeReference.of(typeName)));
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.beans.factory.aot.AotServices;
 import cn.taketoday.util.ClassUtils;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.inject.Qualifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +49,11 @@ class JakartaAnnotationsRuntimeHintsTests {
   @Test
   void jakartaInjectAnnotationHasHints() {
     assertThat(RuntimeHintsPredicates.reflection().onType(Inject.class)).accepts(this.hints);
+  }
+
+  @Test
+  void jakartaProviderAnnotationHasHints() {
+    assertThat(RuntimeHintsPredicates.reflection().onType(Provider.class)).accepts(this.hints);
   }
 
   @Test
