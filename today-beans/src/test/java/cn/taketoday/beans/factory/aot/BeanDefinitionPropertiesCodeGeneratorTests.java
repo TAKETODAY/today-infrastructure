@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,29 +20,7 @@ package cn.taketoday.beans.factory.aot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import cn.taketoday.aot.generate.GeneratedClass;
-import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
-import cn.taketoday.aot.test.generate.TestGenerationContext;
-import cn.taketoday.beans.factory.FactoryBean;
-import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.config.BeanReference;
-import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
-import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
-import cn.taketoday.beans.factory.config.RuntimeBeanReference;
-import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.factory.support.ManagedList;
-import cn.taketoday.beans.factory.support.ManagedMap;
-import cn.taketoday.beans.factory.support.ManagedSet;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.beans.testfixture.beans.factory.aot.DeferredTypeBuilder;
-import cn.taketoday.core.test.tools.Compiled;
-import cn.taketoday.core.test.tools.TestCompiler;
-import cn.taketoday.javapoet.CodeBlock;
-import cn.taketoday.javapoet.MethodSpec;
-import cn.taketoday.javapoet.ParameterizedTypeName;
-import cn.taketoday.lang.Nullable;
+import org.reactivestreams.Publisher;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -58,6 +33,29 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import javax.lang.model.element.Modifier;
+
+import cn.taketoday.aot.generate.GeneratedClass;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
+import cn.taketoday.aot.test.generate.TestGenerationContext;
+import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanReference;
+import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
+import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
+import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
+import cn.taketoday.beans.factory.support.ManagedList;
+import cn.taketoday.beans.factory.support.ManagedMap;
+import cn.taketoday.beans.factory.support.ManagedSet;
+import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.testfixture.beans.factory.aot.DeferredTypeBuilder;
+import cn.taketoday.core.test.tools.Compiled;
+import cn.taketoday.core.test.tools.TestCompiler;
+import cn.taketoday.javapoet.CodeBlock;
+import cn.taketoday.javapoet.MethodSpec;
+import cn.taketoday.javapoet.ParameterizedTypeName;
+import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -417,6 +415,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
     @Test
     void noDestroyMethod() {
       compile((beanDef, compiled) -> assertThat(beanDef.getDestroyMethodNames()).isNull());
+      assertReflectionOnPublisher();
     }
 
     @Test
@@ -424,6 +423,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       beanDefinition.setDestroyMethodName("destroy");
       compile((beanDef, compiled) -> assertThat(beanDef.getDestroyMethodNames()).containsExactly("destroy"));
       assertHasMethodInvokeHints(InitDestroyBean.class, "destroy");
+      assertReflectionOnPublisher();
     }
 
     @Test
@@ -431,6 +431,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       beanDefinition.setDestroyMethodName(privateDestroyMethod);
       compile((beanDef, compiled) -> assertThat(beanDef.getDestroyMethodNames()).containsExactly(privateDestroyMethod));
       assertHasMethodInvokeHints(InitDestroyBean.class, "privateDestroy");
+      assertReflectionOnPublisher();
     }
 
     @Test
@@ -438,6 +439,11 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       beanDefinition.setDestroyMethodNames("destroy", privateDestroyMethod);
       compile((beanDef, compiled) -> assertThat(beanDef.getDestroyMethodNames()).containsExactly("destroy", privateDestroyMethod));
       assertHasMethodInvokeHints(InitDestroyBean.class, "destroy", "privateDestroy");
+      assertReflectionOnPublisher();
+    }
+
+    private void assertReflectionOnPublisher() {
+      assertThat(RuntimeHintsPredicates.reflection().onType(Publisher.class)).accepts(generationContext.getRuntimeHints());
     }
 
   }

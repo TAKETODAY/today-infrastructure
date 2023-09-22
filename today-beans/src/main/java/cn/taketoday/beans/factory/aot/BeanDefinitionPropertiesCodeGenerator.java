@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +36,7 @@ import java.util.function.Predicate;
 import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.aot.hint.ExecutableMode;
 import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
@@ -131,7 +129,9 @@ class BeanDefinitionPropertiesCodeGenerator {
 
   private void addInitDestroyMethods(Builder code, AbstractBeanDefinition beanDefinition,
           @Nullable String[] methodNames, String format) {
-    if (ObjectUtils.isNotEmpty(methodNames)) {
+    // For Publisher-based destroy methods
+    hints.reflection().registerType(TypeReference.of("org.reactivestreams.Publisher"));
+    if (!ObjectUtils.isEmpty(methodNames)) {
       Class<?> beanType = ClassUtils.getUserClass(beanDefinition.getResolvableType().toClass());
       Arrays.stream(methodNames).forEach(methodName -> addInitDestroyHint(beanType, methodName));
       CodeBlock arguments = Arrays.stream(methodNames)
