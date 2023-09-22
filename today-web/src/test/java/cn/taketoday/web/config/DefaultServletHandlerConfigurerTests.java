@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.web.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.DefaultServletHttpRequestHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -30,6 +28,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockRequestDispatcher;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,6 +87,26 @@ class DefaultServletHandlerConfigurerTests {
     String expected = "defaultServlet";
     assertThat(servletContext.url).as("The ServletContext was not called with the default servlet name").isEqualTo(expected);
     assertThat(response.getForwardedUrl()).as("The request was not forwarded").isEqualTo(expected);
+  }
+
+  @Test
+  public void handleIncludeRequest() throws Throwable {
+    configurer.enable();
+    SimpleUrlHandlerMapping mapping = configurer.buildHandlerMapping();
+    HttpRequestHandler handler = (DefaultServletHttpRequestHandler) mapping.getUrlMap().get("/**");
+
+    assertThat(handler).isNotNull();
+    assertThat(mapping.getOrder()).isEqualTo(Integer.MAX_VALUE);
+
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setDispatcherType(DispatcherType.INCLUDE);
+    handler.handleRequest(new ServletRequestContext(null, request, response));
+
+    assertThat(servletContext.url)
+            .as("The ServletContext was not called with the default servlet name").isEqualTo("default");
+
+    assertThat(response.getIncludedUrl())
+            .as("The request was not included").isEqualTo("default");
   }
 
   private static class DispatchingMockServletContext extends MockServletContext {

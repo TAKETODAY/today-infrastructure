@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletUtils;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +49,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Jeremy Grelle
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DefaultServletHttpRequestHandler implements HttpRequestHandler, ServletContextAware {
@@ -126,7 +125,12 @@ public class DefaultServletHttpRequestHandler implements HttpRequestHandler, Ser
     HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
     HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
 
-    rd.forward(servletRequest, servletResponse);
+    if (servletRequest.getDispatcherType() != DispatcherType.INCLUDE) {
+      rd.forward(servletRequest, servletResponse);
+    }
+    else {
+      rd.include(servletRequest, servletResponse);
+    }
     return NONE_RETURN_VALUE;
   }
 
