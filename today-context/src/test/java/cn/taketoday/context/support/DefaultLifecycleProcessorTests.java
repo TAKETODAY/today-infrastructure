@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,11 +25,13 @@ import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.LifecycleProcessor;
 import cn.taketoday.context.SmartLifecycle;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Harry Yang 2021/11/12 17:00
@@ -102,6 +101,21 @@ class DefaultLifecycleProcessorTests {
     assertThat(bean.isRunning()).isTrue();
     context.stop();
     assertThat(bean.isRunning()).isFalse();
+  }
+
+  @Test
+  void singleSmartLifecycleAutoStartupWithFailingLifecycleBean() {
+    CopyOnWriteArrayList<Lifecycle> startedBeans = new CopyOnWriteArrayList<>();
+    TestSmartLifecycleBean bean = TestSmartLifecycleBean.forStartupTests(1, startedBeans);
+    bean.setAutoStartup(true);
+    StaticApplicationContext context = new StaticApplicationContext();
+    context.getBeanFactory().registerSingleton("bean", bean);
+    context.registerSingleton("failingBean", FailingLifecycleBean.class);
+    assertThat(bean.isRunning()).isFalse();
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(context::refresh).withCauseInstanceOf(IllegalStateException.class);
+    assertThat(bean.isRunning()).isFalse();
+    assertThat(startedBeans).hasSize(1);
   }
 
   @Test
@@ -807,6 +821,24 @@ class DefaultLifecycleProcessorTests {
     @Override
     public int getPhase() {
       return 0;
+    }
+  }
+
+  public static class FailingLifecycleBean implements SmartLifecycle {
+
+    @Override
+    public void start() {
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public void stop() {
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean isRunning() {
+      return false;
     }
   }
 
