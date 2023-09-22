@@ -78,13 +78,21 @@ public abstract class ClassUtils {
 
   /** The CGLIB class separator: {@code "$$"}. */
   public static final String CGLIB_CLASS_SEPARATOR = "$$";
+
+  /** The nested class separator character: {@code '$'}. */
+  private static final char NESTED_CLASS_SEPARATOR = '$';
+
   public static final char INNER_CLASS_SEPARATOR = '$';
+
   /** Suffix for array class names: {@code "[]"}. */
   public static final String ARRAY_SUFFIX = "[]";
+
   /** Prefix for internal array class names: {@code "["}. */
   public static final String INTERNAL_ARRAY_PREFIX = "[";
+
   /** Prefix for internal non-primitive array class names: {@code "[L"}. */
   public static final String NON_PRIMITIVE_ARRAY_PREFIX = "[L";
+
   public static final String CLASS_FILE_SUFFIX = ".class";
 
   /** @since 3.0 */
@@ -382,10 +390,12 @@ public abstract class ClassUtils {
     }
     catch (ClassNotFoundException ex) {
       int lastDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR);
-      if (lastDotIndex != -1) {
-        String innerClassName = name.substring(0, lastDotIndex) + INNER_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
+      int previousDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR, lastDotIndex - 1);
+      if (lastDotIndex != -1 && previousDotIndex != 1 && Character.isUpperCase(name.charAt(previousDotIndex + 1))) {
+        String nestedClassName =
+                name.substring(0, lastDotIndex) + NESTED_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
         try {
-          return Class.forName(innerClassName, false, classLoader);
+          return Class.forName(nestedClassName, false, classLoader);
         }
         catch (ClassNotFoundException ex2) {
           // Swallow - let original exception get through
