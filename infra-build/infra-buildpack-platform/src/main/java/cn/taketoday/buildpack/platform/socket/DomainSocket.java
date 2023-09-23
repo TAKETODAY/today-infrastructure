@@ -17,15 +17,15 @@
 
 package cn.taketoday.buildpack.platform.socket;
 
+import com.sun.jna.LastErrorException;
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-
-import com.sun.jna.LastErrorException;
-import com.sun.jna.Native;
-import com.sun.jna.Platform;
 
 import cn.taketoday.buildpack.platform.socket.FileDescriptor.Handle;
 
@@ -33,6 +33,7 @@ import cn.taketoday.buildpack.platform.socket.FileDescriptor.Handle;
  * A {@link Socket} implementation for Linux of BSD domain sockets.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class DomainSocket extends AbstractSocket {
@@ -70,8 +71,14 @@ public abstract class DomainSocket extends AbstractSocket {
 
   private FileDescriptor open(String path) {
     int handle = socket(PF_LOCAL, SOCK_STREAM, 0);
-    connect(path, handle);
-    return new FileDescriptor(handle, this::close);
+    try {
+      connect(path, handle);
+      return new FileDescriptor(handle, this::close);
+    }
+    catch (RuntimeException ex) {
+      close(handle);
+      throw ex;
+    }
   }
 
   private int read(ByteBuffer buffer) throws IOException {
