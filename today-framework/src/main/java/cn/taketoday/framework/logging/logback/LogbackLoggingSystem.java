@@ -21,6 +21,7 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
+import org.slf4j.helpers.SubstituteLoggerFactory;
 
 import java.net.URL;
 import java.security.CodeSource;
@@ -373,7 +374,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   private LoggerContext getLoggerContext() {
-    ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+    ILoggerFactory factory = getLoggerFactory();
     if (factory instanceof LoggerContext context) {
       return context;
     }
@@ -384,6 +385,21 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
                             + "WebLogic you will need to add 'org.slf4j' to "
                             + "prefer-application-packages in WEB-INF/weblogic.xml",
                     factory.getClass(), getLocation(factory)));
+  }
+
+  private ILoggerFactory getLoggerFactory() {
+    ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+    while (factory instanceof SubstituteLoggerFactory) {
+      try {
+        Thread.sleep(50);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException("Interrupted while waiting for non-subtitute logger factory", ex);
+      }
+      factory = LoggerFactory.getILoggerFactory();
+    }
+    return factory;
   }
 
   private Object getLocation(ILoggerFactory factory) {
