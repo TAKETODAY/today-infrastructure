@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -790,6 +791,29 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
             .isThrownBy(() -> initialize(this.initializationContext, "file:///logback-nonexistent.xml?raw=true",
                     getLogFile(tmpDir() + "/tmp.log", null)))
             .satisfies((ex) -> assertThat(ex.getCause()).isNotInstanceOf(IllegalArgumentException.class));
+  }
+
+  @Test
+  void shouldRespectConsoleThreshold(CapturedOutput output) {
+    this.environment.setProperty("logging.threshold.console", "warn");
+    this.loggingSystem.beforeInitialize();
+    initialize(this.initializationContext, null, null);
+    this.logger.info("Some info message");
+    this.logger.warn("Some warn message");
+    assertThat(output).doesNotContain("Some info message").contains("Some warn message");
+  }
+
+  @Test
+  void shouldRespectFileThreshold() {
+    this.environment.setProperty("logging.threshold.file", "warn");
+    this.loggingSystem.beforeInitialize();
+    initialize(this.initializationContext, null, getLogFile(null, tmpDir()));
+    this.logger.info("Some info message");
+    this.logger.warn("Some warn message");
+    Path file = Path.of(tmpDir(), "infra-app.log");
+    assertThat(file).content(StandardCharsets.UTF_8)
+            .doesNotContain("Some info message")
+            .contains("Some warn message");
   }
 
   private void initialize(LoggingStartupContext context, @Nullable String configLocation, @Nullable LogFile logFile) {
