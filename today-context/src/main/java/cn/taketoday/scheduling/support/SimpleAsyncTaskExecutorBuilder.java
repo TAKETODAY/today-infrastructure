@@ -63,15 +63,11 @@ public class SimpleAsyncTaskExecutorBuilder {
   private final Set<SimpleAsyncTaskExecutorCustomizer> customizers;
 
   public SimpleAsyncTaskExecutorBuilder() {
-    this.virtualThreads = null;
-    this.threadNamePrefix = null;
-    this.concurrencyLimit = null;
-    this.taskDecorator = null;
-    this.customizers = null;
+    this(null, null, null, null, null);
   }
 
   private SimpleAsyncTaskExecutorBuilder(@Nullable Boolean virtualThreads, @Nullable String threadNamePrefix,
-      @Nullable Integer concurrencyLimit, @Nullable TaskDecorator taskDecorator, @Nullable Set<SimpleAsyncTaskExecutorCustomizer> customizers) {
+          @Nullable Integer concurrencyLimit, @Nullable TaskDecorator taskDecorator, @Nullable Set<SimpleAsyncTaskExecutorCustomizer> customizers) {
     this.virtualThreads = virtualThreads;
     this.threadNamePrefix = threadNamePrefix;
     this.concurrencyLimit = concurrencyLimit;
@@ -85,9 +81,9 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @param threadNamePrefix the thread name prefix to set
    * @return a new builder instance
    */
-  public SimpleAsyncTaskExecutorBuilder threadNamePrefix(@Nullable String threadNamePrefix) {
+  public SimpleAsyncTaskExecutorBuilder threadNamePrefix(String threadNamePrefix) {
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, threadNamePrefix, this.concurrencyLimit,
-        this.taskDecorator, this.customizers);
+            this.taskDecorator, this.customizers);
   }
 
   /**
@@ -96,9 +92,9 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @param virtualThreads whether to use virtual threads
    * @return a new builder instance
    */
-  public SimpleAsyncTaskExecutorBuilder virtualThreads(@Nullable Boolean virtualThreads) {
+  public SimpleAsyncTaskExecutorBuilder virtualThreads(Boolean virtualThreads) {
     return new SimpleAsyncTaskExecutorBuilder(virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-        this.taskDecorator, this.customizers);
+            this.taskDecorator, this.customizers);
   }
 
   /**
@@ -107,9 +103,9 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @param concurrencyLimit the concurrency limit
    * @return a new builder instance
    */
-  public SimpleAsyncTaskExecutorBuilder concurrencyLimit(@Nullable Integer concurrencyLimit) {
+  public SimpleAsyncTaskExecutorBuilder concurrencyLimit(Integer concurrencyLimit) {
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, concurrencyLimit,
-        this.taskDecorator, this.customizers);
+            this.taskDecorator, this.customizers);
   }
 
   /**
@@ -118,16 +114,16 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @param taskDecorator the task decorator to use
    * @return a new builder instance
    */
-  public SimpleAsyncTaskExecutorBuilder taskDecorator(@Nullable TaskDecorator taskDecorator) {
+  public SimpleAsyncTaskExecutorBuilder taskDecorator(TaskDecorator taskDecorator) {
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-        taskDecorator, this.customizers);
+            taskDecorator, this.customizers);
   }
 
   /**
-   * Set the {@link SimpleAsyncTaskExecutorCustomizer TaskExecutorCustomizers} that
-   * should be applied to the {@link SimpleAsyncTaskExecutor}. Customizers are applied
-   * in the order that they were added after builder configuration has been applied.
-   * Setting this value will replace any previously configured customizers.
+   * Set the {@link SimpleAsyncTaskExecutorCustomizer customizers} that should be
+   * applied to the {@link SimpleAsyncTaskExecutor}. Customizers are applied in the
+   * order that they were added after builder configuration has been applied. Setting
+   * this value will replace any previously configured customizers.
    *
    * @param customizers the customizers to set
    * @return a new builder instance
@@ -139,26 +135,25 @@ public class SimpleAsyncTaskExecutorBuilder {
   }
 
   /**
-   * Set the {@link SimpleAsyncTaskExecutorCustomizer TaskExecutorCustomizers} that
-   * should be applied to the {@link SimpleAsyncTaskExecutor}. Customizers are applied
-   * in the order that they were added after builder configuration has been applied.
-   * Setting this value will replace any previously configured customizers.
+   * Set the {@link SimpleAsyncTaskExecutorCustomizer customizers} that should be
+   * applied to the {@link SimpleAsyncTaskExecutor}. Customizers are applied in the
+   * order that they were added after builder configuration has been applied. Setting
+   * this value will replace any previously configured customizers.
    *
    * @param customizers the customizers to set
    * @return a new builder instance
-   * @see #additionalCustomizers(SimpleAsyncTaskExecutorCustomizer...)
+   * @see #additionalCustomizers(Iterable)
    */
-  public SimpleAsyncTaskExecutorBuilder customizers(
-      Iterable<? extends SimpleAsyncTaskExecutorCustomizer> customizers) {
+  public SimpleAsyncTaskExecutorBuilder customizers(Iterable<? extends SimpleAsyncTaskExecutorCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers must not be null");
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-        this.taskDecorator, append(null, customizers));
+            this.taskDecorator, append(null, customizers));
   }
 
   /**
-   * Add {@link SimpleAsyncTaskExecutorCustomizer TaskExecutorCustomizers} that should
-   * be applied to the {@link SimpleAsyncTaskExecutor}. Customizers are applied in the
-   * order that they were added after builder configuration has been applied.
+   * Add {@link SimpleAsyncTaskExecutorCustomizer customizers} that should be applied to
+   * the {@link SimpleAsyncTaskExecutor}. Customizers are applied in the order that they
+   * were added after builder configuration has been applied.
    *
    * @param customizers the customizers to add
    * @return a new builder instance
@@ -170,18 +165,18 @@ public class SimpleAsyncTaskExecutorBuilder {
   }
 
   /**
-   * Add {@link SimpleAsyncTaskExecutorCustomizer TaskExecutorCustomizers} that should
-   * be applied to the {@link SimpleAsyncTaskExecutor}. Customizers are applied in the
-   * order that they were added after builder configuration has been applied.
+   * Add {@link SimpleAsyncTaskExecutorCustomizer customizers} that should be applied to
+   * the {@link SimpleAsyncTaskExecutor}. Customizers are applied in the order that they
+   * were added after builder configuration has been applied.
    *
    * @param customizers the customizers to add
    * @return a new builder instance
-   * @see #customizers(SimpleAsyncTaskExecutorCustomizer...)
+   * @see #customizers(Iterable)
    */
   public SimpleAsyncTaskExecutorBuilder additionalCustomizers(Iterable<? extends SimpleAsyncTaskExecutorCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers must not be null");
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-        this.taskDecorator, append(this.customizers, customizers));
+            this.taskDecorator, append(this.customizers, customizers));
   }
 
   /**
