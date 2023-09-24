@@ -21,7 +21,10 @@ import com.sun.jna.Platform;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.buildpack.platform.docker.DockerApi;
@@ -59,6 +62,8 @@ class Lifecycle implements Closeable {
 
   private static final String DOMAIN_SOCKET_PATH = "/var/run/docker.sock";
 
+  private static final List<String> DEFAULT_SECURITY_OPTIONS = List.of("label=disable");
+
   private final BuildLog log;
 
   private final DockerApi docker;
@@ -73,15 +78,17 @@ class Lifecycle implements Closeable {
 
   private final ApiVersion platformVersion;
 
-  private final VolumeName layersVolume;
+  private final Cache layers;
 
-  private final VolumeName applicationVolume;
+  private final Cache application;
 
   private final Cache buildCache;
 
   private final Cache launchCache;
 
   private final String applicationDirectory;
+
+  private final List<String> securityOptions;
 
   private boolean executed;
 
@@ -105,15 +112,12 @@ class Lifecycle implements Closeable {
     this.builder = builder;
     this.lifecycleVersion = LifecycleVersion.parse(builder.getBuilderMetadata().getLifecycle().getVersion());
     this.platformVersion = getPlatformVersion(builder.getBuilderMetadata().getLifecycle());
-    this.layersVolume = createRandomVolumeName("pack-layers-");
-    this.applicationVolume = createRandomVolumeName("pack-app-");
+    this.layers = getLayersBindingSource(request);
+    this.application = getApplicationBindingSource(request);
     this.buildCache = getBuildCache(request);
     this.launchCache = getLaunchCache(request);
     this.applicationDirectory = getApplicationDirectory(request);
-  }
-
-  protected VolumeName createRandomVolumeName(String prefix) {
-    return VolumeName.random(prefix);
+    this.securityOptions = getSecurityOptions(request);
   }
 
   private Cache getBuildCache(BuildRequest request) {
@@ -134,9 +138,11 @@ class Lifecycle implements Closeable {
     return (request.getApplicationDirectory() != null) ? request.getApplicationDirectory() : Directory.APPLICATION;
   }
 
-  private Cache createVolumeCache(BuildRequest request, String suffix) {
-    return Cache.volume(
-            VolumeName.basedOn(request.getName(), ImageReference::toLegacyString, "pack-cache-", "." + suffix, 6));
+  private List<String> getSecurityOptions(BuildRequest request) {
+    if (request.getSecurityOptions() != null) {
+      return request.getSecurityOptions();
+    }
+    return (Platform.isWindows()) ? Collections.emptyList() : DEFAULT_SECURITY_OPTIONS;
   }
 
   private ApiVersion getPlatformVersion(BuilderMetadata.Lifecycle lifecycle) {
@@ -158,12 +164,7 @@ class Lifecycle implements Closeable {
     this.executed = true;
     this.log.executingLifecycle(this.request, this.lifecycleVersion, this.buildCache);
     if (this.request.isCleanCache()) {
-      if (this.buildCache.getVolume() != null) {
-        deleteVolume(this.buildCache.getVolume().getVolumeName());
-      }
-      if (this.buildCache.getBind() != null) {
-        deleteBind(this.buildCache.getBind().getSource());
-      }
+      deleteCache(this.buildCache);
     }
     run(createPhase());
     this.log.executedLifecycle(this.request);
@@ -188,8 +189,8 @@ class Lifecycle implements Closeable {
       phase.withArgs("-process-type=web");
     }
     phase.withArgs(this.request.getName());
-    phase.withBinding(Binding.from(this.layersVolume, Directory.LAYERS));
-    phase.withBinding(Binding.from(this.applicationVolume, this.applicationDirectory));
+    phase.withBinding(Binding.from(getCacheBindingSource(this.layers), Directory.LAYERS));
+    phase.withBinding(Binding.from(getCacheBindingSource(this.application), this.applicationDirectory));
     phase.withBinding(Binding.from(getCacheBindingSource(this.buildCache), Directory.CACHE));
     phase.withBinding(Binding.from(getCacheBindingSource(this.launchCache), Directory.LAUNCH_CACHE));
     if (this.request.getBindings() != null) {
@@ -205,8 +206,40 @@ class Lifecycle implements Closeable {
     return phase;
   }
 
+  private Cache getLayersBindingSource(BuildRequest request) {
+    if (request.getBuildWorkspace() != null) {
+      return getBuildWorkspaceBindingSource(request.getBuildWorkspace(), "layers");
+    }
+    return createVolumeCache("pack-layers-");
+  }
+
+  private Cache getApplicationBindingSource(BuildRequest request) {
+    if (request.getBuildWorkspace() != null) {
+      return getBuildWorkspaceBindingSource(request.getBuildWorkspace(), "app");
+    }
+    return createVolumeCache("pack-app-");
+  }
+
+  private Cache getBuildWorkspaceBindingSource(Cache buildWorkspace, String suffix) {
+    return (buildWorkspace.getVolume() != null) ? Cache.volume(buildWorkspace.getVolume().getName() + "-" + suffix)
+                                                : Cache.bind(buildWorkspace.getBind().getSource() + "-" + suffix);
+  }
+
   private String getCacheBindingSource(Cache cache) {
     return (cache.getVolume() != null) ? cache.getVolume().getName() : cache.getBind().getSource();
+  }
+
+  private Cache createVolumeCache(String prefix) {
+    return Cache.volume(createRandomVolumeName(prefix));
+  }
+
+  private Cache createVolumeCache(BuildRequest request, String suffix) {
+    return Cache.volume(
+            VolumeName.basedOn(request.getName(), ImageReference::toLegacyString, "pack-cache-", "." + suffix, 6));
+  }
+
+  protected VolumeName createRandomVolumeName(String prefix) {
+    return VolumeName.random(prefix);
   }
 
   private void configureDaemonAccess(Phase phase) {
@@ -225,8 +258,8 @@ class Lifecycle implements Closeable {
     else {
       phase.withBinding(Binding.from(DOMAIN_SOCKET_PATH, DOMAIN_SOCKET_PATH));
     }
-    if (!Platform.isWindows()) {
-      phase.withSecurityOption("label=disable");
+    if (this.securityOptions != null) {
+      this.securityOptions.forEach(phase::withSecurityOption);
     }
   }
 
@@ -260,6 +293,9 @@ class Lifecycle implements Closeable {
       return this.docker.container().create(config);
     }
     try {
+      if (this.application.getBind() != null) {
+        Files.createDirectories(Path.of(this.application.getBind().getSource()));
+      }
       TarArchive applicationContent = this.request.getApplicationContent(this.builder.getBuildOwner());
       return this.docker.container()
               .create(config, ContainerContent.of(applicationContent, this.applicationDirectory));
@@ -271,8 +307,17 @@ class Lifecycle implements Closeable {
 
   @Override
   public void close() throws IOException {
-    deleteVolume(this.layersVolume);
-    deleteVolume(this.applicationVolume);
+    deleteCache(this.layers);
+    deleteCache(this.application);
+  }
+
+  private void deleteCache(Cache cache) throws IOException {
+    if (cache.getVolume() != null) {
+      deleteVolume(cache.getVolume().getVolumeName());
+    }
+    if (cache.getBind() != null) {
+      deleteBind(cache.getBind().getSource());
+    }
   }
 
   private void deleteVolume(VolumeName name) throws IOException {

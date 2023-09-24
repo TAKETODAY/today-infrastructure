@@ -13,6 +13,11 @@ java {
 infraBuildImage {
 	builder = "projects.registry.vmware.com/springboot/spring-boot-cnb-builder:0.0.2"
 	pullPolicy = "IF_NOT_PRESENT"
+	buildWorkspace {
+		volume {
+			name = "pack-${rootProject.name}.work"
+		}
+	}
 	buildCache {
 		volume {
 			name = "cache-${rootProject.name}.build"

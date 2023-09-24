@@ -54,6 +54,8 @@ import static org.assertj.core.api.Assertions.entry;
  */
 class BuildRequestTests {
 
+  private static final ZoneId UTC = ZoneId.of("UTC");
+
   @TempDir
   File tempDir;
 
@@ -233,6 +235,22 @@ class BuildRequestTests {
   }
 
   @Test
+  void withBuildWorkspaceVolumeAddsWorkspace() throws IOException {
+    BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
+    BuildRequest withWorkspace = request.withBuildWorkspace(Cache.volume("build-workspace"));
+    assertThat(request.getBuildWorkspace()).isNull();
+    assertThat(withWorkspace.getBuildWorkspace()).isEqualTo(Cache.volume("build-workspace"));
+  }
+
+  @Test
+  void withBuildWorkspaceBindAddsWorkspace() throws IOException {
+    BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
+    BuildRequest withWorkspace = request.withBuildWorkspace(Cache.bind("/tmp/build-workspace"));
+    assertThat(request.getBuildWorkspace()).isNull();
+    assertThat(withWorkspace.getBuildWorkspace()).isEqualTo(Cache.bind("/tmp/build-workspace"));
+  }
+
+  @Test
   void withBuildVolumeCacheAddsCache() throws IOException {
     BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
     BuildRequest withCache = request.withBuildCache(Cache.volume("build-volume"));
@@ -288,15 +306,15 @@ class BuildRequestTests {
 
   @Test
   void withCreatedDateNowSetsCreatedDate() throws Exception {
-    OffsetDateTime now = OffsetDateTime.now();
+    OffsetDateTime now = OffsetDateTime.now(UTC);
     BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
     BuildRequest withCreatedDate = request.withCreatedDate("now");
-    OffsetDateTime createdDate = OffsetDateTime.ofInstant(withCreatedDate.getCreatedDate(), ZoneId.of("UTC"));
+    OffsetDateTime createdDate = OffsetDateTime.ofInstant(withCreatedDate.getCreatedDate(), UTC);
     assertThat(createdDate.getYear()).isEqualTo(now.getYear());
     assertThat(createdDate.getMonth()).isEqualTo(now.getMonth());
     assertThat(createdDate.getDayOfMonth()).isEqualTo(now.getDayOfMonth());
     withCreatedDate = request.withCreatedDate("NOW");
-    createdDate = OffsetDateTime.ofInstant(withCreatedDate.getCreatedDate(), ZoneId.of("UTC"));
+    createdDate = OffsetDateTime.ofInstant(withCreatedDate.getCreatedDate(), UTC);
     assertThat(createdDate.getYear()).isEqualTo(now.getYear());
     assertThat(createdDate.getMonth()).isEqualTo(now.getMonth());
     assertThat(createdDate.getDayOfMonth()).isEqualTo(now.getDayOfMonth());
@@ -314,6 +332,13 @@ class BuildRequestTests {
     BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
     BuildRequest withAppDir = request.withApplicationDirectory("/application");
     assertThat(withAppDir.getApplicationDirectory()).isEqualTo("/application");
+  }
+
+  @Test
+  void withSecurityOptionsSetsSecurityOptions() throws Exception {
+    BuildRequest request = BuildRequest.forJarFile(writeTestJarFile("my-app-0.0.1.jar"));
+    BuildRequest withAppDir = request.withSecurityOptions(List.of("label=user:USER", "label=role:ROLE"));
+    assertThat(withAppDir.getSecurityOptions()).containsExactly("label=user:USER", "label=role:ROLE");
   }
 
   private void hasExpectedJarContent(TarArchive archive) {

@@ -36,6 +36,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.buildpack.platform.docker.DockerApi;
@@ -213,7 +214,8 @@ class LifecycleTests {
     given(this.docker.container().create(any())).willAnswer(answerWithGeneratedContainerId());
     given(this.docker.container().create(any(), any())).willAnswer(answerWithGeneratedContainerId());
     given(this.docker.container().wait(any())).willReturn(ContainerStatus.of(0, null));
-    BuildRequest request = getTestRequest().withBuildCache(Cache.volume("build-volume"))
+    BuildRequest request = getTestRequest().withBuildWorkspace(Cache.volume("work-volume"))
+            .withBuildCache(Cache.volume("build-volume"))
             .withLaunchCache(Cache.volume("launch-volume"));
     createLifecycle(request).execute();
     assertPhaseWasRun("creator", withExpectedConfig("lifecycle-creator-cache-volumes.json"));
@@ -225,7 +227,8 @@ class LifecycleTests {
     given(this.docker.container().create(any())).willAnswer(answerWithGeneratedContainerId());
     given(this.docker.container().create(any(), any())).willAnswer(answerWithGeneratedContainerId());
     given(this.docker.container().wait(any())).willReturn(ContainerStatus.of(0, null));
-    BuildRequest request = getTestRequest().withBuildCache(Cache.bind("/tmp/build-cache"))
+    BuildRequest request = getTestRequest().withBuildWorkspace(Cache.bind("/tmp/work"))
+            .withBuildCache(Cache.bind("/tmp/build-cache"))
             .withLaunchCache(Cache.bind("/tmp/launch-cache"));
     createLifecycle(request).execute();
     assertPhaseWasRun("creator", withExpectedConfig("lifecycle-creator-cache-bind-mounts.json"));
@@ -251,6 +254,17 @@ class LifecycleTests {
     BuildRequest request = getTestRequest().withApplicationDirectory("/application");
     createLifecycle(request).execute();
     assertPhaseWasRun("creator", withExpectedConfig("lifecycle-creator-app-dir.json"));
+    assertThat(this.out.toString()).contains("Successfully built image 'docker.io/library/my-application:latest'");
+  }
+
+  @Test
+  void executeWithSecurityOptionsExecutesPhases() throws Exception {
+    given(this.docker.container().create(any())).willAnswer(answerWithGeneratedContainerId());
+    given(this.docker.container().create(any(), any())).willAnswer(answerWithGeneratedContainerId());
+    given(this.docker.container().wait(any())).willReturn(ContainerStatus.of(0, null));
+    BuildRequest request = getTestRequest().withSecurityOptions(List.of("label=user:USER", "label=role:ROLE"));
+    createLifecycle(request).execute();
+    assertPhaseWasRun("creator", withExpectedConfig("lifecycle-creator-security-opts.json"));
     assertThat(this.out.toString()).contains("Successfully built image 'docker.io/library/my-application:latest'");
   }
 

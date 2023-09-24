@@ -9,6 +9,11 @@ tasks.named("infraJar") {
 
 // tag::caches[]
 tasks.named("infraBuildImage") {
+  buildWorkspace {
+    bind {
+      source = "/tmp/cache-${rootProject.name}.work"
+    }
+  }
   buildCache {
     bind {
       source = "/tmp/cache-${rootProject.name}.build"
@@ -24,6 +29,7 @@ tasks.named("infraBuildImage") {
 
 tasks.register("infraBuildImageCaches") {
   doFirst {
+    infraBuildImage.buildWorkspace.asCache().with { print "buildWorkspace=$source" }
     infraBuildImage.buildCache.asCache().with { println "buildCache=$source" }
     infraBuildImage.launchCache.asCache().with { println "launchCache=$source" }
   }

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
 
 import cn.taketoday.buildpack.platform.build.BuildRequest;
@@ -172,6 +173,14 @@ class ImageTests {
   }
 
   @Test
+  void getBuildRequestWhenHasBuildWorkspaceVolumeUsesWorkspace() {
+    Image image = new Image();
+    image.buildWorkspace = CacheInfo.fromVolume(new VolumeCacheInfo("build-work-vol"));
+    BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
+    assertThat(request.getBuildWorkspace()).isEqualTo(Cache.volume("build-work-vol"));
+  }
+
+  @Test
   void getBuildRequestWhenHasBuildCacheVolumeUsesCache() {
     Image image = new Image();
     image.buildCache = CacheInfo.fromVolume(new VolumeCacheInfo("build-cache-vol"));
@@ -185,6 +194,14 @@ class ImageTests {
     image.launchCache = CacheInfo.fromVolume(new VolumeCacheInfo("launch-cache-vol"));
     BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
     assertThat(request.getLaunchCache()).isEqualTo(Cache.volume("launch-cache-vol"));
+  }
+
+  @Test
+  void getBuildRequestWhenHasBuildWorkspaceBindUsesWorkspace() {
+    Image image = new Image();
+    image.buildWorkspace = CacheInfo.fromBind(new BindCacheInfo("build-work-dir"));
+    BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
+    assertThat(request.getBuildWorkspace()).isEqualTo(Cache.bind("build-work-dir"));
   }
 
   @Test
@@ -217,6 +234,22 @@ class ImageTests {
     image.applicationDirectory = "/application";
     BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
     assertThat(request.getApplicationDirectory()).isEqualTo("/application");
+  }
+
+  @Test
+  void getBuildRequestWhenHasSecurityOptionsUsesSecurityOptions() {
+    Image image = new Image();
+    image.securityOptions = List.of("label=user:USER", "label=role:ROLE");
+    BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
+    assertThat(request.getSecurityOptions()).containsExactly("label=user:USER", "label=role:ROLE");
+  }
+
+  @Test
+  void getBuildRequestWhenHasEmptySecurityOptionsUsesSecurityOptions() {
+    Image image = new Image();
+    image.securityOptions = Collections.emptyList();
+    BuildRequest request = image.getBuildRequest(createArtifact(), mockApplicationContent());
+    assertThat(request.getSecurityOptions()).isEmpty();
   }
 
   private Artifact createArtifact() {

@@ -18,6 +18,11 @@
 package cn.taketoday.infra.maven;
 
 import org.apache.maven.artifact.Artifact;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
 import cn.taketoday.buildpack.platform.build.BuildRequest;
 import cn.taketoday.buildpack.platform.build.BuildpackReference;
 import cn.taketoday.buildpack.platform.build.PullPolicy;
@@ -26,11 +31,6 @@ import cn.taketoday.buildpack.platform.docker.type.ImageName;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.io.Owner;
 import cn.taketoday.buildpack.platform.io.TarArchive;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -71,6 +71,8 @@ public class Image {
 
   List<String> tags;
 
+  CacheInfo buildWorkspace;
+
   CacheInfo buildCache;
 
   CacheInfo launchCache;
@@ -78,6 +80,8 @@ public class Image {
   String createdDate;
 
   String applicationDirectory;
+
+  List<String> securityOptions;
 
   /**
    * The name of the created image.
@@ -246,15 +250,18 @@ public class Image {
     if (this.publish != null) {
       request = request.withPublish(this.publish);
     }
-    if (CollectionUtils.isNotEmpty(this.buildpacks)) {
+    if (!CollectionUtils.isEmpty(this.buildpacks)) {
       request = request.withBuildpacks(this.buildpacks.stream().map(BuildpackReference::of).toList());
     }
-    if (CollectionUtils.isNotEmpty(this.bindings)) {
+    if (!CollectionUtils.isEmpty(this.bindings)) {
       request = request.withBindings(this.bindings.stream().map(Binding::of).toList());
     }
     request = request.withNetwork(this.network);
-    if (CollectionUtils.isNotEmpty(this.tags)) {
+    if (!CollectionUtils.isEmpty(this.tags)) {
       request = request.withTags(this.tags.stream().map(ImageReference::of).toList());
+    }
+    if (this.buildWorkspace != null) {
+      request = request.withBuildWorkspace(this.buildWorkspace.asCache());
     }
     if (this.buildCache != null) {
       request = request.withBuildCache(this.buildCache.asCache());
@@ -267,6 +274,9 @@ public class Image {
     }
     if (StringUtils.hasText(this.applicationDirectory)) {
       request = request.withApplicationDirectory(this.applicationDirectory);
+    }
+    if (this.securityOptions != null) {
+      request = request.withSecurityOptions(this.securityOptions);
     }
     return request;
   }
