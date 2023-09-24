@@ -29,10 +29,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.FileTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import cn.taketoday.app.loader.tools.DefaultLaunchScript;
@@ -213,21 +211,12 @@ public class RepackageMojo extends AbstractPackagerMojo {
     updateArtifact(source, target, repackager.getBackupFile());
   }
 
-  private FileTime parseOutputTimestamp() {
-    // Maven ignores a single-character timestamp as it is "useful to override a full
-    // value during pom inheritance"
-    if (this.outputTimestamp == null || this.outputTimestamp.length() < 2) {
-      return null;
-    }
-    return FileTime.from(getOutputTimestampEpochSeconds(), TimeUnit.SECONDS);
-  }
-
-  private long getOutputTimestampEpochSeconds() {
+  private FileTime parseOutputTimestamp() throws MojoExecutionException {
     try {
-      return Long.parseLong(this.outputTimestamp);
+      return new MavenBuildOutputTimestamp(this.outputTimestamp).toFileTime();
     }
-    catch (NumberFormatException ex) {
-      return OffsetDateTime.parse(this.outputTimestamp).toInstant().getEpochSecond();
+    catch (IllegalArgumentException ex) {
+      throw new MojoExecutionException("Invalid value for parameter 'outputTimestamp'", ex);
     }
   }
 
