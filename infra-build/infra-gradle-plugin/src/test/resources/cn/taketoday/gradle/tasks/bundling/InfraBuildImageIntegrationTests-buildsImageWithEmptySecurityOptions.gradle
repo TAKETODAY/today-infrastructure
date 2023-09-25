@@ -3,7 +3,7 @@ plugins {
 	id 'cn.taketoday.application' version '{version}'
 }
 
-bootBuildImage {
+infraBuildImage {
 	builder = "projects.registry.vmware.com/springboot/spring-boot-cnb-builder:0.0.2"
 	pullPolicy = "IF_NOT_PRESENT"
 	securityOptions = []
