@@ -47,6 +47,7 @@ import cn.taketoday.buildpack.platform.docker.type.Image;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.docker.type.VolumeName;
 import cn.taketoday.buildpack.platform.io.FilePermissions;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.gradle.junit.GradleCompatibility;
 import cn.taketoday.gradle.testkit.GradleBuild;
 import cn.taketoday.test.junit.DisabledOnOs;
@@ -310,9 +311,9 @@ class InfraBuildImageIntegrationTests {
     assertThat(result.getOutput()).contains("---> Test Info buildpack building");
     assertThat(result.getOutput()).contains("---> Test Info buildpack done");
     removeImages(projectName);
-    String tempDir = System.getProperty("java.io.tmpdir");
-    Path buildCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-build");
-    Path launchCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-launch");
+
+    Path buildCachePath = ApplicationTemp.createDirectory("junit-image-cache-" + projectName + "-build");
+    Path launchCachePath = ApplicationTemp.createDirectory("junit-image-cache-" + projectName + "-launch");
     assertThat(buildCachePath).exists().isDirectory();
     assertThat(launchCachePath).exists().isDirectory();
     try {

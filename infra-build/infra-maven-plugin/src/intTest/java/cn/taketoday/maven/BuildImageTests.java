@@ -36,6 +36,7 @@ import cn.taketoday.buildpack.platform.docker.type.Image;
 import cn.taketoday.buildpack.platform.docker.type.ImageName;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.docker.type.VolumeName;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.test.junit.DisabledOnOs;
 import cn.taketoday.test.testcontainers.DisabledIfDockerUnavailable;
 import cn.taketoday.util.FileSystemUtils;
@@ -412,9 +413,8 @@ class BuildImageTests extends AbstractArchiveIntegrationTests {
                       .contains("docker.io/library/build-image-bind-caches:0.0.1.BUILD-SNAPSHOT")
                       .contains("Successfully built image");
               removeImage("build-image-bind-caches", "0.0.1.BUILD-SNAPSHOT");
-              String tempDir = System.getProperty("java.io.tmpdir");
-              Path buildCachePath = Paths.get(tempDir, "junit-image-cache-" + testBuildId + "-build");
-              Path launchCachePath = Paths.get(tempDir, "junit-image-cache-" + testBuildId + "-launch");
+              Path buildCachePath = ApplicationTemp.createDirectory("junit-image-cache-" + testBuildId + "-build");
+              Path launchCachePath = ApplicationTemp.createDirectory("junit-image-cache-" + testBuildId + "-launch");
               assertThat(buildCachePath).exists().isDirectory();
               assertThat(launchCachePath).exists().isDirectory();
               FileSystemUtils.deleteRecursively(buildCachePath);

@@ -265,10 +265,11 @@ public class GradleBuild {
   }
 
   private File getTestKitDir() {
-    File temp = new File(System.getProperty("java.io.tmpdir"));
     String username = System.getProperty("user.name");
     String gradleVersion = (this.gradleVersion != null) ? this.gradleVersion : "default";
-    return new File(temp, ".gradle-test-kit-" + username + "-" + getInfraVersion() + "-" + gradleVersion);
+    return ApplicationTemp.createDirectory(".gradle-test-kit-" +
+                    username + "-" + getInfraVersion() + "-" + gradleVersion)
+            .toFile();
   }
 
   public File getProjectDir() {
