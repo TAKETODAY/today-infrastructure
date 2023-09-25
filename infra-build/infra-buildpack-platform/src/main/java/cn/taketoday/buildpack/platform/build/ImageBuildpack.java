@@ -125,8 +125,7 @@ final class ImageBuildpack implements Buildpack {
     }
 
     private Path copyToTemp(Path path) throws IOException {
-      Path outputPath = ApplicationTemp.instance.createFile(
-              null, "create-builder-scratch-", null);
+      Path outputPath = ApplicationTemp.createFile("create-builder-scratch-");
       try (OutputStream out = Files.newOutputStream(outputPath)) {
         copyLayerTar(path, out);
       }

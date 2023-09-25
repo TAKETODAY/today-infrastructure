@@ -178,6 +178,7 @@ public class InspectedContent implements Content {
       byte[] bytes = ((ByteArrayOutputStream) this.delegate).toByteArray();
       this.delegate = new FileOutputStream(this.tempFile);
       StreamUtils.copy(bytes, this.delegate);
+      tempFile.deleteOnExit();
     }
 
     private Object getContent() {

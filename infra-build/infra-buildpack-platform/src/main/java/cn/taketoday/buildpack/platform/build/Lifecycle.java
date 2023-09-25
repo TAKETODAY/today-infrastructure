@@ -103,8 +103,8 @@ class Lifecycle implements Closeable {
    * @param request the request to process
    * @param builder the ephemeral builder used to run the phases
    */
-  Lifecycle(BuildLog log, DockerApi docker, ResolvedDockerHost dockerHost, BuildRequest request,
-          EphemeralBuilder builder) {
+  Lifecycle(BuildLog log, DockerApi docker, ResolvedDockerHost dockerHost,
+          BuildRequest request, EphemeralBuilder builder) {
     this.log = log;
     this.docker = docker;
     this.dockerHost = dockerHost;
@@ -142,7 +142,7 @@ class Lifecycle implements Closeable {
     if (request.getSecurityOptions() != null) {
       return request.getSecurityOptions();
     }
-    return (Platform.isWindows()) ? Collections.emptyList() : DEFAULT_SECURITY_OPTIONS;
+    return Platform.isWindows() ? Collections.emptyList() : DEFAULT_SECURITY_OPTIONS;
   }
 
   private ApiVersion getPlatformVersion(BuilderMetadata.Lifecycle lifecycle) {
@@ -221,12 +221,13 @@ class Lifecycle implements Closeable {
   }
 
   private Cache getBuildWorkspaceBindingSource(Cache buildWorkspace, String suffix) {
-    return (buildWorkspace.getVolume() != null) ? Cache.volume(buildWorkspace.getVolume().getName() + "-" + suffix)
-                                                : Cache.bind(buildWorkspace.getBind().getSource() + "-" + suffix);
+    return buildWorkspace.getVolume() != null
+           ? Cache.volume(buildWorkspace.getVolume().getName() + "-" + suffix)
+           : Cache.bind(buildWorkspace.getBind().getSource() + "-" + suffix);
   }
 
   private String getCacheBindingSource(Cache cache) {
-    return (cache.getVolume() != null) ? cache.getVolume().getName() : cache.getBind().getSource();
+    return cache.getVolume() != null ? cache.getVolume().getName() : cache.getBind().getSource();
   }
 
   private Cache createVolumeCache(String prefix) {
