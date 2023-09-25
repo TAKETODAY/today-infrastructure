@@ -24,6 +24,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
@@ -301,6 +302,8 @@ class InfraBuildImageIntegrationTests {
   }
 
   @TestTemplate
+  @EnabledOnOs(value = OS.LINUX, disabledReason =
+          "Works with Docker Engine on Linux but is not reliable with Docker Desktop on other OSs")
   void buildsImageWithBindCaches() throws IOException {
     writeMainClass();
     writeLongNameResource();
