@@ -38,6 +38,7 @@ import cn.taketoday.buildpack.platform.docker.type.Image;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.io.IOBiConsumer;
 import cn.taketoday.buildpack.platform.json.AbstractJsonTests;
+import cn.taketoday.core.ApplicationTemp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -177,7 +178,7 @@ class ImageBuildpackTests extends AbstractJsonTests {
   private Object withMockLayers(InvocationOnMock invocation) {
     try {
       IOBiConsumer<String, Path> consumer = invocation.getArgument(1);
-      File tarFile = File.createTempFile("create-builder-test-", null);
+      File tarFile = ApplicationTemp.createFile("create-builder-test-").toFile();
       FileOutputStream out = new FileOutputStream(tarFile);
       try (TarArchiveOutputStream tarOut = new TarArchiveOutputStream(out)) {
         tarOut.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);

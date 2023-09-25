@@ -33,6 +33,8 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collections;
 import java.util.Set;
 
+import cn.taketoday.core.ApplicationTemp;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -67,7 +69,7 @@ class FilePermissionsTests {
   @Test
   @EnabledOnOs(OS.WINDOWS)
   void umaskForPathOnWindowsFails() throws IOException {
-    Path tempFile = Files.createTempFile("umask", null);
+    Path tempFile = ApplicationTemp.createFile("umask");
     assertThatIllegalStateException().isThrownBy(() -> FilePermissions.umaskForPath(tempFile))
             .withMessageContaining("Unsupported file type for retrieving Posix attributes");
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +41,7 @@ import cn.taketoday.context.support.FileSystemXmlApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.GenericXmlApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.mock.env.MockPropertySource;
@@ -194,7 +192,7 @@ public class EnvironmentSystemIntegrationTests {
   @Test
   void fileSystemXmlApplicationContext() throws IOException {
     ClassPathResource xml = new ClassPathResource(Constants.XML_PATH);
-    File tmpFile = File.createTempFile("test", "xml");
+    File tmpFile = ApplicationTemp.instance.createFile(null, "test", "xml").toFile();
     FileCopyUtils.copy(xml.getFile(), tmpFile);
 
     // strange - FSXAC strips leading '/' unless prefixed with 'file:'

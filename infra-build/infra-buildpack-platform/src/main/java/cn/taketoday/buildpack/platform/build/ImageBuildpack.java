@@ -17,6 +17,10 @@
 
 package cn.taketoday.buildpack.platform.build;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,10 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-
 import cn.taketoday.buildpack.platform.build.BuildpackLayersMetadata.BuildpackLayerDetails;
 import cn.taketoday.buildpack.platform.docker.transport.DockerEngineException;
 import cn.taketoday.buildpack.platform.docker.type.Image;
@@ -37,7 +37,7 @@ import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.docker.type.Layer;
 import cn.taketoday.buildpack.platform.docker.type.LayerId;
 import cn.taketoday.buildpack.platform.io.IOConsumer;
-
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.util.StreamUtils;
 
 /**
@@ -125,7 +125,8 @@ final class ImageBuildpack implements Buildpack {
     }
 
     private Path copyToTemp(Path path) throws IOException {
-      Path outputPath = Files.createTempFile("create-builder-scratch-", null);
+      Path outputPath = ApplicationTemp.instance.createFile(
+              null, "create-builder-scratch-", null);
       try (OutputStream out = Files.newOutputStream(outputPath)) {
         copyLayerTar(path, out);
       }

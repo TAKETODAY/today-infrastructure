@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import cn.taketoday.core.ApplicationTemp;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
@@ -41,7 +39,7 @@ class FileStorageTests {
 
   @Test
   void fromPath() throws IOException {
-    Path path = Files.createTempFile("spring", "test");
+    Path path = ApplicationTemp.instance.createFile(null, "spring", "test");
     FileStorage storage = FileStorage.fromPath(path);
 
     Mono<Path> directory = storage.directory();

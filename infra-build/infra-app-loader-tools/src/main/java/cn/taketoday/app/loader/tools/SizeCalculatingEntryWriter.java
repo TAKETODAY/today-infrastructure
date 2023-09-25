@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 
@@ -92,6 +93,7 @@ final class SizeCalculatingEntryWriter implements EntryWriter {
 
     private int size = 0;
 
+    @Nullable
     private File tempFile;
 
     private OutputStream outputStream;
@@ -116,17 +118,19 @@ final class SizeCalculatingEntryWriter implements EntryWriter {
     }
 
     private OutputStream convertToFileOutputStream(ByteArrayOutputStream byteArrayOutputStream) throws IOException {
-      initializeTempFile();
-      FileOutputStream fileOutputStream = new FileOutputStream(this.tempFile);
+      File tempFile = initializeTempFile();
+      FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
       StreamUtils.copy(byteArrayOutputStream.toByteArray(), fileOutputStream);
       return fileOutputStream;
     }
 
-    private void initializeTempFile() throws IOException {
+    private File initializeTempFile() {
       if (this.tempFile == null) {
-        this.tempFile = File.createTempFile("springboot-", "-entrycontent");
+        this.tempFile = ApplicationTemp.instance.createFile(
+                null, "infra-app-", "-entrycontent").toFile();
         this.tempFile.deleteOnExit();
       }
+      return tempFile;
     }
 
     @Override

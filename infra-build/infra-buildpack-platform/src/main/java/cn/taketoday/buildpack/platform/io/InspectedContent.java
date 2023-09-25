@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
@@ -34,6 +35,7 @@ import cn.taketoday.util.StreamUtils;
  * be consumed multiple times.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class InspectedContent implements Content {
@@ -171,7 +173,8 @@ public class InspectedContent implements Content {
     }
 
     private void convertToTempFile() throws IOException {
-      this.tempFile = File.createTempFile("buildpack", ".tmp");
+      this.tempFile = ApplicationTemp.instance.createFile(null, "buildpack", ".tmp")
+              .toFile();
       byte[] bytes = ((ByteArrayOutputStream) this.delegate).toByteArray();
       this.delegate = new FileOutputStream(this.tempFile);
       StreamUtils.copy(bytes, this.delegate);

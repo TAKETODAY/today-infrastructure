@@ -44,6 +44,7 @@ import java.util.function.Function;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.framework.web.embedded.jetty.ConfigurableJettyWebServerFactory;
 import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
 import cn.taketoday.framework.web.embedded.jetty.JettyWebServer;
@@ -116,7 +117,8 @@ class JettyWebServerFactoryCustomizerTests {
 
   @Test
   void accessLogCanBeCustomized() throws IOException {
-    File logFile = File.createTempFile("jetty_log", ".log");
+    File logFile = ApplicationTemp.instance.createFile(
+            null, "jetty_log", ".log").toFile();
     bind("server.jetty.accesslog.enabled=true", "server.jetty.accesslog.format=extended_ncsa",
             "server.jetty.accesslog.filename=" + logFile.getAbsolutePath().replace("\\", "\\\\"),
             "server.jetty.accesslog.file-date-format=yyyy-MM-dd", "server.jetty.accesslog.retention-period=42",

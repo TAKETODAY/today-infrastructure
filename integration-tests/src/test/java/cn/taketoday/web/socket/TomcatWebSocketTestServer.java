@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +26,8 @@ import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.apache.tomcat.websocket.server.WsContextListener;
 
 import java.io.File;
-import java.io.IOException;
 
+import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -71,16 +68,11 @@ public class TomcatWebSocketTestServer implements WebSocketTestServer {
   }
 
   private File createTempDir(String prefix) {
-    try {
-      File tempFolder = File.createTempFile(prefix + ".", "." + getPort());
-      tempFolder.delete();
-      tempFolder.mkdir();
-      tempFolder.deleteOnExit();
-      return tempFolder;
-    }
-    catch (IOException ex) {
-      throw new IllegalStateException("Unable to create temp directory", ex);
-    }
+    File tempFolder = ApplicationTemp.instance.createFile(null, prefix + ".", "." + getPort()).toFile();
+    tempFolder.delete();
+    tempFolder.mkdir();
+    tempFolder.deleteOnExit();
+    return tempFolder;
   }
 
   @Override
