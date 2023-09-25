@@ -24,7 +24,6 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
@@ -48,7 +47,6 @@ import cn.taketoday.buildpack.platform.docker.type.Image;
 import cn.taketoday.buildpack.platform.docker.type.ImageReference;
 import cn.taketoday.buildpack.platform.docker.type.VolumeName;
 import cn.taketoday.buildpack.platform.io.FilePermissions;
-import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.gradle.junit.GradleCompatibility;
 import cn.taketoday.gradle.testkit.GradleBuild;
 import cn.taketoday.test.junit.DisabledOnOs;
@@ -66,8 +64,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @GradleCompatibility(configurationCache = true)
 @DisabledIfDockerUnavailable
-@DisabledOnOs(os = { OS.LINUX, OS.MAC }, architecture = "aarch64",
-              disabledReason = "The builder image has no ARM support")
+//@DisabledOnOs(os = { OS.LINUX, OS.MAC }, architecture = "aarch64",
+//              disabledReason = "The builder image has no ARM support")
 class InfraBuildImageIntegrationTests {
 
   GradleBuild gradleBuild;
@@ -302,8 +300,6 @@ class InfraBuildImageIntegrationTests {
   }
 
   @TestTemplate
-  @EnabledOnOs(value = OS.LINUX, disabledReason =
-          "Works with Docker Engine on Linux but is not reliable with Docker Desktop on other OSs")
   void buildsImageWithBindCaches() throws IOException {
     writeMainClass();
     writeLongNameResource();
@@ -314,18 +310,13 @@ class InfraBuildImageIntegrationTests {
     assertThat(result.getOutput()).contains("---> Test Info buildpack building");
     assertThat(result.getOutput()).contains("---> Test Info buildpack done");
     removeImages(projectName);
-
-    Path buildCachePath = ApplicationTemp.createDirectory("junit-image-cache-" + projectName + "-build");
-    Path launchCachePath = ApplicationTemp.createDirectory("junit-image-cache-" + projectName + "-launch");
+    String tempDir = System.getProperty("java.io.tmpdir");
+    Path buildCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-build");
+    Path launchCachePath = Paths.get(tempDir, "junit-image-cache-" + projectName + "-launch");
     assertThat(buildCachePath).exists().isDirectory();
     assertThat(launchCachePath).exists().isDirectory();
-    try {
-      FileSystemUtils.deleteRecursively(buildCachePath);
-      FileSystemUtils.deleteRecursively(launchCachePath);
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
+    FileSystemUtils.deleteRecursively(buildCachePath);
+    FileSystemUtils.deleteRecursively(launchCachePath);
   }
 
   @TestTemplate

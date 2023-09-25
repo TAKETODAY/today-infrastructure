@@ -267,8 +267,7 @@ public class GradleBuild {
   private File getTestKitDir() {
     String username = System.getProperty("user.name");
     String gradleVersion = (this.gradleVersion != null) ? this.gradleVersion : "default";
-    return ApplicationTemp.createDirectory(".gradle-test-kit-" +
-                    username + "-" + getInfraVersion() + "-" + gradleVersion)
+    return ApplicationTemp.createDirectory(".gradle-test-kit-" + username + "-" + getInfraVersion() + "-" + gradleVersion)
             .toFile();
   }
 
