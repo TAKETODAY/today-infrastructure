@@ -56,7 +56,7 @@ buildscript {
   }
 
   dependencies {
-    classpath "cn.taketoday:infra-gradle-plugin:4.0.0-Draft.4-SNAPSHOT"
+    classpath "cn.taketoday:infra-gradle-plugin:4.0.0-Draft.4"
   }
 }
 
