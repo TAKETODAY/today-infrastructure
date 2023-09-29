@@ -118,7 +118,7 @@ public class JavaConventions {
 
     Dependency platform = project.getDependencies()
             .enforcedPlatform(project.getDependencies()
-                    .project(Collections.singletonMap("path", ":infra-platform")));
+                    .project(Collections.singletonMap("path", ":infra-dependencies")));
 
     dependencyManagement.getDependencies().add(platform);
 

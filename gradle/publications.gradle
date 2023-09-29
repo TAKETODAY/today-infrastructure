@@ -6,7 +6,7 @@ String repoPassword = System.getProperty("repoPassword")
 
 publishing {
   publications {
-    mavenJava(MavenPublication) {
+    maven(MavenPublication) {
       pom {
         afterEvaluate {
           name = project.name

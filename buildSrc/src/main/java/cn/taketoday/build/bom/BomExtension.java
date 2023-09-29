@@ -55,7 +55,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import cn.taketoday.build.DeployedPlugin;
 import cn.taketoday.build.bom.Library.Exclusion;
 import cn.taketoday.build.bom.Library.Group;
 import cn.taketoday.build.bom.Library.LibraryVersion;
@@ -78,6 +77,11 @@ import static org.gradle.api.plugins.JavaPlatformPlugin.API_CONFIGURATION_NAME;
  * @since 4.0
  */
 public class BomExtension {
+
+  /**
+   * Name of the task that generates the deployed pom file.
+   */
+  public static final String GENERATE_POM_TASK_NAME = "generatePomFileForMavenPublication";
 
   private final LinkedHashMap<String, DependencyVersion> properties = new LinkedHashMap<>();
 
@@ -114,7 +118,7 @@ public class BomExtension {
 
   public void effectiveBomArtifact() {
     Configuration effectiveBomConfiguration = project.getConfigurations().create("effectiveBom");
-    project.getTasks().matching(task -> task.getName().equals(DeployedPlugin.GENERATE_POM_TASK_NAME)).forEach(task -> {
+    project.getTasks().matching(task -> task.getName().equals(GENERATE_POM_TASK_NAME)).forEach(task -> {
       Sync syncBom = project.getTasks().create("syncBom", Sync.class);
       syncBom.dependsOn(task);
       File generatedBomDir = new File(project.getBuildDir(), "generated/bom");

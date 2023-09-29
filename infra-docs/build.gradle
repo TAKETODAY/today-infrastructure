@@ -4,7 +4,7 @@ plugins {
 
 description = "Infrastructure Docs"
 
-apply from: "${rootDir}/gradle/publications.gradle"
+//apply from: "${rootDir}/gradle/publications.gradle"
 
 jar {
   enabled = false
@@ -166,12 +166,12 @@ task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
 
 distZip.mustRunAfter moduleProjects.check
 
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      artifact docsZip
-      artifact schemaZip
-      artifact distZip
-    }
-  }
-}
+//publishing {
+//  publications {
+//    maven(MavenPublication) {
+//      artifact docsZip
+//      artifact schemaZip
+//      artifact distZip
+//    }
+//  }
+//}

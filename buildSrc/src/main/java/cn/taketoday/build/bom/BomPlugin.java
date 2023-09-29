@@ -33,7 +33,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import cn.taketoday.build.DeployedPlugin;
 import cn.taketoday.build.bom.Library.Group;
 import cn.taketoday.build.bom.Library.Module;
 import cn.taketoday.build.maven.MavenRepositoryPlugin;
@@ -57,7 +56,6 @@ public class BomPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     PluginContainer plugins = project.getPlugins();
-    plugins.apply(DeployedPlugin.class);
     plugins.apply(MavenRepositoryPlugin.class);
     plugins.apply(JavaPlatformPlugin.class);
     JavaPlatformExtension javaPlatform = project.getExtensions().getByType(JavaPlatformExtension.class);
@@ -223,7 +221,7 @@ public class BomPlugin implements Plugin<Project> {
                   .collect(Collectors.toSet());
           Node target = dependency;
           for (String classifier : classifiers) {
-            if (classifier.length() > 0) {
+            if (!classifier.isEmpty()) {
               if (target == null) {
                 target = new Node(null, "dependency");
                 target.appendNode("groupId", groupId);

@@ -33,7 +33,7 @@ rootProject.name = 'today-infrastructure'
 
 include 'infra-bom'
 include 'infra-docs'
-include 'infra-platform'
+include 'infra-dependencies'
 
 include 'today-retry'
 include 'today-tx'

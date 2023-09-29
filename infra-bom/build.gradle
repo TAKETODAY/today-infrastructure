@@ -16,7 +16,7 @@ dependencies {
 
 publishing {
   publications {
-    mavenJava(MavenPublication) {
+    maven(MavenPublication) {
       artifactId = 'infra-bom'
       from components.javaPlatform
     }

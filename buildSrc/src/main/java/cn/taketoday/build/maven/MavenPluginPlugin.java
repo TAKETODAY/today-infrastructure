@@ -84,7 +84,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import cn.taketoday.build.DeployedPlugin;
 import cn.taketoday.build.IntegrationTestPlugin;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
@@ -105,7 +104,6 @@ public class MavenPluginPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPlugins().apply(JavaLibraryPlugin.class);
     project.getPlugins().apply(MavenPublishPlugin.class);
-    project.getPlugins().apply(DeployedPlugin.class);
     project.getPlugins().apply(MavenRepositoryPlugin.class);
     project.getPlugins().apply(IntegrationTestPlugin.class);
 

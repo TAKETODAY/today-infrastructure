@@ -59,7 +59,7 @@ dependencies {
 
   intTestImplementation project(":infra-build:infra-buildpack-platform")
 
-  versionProperties(project(path: ":infra-platform", configuration: "effectiveBom"))
+  versionProperties(project(path: ":infra-dependencies", configuration: "effectiveBom"))
 
 }
 

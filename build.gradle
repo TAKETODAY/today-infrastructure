@@ -18,7 +18,7 @@ ext {
   ]
   javaProjects = subprojects - starterProjects - [
       project(":infra-build:infra-code-coverage"),
-      project(":infra-bom"), project(":infra-build"), project(":infra-platform"),
+      project(":infra-bom"), project(":infra-build"), project(":infra-dependencies"),
   ]
   testFixturesProjects = [
       project(":today-core"),

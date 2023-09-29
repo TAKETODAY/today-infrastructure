@@ -6,7 +6,7 @@ plugins {
 description = "Code Coverage"
 
 dependencies {
-  jacocoAggregation(enforcedPlatform(project(":infra-platform")))
+  jacocoAggregation(enforcedPlatform(project(":infra-dependencies")))
 
   jacocoAggregation project(':today-core')
   jacocoAggregation project(':today-beans')
