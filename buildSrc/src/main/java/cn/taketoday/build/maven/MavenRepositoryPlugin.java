@@ -70,9 +70,9 @@ public class MavenRepositoryPlugin implements Plugin<Project> {
             .matching(task -> task.getName().equals(PUBLISH_TO_PROJECT_REPOSITORY_TASK_NAME))
             .all(task -> setUpProjectRepository(project, task, repositoryLocation));
 
-//    project.getTasks()
-//            .matching(task -> task.getName().equals("publishPluginMavenPublicationToProjectRepository"))
-//            .all(task -> setUpProjectRepository(project, task, repositoryLocation));
+    project.getTasks()
+            .matching(task -> task.getName().equals("publishPluginMavenPublicationToProjectRepository"))
+            .all(task -> setUpProjectRepository(project, task, repositoryLocation));
   }
 
   private void setUpProjectRepository(Project project, Task publishTask, File repositoryLocation) {

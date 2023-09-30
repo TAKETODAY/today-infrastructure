@@ -89,15 +89,3 @@ prepareMavenBinaries {
 intTest {
   enabled = false
 }
-
-//tasks.register('populateIntTestMavenRepository', Sync) {
-//  it.setDestinationDir(file("$buildDir/int-test-maven-repository"));
-//  CopySpec copySpec = project.copySpec()
-//  copySpec.from(configurations.intTestRuntimeClasspath)
-//  copySpec.from(file("$buildDir/maven-repository"))
-////  copySpec.from(runtimeClasspathMavenRepository)
-//
-//  it.with(copySpec)
-//
-//  it.dependsOn('publishMavenPublicationToProjectRepository');
-//}
