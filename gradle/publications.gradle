@@ -1,13 +1,9 @@
 apply plugin: "signing"
 apply plugin: "maven-publish"
 
+boolean isSnapshot = version.endsWith('SNAPSHOT')
 String repoUsername = System.getProperty("repoUsername")
 String repoPassword = System.getProperty("repoPassword")
-
-
-signing {
-  sign publishing.publications
-}
 
 publishing.publications.withType(MavenPublication.class) {
   pom {
@@ -54,10 +50,16 @@ publishing.publications.withType(MavenPublication.class) {
   }
 }
 
+if (!isSnapshot) {
+  signing {
+    sign publishing.publications
+  }
+}
+
 publishing {
   repositories {
     maven {
-      url = version.endsWith('SNAPSHOT')
+      url = isSnapshot
           ? 'https://oss.sonatype.org/content/repositories/snapshots/'
           : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 
