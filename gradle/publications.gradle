@@ -4,6 +4,11 @@ apply plugin: "maven-publish"
 String repoUsername = System.getProperty("repoUsername")
 String repoPassword = System.getProperty("repoPassword")
 
+
+signing {
+  sign publishing.publications
+}
+
 publishing.publications.withType(MavenPublication.class) {
   pom {
     afterEvaluate {
