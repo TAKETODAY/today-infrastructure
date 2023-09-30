@@ -1,24 +1,16 @@
 plugins {
   id "java-gradle-plugin"
-  //id "com.gradle.plugin-publish" version "1.2.0"
 }
 
 description = "TODAY Infrastructure Applications Gradle Plugins"
 
-configurations {
-  documentation
-  "testCompileClasspath" {
-    // Downgrade SLF4J is required for tests to run in Eclipse
-    resolutionStrategy.force("org.slf4j:slf4j-api:1.7.36")
-  }
-  configureEach {
-    resolutionStrategy {
-      eachDependency { dependency ->
-        // Downgrade Jackson as Gradle cannot cope with 2.15.0's multi-version
-        // jar files with bytecode in META-INF/versions/19
-        if (dependency.requested.group.startsWith("com.fasterxml.jackson")) {
-          dependency.useVersion("2.14.2")
-        }
+configurations.configureEach {
+  resolutionStrategy {
+    eachDependency { dependency ->
+      // Downgrade Jackson as Gradle cannot cope with 2.15.0's multi-version
+      // jar files with bytecode in META-INF/versions/19
+      if (dependency.requested.group.startsWith("com.fasterxml.jackson")) {
+        dependency.useVersion("2.14.2")
       }
     }
   }

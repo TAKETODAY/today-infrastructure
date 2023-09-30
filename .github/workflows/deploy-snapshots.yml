@@ -42,7 +42,7 @@ jobs:
         uses: gradle/gradle-build-action@v2.7.1
 
       - name: Deploy snapshots
-        run: ./gradlew --no-daemon publish -DCI=true -DrepoUsername=$SNAPSHOTS_USERNAME -DrepoPassword=$SNAPSHOTS_TOKEN
+        run: ./gradlew --no-daemon publish -DrepoUsername=$SNAPSHOTS_USERNAME -DrepoPassword=$SNAPSHOTS_TOKEN
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
