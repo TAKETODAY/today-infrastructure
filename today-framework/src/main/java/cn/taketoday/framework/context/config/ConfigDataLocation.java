@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -189,7 +186,6 @@ public final class ConfigDataLocation implements OriginProvider {
    * @return a {@link ConfigDataLocation} instance or {@code null} if no location was
    * provided
    */
-  @Nullable
   public static ConfigDataLocation valueOf(@Nullable String location) {
     boolean optional = location != null && location.startsWith(OPTIONAL_PREFIX);
     if (optional) {
