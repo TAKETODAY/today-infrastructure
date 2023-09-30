@@ -134,7 +134,6 @@ abstract class DataSourceConfiguration {
     @ConfigurationProperties(prefix = "datasource.oracleucp")
     static PoolDataSourceImpl dataSource(DataSourceProperties properties) throws SQLException {
       PoolDataSourceImpl dataSource = createDataSource(properties, PoolDataSourceImpl.class);
-      dataSource.setValidateConnectionOnBorrow(true);
       if (StringUtils.hasText(properties.getName())) {
         dataSource.setConnectionPoolName(properties.getName());
       }
