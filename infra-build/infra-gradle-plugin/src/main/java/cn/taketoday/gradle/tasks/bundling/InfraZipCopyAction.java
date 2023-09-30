@@ -89,6 +89,10 @@ class InfraZipCopyAction implements CopyAction {
 
   private final boolean preserveFileTimestamps;
 
+  private final Integer dirMode;
+
+  private final Integer fileMode;
+
   private final boolean includeDefaultLoader;
 
   private final String layerToolsLocation;
@@ -109,14 +113,16 @@ class InfraZipCopyAction implements CopyAction {
 
   private final LayerResolver layerResolver;
 
-  InfraZipCopyAction(File output, Manifest manifest, boolean preserveFileTimestamps, boolean includeDefaultLoader,
-          String layerToolsLocation, Spec<FileTreeElement> requiresUnpack, Spec<FileTreeElement> exclusions,
-          LaunchScriptConfiguration launchScript, Spec<FileCopyDetails> librarySpec,
+  InfraZipCopyAction(File output, Manifest manifest, boolean preserveFileTimestamps, Integer dirMode, Integer fileMode,
+          boolean includeDefaultLoader, String layerToolsLocation, Spec<FileTreeElement> requiresUnpack,
+          Spec<FileTreeElement> exclusions, LaunchScriptConfiguration launchScript, Spec<FileCopyDetails> librarySpec,
           Function<FileCopyDetails, ZipCompression> compressionResolver, String encoding,
           ResolvedDependencies resolvedDependencies, LayerResolver layerResolver) {
     this.output = output;
     this.manifest = manifest;
     this.preserveFileTimestamps = preserveFileTimestamps;
+    this.dirMode = dirMode;
+    this.fileMode = fileMode;
     this.includeDefaultLoader = includeDefaultLoader;
     this.layerToolsLocation = layerToolsLocation;
     this.requiresUnpack = requiresUnpack;
@@ -242,7 +248,7 @@ class InfraZipCopyAction implements CopyAction {
     private void processDirectory(FileCopyDetails details) throws IOException {
       String name = details.getRelativePath().getPathString();
       ZipArchiveEntry entry = new ZipArchiveEntry(name + '/');
-      prepareEntry(entry, name, getTime(details), UnixStat.FILE_FLAG | details.getMode());
+      prepareEntry(entry, name, getTime(details), getFileMode(details));
       this.out.putArchiveEntry(entry);
       this.out.closeArchiveEntry();
       this.writtenDirectories.add(name);
@@ -251,7 +257,7 @@ class InfraZipCopyAction implements CopyAction {
     private void processFile(FileCopyDetails details) throws IOException {
       String name = details.getRelativePath().getPathString();
       ZipArchiveEntry entry = new ZipArchiveEntry(name);
-      prepareEntry(entry, name, getTime(details), UnixStat.FILE_FLAG | details.getMode());
+      prepareEntry(entry, name, getTime(details), getFileMode(details));
       ZipCompression compression = InfraZipCopyAction.this.compressionResolver.apply(details);
       if (compression == ZipCompression.STORED) {
         prepareStoredEntry(details, entry);
@@ -275,7 +281,7 @@ class InfraZipCopyAction implements CopyAction {
       String parentDirectory = getParentDirectory(name);
       if (parentDirectory != null && this.writtenDirectories.add(parentDirectory)) {
         ZipArchiveEntry entry = new ZipArchiveEntry(parentDirectory + '/');
-        prepareEntry(entry, parentDirectory, time, UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM);
+        prepareEntry(entry, parentDirectory, time, getDirMode());
         this.out.putArchiveEntry(entry);
         this.out.closeArchiveEntry();
       }
@@ -306,7 +312,7 @@ class InfraZipCopyAction implements CopyAction {
         // Always write loader entries after META-INF directory (see gh-16698)
         return;
       }
-      LoaderZipEntries loaderEntries = new LoaderZipEntries(getTime());
+      LoaderZipEntries loaderEntries = new LoaderZipEntries(getTime(), getDirMode(), getFileMode());
       this.writtenLoaderEntries = loaderEntries.writeTo(this.out);
       if (InfraZipCopyAction.this.layerResolver != null) {
         for (String name : this.writtenLoaderEntries.getFiles()) {
@@ -395,7 +401,7 @@ class InfraZipCopyAction implements CopyAction {
     private void writeEntry(String name, ZipEntryContentWriter entryWriter, boolean addToLayerIndex,
             ZipEntryCustomizer entryCustomizer) throws IOException {
       ZipArchiveEntry entry = new ZipArchiveEntry(name);
-      prepareEntry(entry, name, getTime(), UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM);
+      prepareEntry(entry, name, getTime(), getFileMode());
       entryCustomizer.customize(entry);
       this.out.putArchiveEntry(entry);
       entryWriter.writeTo(this.out);
@@ -437,6 +443,24 @@ class InfraZipCopyAction implements CopyAction {
         return details.getLastModified();
       }
       return null;
+    }
+
+    private int getDirMode() {
+      return (InfraZipCopyAction.this.dirMode != null)
+             ? InfraZipCopyAction.this.dirMode
+             : UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM;
+    }
+
+    private int getFileMode() {
+      return (InfraZipCopyAction.this.fileMode != null)
+             ? InfraZipCopyAction.this.fileMode
+             : UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM;
+    }
+
+    private int getFileMode(FileCopyDetails details) {
+      return (InfraZipCopyAction.this.fileMode != null)
+             ? InfraZipCopyAction.this.fileMode
+             : UnixStat.FILE_FLAG | details.getMode();
     }
 
   }

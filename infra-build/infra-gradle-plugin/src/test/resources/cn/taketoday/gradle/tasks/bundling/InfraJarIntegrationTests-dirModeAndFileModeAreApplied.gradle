@@ -1,0 +1,10 @@
+plugins {
+	id 'java'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+tasks.named("infraJar") {
+	fileMode = 0400
+	dirMode = 0500
+	mainClass = 'com.example.Application'
+}

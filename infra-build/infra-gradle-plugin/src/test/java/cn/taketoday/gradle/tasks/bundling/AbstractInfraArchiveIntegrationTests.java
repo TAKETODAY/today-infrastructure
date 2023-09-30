@@ -17,6 +17,9 @@
 
 package cn.taketoday.gradle.tasks.bundling;
 
+import org.apache.commons.compress.archivers.zip.UnixStat;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.TestTemplate;
@@ -34,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -205,6 +209,41 @@ abstract class AbstractInfraArchiveIntegrationTests {
 
   @TestTemplate
   void developmentOnlyDependenciesCanBeIncludedInTheArchive() throws IOException {
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.6.jar",
+              this.libPath + "commons-lang3-3.9.jar");
+    }
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyDependenciesAreNotIncludedInTheArchiveByDefault() throws IOException {
+    File srcMainResources = new File(this.gradleBuild.getProjectDir(), "src/main/resources");
+    srcMainResources.mkdirs();
+    new File(srcMainResources, "resource").createNewFile();
+    assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
+            .isEqualTo(TaskOutcome.SUCCESS);
+    try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Stream<String> libEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.libPath));
+      assertThat(libEntryNames).containsExactly(this.libPath + "commons-io-2.6.jar");
+      Stream<String> classesEntryNames = jarFile.stream()
+              .filter((entry) -> !entry.isDirectory())
+              .map(JarEntry::getName)
+              .filter((name) -> name.startsWith(this.classesPath));
+      assertThat(classesEntryNames).containsExactly(this.classesPath + "resource");
+    }
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyDependenciesCanBeIncludedInTheArchive() throws IOException {
     assertThat(this.gradleBuild.build(this.taskName).task(":" + this.taskName).getOutcome())
             .isEqualTo(TaskOutcome.SUCCESS);
     try (JarFile jarFile = new JarFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
@@ -509,6 +548,48 @@ abstract class AbstractInfraArchiveIntegrationTests {
     }
   }
 
+  @TestTemplate
+  void defaultDirAndFileModesAreUsed() throws IOException {
+    BuildResult result = this.gradleBuild.build(this.taskName);
+    assertThat(result.task(":" + this.taskName).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    try (ZipFile jarFile = new ZipFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Enumeration<ZipArchiveEntry> entries = jarFile.getEntries();
+      while (entries.hasMoreElements()) {
+        ZipArchiveEntry entry = entries.nextElement();
+        if (entry.getName().startsWith("META-INF/")) {
+          continue;
+        }
+        if (entry.isDirectory()) {
+          assertEntryMode(entry, UnixStat.DIR_FLAG | UnixStat.DEFAULT_DIR_PERM);
+        }
+        else {
+          assertEntryMode(entry, UnixStat.FILE_FLAG | UnixStat.DEFAULT_FILE_PERM);
+        }
+      }
+    }
+  }
+
+  @TestTemplate
+  void dirModeAndFileModeAreApplied() throws IOException {
+    BuildResult result = this.gradleBuild.build(this.taskName);
+    assertThat(result.task(":" + this.taskName).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    try (ZipFile jarFile = new ZipFile(new File(this.gradleBuild.getProjectDir(), "build/libs").listFiles()[0])) {
+      Enumeration<ZipArchiveEntry> entries = jarFile.getEntries();
+      while (entries.hasMoreElements()) {
+        ZipArchiveEntry entry = entries.nextElement();
+        if (entry.getName().startsWith("META-INF/")) {
+          continue;
+        }
+        if (entry.isDirectory()) {
+          assertEntryMode(entry, 0500);
+        }
+        else {
+          assertEntryMode(entry, 0400);
+        }
+      }
+    }
+  }
+
   private void copyMainClassApplication() throws IOException {
     copyApplication("main");
   }
@@ -644,6 +725,13 @@ abstract class AbstractInfraArchiveIntegrationTests {
       }
     }
     return false;
+  }
+
+  private static void assertEntryMode(ZipArchiveEntry entry, int expectedMode) {
+    assertThat(entry.getUnixMode())
+            .withFailMessage(() -> "Expected mode " + Integer.toOctalString(expectedMode) + " for entry "
+                    + entry.getName() + " but actual is " + Integer.toOctalString(entry.getUnixMode()))
+            .isEqualTo(expectedMode);
   }
 
 }

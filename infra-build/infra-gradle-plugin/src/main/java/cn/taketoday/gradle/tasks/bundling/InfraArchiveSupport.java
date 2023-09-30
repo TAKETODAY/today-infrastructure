@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -117,11 +119,13 @@ class InfraArchiveSupport {
     return createCopyAction(jar, resolvedDependencies, null, null);
   }
 
-  CopyAction createCopyAction(Jar jar, ResolvedDependencies resolvedDependencies,
-          LayerResolver layerResolver, String layerToolsLocation) {
+  CopyAction createCopyAction(Jar jar, ResolvedDependencies resolvedDependencies, LayerResolver layerResolver,
+          String layerToolsLocation) {
     File output = jar.getArchiveFile().get().getAsFile();
     Manifest manifest = jar.getManifest();
     boolean preserveFileTimestamps = jar.isPreserveFileTimestamps();
+    Integer dirMode = jar.getDirMode();
+    Integer fileMode = jar.getFileMode();
     boolean includeDefaultLoader = isUsingDefaultLoader(jar);
     Spec<FileTreeElement> requiresUnpack = this.requiresUnpack.getAsSpec();
     Spec<FileTreeElement> exclusions = this.exclusions.getAsExcludeSpec();
@@ -129,9 +133,9 @@ class InfraArchiveSupport {
     Spec<FileCopyDetails> librarySpec = this.librarySpec;
     Function<FileCopyDetails, ZipCompression> compressionResolver = this.compressionResolver;
     String encoding = jar.getMetadataCharset();
-    CopyAction action = new InfraZipCopyAction(output, manifest, preserveFileTimestamps, includeDefaultLoader,
-            layerToolsLocation, requiresUnpack, exclusions, launchScript, librarySpec, compressionResolver,
-            encoding, resolvedDependencies, layerResolver);
+    CopyAction action = new InfraZipCopyAction(output, manifest, preserveFileTimestamps, dirMode, fileMode,
+            includeDefaultLoader, layerToolsLocation, requiresUnpack, exclusions, launchScript, librarySpec,
+            compressionResolver, encoding, resolvedDependencies, layerResolver);
     return jar.isReproducibleFileOrder() ? new ReproducibleOrderingCopyAction(action) : action;
   }
 

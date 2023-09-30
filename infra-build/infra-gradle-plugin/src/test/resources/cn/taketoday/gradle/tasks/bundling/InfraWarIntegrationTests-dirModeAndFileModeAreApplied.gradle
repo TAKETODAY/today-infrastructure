@@ -1,0 +1,10 @@
+plugins {
+	id 'war'
+	id 'cn.taketoday.application' version '{version}'
+}
+
+tasks.named("infraWar") {
+	fileMode = 0400
+	dirMode = 0500
+	mainClass = 'com.example.Application'
+}
