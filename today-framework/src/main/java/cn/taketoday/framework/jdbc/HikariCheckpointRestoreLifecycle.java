@@ -31,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
+import javax.sql.DataSource;
+
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.jdbc.config.DataSourceUnwrapper;
 import cn.taketoday.lang.Assert;
@@ -61,8 +63,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
     Field closeConnectionExecutor = ReflectionUtils.findField(HikariPool.class, "closeConnectionExecutor");
     Assert.notNull(closeConnectionExecutor, "Unable to locate closeConnectionExecutor for HikariPool");
     Assert.isAssignable(ThreadPoolExecutor.class, closeConnectionExecutor.getType(),
-        "Expected ThreadPoolExecutor for closeConnectionExecutor but found %s"
-            .formatted(closeConnectionExecutor.getType()));
+            "Expected ThreadPoolExecutor for closeConnectionExecutor but found %s".formatted(closeConnectionExecutor.getType()));
     ReflectionUtils.makeAccessible(closeConnectionExecutor);
     CLOSE_CONNECTION_EXECUTOR = closeConnectionExecutor;
   }
@@ -73,15 +74,17 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
   /**
    * Creates a new {@code HikariCheckpointRestoreLifecycle} that will allow the given
-   * {@code dataSource} to participate in checkpoint-restore.
+   * {@code dataSource} to participate in checkpoint-restore. The {@code dataSource} is
+   * {@link DataSourceUnwrapper#unwrap unwrapped} to a {@link HikariDataSource}. If such
+   * unwrapping is not possible, the lifecycle will have no effect.
    *
    * @param dataSource the checkpoint-restore participant
    */
-  public HikariCheckpointRestoreLifecycle(HikariDataSource dataSource) {
+  public HikariCheckpointRestoreLifecycle(DataSource dataSource) {
     this.dataSource = DataSourceUnwrapper.unwrap(dataSource, HikariConfigMXBean.class, HikariDataSource.class);
     this.hasOpenConnections = (pool) -> {
       ThreadPoolExecutor closeConnectionExecutor = (ThreadPoolExecutor) ReflectionUtils
-          .getField(CLOSE_CONNECTION_EXECUTOR, pool);
+              .getField(CLOSE_CONNECTION_EXECUTOR, pool);
       Assert.notNull(closeConnectionExecutor, "CloseConnectionExecutor was null");
       return closeConnectionExecutor.getActiveCount() > 0;
     };
@@ -89,7 +92,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
   @Override
   public void start() {
-    if (this.dataSource.isRunning()) {
+    if (this.dataSource == null || this.dataSource.isRunning()) {
       return;
     }
     Assert.state(!this.dataSource.isClosed(), "DataSource has been closed and cannot be restarted");
@@ -101,7 +104,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
   @Override
   public void stop() {
-    if (!this.dataSource.isRunning()) {
+    if (this.dataSource == null || !this.dataSource.isRunning()) {
       return;
     }
     if (this.dataSource.isAllowPoolSuspension()) {
@@ -128,7 +131,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
       logger.warn("Hikari connections could not be closed within {}", shutdownTimeout, ex);
     }
     catch (ExecutionException ex) {
-      throw new IllegalStateException("Failed to close Hikari connections", ex);
+      throw new RuntimeException("Failed to close Hikari connections", ex);
     }
   }
 
@@ -146,7 +149,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
   @Override
   public boolean isRunning() {
-    return this.dataSource.isRunning();
+    return this.dataSource != null && this.dataSource.isRunning();
   }
 
 }

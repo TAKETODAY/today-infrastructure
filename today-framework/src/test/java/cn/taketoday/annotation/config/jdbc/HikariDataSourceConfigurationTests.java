@@ -23,9 +23,15 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.jdbc.HikariCheckpointRestoreLifecycle;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+import cn.taketoday.jdbc.datasource.DelegatingDataSource;
 import cn.taketoday.test.classpath.ClassPathOverrides;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,9 +115,37 @@ class HikariDataSourceConfigurationTests {
   }
 
   @Test
+  @ClassPathOverrides("org.crac:crac:1.3.0")
+  void whenCheckpointRestoreIsAvailableAndDataSourceHasBeenWrappedHikariAutoConfigRegistersLifecycleBean() {
+    this.contextRunner.withUserConfiguration(DataSourceWrapperConfiguration.class)
+            .withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
+            .run((context) -> assertThat(context).hasSingleBean(HikariCheckpointRestoreLifecycle.class));
+  }
+
+  @Test
   void whenCheckpointRestoreIsNotAvailableHikariAutoConfigDoesNotRegisterLifecycleBean() {
     this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
             .run((context) -> assertThat(context).doesNotHaveBean(HikariCheckpointRestoreLifecycle.class));
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class DataSourceWrapperConfiguration {
+
+    @Bean
+    static BeanPostProcessor dataSourceWrapper() {
+      return new InitializationBeanPostProcessor() {
+
+        @Override
+        public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+          if (bean instanceof DataSource dataSource) {
+            return new DelegatingDataSource(dataSource);
+          }
+          return bean;
+        }
+
+      };
+    }
+
   }
 
 }
