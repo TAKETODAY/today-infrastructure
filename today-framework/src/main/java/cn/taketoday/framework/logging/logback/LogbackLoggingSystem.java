@@ -37,6 +37,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.jul.LevelChangePropagator;
+import ch.qos.logback.classic.spi.TurboFilterList;
 import ch.qos.logback.classic.turbo.TurboFilter;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.FilterReply;
@@ -205,34 +206,38 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   protected void loadDefaults(LoggingStartupContext startupContext, @Nullable LogFile logFile) {
     LoggerContext context = getLoggerContext();
     stopAndReset(context);
-    boolean debug = Boolean.getBoolean("logback.debug");
-    if (debug) {
-      StatusListenerConfigHelper.addOnConsoleListenerInstance(context, new OnConsoleStatusListener());
-    }
-    Environment environment = startupContext.getEnvironment();
-    // Apply system properties directly in case the same JVM runs multiple apps
-    new LogbackLoggingSystemProperties(environment, getDefaultValueResolver(environment), context::putProperty)
-            .apply(logFile);
-    LogbackConfigurator configurator = debug ? new DebugLogbackConfigurator(context)
-                                             : new LogbackConfigurator(context);
-    new DefaultLogbackConfiguration(logFile).apply(configurator);
-    context.setPackagingDataEnabled(true);
+    withLoggingSuppressed(() -> {
+      boolean debug = Boolean.getBoolean("logback.debug");
+      if (debug) {
+        StatusListenerConfigHelper.addOnConsoleListenerInstance(context, new OnConsoleStatusListener());
+      }
+      Environment environment = startupContext.getEnvironment();
+      // Apply system properties directly in case the same JVM runs multiple apps
+      new LogbackLoggingSystemProperties(environment, getDefaultValueResolver(environment), context::putProperty)
+              .apply(logFile);
+      LogbackConfigurator configurator = debug ? new DebugLogbackConfigurator(context)
+                                               : new LogbackConfigurator(context);
+      new DefaultLogbackConfiguration(logFile).apply(configurator);
+      context.setPackagingDataEnabled(true);
+    });
   }
 
   @Override
   protected void loadConfiguration(@Nullable LoggingStartupContext context,
           String location, @Nullable LogFile logFile) {
-    if (context != null) {
-      applySystemProperties(context.getEnvironment(), logFile);
-    }
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
-    try {
-      configureByResourceUrl(context, loggerContext, ResourceUtils.getURL(location));
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException("Could not initialize Logback logging from " + location, ex);
-    }
+    withLoggingSuppressed(() -> {
+      if (context != null) {
+        applySystemProperties(context.getEnvironment(), logFile);
+      }
+      try {
+        configureByResourceUrl(context, loggerContext, ResourceUtils.getURL(location));
+      }
+      catch (Exception ex) {
+        throw new IllegalStateException("Could not initialize Logback logging from " + location, ex);
+      }
+    });
     reportConfigurationErrorsIfNecessary(loggerContext);
   }
 
@@ -441,6 +446,17 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
             .getObject(key);
     context.removeObject(key);
     return contribution;
+  }
+
+  private void withLoggingSuppressed(Runnable action) {
+    TurboFilterList turboFilters = getLoggerContext().getTurboFilterList();
+    turboFilters.add(FILTER);
+    try {
+      action.run();
+    }
+    finally {
+      turboFilters.remove(FILTER);
+    }
   }
 
   /**
