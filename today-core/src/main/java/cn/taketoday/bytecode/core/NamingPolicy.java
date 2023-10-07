@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.core;
 
 import java.util.function.Predicate;
@@ -24,6 +22,8 @@ import java.util.function.Predicate;
 /**
  * Customize the generated class name for {@link AbstractClassGenerator}-based
  * utilities.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 @FunctionalInterface
 public interface NamingPolicy {
@@ -63,6 +63,8 @@ public interface NamingPolicy {
 
     private static final String LABEL = "$$Infra$$";
 
+    private static final String METHOD_ACCESS_SUFFIX = "MethodAccess$$";
+
     @Override
     public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
       if (prefix == null) {
@@ -79,6 +81,13 @@ public interface NamingPolicy {
       }
       else {
         base = prefix + LABEL;
+      }
+
+      // When the generated class name is for a FastClass, the source is
+      // "cn.taketoday.bytecode.reflect.MethodAccess".
+      boolean isMethodAccess = (source != null && source.endsWith("MethodAccess"));
+      if (isMethodAccess && !prefix.contains(METHOD_ACCESS_SUFFIX)) {
+        base += METHOD_ACCESS_SUFFIX;
       }
 
       int index = 0;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.core;
 
 import java.util.function.Predicate;
@@ -34,6 +32,8 @@ import cn.taketoday.lang.TodayStrategies;
  * hashcode derived from the parameters used to create the object. If the same
  * name has been previously been used in the same <code>ClassLoader</code>, a
  * suffix is added to ensure uniqueness.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class DefaultNamingPolicy implements NamingPolicy {
 
@@ -75,11 +75,14 @@ public class DefaultNamingPolicy implements NamingPolicy {
     return "ByTODAY";
   }
 
+  @Override
   public int hashCode() {
     return getTag().hashCode();
   }
 
+  @Override
   public boolean equals(Object o) {
     return o instanceof DefaultNamingPolicy policy && policy.getTag().equals(getTag());
   }
+
 }
