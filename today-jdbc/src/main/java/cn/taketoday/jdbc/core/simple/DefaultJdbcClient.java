@@ -241,7 +241,7 @@ final class DefaultJdbcClient implements JdbcClient {
     public int update(KeyHolder generatedKeyHolder) {
       return (useNamedParams() ?
               namedParamOps.update(this.sql, this.namedParamSource, generatedKeyHolder) :
-              classicOps.update(getPreparedStatementCreatorForIndexedParams(), generatedKeyHolder));
+              classicOps.update(getPreparedStatementCreatorForIndexedParams(true), generatedKeyHolder));
     }
 
     private boolean useNamedParams() {
@@ -257,7 +257,13 @@ final class DefaultJdbcClient implements JdbcClient {
     }
 
     private PreparedStatementCreator getPreparedStatementCreatorForIndexedParams() {
-      return new PreparedStatementCreatorFactory(sql).newPreparedStatementCreator(indexedParams);
+      return getPreparedStatementCreatorForIndexedParams(false);
+    }
+
+    private PreparedStatementCreator getPreparedStatementCreatorForIndexedParams(boolean returnGeneratedKeys) {
+      PreparedStatementCreatorFactory factory = new PreparedStatementCreatorFactory(this.sql);
+      factory.setReturnGeneratedKeys(returnGeneratedKeys);
+      return factory.newPreparedStatementCreator(this.indexedParams);
     }
 
     private class IndexedParamResultQuerySpec implements ResultQuerySpec {
