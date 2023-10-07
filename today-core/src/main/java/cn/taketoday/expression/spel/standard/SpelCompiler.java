@@ -132,7 +132,7 @@ public final class SpelCompiler extends BytecodeCompiler implements Opcodes {
     // Create class outline 'spel/ExNNN extends cn.taketoday.expression.spel.CompiledExpression'
     String className = "spel/Ex" + getNextSuffix();
     ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, childClassLoader);
-    cw.visit(V1_8, ACC_PUBLIC, className, null, "cn/taketoday/expression/spel/CompiledExpression", null);
+    cw.visit(JAVA_VERSION, ACC_PUBLIC, className, null, "cn/taketoday/expression/spel/CompiledExpression", null);
 
     // Create default constructor
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);

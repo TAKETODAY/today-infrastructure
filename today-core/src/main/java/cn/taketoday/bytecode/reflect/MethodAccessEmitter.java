@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.reflect;
 
 import java.lang.reflect.Constructor;
@@ -25,12 +23,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
 
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.MethodSignature;
+import cn.taketoday.bytecode.commons.TableSwitchGenerator;
 import cn.taketoday.bytecode.core.Block;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
@@ -40,15 +39,13 @@ import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.bytecode.core.MethodInfoTransformer;
 import cn.taketoday.bytecode.core.ObjectSwitchCallback;
 import cn.taketoday.bytecode.core.VisibilityPredicate;
-import cn.taketoday.bytecode.commons.MethodSignature;
-import cn.taketoday.bytecode.commons.TableSwitchGenerator;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2018-11-08 15:08
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-11-08 15:08
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 final class MethodAccessEmitter extends ClassEmitter {
@@ -61,11 +58,7 @@ final class MethodAccessEmitter extends ClassEmitter {
   static final MethodSignature NEW_INSTANCE = MethodSignature.from("Object newInstance(int, Object[])");
   static final MethodSignature GET_MAX_INDEX = MethodSignature.from("int getMaxIndex()");
 
-  static final MethodSignature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
-          MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])");
-
   private static final Type FAST_CLASS = Type.fromClass(MethodAccess.class);
-  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = Type.fromInternalName("java/lang/IllegalArgumentException");
   private static final Type INVOCATION_TARGET_EXCEPTION =
           Type.fromInternalName("java/lang/reflect/InvocationTargetException");
 
@@ -134,11 +127,7 @@ final class MethodAccessEmitter extends ClassEmitter {
   // TODO: support constructor indices ("<init>")
   private void emitIndexBySignature(List<Method> methods) {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, SIGNATURE_GET_INDEX);
-    List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
-      public String apply(Method obj) {
-        return MethodSignature.from(obj).toString();
-      }
-    });
+    List<String> signatures = CollectionUtils.transform(methods, obj -> MethodSignature.from(obj).toString());
     e.loadArg(0);
     e.invokeVirtual(Type.TYPE_OBJECT, MethodSignature.TO_STRING);
     signatureSwitchHelper(e, signatures);
@@ -151,14 +140,12 @@ final class MethodAccessEmitter extends ClassEmitter {
     CodeEmitter e = beginMethod(Opcodes.ACC_PUBLIC, METHOD_GET_INDEX);
     if (methods.size() > TOO_MANY_METHODS) {
       // hack for big classes
-      List<String> signatures = CollectionUtils.transform(methods, new Function<Method, String>() {
-        public String apply(Method obj) {
-          String s = MethodSignature.from(obj).toString();
-          return s.substring(0, s.lastIndexOf(')') + 1);
-        }
+      List<String> signatures = CollectionUtils.transform(methods, obj -> {
+        String s = MethodSignature.from(obj).toString();
+        return s.substring(0, s.lastIndexOf(')') + 1);
       });
       e.loadArgs();
-      e.invokeStatic(FAST_CLASS, GET_SIGNATURE_WITHOUT_RETURN_TYPE);
+      e.invokeStatic(FAST_CLASS, MethodSignature.from("String getSignatureWithoutReturnType(String, Class[])"));
       signatureSwitchHelper(e, signatures);
     }
     else {
@@ -216,7 +203,7 @@ final class MethodAccessEmitter extends ClassEmitter {
     block.end();
     EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
     e.mark(illegalArg);
-    e.throwException(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
+    e.throwException(Type.fromClass(IllegalArgumentException.class), "Cannot find matching method/constructor");
   }
 
   private static final class GetIndexCallback implements ObjectSwitchCallback {

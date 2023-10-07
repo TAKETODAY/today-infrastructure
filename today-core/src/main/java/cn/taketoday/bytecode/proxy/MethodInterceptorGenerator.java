@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode.proxy;
 
 import java.lang.reflect.Method;
@@ -29,6 +27,8 @@ import java.util.Map.Entry;
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.Local;
+import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.core.CglibReflectUtils;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.ClassInfo;
@@ -36,14 +36,12 @@ import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
 import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.bytecode.core.ObjectSwitchCallback;
-import cn.taketoday.bytecode.commons.Local;
-import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * @author TODAY <br>
- * 2019-09-03 19:29
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-09-03 19:29
  */
 final class MethodInterceptorGenerator implements CallbackGenerator {
   public static final MethodInterceptorGenerator INSTANCE = new MethodInterceptorGenerator();
@@ -51,7 +49,6 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
   static final String FIND_PROXY_NAME = "today$FindMethodProxy";
 
   private static final Type METHOD = Type.fromClass(Method.class);
-  private static final Type ABSTRACT_METHOD_ERROR = Type.fromClass(AbstractMethodError.class);
 
   private static final Type REFLECT_UTILS = Type.fromClass(CglibReflectUtils.class);
   private static final Type METHOD_PROXY = Type.fromClass(MethodProxy.class);
@@ -140,7 +137,7 @@ final class MethodInterceptorGenerator implements CallbackGenerator {
 
   private static void superHelper(CodeEmitter e, MethodInfo method, Context context) {
     if (Modifier.isAbstract(method.getModifiers())) {
-      e.throwException(ABSTRACT_METHOD_ERROR, method + " is abstract");
+      e.throwException(Type.fromClass(AbstractMethodError.class), method + " is abstract");
     }
     else {
       e.loadThis();
