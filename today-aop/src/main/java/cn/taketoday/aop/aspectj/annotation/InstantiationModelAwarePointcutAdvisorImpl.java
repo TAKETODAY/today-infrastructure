@@ -42,13 +42,12 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
 final class InstantiationModelAwarePointcutAdvisorImpl
         implements InstantiationModelAwarePointcutAdvisor, AspectJPrecedenceInformation, Serializable {
-
-  private static final Advice EMPTY_ADVICE = new Advice() { };
 
   private final AspectJExpressionPointcut declaredPointcut;
 
@@ -295,13 +294,17 @@ final class InstantiationModelAwarePointcutAdvisorImpl
     }
 
     private boolean isAspectMaterialized() {
-      return aspectInstanceFactory == null || aspectInstanceFactory.isMaterialized();
+      return (this.aspectInstanceFactory == null || this.aspectInstanceFactory.isMaterialized());
     }
 
     @Override
     public boolean equals(@Nullable Object other) {
+      // For equivalence, we only need to compare the preInstantiationPointcut fields since
+      // they include the declaredPointcut fields. In addition, we should not compare the
+      // aspectInstanceFactory fields since LazySingletonAspectInstanceFactoryDecorator does
+      // not implement equals().
       return (this == other || (other instanceof PerTargetInstantiationModelPointcut that &&
-              ObjectUtils.nullSafeEquals(this.declaredPointcut.getExpression(), that.declaredPointcut.getExpression())));
+              ObjectUtils.nullSafeEquals(this.preInstantiationPointcut, that.preInstantiationPointcut)));
     }
 
     @Override
