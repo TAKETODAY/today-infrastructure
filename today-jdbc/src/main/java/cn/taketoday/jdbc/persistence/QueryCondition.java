@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -179,11 +176,11 @@ public abstract class QueryCondition {
    * <pre>
    *   {@code
    *     QueryCondition condition = QueryCondition.nested(
-   *             QueryCondition.equalsTo("name", "TODAY")
+   *             QueryCondition.isEqualsTo("name", "TODAY")
    *                     .or(QueryCondition.equalsTo("age", 10))
    *     ).and(
    *             QueryCondition.nested(
-   *                     QueryCondition.equalsTo("gender", Gender.MALE)
+   *                     QueryCondition.isEqualsTo("gender", Gender.MALE)
    *                             .and(QueryCondition.of("email", Operator.PREFIX_LIKE, "taketoday"))
    *             )
    *     );

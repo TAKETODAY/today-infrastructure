@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,7 +90,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   private Map<String, String> caseSensitiveColumnMappings;
 
   @Nullable
-  private StatementCallback statementCallback;
+  private QueryStatementCallback statementCallback;
 
   @Nullable
   private BatchResult batchResult;
@@ -178,7 +175,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   // Execute
   //---------------------------------------------------------------------
 
-  protected PreparedStatement buildStatement() {
+  protected PreparedStatement buildStatement() throws SQLException {
     return buildStatement(true);
   }
 
@@ -187,7 +184,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    * @throws ParameterBindFailedException parameter bind failed
    * @throws ArrayParameterBindFailedException array parameter bind failed
    */
-  protected PreparedStatement buildStatement(boolean allowArrayParameters) {
+  protected PreparedStatement buildStatement(boolean allowArrayParameters) throws SQLException {
     // prepare statement creation
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {
@@ -231,7 +228,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   /**
    * add a Statement processor when {@link  #buildStatement() build a PreparedStatement}
    */
-  public AbstractQuery processStatement(StatementCallback callback) {
+  public AbstractQuery processStatement(QueryStatementCallback callback) {
     statementCallback = callback;
     return this;
   }
@@ -405,8 +402,8 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   public <T> UpdateResult<T> executeUpdate(@Nullable TypeHandler<T> generatedKeyHandler) {
     logStatement();
     long start = System.currentTimeMillis();
-    PreparedStatement statement = buildStatement();
     try {
+      PreparedStatement statement = buildStatement();
       var ret = new UpdateResult<T>(statement.executeUpdate(), connection);
 
       if (generatedKeyHandler != null) {

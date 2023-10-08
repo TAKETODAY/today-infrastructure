@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.jdbc;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * User defined operations when build a PreparedStatement
@@ -28,7 +26,7 @@ import java.sql.PreparedStatement;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/10 00:33
  */
-public interface StatementCallback {
+public interface QueryStatementCallback {
 
   /**
    * User defined operations when build a PreparedStatement
@@ -36,5 +34,6 @@ public interface StatementCallback {
    * @param statement PreparedStatement
    * @see NamedQuery#buildStatement
    */
-  void doWith(PreparedStatement statement);
+  void doWith(PreparedStatement statement) throws SQLException;
+
 }
