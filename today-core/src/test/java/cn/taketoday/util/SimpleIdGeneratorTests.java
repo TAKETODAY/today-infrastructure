@@ -17,36 +17,23 @@
 
 package cn.taketoday.util;
 
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * A simple {@link IdGenerator} that starts at 1, increments up to
- * {@link Long#MAX_VALUE}, and then rolls over.
- *
- * @author Rossen Stoyanchev
- * @author TODAY 2021/9/11 17:52
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/10/11 11:34
  */
-public class SimpleIdGenerator implements IdGenerator {
-  private final long mostSigBits;
-  private final AtomicLong leastSigBits = new AtomicLong();
+class SimpleIdGeneratorTests {
 
-  public SimpleIdGenerator() {
-    this(0);
+  @Test
+  void test() {
+    SimpleIdGenerator generator = new SimpleIdGenerator();
+    assertThat(generator.getMostSigBits()).isZero();
+    assertThat(generator.generateId()).isNotEqualTo(generator.generateId());
+
+    assertThat(new SimpleIdGenerator(10).getMostSigBits()).isEqualTo(10);
+
   }
-
-  public SimpleIdGenerator(long mostSigBits) {
-    this.mostSigBits = mostSigBits;
-  }
-
-  @Override
-  public UUID generateId() {
-    return new UUID(mostSigBits, this.leastSigBits.incrementAndGet());
-  }
-
-  public long getMostSigBits() {
-    return mostSigBits;
-  }
-
 }
