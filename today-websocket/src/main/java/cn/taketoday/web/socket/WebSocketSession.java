@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +18,6 @@
 package cn.taketoday.web.socket;
 
 import java.io.IOException;
-import java.io.Serial;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
@@ -33,16 +28,18 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.AlternativeJdkIdGenerator;
 
 /**
+ * A WebSocket session abstraction. Allows sending messages over a WebSocket
+ * connection and closing it.
+ *
  * @author TODAY 2021/4/5 14:16
  * @since 3.0
  */
-public abstract class WebSocketSession
-        extends AttributeAccessorSupport implements Serializable, AttributeAccessor {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public abstract class WebSocketSession extends AttributeAccessorSupport implements AttributeAccessor {
+
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
   public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
   public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
+
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
   private final String id = idGenerator.generateId().toString();
