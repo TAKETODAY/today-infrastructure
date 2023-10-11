@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,13 +65,13 @@ public class ServerEndpointRegistration
   @Nullable
   private final BeanCreatingHandlerProvider<Endpoint> endpointProvider;
 
-  private List<String> subprotocols = new ArrayList<>(0);
+  private List<String> subprotocols = new ArrayList<>();
 
-  private List<Extension> extensions = new ArrayList<>(0);
+  private List<Extension> extensions = new ArrayList<>();
 
-  private List<Class<? extends Encoder>> encoders = new ArrayList<>(0);
+  private List<Class<? extends Encoder>> encoders = new ArrayList<>();
 
-  private List<Class<? extends Decoder>> decoders = new ArrayList<>(0);
+  private List<Class<? extends Decoder>> decoders = new ArrayList<>();
 
   private final Map<String, Object> userProperties = new HashMap<>(4);
 

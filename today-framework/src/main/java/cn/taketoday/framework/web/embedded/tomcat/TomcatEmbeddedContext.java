@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +64,7 @@ class TomcatEmbeddedContext extends StandardContext {
     super.setManager(manager);
   }
 
-  void deferredLoadOnStartup() throws LifecycleException {
+  public void deferredLoadOnStartup() throws LifecycleException {
     doWithThreadContextClassLoader(getLoader().getClassLoader(),
             () -> getLoadOnStartupWrappers(findChildren()).forEach(this::load));
   }
@@ -75,10 +72,11 @@ class TomcatEmbeddedContext extends StandardContext {
   private Stream<Wrapper> getLoadOnStartupWrappers(Container[] children) {
     Map<Integer, List<Wrapper>> grouped = new TreeMap<>();
     for (Container child : children) {
-      Wrapper wrapper = (Wrapper) child;
-      int order = wrapper.getLoadOnStartup();
-      if (order >= 0) {
-        grouped.computeIfAbsent(order, (o) -> new ArrayList<>()).add(wrapper);
+      if (child instanceof Wrapper wrapper) {
+        int order = wrapper.getLoadOnStartup();
+        if (order >= 0) {
+          grouped.computeIfAbsent(order, (o) -> new ArrayList<>()).add(wrapper);
+        }
       }
     }
     return grouped.values().stream().flatMap(List::stream);
@@ -121,12 +119,12 @@ class TomcatEmbeddedContext extends StandardContext {
     }
   }
 
-  void setStarter(@Nullable TomcatStarter starter) {
+  public void setStarter(@Nullable TomcatStarter starter) {
     this.starter = starter;
   }
 
   @Nullable
-  TomcatStarter getStarter() {
+  public TomcatStarter getStarter() {
     return this.starter;
   }
 

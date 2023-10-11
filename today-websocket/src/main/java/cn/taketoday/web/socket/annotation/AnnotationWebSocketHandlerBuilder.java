@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,9 +48,10 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  * @since 3.0.1
  */
 public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
-  protected static boolean isJettyPresent = isPresent("org.eclipse.jetty.websocket.api.Session",
-          AnnotationWebSocketHandlerBuilder.class.getClassLoader());
+  protected static boolean isJettyPresent = isPresent("org.eclipse.jetty.websocket.api.Session", AnnotationWebSocketHandlerBuilder.class);
+
   protected final ArrayList<EndpointParameterResolver> resolvers = new ArrayList<>(16);
+
   protected boolean supportPartialMessage;
 
   private ConversionService conversionService = ApplicationConversionService.getSharedInstance();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,8 +44,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   protected final List<EndpointParameterResolver> resolvers;
   private final boolean supportPartialMessage;
 
-  public AnnotationWebSocketDispatcher(
-          WebSocketHandlerDelegate socketHandler,
+  public AnnotationWebSocketDispatcher(WebSocketHandlerDelegate socketHandler,
           List<EndpointParameterResolver> resolvers, boolean supportPartialMessage) {
     this.resolvers = resolvers;
     this.socketHandler = socketHandler;
@@ -76,8 +72,8 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     handle(socketHandler.onOpen, session, null);
   }
 
-  protected Object[] resolveParameters(
-          WebSocketSession session, WebSocketHandlerMethod handler, Message<?> message, Object... providedArgs) {
+  protected Object[] resolveParameters(WebSocketSession session,
+          WebSocketHandlerMethod handler, Message<?> message, Object... providedArgs) {
     ResolvableMethodParameter[] parameters = handler.parameters;
     if (parameters == null) {
       return null;
@@ -111,8 +107,8 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
     return null;
   }
 
-  protected void handle(
-          WebSocketHandlerMethod handler, WebSocketSession session, Message<?> message, Object... providedArgs) {
+  protected void handle(WebSocketHandlerMethod handler,
+          WebSocketSession session, Message<?> message, Object... providedArgs) {
     if (handler != null) {
       final Object[] parameters = resolveParameters(session, handler, message, providedArgs);
       handler.invoke(parameters);

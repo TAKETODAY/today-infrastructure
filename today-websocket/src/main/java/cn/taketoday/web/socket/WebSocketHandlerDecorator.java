@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.socket;
 
 import cn.taketoday.lang.Assert;
@@ -32,13 +30,12 @@ import cn.taketoday.web.RequestContext;
  * @author Rossen Stoyanchev
  * @author TODAY 2021/11/12 16:44
  * @since 4.0
- * @since 4.0
  */
 public class WebSocketHandlerDecorator extends WebSocketHandler {
   private final WebSocketHandler delegate;
 
   public WebSocketHandlerDecorator(WebSocketHandler delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 

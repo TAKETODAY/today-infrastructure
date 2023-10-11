@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,6 @@ import cn.taketoday.lang.Assert;
  * @author TODAY 2021/5/7 23:03
  * @since 3.0.1
  */
-@SuppressWarnings("serial")
 public abstract class NativeWebSocketSession<T> extends WebSocketSession {
   protected T nativeSession;
 

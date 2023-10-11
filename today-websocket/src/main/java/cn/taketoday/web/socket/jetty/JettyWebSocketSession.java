@@ -40,7 +40,6 @@ import cn.taketoday.web.socket.PongMessage;
  * @author TODAY 2021/5/6 21:40
  * @since 3.0.1
  */
-@SuppressWarnings("serial")
 public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
 
   @Nullable
