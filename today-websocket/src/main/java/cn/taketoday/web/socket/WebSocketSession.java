@@ -42,12 +42,13 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
 
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
-  private final String id = idGenerator.generateId().toString();
+  private final String id;
 
   private final HttpHeaders handshakeHeaders;
 
-  protected WebSocketSession(HttpHeaders handshakeHeaders) {
+  public WebSocketSession(@Nullable HttpHeaders handshakeHeaders) {
     this.handshakeHeaders = handshakeHeaders;
+    this.id = handshakeHeaders == null ? null : idGenerator.generateId().toString();
   }
 
   /**
