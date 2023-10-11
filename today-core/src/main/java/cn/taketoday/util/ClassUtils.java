@@ -284,7 +284,7 @@ public abstract class ClassUtils {
    * for a superclass or interface implemented by the class to be checked here)
    */
   public static boolean isPresent(String className) {
-    return isPresent(className, null);
+    return isPresent(className, (ClassLoader) null);
   }
 
   /**
@@ -315,6 +315,25 @@ public abstract class ClassUtils {
       // Typically, ClassNotFoundException or NoClassDefFoundError...
       return false;
     }
+  }
+
+  /**
+   * Determine whether the {@link Class} identified by the supplied name is present
+   * and can be loaded. Will return {@code false} if either the class or
+   * one of its dependencies is not present or cannot be loaded.
+   *
+   * @param className the name of the class to check
+   * @param loaderSource use same class loader from loaderSource to use
+   * (may be {@code null} which indicates the default class loader)
+   * @return whether the specified class is present (including all of its
+   * superclasses and interfaces)
+   * @throws IllegalStateException if the corresponding class is resolvable but
+   * there was a readability mismatch in the inheritance hierarchy of the class
+   * (typically a missing dependency declaration in a Jigsaw module definition
+   * for a superclass or interface implemented by the class to be checked here)
+   */
+  public static boolean isPresent(String className, Class<?> loaderSource) {
+    return isPresent(className, loaderSource.getClassLoader());
   }
 
   @Nullable
