@@ -73,18 +73,14 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  */
 public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
-  private static final boolean tomcatWsPresent;
+  private static final boolean tomcatWsPresent = isPresent(
+          "org.apache.tomcat.websocket.server.WsHttpUpgradeHandler", AbstractHandshakeHandler.class);
 
-  private static final boolean jettyWsPresent;
+  private static final boolean jettyWsPresent = isPresent(
+          "org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServerContainer", AbstractHandshakeHandler.class);
 
-  private static final boolean undertowWsPresent;
-
-  static {
-    ClassLoader classLoader = AbstractHandshakeHandler.class.getClassLoader();
-    tomcatWsPresent = isPresent("org.apache.tomcat.websocket.server.WsHttpUpgradeHandler", classLoader);
-    jettyWsPresent = isPresent("org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServerContainer", classLoader);
-    undertowWsPresent = isPresent("io.undertow.websockets.jsr.ServerWebSocketContainer", classLoader);
-  }
+  private static final boolean undertowWsPresent = isPresent(
+          "io.undertow.websockets.jsr.ServerWebSocketContainer", AbstractHandshakeHandler.class);
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -325,7 +321,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
   }
 
   private static RequestUpgradeStrategy initRequestUpgradeStrategy() {
-    var upgradeStrategy = TodayStrategies.getFirst(RequestUpgradeStrategy.class, null);
+    var upgradeStrategy = TodayStrategies.findFirst(RequestUpgradeStrategy.class, null);
     if (upgradeStrategy != null) {
       return upgradeStrategy;
     }

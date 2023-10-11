@@ -667,7 +667,7 @@ public class TodayStrategies {
    * @see #find(Class)
    */
   @Nullable
-  public static String getFirst(String strategyKey) {
+  public static String findFirst(String strategyKey) {
     return CollectionUtils.firstElement(findNames(strategyKey, null));
   }
 
@@ -676,7 +676,8 @@ public class TodayStrategies {
    *
    * @see #find(Class)
    */
-  public static <T> T getFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
+  @Nullable
+  public static <T> T findFirst(Class<T> strategyClass, @Nullable Supplier<T> defaultValue) {
     T first = CollectionUtils.firstElement(find(strategyClass, (ClassLoader) null));
     if (first == null && defaultValue != null) {
       return defaultValue.get();
