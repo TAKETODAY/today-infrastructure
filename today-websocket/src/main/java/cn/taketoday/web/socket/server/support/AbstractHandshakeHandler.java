@@ -38,7 +38,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.SubProtocolCapable;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerDecorator;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
@@ -290,7 +289,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    * @return a list of supported protocols, or an empty list if none available
    */
   protected final List<String> determineHandlerSupportedProtocols(WebSocketHandler handler) {
-    WebSocketHandler handlerToCheck = WebSocketHandlerDecorator.unwrap(handler);
+    WebSocketHandler handlerToCheck = handler.getRawHandler();
     List<String> subProtocols = null;
     if (handlerToCheck instanceof SubProtocolCapable) {
       subProtocols = ((SubProtocolCapable) handlerToCheck).getSubProtocols();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,35 +29,54 @@ import cn.taketoday.web.RequestContext;
  * <p>It will be instantiated once for all the connections to the server.
  *
  * <p>Here is an example of a simple endpoint that echoes any incoming text message back to the sender.
- * <pre><code>
+ * <pre>{@code
  * public class EchoWebSocketHandler implements WebSocketHandler {
  *
- *     public void onOpen(Session session, EndpointConfig config) {
- *         final RemoteEndpoint remote = session.getBasicRemote();
- *         session.addMessageHandler(String.class, new MessageHandler.Whole&lt;String>() {
- *             public void onMessage(String text) {
- *                 try {
- *                     remote.sendString("Got your message (" + text + "). Thanks !");
- *                 } catch (IOException ioe) {
- *                     // handle send failure here
- *                 }
- *             }
- *         });
- *     }
+ *  @Override
+ *  public void handleMessage(WebSocketSession session, Message<?> message)
+ *        throws Exception {
+ *    session.sendText("Got your message (" + message.getPayload() + "). Thanks !");
+ *  }
  *
  * }
- * </code></pre>
+ * }</code></pre>
+ * <p>
+ * this handler Wraps another {@link WebSocketHandler} instance and delegates to it.
  *
  * @author TODAY 2021/4/3 13:41
  * @since 3.0
  */
 public abstract class WebSocketHandler {
 
+  // @Nullable
+  protected final WebSocketHandler delegate;
+
+  protected WebSocketHandler() {
+    this(null);
+  }
+
+  protected WebSocketHandler(WebSocketHandler delegate) {
+    this.delegate = delegate;
+  }
+
+  /**
+   * to go through all nested delegates and return the "raw" handler.
+   */
+  public WebSocketHandler getRawHandler() {
+    WebSocketHandler result = this;
+    while (result.delegate != null) {
+      result = result.delegate;
+    }
+    return result;
+  }
+
   /**
    * called after Handshake
    */
   public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
-    // no-op
+    if (delegate != null) {
+      delegate.afterHandshake(context, session);
+    }
   }
 
   /**
@@ -70,7 +86,9 @@ public abstract class WebSocketHandler {
    * @param session the session that has just been activated.
    */
   public void onOpen(WebSocketSession session) throws Exception {
-    // no-op
+    if (delegate != null) {
+      delegate.onOpen(session);
+    }
   }
 
   /**
@@ -79,7 +97,10 @@ public abstract class WebSocketHandler {
    * @param message the message data.
    */
   public void handleMessage(WebSocketSession session, Message<?> message) throws Exception {
-    if (message instanceof TextMessage) {
+    if (delegate != null) {
+      delegate.handleMessage(session, message);
+    }
+    else if (message instanceof TextMessage) {
       handleTextMessage(session, (TextMessage) message);
     }
     else if (message instanceof BinaryMessage) {
@@ -97,7 +118,12 @@ public abstract class WebSocketHandler {
   }
 
   public void onClose(WebSocketSession session) throws Exception {
-    onClose(session, CloseStatus.NORMAL);
+    if (delegate != null) {
+      delegate.onClose(session);
+    }
+    else {
+      onClose(session, CloseStatus.NORMAL);
+    }
   }
 
   /**
@@ -116,7 +142,9 @@ public abstract class WebSocketHandler {
    * @param status the reason the session was closed.
    */
   public void onClose(WebSocketSession session, CloseStatus status) throws Exception {
-    // no-op
+    if (delegate != null) {
+      delegate.onClose(session, status);
+    }
   }
 
   /**
@@ -130,7 +158,9 @@ public abstract class WebSocketHandler {
    * @param throwable the throwable representing the problem.
    */
   public void onError(WebSocketSession session, Throwable throwable) throws Exception {
-    // no-op
+    if (delegate != null) {
+      delegate.onError(session, throwable);
+    }
   }
 
   protected void throwNotSupportMessage(Message<?> message) {
@@ -138,22 +168,33 @@ public abstract class WebSocketHandler {
   }
 
   protected void handlePingMessage(WebSocketSession session, PingMessage message) {
-    // no-op
+    if (delegate != null) {
+      delegate.handlePingMessage(session, message);
+    }
   }
 
   protected void handlePongMessage(WebSocketSession session, PongMessage message) {
-    // no-op
+    if (delegate != null) {
+      delegate.handlePongMessage(session, message);
+    }
   }
 
   protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-    // no-op
+    if (delegate != null) {
+      delegate.handleTextMessage(session, message);
+    }
   }
 
   protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
-    // no-op
+    if (delegate != null) {
+      delegate.handleBinaryMessage(session, message);
+    }
   }
 
   public boolean supportPartialMessage() {
+    if (delegate != null) {
+      return delegate.supportPartialMessage();
+    }
     return false;
   }
 

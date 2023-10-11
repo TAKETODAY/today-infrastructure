@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.socket.handler;
 
 import cn.taketoday.logging.Logger;
@@ -24,17 +22,16 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerDecorator;
 import cn.taketoday.web.socket.WebSocketSession;
 
 /**
- * A {@link WebSocketHandlerDecorator} that adds logging to WebSocket lifecycle events.
+ * A {@link WebSocketHandler} that adds logging to WebSocket lifecycle events.
  *
  * @author Rossen Stoyanchev
  * @author TODAY 2021/11/12 16:49
  * @since 4.0
  */
-public class LoggingWebSocketHandlerDecorator extends WebSocketHandlerDecorator {
+public class LoggingWebSocketHandlerDecorator extends WebSocketHandler {
   private static final Logger logger = LoggerFactory.getLogger(LoggingWebSocketHandlerDecorator.class);
 
   public LoggingWebSocketHandlerDecorator(WebSocketHandler delegate) {

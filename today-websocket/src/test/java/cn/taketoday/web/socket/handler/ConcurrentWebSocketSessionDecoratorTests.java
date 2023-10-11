@@ -203,7 +203,7 @@ class ConcurrentWebSocketSessionDecoratorTests {
   }
 
   private void sendBlockingMessage(ConcurrentWebSocketSessionDecorator session) throws InterruptedException {
-    CountDownLatch latch = ((BlockingWebSocketSession) session.getDelegate()).initSendLatch();
+    CountDownLatch latch = ((BlockingWebSocketSession) session.delegate).initSendLatch();
     Executors.newSingleThreadExecutor().submit(() -> {
       TextMessage message = new TextMessage("slow message");
       try {

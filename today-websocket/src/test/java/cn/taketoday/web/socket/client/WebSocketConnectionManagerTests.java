@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketHandlerDecorator;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.handler.LoggingWebSocketHandlerDecorator;
@@ -65,10 +61,10 @@ public class WebSocketConnectionManagerTests {
     assertThat(client.headers).isEqualTo(expectedHeaders);
     assertThat(client.uri).isEqualTo(new URI("/path/123"));
 
-    WebSocketHandlerDecorator loggingHandler = (WebSocketHandlerDecorator) client.webSocketHandler;
+    WebSocketHandler loggingHandler = client.webSocketHandler;
     assertThat(loggingHandler.getClass()).isEqualTo(LoggingWebSocketHandlerDecorator.class);
 
-    assertThat(loggingHandler.getDelegate()).isSameAs(handler);
+    assertThat(loggingHandler.getRawHandler()).isSameAs(handler);
   }
 
   @Test
