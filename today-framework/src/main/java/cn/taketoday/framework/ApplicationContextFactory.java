@@ -78,7 +78,7 @@ public interface ApplicationContextFactory {
    * the given {@link Supplier}.
    *
    * @param supplier the context supplier, for example
-   * {@code StandardApplicationContext::new}
+   * {@code AnnotationConfigApplicationContext::new}
    * @return the factory that will instantiate the context class
    */
   static ApplicationContextFactory from(Supplier<ConfigurableApplicationContext> supplier) {

@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -39,7 +39,7 @@ public class ConfigurationMetaAnnotationTests {
 
   @Test
   public void customConfigurationStereotype() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config.class);
     ctx.refresh();
     assertThat(ctx.containsBean("customName")).isTrue();

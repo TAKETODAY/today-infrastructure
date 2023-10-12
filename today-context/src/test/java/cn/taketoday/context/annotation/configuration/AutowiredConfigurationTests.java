@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,13 +36,12 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.taketoday.beans.testfixture.beans.Colour;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
 import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
@@ -76,7 +72,7 @@ public class AutowiredConfigurationTests {
 
   @Test
   public void testAutowiredConfigurationMethodDependencies() {
-    StandardApplicationContext context = new StandardApplicationContext(
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             AutowiredMethodConfig.class, ColorConfig.class);
 
     assertThat(context.getBean(Colour.class)).isEqualTo(Colour.RED);
@@ -85,7 +81,7 @@ public class AutowiredConfigurationTests {
 
   @Test
   public void testAutowiredConfigurationMethodDependenciesWithOptionalAndAvailable() {
-    StandardApplicationContext context = new StandardApplicationContext(
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             OptionalAutowiredMethodConfig.class, ColorConfig.class);
 
     assertThat(context.getBean(Colour.class)).isEqualTo(Colour.RED);
@@ -94,7 +90,7 @@ public class AutowiredConfigurationTests {
 
   @Test
   public void testAutowiredConfigurationMethodDependenciesWithOptionalAndNotAvailable() {
-    StandardApplicationContext context = new StandardApplicationContext(
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             OptionalAutowiredMethodConfig.class);
 
     assertThat(context.getBeansOfType(Colour.class).isEmpty()).isTrue();
@@ -146,36 +142,36 @@ public class AutowiredConfigurationTests {
 
   @Test
   public void testValueInjectionWithMetaAnnotation() {
-    StandardApplicationContext context =
-            new StandardApplicationContext(ValueConfigWithMetaAnnotation.class);
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(ValueConfigWithMetaAnnotation.class);
     doTestValueInjection(context);
   }
 
   @Test
   public void testValueInjectionWithAliasedMetaAnnotation() {
-    StandardApplicationContext context =
-            new StandardApplicationContext(ValueConfigWithAliasedMetaAnnotation.class);
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(ValueConfigWithAliasedMetaAnnotation.class);
     doTestValueInjection(context);
   }
 
   @Test
   public void testValueInjectionWithProviderFields() {
-    StandardApplicationContext context =
-            new StandardApplicationContext(ValueConfigWithProviderFields.class);
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(ValueConfigWithProviderFields.class);
     doTestValueInjection(context);
   }
 
   @Test
   public void testValueInjectionWithProviderConstructorArguments() {
-    StandardApplicationContext context =
-            new StandardApplicationContext(ValueConfigWithProviderConstructorArguments.class);
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(ValueConfigWithProviderConstructorArguments.class);
     doTestValueInjection(context);
   }
 
   @Test
   public void testValueInjectionWithProviderMethodArguments() {
-    StandardApplicationContext context =
-            new StandardApplicationContext(ValueConfigWithProviderMethodArguments.class);
+    AnnotationConfigApplicationContext context =
+            new AnnotationConfigApplicationContext(ValueConfigWithProviderMethodArguments.class);
     doTestValueInjection(context);
   }
 
@@ -230,7 +226,7 @@ public class AutowiredConfigurationTests {
   @Test
   void testValueInjectionWithRecord() {
     System.setProperty("recordBeanName", "enigma");
-    GenericApplicationContext context = new AnnotationConfigApplicationContext(RecordBean.class);
+    GenericApplicationContext context = new cn.taketoday.context.annotation.AnnotationConfigApplicationContext(RecordBean.class);
     try {
       assertThat(context.getBean(RecordBean.class).name()).isEqualTo("enigma");
     }

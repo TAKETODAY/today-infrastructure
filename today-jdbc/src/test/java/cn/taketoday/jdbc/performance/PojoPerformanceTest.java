@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +68,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.jdbc.JdbcConnection;
 import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
@@ -480,13 +477,13 @@ public class PojoPerformanceTest {
 
   static class HibernateTypicalSelect extends PerformanceTestBase {
     private Session session;
-    private StandardApplicationContext context;
+    private AnnotationConfigApplicationContext context;
 
     @SneakyThrows
     @Override
     public void init() {
       Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-      context = new StandardApplicationContext();
+      context = new AnnotationConfigApplicationContext();
 
       context.scan("cn.taketoday.jdbc.performance");
 

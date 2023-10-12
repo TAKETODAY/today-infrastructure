@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +25,6 @@ import java.util.List;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.scheduling.annotation.Async;
@@ -52,7 +48,7 @@ public class Spr12636Tests {
 
   @Test
   public void orderOnImplementation() {
-    this.context = new StandardApplicationContext(
+    this.context = new AnnotationConfigApplicationContext(
             UserServiceTwo.class, UserServiceOne.class, UserServiceCollector.class);
     UserServiceCollector bean = this.context.getBean(UserServiceCollector.class);
     assertThat(bean.userServices.get(0)).isSameAs(context.getBean("serviceOne", UserService.class));
@@ -62,7 +58,7 @@ public class Spr12636Tests {
 
   @Test
   public void orderOnImplementationWithProxy() {
-    this.context = new StandardApplicationContext(
+    this.context = new AnnotationConfigApplicationContext(
             UserServiceTwo.class, UserServiceOne.class, UserServiceCollector.class, AsyncConfig.class);
 
     // Validate those beans are indeed wrapped by a proxy

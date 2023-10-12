@@ -27,7 +27,6 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
@@ -36,7 +35,7 @@ import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Service;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -61,7 +60,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void transactionProxyIsCreated() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             EnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isAopProxy(bean)).as("testBean is not a proxy").isTrue();
@@ -75,13 +74,13 @@ class EnableTransactionManagementTests {
     ConfigurableApplicationContext ctx;
 
     // Round #1
-    ctx = new AnnotationConfigApplicationContext(EnableTxConfig.class, TxManagerConfig.class);
+    ctx = new cn.taketoday.context.annotation.AnnotationConfigApplicationContext(EnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean1 = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isCglibProxy(bean1)).as("testBean #1 is not a CGLIB proxy").isTrue();
     ctx.close();
 
     // Round #2
-    ctx = new AnnotationConfigApplicationContext(EnableTxConfig.class, TxManagerConfig.class);
+    ctx = new cn.taketoday.context.annotation.AnnotationConfigApplicationContext(EnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean2 = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isCglibProxy(bean2)).as("testBean #2 is not a CGLIB proxy").isTrue();
     ctx.close();
@@ -91,7 +90,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void transactionProxyIsCreatedWithEnableOnSuperclass() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             InheritedEnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isAopProxy(bean)).as("testBean is not a proxy").isTrue();
@@ -102,7 +101,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void transactionProxyIsCreatedWithEnableOnExcludedSuperclass() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             ParentEnableTxConfig.class, ChildEnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     assertThat(AopUtils.isAopProxy(bean)).as("testBean is not a proxy").isTrue();
@@ -113,7 +112,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void txManagerIsResolvedOnInvocationOfTransactionalMethod() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             EnableTxConfig.class, TxManagerConfig.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     CallCountingTransactionManager txManager = ctx.getBean("txManager", CallCountingTransactionManager.class);
@@ -132,7 +131,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void txManagerIsResolvedCorrectlyWhenMultipleManagersArePresent() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             EnableTxConfig.class, MultiTxManagerConfig.class);
     assertThat(ctx.getBeansOfType(PlatformTransactionManager.class)).hasSize(2);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
@@ -153,7 +152,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void txManagerIsResolvedCorrectlyWhenMultipleManagersArePresentAndOneIsPrimary() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             EnableTxConfig.class, PrimaryMultiTxManagerConfig.class);
     assertThat(ctx.getBeansOfType(PlatformTransactionManager.class)).hasSize(2);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
@@ -175,7 +174,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void txManagerIsResolvedCorrectlyWithTxMgmtConfigurerAndPrimaryPresent() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             EnableTxConfig.class, PrimaryTxManagerAndTxMgmtConfigurerConfig.class);
     assertThat(ctx.getBeansOfType(PlatformTransactionManager.class)).hasSize(2);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
@@ -197,7 +196,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void txManagerIsResolvedCorrectlyWithSingleTxManagerBeanAndTxMgmtConfigurer() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             EnableTxConfig.class, SingleTxManagerBeanAndTxMgmtConfigurerConfig.class);
     assertThat(ctx.getBeansOfType(PlatformTransactionManager.class)).hasSize(1);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
@@ -228,13 +227,13 @@ class EnableTransactionManagementTests {
     // should throw CNFE when trying to load AnnotationTransactionAspect.
     // Do you actually have cn.taketoday.aspects on the classpath?
     assertThatExceptionOfType(Exception.class)
-            .isThrownBy(() -> new StandardApplicationContext(EnableAspectjTxConfig.class, TxManagerConfig.class))
+            .isThrownBy(() -> new AnnotationConfigApplicationContext(EnableAspectjTxConfig.class, TxManagerConfig.class))
             .withMessageContaining("AspectJJtaTransactionManagementConfiguration");
   }
 
   @Test
   public void transactionalEventListenerRegisteredProperly() {
-    StandardApplicationContext ctx = new StandardApplicationContext(EnableTxConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(EnableTxConfig.class);
     assertThat(ctx.containsBean(TransactionManagementConfigUtils.TRANSACTIONAL_EVENT_LISTENER_FACTORY_BEAN_NAME)).isTrue();
     assertThat(ctx.getBeansOfType(TransactionalEventListenerFactory.class).size()).isEqualTo(1);
     ctx.close();
@@ -242,7 +241,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void spr11915TransactionManagerAsManualSingleton() {
-    StandardApplicationContext ctx = new StandardApplicationContext(Spr11915Config.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr11915Config.class);
     TransactionalTestBean bean = ctx.getBean(TransactionalTestBean.class);
     CallCountingTransactionManager txManager = ctx.getBean("qualifiedTransactionManager", CallCountingTransactionManager.class);
 
@@ -261,7 +260,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void spr14322FindsOnInterfaceWithInterfaceProxy() {
-    StandardApplicationContext ctx = new StandardApplicationContext(Spr14322ConfigA.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14322ConfigA.class);
     TransactionalTestInterface bean = ctx.getBean(TransactionalTestInterface.class);
     CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
 
@@ -276,7 +275,7 @@ class EnableTransactionManagementTests {
 
   @Test
   public void spr14322FindsOnInterfaceWithCglibProxy() {
-    StandardApplicationContext ctx = new StandardApplicationContext(Spr14322ConfigB.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Spr14322ConfigB.class);
     TransactionalTestInterface bean = ctx.getBean(TransactionalTestInterface.class);
     CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
 

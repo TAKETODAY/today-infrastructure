@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,6 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,8 +31,8 @@ public class Spr16179Tests {
 
   @Test
   public void repro() {
-    StandardApplicationContext bf =
-            new StandardApplicationContext(AssemblerConfig.class, AssemblerInjection.class);
+    AnnotationConfigApplicationContext bf =
+            new AnnotationConfigApplicationContext(AssemblerConfig.class, AssemblerInjection.class);
 
     assertThat(bf.getBean(AssemblerInjection.class).assembler0).isSameAs(bf.getBean("someAssembler"));
     // assertNull(bf.getBean(AssemblerInjection.class).assembler1);  TODO: accidental match

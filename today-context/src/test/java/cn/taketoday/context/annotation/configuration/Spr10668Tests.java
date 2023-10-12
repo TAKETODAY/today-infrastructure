@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -39,7 +36,7 @@ public class Spr10668Tests {
 
   @Test
   public void testSelfInjectHierarchy() throws Exception {
-    StandardApplicationContext context = new StandardApplicationContext(ChildConfig.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ChildConfig.class);
     assertThat(context.getBean(MyComponent.class)).isNotNull();
     assertThat(context.getBean(ParentConfig.class)).isNotNull();
     assertThat(context.getBean(ParentConfig.class).component).isNotNull();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +33,6 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAttributes;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -59,7 +55,7 @@ public class ImportAwareTests {
 
   @Test
   public void directlyAnnotatedWithImport() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ImportingConfig.class);
     ctx.refresh();
     assertThat(ctx.getBean("importedConfigBean")).isNotNull();
@@ -75,7 +71,7 @@ public class ImportAwareTests {
 
   @Test
   public void indirectlyAnnotatedWithImport() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(IndirectlyImportingConfig.class);
     ctx.refresh();
     assertThat(ctx.getBean("importedConfigBean")).isNotNull();
@@ -91,7 +87,7 @@ public class ImportAwareTests {
 
   @Test
   public void directlyAnnotatedWithImportLite() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ImportingConfigLite.class);
     ctx.refresh();
     assertThat(ctx.getBean("importedConfigBean")).isNotNull();
@@ -108,7 +104,7 @@ public class ImportAwareTests {
   @Test
   public void importRegistrar() {
     ImportedRegistrar.called = false;
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ImportingRegistrarConfig.class);
     ctx.refresh();
     assertThat(ctx.getBean("registrarImportedBean")).isNotNull();
@@ -118,7 +114,7 @@ public class ImportAwareTests {
   @Test
   public void importRegistrarWithImport() {
     ImportedRegistrar.called = false;
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ImportingRegistrarConfigWithImport.class);
     ctx.refresh();
     assertThat(ctx.getBean("registrarImportedBean")).isNotNull();
@@ -129,7 +125,7 @@ public class ImportAwareTests {
 
   @Test
   public void metadataFromImportsOneThenTwo() {
-    AnnotationMetadata importMetadata = new StandardApplicationContext(
+    AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
             ConfigurationOne.class, ConfigurationTwo.class)
             .getBean(MetadataHolder.class).importMetadata;
     assertThat(((StandardAnnotationMetadata) importMetadata).getIntrospectedClass()).isEqualTo(ConfigurationOne.class);
@@ -137,7 +133,7 @@ public class ImportAwareTests {
 
   @Test
   public void metadataFromImportsTwoThenOne() {
-    AnnotationMetadata importMetadata = new StandardApplicationContext(
+    AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
             ConfigurationTwo.class, ConfigurationOne.class)
             .getBean(MetadataHolder.class).importMetadata;
     assertThat(((StandardAnnotationMetadata) importMetadata).getIntrospectedClass()).isEqualTo(ConfigurationOne.class);
@@ -145,7 +141,7 @@ public class ImportAwareTests {
 
   @Test
   public void metadataFromImportsOneThenThree() {
-    AnnotationMetadata importMetadata = new StandardApplicationContext(
+    AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
             ConfigurationOne.class, ConfigurationThree.class)
             .getBean(MetadataHolder.class).importMetadata;
     assertThat(((StandardAnnotationMetadata) importMetadata).getIntrospectedClass()).isEqualTo(ConfigurationOne.class);
@@ -153,7 +149,7 @@ public class ImportAwareTests {
 
   @Test
   public void importAwareWithAnnotationAttributes() {
-    new StandardApplicationContext(ApplicationConfiguration.class);
+    new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
   }
 
   @Configuration

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +28,6 @@ import cn.taketoday.aop.target.AbstractBeanFactoryTargetSource;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.ApplicationListener;
-import cn.taketoday.context.support.StandardApplicationContext;
 import jakarta.annotation.PreDestroy;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +50,7 @@ class AutoProxyLazyInitTests {
 
   @Test
   void withStaticBeanMethod() {
-    ConfigurableApplicationContext ctx = new StandardApplicationContext(ConfigWithStatic.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithStatic.class);
     MyBean bean = ctx.getBean(MyBean.class);
 
     assertThat(MyBeanImpl.initialized).isFalse();
@@ -66,7 +62,7 @@ class AutoProxyLazyInitTests {
 
   @Test
   void withStaticBeanMethodAndInterface() {
-    ConfigurableApplicationContext ctx = new StandardApplicationContext(ConfigWithStaticAndInterface.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithStaticAndInterface.class);
     MyBean bean = ctx.getBean(MyBean.class);
 
     assertThat(MyBeanImpl.initialized).isFalse();
@@ -78,7 +74,7 @@ class AutoProxyLazyInitTests {
 
   @Test
   void withNonStaticBeanMethod() {
-    ConfigurableApplicationContext ctx = new StandardApplicationContext(ConfigWithNonStatic.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithNonStatic.class);
     MyBean bean = ctx.getBean(MyBean.class);
 
     assertThat(MyBeanImpl.initialized).isFalse();
@@ -90,7 +86,7 @@ class AutoProxyLazyInitTests {
 
   @Test
   void withNonStaticBeanMethodAndInterface() {
-    ConfigurableApplicationContext ctx = new StandardApplicationContext(ConfigWithNonStaticAndInterface.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigWithNonStaticAndInterface.class);
     MyBean bean = ctx.getBean(MyBean.class);
 
     assertThat(MyBeanImpl.initialized).isFalse();

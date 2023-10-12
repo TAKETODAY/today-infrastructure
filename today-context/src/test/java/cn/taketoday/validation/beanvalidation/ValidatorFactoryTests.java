@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +36,7 @@ import java.util.Set;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.validation.BeanPropertyBindingResult;
@@ -189,7 +186,7 @@ public class ValidatorFactoryTests {
 
   @Test
   public void testSpringValidationWithAutowiredValidator() {
-    ConfigurableApplicationContext ctx = new StandardApplicationContext(LocalValidatorFactoryBean.class);
+    ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(LocalValidatorFactoryBean.class);
     LocalValidatorFactoryBean validator = ctx.getBean(LocalValidatorFactoryBean.class);
 
     ValidPerson person = new ValidPerson();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +30,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * System tests covering use of AspectJ {@link Aspect}s in conjunction with {@link Configuration} classes.
@@ -56,7 +53,7 @@ public class ConfigurationClassAspectIntegrationTests {
 
   @BeforeEach
   void setup() {
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     beanFactory = context.getBeanFactory();
     loadingContext = new BootstrapContext(beanFactory, context);
   }
@@ -88,7 +85,7 @@ public class ConfigurationClassAspectIntegrationTests {
 
   @Test
   public void withInnerClassAndLambdaExpression() {
-    ApplicationContext ctx = new StandardApplicationContext(Application.class, CountingAspect.class);
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(Application.class, CountingAspect.class);
     ctx.getBeansOfType(Runnable.class).forEach((k, v) -> v.run());
 
     // TODO: returns just 1 as of AspectJ 1.9 beta 3, not detecting the applicable lambda expression anymore

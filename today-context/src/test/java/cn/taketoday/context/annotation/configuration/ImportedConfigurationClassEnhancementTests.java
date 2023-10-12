@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -53,7 +50,7 @@ public class ImportedConfigurationClassEnhancementTests {
 
   @SuppressWarnings("deprecation")
   private void autowiredConfigClassIsEnhanced(Class<?>... configClasses) {
-    ApplicationContext ctx = new StandardApplicationContext(configClasses);
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(configClasses);
     Config config = ctx.getBean(Config.class);
     assertThat(AopUtils.isCglibProxy(config.autowiredConfig)).as("autowired config class has not been enhanced").isTrue();
   }
@@ -69,7 +66,7 @@ public class ImportedConfigurationClassEnhancementTests {
   }
 
   private void autowiredConfigClassBeanMethodsRespectScoping(Class<?>... configClasses) {
-    ApplicationContext ctx = new StandardApplicationContext(configClasses);
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(configClasses);
     Config config = ctx.getBean(Config.class);
     TestBean testBean1 = config.autowiredConfig.testBean();
     TestBean testBean2 = config.autowiredConfig.testBean();
@@ -80,7 +77,7 @@ public class ImportedConfigurationClassEnhancementTests {
 
   @Test
   public void importingNonConfigurationClassCausesBeanDefinitionParsingException() {
-    ApplicationContext ctx = new StandardApplicationContext(ConfigThatImportsNonConfigClass.class);
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(ConfigThatImportsNonConfigClass.class);
     ConfigThatImportsNonConfigClass config = ctx.getBean(ConfigThatImportsNonConfigClass.class);
     assertThat(config.testBean).isSameAs(ctx.getBean(TestBean.class));
   }

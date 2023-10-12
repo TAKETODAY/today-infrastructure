@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +35,7 @@ public class PackagePrivateBeanMethodInheritanceTests {
 
   @Test
   public void repro() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ReproConfig.class);
     ctx.refresh();
     Foo foo1 = ctx.getBean("foo1", Foo.class);
@@ -49,7 +46,7 @@ public class PackagePrivateBeanMethodInheritanceTests {
 
   @Test
   public void workaround() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(WorkaroundConfig.class);
     ctx.refresh();
     Foo foo1 = ctx.getBean("foo1", Foo.class);

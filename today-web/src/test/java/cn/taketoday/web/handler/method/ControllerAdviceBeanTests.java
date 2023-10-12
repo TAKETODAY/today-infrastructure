@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +18,6 @@
 package cn.taketoday.web.handler.method;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,7 +27,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.annotation.Order;
@@ -215,7 +210,7 @@ class ControllerAdviceBeanTests {
             SimpleControllerAdvice.class,
     };
 
-    StandardApplicationContext context = new StandardApplicationContext(Config.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
     List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(context);
 
     assertThat(adviceBeans).extracting(ControllerAdviceBean::getBeanType).containsExactly(expectedTypes);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import cn.taketoday.context.annotation.componentscan.cycle.left.LeftConfig;
 import cn.taketoday.context.annotation.componentscan.level1.Level1Config;
 import cn.taketoday.context.annotation.componentscan.level2.Level2Config;
 import cn.taketoday.context.annotation.componentscan.level3.Level3Component;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -41,7 +37,7 @@ public class ComponentScanAnnotationRecursionTests {
 
   @Test
   public void recursion() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Level1Config.class);
     ctx.refresh();
 
@@ -56,7 +52,7 @@ public class ComponentScanAnnotationRecursionTests {
   }
 
   public void evenCircularScansAreSupported() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(LeftConfig.class); // left scans right, and right scans left
     ctx.refresh();
     ctx.getBean("leftConfig");      // but this is handled gracefully

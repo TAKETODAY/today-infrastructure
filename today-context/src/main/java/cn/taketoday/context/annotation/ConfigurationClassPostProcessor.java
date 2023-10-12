@@ -76,7 +76,6 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -194,7 +193,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
    * application contexts or the {@code <context:annotation-config>} element. Any bean name
    * generator specified against the application context will take precedence over any set here.
    *
-   * @see StandardApplicationContext#setBeanNameGenerator(BeanNameGenerator)
+   * @see AnnotationConfigApplicationContext#setBeanNameGenerator(BeanNameGenerator)
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {

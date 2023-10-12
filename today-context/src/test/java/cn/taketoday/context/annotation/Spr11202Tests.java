@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +28,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Assert;
@@ -45,13 +41,13 @@ public class Spr11202Tests {
 
   @Test
   public void testWithImporter() {
-    ApplicationContext context = new StandardApplicationContext(Wrapper.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(Wrapper.class);
     assertThat(context.getBean("value")).isEqualTo("foo");
   }
 
   @Test
   public void testWithoutImporter() {
-    ApplicationContext context = new StandardApplicationContext(Config.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
     assertThat(context.getBean("value")).isEqualTo("foo");
   }
 

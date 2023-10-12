@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,7 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -39,7 +36,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  */
 public class ImportWithConditionTests {
 
-  private StandardApplicationContext context = new StandardApplicationContext();
+  private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
   @Test
   public void conditionalThenUnconditional() throws Exception {

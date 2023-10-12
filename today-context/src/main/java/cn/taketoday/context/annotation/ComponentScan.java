@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.type.filter.TypeFilter;
 
@@ -43,7 +42,7 @@ import cn.taketoday.core.type.filter.TypeFilter;
  * {@code annotation-config} attribute; however, this annotation does not. This is because
  * in almost all cases when using {@code @ComponentScan}, default annotation config
  * processing (e.g. processing {@code @Autowired} and friends) is assumed. Furthermore,
- * when using {@link StandardApplicationContext}, annotation config processors are
+ * when using {@link AnnotationConfigApplicationContext}, annotation config processors are
  * always registered, meaning that any attempt to disable them at the
  * {@code @ComponentScan} level would be ignored.
  *

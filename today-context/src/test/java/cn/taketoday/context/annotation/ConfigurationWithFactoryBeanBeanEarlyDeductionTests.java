@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +30,6 @@ import cn.taketoday.beans.factory.support.AbstractBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,7 +109,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
   }
 
   private void assertPostFreeze(Class<?> configurationClass) {
-    StandardApplicationContext context = new StandardApplicationContext(
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
             configurationClass);
     assertContainsMyBeanName(context);
   }
@@ -121,7 +117,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
   private void assertPreFreeze(Class<?> configurationClass,
           BeanFactoryPostProcessor... postProcessors) {
     NameCollectingBeanFactoryPostProcessor postProcessor = new NameCollectingBeanFactoryPostProcessor();
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     try {
       Arrays.stream(postProcessors).forEach(context::addBeanFactoryPostProcessor);
       context.addBeanFactoryPostProcessor(postProcessor);
@@ -134,7 +130,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
     }
   }
 
-  private void assertContainsMyBeanName(StandardApplicationContext context) {
+  private void assertContainsMyBeanName(AnnotationConfigApplicationContext context) {
     assertContainsMyBeanName(context.getBeanNamesForType(MyBean.class, true, false));
   }
 

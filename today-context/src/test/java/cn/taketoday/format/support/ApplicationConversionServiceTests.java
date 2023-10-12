@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.GenericConverter;
@@ -55,7 +52,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void addBeansWhenHasGenericConverterBeanAddConverter() {
-    var context = new StandardApplicationContext(ExampleGenericConverter.class);
+    var context = new AnnotationConfigApplicationContext(ExampleGenericConverter.class);
     ApplicationConversionService.addBeans(this.registry, context);
     verify(this.registry).addConverter(context.getBean(ExampleGenericConverter.class));
     verifyNoMoreInteractions(this.registry);
@@ -63,7 +60,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void addBeansWhenHasConverterBeanAddConverter() {
-    var context = new StandardApplicationContext(ExampleConverter.class);
+    var context = new AnnotationConfigApplicationContext(ExampleConverter.class);
     ApplicationConversionService.addBeans(this.registry, context);
     verify(this.registry).addConverter(context.getBean(ExampleConverter.class));
     verifyNoMoreInteractions(this.registry);
@@ -71,7 +68,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void addBeansWhenHasFormatterBeanAddsOnlyFormatter() {
-    var context = new StandardApplicationContext(ExampleFormatter.class);
+    var context = new AnnotationConfigApplicationContext(ExampleFormatter.class);
     ApplicationConversionService.addBeans(this.registry, context);
     verify(this.registry).addFormatter(context.getBean(ExampleFormatter.class));
     verifyNoMoreInteractions(this.registry);
@@ -80,7 +77,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void addBeansWhenHasPrinterBeanAddPrinter() {
-    var context = new StandardApplicationContext(ExamplePrinter.class);
+    var context = new AnnotationConfigApplicationContext(ExamplePrinter.class);
     ApplicationConversionService.addBeans(this.registry, context);
     verify(this.registry).addPrinter(context.getBean(ExamplePrinter.class));
     verifyNoMoreInteractions(this.registry);
@@ -88,7 +85,7 @@ class ApplicationConversionServiceTests {
 
   @Test
   void addBeansWhenHasParserBeanAddParser() {
-    ConfigurableApplicationContext context = new StandardApplicationContext(ExampleParser.class);
+    ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(ExampleParser.class);
     ApplicationConversionService.addBeans(this.registry, context);
     verify(this.registry).addParser(context.getBean(ExampleParser.class));
     verifyNoMoreInteractions(this.registry);

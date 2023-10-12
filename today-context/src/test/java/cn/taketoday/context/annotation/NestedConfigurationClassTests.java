@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +38,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void oneLevelDeep() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0Config.L1Config.class);
     ctx.refresh();
 
@@ -60,7 +56,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsDeep() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0Config.class);
     ctx.refresh();
 
@@ -82,7 +78,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsInLiteMode() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0ConfigLight.class);
     ctx.refresh();
 
@@ -104,7 +100,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsDeepWithInheritance() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(S1Config.class);
     ctx.refresh();
 
@@ -132,7 +128,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsDeepWithInheritanceThroughImport() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(S1Importer.class);
     ctx.refresh();
 
@@ -163,7 +159,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsDeepWithInheritanceAndScopedProxy() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(S1ImporterWithProxy.class);
     ctx.refresh();
 
@@ -191,7 +187,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsWithNoBeanMethods() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0ConfigEmpty.class);
     ctx.refresh();
 
@@ -212,7 +208,7 @@ public class NestedConfigurationClassTests {
 
   @Test
   public void twoLevelsOnNonAnnotatedBaseClass() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0ConfigConcrete.class);
     ctx.refresh();
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.role.ComponentWithRole;
 import cn.taketoday.context.annotation.role.ComponentWithoutRole;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -40,7 +36,7 @@ public class RoleAndDescriptionAnnotationTests {
 
   @Test
   public void onBeanMethod() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config.class);
     ctx.refresh();
     assertThat(ctx.getBeanDefinition("foo").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
@@ -51,7 +47,7 @@ public class RoleAndDescriptionAnnotationTests {
 
   @Test
   public void onComponentClass() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ComponentWithoutRole.class, ComponentWithRole.class);
     ctx.refresh();
     assertThat(ctx.getBeanDefinition("componentWithoutRole").getRole()).isEqualTo(BeanDefinition.ROLE_APPLICATION);
@@ -62,7 +58,7 @@ public class RoleAndDescriptionAnnotationTests {
 
   @Test
   public void viaComponentScanning() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(ctx);
     scanner.scan("cn.taketoday.context.annotation.role");
     ctx.refresh();

@@ -54,7 +54,7 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import jakarta.annotation.Resource;
 import jakarta.inject.Provider;
 
@@ -84,7 +84,7 @@ public class ConfigurationClassProcessingTests {
   }
 
   private void customBeanNameIsRespected(Class<?> testClass, Supplier<TestBean> testBeanSupplier, String beanName) {
-    StandardApplicationContext ac = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();
     AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
     ac.registerBeanDefinition("config", new RootBeanDefinition(testClass));
     ac.refresh();
@@ -126,7 +126,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test  // SPR-11830
   public void configWithBeanWithProviderImplementation() {
-    StandardApplicationContext ac = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();
 //    AnnotationConfigUtils.registerAnnotationConfigProcessors(ac);
     ac.registerBeanDefinition("config", new RootBeanDefinition(ConfigWithBeanWithProviderImplementation.class));
     ac.refresh();
@@ -135,7 +135,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test  // SPR-11830
   public void configWithSetWithProviderImplementation() {
-    StandardApplicationContext ac = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ac = new AnnotationConfigApplicationContext();
     ac.registerBeanDefinition("config", new RootBeanDefinition(ConfigWithSetWithProviderImplementation.class));
     ac.refresh();
     assertThat(ConfigWithSetWithProviderImplementation.set).isSameAs(ac.getBean("customName"));
@@ -221,7 +221,7 @@ public class ConfigurationClassProcessingTests {
 
 //  @Test
 //  public void configurationWithAdaptivePrototypes() {
-//    StandardApplicationContext ctx = new StandardApplicationContext();
+//    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
 //    ctx.register(ConfigWithPrototypeBean.class, AdaptiveInjectionPoints.class);
 //    ctx.refresh();
 //
@@ -237,7 +237,7 @@ public class ConfigurationClassProcessingTests {
 
 //  @Test
 //  public void configurationWithAdaptiveResourcePrototypes() {
-//    StandardApplicationContext ctx = new StandardApplicationContext();
+//    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
 //    ctx.register(ConfigWithPrototypeBean.class, AdaptiveResourceInjectionPoints.class);
 //    ctx.refresh();
 //
@@ -253,7 +253,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test
   public void configurationWithPostProcessor() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithPostProcessor.class);
     BeanDefinition placeholderConfigurer = new RootBeanDefinition(PropertySourcesPlaceholderConfigurer.class);
     placeholderConfigurer.getPropertyValues().add("properties", "myProp=myValue");
@@ -275,7 +275,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test
   public void configurationWithFunctionalRegistration() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithFunctionalRegistration.class);
     ctx.refresh();
 
@@ -285,7 +285,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test
   public void configurationWithApplicationListener() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithApplicationListener.class);
     ctx.refresh();
 
@@ -297,7 +297,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test
   public void configurationWithOverloadedBeanMismatch() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config", new RootBeanDefinition(OverloadedBeanMismatch.class));
     ctx.refresh();
 
@@ -307,7 +307,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test
   public void configurationWithOverloadedBeanMismatchWithAsm() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config", new RootBeanDefinition(OverloadedBeanMismatch.class.getName()));
     ctx.refresh();
 
@@ -317,7 +317,7 @@ public class ConfigurationClassProcessingTests {
 
   @Test  // gh-26019
   public void autowiringWithDynamicPrototypeBeanClass() {
-    StandardApplicationContext ctx = new StandardApplicationContext(
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
             ConfigWithDynamicPrototype.class, PrototypeDependency.class);
 
     PrototypeInterface p1 = ctx.getBean(PrototypeInterface.class, 1);

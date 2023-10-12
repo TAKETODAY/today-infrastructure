@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +33,7 @@ import java.util.function.LongFunction;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.support.BeanInstantiator;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.reflect.MethodAccessor;
 import cn.taketoday.reflect.MethodInvoker;
 import cn.taketoday.reflect.PropertyAccessor;
@@ -62,7 +59,7 @@ class BenchmarkTests {
   @Test
   void testSingleton() {
     long start = System.currentTimeMillis();
-    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.scan("cn.taketoday.context");
     applicationContext.refresh();
     System.out.println("start context used: " + (System.currentTimeMillis() - start) + "ms");
@@ -79,7 +76,7 @@ class BenchmarkTests {
   //	@Test
   void testPrototype() {
     long start = System.currentTimeMillis();
-    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.scan();
     applicationContext.refresh();
 

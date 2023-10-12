@@ -31,7 +31,6 @@ import cn.taketoday.beans.factory.support.BeanDefinitionDefaults;
 import cn.taketoday.beans.factory.support.BeanDefinitionReaderUtils;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanNameGenerator;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -61,7 +60,7 @@ import cn.taketoday.util.StringUtils;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see StandardApplicationContext#scan
+ * @see AnnotationConfigApplicationContext#scan
  * @see cn.taketoday.stereotype.Component
  * @see cn.taketoday.stereotype.Repository
  * @see cn.taketoday.stereotype.Service

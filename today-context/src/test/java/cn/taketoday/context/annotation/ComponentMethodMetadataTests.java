@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +25,6 @@ import java.util.Map;
 
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +36,7 @@ public class ComponentMethodMetadataTests {
 
   @Test
   public void providesBeanMethodBeanDefinition() throws Exception {
-    StandardApplicationContext context = new StandardApplicationContext(Conf.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Conf.class);
     BeanDefinition beanDefinition = context.getBeanDefinition("myBean");
     assertThat(beanDefinition).as("should provide AnnotatedBeanDefinition").isInstanceOf(AnnotatedBeanDefinition.class);
     Map<String, Object> annotationAttributes =

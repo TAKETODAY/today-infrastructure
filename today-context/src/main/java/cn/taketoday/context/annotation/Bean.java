@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +30,6 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.stereotype.Component;
@@ -184,7 +180,7 @@ import cn.taketoday.stereotype.Component;
  * <h3>Bootstrapping</h3>
  *
  * <p>See the @{@link Configuration} javadoc for further details including how to bootstrap
- * the container using {@link StandardApplicationContext} and friends.
+ * the container using {@link AnnotationConfigApplicationContext} and friends.
  *
  * <h3>{@code BeanFactoryPostProcessor}-returning {@code @Bean} methods</h3>
  *

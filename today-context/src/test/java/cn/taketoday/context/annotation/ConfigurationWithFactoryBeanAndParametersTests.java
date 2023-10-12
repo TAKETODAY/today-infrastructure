@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +38,7 @@ public class ConfigurationWithFactoryBeanAndParametersTests {
 
   @Test
   public void test() {
-    ApplicationContext ctx = new StandardApplicationContext(Config.class, Bar.class);
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class, Bar.class);
     assertThat(ctx.getBean(Bar.class).foo).isNotNull();
   }
 

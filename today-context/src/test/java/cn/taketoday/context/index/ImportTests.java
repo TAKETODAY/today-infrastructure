@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +35,7 @@ import cn.taketoday.context.annotation.AnnotationImportSelector;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportSelector;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Singleton;
@@ -166,7 +163,7 @@ class ImportTests {
   @Test
   void importConfiguration() throws BeanDefinitionStoreException {
 
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.scan("cn.taketoday.context.index");
     context.register(AopConfig.class);
     context.refresh();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,7 @@ package cn.taketoday.beans.factory.annotation;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.stereotype.Component;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -33,7 +30,7 @@ public class BridgeMethodAutowiringTests {
 
   @Test
   public void SPR8434() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(UserServiceImpl.class, Foo.class);
     ctx.refresh();
     assertThat(ctx.getBean(UserServiceImpl.class).object).isNotNull();

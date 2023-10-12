@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.lang.Assert;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -41,7 +37,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withConcreteFactoryBeanImplementationAsReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(ConcreteFactoryBeanImplementationConfig.class);
     ctx.refresh();
@@ -49,7 +45,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withParameterizedFactoryBeanImplementationAsReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(ParameterizedFactoryBeanImplementationConfig.class);
     ctx.refresh();
@@ -57,7 +53,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withParameterizedFactoryBeanInterfaceAsReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(ParameterizedFactoryBeanInterfaceConfig.class);
     ctx.refresh();
@@ -65,7 +61,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withNonPublicParameterizedFactoryBeanInterfaceAsReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(NonPublicParameterizedFactoryBeanInterfaceConfig.class);
     ctx.refresh();
@@ -73,7 +69,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withRawFactoryBeanInterfaceAsReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(RawFactoryBeanInterfaceConfig.class);
     ctx.refresh();
@@ -81,7 +77,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withWildcardParameterizedFactoryBeanInterfaceAsReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(WildcardParameterizedFactoryBeanInterfaceConfig.class);
     ctx.refresh();
@@ -89,7 +85,7 @@ public class ConfigurationWithFactoryBeanAndAutowiringTests {
 
   @Test
   public void withFactoryBeanCallingBean() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(AppConfig.class);
     ctx.register(FactoryBeanCallingConfig.class);
     ctx.refresh();

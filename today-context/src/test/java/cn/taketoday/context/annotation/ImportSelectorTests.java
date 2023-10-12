@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +45,6 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.Environment;
@@ -85,7 +81,7 @@ public class ImportSelectorTests {
   @Test
   public void importSelectors() {
     StandardBeanFactory beanFactory = spy(new StandardBeanFactory());
-    StandardApplicationContext context = new StandardApplicationContext(beanFactory);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(beanFactory);
     context.register(Config.class);
     context.refresh();
     context.getBean(Config.class);
@@ -98,7 +94,7 @@ public class ImportSelectorTests {
 
   @Test
   public void invokeAwareMethodsInImportSelector() {
-    StandardApplicationContext context = new StandardApplicationContext(AwareConfig.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AwareConfig.class);
     assertThat(SampleImportSelector.beanFactory).isEqualTo(context.getBeanFactory());
     assertThat(SampleImportSelector.classLoader).isEqualTo(context.getBeanFactory().getBeanClassLoader());
     assertThat(SampleImportSelector.resourceLoader).isNotNull();
@@ -107,7 +103,7 @@ public class ImportSelectorTests {
 
   @Test
   public void correctMetadataOnIndirectImports() {
-    StandardApplicationContext context = new StandardApplicationContext(IndirectConfig.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(IndirectConfig.class);
     String indirectImport = IndirectImport.class.getName();
     assertThat(importFrom.get(ImportSelector1.class)).isEqualTo(indirectImport);
     assertThat(importFrom.get(ImportSelector2.class)).isEqualTo(indirectImport);
@@ -122,7 +118,7 @@ public class ImportSelectorTests {
   @Test
   public void importSelectorsWithGroup() {
     StandardBeanFactory beanFactory = spy(new StandardBeanFactory());
-    StandardApplicationContext context = new StandardApplicationContext(beanFactory);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(beanFactory);
     context.register(GroupedConfig.class);
     context.refresh();
     InOrder ordered = inOrder(beanFactory);
@@ -138,7 +134,7 @@ public class ImportSelectorTests {
   @Test
   public void importSelectorsSeparateWithGroup() {
     StandardBeanFactory beanFactory = spy(new StandardBeanFactory());
-    StandardApplicationContext context = new StandardApplicationContext(beanFactory);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(beanFactory);
     context.register(GroupedConfig1.class);
     context.register(GroupedConfig2.class);
     context.refresh();
@@ -155,7 +151,7 @@ public class ImportSelectorTests {
   @Test
   public void importSelectorsWithNestedGroup() {
     StandardBeanFactory beanFactory = spy(new StandardBeanFactory());
-    StandardApplicationContext context = new StandardApplicationContext(beanFactory);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(beanFactory);
     context.register(ParentConfiguration1.class);
     context.refresh();
     InOrder ordered = inOrder(beanFactory);
@@ -175,7 +171,7 @@ public class ImportSelectorTests {
   @Test
   public void importSelectorsWithNestedGroupSameDeferredImport() {
     StandardBeanFactory beanFactory = spy(new StandardBeanFactory());
-    StandardApplicationContext context = new StandardApplicationContext(beanFactory);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(beanFactory);
     context.register(ParentConfiguration2.class);
     context.refresh();
     InOrder ordered = inOrder(beanFactory);
@@ -193,7 +189,7 @@ public class ImportSelectorTests {
 
   @Test
   public void invokeAwareMethodsInImportGroup() {
-    StandardApplicationContext context = new StandardApplicationContext(GroupedConfig1.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(GroupedConfig1.class);
     assertThat(TestImportGroup.beanFactory).isEqualTo(context.getBeanFactory());
     assertThat(TestImportGroup.classLoader).isEqualTo(context.getBeanFactory().getBeanClassLoader());
     assertThat(TestImportGroup.resourceLoader).isNotNull();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,7 @@ import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 /**
@@ -39,7 +36,7 @@ public class Spr12334Tests {
   public void shouldNotScanTwice() {
     TestImport.scanned = false;
 
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.scan(TestImport.class.getPackage().getName());
     context.refresh();
     context.getBean(TestConfiguration.class);

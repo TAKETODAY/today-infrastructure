@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,8 +21,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.support.StandardApplicationContext;
-
 /**
  * Indicates one or more <em>component classes</em> to import &mdash; typically
  * {@link Configuration @Configuration} classes.
@@ -33,7 +28,7 @@ import cn.taketoday.context.support.StandardApplicationContext;
  * <p>Provides functionality equivalent to the Framework' {@code <import/>} element in beans XML.
  * Allows for importing {@code @Configuration} classes, {@link ImportSelector} and
  * {@link ImportBeanDefinitionRegistrar} implementations, as well as regular component
- * classes (analogous to {@link StandardApplicationContext#register}).
+ * classes (analogous to {@link AnnotationConfigApplicationContext#register}).
  *
  * <p>{@code @Bean} definitions declared in imported {@code @Configuration} classes should be
  * accessed by using {@link cn.taketoday.beans.factory.annotation.Autowired @Autowired}

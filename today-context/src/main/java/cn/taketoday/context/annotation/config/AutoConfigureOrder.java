@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.DependsOn;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
 
@@ -35,7 +33,7 @@ import cn.taketoday.core.Ordered;
  * Auto-configuration specific variant of Framework's {@link Order @Order}
  * annotation. Allows auto-configuration classes to be ordered among themselves without
  * affecting the order of configuration classes passed to
- * {@link cn.taketoday.context.support.StandardApplicationContext#register(Class...)}.
+ * {@link AnnotationConfigApplicationContext#register(Class...)}.
  * <p>
  * As with standard {@link Configuration @Configuration} classes, the order in which
  * auto-configuration classes are applied only affects the order in which their beans are

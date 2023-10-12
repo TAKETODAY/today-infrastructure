@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -36,42 +32,42 @@ public class Spr15275Tests {
 
   @Test
   public void testWithFactoryBean() {
-    ApplicationContext context = new StandardApplicationContext(ConfigWithFactoryBean.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFactoryBean.class);
     assertThat(context.getBean(Bar.class).foo.toString()).isEqualTo("x");
     assertThat(context.getBean(Bar.class).foo).isSameAs(context.getBean(FooInterface.class));
   }
 
   @Test
   public void testWithAbstractFactoryBean() {
-    ApplicationContext context = new StandardApplicationContext(ConfigWithAbstractFactoryBean.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBean.class);
     assertThat(context.getBean(Bar.class).foo.toString()).isEqualTo("x");
     assertThat(context.getBean(Bar.class).foo).isSameAs(context.getBean(FooInterface.class));
   }
 
   @Test
   public void testWithAbstractFactoryBeanForInterface() {
-    ApplicationContext context = new StandardApplicationContext(ConfigWithAbstractFactoryBeanForInterface.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBeanForInterface.class);
     assertThat(context.getBean(Bar.class).foo.toString()).isEqualTo("x");
     assertThat(context.getBean(Bar.class).foo).isSameAs(context.getBean(FooInterface.class));
   }
 
   @Test
   public void testWithAbstractFactoryBeanAsReturnType() {
-    ApplicationContext context = new StandardApplicationContext(ConfigWithAbstractFactoryBeanAsReturnType.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBeanAsReturnType.class);
     assertThat(context.getBean(Bar.class).foo.toString()).isEqualTo("x");
     assertThat(context.getBean(Bar.class).foo).isSameAs(context.getBean(FooInterface.class));
   }
 
   @Test
   public void testWithFinalFactoryBean() {
-    ApplicationContext context = new StandardApplicationContext(ConfigWithFinalFactoryBean.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFinalFactoryBean.class);
     assertThat(context.getBean(Bar.class).foo.toString()).isEqualTo("x");
     assertThat(context.getBean(Bar.class).foo).isSameAs(context.getBean(FooInterface.class));
   }
 
   @Test
   public void testWithFinalFactoryBeanAsReturnType() {
-    ApplicationContext context = new StandardApplicationContext(ConfigWithFinalFactoryBeanAsReturnType.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFinalFactoryBeanAsReturnType.class);
     assertThat(context.getBean(Bar.class).foo.toString()).isEqualTo("x");
     // not same due to fallback to raw FinalFactoryBean instance with repeated getObject() invocations
     assertThat(context.getBean(Bar.class).foo).isNotSameAs(context.getBean(FooInterface.class));

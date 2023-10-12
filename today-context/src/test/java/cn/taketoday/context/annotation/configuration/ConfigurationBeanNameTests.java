@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +25,7 @@ import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.stereotype.Component;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -44,7 +41,7 @@ public class ConfigurationBeanNameTests {
 
   @Test
   public void registerOuterConfig() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(A.class);
     ctx.refresh();
     assertThat(ctx.containsBean("outer")).isTrue();
@@ -55,7 +52,7 @@ public class ConfigurationBeanNameTests {
 
   @Test
   public void registerNestedConfig() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(A.B.class);
     ctx.refresh();
     assertThat(ctx.containsBean("outer")).isFalse();
@@ -66,7 +63,7 @@ public class ConfigurationBeanNameTests {
 
   @Test
   public void registerOuterConfig_withBeanNameGenerator() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.setBeanNameGenerator(new AnnotationBeanNameGenerator() {
       @Override
       public String generateBeanName(

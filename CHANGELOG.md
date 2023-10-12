@@ -315,7 +315,7 @@ public class WindowsCondition implements Condition {
 @Test
 public void test_Profile() {
 
-    try (ApplicationContext applicationContext = new StandardApplicationContext(true)) {
+    try (ApplicationContext applicationContext = new AnnotationConfigApplicationContext(true)) {
         
         User user = applicationContext.getBean("user", User.class);
         System.out.println(user);
@@ -326,7 +326,7 @@ public void test_Profile() {
 @Test
 public void test_Conditional() {
     
-    try (ApplicationContext applicationContext = new StandardApplicationContext(true)) {
+    try (ApplicationContext applicationContext = new AnnotationConfigApplicationContext(true)) {
         User user = applicationContext.getBean("user_", User.class);
         System.out.println(user);
         assert "Windows".equals(user.getUserName());

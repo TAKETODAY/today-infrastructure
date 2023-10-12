@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +25,6 @@ import cn.taketoday.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreato
 import cn.taketoday.aop.interceptor.SimpleTraceInterceptor;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.context.support.StandardApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -45,13 +41,13 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodDetectedOnSuperClass() {
-    StandardApplicationContext ctx = new StandardApplicationContext(Config.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
     assertThat(ctx.getBean("testBean", BaseTestBean.class)).isNotNull();
   }
 
   @Test
   public void beanMethodOverriding() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(OverridingConfig.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -62,7 +58,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverridingOnASM() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config", new RootBeanDefinition(OverridingConfig.class.getName()));
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -73,7 +69,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverridingWithNarrowedReturnType() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(NarrowedOverridingConfig.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -84,7 +80,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverridingWithNarrowedReturnTypeOnASM() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerBeanDefinition("config", new RootBeanDefinition(NarrowedOverridingConfig.class.getName()));
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -95,7 +91,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverloadingWithoutInheritance() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithOverloading.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -104,7 +100,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverloadingWithoutInheritanceAndExtraDependency() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithOverloading.class);
     ctx.getBeanFactory().registerSingleton("anInt", 5);
     ctx.setAllowBeanDefinitionOverriding(false);
@@ -114,7 +110,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverloadingWithAdditionalMetadata() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithOverloadingAndAdditionalMetadata.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -125,7 +121,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverloadingWithAdditionalMetadataButOtherMethodExecuted() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithOverloadingAndAdditionalMetadata.class);
     ctx.getBeanFactory().registerSingleton("anInt", 5);
     ctx.setAllowBeanDefinitionOverriding(false);
@@ -137,7 +133,7 @@ public class BeanMethodPolymorphismTests {
 
   @Test
   public void beanMethodOverloadingWithInheritance() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(SubConfig.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -149,7 +145,7 @@ public class BeanMethodPolymorphismTests {
   // SPR-11025
   @Test
   public void beanMethodOverloadingWithInheritanceAndList() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(SubConfigWithList.class);
     ctx.setAllowBeanDefinitionOverriding(false);
     ctx.refresh();
@@ -165,13 +161,13 @@ public class BeanMethodPolymorphismTests {
    */
   @Test
   public void beanMethodShadowing() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ShadowConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ShadowConfig.class);
     assertThat(ctx.getBean(String.class)).isEqualTo("shadow");
   }
 
   @Test
   public void beanMethodThroughAopProxy() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config.class);
     ctx.register(AnnotationAwareAspectJAutoProxyCreator.class);
     ctx.register(TestAdvisor.class);

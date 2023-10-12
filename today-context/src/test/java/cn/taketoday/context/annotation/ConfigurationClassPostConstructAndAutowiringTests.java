@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.context.support.StandardApplicationContext;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +49,7 @@ public class ConfigurationClassPostConstructAndAutowiringTests {
    */
   @Test
   public void control() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config1.class, Config2.class);
     ctx.refresh();
 
@@ -69,14 +65,14 @@ public class ConfigurationClassPostConstructAndAutowiringTests {
    */
   @Test
   public void originalReproCase() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(Config2.class, Config1.class);
     ctx.refresh();
 
     assertions(ctx);
   }
 
-  private void assertions(StandardApplicationContext ctx) {
+  private void assertions(AnnotationConfigApplicationContext ctx) {
     Config1 config1 = ctx.getBean(Config1.class);
     TestBean testBean = ctx.getBean(TestBean.class);
     assertThat(config1.beanMethodCallCount).isEqualTo(1);

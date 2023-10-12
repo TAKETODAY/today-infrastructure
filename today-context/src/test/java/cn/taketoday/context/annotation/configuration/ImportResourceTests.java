@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +30,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ImportResource;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 
@@ -50,7 +47,7 @@ public class ImportResourceTests {
 
   @Test
   public void importXml() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ImportXmlConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ImportXmlConfig.class);
     assertThat(ctx.containsBean("javaDeclaredBean")).as("did not contain java-declared bean").isTrue();
     assertThat(ctx.containsBean("xmlDeclaredBean")).as("did not contain xml-declared bean").isTrue();
     TestBean tb = ctx.getBean("javaDeclaredBean", TestBean.class);
@@ -60,14 +57,14 @@ public class ImportResourceTests {
 
   @Test
   public void importXmlIsInheritedFromSuperclassDeclarations() {
-    StandardApplicationContext ctx = new StandardApplicationContext(FirstLevelSubConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(FirstLevelSubConfig.class);
     assertThat(ctx.containsBean("xmlDeclaredBean")).isTrue();
     ctx.close();
   }
 
   @Test
   public void importXmlIsMergedFromSuperclassDeclarations() {
-    StandardApplicationContext ctx = new StandardApplicationContext(SecondLevelSubConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(SecondLevelSubConfig.class);
     assertThat(ctx.containsBean("secondLevelXmlDeclaredBean")).as("failed to pick up second-level-declared XML bean").isTrue();
     assertThat(ctx.containsBean("xmlDeclaredBean")).as("failed to pick up parent-declared XML bean").isTrue();
     ctx.close();
@@ -75,7 +72,7 @@ public class ImportResourceTests {
 
   @Test
   public void importXmlWithNamespaceConfig() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ImportXmlWithAopNamespaceConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ImportXmlWithAopNamespaceConfig.class);
     Object bean = ctx.getBean("proxiedXmlBean");
     assertThat(AopUtils.isAopProxy(bean)).isTrue();
     ctx.close();
@@ -83,7 +80,7 @@ public class ImportResourceTests {
 
   @Test
   public void importXmlWithOtherConfigurationClass() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ImportXmlWithConfigurationClass.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ImportXmlWithConfigurationClass.class);
     assertThat(ctx.containsBean("javaDeclaredBean")).as("did not contain java-declared bean").isTrue();
     assertThat(ctx.containsBean("xmlDeclaredBean")).as("did not contain xml-declared bean").isTrue();
     TestBean tb = ctx.getBean("javaDeclaredBean", TestBean.class);
@@ -93,7 +90,7 @@ public class ImportResourceTests {
 
   @Test
   public void importWithPlaceholder() throws Exception {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     PropertySource<?> propertySource = new MapPropertySource("test",
             Collections.singletonMap("test", "taketoday"));
     ctx.getEnvironment().getPropertySources().addFirst(propertySource);
@@ -105,7 +102,7 @@ public class ImportResourceTests {
 
   @Test
   public void importXmlWithAutowiredConfig() {
-    StandardApplicationContext ctx = new StandardApplicationContext(ImportXmlAutowiredConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ImportXmlAutowiredConfig.class);
     String name = ctx.getBean("xmlBeanName", String.class);
     assertThat(name).isEqualTo("xml.declared");
     ctx.close();

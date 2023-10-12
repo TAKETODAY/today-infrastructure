@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +27,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -67,7 +64,7 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
    */
   @Test
   public void valueFieldsAreNotProcessedWhenPlaceholderConfigurerIsIntegrated() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithValueFieldAndPlaceholderConfigurer.class);
     System.setProperty("test.name", "foo");
     ctx.refresh();
@@ -80,7 +77,7 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
 
   @Test
   public void valueFieldsAreProcessedWhenStaticPlaceholderConfigurerIsIntegrated() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithValueFieldAndStaticPlaceholderConfigurer.class);
     System.setProperty("test.name", "foo");
     ctx.refresh();
@@ -92,7 +89,7 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
 
   @Test
   public void valueFieldsAreProcessedWhenPlaceholderConfigurerIsSegregated() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithValueField.class);
     ctx.register(ConfigWithPlaceholderConfigurer.class);
     System.setProperty("test.name", "foo");
@@ -105,7 +102,7 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
 
   @Test
   public void valueFieldsResolveToPlaceholderSpecifiedDefaultValuesWithPlaceholderConfigurer() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithValueField.class);
     ctx.register(ConfigWithPlaceholderConfigurer.class);
     ctx.refresh();
@@ -116,7 +113,7 @@ public class ConfigurationClassWithPlaceholderConfigurerBeanTests {
 
   @Test
   public void valueFieldsResolveToPlaceholderSpecifiedDefaultValuesWithoutPlaceholderConfigurer() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ConfigWithValueField.class);
     // ctx.register(ConfigWithPlaceholderConfigurer.class);
     ctx.refresh();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Scope;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import jakarta.annotation.Resource;
 
 import static cn.taketoday.beans.factory.config.BeanDefinition.SCOPE_PROTOTYPE;
@@ -40,7 +37,7 @@ class Spr12526Tests {
 
   @Test
   void testInjection() {
-    StandardApplicationContext ctx = new StandardApplicationContext(TestContext.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(TestContext.class);
     CustomCondition condition = ctx.getBean(CustomCondition.class);
 
     condition.setCondition(true);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +28,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -48,7 +45,7 @@ public class ImportAnnotationDetectionTests {
 
   @Test
   public void multipleMetaImportsAreProcessed() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(MultiMetaImportConfig.class);
     ctx.refresh();
     assertThat(ctx.containsBean("testBean1")).isTrue();
@@ -57,7 +54,7 @@ public class ImportAnnotationDetectionTests {
 
   @Test
   public void localAndMetaImportsAreProcessed() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(MultiMetaImportConfigWithLocalImport.class);
     ctx.refresh();
     assertThat(ctx.containsBean("testBean1")).isTrue();
@@ -67,7 +64,7 @@ public class ImportAnnotationDetectionTests {
 
   @Test
   public void localImportIsProcessedLast() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(MultiMetaImportConfigWithLocalImportWithBeanOverride.class);
     ctx.refresh();
     assertThat(ctx.containsBean("testBean1")).isTrue();
@@ -77,7 +74,7 @@ public class ImportAnnotationDetectionTests {
 
   @Test
   public void importFromBean() throws Exception {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ImportFromBean.class);
     ctx.refresh();
     assertThat(ctx.containsBean("importAnnotationDetectionTests.ImportFromBean")).isTrue();

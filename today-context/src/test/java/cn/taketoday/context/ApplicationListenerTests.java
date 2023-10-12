@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context;
 
@@ -25,7 +22,7 @@ import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.Ordered;
 
 /**
@@ -38,7 +35,7 @@ class ApplicationListenerTests {
 
   @Test
   void testAddApplicationListener() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.addApplicationListener((ApplicationListener<ContextRefreshedEvent>) event -> i = true);
     applicationContext.register(ContextCloseMetaInfoListener.class);
     applicationContext.refresh();
@@ -48,7 +45,7 @@ class ApplicationListenerTests {
 
   @Test
   void testLoadMetaInfoListeners() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-    StandardApplicationContext applicationContext = new StandardApplicationContext();
+    AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.register(ContextCloseMetaInfoListener.class);
     applicationContext.refresh();
     applicationContext.close();

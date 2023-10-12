@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.bytecode.proxy.Enhancer;
 import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
@@ -47,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ApplicationAvailabilityBeanTests {
 
-  private StandardApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   private ApplicationAvailabilityBean availability;
 
@@ -55,7 +52,7 @@ class ApplicationAvailabilityBeanTests {
 
   @BeforeEach
   void setup() {
-    this.context = new StandardApplicationContext(TestConfiguration.class);
+    this.context = new AnnotationConfigApplicationContext(TestConfiguration.class);
     this.availability = this.context.getBean(ApplicationAvailabilityBean.class);
     this.log = this.context.getBean(MockLog.class);
   }

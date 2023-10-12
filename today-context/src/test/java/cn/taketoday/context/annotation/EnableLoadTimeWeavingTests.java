@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import java.lang.instrument.ClassFileTransformer;
 
 import cn.taketoday.context.annotation.EnableLoadTimeWeaving.AspectJWeaving;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 
 import static org.mockito.ArgumentMatchers.isA;
@@ -43,7 +39,7 @@ public class EnableLoadTimeWeavingTests {
 
   @Test
   public void enableLTW_withAjWeavingDisabled() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(EnableLTWConfig_withAjWeavingDisabled.class);
     ctx.refresh();
     LoadTimeWeaver loadTimeWeaver = ctx.getBean("loadTimeWeaver", LoadTimeWeaver.class);
@@ -52,7 +48,7 @@ public class EnableLoadTimeWeavingTests {
 
   @Test
   public void enableLTW_withAjWeavingAutodetect() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(EnableLTWConfig_withAjWeavingAutodetect.class);
     ctx.refresh();
     LoadTimeWeaver loadTimeWeaver = ctx.getBean("loadTimeWeaver", LoadTimeWeaver.class);
@@ -63,7 +59,7 @@ public class EnableLoadTimeWeavingTests {
 
   @Test
   public void enableLTW_withAjWeavingEnabled() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(EnableLTWConfig_withAjWeavingEnabled.class);
     ctx.refresh();
     LoadTimeWeaver loadTimeWeaver = ctx.getBean("loadTimeWeaver", LoadTimeWeaver.class);

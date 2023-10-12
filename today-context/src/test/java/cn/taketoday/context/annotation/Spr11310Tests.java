@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import java.util.List;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.annotation.Order;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +34,7 @@ public class Spr11310Tests {
 
   @Test
   public void orderedList() {
-    ApplicationContext context = new StandardApplicationContext(Config.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
     StringHolder holder = context.getBean(StringHolder.class);
     assertThat(holder.itemsList.get(0)).isEqualTo("second");
     assertThat(holder.itemsList.get(1)).isEqualTo("first");
@@ -47,7 +43,7 @@ public class Spr11310Tests {
 
   @Test
   public void orderedArray() {
-    ApplicationContext context = new StandardApplicationContext(Config.class);
+    ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
     StringHolder holder = context.getBean(StringHolder.class);
     assertThat(holder.itemsArray[0]).isEqualTo("second");
     assertThat(holder.itemsArray[1]).isEqualTo("first");

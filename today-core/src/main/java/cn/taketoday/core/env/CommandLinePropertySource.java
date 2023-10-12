@@ -45,7 +45,7 @@ import cn.taketoday.util.StringUtils;
  * <pre>{@code
  * public static void main(String[] args) {
  *     CommandLinePropertySource clps = ...;
- *     StandardApplicationContext ctx = new StandardApplicationContext();
+ *     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
  *     ctx.getEnvironment().getPropertySources().addFirst(clps);
  *     ctx.importBeans(AppConfig.class);
  *     ctx.refresh();
@@ -182,7 +182,7 @@ import cn.taketoday.util.StringUtils;
  *     CommandLinePropertySource clps = ...;
  *     clps.setNonOptionArgsPropertyName("file.locations");
  *
- *     StandardApplicationContext ctx = new StandardApplicationContext();
+ *     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
  *     ctx.getEnvironment().getPropertySources().addFirst(clps);
  *     ctx.importBeans(AppConfig.class);
  *     ctx.refresh();

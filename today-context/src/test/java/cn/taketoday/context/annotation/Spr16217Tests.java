@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,6 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -35,19 +31,19 @@ public class Spr16217Tests {
   @Test
   @Disabled("TODO")
   public void baseConfigurationIsIncludedWhenFirstSuperclassReferenceIsSkippedInRegisterBeanPhase() {
-    var context = new StandardApplicationContext(RegisterBeanPhaseImportingConfiguration.class);
+    var context = new AnnotationConfigApplicationContext(RegisterBeanPhaseImportingConfiguration.class);
     context.getBean("someBean");
   }
 
   @Test
   public void baseConfigurationIsIncludedWhenFirstSuperclassReferenceIsSkippedInParseConfigurationPhase() {
-    var context = new StandardApplicationContext(ParseConfigurationPhaseImportingConfiguration.class);
+    var context = new AnnotationConfigApplicationContext(ParseConfigurationPhaseImportingConfiguration.class);
     context.getBean("someBean");
   }
 
   @Test
   public void baseConfigurationIsIncludedOnceWhenBothConfigurationClassesAreActive() {
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.setAllowBeanDefinitionOverriding(false);
     context.register(UnconditionalImportingConfiguration.class);
     context.refresh();

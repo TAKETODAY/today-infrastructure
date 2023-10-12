@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +28,7 @@ import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.annotation.Bean;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * @author Andy Wilkinson
@@ -41,7 +38,7 @@ public class DuplicatePostProcessingTests {
 
   @Test
   public void testWithFactoryBeanAndEventListener() {
-    new StandardApplicationContext(Config.class).getBean(ExampleBean.class);
+    new AnnotationConfigApplicationContext(Config.class).getBean(ExampleBean.class);
   }
 
   static class Config {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +35,7 @@ import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotContribution;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.framework.jackson.JsonComponentModule.JsonComponentBeanFactoryInitializationAotProcessor;
 import cn.taketoday.framework.jackson.JsonComponentModuleTests.ComponentWithInnerAbstractClass.ConcreteSerializer;
 
@@ -51,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 class JsonComponentModuleTests {
 
-  private StandardApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   @AfterEach
   void closeContext() {
@@ -84,7 +81,7 @@ class JsonComponentModuleTests {
 
   @Test
   void moduleShouldAllowInnerAbstractClasses() throws Exception {
-    StandardApplicationContext context = new StandardApplicationContext(JsonComponentModule.class,
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(JsonComponentModule.class,
             ComponentWithInnerAbstractClass.class);
     JsonComponentModule module = context.getBean(JsonComponentModule.class);
     assertSerialize(module);
@@ -148,7 +145,7 @@ class JsonComponentModuleTests {
   }
 
   private void load(Class<?>... configs) {
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configs);
     context.register(JsonComponentModule.class);
     context.refresh();

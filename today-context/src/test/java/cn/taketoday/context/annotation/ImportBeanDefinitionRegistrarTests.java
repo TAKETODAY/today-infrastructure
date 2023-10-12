@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +32,6 @@ import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.MessageSource;
 import cn.taketoday.context.ResourceLoaderAware;
-import cn.taketoday.context.support.StandardApplicationContext;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotationMetadata;
@@ -52,7 +48,7 @@ public class ImportBeanDefinitionRegistrarTests {
 
   @Test
   public void shouldInvokeAwareMethodsInImportBeanDefinitionRegistrar() {
-    StandardApplicationContext context = new StandardApplicationContext(Config.class);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
     context.getBean(MessageSource.class);
 
     assertThat(SampleRegistrar.beanFactory).isEqualTo(context.getBeanFactory());

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import lombok.ToString;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +66,7 @@ class ObjectProviderTests {
 
   @Test
   public void testProperty() {
-    StandardApplicationContext context = new StandardApplicationContext();
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(Bean.class, TEST.class);
     context.refresh();
 

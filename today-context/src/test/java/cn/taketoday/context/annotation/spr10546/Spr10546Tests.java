@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +24,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.spr10546.scanpackage.AEnclosingConfig;
-import cn.taketoday.context.support.StandardApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -63,7 +60,7 @@ public class Spr10546Tests {
    */
   @Test
   public void enclosingConfigFirstParentDefinesBeanWithScanning() {
-    StandardApplicationContext ctx = new StandardApplicationContext();
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     context = ctx;
     ctx.scan(AEnclosingConfig.class.getPackage().getName());
     ctx.refresh();
@@ -144,7 +141,7 @@ public class Spr10546Tests {
   }
 
   private void assertLoadsMyBean(Class<?>... annotatedClasses) {
-    context = new StandardApplicationContext(annotatedClasses);
+    context = new AnnotationConfigApplicationContext(annotatedClasses);
     assertThat(context.getBean("myBean", String.class)).isEqualTo("myBean");
   }
 
