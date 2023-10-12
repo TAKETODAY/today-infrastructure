@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,10 +60,10 @@ public interface JsonParser {
    * @return a {@link JsonParser}
    */
   static JsonParser lookup() {
-    if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", null)) {
+    if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", JsonParser.class)) {
       return new JacksonJsonParser();
     }
-    if (ClassUtils.isPresent("com.google.gson.Gson", null)) {
+    if (ClassUtils.isPresent("com.google.gson.Gson", JsonParser.class)) {
       return new GsonJsonParser();
     }
     return new BasicJsonParser();

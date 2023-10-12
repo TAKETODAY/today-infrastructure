@@ -118,11 +118,11 @@ class SslServerCustomizer implements JettyServerCustomizer {
   }
 
   private boolean isJettyAlpnPresent() {
-    return ClassUtils.isPresent("org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory", null);
+    return ClassUtils.isPresent("org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory", getClass());
   }
 
   private boolean isJettyHttp2Present() {
-    return ClassUtils.isPresent("org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory", null);
+    return ClassUtils.isPresent("org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory", getClass());
   }
 
   private ServerConnector createHttp2ServerConnector(HttpConfiguration config,
@@ -150,8 +150,8 @@ class SslServerCustomizer implements JettyServerCustomizer {
   }
 
   private boolean isConscryptPresent() {
-    return ClassUtils.isPresent("org.conscrypt.Conscrypt", null)
-            && ClassUtils.isPresent("org.eclipse.jetty.alpn.conscrypt.server.ConscryptServerALPNProcessor", null);
+    return ClassUtils.isPresent("org.conscrypt.Conscrypt", getClass())
+            && ClassUtils.isPresent("org.eclipse.jetty.alpn.conscrypt.server.ConscryptServerALPNProcessor", getClass());
   }
 
   /**
