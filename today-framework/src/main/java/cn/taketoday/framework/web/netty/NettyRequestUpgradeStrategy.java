@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.Decorator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
@@ -41,6 +39,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.AttributeKey;
 
 /**
+ * Netty RequestUpgradeStrategy
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/22 21:43
  */
@@ -49,6 +49,13 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   public static AttributeKey<WebSocketSession> SOCKET_SESSION_KEY = AttributeKey.valueOf("WebSocketSession");
 
   private static final String[] SUPPORTED_VERSIONS = new String[] { "13" };
+
+  @Nullable
+  private final Decorator<WebSocketSession> sessionDecorator;
+
+  public NettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    this.sessionDecorator = sessionDecorator;
+  }
 
   protected WebSocketSession createSession(RequestContext context) {
     if (!(context instanceof NettyRequestContext nettyContext)) {
@@ -76,6 +83,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
           Map<String, Object> attributes) throws HandshakeFailureException {
 
     WebSocketSession session = createSession(context);
+    if (sessionDecorator != null) {
+      session = sessionDecorator.decorate(session);
+    }
 
     NettyRequestContext nettyContext = (NettyRequestContext) context; // just cast
     FullHttpRequest request = nettyContext.nativeRequest();

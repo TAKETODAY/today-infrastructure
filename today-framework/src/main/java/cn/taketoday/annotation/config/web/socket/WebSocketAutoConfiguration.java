@@ -30,12 +30,15 @@ import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.Decorator;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
 import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
@@ -114,8 +117,8 @@ public class WebSocketAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean
-    static RequestUpgradeStrategy nettyRequestUpgradeStrategy() {
-      return new NettyRequestUpgradeStrategy();
+    static RequestUpgradeStrategy nettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+      return new NettyRequestUpgradeStrategy(sessionDecorator);
     }
 
   }

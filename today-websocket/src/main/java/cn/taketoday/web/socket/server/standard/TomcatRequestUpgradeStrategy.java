@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,9 @@ import org.apache.tomcat.websocket.server.WsServerContainer;
 
 import java.util.Map;
 
+import cn.taketoday.core.Decorator;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.socket.WebSocketSession;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.websocket.server.ServerEndpointConfig;
@@ -39,10 +39,19 @@ import jakarta.websocket.server.ServerEndpointConfig;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WsServerContainer#upgradeHttpToWebSocket
  * @since 4.0
  */
 public class TomcatRequestUpgradeStrategy extends StandardWebSocketUpgradeStrategy {
+
+  public TomcatRequestUpgradeStrategy() {
+    super(null);
+  }
+
+  public TomcatRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    super(sessionDecorator);
+  }
 
   @Override
   protected void upgradeHttpToWebSocket(HttpServletRequest request, HttpServletResponse response,

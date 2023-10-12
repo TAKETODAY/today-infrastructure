@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.Decorator;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -32,6 +33,7 @@ import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import jakarta.servlet.ServletContext;
@@ -55,6 +57,13 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
 
   @Nullable
   private volatile List<WebSocketExtension> extensions;
+
+  @Nullable
+  private final Decorator<WebSocketSession> sessionDecorator;
+
+  protected AbstractStandardUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    this.sessionDecorator = sessionDecorator;
+  }
 
   protected ServerContainer getContainer(HttpServletRequest request) {
     ServletContext servletContext = request.getServletContext();
@@ -91,7 +100,11 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
 
     HttpHeaders headers = request.getHeaders();
 
-    StandardWebSocketSession session = new StandardWebSocketSession(headers, null, null);
+    WebSocketSession session = createSession(headers);
+    if (sessionDecorator != null) {
+      session = sessionDecorator.decorate(session);
+    }
+
     if (!attrs.isEmpty()) {
       session.getAttributes().putAll(attrs);
     }
@@ -105,8 +118,12 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
     upgradeInternal(request, selectedProtocol, extensions, endpoint);
   }
 
+  protected WebSocketSession createSession(HttpHeaders headers) {
+    return new StandardWebSocketSession(headers, null, null);
+  }
+
   protected abstract void upgradeInternal(RequestContext request,
-          @Nullable String selectedProtocol, List<Extension> selectedExtensions, Endpoint endpoint)
-          throws HandshakeFailureException;
+          @Nullable String selectedProtocol,
+          List<Extension> selectedExtensions, Endpoint endpoint) throws HandshakeFailureException;
 
 }

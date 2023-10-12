@@ -65,13 +65,34 @@ public class WebSocketSessionDecorator extends WebSocketSession {
     return result;
   }
 
-  public static WebSocketSession unwrap(WebSocketSession session) {
-    if (session instanceof WebSocketSessionDecorator decorator) {
-      return decorator.getRawSession();
+  /**
+   * Return an appropriate session object of the specified type, if available,
+   * unwrapping the given session as far as necessary.
+   *
+   * @param requiredType the desired type of session object
+   * @return the matching session object, or {@code null} if none
+   * of that type is available
+   */
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public static <T> T unwrap(WebSocketSession session, @Nullable Class<T> requiredType) {
+    if (requiredType != null) {
+      if (requiredType.isInstance(session)) {
+        return (T) session;
+      }
+      else if (session instanceof WebSocketSessionDecorator wrapper) {
+        return unwrap(wrapper.delegate, requiredType);
+      }
     }
-    else {
-      return session;
+    return null;
+  }
+
+  public static <T> T unwrapRequired(WebSocketSession session, @Nullable Class<T> requiredType) {
+    T unwrapped = unwrap(session, requiredType);
+    if (unwrapped == null) {
+      throw new IllegalArgumentException("WebSocketSession not a required type: " + requiredType);
     }
+    return unwrapped;
   }
 
   @Override

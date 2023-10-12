@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
+import cn.taketoday.core.Decorator;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
@@ -60,16 +58,20 @@ import jakarta.websocket.WebSocketContainer;
  * A WebSocketClient based on standard Java WebSocket API.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class StandardWebSocketClient extends AbstractWebSocketClient {
 
   private final WebSocketContainer webSocketContainer;
 
-  private final Map<String, Object> userProperties = new HashMap<>();
+  private final HashMap<String, Object> userProperties = new HashMap<>();
 
   @Nullable
   private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+
+  @Nullable
+  private Decorator<WebSocketSession> sessionDecorator;
 
   /**
    * Default constructor that calls {@code ContainerProvider.getWebSocketContainer()}
@@ -77,7 +79,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
    * accepting existing {@code WebSocketContainer} instance.
    */
   public StandardWebSocketClient() {
-    this.webSocketContainer = ContainerProvider.getWebSocketContainer();
+    this(ContainerProvider.getWebSocketContainer());
   }
 
   /**
@@ -87,7 +89,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
    * the {@code WebSocketContainer} instance.
    */
   public StandardWebSocketClient(WebSocketContainer webSocketContainer) {
-    Assert.notNull(webSocketContainer, "WebSocketContainer must not be null");
+    Assert.notNull(webSocketContainer, "WebSocketContainer is required");
     this.webSocketContainer = webSocketContainer;
   }
 
@@ -128,6 +130,21 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     return this.taskExecutor;
   }
 
+  public void setSessionDecorator(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    this.sessionDecorator = sessionDecorator;
+  }
+
+  public void addSessionDecorator(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    if (sessionDecorator != null) {
+      if (this.sessionDecorator != null) {
+        this.sessionDecorator = this.sessionDecorator.andThen(sessionDecorator);
+      }
+      else {
+        this.sessionDecorator = sessionDecorator;
+      }
+    }
+  }
+
   @Override
   protected ListenableFuture<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> protocols, List<WebSocketExtension> extensions) {
@@ -136,7 +153,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     InetSocketAddress localAddress = new InetSocketAddress(getLocalHost(), port);
     InetSocketAddress remoteAddress = new InetSocketAddress(uri.getHost(), port);
 
-    StandardWebSocketSession session = new StandardWebSocketSession(headers, localAddress, remoteAddress);
+    WebSocketSession session = createSession(headers, localAddress, remoteAddress);
 
     ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create()
             .configurator(new StandardWebSocketClientConfigurator(headers))
@@ -162,6 +179,15 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     }
   }
 
+  private WebSocketSession createSession(HttpHeaders headers,
+          InetSocketAddress localAddress, InetSocketAddress remoteAddress) {
+    WebSocketSession session = new StandardWebSocketSession(headers, localAddress, remoteAddress);
+    if (sessionDecorator != null) {
+      session = sessionDecorator.decorate(session);
+    }
+    return session;
+  }
+
   @Override
   protected CompletableFuture<WebSocketSession> executeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, final URI uri, List<String> protocols,
@@ -183,7 +209,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     final Endpoint endpoint = new StandardEndpoint(session, webSocketHandler);
 
     Callable<WebSocketSession> connectTask = () -> {
-      this.webSocketContainer.connectToServer(endpoint, endpointConfig, uri);
+      webSocketContainer.connectToServer(endpoint, endpointConfig, uri);
       return session;
     };
 

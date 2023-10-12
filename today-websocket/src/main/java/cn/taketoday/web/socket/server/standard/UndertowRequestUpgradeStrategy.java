@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,9 @@ package cn.taketoday.web.socket.server.standard;
 
 import java.util.Map;
 
+import cn.taketoday.core.Decorator;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.socket.WebSocketSession;
 import io.undertow.websockets.jsr.ServerWebSocketContainer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,12 +36,21 @@ import jakarta.websocket.server.ServerEndpointConfig;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServerWebSocketContainer#doUpgrade
  * @since 4.0
  */
 public class UndertowRequestUpgradeStrategy extends StandardWebSocketUpgradeStrategy {
 
   private static final String[] SUPPORTED_VERSIONS = new String[] { "13", "8", "7" };
+
+  public UndertowRequestUpgradeStrategy() {
+    this(null);
+  }
+
+  public UndertowRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    super(sessionDecorator);
+  }
 
   @Override
   public String[] getSupportedVersions() {

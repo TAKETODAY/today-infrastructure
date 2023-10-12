@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,8 @@ import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.MessageHandler;
 import jakarta.websocket.Session;
 
+import static cn.taketoday.web.socket.handler.WebSocketSessionDecorator.unwrapRequired;
+
 /**
  * Websocket Main Endpoint
  *
@@ -41,16 +40,18 @@ public class StandardEndpoint extends Endpoint {
   private static final Logger logger = LoggerFactory.getLogger(StandardEndpoint.class);
 
   private final WebSocketHandler socketHandler;
-  private final StandardWebSocketSession session;
 
-  public StandardEndpoint(StandardWebSocketSession session, WebSocketHandler handler) {
+  private final WebSocketSession session;
+
+  public StandardEndpoint(WebSocketSession session, WebSocketHandler handler) {
     this.session = session;
     this.socketHandler = handler;
   }
 
   @Override
   public void onOpen(Session stdSession, EndpointConfig config) {
-    session.initializeNativeSession(stdSession);
+    unwrapRequired(session, StandardWebSocketSession.class)
+            .initializeNativeSession(stdSession);
 
     // The following inner classes need to remain since lambdas would not retain their
     // declared generic types (which need to be seen by the underlying WebSocket engine)

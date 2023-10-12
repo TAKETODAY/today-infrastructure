@@ -120,7 +120,7 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
     }
     catch (Throwable ex) {
       if (logger.isWarnEnabled()) {
-        logger.warn("Error while destroying " + handler, ex);
+        logger.warn("Error while destroying {}", handler, ex);
       }
     }
   }
