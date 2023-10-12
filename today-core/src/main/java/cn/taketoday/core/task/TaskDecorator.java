@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +16,8 @@
  */
 
 package cn.taketoday.core.task;
+
+import cn.taketoday.core.Decorator;
 
 /**
  * A callback interface for a decorator to be applied to any {@link Runnable}
@@ -37,13 +36,14 @@ package cn.taketoday.core.task;
  * any exceptions from its {@code run} method.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TaskExecutor#execute(Runnable)
  * @see SimpleAsyncTaskExecutor#setTaskDecorator
  * @see cn.taketoday.core.task.support.TaskExecutorAdapter#setTaskDecorator
  * @since 4.0
  */
 @FunctionalInterface
-public interface TaskDecorator {
+public interface TaskDecorator extends Decorator<Runnable> {
 
   /**
    * Decorate the given {@code Runnable}, returning a potentially wrapped
