@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +20,16 @@ package cn.taketoday.test.web.servlet.samples.client.standalone;
 import org.junit.jupiter.api.Test;
 
 import java.security.Principal;
+import java.util.List;
 
+import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
+import cn.taketoday.test.web.reactive.server.WebTestClientConfigurer;
+import cn.taketoday.test.web.servlet.client.MockMvcHttpConnector;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
 import cn.taketoday.test.web.servlet.setup.ConfigurableMockMvcBuilder;
@@ -53,22 +56,78 @@ public class FrameworkExtensionTests {
 
   @Test
   public void fooHeader() {
-    this.client.get().uri("/")
-            .header("Foo", "a=b")
+    this.client.mutateWith(headers().foo("a=b"))
+            .get().uri("/")
             .exchange()
             .expectBody(String.class).isEqualTo("Foo");
   }
 
   @Test
   public void barHeader() {
-    this.client.get().uri("/")
-            .header("Bar", "a=b")
+    this.client.mutateWith(headers().bar("a=b"))
+            .get().uri("/")
             .exchange()
             .expectBody(String.class).isEqualTo("Bar");
   }
 
   private static TestMockMvcConfigurer defaultSetup() {
     return new TestMockMvcConfigurer();
+  }
+
+  private static TestWebTestClientConfigurer headers() {
+    return new TestWebTestClientConfigurer();
+  }
+
+  /**
+   * Test WebTestClientConfigurer that re-creates the MockMvcHttpConnector
+   * with a {@code TestRequestPostProcessor}.
+   */
+  private static class TestWebTestClientConfigurer implements WebTestClientConfigurer {
+
+    private final TestRequestPostProcessor requestPostProcessor = new TestRequestPostProcessor();
+
+    public TestWebTestClientConfigurer foo(String value) {
+      this.requestPostProcessor.foo(value);
+      return this;
+    }
+
+    public TestWebTestClientConfigurer bar(String value) {
+      this.requestPostProcessor.bar(value);
+      return this;
+    }
+
+    @Override
+    public void afterConfigurerAdded(WebTestClient.Builder builder, ClientHttpConnector connector) {
+      if (connector instanceof MockMvcHttpConnector mockMvcConnector) {
+        builder.clientConnector(mockMvcConnector.with(List.of(this.requestPostProcessor)));
+      }
+    }
+  }
+
+  /**
+   * Test {@code RequestPostProcessor} for custom headers.
+   */
+  private static class TestRequestPostProcessor implements RequestPostProcessor {
+
+    private final HttpHeaders headers = HttpHeaders.create();
+
+    public TestRequestPostProcessor foo(String value) {
+      this.headers.add("Foo", value);
+      return this;
+    }
+
+    public TestRequestPostProcessor bar(String value) {
+      this.headers.add("Bar", value);
+      return this;
+    }
+
+    @Override
+    public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+      for (String headerName : this.headers.keySet()) {
+        request.addHeader(headerName, this.headers.get(headerName));
+      }
+      return request;
+    }
   }
 
   /**
@@ -82,8 +141,9 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
-            WebApplicationContext context) {
+    public RequestPostProcessor beforeMockMvcCreated(
+            ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
+
       return request -> {
         request.setUserPrincipal(mock());
         return request;

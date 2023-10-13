@@ -370,6 +370,18 @@ public interface WebTestClient {
     Builder responseTimeout(Duration timeout);
 
     /**
+     * Set the {@link ClientHttpConnector} to use.
+     * <p>By default, this is initialized and set internally. However, the
+     * connector may also be prepared externally and passed via
+     * {@link WebTestClient#bindToServer(ClientHttpConnector)} such as for
+     * {@code MockMvcWebTestClient} tests, and in that case you can use this
+     * from {@link #mutateWith(WebTestClientConfigurer)} to replace it.
+     *
+     * @param connector the connector to use
+     */
+    Builder clientConnector(ClientHttpConnector connector);
+
+    /**
      * Apply the given configurer to this builder instance.
      * <p>This can be useful for applying pre-packaged customizations.
      *
@@ -599,7 +611,7 @@ public interface WebTestClient {
      * @return spec for further declaration of the request
      */
     <T, S extends Publisher<T>> RequestHeadersSpec<?> body(
-        S publisher, ParameterizedTypeReference<T> elementTypeRef);
+            S publisher, ParameterizedTypeReference<T> elementTypeRef);
 
     /**
      * Set the body from the given producer. This method invokes the

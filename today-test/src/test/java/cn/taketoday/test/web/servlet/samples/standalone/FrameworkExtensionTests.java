@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +17,12 @@
 
 package cn.taketoday.test.web.servlet.samples.standalone;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.security.Principal;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.servlet.MockMvc;
@@ -58,12 +53,7 @@ import static org.mockito.Mockito.mock;
  */
 public class FrameworkExtensionTests {
 
-  private MockMvc mockMvc;
-
-  @BeforeEach
-  public void setup() {
-    this.mockMvc = standaloneSetup(new SampleController()).apply(defaultSetup()).build();
-  }
+  private final MockMvc mockMvc = standaloneSetup(new SampleController()).apply(defaultSetup()).build();
 
   @Test
   public void fooHeader() throws Exception {
@@ -84,7 +74,7 @@ public class FrameworkExtensionTests {
   }
 
   /**
-   * Test {@code RequestPostProcessor}.
+   * Test {@code RequestPostProcessor} for custom headers.
    */
   private static class TestRequestPostProcessor implements RequestPostProcessor {
 
@@ -119,10 +109,10 @@ public class FrameworkExtensionTests {
       builder.alwaysExpect(status().isOk());
     }
 
-    @Nullable
     @Override
     public RequestPostProcessor beforeMockMvcCreated(
-            ConfigurableMockMvcBuilder<?> builder, WebApplicationContext cxt) {
+            ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
+
       return request -> {
         request.setUserPrincipal(mock());
         return request;

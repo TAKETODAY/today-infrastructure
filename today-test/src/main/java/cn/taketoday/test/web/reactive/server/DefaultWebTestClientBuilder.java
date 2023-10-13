@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +49,7 @@ import cn.taketoday.web.util.UriBuilderFactory;
  * Default implementation of {@link WebTestClient.Builder}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class DefaultWebTestClientBuilder implements WebTestClient.Builder {
@@ -75,7 +73,7 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
   }
 
   @Nullable
-  private final ClientHttpConnector connector;
+  private ClientHttpConnector connector;
 
   @Nullable
   private String baseUrl;
@@ -244,6 +242,12 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
   @Override
   public WebTestClient.Builder responseTimeout(Duration timeout) {
     this.responseTimeout = timeout;
+    return this;
+  }
+
+  @Override
+  public WebTestClient.Builder clientConnector(ClientHttpConnector connector) {
+    this.connector = connector;
     return this;
   }
 
