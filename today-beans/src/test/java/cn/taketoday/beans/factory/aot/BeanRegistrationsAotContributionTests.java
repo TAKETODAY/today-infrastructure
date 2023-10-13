@@ -37,9 +37,9 @@ import cn.taketoday.beans.factory.aot.BeanRegistrationsAotContribution.Registrat
 import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.beans.testfixture.beans.GenericBeanWithBounds;
-import cn.taketoday.beans.testfixture.beans.Person;
-import cn.taketoday.beans.testfixture.beans.RecordBean;
+import cn.taketoday.beans.testfixture.beans.AgeHolder;
+import cn.taketoday.beans.testfixture.beans.Employee;
+import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanFactoryInitializationCode;
 import cn.taketoday.core.test.io.support.MockTodayStrategies;
@@ -141,37 +141,20 @@ class BeanRegistrationsAotContributionTests {
 
   @Test
   void applyToRegisterReflectionHints() {
-    RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class));
+    RegisteredBean registeredBean = registerBean(new RootBeanDefinition(Employee.class));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
             registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(TestBean.class, generator);
+    BeanRegistrationsAotContribution contribution = createContribution(Employee.class, generator);
     contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
-    assertThat(reflection().onType(TestBean.class)
+    assertThat(reflection().onType(Employee.class)
             .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS))
             .accepts(this.generationContext.getRuntimeHints());
-  }
-
-  @Test
-  void applyToRegisterReflectionHintsOnRecordBean() {
-    RegisteredBean registeredBean = registerBean(new RootBeanDefinition(RecordBean.class));
-    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
-            registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(RecordBean.class, generator);
-    contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
-    assertThat(reflection().onType(RecordBean.class)
-            .withMemberCategories(MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS,
-                    MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS))
+    assertThat(reflection().onType(ITestBean.class)
+            .withMemberCategory(MemberCategory.INTROSPECT_PUBLIC_METHODS))
             .accepts(this.generationContext.getRuntimeHints());
-  }
-
-  @Test
-  void applyToRegisterReflectionHintsOnGenericBeanWithBounds() {
-    RegisteredBean registeredBean = registerBean(new RootBeanDefinition(GenericBeanWithBounds.class));
-    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,
-            registeredBean, null, List.of());
-    BeanRegistrationsAotContribution contribution = createContribution(GenericBeanWithBounds.class, generator);
-    contribution.applyTo(this.generationContext, this.beanFactoryInitializationCode);
-    assertThat(reflection().onType(Person[].class)).accepts(this.generationContext.getRuntimeHints());
+    assertThat(reflection().onType(AgeHolder.class)
+            .withMemberCategory(MemberCategory.INTROSPECT_PUBLIC_METHODS))
+            .accepts(this.generationContext.getRuntimeHints());
   }
 
   private RegisteredBean registerBean(RootBeanDefinition rootBeanDefinition) {

@@ -17,8 +17,6 @@
 
 package cn.taketoday.beans.factory.aot;
 
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 import javax.lang.model.element.Modifier;
@@ -33,11 +31,10 @@ import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
-import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * AOT contribution from a {@link BeanRegistrationsAotProcessor} used to
@@ -117,22 +114,21 @@ class BeanRegistrationsAotContribution implements BeanFactoryInitializationAotCo
       ReflectionHints hints = runtimeHints.reflection();
       Class<?> beanClass = beanRegistrationKey.beanClass();
       hints.registerType(beanClass, MemberCategory.INTROSPECT_PUBLIC_METHODS, MemberCategory.INTROSPECT_DECLARED_METHODS);
-      // Workaround for https://github.com/oracle/graal/issues/6510
-      if (beanClass.isRecord()) {
-        hints.registerType(beanClass, MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.INVOKE_DECLARED_METHODS);
-      }
-      // Workaround for https://github.com/oracle/graal/issues/6529
-      ReflectionUtils.doWithMethods(beanClass, method -> {
-        for (Type type : method.getGenericParameterTypes()) {
-          if (type instanceof GenericArrayType) {
-            Class<?> clazz = ResolvableType.forType(type).resolve();
-            if (clazz != null) {
-              hints.registerType(clazz);
-            }
-          }
-        }
-      });
+      introspectPublicMethodsOnAllInterfaces(hints, beanClass);
     });
+  }
+
+  private void introspectPublicMethodsOnAllInterfaces(ReflectionHints hints, Class<?> type) {
+    Class<?> currentClass = type;
+    while (currentClass != null && currentClass != Object.class) {
+      for (Class<?> interfaceType : currentClass.getInterfaces()) {
+        if (!ClassUtils.isJavaLanguageInterface(interfaceType)) {
+          hints.registerType(interfaceType, MemberCategory.INTROSPECT_PUBLIC_METHODS);
+          introspectPublicMethodsOnAllInterfaces(hints, interfaceType);
+        }
+      }
+      currentClass = currentClass.getSuperclass();
+    }
   }
 
   /**
