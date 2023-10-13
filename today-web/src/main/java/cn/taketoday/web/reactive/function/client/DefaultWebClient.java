@@ -165,11 +165,11 @@ class DefaultWebClient implements WebClient {
   }
 
   private static Mono<Void> releaseIfNotConsumed(ClientResponse response) {
-    return response.releaseBody().onErrorResume(ex2 -> Mono.empty());
+    return response.releaseBody().onErrorComplete();
   }
 
   private static <T> Mono<T> releaseIfNotConsumed(ClientResponse response, Throwable ex) {
-    return response.releaseBody().onErrorResume(ex2 -> Mono.empty()).then(Mono.error(ex));
+    return response.releaseBody().onErrorComplete().then(Mono.error(ex));
   }
 
   private class DefaultRequestBodyUriSpec implements RequestBodyUriSpec {
