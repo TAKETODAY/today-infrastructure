@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,24 +19,27 @@ package cn.taketoday.test.web.reactive.server;
 
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.test.web.servlet.client.MockMvcHttpConnector;
 
 /**
- * Contract that frameworks or applications can use to pre-package a set of
- * customizations to a {@link WebTestClient.Builder} and expose that
- * as a shortcut.
+ * Contract to encapsulate customizations to a {@link WebTestClient.Builder}.
+ * Typically used by frameworks that wish to provide a shortcut for common
+ * initialization.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MockServerConfigurer
  * @since 4.0
  */
 public interface WebTestClientConfigurer {
 
   /**
-   * Invoked once only, immediately (i.e. before this method returns).
+   * Use methods on {@link WebTestClient.Builder} to modify test client
+   * settings. For a mock WebFlux server, For a MockMvc server, mutate the
+   * {@link MockMvcHttpConnector} and set it on {@link WebTestClient.Builder}.
    *
-   * @param builder the WebTestClient builder to make changes to
-   * @param connector the connector for "live" integration tests if this
-   * server was configured for live integration testing
+   * @param builder the WebTestClient builder for test client changes
+   * @param connector the connector in use
    */
   void afterConfigurerAdded(WebTestClient.Builder builder, @Nullable ClientHttpConnector connector);
 
