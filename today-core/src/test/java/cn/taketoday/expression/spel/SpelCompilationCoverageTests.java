@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,8 @@
 package cn.taketoday.expression.spel;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -997,6 +996,60 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     assertThat(expression.getValue(ctx).toString()).isEqualTo("4.0");
     assertCanCompile(expression);
     assertThat(expression.getValue(ctx).toString()).isEqualTo("4.0");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "voidMethod", "voidWrapperMethod" })
+  public void voidFunctionReference(String method) throws Exception {
+    assertVoidFunctionReferenceBehavior(method);
+  }
+
+  private void assertVoidFunctionReferenceBehavior(String methodName) throws Exception {
+    Method method = getClass().getDeclaredMethod(methodName, String.class);
+
+    EvaluationContext ctx = new StandardEvaluationContext();
+    ctx.setVariable("voidMethod", method);
+
+    expression = parser.parseExpression("#voidMethod('a')");
+
+    voidMethodInvokedWith = null;
+    expression.getValue(ctx);
+    assertThat(voidMethodInvokedWith).isEqualTo("a");
+    assertCanCompile(expression);
+
+    voidMethodInvokedWith = null;
+    expression.getValue(ctx);
+    assertThat(voidMethodInvokedWith).isEqualTo("a");
+    assertCanCompile(expression);
+
+    voidMethodInvokedWith = null;
+    expression.getValue(ctx);
+    assertThat(voidMethodInvokedWith).isEqualTo("a");
+    assertCanCompile(expression);
+
+    expression = parser.parseExpression("#voidMethod(#a)");
+    ctx.setVariable("a", "foo");
+
+    voidMethodInvokedWith = null;
+    expression.getValue(ctx);
+    assertThat(voidMethodInvokedWith).isEqualTo("foo");
+    assertCanCompile(expression);
+
+    voidMethodInvokedWith = null;
+    expression.getValue(ctx);
+    assertThat(voidMethodInvokedWith).isEqualTo("foo");
+    assertCanCompile(expression);
+  }
+
+  private static String voidMethodInvokedWith;
+
+  public static Void voidWrapperMethod(String str) {
+    voidMethodInvokedWith = str;
+    return null;
+  }
+
+  public static void voidMethod(String str) {
+    voidMethodInvokedWith = str;
   }
 
   @Test
