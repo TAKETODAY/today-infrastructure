@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +36,7 @@ import cn.taketoday.util.CollectionUtils;
  * (but not necessarily) determined through some thread-bound transaction context.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setTargetDataSources
  * @see #setDefaultTargetDataSource
  * @see #determineCurrentLookupKey()
@@ -119,7 +117,21 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
 
   @Override
   public void afterPropertiesSet() {
-    if (targetDataSources == null) {
+    initialize();
+  }
+
+  /**
+   * Initialize the internal state of this {@code AbstractRoutingDataSource}
+   * by resolving the configured target DataSources.
+   *
+   * @throws IllegalArgumentException if the target DataSources have not been configured
+   * @see #setTargetDataSources(Map)
+   * @see #setDefaultTargetDataSource(Object)
+   * @see #getResolvedDataSources()
+   * @see #getResolvedDefaultDataSource()
+   */
+  public void initialize() {
+    if (this.targetDataSources == null) {
       throw new IllegalArgumentException("Property 'targetDataSources' is required");
     }
     this.resolvedDataSources = CollectionUtils.newHashMap(this.targetDataSources.size());

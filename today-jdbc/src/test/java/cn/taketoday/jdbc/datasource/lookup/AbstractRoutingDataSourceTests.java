@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,6 @@ package cn.taketoday.jdbc.datasource.lookup;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -40,7 +36,7 @@ class AbstractRoutingDataSourceTests {
 
   @Test
   void setTargetDataSources() {
-    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    ThreadLocal<String> lookupKey = new ThreadLocal<>();
     AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
       @Override
       protected Object determineCurrentLookupKey() {
@@ -52,14 +48,11 @@ class AbstractRoutingDataSourceTests {
 
     MapDataSourceLookup dataSourceLookup = new MapDataSourceLookup();
     dataSourceLookup.addDataSource("dataSource2", ds2);
+
     routingDataSource.setDataSourceLookup(dataSourceLookup);
-
-    Map<Object, Object> targetDataSources = new HashMap<>();
-    targetDataSources.put("ds1", ds1);
-    targetDataSources.put("ds2", "dataSource2");
-    routingDataSource.setTargetDataSources(targetDataSources);
-
+    routingDataSource.setTargetDataSources(Map.of("ds1", ds1, "ds2", "dataSource2"));
     routingDataSource.afterPropertiesSet();
+
     lookupKey.set("ds1");
     assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds1);
     lookupKey.set("ds2");
@@ -86,16 +79,14 @@ class AbstractRoutingDataSourceTests {
         return null;
       }
     };
-    Map<Object, Object> targetDataSources = new HashMap<>();
-    targetDataSources.put("ds1", 1);
-    routingDataSource.setTargetDataSources(targetDataSources);
+    routingDataSource.setTargetDataSources(Map.of("ds1", 1));
     assertThatIllegalArgumentException().isThrownBy(routingDataSource::afterPropertiesSet)
             .withMessage("Illegal data source value - only [javax.sql.DataSource] and String supported: 1");
   }
 
   @Test
   void setDefaultTargetDataSource() {
-    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    ThreadLocal<String> lookupKey = new ThreadLocal<>();
     AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
       @Override
       protected Object determineCurrentLookupKey() {
@@ -103,7 +94,7 @@ class AbstractRoutingDataSourceTests {
       }
     };
     DataSource ds = new StubDataSource();
-    routingDataSource.setTargetDataSources(new HashMap<>());
+    routingDataSource.setTargetDataSources(Map.of());
     routingDataSource.setDefaultTargetDataSource(ds);
     routingDataSource.afterPropertiesSet();
     lookupKey.set("foo");
@@ -112,7 +103,7 @@ class AbstractRoutingDataSourceTests {
 
   @Test
   void setDefaultTargetDataSourceFallbackIsFalse() {
-    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    ThreadLocal<String> lookupKey = new ThreadLocal<>();
     AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
       @Override
       protected Object determineCurrentLookupKey() {
@@ -120,7 +111,7 @@ class AbstractRoutingDataSourceTests {
       }
     };
     DataSource ds = new StubDataSource();
-    routingDataSource.setTargetDataSources(new HashMap<>());
+    routingDataSource.setTargetDataSources(Map.of());
     routingDataSource.setDefaultTargetDataSource(ds);
     routingDataSource.setLenientFallback(false);
     routingDataSource.afterPropertiesSet();
@@ -131,7 +122,7 @@ class AbstractRoutingDataSourceTests {
 
   @Test
   void setDefaultTargetDataSourceLookupKeyIsNullWhenFallbackIsFalse() {
-    final ThreadLocal<String> lookupKey = new ThreadLocal<>();
+    ThreadLocal<String> lookupKey = new ThreadLocal<>();
     AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
       @Override
       protected Object determineCurrentLookupKey() {
@@ -139,12 +130,33 @@ class AbstractRoutingDataSourceTests {
       }
     };
     DataSource ds = new StubDataSource();
-    routingDataSource.setTargetDataSources(new HashMap<>());
+    routingDataSource.setTargetDataSources(Map.of());
     routingDataSource.setDefaultTargetDataSource(ds);
     routingDataSource.setLenientFallback(false);
     routingDataSource.afterPropertiesSet();
     lookupKey.set(null);
     assertThat(routingDataSource.determineTargetDataSource()).isSameAs(ds);
+  }
+
+  @Test
+  void initializeSynchronizesTargetDataSourcesToResolvedDataSources() {
+    AbstractRoutingDataSource routingDataSource = new AbstractRoutingDataSource() {
+      @Override
+      protected Object determineCurrentLookupKey() {
+        return null;
+      }
+    };
+
+    DataSource ds1 = new StubDataSource();
+    DataSource ds2 = new StubDataSource();
+
+    routingDataSource.setTargetDataSources(Map.of("ds1", ds1, "ds2", ds2));
+    routingDataSource.initialize();
+
+    Map<Object, DataSource> resolvedDataSources = routingDataSource.getResolvedDataSources();
+    assertThat(resolvedDataSources).hasSize(2);
+    assertThat(resolvedDataSources.get("ds1")).isSameAs(ds1);
+    assertThat(resolvedDataSources.get("ds2")).isSameAs(ds2);
   }
 
   @Test
