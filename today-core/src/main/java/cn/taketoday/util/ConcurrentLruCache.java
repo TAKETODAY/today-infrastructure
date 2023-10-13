@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
@@ -48,10 +44,10 @@ import cn.taketoday.lang.Nullable;
  * @param <V> the type of the cached values, does not allow null values
  * @author Brian Clozel
  * @author Ben Manes
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #get(Object)
  * @since 4.0
  */
-
 public final class ConcurrentLruCache<K, V> {
 
   private final int capacity;
@@ -66,7 +62,7 @@ public final class ConcurrentLruCache<K, V> {
 
   private final WriteOperations writeOperations;
 
-  private final Lock evictionLock = new ReentrantLock();
+  private final ReentrantLock evictionLock = new ReentrantLock();
 
   /**
    * Queue that contains all ACTIVE cache entries, ordered with least recently used entries first.
@@ -88,7 +84,7 @@ public final class ConcurrentLruCache<K, V> {
   }
 
   private ConcurrentLruCache(int capacity, Function<K, V> generator, int concurrencyLevel) {
-    Assert.isTrue(capacity > 0, "Capacity must be > 0");
+    Assert.isTrue(capacity >= 0, "Capacity must be >= 0");
     this.capacity = capacity;
     this.cache = new ConcurrentHashMap<>(16, 0.75f, concurrencyLevel);
     this.generator = generator;
@@ -103,6 +99,9 @@ public final class ConcurrentLruCache<K, V> {
    * @return the cached or newly generated value
    */
   public V get(K key) {
+    if (this.capacity == 0) {
+      return this.generator.apply(key);
+    }
     final Node<K, V> node = this.cache.get(key);
     if (node == null) {
       V value = this.generator.apply(key);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConcurrentLruCacheTests {
 
   private final ConcurrentLruCache<String, String> cache = new ConcurrentLruCache<>(2, key -> key + "value");
+
+  @Test
+  void zeroCapacity() {
+    ConcurrentLruCache<String, String> cache = new ConcurrentLruCache<>(0, key -> key + "value");
+
+    assertThat(cache.capacity()).isZero();
+    assertThat(cache.size()).isZero();
+
+    assertThat(cache.get("k1")).isEqualTo("k1value");
+    assertThat(cache.size()).isZero();
+    assertThat(cache.contains("k1")).isFalse();
+
+    assertThat(cache.get("k2")).isEqualTo("k2value");
+    assertThat(cache.size()).isZero();
+    assertThat(cache.contains("k1")).isFalse();
+    assertThat(cache.contains("k2")).isFalse();
+
+    assertThat(cache.get("k3")).isEqualTo("k3value");
+    assertThat(cache.size()).isZero();
+    assertThat(cache.contains("k1")).isFalse();
+    assertThat(cache.contains("k2")).isFalse();
+    assertThat(cache.contains("k3")).isFalse();
+  }
 
   @Test
   void getAndSize() {
