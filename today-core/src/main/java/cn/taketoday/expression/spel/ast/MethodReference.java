@@ -26,9 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 
-import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.bytecode.Label;
 import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
+import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.expression.AccessException;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.EvaluationException;
@@ -36,7 +37,6 @@ import cn.taketoday.expression.ExpressionInvocationTargetException;
 import cn.taketoday.expression.MethodExecutor;
 import cn.taketoday.expression.MethodResolver;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -51,6 +51,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MethodReference extends SpelNodeImpl {
@@ -71,6 +72,16 @@ public class MethodReference extends SpelNodeImpl {
     this.nullSafe = nullSafe;
   }
 
+  /**
+   * Does this node represent a null-safe method reference?
+   */
+  public final boolean isNullSafe() {
+    return this.nullSafe;
+  }
+
+  /**
+   * Get the name of the referenced method.
+   */
   public final String getName() {
     return this.name;
   }

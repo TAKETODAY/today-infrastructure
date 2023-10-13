@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,9 @@ import cn.taketoday.expression.spel.SpelNode;
 
 /**
  * Represents a DOT separated expression sequence, such as
- * {@code 'property1.property2.methodOne()'}.
+ * {@code property1.property2.methodOne()} or
+ * {@code property1?.property2?.methodOne()} when the null-safe navigation
+ * operator is used.
  *
  * <p>May also contain array/collection/map indexers, such as
  * {@code property1[0].property2['key']}.
@@ -127,6 +126,10 @@ public class CompoundExpression extends SpelNodeImpl {
         // Don't append a '.' if the next child is an Indexer.
         // For example, we want 'myVar[0]' instead of 'myVar.[0]'.
         if (!(nextChild instanceof Indexer)) {
+          if ((nextChild instanceof MethodReference methodRef && methodRef.isNullSafe()) ||
+                  (nextChild instanceof PropertyOrFieldReference pofRef && pofRef.isNullSafe())) {
+            sb.append('?');
+          }
           sb.append('.');
         }
       }
