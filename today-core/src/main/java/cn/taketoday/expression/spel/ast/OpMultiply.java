@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +121,12 @@ public class OpMultiply extends Operator {
   }
 
   private void checkRepeatedTextSize(String text, int count) {
-    if (text.length() * count > MAX_REPEATED_TEXT_SIZE) {
+    if (count < 0) {
+      throw new SpelEvaluationException(getStartPosition(),
+              SpelMessage.NEGATIVE_REPEATED_TEXT_COUNT, count);
+    }
+    int result = text.length() * count;
+    if (result < 0 || result > MAX_REPEATED_TEXT_SIZE) {
       throw new SpelEvaluationException(getStartPosition(),
               SpelMessage.MAX_REPEATED_TEXT_SIZE_EXCEEDED, MAX_REPEATED_TEXT_SIZE);
     }

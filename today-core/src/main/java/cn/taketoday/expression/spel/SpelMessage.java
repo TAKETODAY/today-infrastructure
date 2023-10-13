@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -280,7 +277,10 @@ public enum SpelMessage {
           "SpEL expression is too long, exceeding the threshold of ''{0}'' characters"),
 
   VARIABLE_ASSIGNMENT_NOT_SUPPORTED(Kind.ERROR, 1080,
-          "Assignment to variable ''{0}'' is not supported");
+          "Assignment to variable ''{0}'' is not supported"),
+
+  NEGATIVE_REPEATED_TEXT_COUNT(Kind.ERROR, 1081,
+          "Repeat count ''{0}'' must not be negative");
 
   private final Kind kind;
 

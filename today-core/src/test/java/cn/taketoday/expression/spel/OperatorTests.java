@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.expression.spel.standard.SpelExpression;
 
 import static cn.taketoday.expression.spel.SpelMessage.MAX_CONCATENATED_STRING_LENGTH_EXCEEDED;
 import static cn.taketoday.expression.spel.SpelMessage.MAX_REPEATED_TEXT_SIZE_EXCEEDED;
+import static cn.taketoday.expression.spel.SpelMessage.NEGATIVE_REPEATED_TEXT_COUNT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -582,6 +580,19 @@ class OperatorTests extends AbstractExpressionTests {
 
     // 4 is the position of the '*' (repeat operator)
     evaluateAndCheckError("'a' * 257", String.class, MAX_REPEATED_TEXT_SIZE_EXCEEDED, 4);
+
+    // Integer overflow: 2 * ((Integer.MAX_VALUE / 2) + 1) --> integer overflow
+    int repeatCount = (Integer.MAX_VALUE / 2) + 1;
+    assertThat(2 * repeatCount).isNegative();
+    // 5 is the position of the '*' (repeat operator)
+    evaluateAndCheckError("'ab' * " + repeatCount, String.class, MAX_REPEATED_TEXT_SIZE_EXCEEDED, 5);
+  }
+
+  @Test
+  void stringRepeatWithNegativeRepeatCount() {
+    // 4 is the position of the '*' (repeat operator)
+    // -1 is the negative repeat count
+    evaluateAndCheckError("'a' * -1", String.class, NEGATIVE_REPEATED_TEXT_COUNT, 4, -1);
   }
 
   @Test
