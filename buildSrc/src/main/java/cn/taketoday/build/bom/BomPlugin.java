@@ -20,12 +20,12 @@ package cn.taketoday.build.bom;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.plugins.JavaPlatformExtension;
 import org.gradle.api.plugins.JavaPlatformPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPom;
 import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.build.bom.Library.Group;
 import cn.taketoday.build.bom.Library.Module;
-import cn.taketoday.build.maven.MavenRepositoryPlugin;
 import cn.taketoday.lang.Nullable;
 import groovy.namespace.QName;
 import groovy.util.Node;
@@ -56,10 +55,8 @@ public class BomPlugin implements Plugin<Project> {
   @Override
   public void apply(Project project) {
     PluginContainer plugins = project.getPlugins();
-    plugins.apply(MavenRepositoryPlugin.class);
+    project.getPlugins().apply(MavenPublishPlugin.class);
     plugins.apply(JavaPlatformPlugin.class);
-    JavaPlatformExtension javaPlatform = project.getExtensions().getByType(JavaPlatformExtension.class);
-    javaPlatform.allowDependencies();
     createApiEnforcedConfiguration(project);
     BomExtension bom = project.getExtensions()
             .create("bom", BomExtension.class, project.getDependencies(), project);

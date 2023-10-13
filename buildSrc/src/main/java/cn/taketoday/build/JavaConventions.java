@@ -51,7 +51,7 @@ public class JavaConventions {
   private static final List<String> TEST_COMPILER_ARGS;
 
   static {
-    List<String> commonCompilerArgs = Arrays.asList(
+    List<String> commonCompilerArgs = List.of(
             /*"-Xlint:serial",*/ "-Xlint:cast", "-Xlint:classfile",/* "-Xlint:dep-ann",*/
             "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally", "-Xlint:overrides",
             "-Xlint:path", "-Xlint:-processing", /* "-Xlint:static", "-Xlint:try",*/ "-Xlint:-options",

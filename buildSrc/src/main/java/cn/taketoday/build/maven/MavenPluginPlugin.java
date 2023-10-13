@@ -18,75 +18,35 @@
 package cn.taketoday.build.maven;
 
 import org.gradle.api.DefaultTask;
-import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.ComponentMetadataContext;
-import org.gradle.api.artifacts.ComponentMetadataRule;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
-import org.gradle.api.artifacts.VariantMetadata;
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
-import org.gradle.api.artifacts.result.ResolvedArtifactResult;
-import org.gradle.api.attributes.DocsType;
-import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.CopySpec;
-import org.gradle.api.file.DirectoryProperty;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
-import org.gradle.api.tasks.Classpath;
-import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.OutputDirectory;
-import org.gradle.api.tasks.OutputFile;
-import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskExecutionException;
-import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.StandardJavadocDocletOptions;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
-import java.util.Properties;
-import java.util.function.BiConsumer;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import cn.taketoday.build.IntegrationTestPlugin;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.CollectionUtils;
 import io.spring.javaformat.formatter.FileEdit;
 import io.spring.javaformat.formatter.FileFormatter;
 
@@ -104,18 +64,14 @@ public class MavenPluginPlugin implements Plugin<Project> {
   public void apply(Project project) {
     project.getPlugins().apply(JavaLibraryPlugin.class);
     project.getPlugins().apply(MavenPublishPlugin.class);
-    project.getPlugins().apply(MavenRepositoryPlugin.class);
     project.getPlugins().apply(IntegrationTestPlugin.class);
 
     Jar jarTask = (Jar) project.getTasks().getByName(JavaPlugin.JAR_TASK_NAME);
     configurePomPackaging(project);
-    addPopulateIntTestMavenRepositoryTask(project);
     MavenExec generateHelpMojoTask = addGenerateHelpMojoTask(project, jarTask);
     MavenExec generatePluginDescriptorTask = addGeneratePluginDescriptorTask(
             project, jarTask, generateHelpMojoTask);
     addDocumentPluginGoalsTask(project, generatePluginDescriptorTask);
-    addPrepareMavenBinariesTask(project);
-    addExtractVersionPropertiesTask(project);
   }
 
   private void configurePomPackaging(Project project) {
@@ -125,39 +81,6 @@ public class MavenPluginPlugin implements Plugin<Project> {
 
   private void setPackaging(MavenPublication mavenPublication) {
     mavenPublication.pom(pom -> pom.setPackaging("maven-plugin"));
-  }
-
-  private void addPopulateIntTestMavenRepositoryTask(Project project) {
-    Configuration runtimeClasspathWithMetadata = project.getConfigurations().create("runtimeClasspathWithMetadata");
-    runtimeClasspathWithMetadata.extendsFrom(
-            project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME));
-
-    runtimeClasspathWithMetadata.attributes(attributes -> attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE,
-            project.getObjects().named(DocsType.class, "maven-repository")));
-
-    RuntimeClasspathMavenRepository runtimeClasspathMavenRepository = project.getTasks()
-            .create("runtimeClasspathMavenRepository", RuntimeClasspathMavenRepository.class);
-
-    runtimeClasspathMavenRepository.getOutputDirectory()
-            .set(new File(project.getBuildDir(), "runtime-classpath-repository"));
-
-    project.getDependencies()
-            .components(components -> components.all(MavenRepositoryComponentMetadataRule.class));
-
-    Sync task = project.getTasks().create("populateIntTestMavenRepository", Sync.class);
-    task.setDestinationDir(new File(project.getBuildDir(), "int-test-maven-repository"));
-    task.with(copyIntTestMavenRepositoryFiles(project, runtimeClasspathMavenRepository));
-    task.dependsOn(project.getTasks().getByName(MavenRepositoryPlugin.PUBLISH_TO_PROJECT_REPOSITORY_TASK_NAME));
-    project.getTasks().getByName(IntegrationTestPlugin.INT_TEST_TASK_NAME).dependsOn(task);
-  }
-
-  private CopySpec copyIntTestMavenRepositoryFiles(Project project,
-          RuntimeClasspathMavenRepository runtimeClasspathMavenRepository) {
-    CopySpec copySpec = project.copySpec();
-//    copySpec.from(project.getConfigurations().getByName(MavenRepositoryPlugin.MAVEN_REPOSITORY_CONFIGURATION_NAME));
-    copySpec.from(new File(project.getBuildDir(), "maven-repository"));
-    copySpec.from(runtimeClasspathMavenRepository);
-    return copySpec;
   }
 
   private void addDocumentPluginGoalsTask(Project project, MavenExec generatePluginDescriptorTask) {
@@ -264,35 +187,12 @@ public class MavenPluginPlugin implements Plugin<Project> {
     jar.dependsOn(generatePluginDescriptorTask);
   }
 
-  private void addPrepareMavenBinariesTask(Project project) {
-    TaskProvider<PrepareMavenBinaries> task = project.getTasks()
-            .register("prepareMavenBinaries", PrepareMavenBinaries.class,
-                    prepareMavenBinaries -> prepareMavenBinaries.setOutputDir(new File(project.getBuildDir(), "maven-binaries")));
-    project.getTasks()
-            .getByName(IntegrationTestPlugin.INT_TEST_TASK_NAME)
-            .getInputs()
-            .dir(task.map(PrepareMavenBinaries::getOutputDir))
-            .withPathSensitivity(PathSensitivity.RELATIVE)
-            .withPropertyName("mavenBinaries");
-  }
-
   private void replaceVersionPlaceholder(CopySpec copy, Project project) {
     copy.filter(input -> replaceVersionPlaceholder(project, input));
   }
 
   private String replaceVersionPlaceholder(Project project, String input) {
     return input.replace("{{version}}", project.getVersion().toString());
-  }
-
-  private void addExtractVersionPropertiesTask(Project project) {
-    ExtractVersionProperties extractVersionProperties = project.getTasks()
-            .create("extractVersionProperties", ExtractVersionProperties.class);
-    extractVersionProperties.setEffectiveBoms(project.getConfigurations().create("versionProperties"));
-    extractVersionProperties.getDestination()
-            .set(project.getLayout()
-                    .getBuildDirectory()
-                    .dir("generated-resources")
-                    .map(dir -> dir.file("extracted-versions.properties")));
   }
 
   public static class FormatHelpMojoSource extends DefaultTask {
@@ -335,191 +235,6 @@ public class MavenPluginPlugin implements Plugin<Project> {
       }
       catch (Exception ex) {
         throw new TaskExecutionException(this, ex);
-      }
-    }
-
-  }
-
-  public static class MavenRepositoryComponentMetadataRule implements ComponentMetadataRule {
-
-    private final ObjectFactory objects;
-
-    @javax.inject.Inject
-    public MavenRepositoryComponentMetadataRule(ObjectFactory objects) {
-      this.objects = objects;
-    }
-
-    @Override
-    public void execute(ComponentMetadataContext context) {
-      context.getDetails().maybeAddVariant("compileWithMetadata", "compile",
-              variant -> configureVariant(context, variant));
-      context.getDetails().maybeAddVariant("apiElementsWithMetadata", "apiElements",
-              variant -> configureVariant(context, variant));
-    }
-
-    private void configureVariant(ComponentMetadataContext context, VariantMetadata variant) {
-      variant.attributes(attributes -> {
-        attributes.attribute(DocsType.DOCS_TYPE_ATTRIBUTE,
-                this.objects.named(DocsType.class, "maven-repository"));
-        attributes.attribute(Usage.USAGE_ATTRIBUTE, this.objects.named(Usage.class, "maven-repository"));
-      });
-      variant.withFiles(files -> {
-        ModuleVersionIdentifier id = context.getDetails().getId();
-        files.addFile(id.getName() + "-" + id.getVersion() + ".pom");
-      });
-    }
-
-  }
-
-  public static class RuntimeClasspathMavenRepository extends DefaultTask {
-
-    private final Configuration runtimeClasspath;
-
-    private final DirectoryProperty outputDirectory;
-
-    public RuntimeClasspathMavenRepository() {
-      this.runtimeClasspath = getProject().getConfigurations().getByName("runtimeClasspathWithMetadata");
-      this.outputDirectory = getProject().getObjects().directoryProperty();
-    }
-
-    @OutputDirectory
-    public DirectoryProperty getOutputDirectory() {
-      return this.outputDirectory;
-    }
-
-    @Classpath
-    public Configuration getRuntimeClasspath() {
-      return this.runtimeClasspath;
-    }
-
-    @TaskAction
-    public void createRepository() {
-      System.out.println("createRepository");
-      for (ResolvedArtifactResult result : getRuntimeClasspath().getIncoming().getArtifacts()) {
-        if (result.getId().getComponentIdentifier() instanceof ModuleComponentIdentifier identifier) {
-          String fileName = result.getFile()
-                  .getName()
-                  .replace(identifier.getVersion() + "-" + identifier.getVersion(), identifier.getVersion());
-          File repositoryLocation = this.outputDirectory
-                  .dir(identifier.getGroup().replace('.', '/') + "/" + identifier.getModule() + "/"
-                          + identifier.getVersion() + "/" + fileName)
-                  .get()
-                  .getAsFile();
-          repositoryLocation.getParentFile().mkdirs();
-          try {
-            Files.copy(result.getFile().toPath(), repositoryLocation.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-          }
-          catch (IOException ex) {
-            throw new RuntimeException("Failed to copy artifact '" + result + "'", ex);
-          }
-        }
-      }
-    }
-
-  }
-
-  public static class ExtractVersionProperties extends DefaultTask {
-
-    private final RegularFileProperty destination;
-
-    private Configuration effectiveBoms;
-
-    public ExtractVersionProperties() {
-      this.destination = getProject().getObjects().fileProperty();
-    }
-
-    @InputFiles
-    @PathSensitive(PathSensitivity.RELATIVE)
-    public FileCollection getEffectiveBoms() {
-      return this.effectiveBoms;
-    }
-
-    public void setEffectiveBoms(Configuration effectiveBoms) {
-      this.effectiveBoms = effectiveBoms;
-    }
-
-    @OutputFile
-    public RegularFileProperty getDestination() {
-      return this.destination;
-    }
-
-    @TaskAction
-    public void extractVersionProperties() {
-      EffectiveBom effectiveBom = new EffectiveBom(this.effectiveBoms.getSingleFile());
-      Properties versions = extractVersionProperties(effectiveBom);
-      writeProperties(versions);
-    }
-
-    private void writeProperties(Properties versions) {
-      getLogger().info("write properties: {}", versions);
-      File outputFile = this.destination.getAsFile().get();
-      outputFile.getParentFile().mkdirs();
-      try (Writer writer = new FileWriter(outputFile)) {
-        versions.store(writer, null);
-      }
-      catch (IOException ex) {
-        throw new GradleException("Failed to write extracted version properties", ex);
-      }
-    }
-
-    private Properties extractVersionProperties(EffectiveBom effectiveBom) {
-      Properties versions = CollectionUtils.createSortedProperties(true);
-      versions.setProperty("project.version", effectiveBom.version());
-      versions.setProperty("today-infra.version", effectiveBom.version());
-      effectiveBom.property("maven-jar-plugin.version", versions::setProperty);
-      effectiveBom.property("maven-war-plugin.version", versions::setProperty);
-      effectiveBom.property("build-helper-maven-plugin.version", versions::setProperty);
-      effectiveBom.property("jakarta-servlet.version", versions::setProperty);
-      effectiveBom.property("assertj.version", versions::setProperty);
-      effectiveBom.property("junit-jupiter.version", versions::setProperty);
-      return versions;
-    }
-
-  }
-
-  private static final class EffectiveBom {
-
-    private final Document document;
-
-    private final XPath xpath;
-
-    private EffectiveBom(File bomFile) {
-      this.document = loadDocument(bomFile);
-      this.xpath = XPathFactory.newInstance().newXPath();
-    }
-
-    private Document loadDocument(File bomFile) {
-      try {
-        try (InputStream inputStream = new FileInputStream(bomFile)) {
-          DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-          DocumentBuilder builder = builderFactory.newDocumentBuilder();
-          return builder.parse(inputStream);
-        }
-      }
-      catch (ParserConfigurationException | SAXException | IOException ex) {
-        throw new IllegalStateException(ex);
-      }
-    }
-
-    private String version() {
-      return get("version");
-    }
-
-    private void property(String name, BiConsumer<String, String> handler) {
-      handler.accept(name, get("properties/" + name));
-    }
-
-    private String get(String expression) {
-      try {
-        Node node = (Node) this.xpath.compile("/project/" + expression)
-                .evaluate(this.document, XPathConstants.NODE);
-        String text = (node != null) ? node.getTextContent() : null;
-        Assert.hasLength(text, () -> "No result for expression " + expression);
-        return text;
-      }
-      catch (XPathExpressionException ex) {
-        throw new IllegalStateException(ex);
       }
     }
 

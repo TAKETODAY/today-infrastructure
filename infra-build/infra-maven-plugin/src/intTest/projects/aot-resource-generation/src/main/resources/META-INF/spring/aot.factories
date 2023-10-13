@@ -1,2 +1,0 @@
-cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
-org.test.ResourceRegisteringAotProcessor
