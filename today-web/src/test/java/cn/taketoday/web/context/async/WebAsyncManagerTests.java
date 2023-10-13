@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeanWrapper;
@@ -144,6 +145,26 @@ class WebAsyncManagerTests {
     verify(interceptor).beforeConcurrentHandling(this.request, task);
     verify(interceptor).preProcess(this.request, task);
     verify(interceptor).postProcess(this.request, task, concurrentResult);
+  }
+
+  @Test
+  void startCallableProcessingSubmitException() throws Exception {
+    RuntimeException ex = new RuntimeException();
+
+    setupDefaultAsyncScenario();
+
+    this.asyncManager.setTaskExecutor(new SimpleAsyncTaskExecutor() {
+      @Override
+      public Future<?> submit(Runnable task) {
+        throw ex;
+      }
+    });
+    this.asyncManager.startCallableProcessing(() -> "not used");
+
+    assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
+    assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(ex);
+
+    verifyDefaultAsyncScenario();
   }
 
   @Test
