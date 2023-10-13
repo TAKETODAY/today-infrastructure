@@ -44,12 +44,12 @@ import cn.taketoday.lang.Nullable;
  * with a convenient unified facade for JDBC PreparedStatement execution.
  *
  * <p>An example for retrieving a query result as a {@code java.util.Optional}:
- * <pre class="code">
- * Optional&lt;Integer&gt; value = client.sql("SELECT AGE FROM CUSTMR WHERE ID = :id")
+ * <pre>{@code
+ * Optional<Integer> value = client.sql("SELECT AGE FROM CUSTMR WHERE ID = :id")
  *     .param("id", 3)
- *     .query((rs, rowNum) -> rs.getInt(1))
+ *     .query(Integer.class)
  *     .optional();
- * </pre>
+ * }</pre>
  *
  * <p>Delegates to {@link cn.taketoday.jdbc.core.JdbcTemplate} and
  * {@link cn.taketoday.jdbc.core.namedparam.NamedParameterJdbcTemplate}.
@@ -58,6 +58,7 @@ import cn.taketoday.lang.Nullable;
  * {@link SimpleJdbcInsert} and {@link SimpleJdbcCall}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ResultSetExtractor
  * @see RowCallbackHandler
  * @see RowMapper
