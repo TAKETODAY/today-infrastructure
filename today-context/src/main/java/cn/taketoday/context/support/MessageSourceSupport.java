@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +18,9 @@
 package cn.taketoday.context.support;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -40,6 +37,7 @@ import cn.taketoday.util.ObjectUtils;
  * method for message code resolution.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class MessageSourceSupport {
@@ -56,7 +54,7 @@ public abstract class MessageSourceSupport {
    * Used for passed-in default messages. MessageFormats for resolved
    * codes are cached on a specific basis in subclasses.
    */
-  private final Map<String, Map<Locale, MessageFormat>> messageFormatsPerMessage = new HashMap<>();
+  private final ConcurrentHashMap<String, Map<Locale, MessageFormat>> messageFormatsPerMessage = new ConcurrentHashMap<>();
 
   /**
    * Set whether to always apply the {@code MessageFormat} rules, parsing even
@@ -120,32 +118,21 @@ public abstract class MessageSourceSupport {
     if (!isAlwaysUseMessageFormat() && ObjectUtils.isEmpty(args)) {
       return msg;
     }
-    MessageFormat messageFormat = null;
-    synchronized(this.messageFormatsPerMessage) {
-      Map<Locale, MessageFormat> messageFormatsPerLocale = this.messageFormatsPerMessage.get(msg);
-      if (messageFormatsPerLocale != null) {
-        messageFormat = messageFormatsPerLocale.get(locale);
+    var messageFormatsPerLocale = messageFormatsPerMessage.computeIfAbsent(msg, key -> new ConcurrentHashMap<>());
+    MessageFormat messageFormat = messageFormatsPerLocale.computeIfAbsent(locale, key -> {
+      try {
+        return createMessageFormat(msg, locale);
       }
-      else {
-        messageFormatsPerLocale = new HashMap<>();
-        this.messageFormatsPerMessage.put(msg, messageFormatsPerLocale);
-      }
-      if (messageFormat == null) {
-        try {
-          messageFormat = createMessageFormat(msg, locale);
+      catch (IllegalArgumentException ex) {
+        // Invalid message format - probably not intended for formatting,
+        // rather using a message structure with no arguments involved...
+        if (isAlwaysUseMessageFormat()) {
+          throw ex;
         }
-        catch (IllegalArgumentException ex) {
-          // Invalid message format - probably not intended for formatting,
-          // rather using a message structure with no arguments involved...
-          if (isAlwaysUseMessageFormat()) {
-            throw ex;
-          }
-          // Silently proceed with raw message if format not enforced...
-          messageFormat = INVALID_MESSAGE_FORMAT;
-        }
-        messageFormatsPerLocale.put(locale, messageFormat);
+        // Silently proceed with raw message if format not enforced...
+        return INVALID_MESSAGE_FORMAT;
       }
-    }
+    });
     if (messageFormat == INVALID_MESSAGE_FORMAT) {
       return msg;
     }
