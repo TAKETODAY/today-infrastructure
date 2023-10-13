@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -90,10 +91,9 @@ class ResponseBodyEmitterTests {
   }
 
   @Test
-  void sendFailsAfterComplete() throws Exception {
+  void sendFailsAfterComplete() {
     this.emitter.complete();
-    assertThatIllegalStateException().isThrownBy(() ->
-            this.emitter.send("foo"));
+    assertThatIllegalStateException().isThrownBy(() -> this.emitter.send("foo"));
   }
 
   @Test
@@ -141,11 +141,46 @@ class ResponseBodyEmitterTests {
     verify(this.handler).onCompletion(any());
     verifyNoMoreInteractions(this.handler);
 
-    IOException failure = new IOException();
-    willThrow(failure).given(this.handler).send("foo", MediaType.TEXT_PLAIN);
-    assertThatIOException().isThrownBy(() ->
-            this.emitter.send("foo", MediaType.TEXT_PLAIN));
+    willThrow(new IOException()).given(this.handler).send("foo", MediaType.TEXT_PLAIN);
+    assertThatIOException().isThrownBy(() -> this.emitter.send("foo", MediaType.TEXT_PLAIN));
     verify(this.handler).send("foo", MediaType.TEXT_PLAIN);
+    verifyNoMoreInteractions(this.handler);
+  }
+
+  @Test
+    // gh-30687
+  void completeIgnoredAfterIOException() throws Exception {
+    this.emitter.initialize(this.handler);
+    verify(this.handler).onTimeout(any());
+    verify(this.handler).onError(any());
+    verify(this.handler).onCompletion(any());
+    verifyNoMoreInteractions(this.handler);
+
+    willThrow(new IOException()).given(this.handler).send("foo", MediaType.TEXT_PLAIN);
+    assertThatIOException().isThrownBy(() -> this.emitter.send("foo", MediaType.TEXT_PLAIN));
+    verify(this.handler).send("foo", MediaType.TEXT_PLAIN);
+    verifyNoMoreInteractions(this.handler);
+
+    this.emitter.complete();
+    verifyNoMoreInteractions(this.handler);
+  }
+
+  @Test
+    // gh-30687
+  void completeAfterNonIOException() throws Exception {
+    this.emitter.initialize(this.handler);
+    verify(this.handler).onTimeout(any());
+    verify(this.handler).onError(any());
+    verify(this.handler).onCompletion(any());
+    verifyNoMoreInteractions(this.handler);
+
+    willThrow(new IllegalStateException()).given(this.handler).send("foo", MediaType.TEXT_PLAIN);
+    assertThatIllegalStateException().isThrownBy(() -> this.emitter.send("foo", MediaType.TEXT_PLAIN));
+    verify(this.handler).send("foo", MediaType.TEXT_PLAIN);
+    verifyNoMoreInteractions(this.handler);
+
+    this.emitter.complete();
+    verify(this.handler).complete();
     verifyNoMoreInteractions(this.handler);
   }
 

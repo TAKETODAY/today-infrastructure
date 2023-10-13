@@ -91,7 +91,7 @@ public class ResponseBodyEmitter {
    * that may come for example from an application try-catch block on the
    * thread of the I/O error.
    */
-  private boolean sendFailed;
+  private boolean ioErrorOnSend;
 
   private final DefaultCallback timeoutCallback = new DefaultCallback();
 
@@ -205,11 +205,10 @@ public class ResponseBodyEmitter {
         this.handler.send(object, mediaType);
       }
       catch (IOException ex) {
-        this.sendFailed = true;
+        this.ioErrorOnSend = true;
         throw ex;
       }
       catch (Throwable ex) {
-        this.sendFailed = true;
         throw new IllegalStateException("Failed to send " + object, ex);
       }
     }
@@ -244,11 +243,10 @@ public class ResponseBodyEmitter {
         this.handler.send(items);
       }
       catch (IOException ex) {
-        this.sendFailed = true;
+        this.ioErrorOnSend = true;
         throw ex;
       }
       catch (Throwable ex) {
-        this.sendFailed = true;
         throw new IllegalStateException("Failed to send " + items, ex);
       }
     }
@@ -266,8 +264,8 @@ public class ResponseBodyEmitter {
    * related events such as an error while {@link #send(Object) sending}.
    */
   public synchronized void complete() {
-    // Ignore, after send failure
-    if (sendFailed) {
+    // Ignore complete after IO failure on send
+    if (this.ioErrorOnSend) {
       return;
     }
     this.complete = true;
@@ -288,8 +286,8 @@ public class ResponseBodyEmitter {
    * {@link #send(Object) sending}.
    */
   public synchronized void completeWithError(Throwable ex) {
-    // Ignore, after send failure
-    if (sendFailed) {
+    // Ignore complete after IO failure on send
+    if (this.ioErrorOnSend) {
       return;
     }
     this.complete = true;
