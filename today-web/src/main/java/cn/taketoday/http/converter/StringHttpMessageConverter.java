@@ -41,6 +41,7 @@ import cn.taketoday.util.StreamUtils;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class StringHttpMessageConverter extends AbstractHttpMessageConverter<String> {

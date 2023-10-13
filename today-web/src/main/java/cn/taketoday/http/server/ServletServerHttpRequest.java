@@ -206,7 +206,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   @Override
   public InputStream getBody() throws IOException {
-    if (ServletUtils.isPostForm(this.servletRequest)) {
+    if (ServletUtils.isPostForm(this.servletRequest) && this.servletRequest.getQueryString() == null) {
       return getBodyFromServletRequestParameters(this.servletRequest);
     }
     else {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -199,4 +196,17 @@ public class ServletServerHttpRequestTests {
     assertThat(result).as("Invalid content returned").isEqualTo(content);
   }
 
+  @Test // gh-31327
+  void getFormBodyWhenQueryParamsAlsoPresent() throws IOException {
+    mockRequest.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
+    mockRequest.setMethod("POST");
+    mockRequest.setQueryString("q=1");
+    mockRequest.addParameter("q", "1");
+    mockRequest.setContent("foo=bar".getBytes(StandardCharsets.UTF_8));
+    mockRequest.addHeader("Content-Length", 7);
+
+    byte[] result = FileCopyUtils.copyToByteArray(request.getBody());
+    byte[] content = "foo=bar".getBytes(StandardCharsets.UTF_8);
+    assertThat(result).as("Invalid content returned").isEqualTo(content);
+  }
 }
