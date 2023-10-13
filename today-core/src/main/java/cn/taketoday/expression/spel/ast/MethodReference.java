@@ -61,7 +61,7 @@ public class MethodReference extends SpelNodeImpl {
   private final boolean nullSafe;
 
   @Nullable
-  private String originalPrimitiveExitTypeDescriptor;
+  private Character originalPrimitiveExitTypeDescriptor;
 
   @Nullable
   private volatile CachedMethodExecutor cachedExecutor;
@@ -259,7 +259,7 @@ public class MethodReference extends SpelNodeImpl {
       Method method = executor.getMethod();
       String descriptor = CodeFlow.toDescriptor(method.getReturnType());
       if (this.nullSafe && CodeFlow.isPrimitive(descriptor)) {
-        this.originalPrimitiveExitTypeDescriptor = descriptor;
+        this.originalPrimitiveExitTypeDescriptor = descriptor.charAt(0);
         this.exitTypeDescriptor = CodeFlow.toBoxedDescriptor(descriptor);
       }
       else {

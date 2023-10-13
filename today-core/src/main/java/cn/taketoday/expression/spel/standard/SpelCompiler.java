@@ -177,11 +177,10 @@ public final class SpelCompiler extends BytecodeCompiler implements Opcodes {
     cf.finish();
 
     byte[] data = cw.toByteArray();
-    // TODO need to make this conditionally occur based on a debug flag
-    // dump(expressionToCompile.toStringAST(), clazzName, data);
-    className = StringUtils.replace(className, "/", ".");
-
-    return compile(className, data);
+    // TODO Save generated class files conditionally based on a debug flag.
+    // Source code for the following method resides in SpelCompilationCoverageTests.
+    // saveGeneratedClassFile(expressionToCompile.toStringAST(), className, data);
+    return loadClass(StringUtils.replace(className, "/", "."), data);
   }
 
   /**
