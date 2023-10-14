@@ -232,6 +232,8 @@ public class MethodParameter implements AnnotatedElement {
    * Return the wrapped annotated element.
    * <p>Note: This method exposes the annotations declared on the method/constructor
    * itself (i.e. at the method/constructor level, not at the parameter level).
+   * <p>To get the {@link AnnotatedElement} at the parameter level, use
+   * {@link #getParameter()}.
    *
    * @return the Method or Constructor as AnnotatedElement
    */
