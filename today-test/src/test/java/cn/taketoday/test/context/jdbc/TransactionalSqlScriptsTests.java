@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.test.context.jdbc;
 
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
@@ -35,7 +33,7 @@ import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
  */
 @JUnitConfig(EmptyDatabaseConfig.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Sql({ "schema.sql", "data.sql" })
+@Sql({ "recreate-schema.sql", "data.sql" })
 @DirtiesContext
 class TransactionalSqlScriptsTests extends AbstractTransactionalTests {
 
@@ -50,4 +48,21 @@ class TransactionalSqlScriptsTests extends AbstractTransactionalTests {
     assertNumUsers(2);
   }
 
+  @Nested
+  class NestedTransactionalSqlScriptsTests {
+
+    @Test
+    void classLevelScripts() {
+      assertNumUsers(1);
+    }
+
+    @Test
+    @Sql({ "recreate-schema.sql", "data.sql", "data-add-dogbert.sql" })
+    void methodLevelScripts() {
+      assertNumUsers(2);
+    }
+
+  }
+
 }
+
