@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -856,6 +857,9 @@ public class Jackson2ObjectMapperBuilder {
     }
     else if (feature instanceof DeserializationFeature) {
       objectMapper.configure((DeserializationFeature) feature, enabled);
+    }
+    else if (feature instanceof DatatypeFeature datatypeFeature) {
+      objectMapper.configure(datatypeFeature, enabled);
     }
     else if (feature instanceof MapperFeature) {
       objectMapper.configure((MapperFeature) feature, enabled);
