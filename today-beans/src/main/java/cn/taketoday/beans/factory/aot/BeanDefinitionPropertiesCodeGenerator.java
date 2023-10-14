@@ -35,6 +35,7 @@ import java.util.function.Predicate;
 
 import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.aot.hint.ExecutableMode;
+import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.beans.BeanUtils;
@@ -195,6 +196,13 @@ class BeanDefinitionPropertiesCodeGenerator {
           Method writeMethod = writeMethods.get(propertyValue.getName());
           if (writeMethod != null) {
             this.hints.reflection().registerMethod(writeMethod, ExecutableMode.INVOKE);
+            // ReflectionUtils#findField searches recursively in the type hierarchy
+            Class<?> searchType = beanDefinition.getTargetType();
+            while (searchType != null && searchType != writeMethod.getDeclaringClass()) {
+              this.hints.reflection().registerType(searchType, MemberCategory.DECLARED_FIELDS);
+              searchType = searchType.getSuperclass();
+            }
+            this.hints.reflection().registerType(writeMethod.getDeclaringClass(), MemberCategory.DECLARED_FIELDS);
           }
         }
       }

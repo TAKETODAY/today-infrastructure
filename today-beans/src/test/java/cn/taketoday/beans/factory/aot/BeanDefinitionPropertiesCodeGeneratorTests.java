@@ -35,6 +35,7 @@ import java.util.function.Supplier;
 import javax.lang.model.element.Modifier;
 
 import cn.taketoday.aot.generate.GeneratedClass;
+import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.FactoryBean;
@@ -241,6 +242,21 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       assertThat(actual.getPropertyValues().getPropertyValue("spring")).isEqualTo("framework");
     });
     assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
+    assertHasDecalredFieldsHint(PropertyValuesBean.class);
+  }
+
+  @Test
+  void propertyValuesWhenValuesOnParentClass() {
+    this.beanDefinition.setTargetType(ExtendedPropertyValuesBean.class);
+    this.beanDefinition.getPropertyValues().add("test", String.class);
+    this.beanDefinition.getPropertyValues().add("spring", "framework");
+    compile((actual, compiled) -> {
+      assertThat(actual.getPropertyValues().getPropertyValue("test")).isEqualTo(String.class);
+      assertThat(actual.getPropertyValues().getPropertyValue("spring")).isEqualTo("framework");
+    });
+    assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
+    assertHasDecalredFieldsHint(ExtendedPropertyValuesBean.class);
+    assertHasDecalredFieldsHint(PropertyValuesBean.class);
   }
 
   @Test
@@ -454,6 +470,12 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
             .test(this.generationContext.getRuntimeHints()));
   }
 
+  private void assertHasDecalredFieldsHint(Class<?> beanType) {
+    assertThat(RuntimeHintsPredicates.reflection()
+            .onType(beanType).withMemberCategory(MemberCategory.DECLARED_FIELDS))
+            .accepts(this.generationContext.getRuntimeHints());
+  }
+
   private void compile(BiConsumer<RootBeanDefinition, Compiled> result) {
     compile(attribute -> true, result);
   }
@@ -522,6 +544,10 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
     public void setSpring(String spring) {
       this.spring = spring;
     }
+
+  }
+
+  static class ExtendedPropertyValuesBean extends PropertyValuesBean {
 
   }
 
