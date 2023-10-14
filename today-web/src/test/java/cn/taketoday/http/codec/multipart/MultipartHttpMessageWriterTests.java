@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.StringDecoder;
@@ -102,7 +103,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
             this.bufferFactory.wrap("Bb".getBytes(StandardCharsets.UTF_8)),
             this.bufferFactory.wrap("Cc".getBytes(StandardCharsets.UTF_8))
     );
-    FilePart mockPart = mock(FilePart.class);
+    FilePart mockPart = mock();
     HttpHeaders partHeaders = HttpHeaders.create();
     partHeaders.setContentType(MediaType.TEXT_PLAIN);
     partHeaders.setContentDispositionFormData("foo", "file.txt");
@@ -126,33 +127,33 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
             .block(Duration.ofSeconds(5));
 
     MultiValueMap<String, Part> requestParts = parse(this.response, hints);
-    assertThat(requestParts.size()).isEqualTo(7);
+    assertThat(requestParts).hasSize(7);
 
     Part part = requestParts.getFirst("name 1");
-    assertThat(part instanceof FormFieldPart).isTrue();
+    assertThat(part).isInstanceOf(FormFieldPart.class);
     assertThat(part.name()).isEqualTo("name 1");
     assertThat(((FormFieldPart) part).value()).isEqualTo("value 1");
 
     List<Part> parts2 = requestParts.get("name 2");
-    assertThat(parts2.size()).isEqualTo(2);
+    assertThat(parts2).hasSize(2);
     part = parts2.get(0);
-    assertThat(part instanceof FormFieldPart).isTrue();
+    assertThat(part).isInstanceOf(FormFieldPart.class);
     assertThat(part.name()).isEqualTo("name 2");
     assertThat(((FormFieldPart) part).value()).isEqualTo("value 2+1");
     part = parts2.get(1);
-    assertThat(part instanceof FormFieldPart).isTrue();
+    assertThat(part).isInstanceOf(FormFieldPart.class);
     assertThat(part.name()).isEqualTo("name 2");
     assertThat(((FormFieldPart) part).value()).isEqualTo("value 2+2");
 
     part = requestParts.getFirst("logo");
-    assertThat(part instanceof FilePart).isTrue();
+    assertThat(part).isInstanceOf(FilePart.class);
     assertThat(part.name()).isEqualTo("logo");
     assertThat(((FilePart) part).filename()).isEqualTo("logo.jpg");
     assertThat(part.headers().getContentType()).isEqualTo(MediaType.IMAGE_JPEG);
     assertThat(part.headers().getContentLength()).isEqualTo(logo.getFile().length());
 
     part = requestParts.getFirst("utf8");
-    assertThat(part instanceof FilePart).isTrue();
+    assertThat(part).isInstanceOf(FilePart.class);
     assertThat(part.name()).isEqualTo("utf8");
     assertThat(((FilePart) part).filename()).isEqualTo("Hall\u00F6le.jpg");
     assertThat(part.headers().getContentType()).isEqualTo(MediaType.IMAGE_JPEG);
@@ -201,7 +202,7 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     assertThat(contentType.getParameter("charset")).isNull();
 
     MultiValueMap<String, Part> requestParts = parse(this.response, hints);
-    assertThat(requestParts.size()).isEqualTo(2);
+    assertThat(requestParts).hasSize(2);
     assertThat(requestParts.getFirst("name 1").name()).isEqualTo("name 1");
     assertThat(requestParts.getFirst("name 2").name()).isEqualTo("name 2");
   }
@@ -228,11 +229,11 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
     this.writer.write(result, null, MediaType.MULTIPART_FORM_DATA, this.response, hints).block();
 
     MultiValueMap<String, Part> requestParts = parse(this.response, hints);
-    assertThat(requestParts.size()).isEqualTo(1);
+    assertThat(requestParts).hasSize(1);
 
     Part part = requestParts.getFirst("logo");
     assertThat(part.name()).isEqualTo("logo");
-    assertThat(part instanceof FilePart).isTrue();
+    assertThat(part).isInstanceOf(FilePart.class);
     assertThat(((FilePart) part).filename()).isEqualTo("logo.jpg");
     assertThat(part.headers().getContentType()).isEqualTo(MediaType.IMAGE_JPEG);
     assertThat(part.headers().getContentLength()).isEqualTo(logo.getFile().length());
@@ -240,12 +241,13 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test // SPR-16402
   public void singleSubscriberWithStrings() {
-    @SuppressWarnings("deprecation")
-    reactor.core.publisher.UnicastProcessor<String> processor = reactor.core.publisher.UnicastProcessor.create();
-    Flux.just("foo", "bar", "baz").subscribe(processor);
+    AtomicBoolean subscribed = new AtomicBoolean();
+    Flux<String> publisher = Flux.just("foo", "bar", "baz")
+            .doOnSubscribe(subscription ->
+                    assertThat(subscribed.compareAndSet(false, true)).isTrue());
 
     MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
-    bodyBuilder.asyncPart("name", processor, String.class);
+    bodyBuilder.asyncPart("name", publisher, String.class);
 
     Mono<MultiValueMap<String, HttpEntity<?>>> result = Mono.just(bodyBuilder.build());
 
@@ -279,20 +281,20 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
             this.response, hints).block();
 
     MultiValueMap<String, Part> requestParts = parse(this.response, hints);
-    assertThat(requestParts.size()).isEqualTo(2);
+    assertThat(requestParts).hasSize(2);
 
     Part part = requestParts.getFirst("resource");
-    assertThat(part instanceof FilePart).isTrue();
+    assertThat(part).isInstanceOf(FilePart.class);
     assertThat(((FilePart) part).filename()).isEqualTo("spring.jpg");
     assertThat(part.headers().getContentLength()).isEqualTo(logo.getFile().length());
 
     part = requestParts.getFirst("buffers");
-    assertThat(part instanceof FilePart).isTrue();
+    assertThat(part).isInstanceOf(FilePart.class);
     assertThat(((FilePart) part).filename()).isEqualTo("buffers.jpg");
     assertThat(part.headers().getContentLength()).isEqualTo(logo.getFile().length());
   }
 
-  static MultiValueMap<String, Part> parse(MockServerHttpResponse response, Map<String, Object> hints) {
+  public static MultiValueMap<String, Part> parse(MockServerHttpResponse response, Map<String, Object> hints) {
     MediaType contentType = response.getHeaders().getContentType();
     assertThat(contentType.getParameter("boundary")).as("No boundary found").isNotNull();
 
