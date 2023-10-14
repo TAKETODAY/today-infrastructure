@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,15 +19,20 @@ package cn.taketoday.web.reactive.function;
 
 import org.reactivestreams.Publisher;
 
+import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
@@ -352,6 +354,49 @@ public abstract class BodyInserters {
 
     Assert.notNull(publisher, "'publisher' must not be null");
     return (outputMessage, context) -> outputMessage.writeWith(publisher);
+  }
+
+  /**
+   * Inserter based on bytes written to a {@code OutputStream}.
+   *
+   * @param outputStreamConsumer invoked with an {@link OutputStream} that
+   * writes to the output message
+   * @param executor used to invoke the {@code outputStreamHandler} on a
+   * separate thread
+   * @return an inserter that writes what is written to the output stream
+   * @see DataBufferUtils#outputStreamPublisher(Consumer, DataBufferFactory, Executor)
+   */
+  public static <T extends Publisher<DataBuffer>> BodyInserter<T, ReactiveHttpOutputMessage> fromOutputStream(
+          Consumer<OutputStream> outputStreamConsumer, Executor executor) {
+
+    Assert.notNull(outputStreamConsumer, "OutputStreamConsumer must not be null");
+    Assert.notNull(executor, "Executor must not be null");
+
+    return (outputMessage, context) -> outputMessage.writeWith(
+            DataBufferUtils.outputStreamPublisher(outputStreamConsumer, outputMessage.bufferFactory(), executor));
+  }
+
+  /**
+   * Inserter based on bytes written to a {@code OutputStream}.
+   *
+   * @param outputStreamConsumer invoked with an {@link OutputStream} that
+   * writes to the output message
+   * @param executor used to invoke the {@code outputStreamHandler} on a
+   * separate thread
+   * @param chunkSize minimum size of the buffer produced by the publisher
+   * @return an inserter that writes what is written to the output stream
+   * @see DataBufferUtils#outputStreamPublisher(Consumer, DataBufferFactory, Executor, int)
+   */
+  public static <T extends Publisher<DataBuffer>> BodyInserter<T, ReactiveHttpOutputMessage> fromOutputStream(
+          Consumer<OutputStream> outputStreamConsumer, Executor executor, int chunkSize) {
+
+    Assert.notNull(outputStreamConsumer, "OutputStreamConsumer must not be null");
+    Assert.notNull(executor, "Executor must not be null");
+    Assert.isTrue(chunkSize > 0, "Chunk size must be > 0");
+
+    return (outputMessage, context) -> outputMessage.writeWith(
+            DataBufferUtils.outputStreamPublisher(outputStreamConsumer,
+                    outputMessage.bufferFactory(), executor, chunkSize));
   }
 
   private static <M extends ReactiveHttpOutputMessage> Mono<Void> writeWithMessageWriters(

@@ -34,6 +34,9 @@ import cn.taketoday.lang.Nullable;
  * Bridges between {@link OutputStream} and
  * {@link Flow.Publisher Flow.Publisher&lt;T&gt;}.
  *
+ * <p>Note that this class has a near duplicate in
+ * {@link cn.taketoday.core.io.buffer.OutputStreamPublisher}.
+ *
  * @param <T> the published item type
  * @author Oleh Dokuka
  * @author Arjen Poutsma

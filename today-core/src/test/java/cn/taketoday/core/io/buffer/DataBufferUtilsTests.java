@@ -19,10 +19,12 @@ package cn.taketoday.core.io.buffer;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
+import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -39,6 +41,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.io.ByteArrayResource;
@@ -54,6 +57,8 @@ import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIOException;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -539,6 +544,147 @@ class DataBufferUtilsTests extends AbstractDataBufferAllocatingTests {
 
     List<String> written = Files.readAllLines(tempFile);
     assertThat(written).contains("foobar");
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void outputStreamPublisher(DataBufferFactory bufferFactory) {
+    super.bufferFactory = bufferFactory;
+
+    byte[] foo = "foo".getBytes(StandardCharsets.UTF_8);
+    byte[] bar = "bar".getBytes(StandardCharsets.UTF_8);
+    byte[] baz = "baz".getBytes(StandardCharsets.UTF_8);
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(outputStream -> {
+      try {
+        outputStream.write(foo);
+        outputStream.write(bar);
+        outputStream.write(baz);
+      }
+      catch (IOException ex) {
+        fail(ex.getMessage(), ex);
+      }
+    }, super.bufferFactory, Executors.newSingleThreadExecutor());
+
+    StepVerifier.create(publisher)
+            .consumeNextWith(stringConsumer("foobarbaz"))
+            .verifyComplete();
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void outputStreamPublisherFlush(DataBufferFactory bufferFactory) {
+    super.bufferFactory = bufferFactory;
+
+    byte[] foo = "foo".getBytes(StandardCharsets.UTF_8);
+    byte[] bar = "bar".getBytes(StandardCharsets.UTF_8);
+    byte[] baz = "baz".getBytes(StandardCharsets.UTF_8);
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(outputStream -> {
+      try {
+        outputStream.write(foo);
+        outputStream.flush();
+        outputStream.write(bar);
+        outputStream.flush();
+        outputStream.write(baz);
+        outputStream.flush();
+      }
+      catch (IOException ex) {
+        fail(ex.getMessage(), ex);
+      }
+    }, super.bufferFactory, Executors.newSingleThreadExecutor());
+
+    StepVerifier.create(publisher)
+            .consumeNextWith(stringConsumer("foo"))
+            .consumeNextWith(stringConsumer("bar"))
+            .consumeNextWith(stringConsumer("baz"))
+            .verifyComplete();
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void outputStreamPublisherChunkSize(DataBufferFactory bufferFactory) {
+    super.bufferFactory = bufferFactory;
+
+    byte[] foo = "foo".getBytes(StandardCharsets.UTF_8);
+    byte[] bar = "bar".getBytes(StandardCharsets.UTF_8);
+    byte[] baz = "baz".getBytes(StandardCharsets.UTF_8);
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(outputStream -> {
+      try {
+        outputStream.write(foo);
+        outputStream.write(bar);
+        outputStream.write(baz);
+      }
+      catch (IOException ex) {
+        fail(ex.getMessage(), ex);
+      }
+    }, super.bufferFactory, Executors.newSingleThreadExecutor(), 3);
+
+    StepVerifier.create(publisher)
+            .consumeNextWith(stringConsumer("foo"))
+            .consumeNextWith(stringConsumer("bar"))
+            .consumeNextWith(stringConsumer("baz"))
+            .verifyComplete();
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void outputStreamPublisherCancel(DataBufferFactory bufferFactory) throws InterruptedException {
+    super.bufferFactory = bufferFactory;
+
+    byte[] foo = "foo".getBytes(StandardCharsets.UTF_8);
+    byte[] bar = "bar".getBytes(StandardCharsets.UTF_8);
+
+    CountDownLatch latch = new CountDownLatch(1);
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(outputStream -> {
+      try {
+        assertThatIOException()
+                .isThrownBy(() -> {
+                  outputStream.write(foo);
+                  outputStream.flush();
+                  outputStream.write(bar);
+                  outputStream.flush();
+                })
+                .withMessage("Subscription has been terminated");
+      }
+      finally {
+        latch.countDown();
+      }
+    }, super.bufferFactory, Executors.newSingleThreadExecutor());
+
+    StepVerifier.create(publisher, 1)
+            .consumeNextWith(stringConsumer("foo"))
+            .thenCancel()
+            .verify();
+
+    latch.await();
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+  void outputStreamPublisherClosed(DataBufferFactory bufferFactory) throws InterruptedException {
+    super.bufferFactory = bufferFactory;
+
+    CountDownLatch latch = new CountDownLatch(1);
+
+    Publisher<DataBuffer> publisher = DataBufferUtils.outputStreamPublisher(outputStream -> {
+      try {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        writer.write("foo");
+        writer.close();
+        assertThatIOException().isThrownBy(() -> writer.write("bar"))
+                .withMessage("Stream closed");
+      }
+      catch (IOException ex) {
+        fail(ex.getMessage(), ex);
+      }
+      finally {
+        latch.countDown();
+      }
+    }, super.bufferFactory, Executors.newSingleThreadExecutor());
+
+    StepVerifier.create(publisher)
+            .consumeNextWith(stringConsumer("foo"))
+            .verifyComplete();
+
+    latch.await();
   }
 
   @ParameterizedDataBufferAllocatingTest
