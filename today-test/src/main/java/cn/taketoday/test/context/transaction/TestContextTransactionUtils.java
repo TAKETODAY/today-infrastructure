@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +34,6 @@ import cn.taketoday.transaction.TransactionManager;
 import cn.taketoday.transaction.annotation.TransactionManagementConfigurer;
 import cn.taketoday.transaction.interceptor.DelegatingTransactionAttribute;
 import cn.taketoday.transaction.interceptor.TransactionAttribute;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -48,6 +44,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class TestContextTransactionUtils {
@@ -217,8 +214,10 @@ public abstract class TestContextTransactionUtils {
   }
 
   private static void logBeansException(TestContext testContext, BeansException ex, Class<?> beanType) {
-    logger.debug("Caught exception while retrieving {} for test context {}",
-            beanType.getSimpleName(), testContext, ex);
+    if (logger.isTraceEnabled()) {
+      logger.trace("Caught exception while retrieving {} for test context {}",
+              beanType.getSimpleName(), testContext, ex);
+    }
   }
 
   /**
@@ -233,9 +232,27 @@ public abstract class TestContextTransactionUtils {
   public static TransactionAttribute createDelegatingTransactionAttribute(
           TestContext testContext, TransactionAttribute targetAttribute) {
 
+    return createDelegatingTransactionAttribute(testContext, targetAttribute, true);
+  }
+
+  /**
+   * Create a delegating {@link TransactionAttribute} for the supplied target
+   * {@link TransactionAttribute} and {@link TestContext}, using the names of
+   * the test class and test method (if requested) to build the name of the
+   * transaction.
+   *
+   * @param testContext the {@code TestContext} upon which to base the name
+   * @param targetAttribute the {@code TransactionAttribute} to delegate to
+   * @param includeMethodName {@code true} if the test method's name should be
+   * included in the name of the transaction
+   * @return the delegating {@code TransactionAttribute}
+   */
+  public static TransactionAttribute createDelegatingTransactionAttribute(
+          TestContext testContext, TransactionAttribute targetAttribute, boolean includeMethodName) {
+
     Assert.notNull(testContext, "TestContext must not be null");
     Assert.notNull(targetAttribute, "Target TransactionAttribute must not be null");
-    return new TestContextTransactionAttribute(targetAttribute, testContext);
+    return new TestContextTransactionAttribute(targetAttribute, testContext, includeMethodName);
   }
 
   @SuppressWarnings("serial")
@@ -243,9 +260,16 @@ public abstract class TestContextTransactionUtils {
 
     private final String name;
 
-    public TestContextTransactionAttribute(TransactionAttribute targetAttribute, TestContext testContext) {
+    public TestContextTransactionAttribute(
+            TransactionAttribute targetAttribute, TestContext testContext, boolean includeMethodName) {
+
       super(targetAttribute);
-      this.name = ClassUtils.getQualifiedMethodName(testContext.getTestMethod(), testContext.getTestClass());
+
+      String name = testContext.getTestClass().getName();
+      if (includeMethodName) {
+        name += "." + testContext.getTestMethod().getName();
+      }
+      this.name = name;
     }
 
     @Override
