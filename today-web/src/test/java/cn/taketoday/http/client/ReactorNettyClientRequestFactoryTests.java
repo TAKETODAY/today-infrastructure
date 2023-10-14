@@ -19,7 +19,13 @@ package cn.taketoday.http.client;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Function;
+
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.client.reactive.ReactorResourceFactory;
+import reactor.netty.http.client.HttpClient;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -37,6 +43,46 @@ class ReactorNettyClientRequestFactoryTests extends AbstractHttpRequestFactoryTe
   public void httpMethods() throws Exception {
     super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
+  }
+
+  @Test
+  void restartWithDefaultConstructor() {
+    ReactorNettyClientRequestFactory requestFactory = new ReactorNettyClientRequestFactory();
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.stop();
+    assertThat(requestFactory.isRunning()).isFalse();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+  }
+
+  @Test
+  void restartWithExternalResourceFactory() {
+    ReactorResourceFactory resourceFactory = new ReactorResourceFactory();
+    resourceFactory.afterPropertiesSet();
+    Function<HttpClient, HttpClient> mapper = Function.identity();
+    ReactorNettyClientRequestFactory requestFactory = new ReactorNettyClientRequestFactory(resourceFactory, mapper);
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.stop();
+    assertThat(requestFactory.isRunning()).isFalse();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+  }
+
+  @Test
+  void restartWithHttpClient() {
+    HttpClient httpClient = HttpClient.create();
+    ReactorNettyClientRequestFactory requestFactory = new ReactorNettyClientRequestFactory(httpClient);
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
+    requestFactory.stop();
+    assertThat(requestFactory.isRunning()).isFalse();
+    requestFactory.start();
+    assertThat(requestFactory.isRunning()).isTrue();
   }
 
 }
