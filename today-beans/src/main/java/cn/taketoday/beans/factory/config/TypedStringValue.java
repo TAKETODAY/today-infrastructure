@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,8 @@
 
 package cn.taketoday.beans.factory.config;
 
+import java.util.Comparator;
+
 import cn.taketoday.beans.BeanMetadataElement;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Assert;
@@ -36,11 +35,12 @@ import cn.taketoday.util.ObjectUtils;
  * The actual conversion will be performed by the bean factory.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanDefinition#getPropertyValues
  * @see PropertyValues#add
  * @since 4.0
  */
-public class TypedStringValue implements BeanMetadataElement {
+public class TypedStringValue implements BeanMetadataElement, Comparable<TypedStringValue> {
 
   @Nullable
   private String value;
@@ -140,8 +140,8 @@ public class TypedStringValue implements BeanMetadataElement {
   @Nullable
   public String getTargetTypeName() {
     Object targetTypeValue = this.targetType;
-    if (targetTypeValue instanceof Class) {
-      return ((Class<?>) targetTypeValue).getName();
+    if (targetTypeValue instanceof Class<?> clazz) {
+      return clazz.getName();
     }
     else {
       return (String) targetTypeValue;
@@ -149,7 +149,7 @@ public class TypedStringValue implements BeanMetadataElement {
   }
 
   /**
-   * Return whether this typed String value carries a target type .
+   * Return whether this typed String value carries a target type.
    */
   public boolean hasTargetType() {
     return this.targetType instanceof Class;
@@ -220,20 +220,20 @@ public class TypedStringValue implements BeanMetadataElement {
   }
 
   @Override
+  public int compareTo(@Nullable TypedStringValue o) {
+    return Comparator.comparing(TypedStringValue::getValue).compare(this, o);
+  }
+
+  @Override
   public boolean equals(@Nullable Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof TypedStringValue otherValue)) {
-      return false;
-    }
-    return (ObjectUtils.nullSafeEquals(this.value, otherValue.value) &&
-            ObjectUtils.nullSafeEquals(this.targetType, otherValue.targetType));
+    return (this == other || (other instanceof TypedStringValue that &&
+            ObjectUtils.nullSafeEquals(this.value, that.value) &&
+            ObjectUtils.nullSafeEquals(this.targetType, that.targetType)));
   }
 
   @Override
   public int hashCode() {
-    return ObjectUtils.nullSafeHashCode(this.value) * 29 + ObjectUtils.nullSafeHashCode(this.targetType);
+    return ObjectUtils.nullSafeHash(this.value, this.targetType);
   }
 
   @Override

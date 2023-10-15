@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +36,7 @@ import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.GenericBeanDefinition;
@@ -353,6 +351,34 @@ public class GenericApplicationContextTests {
             .getPropertyValue("inner");
     assertThat(value.hasBeanClass()).isTrue();
     assertThat(value.getBeanClass()).isEqualTo(Integer.class);
+    context.close();
+  }
+
+  @Test
+  void refreshForAotLoadsTypedStringValueClassNameInProperty() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition("java.lang.Integer");
+    beanDefinition.getPropertyValues().add("value", new TypedStringValue("42", "java.lang.Integer"));
+    context.registerBeanDefinition("number", beanDefinition);
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(getBeanDefinition(context, "number").getPropertyValues().getPropertyValue("value"))
+            .isInstanceOfSatisfying(TypedStringValue.class, typeStringValue ->
+                    assertThat(typeStringValue.getTargetType()).isEqualTo(Integer.class));
+    context.close();
+  }
+
+  @Test
+  void refreshForAotLoadsTypedStringValueClassNameInConstructorArgument() {
+    GenericApplicationContext context = new GenericApplicationContext();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition("java.lang.Integer");
+    beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,
+            new TypedStringValue("42", "java.lang.Integer"));
+    context.registerBeanDefinition("number", beanDefinition);
+    context.refreshForAotProcessing(new RuntimeHints());
+    assertThat(getBeanDefinition(context, "number").getConstructorArgumentValues()
+            .getIndexedArgumentValue(0, TypedStringValue.class).getValue())
+            .isInstanceOfSatisfying(TypedStringValue.class, typeStringValue ->
+                    assertThat(typeStringValue.getTargetType()).isEqualTo(Integer.class));
     context.close();
   }
 
