@@ -30,6 +30,7 @@ import org.gradle.api.java.archives.Manifest;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.WorkResult;
 import org.gradle.api.tasks.WorkResults;
+import org.gradle.util.GradleVersion;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -360,8 +361,7 @@ class InfraZipCopyAction implements CopyAction {
     private void writeNativeImageArgFileIfNecessary() throws IOException {
       Set<String> excludes = new LinkedHashSet<>();
       for (Map.Entry<String, FileCopyDetails> entry : this.writtenLibraries.entrySet()) {
-        ResolvedDependencies.DependencyDescriptor descriptor = InfraZipCopyAction.this.resolvedDependencies
-                .find(entry.getValue().getFile());
+        var descriptor = InfraZipCopyAction.this.resolvedDependencies.find(entry.getValue().getFile());
         LibraryCoordinates coordinates = (descriptor != null) ? descriptor.getCoordinates() : null;
         FileCopyDetails propertiesFile = (coordinates != null) ? this.reachabilityMetadataProperties
                 .get(ReachabilityMetadataProperties.getLocation(coordinates)) : null;
@@ -460,7 +460,20 @@ class InfraZipCopyAction implements CopyAction {
     private int getFileMode(FileCopyDetails details) {
       return (InfraZipCopyAction.this.fileMode != null)
              ? InfraZipCopyAction.this.fileMode
-             : UnixStat.FILE_FLAG | details.getMode();
+             : UnixStat.FILE_FLAG | getPermissions(details);
+    }
+
+    private int getPermissions(FileCopyDetails details) {
+      if (GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0) {
+        try {
+          Object permissions = details.getClass().getMethod("getPermissions").invoke(details);
+          return (int) permissions.getClass().getMethod("toUnixNumeric").invoke(permissions);
+        }
+        catch (Exception ex) {
+          throw new GradleException("Failed to get permissions", ex);
+        }
+      }
+      return details.getMode();
     }
 
   }
