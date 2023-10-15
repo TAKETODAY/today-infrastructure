@@ -848,6 +848,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         applicationListeners.addAll(earlyApplicationListeners);
       }
 
+      // Reset internal delegates.
+      this.applicationEventMulticaster = null;
+      this.messageSource = null;
+      this.lifecycleProcessor = null;
+
       // Switch to inactive.
       active.set(false);
     }
@@ -1480,8 +1485,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     if (this.earlyApplicationEvents != null) {
       this.earlyApplicationEvents.add(applicationEvent);
     }
-    else {
-      getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
+    else if (this.applicationEventMulticaster != null) {
+      this.applicationEventMulticaster.multicastEvent(applicationEvent, eventType);
     }
 
     // Publish event via parent context as well...

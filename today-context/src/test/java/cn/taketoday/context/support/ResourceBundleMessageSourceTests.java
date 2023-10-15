@@ -33,6 +33,7 @@ import cn.taketoday.core.i18n.LocaleContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -92,8 +93,8 @@ class ResourceBundleMessageSourceTests {
   }
 
   protected void doTestMessageAccess(
-      boolean reloadable, boolean fallbackToSystemLocale,
-      boolean expectGermanFallback, boolean useCodeAsDefaultMessage, boolean alwaysUseMessageFormat) {
+          boolean reloadable, boolean fallbackToSystemLocale,
+          boolean expectGermanFallback, boolean useCodeAsDefaultMessage, boolean alwaysUseMessageFormat) {
 
     StaticApplicationContext ac = new StaticApplicationContext();
     if (reloadable) {
@@ -107,13 +108,13 @@ class ResourceBundleMessageSourceTests {
     String[] basenames;
     if (reloadable) {
       basenames = new String[] {
-          "classpath:" + basepath + "messages",
-          "classpath:" + basepath + "more-messages" };
+              "classpath:" + basepath + "messages",
+              "classpath:" + basepath + "more-messages" };
     }
     else {
       basenames = new String[] {
-          basepath + "messages",
-          basepath + "more-messages" };
+              basepath + "messages",
+              basepath + "more-messages" };
     }
     pvs.add("basenames", basenames);
     if (!fallbackToSystemLocale) {
@@ -126,13 +127,13 @@ class ResourceBundleMessageSourceTests {
       pvs.add("alwaysUseMessageFormat", Boolean.TRUE);
     }
     Class<?> clazz = reloadable ?
-                     ReloadableResourceBundleMessageSource.class : ResourceBundleMessageSource.class;
+                     (Class<?>) ReloadableResourceBundleMessageSource.class : ResourceBundleMessageSource.class;
     ac.registerSingleton("messageSource", clazz, pvs);
     ac.refresh();
 
     Locale.setDefault(expectGermanFallback ? Locale.GERMAN : Locale.CANADA);
     assertThat(ac.getMessage("code1", null, Locale.ENGLISH)).isEqualTo("message1");
-    Object expected = fallbackToSystemLocale && expectGermanFallback ? "nachricht2" : "message2";
+    Object expected = (fallbackToSystemLocale && expectGermanFallback ? "nachricht2" : "message2");
     assertThat(ac.getMessage("code2", null, Locale.ENGLISH)).isEqualTo(expected);
 
     assertThat(ac.getMessage("code2", null, Locale.GERMAN)).isEqualTo("nachricht2");
@@ -199,7 +200,7 @@ class ResourceBundleMessageSourceTests {
     }
     else {
       assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-          ac.getMessage("code4", null, Locale.GERMAN));
+              ac.getMessage("code4", null, Locale.GERMAN));
     }
   }
 
@@ -210,6 +211,8 @@ class ResourceBundleMessageSourceTests {
     ac.refresh();
     assertThat(ac.getMessage("code1", null, "default", Locale.ENGLISH)).isEqualTo("default");
     assertThat(ac.getMessage("code1", new Object[] { "value" }, "default {0}", Locale.ENGLISH)).isEqualTo("default value");
+    ac.close();
+    assertThatIllegalStateException().isThrownBy(() -> ac.getMessage("code1", null, "default", Locale.ENGLISH));
   }
 
   @Test
@@ -222,6 +225,8 @@ class ResourceBundleMessageSourceTests {
     ac.refresh();
     assertThat(ac.getMessage("code1", null, "default", Locale.ENGLISH)).isEqualTo("default");
     assertThat(ac.getMessage("code1", new Object[] { "value" }, "default {0}", Locale.ENGLISH)).isEqualTo("default value");
+    ac.close();
+    assertThatIllegalStateException().isThrownBy(() -> ac.getMessage("code1", null, "default", Locale.ENGLISH));
   }
 
   @Test
@@ -234,6 +239,8 @@ class ResourceBundleMessageSourceTests {
     ac.refresh();
     assertThat(ac.getMessage("code1", null, "default", Locale.ENGLISH)).isEqualTo("default");
     assertThat(ac.getMessage("code1", new Object[] { "value" }, "default {0}", Locale.ENGLISH)).isEqualTo("default value");
+    ac.close();
+    assertThatIllegalStateException().isThrownBy(() -> ac.getMessage("code1", null, "default", Locale.ENGLISH));
   }
 
   @Test
@@ -246,6 +253,8 @@ class ResourceBundleMessageSourceTests {
     ac.refresh();
     assertThat(ac.getMessage("code1", null, "default", Locale.ENGLISH)).isEqualTo("default");
     assertThat(ac.getMessage("code1", new Object[] { "value" }, "default {0}", Locale.ENGLISH)).isEqualTo("default value");
+    ac.close();
+    assertThatIllegalStateException().isThrownBy(() -> ac.getMessage("code1", null, "default", Locale.ENGLISH));
   }
 
   @Test
@@ -280,7 +289,7 @@ class ResourceBundleMessageSourceTests {
     ms.setDefaultEncoding("argh");
     ms.setFallbackToSystemLocale(false);
     assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-        ms.getMessage("code1", null, Locale.ENGLISH));
+            ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -360,7 +369,7 @@ class ResourceBundleMessageSourceTests {
     ms.setFileEncodings(fileCharsets);
     ms.setFallbackToSystemLocale(false);
     assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-        ms.getMessage("code1", null, Locale.ENGLISH));
+            ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -372,7 +381,7 @@ class ResourceBundleMessageSourceTests {
     fileCharsets.setProperty("cn/taketoday/context/support/messages", "unicode");
     ms.setFileEncodings(fileCharsets);
     assertThatExceptionOfType(NoSuchMessageException.class).isThrownBy(() ->
-        ms.getMessage("code1", null, Locale.ENGLISH));
+            ms.getMessage("code1", null, Locale.ENGLISH));
   }
 
   @Test
@@ -392,32 +401,32 @@ class ResourceBundleMessageSourceTests {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
 
     List<String> filenames = ms.calculateFilenamesForLocale("messages", Locale.ENGLISH);
-    assertThat(filenames.size()).isEqualTo(1);
+    assertThat(filenames).hasSize(1);
     assertThat(filenames.get(0)).isEqualTo("messages_en");
 
     filenames = ms.calculateFilenamesForLocale("messages", Locale.UK);
-    assertThat(filenames.size()).isEqualTo(2);
+    assertThat(filenames).hasSize(2);
     assertThat(filenames.get(1)).isEqualTo("messages_en");
     assertThat(filenames.get(0)).isEqualTo("messages_en_GB");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("en", "GB", "POSIX"));
-    assertThat(filenames.size()).isEqualTo(3);
+    assertThat(filenames).hasSize(3);
     assertThat(filenames.get(2)).isEqualTo("messages_en");
     assertThat(filenames.get(1)).isEqualTo("messages_en_GB");
     assertThat(filenames.get(0)).isEqualTo("messages_en_GB_POSIX");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("en", "", "POSIX"));
-    assertThat(filenames.size()).isEqualTo(2);
+    assertThat(filenames).hasSize(2);
     assertThat(filenames.get(1)).isEqualTo("messages_en");
     assertThat(filenames.get(0)).isEqualTo("messages_en__POSIX");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("", "UK", "POSIX"));
-    assertThat(filenames.size()).isEqualTo(2);
+    assertThat(filenames).hasSize(2);
     assertThat(filenames.get(1)).isEqualTo("messages__UK");
     assertThat(filenames.get(0)).isEqualTo("messages__UK_POSIX");
 
     filenames = ms.calculateFilenamesForLocale("messages", new Locale("", "", "POSIX"));
-    assertThat(filenames.size()).isEqualTo(0);
+    assertThat(filenames).isEmpty();
   }
 
   @Test
@@ -433,16 +442,16 @@ class ResourceBundleMessageSourceTests {
   void reloadableResourceBundleMessageSourceWithEmptyCustomFileExtensions() {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
     assertThatThrownBy(() -> ms.setFileExtensions(Collections.emptyList()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("At least one file extension is required");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("At least one file extension is required");
   }
 
   @Test
   void reloadableResourceBundleMessageSourceWithInvalidCustomFileExtensions() {
     ReloadableResourceBundleMessageSource ms = new ReloadableResourceBundleMessageSource();
     assertThatThrownBy(() -> ms.setFileExtensions(List.of("invalid")))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("File extension 'invalid' should start with '.'");
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("File extension 'invalid' should start with '.'");
   }
 
   @Test
