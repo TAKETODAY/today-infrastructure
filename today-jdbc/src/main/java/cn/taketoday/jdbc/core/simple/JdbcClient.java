@@ -346,9 +346,9 @@ public interface JdbcClient {
      * retaining the order from the original database result.
      *
      * @return a (potentially empty) list of rows, with each
-     * row represented as a column value of the given type
+     * row represented as its single column value
      */
-    <T> List<T> singleColumn();
+    List<Object> singleColumn();
 
     /**
      * Retrieve a single value result.
@@ -357,8 +357,9 @@ public interface JdbcClient {
      * column value of the given type
      * @see DataAccessUtils#requiredSingleResult(Collection)
      */
+    @SuppressWarnings("unchecked")
     default <T> T singleValue() {
-      return DataAccessUtils.requiredSingleResult(singleColumn());
+      return (T) DataAccessUtils.requiredSingleResult(singleColumn());
     }
   }
 
