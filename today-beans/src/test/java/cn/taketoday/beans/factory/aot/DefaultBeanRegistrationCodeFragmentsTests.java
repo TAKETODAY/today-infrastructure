@@ -37,6 +37,7 @@ import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanRegistrationCode
 import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanRegistrationsCode;
 import cn.taketoday.beans.testfixture.beans.factory.aot.NumberFactoryBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBean;
+import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanArrayFactoryBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanConfiguration;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanFactoryBean;
 import cn.taketoday.core.ResolvableType;
@@ -74,6 +75,13 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   void getTargetOnConstructorToPublicFactoryBean() {
     RegisteredBean registeredBean = registerTestBean(SimpleBean.class,
             SimpleBeanFactoryBean.class.getDeclaredConstructors()[0]);
+    assertTarget(createInstance(registeredBean).getTarget(registeredBean), SimpleBean.class);
+  }
+
+  @Test
+  void getTargetOnConstructorToPublicFactoryBeanProducingArray() {
+    RegisteredBean registeredBean = registerTestBean(SimpleBean[].class,
+            SimpleBeanArrayFactoryBean.class.getDeclaredConstructors()[0]);
     assertTarget(createInstance(registeredBean).getTarget(registeredBean), SimpleBean.class);
   }
 
