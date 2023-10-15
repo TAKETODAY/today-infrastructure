@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +43,6 @@ import org.hibernate.exception.DataException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.hibernate.exception.LockAcquisitionException;
 import org.hibernate.exception.SQLGrammarException;
-import org.hibernate.resource.jdbc.spi.LogicalConnectionImplementor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -62,6 +58,7 @@ import cn.taketoday.dao.InvalidDataAccessResourceUsageException;
 import cn.taketoday.dao.PessimisticLockingFailureException;
 import cn.taketoday.jdbc.datasource.ConnectionHandle;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.jdbc.support.SQLExceptionSubclassTranslator;
 import cn.taketoday.jdbc.support.SQLExceptionTranslator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.orm.ObjectOptimisticLockingFailureException;
@@ -73,6 +70,7 @@ import cn.taketoday.transaction.InvalidIsolationLevelException;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.support.ResourceTransactionDefinition;
+import cn.taketoday.util.ReflectionUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 
@@ -82,6 +80,7 @@ import jakarta.persistence.PersistenceException;
  *
  * @author Juergen Hoeller
  * @author Costin Leau
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HibernateJpaVendorAdapter
  * @see Session#setHibernateFlushMode
  * @see org.hibernate.Transaction#setTimeout
@@ -94,6 +93,9 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
 
   @Nullable
   private SQLExceptionTranslator jdbcExceptionTranslator;
+
+  @Nullable
+  private SQLExceptionTranslator transactionExceptionTranslator = new SQLExceptionSubclassTranslator();
 
   /**
    * Set whether to prepare the underlying JDBC Connection of a transactional
@@ -112,8 +114,8 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
    * access has accidentally been tolerated: Please revise your transaction
    * declarations accordingly, removing invalid read-only markers if necessary.
    *
-   * @see Connection#setTransactionIsolation
-   * @see Connection#setReadOnly
+   * @see java.sql.Connection#setTransactionIsolation
+   * @see java.sql.Connection#setReadOnly
    */
   public void setPrepareConnection(boolean prepareConnection) {
     this.prepareConnection = prepareConnection;
@@ -121,17 +123,25 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
 
   /**
    * Set the JDBC exception translator for Hibernate exception translation purposes.
-   * <p>Applied to any detected {@link SQLException} root cause of a Hibernate
+   * <p>Applied to any detected {@link java.sql.SQLException} root cause of a Hibernate
    * {@link JDBCException}, overriding Hibernate's own {@code SQLException} translation
    * (which is based on a Hibernate Dialect for a specific target database).
+   * <p>also applied to {@link org.hibernate.TransactionException} translation
+   * with a {@link SQLException} root cause (where Hibernate does not translate itself
+   * at all), overriding Infra default {@link SQLExceptionSubclassTranslator} there.
    *
-   * @see SQLException
-   * @see JDBCException
+   * @param exceptionTranslator the {@link SQLExceptionTranslator} to delegate to, or
+   * {@code null} for none. By default, a {@link SQLExceptionSubclassTranslator} will
+   * be used for {@link org.hibernate.TransactionException} translation as of 4;
+   * this can be reverted to pre-6.1 behavior through setting {@code null} here.
+   * @see java.sql.SQLException
+   * @see org.hibernate.JDBCException
+   * @see cn.taketoday.jdbc.support.SQLExceptionSubclassTranslator
    * @see cn.taketoday.jdbc.support.SQLErrorCodeSQLExceptionTranslator
-   * @see cn.taketoday.jdbc.support.SQLStateSQLExceptionTranslator
    */
-  public void setJdbcExceptionTranslator(SQLExceptionTranslator jdbcExceptionTranslator) {
-    this.jdbcExceptionTranslator = jdbcExceptionTranslator;
+  public void setJdbcExceptionTranslator(@Nullable SQLExceptionTranslator exceptionTranslator) {
+    this.jdbcExceptionTranslator = exceptionTranslator;
+    this.transactionExceptionTranslator = exceptionTranslator;
   }
 
   @Override
@@ -149,11 +159,9 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
     Connection preparedCon = null;
 
     if (isolationLevelNeeded || definition.isReadOnly()) {
-      LogicalConnectionImplementor logicalConnection;
-      if (prepareConnection && ConnectionReleaseMode.ON_CLOSE.equals(
-              (logicalConnection = session.getJdbcCoordinator().getLogicalConnection())
-                      .getConnectionHandlingMode().getReleaseMode())) {
-        preparedCon = logicalConnection.getPhysicalConnection();
+      if (this.prepareConnection && ConnectionReleaseMode.ON_CLOSE.equals(
+              session.getJdbcCoordinator().getLogicalConnection().getConnectionHandlingMode().getReleaseMode())) {
+        preparedCon = session.getJdbcCoordinator().getLogicalConnection().getPhysicalConnection();
         previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(preparedCon, definition);
       }
       else if (isolationLevelNeeded) {
@@ -213,8 +221,8 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
 
   @Override
   public void cleanupTransaction(@Nullable Object transactionData) {
-    if (transactionData instanceof SessionTransactionData) {
-      ((SessionTransactionData) transactionData).resetSessionState();
+    if (transactionData instanceof SessionTransactionData sessionTransactionData) {
+      sessionTransactionData.resetSessionState();
     }
   }
 
@@ -229,11 +237,11 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
   @Override
   @Nullable
   public DataAccessException translateExceptionIfPossible(RuntimeException ex) {
-    if (ex instanceof HibernateException) {
-      return convertHibernateAccessException((HibernateException) ex);
+    if (ex instanceof HibernateException hibernateEx) {
+      return convertHibernateAccessException(hibernateEx);
     }
-    if (ex instanceof PersistenceException && ex.getCause() instanceof HibernateException) {
-      return convertHibernateAccessException((HibernateException) ex.getCause());
+    if (ex instanceof PersistenceException && ex.getCause() instanceof HibernateException hibernateEx) {
+      return convertHibernateAccessException(hibernateEx);
     }
     return EntityManagerFactoryUtils.convertJpaAccessExceptionIfPossible(ex);
   }
@@ -250,31 +258,40 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
       DataAccessException dae = this.jdbcExceptionTranslator.translate(
               "Hibernate operation: " + jdbcEx.getMessage(), jdbcEx.getSQL(), jdbcEx.getSQLException());
       if (dae != null) {
-        throw dae;
+        return dae;
+      }
+    }
+    if (this.transactionExceptionTranslator != null && ex instanceof org.hibernate.TransactionException) {
+      if (ex.getCause() instanceof SQLException sqlEx) {
+        DataAccessException dae = this.transactionExceptionTranslator.translate(
+                "Hibernate transaction: " + ex.getMessage(), null, sqlEx);
+        if (dae != null) {
+          return dae;
+        }
       }
     }
 
     if (ex instanceof JDBCConnectionException) {
       return new DataAccessResourceFailureException(ex.getMessage(), ex);
     }
-    if (ex instanceof SQLGrammarException jdbcEx) {
-      return new InvalidDataAccessResourceUsageException(ex.getMessage() + "; SQL [" + jdbcEx.getSQL() + "]", ex);
+    if (ex instanceof SQLGrammarException hibEx) {
+      return new InvalidDataAccessResourceUsageException(ex.getMessage() + "; SQL [" + hibEx.getSQL() + "]", ex);
     }
-    if (ex instanceof QueryTimeoutException jdbcEx) {
-      return new cn.taketoday.dao.QueryTimeoutException(ex.getMessage() + "; SQL [" + jdbcEx.getSQL() + "]", ex);
+    if (ex instanceof QueryTimeoutException hibEx) {
+      return new cn.taketoday.dao.QueryTimeoutException(ex.getMessage() + "; SQL [" + hibEx.getSQL() + "]", ex);
     }
-    if (ex instanceof LockAcquisitionException jdbcEx) {
-      return new CannotAcquireLockException(ex.getMessage() + "; SQL [" + jdbcEx.getSQL() + "]", ex);
+    if (ex instanceof LockAcquisitionException hibEx) {
+      return new CannotAcquireLockException(ex.getMessage() + "; SQL [" + hibEx.getSQL() + "]", ex);
     }
-    if (ex instanceof PessimisticLockException jdbcEx) {
-      return new PessimisticLockingFailureException(ex.getMessage() + "; SQL [" + jdbcEx.getSQL() + "]", ex);
+    if (ex instanceof PessimisticLockException hibEx) {
+      return new PessimisticLockingFailureException(ex.getMessage() + "; SQL [" + hibEx.getSQL() + "]", ex);
     }
-    if (ex instanceof ConstraintViolationException jdbcEx) {
-      return new DataIntegrityViolationException(ex.getMessage() + "; SQL [" + jdbcEx.getSQL() +
-              "]; constraint [" + jdbcEx.getConstraintName() + "]", ex);
+    if (ex instanceof ConstraintViolationException hibEx) {
+      return new DataIntegrityViolationException(ex.getMessage() + "; SQL [" + hibEx.getSQL() +
+              "]; constraint [" + hibEx.getConstraintName() + "]", ex);
     }
-    if (ex instanceof DataException jdbcEx) {
-      return new DataIntegrityViolationException(ex.getMessage() + "; SQL [" + jdbcEx.getSQL() + "]", ex);
+    if (ex instanceof DataException hibEx) {
+      return new DataIntegrityViolationException(ex.getMessage() + "; SQL [" + hibEx.getSQL() + "]", ex);
     }
     // end of JDBCException subclass handling
 
@@ -300,13 +317,13 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
       return new InvalidDataAccessApiUsageException(ex.getMessage(), ex);
     }
     if (ex instanceof UnresolvableObjectException hibEx) {
-      return new ObjectRetrievalFailureException(hibEx.getEntityName(), hibEx.getIdentifier(), ex.getMessage(), ex);
+      return new ObjectRetrievalFailureException(hibEx.getEntityName(), getIdentifier(hibEx), ex.getMessage(), ex);
     }
     if (ex instanceof WrongClassException hibEx) {
-      return new ObjectRetrievalFailureException(hibEx.getEntityName(), hibEx.getIdentifier(), ex.getMessage(), ex);
+      return new ObjectRetrievalFailureException(hibEx.getEntityName(), getIdentifier(hibEx), ex.getMessage(), ex);
     }
     if (ex instanceof StaleObjectStateException hibEx) {
-      return new ObjectOptimisticLockingFailureException(hibEx.getEntityName(), hibEx.getIdentifier(), ex);
+      return new ObjectOptimisticLockingFailureException(hibEx.getEntityName(), getIdentifier(hibEx), ex.getMessage(), ex);
     }
     if (ex instanceof StaleStateException) {
       return new ObjectOptimisticLockingFailureException(ex.getMessage(), ex);
@@ -327,6 +344,16 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
 
   protected SessionImplementor getSession(EntityManager entityManager) {
     return entityManager.unwrap(SessionImplementor.class);
+  }
+
+  @Nullable
+  protected Object getIdentifier(HibernateException hibEx) {
+    try {
+      return ReflectionUtils.invokeMethod(hibEx.getClass().getMethod("getIdentifier"), hibEx);
+    }
+    catch (NoSuchMethodException ex) {
+      return null;
+    }
   }
 
   private static class SessionTransactionData {
@@ -357,17 +384,22 @@ public class HibernateJpaDialect extends DefaultJpaDialect {
       if (this.previousFlushMode != null) {
         this.session.setHibernateFlushMode(this.previousFlushMode);
       }
-      LogicalConnectionImplementor logicalConnection;
-      if (needsConnectionReset
-              && (logicalConnection = session.getJdbcCoordinator().getLogicalConnection()).isPhysicallyConnected()) {
-        Connection con = logicalConnection.getPhysicalConnection();
+      if (this.needsConnectionReset &&
+              this.session.getJdbcCoordinator().getLogicalConnection().isPhysicallyConnected()) {
+        Connection con = this.session.getJdbcCoordinator().getLogicalConnection().getPhysicalConnection();
         DataSourceUtils.resetConnectionAfterTransaction(
                 con, this.previousIsolationLevel, this.readOnly);
       }
     }
   }
 
-  private record HibernateConnectionHandle(SessionImplementor session) implements ConnectionHandle {
+  private static class HibernateConnectionHandle implements ConnectionHandle {
+
+    private final SessionImplementor session;
+
+    public HibernateConnectionHandle(SessionImplementor session) {
+      this.session = session;
+    }
 
     @Override
     public Connection getConnection() {
