@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +16,8 @@
  */
 
 package cn.taketoday.framework;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.lang.Nullable;
 
@@ -45,5 +44,26 @@ public interface ApplicationHook {
    */
   @Nullable
   ApplicationStartupListener getStartupListener(Application application);
+
+  // Static Factory Methods
+
+  static ApplicationHook forSingleUse(ApplicationHook delegate) {
+    final class SingleUseApplicationHook implements ApplicationHook {
+      private final AtomicBoolean used = new AtomicBoolean();
+
+      private final ApplicationHook delegate;
+
+      private SingleUseApplicationHook(ApplicationHook delegate) {
+        this.delegate = delegate;
+      }
+
+      @Override
+      public ApplicationStartupListener getStartupListener(Application application) {
+        return this.used.compareAndSet(false, true) ? this.delegate.getStartupListener(application) : null;
+      }
+
+    }
+    return new SingleUseApplicationHook(delegate);
+  }
 
 }

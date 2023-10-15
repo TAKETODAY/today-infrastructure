@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +36,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.aot.AotDetector;
+import cn.taketoday.aot.hint.RuntimeHints;
+import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.beans.CachedIntrospectionResults;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
@@ -56,6 +57,7 @@ import cn.taketoday.beans.factory.support.DefaultBeanNameGenerator;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationContextException;
+import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -1270,6 +1272,75 @@ class ApplicationTests {
   }
 
   @Test
+  void shouldRegisterHints() {
+    RuntimeHints hints = new RuntimeHints();
+    new Application.ApplicationRuntimeHints().registerHints(hints, getClass().getClassLoader());
+    assertThat(RuntimeHintsPredicates.reflection().onType(Application.class)).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "setBannerMode"))
+            .accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "getSources")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "setSources")).accepts(hints);
+    assertThat(RuntimeHintsPredicates.reflection().onMethod(Application.class, "load")).rejects(hints);
+  }
+
+  @Test
+  void shouldUseAotInitializer() {
+    Application application = new Application(ExampleAotProcessedMainClass.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    application.setMainApplicationClass(ExampleAotProcessedMainClass.class);
+    System.setProperty(AotDetector.AOT_ENABLED, "true");
+    try {
+      ApplicationContext context = application.run();
+      assertThat(context.getBean("test")).isEqualTo("test");
+    }
+    finally {
+      System.clearProperty(AotDetector.AOT_ENABLED);
+    }
+  }
+
+  @Test
+  void fromReturnsApplicationContext() {
+    this.context = Application.from(ExampleFromMainMethod::main)
+            .with(ExampleAdditionalConfig.class)
+            .run()
+            .getApplicationContext();
+    assertThat(this.context).isNotNull();
+  }
+
+  @Test
+  void fromWithMultipleApplicationsOnlyAppliesAdditionalSourcesOnce() {
+    this.context = Application.from(MultipleApplicationsMainMethod::main)
+            .with(SingleUseAdditionalConfig.class)
+            .run()
+            .getApplicationContext();
+    assertThatNoException().isThrownBy(() -> this.context.getBean(SingleUseAdditionalConfig.class));
+  }
+
+  @Test
+  void shouldStartDaemonThreadIfKeepAliveIsEnabled() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    this.context = application.run("--app.main.keep-alive=true");
+    Set<Thread> threads = getCurrentThreads();
+    assertThat(threads).filteredOn((thread) -> thread.getName().equals("keep-alive"))
+            .singleElement()
+            .satisfies((thread) -> assertThat(thread.isDaemon()).isFalse());
+  }
+
+  @Test
+  void shouldStopKeepAliveThreadIfContextIsClosed() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    application.setKeepAlive(true);
+    this.context = application.run();
+    Set<Thread> threadsBeforeClose = getCurrentThreads();
+    assertThat(threadsBeforeClose).filteredOn((thread) -> thread.getName().equals("keep-alive")).isNotEmpty();
+    this.context.close();
+    Set<Thread> threadsAfterClose = getCurrentThreads();
+    assertThat(threadsAfterClose).filteredOn((thread) -> thread.getName().equals("keep-alive")).isEmpty();
+  }
+
+  @Test
   void fromRunsWithAdditionalSources() {
     assertThat(ExampleAdditionalConfig.local.get()).isNull();
     Application.from(ExampleFromMainMethod::main).with(ExampleAdditionalConfig.class).run();
@@ -1317,6 +1388,10 @@ class ApplicationTests {
       }
 
     };
+  }
+
+  private Set<Thread> getCurrentThreads() {
+    return Thread.getAllStackTraces().keySet();
   }
 
   static class TestEventListener<E extends ApplicationEvent> implements SmartApplicationListener {
@@ -1838,6 +1913,58 @@ class ApplicationTests {
 
     ExampleAdditionalConfig() {
       local.set(this);
+    }
+
+  }
+
+  static class MultipleApplicationsMainMethod {
+
+    static void main(String[] args) {
+      Application application = new Application(ExampleConfig.class);
+      application.setApplicationType(ApplicationType.NORMAL);
+      application.addListeners(new ApplicationListener<ApplicationEnvironmentPreparedEvent>() {
+
+        @Override
+        public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
+          ApplicationBuilder builder = new ApplicationBuilder(
+                  InnerApplicationConfiguration.class);
+          builder.type(ApplicationType.NORMAL);
+          builder.run().close();
+        }
+
+      });
+      application.run(args);
+    }
+
+    static class InnerApplicationConfiguration {
+
+    }
+
+  }
+
+  @Configuration
+  static class SingleUseAdditionalConfig {
+
+    private static AtomicBoolean used = new AtomicBoolean(false);
+
+    SingleUseAdditionalConfig() {
+      if (!used.compareAndSet(false, true)) {
+        throw new IllegalStateException("Single-use configuration has already been used");
+      }
+    }
+
+  }
+
+  static class ExampleAotProcessedMainClass {
+
+  }
+
+  static class ExampleAotProcessedMainClass__ApplicationContextInitializer
+          implements ApplicationContextInitializer {
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+      applicationContext.getBeanFactory().registerSingleton("test", "test");
     }
 
   }

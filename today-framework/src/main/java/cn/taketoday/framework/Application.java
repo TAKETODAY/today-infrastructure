@@ -49,6 +49,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.aot.AotApplicationContextInitializer;
+import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
@@ -213,6 +214,8 @@ public class Application {
   private boolean allowCircularReferences;
   private boolean lazyInitialization = false;
   private boolean isCustomEnvironment = false;
+
+  private boolean keepAlive;
 
   /**
    * Create a new {@link Application} instance. The application context will load
@@ -570,6 +573,12 @@ public class Application {
 
     if (lazyInitialization) {
       context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
+    }
+
+    if (keepAlive) {
+      KeepAlive keepAlive = new KeepAlive();
+      keepAlive.start();
+      context.addApplicationListener(keepAlive);
     }
 
     if (CollectionUtils.isNotEmpty(defaultProperties)) {
@@ -1218,6 +1227,26 @@ public class Application {
     this.bootstrapRegistryInitializers.add(bootstrapRegistryInitializer);
   }
 
+  /**
+   * Whether to keep the application alive even if there are no more non-daemon threads.
+   *
+   * @return whether to keep the application alive even if there are no more non-daemon
+   * threads
+   */
+  public boolean isKeepAlive() {
+    return this.keepAlive;
+  }
+
+  /**
+   * Whether to keep the application alive even if there are no more non-daemon threads.
+   *
+   * @param keepAlive whether to keep the application alive even if there are no more
+   * non-daemon threads
+   */
+  public void setKeepAlive(boolean keepAlive) {
+    this.keepAlive = keepAlive;
+  }
+
   private void handleRunFailure(@Nullable ConfigurableApplicationContext context,
           Throwable exception, @Nullable ApplicationStartupListeners listeners) {
     try {
@@ -1584,8 +1613,11 @@ public class Application {
      *
      * @param args the main method args
      */
-    public void run(String... args) {
-      withHook(this::getRunListener, () -> this.main.accept(args));
+    public Running run(String... args) {
+      RunListener runListener = new RunListener();
+      ApplicationHook hook = ApplicationHook.forSingleUse(this::getRunListener);
+      withHook(hook, () -> this.main.accept(args));
+      return runListener;
     }
 
     @Nullable
@@ -1593,6 +1625,47 @@ public class Application {
       application.addPrimarySources(this.sources);
       return null;
     }
+
+    /**
+     * {@link ApplicationStartupListener} to capture {@link Running} application
+     * details.
+     */
+    private static class RunListener implements ApplicationStartupListener, Running {
+
+      private final List<ConfigurableApplicationContext> contexts = Collections.synchronizedList(new ArrayList<>());
+
+      @Override
+      public void contextLoaded(ConfigurableApplicationContext context) {
+        this.contexts.add(context);
+      }
+
+      @Override
+      public ConfigurableApplicationContext getApplicationContext() {
+        List<ConfigurableApplicationContext> rootContexts = this.contexts.stream()
+                .filter((context) -> context.getParent() == null)
+                .toList();
+        Assert.state(!rootContexts.isEmpty(), "No root application context located");
+        Assert.state(rootContexts.size() == 1, "No unique root application context located");
+        return rootContexts.get(0);
+      }
+
+    }
+
+  }
+
+  /**
+   * Provides access to details of a {@link Application} run using
+   * {@link Augmented#run(String...)}.
+   */
+  public interface Running {
+
+    /**
+     * Return the root {@link ConfigurableApplicationContext} of the running
+     * application.
+     *
+     * @return the root application context
+     */
+    ConfigurableApplicationContext getApplicationContext();
 
   }
 
@@ -1627,4 +1700,35 @@ public class Application {
     }
 
   }
+
+  /**
+   * A non-daemon thread to keep the JVM alive. Reacts to {@link ContextClosedEvent} to
+   * stop itself when the application context is closed.
+   */
+  private static final class KeepAlive extends Thread implements ApplicationListener<ContextClosedEvent> {
+
+    KeepAlive() {
+      setName("keep-alive");
+      setDaemon(false);
+    }
+
+    @Override
+    public void onApplicationEvent(ContextClosedEvent event) {
+      interrupt();
+    }
+
+    @Override
+    public void run() {
+      while (true) {
+        try {
+          Thread.sleep(Long.MAX_VALUE);
+        }
+        catch (InterruptedException ex) {
+          break;
+        }
+      }
+    }
+
+  }
+
 }

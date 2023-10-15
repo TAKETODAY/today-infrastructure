@@ -244,6 +244,13 @@
       "description": "Override the Cloud Platform auto-detection."
     },
     {
+      "name": "spring.main.keep-alive",
+      "type": "java.lang.Boolean",
+      "sourceType": "cn.taketoday.framework.Application",
+      "description": "Whether to keep the application alive even if there are no more non-daemon threads.",
+      "defaultValue": false
+    },
+    {
       "name": "app.main.lazy-initialization",
       "type": "java.lang.Boolean",
       "sourceType": "cn.taketoday.framework.Application",
