@@ -410,7 +410,7 @@ public abstract class ClassUtils {
     catch (ClassNotFoundException ex) {
       int lastDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR);
       int previousDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR, lastDotIndex - 1);
-      if (lastDotIndex != -1 && previousDotIndex != 1 && Character.isUpperCase(name.charAt(previousDotIndex + 1))) {
+      if (lastDotIndex != -1 && previousDotIndex != -1 && Character.isUpperCase(name.charAt(previousDotIndex + 1))) {
         String nestedClassName =
                 name.substring(0, lastDotIndex) + NESTED_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
         try {
