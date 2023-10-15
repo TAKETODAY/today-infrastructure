@@ -147,30 +147,37 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
-   * Name of the ApplicationEventMulticaster bean in the factory.
-   * If none is supplied, a default SimpleApplicationEventMulticaster is used.
+   * The name of the {@link LifecycleProcessor} bean in the context.
+   * If none is supplied, a {@link DefaultLifecycleProcessor} is used.
    *
-   * @see ApplicationEventMulticaster
-   * @see SimpleApplicationEventMulticaster
+   * @see cn.taketoday.context.LifecycleProcessor
+   * @see cn.taketoday.context.support.DefaultLifecycleProcessor
+   * @see #start()
+   * @see #stop()
    */
-  public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
+  public static final String LIFECYCLE_PROCESSOR_BEAN_NAME = "lifecycleProcessor";
 
   /**
-   * Name of the MessageSource bean in the factory.
+   * The name of the {@link MessageSource} bean in the context.
    * If none is supplied, message resolution is delegated to the parent.
    *
-   * @see MessageSource
+   * @see cn.taketoday.context.MessageSource
+   * @see cn.taketoday.context.support.ResourceBundleMessageSource
+   * @see cn.taketoday.context.support.ReloadableResourceBundleMessageSource
+   * @see #getMessage(MessageSourceResolvable, Locale)
    */
   public static final String MESSAGE_SOURCE_BEAN_NAME = "messageSource";
 
   /**
-   * Name of the LifecycleProcessor bean in the factory.
-   * If none is supplied, a DefaultLifecycleProcessor is used.
+   * The name of the {@link ApplicationEventMulticaster} bean in the context.
+   * If none is supplied, a {@link SimpleApplicationEventMulticaster} is used.
    *
-   * @see LifecycleProcessor
-   * @see DefaultLifecycleProcessor
+   * @see cn.taketoday.context.event.ApplicationEventMulticaster
+   * @see cn.taketoday.context.event.SimpleApplicationEventMulticaster
+   * @see #publishEvent(ApplicationEvent)
+   * @see #addApplicationListener(ApplicationListener)
    */
-  public static final String LIFECYCLE_PROCESSOR_BEAN_NAME = "lifecycleProcessor";
+  public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
   private long startupDate;
 
