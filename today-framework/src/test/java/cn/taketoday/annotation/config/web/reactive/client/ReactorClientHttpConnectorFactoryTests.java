@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +20,7 @@ package cn.taketoday.annotation.config.web.reactive.client;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import cn.taketoday.http.client.reactive.ReactorResourceFactory;
+import cn.taketoday.http.client.ReactorResourceFactory;
 
 /**
  * Tests for {@link ReactorClientHttpConnectorFactory}.

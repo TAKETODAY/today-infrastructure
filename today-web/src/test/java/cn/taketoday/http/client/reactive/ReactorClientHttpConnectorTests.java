@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
+import cn.taketoday.http.client.ReactorResourceFactory;
 import reactor.netty.http.client.HttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;

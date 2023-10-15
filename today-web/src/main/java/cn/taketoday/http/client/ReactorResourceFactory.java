@@ -15,7 +15,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.http.client.reactive;
+package cn.taketoday.http.client;
 
 import java.time.Duration;
 import java.util.function.Consumer;

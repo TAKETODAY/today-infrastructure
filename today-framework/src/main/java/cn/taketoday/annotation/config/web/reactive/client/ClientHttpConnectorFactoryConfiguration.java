@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.http.client.reactive.JettyResourceFactory;
-import cn.taketoday.http.client.reactive.ReactorResourceFactory;
+import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.stereotype.Component;
 
 /**

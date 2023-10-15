@@ -37,7 +37,7 @@ import cn.taketoday.framework.web.embedded.undertow.UndertowBuilderCustomizer;
 import cn.taketoday.framework.web.embedded.undertow.UndertowReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.http.client.reactive.JettyResourceFactory;
-import cn.taketoday.http.client.reactive.ReactorResourceFactory;
+import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.stereotype.Component;
 import io.undertow.Undertow;
 import reactor.netty.http.server.HttpServer;

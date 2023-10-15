@@ -32,7 +32,7 @@ import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
-import cn.taketoday.http.client.reactive.ReactorResourceFactory;
+import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;

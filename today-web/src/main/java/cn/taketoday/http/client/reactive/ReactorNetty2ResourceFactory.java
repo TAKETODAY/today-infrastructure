@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import reactor.netty5.http.HttpResources;

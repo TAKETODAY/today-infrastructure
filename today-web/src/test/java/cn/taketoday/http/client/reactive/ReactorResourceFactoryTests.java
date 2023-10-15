@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.taketoday.http.client.ReactorResourceFactory;
 import reactor.netty.http.HttpResources;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;

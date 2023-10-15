@@ -24,7 +24,6 @@ import java.util.function.Function;
 
 import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.client.reactive.ReactorResourceFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
