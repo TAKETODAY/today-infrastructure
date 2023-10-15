@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import cn.taketoday.core.ssl.pem.PemSslStoreBundle;
  *
  * @author Scott Frederick
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PemSslStoreBundle
  * @since 4.0
  */
@@ -42,12 +40,25 @@ public class PemSslBundleProperties extends SslBundleProperties {
    */
   private final Store truststore = new Store();
 
+  /**
+   * Whether to verify that the private key matches the public key.
+   */
+  private boolean verifyKeys;
+
   public Store getKeystore() {
     return this.keystore;
   }
 
   public Store getTruststore() {
     return this.truststore;
+  }
+
+  public boolean isVerifyKeys() {
+    return this.verifyKeys;
+  }
+
+  public void setVerifyKeys(boolean verifyKeys) {
+    this.verifyKeys = verifyKeys;
   }
 
   /**
@@ -58,22 +69,22 @@ public class PemSslBundleProperties extends SslBundleProperties {
     /**
      * Type of the store to create, e.g. JKS.
      */
-    String type;
+    private String type;
 
     /**
      * Location or content of the certificate in PEM format.
      */
-    String certificate;
+    private String certificate;
 
     /**
      * Location or content of the private key in PEM format.
      */
-    String privateKey;
+    private String privateKey;
 
     /**
      * Password used to decrypt an encrypted private key.
      */
-    String privateKeyPassword;
+    private String privateKeyPassword;
 
     public String getType() {
       return this.type;

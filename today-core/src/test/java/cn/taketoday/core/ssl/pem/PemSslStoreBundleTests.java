@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import java.util.function.Consumer;
 import cn.taketoday.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link PemSslStoreBundle}.
@@ -37,9 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PemSslStoreBundleTests {
 
+  private static final char[] EMPTY_KEY_PASSWORD = new char[] {};
+
   @Test
   void whenNullStores() {
-    PemSslStoreBundle bundle = new PemSslStoreBundle(null, null);
+    PemSslStoreDetails keyStoreDetails = null;
+    PemSslStoreDetails trustStoreDetails = null;
+    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).isNull();
     assertThat(bundle.getKeyStorePassword()).isNull();
     assertThat(bundle.getTrustStore()).isNull();
@@ -59,6 +61,17 @@ class PemSslStoreBundleTests {
   void whenHasKeyStoreDetailsCertAndKey() {
     PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
             .withPrivateKey("classpath:ssl/test-key.pem");
+    PemSslStoreDetails trustStoreDetails = null;
+    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
+    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
+    assertThat(bundle.getTrustStore()).isNull();
+  }
+
+  @Test
+  void whenHasKeyStoreDetailsCertAndEncryptedKey() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
+            .withPrivateKey("classpath:ssl/pkcs8/key-rsa-encrypted.pem")
+            .withPrivateKeyPassword("test");
     PemSslStoreDetails trustStoreDetails = null;
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
@@ -108,6 +121,46 @@ class PemSslStoreBundleTests {
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("PKCS12", "ssl"));
   }
 
+  @Test
+  void whenHasKeyStoreDetailsAndTrustStoreDetailsAndKeyPassword() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
+            .withPrivateKey("classpath:ssl/test-key.pem");
+    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
+            .withPrivateKey("classpath:ssl/test-key.pem");
+    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails, "test-alias", "keysecret");
+    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
+    assertThat(bundle.getTrustStore())
+            .satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
+  }
+
+  @Test
+  void shouldVerifyKeysIfEnabled() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails
+            .forCertificate("classpath:cn/taketoday/core/ssl/pem/key1.crt")
+            .withPrivateKey("classpath:cn/taketoday/core/ssl/pem/key1.pem");
+    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, null, "test-alias", "keysecret", true);
+    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
+  }
+
+  @Test
+  void shouldVerifyKeysIfEnabledAndCertificateChainIsUsed() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails
+            .forCertificate("classpath:cn/taketoday/core/ssl/pem/key2-chain.crt")
+            .withPrivateKey("classpath:cn/taketoday/core/ssl/pem/key2.pem");
+    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, null, "test-alias", "keysecret", true);
+    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
+  }
+
+  @Test
+  void shouldFailIfVerifyKeysIsEnabledAndKeysDontMatch() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails
+            .forCertificate("classpath:cn/taketoday/core/ssl/pem/key2.crt")
+            .withPrivateKey("classpath:cn/taketoday/core/ssl/pem/key1.pem");
+    assertThatIllegalStateException()
+            .isThrownBy(() -> new PemSslStoreBundle(keyStoreDetails, null, null, null, true))
+            .withMessageContaining("Private key matches none of the certificates");
+  }
+
   private Consumer<KeyStore> storeContainingCert(String keyAlias) {
     return storeContainingCert(KeyStore.getDefaultType(), keyAlias);
   }
@@ -118,7 +171,7 @@ class PemSslStoreBundleTests {
       assertThat(keyStore.getType()).isEqualTo(keyStoreType);
       assertThat(keyStore.containsAlias(keyAlias)).isTrue();
       assertThat(keyStore.getCertificate(keyAlias)).isNotNull();
-      assertThat(keyStore.getKey(keyAlias, new char[] {})).isNull();
+      assertThat(keyStore.getKey(keyAlias, EMPTY_KEY_PASSWORD)).isNull();
     });
   }
 
@@ -127,12 +180,20 @@ class PemSslStoreBundleTests {
   }
 
   private Consumer<KeyStore> storeContainingCertAndKey(String keyStoreType, String keyAlias) {
+    return storeContainingCertAndKey(keyStoreType, keyAlias, EMPTY_KEY_PASSWORD);
+  }
+
+  private Consumer<KeyStore> storeContainingCertAndKey(String keyAlias, char[] keyPassword) {
+    return storeContainingCertAndKey(KeyStore.getDefaultType(), keyAlias, keyPassword);
+  }
+
+  private Consumer<KeyStore> storeContainingCertAndKey(String keyStoreType, String keyAlias, char[] keyPassword) {
     return ThrowingConsumer.of((keyStore) -> {
       assertThat(keyStore).isNotNull();
       assertThat(keyStore.getType()).isEqualTo(keyStoreType);
       assertThat(keyStore.containsAlias(keyAlias)).isTrue();
       assertThat(keyStore.getCertificate(keyAlias)).isNotNull();
-      assertThat(keyStore.getKey(keyAlias, new char[] {})).isNotNull();
+      assertThat(keyStore.getKey(keyAlias, keyPassword)).isNotNull();
     });
   }
 
