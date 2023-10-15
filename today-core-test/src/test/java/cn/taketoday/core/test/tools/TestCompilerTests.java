@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -92,6 +90,21 @@ class TestCompilerTests {
           }
           """;
 
+  private static final String HELLO_DEPRECATED = """
+          package com.example;
+
+          import java.util.function.Supplier;
+
+          public class Hello implements Supplier<String> {
+
+          	@Deprecated
+          	public String get() {
+          		return "Hello Deprecated";
+          	}
+
+          }
+          """;
+
   @Test
   @SuppressWarnings("unchecked")
   void compileWhenHasDifferentClassesWithSameClassNameCompilesBoth() {
@@ -121,6 +134,73 @@ class TestCompilerTests {
             () -> TestCompiler.forSystem().withSources(
                     SourceFile.of(HELLO_BAD)).compile(compiled -> {
             }));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void compileWhenSourceUseDeprecateCodeAndNoOptionSet() {
+    SourceFile main = SourceFile.of("""
+            package com.example;
+
+            public class Main {
+
+            	public static void main(String[] args) {
+            		new Hello().get();
+            	}
+
+            }
+            """);
+    TestCompiler.forSystem().withSources(
+            SourceFile.of(HELLO_DEPRECATED), main).compile(compiled -> {
+      Supplier<String> supplier = compiled.getInstance(Supplier.class,
+              "com.example.Hello");
+      assertThat(supplier.get()).isEqualTo("Hello Deprecated");
+    });
+  }
+
+  @Test
+  void compileWhenSourceUseDeprecateCodeAndFailOnWarningIsSet() {
+    SourceFile main = SourceFile.of("""
+            package com.example;
+
+            public class Main {
+
+            	public static void main(String[] args) {
+            		new Hello().get();
+            	}
+
+            }
+            """);
+    assertThatExceptionOfType(CompilationException.class)
+            .isThrownBy(() -> TestCompiler.forSystem().failOnWarning().withLocale(Locale.ENGLISH)
+                    .withSources(SourceFile.of(HELLO_DEPRECATED), main)
+                    .compile(compiled -> {
+
+                    }))
+//            .withMessageContaining("warnings found and -Werror specified");
+            .withMessageContaining("-Werror");
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void compileWhenSourceUseDeprecateCodeAndFailOnWarningWithSuppressWarnings() {
+    SourceFile main = SourceFile.of("""
+            package com.example;
+
+            public class Main {
+
+            	@SuppressWarnings("deprecation")
+            	public static void main(String[] args) {
+            		new Hello().get();
+            	}
+
+            }
+            """);
+    TestCompiler.forSystem().failOnWarning().withSources(
+            SourceFile.of(HELLO_DEPRECATED), main).compile(compiled -> {
+      Supplier<String> supplier = compiled.getInstance(Supplier.class, "com.example.Hello");
+      assertThat(supplier.get()).isEqualTo("Hello Deprecated");
+    });
   }
 
   @Test
