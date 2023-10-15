@@ -1,16 +1,10 @@
 plugins {
-  id 'io.freefair.aspectj' version '8.2.2'
+  id 'io.freefair.aspectj' version '8.4'
 }
 
 description = "Infra Aspects"
 
 apply plugin: "io.freefair.aspectj"
-
-sourceSets.main.aspectj.srcDir "src/main/java"
-sourceSets.main.java.srcDirs = files()
-
-sourceSets.test.aspectj.srcDir "src/test/java"
-sourceSets.test.java.srcDirs = files()
 
 compileAspectj {
   sourceCompatibility "17"
