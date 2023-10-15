@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.web.handler.function;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +29,7 @@ import java.util.function.Consumer;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
@@ -125,15 +124,30 @@ class RouterFunctionBuilderTests {
   }
 
   @Test
+  public void resourcesCaching() {
+    Resource resource = new ClassPathResource("/cn/taketoday/web/handler/function/");
+    assertThat(resource.exists()).isTrue();
+
+    RouterFunction<ServerResponse> route = RouterFunctions.route()
+            .resources("/resources/**", resource, (r, headers) -> headers.setCacheControl(CacheControl.maxAge(Duration.ofSeconds(60))))
+            .build();
+
+    ServerRequest resourceRequest = initRequest("GET", "/resources/response.txt");
+
+    Optional<String> responseCacheControl = route.route(resourceRequest)
+            .map(handlerFunction -> handle(handlerFunction, resourceRequest))
+            .map(response -> response.headers().getCacheControl());
+    assertThat(responseCacheControl).contains("max-age=60");
+  }
+
+  @Test
   void nest() {
     RouterFunction<ServerResponse> route = RouterFunctions.route()
             .path("/foo", builder ->
                     builder.path("/bar",
                             () -> RouterFunctions.route()
                                     .GET("/baz", request -> ServerResponse.ok().build())
-                                    .build()
-                    )
-            )
+                                    .build()))
             .build();
 
     ServerRequest fooRequest = initRequest("GET", "/foo/bar/baz");

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,6 +29,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -85,10 +84,10 @@ public abstract class RouterFunctions {
    * Route to the given handler function if the given request predicate applies.
    * <p>For instance, the following example routes GET requests for "/user" to the
    * {@code listUsers} method in {@code userController}:
-   * <pre class="code">
-   * RouterFunction&lt;ServerResponse&gt; route =
+   * <pre>{@code
+   * RouterFunction<ServerResponse> route =
    *     RouterFunctions.route(RequestPredicates.GET("/user"), userController::listUsers);
-   * </pre>
+   * }</pre>
    *
    * @param predicate the predicate to test
    * @param handlerFunction the handler function to route to if the predicate applies
@@ -111,13 +110,13 @@ public abstract class RouterFunctions {
    * {@code listUsers} for a GET, and {@code createUser} for a POST. This composed route then gets
    * nested with a "/user" path predicate, so that GET requests for "/user" will list users,
    * and POST request for "/user" will create a new user.
-   * <pre class="code">
-   * RouterFunction&lt;ServerResponse&gt; userRoutes =
+   * <pre>{@code
+   * RouterFunction<ServerResponse> userRoutes =
    *   RouterFunctions.route(RequestPredicates.method(HttpMethod.GET), this::listUsers)
    *     .andRoute(RequestPredicates.method(HttpMethod.POST), this::createUser);
-   * RouterFunction&lt;ServerResponse&gt; nestedRoute =
+   * RouterFunction<ServerResponse> nestedRoute =
    *   RouterFunctions.nest(RequestPredicates.path("/user"), userRoutes);
-   * </pre>
+   * }</pre>
    *
    * @param predicate the predicate to test
    * @param routerFunction the nested router function to delegate to if the predicate applies
@@ -135,10 +134,10 @@ public abstract class RouterFunctions {
   /**
    * Route requests that match the given pattern to resources relative to the given root location.
    * For instance
-   * <pre class="code">
+   * <pre>{@code
    * Resource location = new FileSystemResource("public-resources/");
-   * RouterFunction&lt;ServerResponse&gt; resources = RouterFunctions.resources("/resources/**", location);
-   * </pre>
+   * RouterFunction<ServerResponse> resources = RouterFunctions.resources("/resources/**", location);
+   * }</pre>
    *
    * @param pattern the pattern to match
    * @param location the location directory relative to which resources should be resolved
@@ -146,20 +145,39 @@ public abstract class RouterFunctions {
    * @see #resourceLookupFunction(String, Resource)
    */
   public static RouterFunction<ServerResponse> resources(String pattern, Resource location) {
-    return resources(resourceLookupFunction(pattern, location));
+    return resources(resourceLookupFunction(pattern, location), (resource, httpHeaders) -> { });
+  }
+
+  /**
+   * Route requests that match the given pattern to resources relative to the given root location.
+   * For instance
+   * <pre>{@code
+   * Resource location = new FileSystemResource("public-resources/");
+   * RouterFunction<ServerResponse> resources = RouterFunctions.resources("/resources/**", location);
+   * }</pre>
+   *
+   * @param pattern the pattern to match
+   * @param location the location directory relative to which resources should be resolved
+   * @param headersConsumer provides access to the HTTP headers for served resources
+   * @return a router function that routes to resources
+   * @see #resourceLookupFunction(String, Resource)
+   */
+  public static RouterFunction<ServerResponse> resources(String pattern, Resource location,
+          BiConsumer<Resource, HttpHeaders> headersConsumer) {
+    return resources(resourceLookupFunction(pattern, location), headersConsumer);
   }
 
   /**
    * Returns the resource lookup function used by {@link #resources(String, Resource)}.
    * The returned function can be {@linkplain Function#andThen(Function) composed} on, for
    * instance to return a default resource when the lookup function does not match:
-   * <pre class="code">
-   * Optional&lt;Resource&gt; defaultResource = Optional.of(new ClassPathResource("index.html"));
-   * Function&lt;ServerRequest, Optional&lt;Resource&gt;&gt; lookupFunction =
+   * <pre>{@code
+   * Optional<Resource> defaultResource = Optional.of(new ClassPathResource("index.html"));
+   * Function<ServerRequest, Optional<Resource>> lookupFunction =
    *   RouterFunctions.resourceLookupFunction("/resources/**", new FileSystemResource("public-resources/"))
-   *     .andThen(resource -&gt; resource.or(() -&gt; defaultResource));
-   * RouterFunction&lt;ServerResponse&gt; resources = RouterFunctions.resources(lookupFunction);
-   * </pre>
+   *     .andThen(resource -> resource.or(() -> defaultResource));
+   * RouterFunction<ServerResponse> resources = RouterFunctions.resources(lookupFunction);
+   * }</pre>
    *
    * @param pattern the pattern to match
    * @param location the location directory relative to which resources should be resolved
@@ -178,7 +196,21 @@ public abstract class RouterFunctions {
    * @return a router function that routes to resources
    */
   public static RouterFunction<ServerResponse> resources(Function<ServerRequest, Optional<Resource>> lookupFunction) {
-    return new ResourcesRouterFunction(lookupFunction);
+    return new ResourcesRouterFunction(lookupFunction, (resource, httpHeaders) -> { });
+  }
+
+  /**
+   * Route to resources using the provided lookup function. If the lookup function provides a
+   * {@link Resource} for the given request, it will be it will be exposed using a
+   * {@link HandlerFunction} that handles GET, HEAD, and OPTIONS requests.
+   *
+   * @param lookupFunction the function to provide a {@link Resource} given the {@link ServerRequest}
+   * @param headersConsumer provides access to the HTTP headers for served resources
+   * @return a router function that routes to resources
+   */
+  public static RouterFunction<ServerResponse> resources(
+          Function<ServerRequest, Optional<Resource>> lookupFunction, BiConsumer<Resource, HttpHeaders> headersConsumer) {
+    return new ResourcesRouterFunction(lookupFunction, headersConsumer);
   }
 
   /**
@@ -244,12 +276,12 @@ public abstract class RouterFunctions {
      * that match the given pattern and predicate.
      * <p>For instance, the following example routes GET requests for "/user" that accept JSON
      * to the {@code listUsers} method in {@code userController}:
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; route =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> route =
      *   RouterFunctions.route()
      *     .GET("/user", RequestPredicates.accept(MediaType.APPLICATION_JSON), userController::listUsers)
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param pattern the pattern to match to
      * @param predicate additional predicate to match
@@ -339,12 +371,12 @@ public abstract class RouterFunctions {
      * that match the given pattern and predicate.
      * <p>For instance, the following example routes POST requests for "/user" that contain JSON
      * to the {@code addUser} method in {@code userController}:
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; route =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> route =
      *   RouterFunctions.route()
      *     .POST("/user", RequestPredicates.contentType(MediaType.APPLICATION_JSON), userController::addUser)
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param pattern the pattern to match to
      * @param predicate additional predicate to match
@@ -390,12 +422,12 @@ public abstract class RouterFunctions {
      * that match the given pattern and predicate.
      * <p>For instance, the following example routes PUT requests for "/user" that contain JSON
      * to the {@code editUser} method in {@code userController}:
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; route =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> route =
      *   RouterFunctions.route()
      *     .PUT("/user", RequestPredicates.contentType(MediaType.APPLICATION_JSON), userController::editUser)
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param pattern the pattern to match to
      * @param predicate additional predicate to match
@@ -441,12 +473,12 @@ public abstract class RouterFunctions {
      * that match the given pattern and predicate.
      * <p>For instance, the following example routes PATCH requests for "/user" that contain JSON
      * to the {@code editUser} method in {@code userController}:
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; route =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> route =
      *   RouterFunctions.route()
      *     .PATCH("/user", RequestPredicates.contentType(MediaType.APPLICATION_JSON), userController::editUser)
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param pattern the pattern to match to
      * @param predicate additional predicate to match
@@ -561,13 +593,13 @@ public abstract class RouterFunctions {
      * <p>For instance, the following example adds the router function returned from
      * {@code OrderController.routerFunction()}.
      * to the {@code changeUser} method in {@code userController}:
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; route =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> route =
      *   RouterFunctions.route()
      *     .GET("/users", userController::listUsers)
      *     .add(orderController.routerFunction());
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param routerFunction the router function to be added
      * @return this builder
@@ -578,16 +610,31 @@ public abstract class RouterFunctions {
     /**
      * Route requests that match the given pattern to resources relative to the given root location.
      * For instance
-     * <pre class="code">
+     * <pre>{@code
      * Resource location = new FileSystemResource("public-resources/");
-     * RouterFunction&lt;ServerResponse&gt; resources = RouterFunctions.resources("/resources/**", location);
-     * </pre>
+     * RouterFunction<ServerResponse> resources = RouterFunctions.resources("/resources/**", location);
+     * }</pre>
      *
      * @param pattern the pattern to match
      * @param location the location directory relative to which resources should be resolved
      * @return this builder
      */
     Builder resources(String pattern, Resource location);
+
+    /**
+     * Route requests that match the given pattern to resources relative to the given root location.
+     * For instance
+     * <pre>{@code
+     * Resource location = new FileSystemResource("public-resources/");
+     * RouterFunction<ServerResponse> resources = RouterFunctions.resources("/resources/**", location);
+     * }</pre>
+     *
+     * @param pattern the pattern to match
+     * @param location the location directory relative to which resources should be resolved
+     * @param headersConsumer provides access to the HTTP headers for served resources
+     * @return this builder
+     */
+    Builder resources(String pattern, Resource location, BiConsumer<Resource, HttpHeaders> headersConsumer);
 
     /**
      * Route to resources using the provided lookup function. If the lookup function provides a
@@ -600,22 +647,33 @@ public abstract class RouterFunctions {
     Builder resources(Function<ServerRequest, Optional<Resource>> lookupFunction);
 
     /**
+     * Route to resources using the provided lookup function. If the lookup function provides a
+     * {@link Resource} for the given request, it will be it will be exposed using a
+     * {@link HandlerFunction} that handles GET, HEAD, and OPTIONS requests.
+     *
+     * @param lookupFunction the function to provide a {@link Resource} given the {@link ServerRequest}
+     * @param headersConsumer provides access to the HTTP headers for served resources
+     * @return this builder
+     */
+    Builder resources(Function<ServerRequest, Optional<Resource>> lookupFunction, BiConsumer<Resource, HttpHeaders> headersConsumer);
+
+    /**
      * Route to the supplied router function if the given request predicate applies. This method
      * can be used to create <strong>nested routes</strong>, where a group of routes share a
      * common path (prefix), header, or other request predicate.
      * <p>For instance, the following example creates a nested route with a "/user" path
      * predicate, so that GET requests for "/user" will list users,
      * and POST request for "/user" will create a new user.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; nestedRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> nestedRoute =
      *   RouterFunctions.route()
-     *     .nest(RequestPredicates.path("/user"), () -&gt;
+     *     .nest(RequestPredicates.path("/user"), () ->
      *       RouterFunctions.route()
      *         .GET(this::listUsers)
      *         .POST(this::createUser)
      *         .build())
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param predicate the predicate to test
      * @param routerFunctionSupplier supplier for the nested router function to delegate to if
@@ -632,14 +690,14 @@ public abstract class RouterFunctions {
      * <p>For instance, the following example creates a nested route with a "/user" path
      * predicate, so that GET requests for "/user" will list users,
      * and POST request for "/user" will create a new user.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; nestedRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> nestedRoute =
      *   RouterFunctions.route()
-     *     .nest(RequestPredicates.path("/user"), builder -&gt;
+     *     .nest(RequestPredicates.path("/user"), builder ->
      *       builder.GET(this::listUsers)
      *              .POST(this::createUser))
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param predicate the predicate to test
      * @param builderConsumer consumer for a {@code Builder} that provides the nested router
@@ -657,13 +715,13 @@ public abstract class RouterFunctions {
      * <p>For instance, the following example creates a nested route with a "/user" path
      * predicate that delegates to the router function defined in {@code userController},
      * and with a "/order" path that delegates to {@code orderController}.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; nestedRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> nestedRoute =
      *   RouterFunctions.route()
      *     .path("/user", userController::routerFunction)
      *     .path("/order", orderController::routerFunction)
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param pattern the pattern to match to
      * @param routerFunctionSupplier supplier for the nested router function to delegate to if
@@ -679,14 +737,14 @@ public abstract class RouterFunctions {
      * <p>For instance, the following example creates a nested route with a "/user" path
      * predicate, so that GET requests for "/user" will list users,
      * and POST request for "/user" will create a new user.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; nestedRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> nestedRoute =
      *   RouterFunctions.route()
-     *     .path("/user", builder -&gt;
+     *     .path("/user", builder ->
      *       builder.GET(this::listUsers)
      *              .POST(this::createUser))
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param pattern the pattern to match to
      * @param builderConsumer consumer for a {@code Builder} that provides the nested router
@@ -701,11 +759,11 @@ public abstract class RouterFunctions {
      * security, etc.
      * <p>For instance, the following example creates a filter that returns a 401 Unauthorized
      * response if the request does not contain the necessary authentication headers.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; filteredRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> filteredRoute =
      *   RouterFunctions.route()
      *     .GET("/user", this::listUsers)
-     *     .filter((request, next) -&gt; {
+     *     .filter((request, next) -> {
      *       // check for authentication headers
      *       if (isAuthenticated(request)) {
      *         return next.handle(request);
@@ -715,7 +773,7 @@ public abstract class RouterFunctions {
      *       }
      *     })
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param filterFunction the function to filter all routes built by this builder
      * @return this builder
@@ -728,16 +786,16 @@ public abstract class RouterFunctions {
      * as logging, security, etc.
      * <p>For instance, the following example creates a filter that logs the request before
      * the handler function executes.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; filteredRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> filteredRoute =
      *   RouterFunctions.route()
      *     .GET("/user", this::listUsers)
-     *     .before(request -&gt; {
+     *     .before(request -> {
      *       log(request);
      *       return request;
      *     })
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param requestProcessor a function that transforms the request
      * @return this builder
@@ -750,16 +808,16 @@ public abstract class RouterFunctions {
      * as logging, security, etc.
      * <p>For instance, the following example creates a filter that logs the response after
      * the handler function executes.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; filteredRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> filteredRoute =
      *   RouterFunctions.route()
      *     .GET("/user", this::listUsers)
-     *     .after((request, response) -&gt; {
+     *     .after((request, response) -> {
      *       log(response);
      *       return response;
      *     })
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param responseProcessor a function that transforms the response
      * @return this builder
@@ -771,14 +829,14 @@ public abstract class RouterFunctions {
      * function.
      * <p>For instance, the following example creates a filter that returns a 500 response
      * status when an {@code IllegalStateException} occurs.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; filteredRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> filteredRoute =
      *   RouterFunctions.route()
      *     .GET("/user", this::listUsers)
-     *     .onError(e -&gt; e instanceof IllegalStateException,
-     *       (e, request) -&gt; ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
+     *     .onError(e -> e instanceof IllegalStateException,
+     *       (e, request) -> ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param predicate the type of exception to filter
      * @param responseProvider a function that creates a response
@@ -792,14 +850,14 @@ public abstract class RouterFunctions {
      * function.
      * <p>For instance, the following example creates a filter that returns a 500 response
      * status when an {@code IllegalStateException} occurs.
-     * <pre class="code">
-     * RouterFunction&lt;ServerResponse&gt; filteredRoute =
+     * <pre>{@code
+     * RouterFunction<ServerResponse> filteredRoute =
      *   RouterFunctions.route()
      *     .GET("/user", this::listUsers)
      *     .onError(IllegalStateException.class,
-     *       (e, request) -&gt; ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
+     *       (e, request) -> ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
      *     .build();
-     * </pre>
+     * }</pre>
      *
      * @param exceptionType the type of exception to filter
      * @param responseProvider a function that creates a response
@@ -1086,14 +1144,20 @@ public abstract class RouterFunctions {
 
     private final Function<ServerRequest, Optional<Resource>> lookupFunction;
 
-    public ResourcesRouterFunction(Function<ServerRequest, Optional<Resource>> lookupFunction) {
+    private final BiConsumer<Resource, HttpHeaders> headersConsumer;
+
+    public ResourcesRouterFunction(Function<ServerRequest, Optional<Resource>> lookupFunction,
+            BiConsumer<Resource, HttpHeaders> headersConsumer) {
       Assert.notNull(lookupFunction, "Function is required");
+      Assert.notNull(headersConsumer, "HeadersConsumer is required");
       this.lookupFunction = lookupFunction;
+      this.headersConsumer = headersConsumer;
     }
 
     @Override
     public Optional<HandlerFunction<ServerResponse>> route(ServerRequest request) {
-      return lookupFunction.apply(request).map(ResourceHandlerFunction::new);
+      return lookupFunction.apply(request)
+              .map(resource -> new ResourceHandlerFunction(resource, headersConsumer));
     }
 
     @Override

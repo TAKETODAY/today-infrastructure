@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -32,6 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Assert;
 
@@ -242,8 +241,22 @@ class RouterFunctionBuilder implements RouterFunctions.Builder {
   }
 
   @Override
+  public RouterFunctions.Builder resources(String pattern, Resource location,
+          BiConsumer<Resource, HttpHeaders> headersConsumer) {
+
+    return add(RouterFunctions.resources(pattern, location, headersConsumer));
+  }
+
+  @Override
   public RouterFunctions.Builder resources(Function<ServerRequest, Optional<Resource>> lookupFunction) {
     return add(RouterFunctions.resources(lookupFunction));
+  }
+
+  @Override
+  public RouterFunctions.Builder resources(Function<ServerRequest, Optional<Resource>> lookupFunction,
+          BiConsumer<Resource, HttpHeaders> headersConsumer) {
+
+    return add(RouterFunctions.resources(lookupFunction, headersConsumer));
   }
 
   @Override
