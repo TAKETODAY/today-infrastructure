@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,15 +118,12 @@ final class AnnotationTypeMapping {
    * for an explanation of what is considered synthesizable.
    *
    * <p> {@code true} if the mapped annotation is synthesizable
-   *
-   * @since 4.0
    */
   public final boolean synthesizable;
 
   private final Set<Method> claimedAliases = new HashSet<>();
 
-  AnnotationTypeMapping(
-          @Nullable AnnotationTypeMapping source, Class<? extends Annotation> annotationType,
+  AnnotationTypeMapping(@Nullable AnnotationTypeMapping source, Class<? extends Annotation> annotationType,
           @Nullable Annotation annotation, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
 
     this.source = source;
@@ -389,10 +383,12 @@ final class AnnotationTypeMapping {
           // Ensure we have not yet visited the current nested annotation type, in order
           // to avoid infinite recursion for JVM languages other than Java that support
           // recursive annotation definitions.
-          if (visitedAnnotationTypes.add(annotationType)) {
-            var mapping = AnnotationTypeMappings.forAnnotationType(annotationType, visitedAnnotationTypes).get(0);
-            if (mapping.synthesizable) {
-              return true;
+          if (annotationType != this.annotationType) {
+            if (visitedAnnotationTypes.add(annotationType)) {
+              var mapping = AnnotationTypeMappings.forAnnotationType(annotationType, visitedAnnotationTypes).get(0);
+              if (mapping.synthesizable) {
+                return true;
+              }
             }
           }
         }
