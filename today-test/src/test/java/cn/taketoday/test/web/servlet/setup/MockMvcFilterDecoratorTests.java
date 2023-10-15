@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +20,13 @@ package cn.taketoday.test.web.servlet.setup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
+
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.MockFilterConfig;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -37,9 +37,10 @@ import jakarta.servlet.ServletResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/10/15 17:49
  */
-public class ConditionalDelegatingFilterProxyTests {
+class MockMvcFilterDecoratorTests {
 
   private MockHttpServletRequest request;
 
@@ -49,7 +50,7 @@ public class ConditionalDelegatingFilterProxyTests {
 
   private MockFilter delegate;
 
-  private PatternMappingFilterProxy filter;
+  private MockMvcFilterDecorator filter;
 
   @BeforeEach
   public void setup() {
@@ -63,14 +64,14 @@ public class ConditionalDelegatingFilterProxyTests {
   @Test
   public void init() throws Exception {
     FilterConfig config = new MockFilterConfig();
-    filter = new PatternMappingFilterProxy(delegate, "/");
+    filter = new MockMvcFilterDecorator(delegate, null, null, "/");
     filter.init(config);
     assertThat(delegate.filterConfig).isEqualTo(config);
   }
 
   @Test
-  public void destroy() throws Exception {
-    filter = new PatternMappingFilterProxy(delegate, "/");
+  public void destroy() {
+    filter = new MockMvcFilterDecorator(delegate, null, null, "/");
     filter.destroy();
     assertThat(delegate.destroy).isTrue();
   }
@@ -143,6 +144,11 @@ public class ConditionalDelegatingFilterProxyTests {
   @Test
   public void noMatchPathMappingMissingSlash() throws Exception {
     assertFilterNotInvoked("/test2", "/test/*");
+  }
+
+  @Test
+  public void noMatchDispatcherType() throws Exception {
+    assertFilterNotInvoked(DispatcherType.FORWARD, DispatcherType.REQUEST, "/test", "/test");
   }
 
   @Test
@@ -230,8 +236,16 @@ public class ConditionalDelegatingFilterProxyTests {
   }
 
   private void assertFilterNotInvoked(String requestUri, String pattern) throws Exception {
+    assertFilterNotInvoked(DispatcherType.REQUEST, DispatcherType.REQUEST, requestUri, pattern);
+  }
+
+  private void assertFilterNotInvoked(
+          DispatcherType requestDispatcherType, DispatcherType filterDispatcherType,
+          String requestUri, String pattern) throws Exception {
+
+    request.setDispatcherType(requestDispatcherType);
     request.setRequestURI(request.getContextPath() + requestUri);
-    filter = new PatternMappingFilterProxy(delegate, pattern);
+    filter = new MockMvcFilterDecorator(delegate, null, EnumSet.of(filterDispatcherType), pattern);
     filter.doFilter(request, response, filterChain);
 
     assertThat(delegate.request).isNull();
@@ -245,7 +259,7 @@ public class ConditionalDelegatingFilterProxyTests {
 
   private void assertFilterInvoked(String requestUri, String pattern) throws Exception {
     request.setRequestURI(request.getContextPath() + requestUri);
-    filter = new PatternMappingFilterProxy(delegate, pattern);
+    filter = new MockMvcFilterDecorator(delegate, null, null, pattern);
     filter.doFilter(request, response, filterChain);
 
     assertThat(delegate.request).isEqualTo(request);

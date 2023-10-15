@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +19,19 @@ package cn.taketoday.test.web.servlet.setup;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.MockFilterConfig;
 import cn.taketoday.web.servlet.UrlPathHelper;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -40,15 +43,24 @@ import jakarta.servlet.http.HttpServletRequest;
  * Servlet spec.
  *
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class PatternMappingFilterProxy implements Filter {
+final class MockMvcFilterDecorator implements Filter {
 
   private static final String EXTENSION_MAPPING_PATTERN = "*.";
 
   private static final String PATH_MAPPING_PATTERN = "/*";
 
   private final Filter delegate;
+
+  @Nullable
+  private final Map<String, String> initParams;
+
+  @Nullable
+  private final EnumSet<DispatcherType> dispatcherTypes;
+
+  private final boolean hasPatterns;
 
   /** Patterns that require an exact match, e.g. "/test" */
   private final List<String> exactMatches = new ArrayList<>();
@@ -60,11 +72,27 @@ final class PatternMappingFilterProxy implements Filter {
   private final List<String> endsWithMatches = new ArrayList<>();
 
   /**
-   * Creates a new instance.
+   * Create instance with URL patterns only.
+   * <p>Note: when this constructor is used, the Filter is not initialized.
    */
-  public PatternMappingFilterProxy(Filter delegate, String... urlPatterns) {
-    Assert.notNull(delegate, "A delegate Filter is required");
+  public MockMvcFilterDecorator(Filter delegate, String[] urlPatterns) {
+    this(delegate, null, null, urlPatterns);
+  }
+
+  /**
+   * Create instance with init parameters to initialize the filter with,
+   * as well as dispatcher types and URL patterns to match.
+   */
+  public MockMvcFilterDecorator(
+          Filter delegate, @Nullable Map<String, String> initParams,
+          @Nullable EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
+
+    Assert.notNull(delegate, "filter cannot be null");
+    Assert.notNull(urlPatterns, "urlPatterns cannot be null");
     this.delegate = delegate;
+    this.initParams = initParams;
+    this.dispatcherTypes = dispatcherTypes;
+    this.hasPatterns = (urlPatterns.length != 0);
     for (String urlPattern : urlPatterns) {
       addUrlPattern(urlPattern);
     }
@@ -97,7 +125,7 @@ final class PatternMappingFilterProxy implements Filter {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String requestPath = UrlPathHelper.defaultInstance.getPathWithinApplication(httpRequest);
 
-    if (matches(requestPath)) {
+    if (matchDispatcherType(httpRequest.getDispatcherType()) && matchRequestPath(requestPath)) {
       this.delegate.doFilter(request, response, filterChain);
     }
     else {
@@ -105,7 +133,15 @@ final class PatternMappingFilterProxy implements Filter {
     }
   }
 
-  private boolean matches(String requestPath) {
+  private boolean matchDispatcherType(DispatcherType dispatcherType) {
+    return (this.dispatcherTypes == null ||
+            this.dispatcherTypes.stream().anyMatch(type -> type == dispatcherType));
+  }
+
+  private boolean matchRequestPath(String requestPath) {
+    if (!this.hasPatterns) {
+      return true;
+    }
     for (String pattern : this.exactMatches) {
       if (pattern.equals(requestPath)) {
         return true;
@@ -135,6 +171,14 @@ final class PatternMappingFilterProxy implements Filter {
   @Override
   public void destroy() {
     this.delegate.destroy();
+  }
+
+  public void initIfRequired(@Nullable ServletContext servletContext) throws ServletException {
+    if (this.initParams != null) {
+      MockFilterConfig filterConfig = new MockFilterConfig(servletContext);
+      this.initParams.forEach(filterConfig::addInitParameter);
+      this.delegate.init(filterConfig);
+    }
   }
 
 }

@@ -19,7 +19,9 @@ package cn.taketoday.test.web.servlet.setup;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -35,8 +37,10 @@ import cn.taketoday.test.web.servlet.request.ConfigurableSmartRequestBuilder;
 import cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders;
 import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
 import cn.taketoday.web.servlet.WebApplicationContext;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 
 /**
  * Abstract implementation of {@link MockMvcBuilder} with common methods for
@@ -51,6 +55,7 @@ import jakarta.servlet.ServletContext;
  * @author Rossen Stoyanchev
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>>
@@ -75,9 +80,9 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @Override
   public final <T extends B> T addFilters(Filter... filters) {
     Assert.notNull(filters, "filters cannot be null");
-    for (Filter f : filters) {
-      Assert.notNull(f, "filters cannot contain null values");
-      this.filters.add(f);
+    for (Filter filter : filters) {
+      Assert.notNull(filter, "filters cannot contain null values");
+      this.filters.add(filter);
     }
     return self();
   }
@@ -87,8 +92,18 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     Assert.notNull(filter, "filter cannot be null");
     Assert.notNull(urlPatterns, "urlPatterns cannot be null");
     if (urlPatterns.length > 0) {
-      filter = new PatternMappingFilterProxy(filter, urlPatterns);
+      filter = new MockMvcFilterDecorator(filter, urlPatterns);
     }
+    this.filters.add(filter);
+    return self();
+  }
+
+  @Override
+  public <T extends B> T addFilter(
+          Filter filter, Map<String, String> initParams,
+          EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
+
+    filter = new MockMvcFilterDecorator(filter, initParams, dispatcherTypes, urlPatterns);
     this.filters.add(filter);
     return self();
   }
@@ -103,6 +118,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
    * Define the default character encoding to be applied to every response.
    *
    * @param defaultResponseCharacterEncoding the default response character encoding
+   * @since 5.3.10
    */
   @Override
   public final <T extends B> T defaultResponseCharacterEncoding(Charset defaultResponseCharacterEncoding) {
@@ -163,6 +179,16 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     }
 
     Filter[] filterArray = this.filters.toArray(new Filter[0]);
+    for (Filter filter : filterArray) {
+      if (filter instanceof MockMvcFilterDecorator filterDecorator) {
+        try {
+          filterDecorator.initIfRequired(servletContext);
+        }
+        catch (ServletException ex) {
+          throw new RuntimeException("Failed to initialize Filter " + filter, ex);
+        }
+      }
+    }
 
     return super.createMockMvc(filterArray, mockServletConfig, wac, this.defaultRequestBuilder,
             this.defaultResponseCharacterEncoding, this.globalResultMatchers, this.globalResultHandlers,
