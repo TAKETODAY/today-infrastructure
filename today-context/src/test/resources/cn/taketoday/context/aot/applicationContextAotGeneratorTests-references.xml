@@ -16,21 +16,24 @@
   ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
   -->
 
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean id="employee" class="cn.taketoday.beans.testfixture.beans.Employee">
-		<property name="name" value="John Smith" />
-		<property name="age" value="42" />
-		<property name="company" value="Acme Widgets, Inc." />
+	<bean id="petInnerBean" class="cn.taketoday.beans.testfixture.beans.Pet">
+		<constructor-arg>
+			<bean class="java.lang.String">
+				<constructor-arg value="Fido"/>
+			</bean>
+		</constructor-arg>
 	</bean>
 
-	<bean id="petIndexed" class="cn.taketoday.beans.testfixture.beans.Pet">
-		<constructor-arg index="0" value="Fido" />
+	<bean id="petName" class="java.lang.String">
+		<constructor-arg value="Dofi"/>
 	</bean>
 
-	<bean id="petGeneric" class="cn.taketoday.beans.testfixture.beans.Pet">
-		<constructor-arg value="Dofi" />
+	<bean id="petRefBean" class="cn.taketoday.beans.testfixture.beans.Pet">
+		<constructor-arg ref="petName"/>
 	</bean>
 
 </beans>

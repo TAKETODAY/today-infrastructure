@@ -60,6 +60,7 @@ import cn.taketoday.beans.factory.config.ConstructorArgumentValues;
 import cn.taketoday.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -1003,6 +1004,9 @@ final class ConstructorResolver {
     for (ValueHolder valueHolder : mbd.getConstructorArgumentValues().getIndexedArgumentValues().values()) {
       parameterTypes.add(determineParameterValueType(mbd, valueHolder));
     }
+    for (ValueHolder valueHolder : mbd.getConstructorArgumentValues().getGenericArgumentValues()) {
+      parameterTypes.add(determineParameterValueType(mbd, valueHolder));
+    }
     return parameterTypes;
   }
 
@@ -1026,6 +1030,12 @@ final class ConstructorResolver {
           this.beanFactory.getMergedBeanDefinition(nameToUse, innerBd, mbd));
       return (FactoryBean.class.isAssignableFrom(type.toClass()) ?
               type.as(FactoryBean.class).getGeneric(0) : type);
+    }
+    if (value instanceof TypedStringValue typedValue) {
+      if (typedValue.hasTargetType()) {
+        return ResolvableType.forClass(typedValue.getTargetType());
+      }
+      return ResolvableType.forClass(String.class);
     }
     if (value instanceof Class<?> clazz) {
       return ResolvableType.forClassWithGenerics(Class.class, clazz);

@@ -460,8 +460,10 @@ class ApplicationContextAotGeneratorTests {
         assertThat(employee.getName()).isEqualTo("John Smith");
         assertThat(employee.getAge()).isEqualTo(42);
         assertThat(employee.getCompany()).isEqualTo("Acme Widgets, Inc.");
-        assertThat(freshApplicationContext.getBean("pet", Pet.class)
+        assertThat(freshApplicationContext.getBean("petIndexed", Pet.class)
                 .getName()).isEqualTo("Fido");
+        assertThat(freshApplicationContext.getBean("petGeneric", Pet.class)
+                .getName()).isEqualTo("Dofi");
       });
     }
 
@@ -494,6 +496,20 @@ class ApplicationContextAotGeneratorTests {
         assertThat(employee.getCompany()).isEqualTo("Acme Widgets, Inc.");
         assertThat(freshApplicationContext.getBean("pet", Pet.class)
                 .getName()).isEqualTo("Fido");
+      });
+    }
+
+    @Test
+    void processAheadOfTimeWhenXmlHasBeanReferences() {
+      GenericXmlApplicationContext applicationContext = new GenericXmlApplicationContext();
+      applicationContext
+              .load(new ClassPathResource("applicationContextAotGeneratorTests-references.xml", getClass()));
+      testCompiledResult(applicationContext, (initializer, compiled) -> {
+        GenericApplicationContext freshApplicationContext = toFreshApplicationContext(initializer);
+        assertThat(freshApplicationContext.getBean("petInnerBean", Pet.class)
+                .getName()).isEqualTo("Fido");
+        assertThat(freshApplicationContext.getBean("petRefBean", Pet.class)
+                .getName()).isEqualTo("Dofi");
       });
     }
 

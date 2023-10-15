@@ -418,7 +418,7 @@ class BeanInstanceSupplierTests {
   }
 
   @ParameterizedResolverTest(Sources.MIXED_ARGS)
-  void resolveArgumentsWithMixedArgsConstructorWithUserValue(Source source) {
+  void resolveArgumentsWithMixedArgsConstructorWithIndexedUserValue(Source source) {
     ResourceLoader resourceLoader = new DefaultResourceLoader();
     Environment environment = mock();
     this.beanFactory.registerResolvableDependency(ResourceLoader.class,
@@ -439,7 +439,28 @@ class BeanInstanceSupplierTests {
   }
 
   @ParameterizedResolverTest(Sources.MIXED_ARGS)
-  void resolveArgumentsWithMixedArgsConstructorWithUserBeanReference(Source source) {
+  void resolveArgumentsWithMixedArgsConstructorWithGenericUserValue(Source source) {
+    ResourceLoader resourceLoader = new DefaultResourceLoader();
+    Environment environment = mock();
+    this.beanFactory.registerResolvableDependency(ResourceLoader.class,
+            resourceLoader);
+    this.beanFactory.registerSingleton("environment", environment);
+    RegisteredBean registerBean = source.registerBean(this.beanFactory,
+            beanDefinition -> {
+              beanDefinition
+                      .setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+              beanDefinition.getConstructorArgumentValues()
+                      .addGenericArgumentValue("user-value");
+            });
+    AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
+    assertThat(arguments.toArray()).hasSize(3);
+    assertThat(arguments.getObject(0)).isEqualTo(resourceLoader);
+    assertThat(arguments.getObject(1)).isEqualTo("user-value");
+    assertThat(arguments.getObject(2)).isEqualTo(environment);
+  }
+
+  @ParameterizedResolverTest(Sources.MIXED_ARGS)
+  void resolveArgumentsWithMixedArgsConstructorAndIndexedUserBeanReference(Source source) {
     ResourceLoader resourceLoader = new DefaultResourceLoader();
     Environment environment = mock();
     this.beanFactory.registerResolvableDependency(ResourceLoader.class,
@@ -461,8 +482,31 @@ class BeanInstanceSupplierTests {
     assertThat(arguments.getObject(2)).isEqualTo(environment);
   }
 
+  @ParameterizedResolverTest(Sources.MIXED_ARGS)
+  void resolveArgumentsWithMixedArgsConstructorAndGenericUserBeanReference(Source source) {
+    ResourceLoader resourceLoader = new DefaultResourceLoader();
+    Environment environment = mock();
+    this.beanFactory.registerResolvableDependency(ResourceLoader.class,
+            resourceLoader);
+    this.beanFactory.registerSingleton("environment", environment);
+    this.beanFactory.registerSingleton("one", "1");
+    this.beanFactory.registerSingleton("two", "2");
+    RegisteredBean registerBean = source.registerBean(this.beanFactory,
+            beanDefinition -> {
+              beanDefinition
+                      .setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+              beanDefinition.getConstructorArgumentValues()
+                      .addGenericArgumentValue(new RuntimeBeanReference("two"));
+            });
+    AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
+    assertThat(arguments.toArray()).hasSize(3);
+    assertThat(arguments.getObject(0)).isEqualTo(resourceLoader);
+    assertThat(arguments.getObject(1)).isEqualTo("2");
+    assertThat(arguments.getObject(2)).isEqualTo(environment);
+  }
+
   @Test
-  void resolveArgumentsWithUserValueWithTypeConversionRequired() {
+  void resolveIndexedArgumentsWithUserValueWithTypeConversionRequired() {
     Source source = new Source(CharDependency.class,
             BeanInstanceSupplier.forConstructor(char.class));
     RegisteredBean registerBean = source.registerBean(this.beanFactory,
@@ -477,8 +521,24 @@ class BeanInstanceSupplierTests {
     assertThat(arguments.getObject(0)).isInstanceOf(Character.class).isEqualTo('\\');
   }
 
+  @Test
+  void resolveGenericArgumentsWithUserValueWithTypeConversionRequired() {
+    Source source = new Source(CharDependency.class,
+            BeanInstanceSupplier.forConstructor(char.class));
+    RegisteredBean registerBean = source.registerBean(this.beanFactory,
+            beanDefinition -> {
+              beanDefinition
+                      .setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+              beanDefinition.getConstructorArgumentValues()
+                      .addGenericArgumentValue("\\", char.class.getName());
+            });
+    AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
+    assertThat(arguments.toArray()).hasSize(1);
+    assertThat(arguments.getObject(0)).isInstanceOf(Character.class).isEqualTo('\\');
+  }
+
   @ParameterizedResolverTest(Sources.SINGLE_ARG)
-  void resolveArgumentsWithUserValueWithBeanReference(Source source) {
+  void resolveIndexedArgumentsWithUserValueWithBeanReference(Source source) {
     this.beanFactory.registerSingleton("stringBean", "string");
     RegisteredBean registerBean = source.registerBean(this.beanFactory,
             beanDefinition -> beanDefinition.getConstructorArgumentValues()
@@ -490,7 +550,18 @@ class BeanInstanceSupplierTests {
   }
 
   @ParameterizedResolverTest(Sources.SINGLE_ARG)
-  void resolveArgumentsWithUserValueWithBeanDefinition(Source source) {
+  void resolveGenericArgumentsWithUserValueWithBeanReference(Source source) {
+    this.beanFactory.registerSingleton("stringBean", "string");
+    RegisteredBean registerBean = source.registerBean(this.beanFactory,
+            beanDefinition -> beanDefinition.getConstructorArgumentValues()
+                    .addGenericArgumentValue(new RuntimeBeanReference("stringBean")));
+    AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
+    assertThat(arguments.toArray()).hasSize(1);
+    assertThat(arguments.getObject(0)).isEqualTo("string");
+  }
+
+  @ParameterizedResolverTest(Sources.SINGLE_ARG)
+  void resolveIndexedArgumentsWithUserValueWithBeanDefinition(Source source) {
     AbstractBeanDefinition userValue = BeanDefinitionBuilder
             .rootBeanDefinition(String.class, () -> "string").getBeanDefinition();
     RegisteredBean registerBean = source.registerBean(this.beanFactory,
@@ -502,14 +573,39 @@ class BeanInstanceSupplierTests {
   }
 
   @ParameterizedResolverTest(Sources.SINGLE_ARG)
-  void resolveArgumentsWithUserValueThatIsAlreadyResolved(Source source) {
+  void resolveGenericArgumentsWithUserValueWithBeanDefinition(Source source) {
+    AbstractBeanDefinition userValue = BeanDefinitionBuilder
+            .rootBeanDefinition(String.class, () -> "string").getBeanDefinition();
+    RegisteredBean registerBean = source.registerBean(this.beanFactory,
+            beanDefinition -> beanDefinition.getConstructorArgumentValues()
+                    .addGenericArgumentValue(userValue));
+    AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
+    assertThat(arguments.toArray()).hasSize(1);
+    assertThat(arguments.getObject(0)).isEqualTo("string");
+  }
+
+  @ParameterizedResolverTest(Sources.SINGLE_ARG)
+  void resolveIndexedArgumentsWithUserValueThatIsAlreadyResolved(Source source) {
     RegisteredBean registerBean = source.registerBean(this.beanFactory);
     BeanDefinition mergedBeanDefinition = this.beanFactory
             .getMergedBeanDefinition("testBean");
-    ValueHolder valueHolder = new ValueHolder('a');
+    ValueHolder valueHolder = new ValueHolder("a");
     valueHolder.setConvertedValue("this is an a");
     mergedBeanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,
             valueHolder);
+    AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
+    assertThat(arguments.toArray()).hasSize(1);
+    assertThat(arguments.getObject(0)).isEqualTo("this is an a");
+  }
+
+  @ParameterizedResolverTest(Sources.SINGLE_ARG)
+  void resolveGenericArgumentsWithUserValueThatIsAlreadyResolved(Source source) {
+    RegisteredBean registerBean = source.registerBean(this.beanFactory);
+    BeanDefinition mergedBeanDefinition = this.beanFactory
+            .getMergedBeanDefinition("testBean");
+    ValueHolder valueHolder = new ValueHolder("a");
+    valueHolder.setConvertedValue("this is an a");
+    mergedBeanDefinition.getConstructorArgumentValues().addGenericArgumentValue(valueHolder);
     AutowiredArguments arguments = source.getResolver().resolveArguments(registerBean);
     assertThat(arguments.toArray()).hasSize(1);
     assertThat(arguments.getObject(0)).isEqualTo("this is an a");

@@ -21,8 +21,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -234,8 +237,8 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     Assert.isTrue(this.shortcuts == null || this.shortcuts.length == resolved.length,
             () -> "'shortcuts' must contain " + resolved.length + " elements");
 
-    ConstructorArgumentValues argumentValues = resolveArgumentValues(registeredBean);
-    Set<String> autowiredBeans = new LinkedHashSet<>(resolved.length);
+    ValueHolder[] argumentValues = resolveArgumentValues(registeredBean, executable);
+    Set<String> autowiredBeanNames = new LinkedHashSet<>(resolved.length * 2);
     for (int i = startIndex; i < parameterCount; i++) {
       MethodParameter parameter = getMethodParameter(executable, i);
       DependencyDescriptor descriptor = new DependencyDescriptor(parameter, true);
@@ -243,10 +246,11 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
       if (shortcut != null) {
         descriptor = new ShortcutDependencyDescriptor(descriptor, shortcut);
       }
-      ValueHolder argumentValue = argumentValues.getIndexedArgumentValue(i, null);
-      resolved[i - startIndex] = resolveArgument(registeredBean, descriptor, argumentValue, autowiredBeans);
+      ValueHolder argumentValue = argumentValues[i];
+      resolved[i - startIndex] = resolveAutowiredArgument(
+              registeredBean, descriptor, argumentValue, autowiredBeanNames);
     }
-    registerDependentBeans(registeredBean.getBeanFactory(), registeredBean.getBeanName(), autowiredBeans);
+    registerDependentBeans(registeredBean.getBeanFactory(), registeredBean.getBeanName(), autowiredBeanNames);
 
     return AutowiredArguments.of(resolved);
   }
@@ -261,20 +265,42 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
     throw new IllegalStateException("Unsupported executable: " + executable.getClass().getName());
   }
 
-  private ConstructorArgumentValues resolveArgumentValues(RegisteredBean registeredBean) {
-    ConstructorArgumentValues resolved = new ConstructorArgumentValues();
+  private ValueHolder[] resolveArgumentValues(RegisteredBean registeredBean, Executable executable) {
+    Parameter[] parameters = executable.getParameters();
+    ValueHolder[] resolved = new ValueHolder[parameters.length];
     RootBeanDefinition beanDefinition = registeredBean.getMergedBeanDefinition();
     if (beanDefinition.hasConstructorArgumentValues() &&
             registeredBean.getBeanFactory() instanceof AbstractAutowireCapableBeanFactory beanFactory) {
       BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(
               beanFactory, registeredBean.getBeanName(), beanDefinition, beanFactory.getTypeConverter());
-      ConstructorArgumentValues values = beanDefinition.getConstructorArgumentValues();
-      values.getIndexedArgumentValues().forEach((index, valueHolder) -> {
-        ValueHolder resolvedValue = resolveArgumentValue(valueResolver, valueHolder);
-        resolved.addIndexedArgumentValue(index, resolvedValue);
-      });
+      ConstructorArgumentValues values = resolveConstructorArguments(
+              valueResolver, beanDefinition.getConstructorArgumentValues());
+      Set<ValueHolder> usedValueHolders = new HashSet<>(parameters.length);
+      for (int i = 0; i < parameters.length; i++) {
+        Class<?> parameterType = parameters[i].getType();
+        String parameterName = (parameters[i].isNamePresent() ? parameters[i].getName() : null);
+        ValueHolder valueHolder = values.getArgumentValue(
+                i, parameterType, parameterName, usedValueHolders);
+        if (valueHolder != null) {
+          resolved[i] = valueHolder;
+          usedValueHolders.add(valueHolder);
+        }
+      }
     }
     return resolved;
+  }
+
+  private ConstructorArgumentValues resolveConstructorArguments(
+          BeanDefinitionValueResolver valueResolver, ConstructorArgumentValues constructorArguments) {
+
+    ConstructorArgumentValues resolvedConstructorArguments = new ConstructorArgumentValues();
+    for (Map.Entry<Integer, ConstructorArgumentValues.ValueHolder> entry : constructorArguments.getIndexedArgumentValues().entrySet()) {
+      resolvedConstructorArguments.addIndexedArgumentValue(entry.getKey(), resolveArgumentValue(valueResolver, entry.getValue()));
+    }
+    for (ConstructorArgumentValues.ValueHolder valueHolder : constructorArguments.getGenericArgumentValues()) {
+      resolvedConstructorArguments.addGenericArgumentValue(resolveArgumentValue(valueResolver, valueHolder));
+    }
+    return resolvedConstructorArguments;
   }
 
   private ValueHolder resolveArgumentValue(BeanDefinitionValueResolver resolver, ValueHolder valueHolder) {
@@ -288,8 +314,8 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
   }
 
   @Nullable
-  private Object resolveArgument(RegisteredBean registeredBean, DependencyDescriptor descriptor,
-          @Nullable ValueHolder argumentValue, Set<String> autowiredBeans) {
+  private Object resolveAutowiredArgument(RegisteredBean registeredBean, DependencyDescriptor descriptor,
+          @Nullable ValueHolder argumentValue, Set<String> autowiredBeanNames) {
 
     TypeConverter typeConverter = registeredBean.getBeanFactory().getTypeConverter();
     if (argumentValue != null) {
@@ -299,7 +325,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
                      descriptor.getDependencyType(), descriptor.getMethodParameter());
     }
     try {
-      return registeredBean.resolveAutowiredArgument(descriptor, typeConverter, autowiredBeans);
+      return registeredBean.resolveAutowiredArgument(descriptor, typeConverter, autowiredBeanNames);
     }
     catch (BeansException ex) {
       throw new UnsatisfiedDependencyException(null, registeredBean.getBeanName(), descriptor, ex);

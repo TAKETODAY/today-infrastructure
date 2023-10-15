@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,15 +27,11 @@ import java.util.concurrent.Executor;
 
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
-import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
-import cn.taketoday.beans.factory.support.RootBeanDefinition;
-import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.testfixture.beans.factory.generator.factory.NumberHolder;
 import cn.taketoday.beans.testfixture.beans.factory.generator.factory.NumberHolderFactoryBean;
 import cn.taketoday.beans.testfixture.beans.factory.generator.factory.SampleFactory;
 import cn.taketoday.core.ResolvableType;
-import cn.taketoday.beans.factory.support.ConstructorResolver;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
@@ -83,7 +76,7 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithFactoryMethodNameAndAssignableConstructorArg() {
+  void beanDefinitionWithFactoryMethodNameAndAssignableIndexedConstructorArgs() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerSingleton("testNumber", 1L);
     beanFactory.registerSingleton("testBean", "test");
@@ -91,6 +84,34 @@ class ConstructorResolverAotTests {
             .rootBeanDefinition(SampleFactory.class).setFactoryMethod("create")
             .addConstructorArgReference("testNumber")
             .addConstructorArgReference("testBean").getBeanDefinition();
+    Executable executable = resolve(beanFactory, beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(ReflectionUtils
+            .findMethod(SampleFactory.class, "create", Number.class, String.class));
+  }
+
+  @Test
+  void beanDefinitionWithFactoryMethodNameAndAssignableGenericConstructorArgs() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(SampleFactory.class).setFactoryMethod("create")
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue("test");
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(1L);
+    Executable executable = resolve(beanFactory, beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(ReflectionUtils
+            .findMethod(SampleFactory.class, "create", Number.class, String.class));
+  }
+
+  @Test
+  void beanDefinitionWithFactoryMethodNameAndAssignableTypeStringValues() {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(SampleFactory.class).setFactoryMethod("create")
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues()
+            .addGenericArgumentValue(new TypedStringValue("test"));
+    beanDefinition.getConstructorArgumentValues()
+            .addGenericArgumentValue(new TypedStringValue("1", Integer.class));
     Executable executable = resolve(beanFactory, beanDefinition);
     assertThat(executable).isNotNull().isEqualTo(ReflectionUtils
             .findMethod(SampleFactory.class, "create", Number.class, String.class));
@@ -112,8 +133,7 @@ class ConstructorResolverAotTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerBeanDefinition("config", new RootBeanDefinition(ExtendedSampleFactory.class));
     BeanDefinition beanDefinition = BeanDefinitionBuilder
-            .rootBeanDefinition(String.class)
-            .setFactoryMethodOnBean("resolve", "config")
+            .rootBeanDefinition(String.class).setFactoryMethodOnBean("resolve", "config")
             .addConstructorArgValue("test").getBeanDefinition();
     Executable executable = resolve(beanFactory, beanDefinition);
     assertThat(executable).isNotNull().isEqualTo(ReflectionUtils
@@ -134,7 +154,7 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithConstructorArgsForMultipleConstructors() throws Exception {
+  void beanDefinitionWithIndexedConstructorArgsForMultipleConstructors() throws Exception {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     beanFactory.registerSingleton("testNumber", 1L);
     beanFactory.registerSingleton("testBean", "test");
@@ -148,7 +168,22 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithMultiArgConstructorAndMatchingValue() throws NoSuchMethodException {
+  void beanDefinitionWithGenericConstructorArgsForMultipleConstructors() throws Exception {
+    StandardBeanFactory beanFactory = new StandardBeanFactory();
+    beanFactory.registerSingleton("testNumber", 1L);
+    beanFactory.registerSingleton("testBean", "test");
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(SampleBeanWithConstructors.class)
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue("test");
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(1L);
+    Executable executable = resolve(beanFactory, beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(SampleBeanWithConstructors.class
+            .getDeclaredConstructor(Number.class, String.class));
+  }
+
+  @Test
+  void beanDefinitionWithMultiArgConstructorAndMatchingIndexedValue() throws NoSuchMethodException {
     BeanDefinition beanDefinition = BeanDefinitionBuilder
             .rootBeanDefinition(MultiConstructorSample.class)
             .addConstructorArgValue(42).getBeanDefinition();
@@ -158,7 +193,18 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithMultiArgConstructorAndMatchingArrayValue() throws NoSuchMethodException {
+  void beanDefinitionWithMultiArgConstructorAndMatchingGenericValue() throws NoSuchMethodException {
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(MultiConstructorSample.class)
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(42);
+    Executable executable = resolve(new StandardBeanFactory(), beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(
+            MultiConstructorSample.class.getDeclaredConstructor(Integer.class));
+  }
+
+  @Test
+  void beanDefinitionWithMultiArgConstructorAndMatchingArrayFromIndexedValue() throws NoSuchMethodException {
     BeanDefinition beanDefinition = BeanDefinitionBuilder
             .rootBeanDefinition(MultiConstructorArraySample.class)
             .addConstructorArgValue(42).getBeanDefinition();
@@ -168,7 +214,18 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithMultiArgConstructorAndMatchingListValue() throws NoSuchMethodException {
+  void beanDefinitionWithMultiArgConstructorAndMatchingArrayFromGenericValue() throws NoSuchMethodException {
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(MultiConstructorArraySample.class)
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(42);
+    Executable executable = resolve(new StandardBeanFactory(), beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(MultiConstructorArraySample.class
+            .getDeclaredConstructor(Integer[].class));
+  }
+
+  @Test
+  void beanDefinitionWithMultiArgConstructorAndMatchingListFromIndexedValue() throws NoSuchMethodException {
     BeanDefinition beanDefinition = BeanDefinitionBuilder
             .rootBeanDefinition(MultiConstructorListSample.class)
             .addConstructorArgValue(42).getBeanDefinition();
@@ -178,7 +235,18 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithMultiArgConstructorAndMatchingValueAsInnerBean() throws NoSuchMethodException {
+  void beanDefinitionWithMultiArgConstructorAndMatchingListFromGenericValue() throws NoSuchMethodException {
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(MultiConstructorListSample.class)
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(42);
+    Executable executable = resolve(new StandardBeanFactory(), beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(
+            MultiConstructorListSample.class.getDeclaredConstructor(List.class));
+  }
+
+  @Test
+  void beanDefinitionWithMultiArgConstructorAndMatchingIndexedValueAsInnerBean() throws NoSuchMethodException {
     BeanDefinition beanDefinition = BeanDefinitionBuilder
             .rootBeanDefinition(MultiConstructorSample.class)
             .addConstructorArgValue(
@@ -191,12 +259,37 @@ class ConstructorResolverAotTests {
   }
 
   @Test
-  void beanDefinitionWithMultiArgConstructorAndMatchingValueAsInnerBeanFactory() throws NoSuchMethodException {
+  void beanDefinitionWithMultiArgConstructorAndMatchingGenericValueAsInnerBean() throws NoSuchMethodException {
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(MultiConstructorSample.class)
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(
+            BeanDefinitionBuilder.rootBeanDefinition(Integer.class, "valueOf")
+                    .addConstructorArgValue("42").getBeanDefinition());
+    Executable executable = resolve(new StandardBeanFactory(), beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(
+            MultiConstructorSample.class.getDeclaredConstructor(Integer.class));
+  }
+
+  @Test
+  void beanDefinitionWithMultiArgConstructorAndMatchingIndexedValueAsInnerBeanFactory() throws NoSuchMethodException {
     BeanDefinition beanDefinition = BeanDefinitionBuilder
             .rootBeanDefinition(MultiConstructorSample.class)
             .addConstructorArgValue(BeanDefinitionBuilder
                     .rootBeanDefinition(IntegerFactoryBean.class).getBeanDefinition())
             .getBeanDefinition();
+    Executable executable = resolve(new StandardBeanFactory(), beanDefinition);
+    assertThat(executable).isNotNull().isEqualTo(
+            MultiConstructorSample.class.getDeclaredConstructor(Integer.class));
+  }
+
+  @Test
+  void beanDefinitionWithMultiArgConstructorAndMatchingGenericValueAsInnerBeanFactory() throws NoSuchMethodException {
+    AbstractBeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(MultiConstructorSample.class)
+            .getBeanDefinition();
+    beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(
+            BeanDefinitionBuilder.rootBeanDefinition(IntegerFactoryBean.class).getBeanDefinition());
     Executable executable = resolve(new StandardBeanFactory(), beanDefinition);
     assertThat(executable).isNotNull().isEqualTo(
             MultiConstructorSample.class.getDeclaredConstructor(Integer.class));

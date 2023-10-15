@@ -29,6 +29,7 @@ import java.util.function.BiConsumer;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.BeanDefinition;
+import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
@@ -462,36 +463,40 @@ final class PostProcessorRegistrationDelegate {
 
       if (bd.hasPropertyValues()) {
         for (PropertyValue propertyValue : bd.getPropertyValues().asList()) {
-          Object value = propertyValue.getValue();
-          if (value instanceof AbstractBeanDefinition innerBd) {
-            Class<?> innerBeanType = resolveBeanType(innerBd);
-            resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
-                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
-          }
-
-          if (value instanceof TypedStringValue typedStringValue) {
-            resolveTypeStringValue(typedStringValue);
-          }
+          postProcessValue(postProcessors, valueResolver, propertyValue.getValue());
         }
       }
 
       if (bd.hasConstructorArgumentValues()) {
         for (ValueHolder valueHolder : bd.getConstructorArgumentValues().getIndexedArgumentValues().values()) {
-          Object value = valueHolder.getValue();
-          if (value instanceof AbstractBeanDefinition innerBd) {
-            Class<?> innerBeanType = resolveBeanType(innerBd);
-            resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
-                    -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
-          }
-          if (value instanceof TypedStringValue typedStringValue) {
-            resolveTypeStringValue(typedStringValue);
-          }
+          postProcessValue(postProcessors, valueResolver, valueHolder.getValue());
+        }
+        for (ValueHolder valueHolder : bd.getConstructorArgumentValues().getGenericArgumentValues()) {
+          postProcessValue(postProcessors, valueResolver, valueHolder.getValue());
         }
       }
     }
 
-    private void resolveInnerBeanDefinition(BeanDefinitionValueResolver valueResolver,
-            BeanDefinition innerBeanDefinition, BiConsumer<String, RootBeanDefinition> resolver) {
+    private void postProcessValue(List<MergedBeanDefinitionPostProcessor> postProcessors,
+            BeanDefinitionValueResolver valueResolver, @Nullable Object value) {
+      if (value instanceof BeanDefinitionHolder bdh
+              && bdh.getBeanDefinition() instanceof AbstractBeanDefinition innerBd) {
+        Class<?> innerBeanType = resolveBeanType(innerBd);
+        resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
+                -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+      }
+      else if (value instanceof AbstractBeanDefinition innerBd) {
+        Class<?> innerBeanType = resolveBeanType(innerBd);
+        resolveInnerBeanDefinition(valueResolver, innerBd, (innerBeanName, innerBeanDefinition)
+                -> postProcessRootBeanDefinition(postProcessors, innerBeanName, innerBeanType, innerBeanDefinition));
+      }
+      else if (value instanceof TypedStringValue typedStringValue) {
+        resolveTypeStringValue(typedStringValue);
+      }
+    }
+
+    private void resolveInnerBeanDefinition(BeanDefinitionValueResolver valueResolver, BeanDefinition innerBeanDefinition,
+            BiConsumer<String, RootBeanDefinition> resolver) {
 
       valueResolver.resolveInnerBean(null, innerBeanDefinition, (name, rbd) -> {
         resolver.accept(name, rbd);
