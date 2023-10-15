@@ -21,14 +21,13 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.transaction.event.TransactionalEventListenerFactory;
 
 /**
  * Extension of {@link TransactionalEventListenerFactory},
+ * Extension of {@link TransactionalEventListenerFactory},
  * detecting invalid transaction configuration for transactional event listeners:
- * {@link Transactional} only supported with {@link Propagation#REQUIRES_NEW} or
- * {@link Async}.
+ * {@link Transactional} only supported with {@link Propagation#REQUIRES_NEW}.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -41,10 +40,9 @@ public class RestrictedTransactionalEventListenerFactory extends TransactionalEv
   @Override
   public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
     Transactional txAnn = AnnotatedElementUtils.findMergedAnnotation(method, Transactional.class);
-    if (txAnn != null && txAnn.propagation() != Propagation.REQUIRES_NEW &&
-            !AnnotatedElementUtils.hasAnnotation(method, Async.class)) {
+    if (txAnn != null && txAnn.propagation() != Propagation.REQUIRES_NEW) {
       throw new IllegalStateException("@TransactionalEventListener method must not be annotated with " +
-              "@Transactional unless when marked as REQUIRES_NEW or declared as @Async: " + method);
+              "@Transactional unless when declared as REQUIRES_NEW: " + method);
     }
     return super.createApplicationListener(beanName, type, method);
   }

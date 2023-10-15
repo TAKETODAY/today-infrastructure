@@ -35,7 +35,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
@@ -234,7 +233,7 @@ public class TransactionalApplicationListenerMethodAdapterTests {
 
     @TransactionalEventListener
     @Async
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void withAsyncTransactionalAnnotation(String data) {
     }
   }
