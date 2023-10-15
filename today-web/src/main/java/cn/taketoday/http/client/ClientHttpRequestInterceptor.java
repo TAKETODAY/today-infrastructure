@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,16 +23,13 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.client.support.HttpRequestDecorator;
 
 /**
- * Intercepts client-side HTTP requests. Implementations of this interface can be
- * {@linkplain cn.taketoday.web.client.RestTemplate#setInterceptors registered}
- * with the {@link cn.taketoday.web.client.RestTemplate RestTemplate},
- * as to modify the outgoing {@link ClientHttpRequest} and/or the incoming
- * {@link ClientHttpResponse}.
- *
- * <p>The main entry point for interceptors is
- * {@link #intercept(HttpRequest, byte[], ClientHttpRequestExecution)}.
+ * Contract to intercept client-side HTTP requests. Implementations can be
+ * registered with {@link cn.taketoday.web.client.RestClient} or
+ * {@link cn.taketoday.web.client.RestTemplate} to modify the outgoing
+ * request and/or the incoming response.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
@@ -60,6 +54,8 @@ public interface ClientHttpRequestInterceptor {
    * </ul>
    * <li>Optionally wrap the response to filter HTTP attributes.</li>
    * </ol>
+   * <p>Note: if the interceptor throws an exception after receiving a response,
+   * it must close the response via {@link ClientHttpResponse#close()}.
    *
    * @param request the request, containing method, URI, and headers
    * @param body the body of the request
