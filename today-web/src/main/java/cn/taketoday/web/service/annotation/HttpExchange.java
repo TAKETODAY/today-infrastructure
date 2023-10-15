@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.web.service.invoker.RequestPartArgumentResolver;
+import cn.taketoday.web.util.UriBuilderFactory;
 
 /**
  * Annotation to declare a method on an HTTP service interface as an HTTP
@@ -63,6 +61,12 @@ import cn.taketoday.web.service.invoker.RequestPartArgumentResolver;
  * <td>Dynamically set the URL for the request, overriding the annotation's
  * {@link #url()} attribute</td>
  * <td>{@link cn.taketoday.web.service.invoker.UrlArgumentResolver}</td>
+ * </tr>
+ * <td>{@link UriBuilderFactory}</td>
+ * <td>Dynamically set the {@code base URI} for the request, overriding the
+ * one from the annotation's {@link #url()} attribute, while keeping the
+ * subsequent path segments as defined there</td>
+ * <td>{@link cn.taketoday.web.service.invoker.UriBuilderFactoryArgumentResolver}</td>
  * </tr>
  * <tr>
  * <td>{@link cn.taketoday.http.HttpMethod HttpMethod}</td>
@@ -116,6 +120,7 @@ import cn.taketoday.web.service.invoker.RequestPartArgumentResolver;
  * </table>
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @Documented

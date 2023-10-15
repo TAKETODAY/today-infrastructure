@@ -46,6 +46,7 @@ class HttpRequestValuesTests {
 
     assertThat(requestValues.getUri()).isNull();
     assertThat(requestValues.getUriTemplate()).isEmpty();
+    assertThat(requestValues.getUriBuilderFactory()).isNull();
   }
 
   @ParameterizedTest

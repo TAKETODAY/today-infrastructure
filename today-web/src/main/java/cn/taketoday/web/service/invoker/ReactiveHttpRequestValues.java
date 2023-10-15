@@ -32,6 +32,7 @@ import cn.taketoday.http.client.MultipartBodyBuilder;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.util.UriBuilderFactory;
 
 /**
  * {@link HttpRequestValues} extension for use with {@link ReactorHttpExchangeAdapter}.
@@ -49,12 +50,12 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
   private final ParameterizedTypeReference<?> bodyElementType;
 
   private ReactiveHttpRequestValues(@Nullable HttpMethod httpMethod,
-          @Nullable URI uri, @Nullable String uriTemplate, Map<String, String> uriVariables,
+          @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory,
+          @Nullable String uriTemplate, Map<String, String> uriVars,
           HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
           @Nullable Object bodyValue, @Nullable Publisher<?> body, @Nullable ParameterizedTypeReference<?> elementType) {
 
-    super(httpMethod, uri, uriTemplate, uriVariables, headers, cookies, attributes, bodyValue);
-
+    super(httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars, headers, cookies, attributes, bodyValue);
     this.body = body;
     this.bodyElementType = elementType;
   }
@@ -122,6 +123,12 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
     @Override
     public Builder setUri(URI uri) {
       super.setUri(uri);
+      return this;
+    }
+
+    @Override
+    public Builder setUriBuilderFactory(@Nullable UriBuilderFactory uriBuilderFactory) {
+      super.setUriBuilderFactory(uriBuilderFactory);
       return this;
     }
 
@@ -250,16 +257,17 @@ public final class ReactiveHttpRequestValues extends HttpRequestValues {
     }
 
     @Override
-    protected ReactiveHttpRequestValues createRequestValues(@Nullable HttpMethod httpMethod,
-            @Nullable URI uri, @Nullable String uriTemplate, Map<String, String> uriVars,
+    protected ReactiveHttpRequestValues createRequestValues(
+            @Nullable HttpMethod httpMethod,
+            @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory,
+            @Nullable String uriTemplate, Map<String, String> uriVars,
             HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
             @Nullable Object bodyValue) {
 
       return new ReactiveHttpRequestValues(
-              httpMethod, uri, uriTemplate, uriVars, headers, cookies, attributes,
-              bodyValue, this.body, this.bodyElementType);
+              httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars,
+              headers, cookies, attributes, bodyValue, this.body, this.bodyElementType);
     }
-
   }
 
 }

@@ -17,6 +17,7 @@
 
 package cn.taketoday.web.client.support;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import cn.taketoday.core.ParameterizedTypeReference;
@@ -30,6 +31,7 @@ import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.service.invoker.HttpExchangeAdapter;
 import cn.taketoday.web.service.invoker.HttpRequestValues;
 import cn.taketoday.web.service.invoker.HttpServiceProxyFactory;
+import cn.taketoday.web.util.UriBuilderFactory;
 
 /**
  * {@link HttpExchangeAdapter} that enables an {@link HttpServiceProxyFactory}
@@ -90,7 +92,14 @@ public final class RestTemplateAdapter implements HttpExchangeAdapter {
       builder = RequestEntity.method(httpMethod, values.getUri());
     }
     else if (values.getUriTemplate() != null) {
-      builder = RequestEntity.method(httpMethod, values.getUriTemplate(), values.getUriVariables());
+      UriBuilderFactory uriBuilderFactory = values.getUriBuilderFactory();
+      if (uriBuilderFactory != null) {
+        URI expanded = uriBuilderFactory.expand(values.getUriTemplate(), values.getUriVariables());
+        builder = RequestEntity.method(httpMethod, expanded);
+      }
+      else {
+        builder = RequestEntity.method(httpMethod, values.getUriTemplate(), values.getUriVariables());
+      }
     }
     else {
       throw new IllegalStateException("Neither full URL nor URI template");
