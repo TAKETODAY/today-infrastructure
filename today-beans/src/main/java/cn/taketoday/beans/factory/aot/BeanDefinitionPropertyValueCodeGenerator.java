@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +39,7 @@ import cn.taketoday.aot.generate.GeneratedMethods;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanReference;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
+import cn.taketoday.beans.factory.config.TypedStringValue;
 import cn.taketoday.beans.factory.support.ManagedList;
 import cn.taketoday.beans.factory.support.ManagedMap;
 import cn.taketoday.beans.factory.support.ManagedSet;
@@ -60,6 +58,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class BeanDefinitionPropertyValueCodeGenerator {
@@ -91,7 +90,8 @@ class BeanDefinitionPropertyValueCodeGenerator {
             new ListDelegate(),
             new SetDelegate(),
             new MapDelegate(),
-            new BeanReferenceDelegate()
+            new BeanReferenceDelegate(),
+            new TypedStringValueDelegate()
     ));
   }
 
@@ -436,17 +436,17 @@ class BeanDefinitionPropertyValueCodeGenerator {
         return CodeBlock.of("new $T($L)", LinkedHashSet.class,
                 generateCollectionOf(set, List.class, elementType));
       }
-      try {
-        set = orderForCodeConsistency(set);
-      }
-      catch (ClassCastException ex) {
-        // If elements are not comparable, just keep the original set
-      }
-      return super.generateCollectionCode(elementType, set);
+      return super.generateCollectionCode(elementType, orderForCodeConsistency(set));
     }
 
     private Set<?> orderForCodeConsistency(Set<?> set) {
-      return new TreeSet<Object>(set);
+      try {
+        return new TreeSet<Object>(set);
+      }
+      catch (ClassCastException ex) {
+        // If elements are not comparable, just keep the original set
+        return set;
+      }
     }
   }
 
@@ -501,7 +501,13 @@ class BeanDefinitionPropertyValueCodeGenerator {
     }
 
     private <K, V> Map<K, V> orderForCodeConsistency(Map<K, V> map) {
-      return new TreeMap<>(map);
+      try {
+        return new TreeMap<>(map);
+      }
+      catch (ClassCastException ex) {
+        // If elements are not comparable, just keep the original map
+        return map;
+      }
     }
 
     private <K, V> CodeBlock generateLinkedHashMapCode(Map<K, V> map,
@@ -545,6 +551,33 @@ class BeanDefinitionPropertyValueCodeGenerator {
                 beanReference.getBeanName());
       }
       return null;
+    }
+  }
+
+  /**
+   * {@link Delegate} for {@link TypedStringValue} types.
+   */
+  private class TypedStringValueDelegate implements Delegate {
+
+    @Override
+    public CodeBlock generateCode(Object value, ResolvableType type) {
+      if (value instanceof TypedStringValue typedStringValue) {
+        return generateTypeStringValueCode(typedStringValue);
+      }
+      return null;
+    }
+
+    private CodeBlock generateTypeStringValueCode(TypedStringValue typedStringValue) {
+      String value = typedStringValue.getValue();
+      if (typedStringValue.hasTargetType()) {
+        return CodeBlock.of("new $T($S, $L)", TypedStringValue.class, value,
+                generateCode(typedStringValue.getTargetType()));
+      }
+      return generateCode(value);
+    }
+
+    private CodeBlock generateCode(@Nullable Object value) {
+      return BeanDefinitionPropertyValueCodeGenerator.this.generateCode(value);
     }
   }
 
