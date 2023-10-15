@@ -41,6 +41,11 @@ import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.ApplicationEventPublisherAware;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.PayloadApplicationEvent;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.event.test.self_inject.MyAspect;
+import cn.taketoday.context.event.test.self_inject.MyEventListener;
+import cn.taketoday.context.event.test.self_inject.MyEventPublisher;
+import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.context.support.StaticMessageSource;
@@ -266,6 +271,24 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
     smc.multicastEvent(new MyEvent(this));
     smc.multicastEvent(new MyOtherEvent(this));
     assertThat(listener1.seenEvents).hasSize(2);
+  }
+
+  /**
+   * Regression test for <a href="https://github.com/spring-projects/spring-framework/issues/28283">issue 28283</a>,
+   * where event listeners proxied due to e.g.
+   * <ul>
+   * <li>{@code @Transactional} annotations in their methods or</li>
+   * <li>being targeted by aspects</li>
+   * </ul>
+   * were added to the list of application listener beans twice (both proxy and unwrapped target).
+   */
+  @Test
+  public void eventForSelfInjectedProxiedListenerFiredOnlyOnce() {
+    AbstractApplicationContext context = new AnnotationConfigApplicationContext(
+            MyAspect.class, MyEventListener.class, MyEventPublisher.class);
+    context.getBean(MyEventPublisher.class).publishMyEvent("hello");
+    assertThat(context.getBean(MyEventListener.class).eventCount).isEqualTo(1);
+    context.close();
   }
 
   @Test
