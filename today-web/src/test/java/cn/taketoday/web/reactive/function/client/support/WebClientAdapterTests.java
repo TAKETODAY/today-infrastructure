@@ -213,13 +213,13 @@ class WebClientAdapterTests {
   }
 
   private Service initService() {
-    WebClient webClient = WebClient.builder().baseUrl(this.server.url("/").toString()).build();
+    WebClient webClient = WebClient.create(this.server.url("/").toString());
     return initService(webClient);
   }
 
   private Service initService(WebClient webClient) {
     WebClientAdapter adapter = WebClientAdapter.forClient(webClient);
-    return HttpServiceProxyFactory.forAdapter(adapter).build().createClient(Service.class);
+    return HttpServiceProxyFactory.forAdapter(adapter).createClient(Service.class);
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {

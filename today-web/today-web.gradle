@@ -93,7 +93,6 @@ dependencies {
   testImplementation("org.eclipse.jetty.ee10:jetty-ee10-servlet") {
     exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
   }
-  testImplementation 'io.netty:netty-resolver-dns-native-macos'
 
   testRuntimeOnly("com.sun.mail:jakarta.mail")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
