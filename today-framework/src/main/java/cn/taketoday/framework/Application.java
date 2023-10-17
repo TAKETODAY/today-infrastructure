@@ -1615,15 +1615,12 @@ public class Application {
      */
     public Running run(String... args) {
       RunListener runListener = new RunListener();
-      ApplicationHook hook = ApplicationHook.forSingleUse(this::getRunListener);
+      ApplicationHook hook = ApplicationHook.forSingleUse((application) -> {
+        application.addPrimarySources(this.sources);
+        return runListener;
+      });
       withHook(hook, () -> this.main.accept(args));
       return runListener;
-    }
-
-    @Nullable
-    private ApplicationStartupListener getRunListener(Application application) {
-      application.addPrimarySources(this.sources);
-      return null;
     }
 
     /**
