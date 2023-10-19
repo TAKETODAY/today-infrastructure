@@ -57,9 +57,9 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void start() {
-    ChannelFuture channelFuture = serverBootstrap.bind(listenAddress.getAddress(), getPort());
     try {
-      channelFuture.sync();
+      serverBootstrap.bind(listenAddress)
+        .sync();
     }
     catch (InterruptedException e) {
       Thread.currentThread().interrupt();
