@@ -179,7 +179,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
-      setNotFoundHandler(BeanFactoryUtils.find(context, NotFoundHandler.class));
+      notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
       if (notFoundHandler == null) {
         setNotFoundHandler(NotFoundHandler.instance);
       }
