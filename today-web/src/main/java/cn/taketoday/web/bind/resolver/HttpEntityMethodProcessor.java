@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,9 +75,7 @@ public class HttpEntityMethodProcessor
    * {@code HttpEntity}. For handling {@code ResponseEntity} consider also
    * providing a {@code ContentNegotiationManager}.
    */
-  public HttpEntityMethodProcessor(
-          List<HttpMessageConverter<?>> converters,
-          @Nullable RedirectModelManager redirectModelManager) {
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable RedirectModelManager redirectModelManager) {
     super(converters);
     this.redirectModelManager = redirectModelManager;
   }
@@ -90,10 +85,8 @@ public class HttpEntityMethodProcessor
    * Suitable for resolving {@code HttpEntity} and handling {@code ResponseEntity}
    * without {@code Request~} or {@code ResponseBodyAdvice}.
    */
-  public HttpEntityMethodProcessor(
-          List<HttpMessageConverter<?>> converters,
-          @Nullable ContentNegotiationManager manager,
-          @Nullable RedirectModelManager redirectModelManager) {
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters,
+          @Nullable ContentNegotiationManager manager, @Nullable RedirectModelManager redirectModelManager) {
     super(converters, manager);
     this.redirectModelManager = redirectModelManager;
   }
@@ -103,10 +96,8 @@ public class HttpEntityMethodProcessor
    * For handling {@code ResponseEntity} consider also providing a
    * {@code ContentNegotiationManager}.
    */
-  public HttpEntityMethodProcessor(
-          List<HttpMessageConverter<?>> converters,
-          @Nullable List<Object> requestResponseBodyAdvice,
-          @Nullable RedirectModelManager redirectModelManager) {
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters,
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
     super(converters, null, requestResponseBodyAdvice);
     this.redirectModelManager = redirectModelManager;
   }
@@ -115,12 +106,8 @@ public class HttpEntityMethodProcessor
    * Complete constructor for resolving {@code HttpEntity} and handling
    * {@code ResponseEntity}.
    */
-  public HttpEntityMethodProcessor(
-          List<HttpMessageConverter<?>> converters,
-          @Nullable ContentNegotiationManager manager,
-          List<Object> requestResponseBodyAdvice,
-          @Nullable RedirectModelManager redirectModelManager) {
-
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
+          List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
     super(converters, manager, requestResponseBodyAdvice);
     this.redirectModelManager = redirectModelManager;
   }
@@ -190,8 +177,8 @@ public class HttpEntityMethodProcessor
   }
 
   @Override
-  public void handleReturnValue(
-          RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context,
+          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
