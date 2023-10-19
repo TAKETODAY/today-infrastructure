@@ -32,7 +32,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.DispatcherType;

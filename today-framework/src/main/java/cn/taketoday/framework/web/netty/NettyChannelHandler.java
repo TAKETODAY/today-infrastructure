@@ -27,8 +27,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
@@ -92,7 +92,6 @@ public class NettyChannelHandler extends DispatcherHandler
       var nettyContext = createContext(ctx, httpRequest);
       RequestContextHolder.set(nettyContext);
       try {
-        nettyContext.setAttribute(DispatcherHandler.BEAN_NAME, this);
         dispatch(nettyContext); // handling HTTP request
       }
       catch (Throwable e) {
@@ -114,7 +113,7 @@ public class NettyChannelHandler extends DispatcherHandler
   }
 
   protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
-    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig);
+    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig, this);
   }
 
   @Override

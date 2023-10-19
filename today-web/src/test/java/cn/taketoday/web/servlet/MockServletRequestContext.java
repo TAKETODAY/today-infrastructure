@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,6 +43,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
@@ -70,10 +68,15 @@ public class MockServletRequestContext extends RequestContext implements Servlet
   public MockServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
     this(null, request, response);
   }
+ 
+  public MockServletRequestContext(ApplicationContext context,
+          HttpServletRequest request, HttpServletResponse response) {
+    this(context, request, response, null);
+  }
 
-  public MockServletRequestContext(
-          ApplicationContext applicationContext, HttpServletRequest request, HttpServletResponse response) {
-    super(applicationContext);
+  public MockServletRequestContext(ApplicationContext context, HttpServletRequest request,
+          HttpServletResponse response, DispatcherHandler dispatcherHandler) {
+    super(context, dispatcherHandler);
     this.request = request;
     this.response = response;
   }

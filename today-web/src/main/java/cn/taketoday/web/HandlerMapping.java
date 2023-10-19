@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +72,7 @@ public interface HandlerMapping {
    * Well-known name for the HandlerMapping object in the bean factory for this namespace.
    * Only used when "detectAllHandlerMappings" is turned off.
    *
-   * @see cn.taketoday.web.handler.DispatcherHandler#setDetectAllHandlerMapping(boolean)
+   * @see DispatcherHandler#setDetectAllHandlerMapping(boolean)
    */
   String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
 

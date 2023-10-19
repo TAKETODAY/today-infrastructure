@@ -48,6 +48,7 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
@@ -79,9 +80,14 @@ public final class ServletRequestContext extends RequestContext implements Servl
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
-  public ServletRequestContext(
-          ApplicationContext context, HttpServletRequest request, HttpServletResponse response) {
-    super(context);
+  public ServletRequestContext(ApplicationContext context,
+          HttpServletRequest request, HttpServletResponse response) {
+    this(context, request, response, null);
+  }
+
+  public ServletRequestContext(ApplicationContext context, HttpServletRequest request,
+          HttpServletResponse response, DispatcherHandler dispatcherHandler) {
+    super(context, dispatcherHandler);
     this.request = request;
     this.response = response;
   }

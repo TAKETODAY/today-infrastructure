@@ -44,9 +44,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
 import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -120,8 +122,8 @@ public class NettyRequestContext extends RequestContext {
   private final long requestTimeMillis = System.currentTimeMillis();
 
   public NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
-          FullHttpRequest request, NettyRequestConfig config) {
-    super(context);
+          FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+    super(context, dispatcherHandler);
     this.config = config;
     this.request = request;
     this.channelContext = ctx;
@@ -585,10 +587,6 @@ public class NettyRequestContext extends RequestContext {
     return request;
   }
 
-  public HttpHeaders getNettyResponseHeaders() {
-    return nettyResponseHeaders;
-  }
-
   @Override
   @Nullable
   public <T> T unwrapRequest(Class<T> requestClass) {
@@ -615,6 +613,17 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected String doGetContextPath() {
     return config.getContextPath();
+  }
+
+  /**
+   * write result to client
+   *
+   * @param concurrentResult async result
+   * @throws Throwable dispatch error
+   */
+  void dispatchConcurrentResult(Object concurrentResult) throws Throwable {
+    Object handler = WebAsyncManager.findHttpRequestHandler(this);
+    dispatcherHandler.handleConcurrentResult(this, handler, concurrentResult);
   }
 
   /**

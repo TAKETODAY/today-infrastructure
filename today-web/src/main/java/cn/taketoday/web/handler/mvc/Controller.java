@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.web.handler.mvc;
 
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ResourceLoaderAware;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
@@ -49,7 +47,7 @@ import cn.taketoday.web.RequestContext;
  * is then responsible for handling the actual request and &mdash; if applicable
  * &mdash; returning an appropriate Object result.
  * So actually, this method is the main entry point for the
- * {@link cn.taketoday.web.handler.DispatcherHandler DispatcherHandler}
+ * {@link DispatcherHandler DispatcherHandler}
  * which delegates requests to controllers.
  *
  * <p>So basically any <i>direct</i> implementation of the {@code Controller} interface

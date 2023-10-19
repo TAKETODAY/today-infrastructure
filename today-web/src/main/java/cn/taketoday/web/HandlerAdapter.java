@@ -24,7 +24,6 @@ import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapters;
 import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.function.support.HandlerFunctionAdapter;
@@ -36,7 +35,7 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
  * <p>
  * Interface that must be implemented for each handler type to handle a request.
  * This interface is used to allow the
- * {@link cn.taketoday.web.handler.DispatcherHandler DispatcherHandler} to be
+ * {@link DispatcherHandler DispatcherHandler} to be
  * indefinitely extensible. The {@code DispatcherHandler} accesses all installed
  * handlers through this interface, meaning that it does not contain code
  * specific to any handler type.

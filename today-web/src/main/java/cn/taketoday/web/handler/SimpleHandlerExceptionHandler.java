@@ -32,6 +32,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
@@ -55,7 +56,7 @@ import cn.taketoday.web.util.WebUtils;
  * HTTP status codes.
  *
  * <p>This exception handler is enabled by default in the common Framework
- * {@link cn.taketoday.web.handler.DispatcherHandler}.
+ * {@link DispatcherHandler}.
  *
  * <table>
  * <caption>Supported Exceptions</caption>

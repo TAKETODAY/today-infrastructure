@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +20,9 @@ package cn.taketoday.framework.web.netty;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.EventExecutor;
 
@@ -80,7 +73,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
       EventExecutor executor = channelContext.executor();
       executor.execute(() -> {
         try {
-          dispatchToClient(request, concurrentResult);
+          request.dispatchConcurrentResult(concurrentResult);
         }
         catch (Throwable e) {
           // last exception handling
@@ -94,20 +87,6 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
         }
       });
     }
-  }
-
-  /**
-   * write result to client
-   *
-   * @param request current request
-   * @param concurrentResult async result
-   */
-  protected final void dispatchToClient(RequestContext request, Object concurrentResult) throws Throwable {
-    DispatcherHandler dispatcherHandler = (DispatcherHandler) request.getAttribute(DispatcherHandler.BEAN_NAME);
-    Assert.state(dispatcherHandler != null, "No DispatcherHandler");
-
-    Object handler = WebAsyncManager.findHttpRequestHandler(request);
-    dispatcherHandler.handleConcurrentResult(request, handler, concurrentResult);
   }
 
 }

@@ -15,7 +15,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler;
+package cn.taketoday.web;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -36,17 +36,16 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.HandlerAdapter;
-import cn.taketoday.web.HandlerAdapterNotFoundException;
-import cn.taketoday.web.HandlerAdapterProvider;
-import cn.taketoday.web.HandlerExceptionHandler;
-import cn.taketoday.web.HandlerMapping;
-import cn.taketoday.web.HandlerMatchingMetadata;
-import cn.taketoday.web.HttpRequestHandler;
-import cn.taketoday.web.RequestCompletedListener;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.context.async.WebAsyncManagerFactory;
+import cn.taketoday.web.handler.AsyncHandler;
+import cn.taketoday.web.handler.HandlerAdapterAware;
+import cn.taketoday.web.handler.HandlerAdapters;
+import cn.taketoday.web.handler.HandlerNotFoundException;
+import cn.taketoday.web.handler.HandlerWrapper;
+import cn.taketoday.web.handler.InfraHandler;
+import cn.taketoday.web.handler.NotFoundHandler;
+import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -54,12 +53,10 @@ import cn.taketoday.web.util.WebUtils;
 /**
  * Central dispatcher for HTTP request handlers/controllers
  *
- * @author TODAY 2019-11-16 19:05
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2019-11-16 19:05
  */
 public class DispatcherHandler extends InfraHandler {
-
-  public static final String BEAN_NAME = "cn.taketoday.web.handler.DispatcherHandler";
 
   /** Action mapping registry */
   private HandlerMapping handlerMapping;
@@ -122,7 +119,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   private void initHandlerMapping(ApplicationContext context) {
     if (handlerMapping == null) {
-      handlerMapping = HandlerMapping.find(context, detectAllHandlerMapping);
+      setHandlerMapping(HandlerMapping.find(context, detectAllHandlerMapping));
     }
   }
 
@@ -133,7 +130,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   private void initHandlerAdapters(ApplicationContext context) {
     if (handlerAdapter == null) {
-      handlerAdapter = HandlerAdapter.find(context, detectAllHandlerAdapters);
+      setHandlerAdapter(HandlerAdapter.find(context, detectAllHandlerAdapters));
     }
   }
 
@@ -156,7 +153,7 @@ public class DispatcherHandler extends InfraHandler {
         manager.setApplicationContext(context);
         manager.registerDefaultHandlers();
       }
-      this.returnValueHandler = manager;
+      setReturnValueHandler(manager);
     }
   }
 
@@ -169,7 +166,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   private void initExceptionHandler(ApplicationContext context) {
     if (exceptionHandler == null) {
-      exceptionHandler = HandlerExceptionHandler.find(context, detectAllHandlerExceptionHandlers);
+      setExceptionHandler(HandlerExceptionHandler.find(context, detectAllHandlerExceptionHandlers));
     }
   }
 
@@ -182,9 +179,9 @@ public class DispatcherHandler extends InfraHandler {
    */
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
-      notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
+      setNotFoundHandler(BeanFactoryUtils.find(context, NotFoundHandler.class));
       if (notFoundHandler == null) {
-        notFoundHandler = NotFoundHandler.instance;
+        setNotFoundHandler(NotFoundHandler.instance);
       }
     }
   }
@@ -211,7 +208,7 @@ public class DispatcherHandler extends InfraHandler {
    */
   private void initWebAsyncManagerFactory(ApplicationContext context) {
     if (webAsyncManagerFactory == null) {
-      webAsyncManagerFactory = WebAsyncManagerFactory.find(context);
+      setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));
     }
   }
 
@@ -300,7 +297,6 @@ public class DispatcherHandler extends InfraHandler {
    * @since 4.0
    */
   public void dispatch(RequestContext context) throws Throwable {
-    context.setWebAsyncManagerFactory(webAsyncManagerFactory); // TODO 构造注入
     logRequest(context);
     Object handler = null;
     Object returnValue = null;

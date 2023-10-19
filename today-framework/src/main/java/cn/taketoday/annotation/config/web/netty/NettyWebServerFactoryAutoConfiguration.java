@@ -47,8 +47,8 @@ import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.PropertyMapper;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.multipart.MultipartConfig;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 

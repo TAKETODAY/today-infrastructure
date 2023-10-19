@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,11 +74,9 @@ final class TestDispatcherServlet extends DispatcherServlet {
 
     if (request != servletRequest && response != servletResponse) {
       context = new ServletRequestContext(
-              getApplicationContext(), (HttpServletRequest) request, (HttpServletResponse) response);
+              getApplicationContext(), (HttpServletRequest) request, (HttpServletResponse) response, this);
       RequestContextHolder.set(context);
     }
-
-    context.setWebAsyncManagerFactory(webAsyncManagerFactory);
 
     registerAsyncResultInterceptors(context);
 

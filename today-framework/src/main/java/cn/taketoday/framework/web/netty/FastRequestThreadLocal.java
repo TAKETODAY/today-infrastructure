@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.framework.web.netty;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestThreadLocal;
 import io.netty.util.concurrent.FastThreadLocal;
@@ -44,7 +42,7 @@ public final class FastRequestThreadLocal extends RequestThreadLocal {
   }
 
   @Override
-  public void set(RequestContext context) {
+  public void set(@Nullable RequestContext context) {
     threadLocal.set(context);
   }
 }

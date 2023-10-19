@@ -199,8 +199,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   private String id;
 
-  protected RequestContext(ApplicationContext context) {
+  protected final DispatcherHandler dispatcherHandler;
+
+  protected RequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
+    this.dispatcherHandler = dispatcherHandler;
   }
 
   /**
@@ -853,21 +856,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public WebAsyncManager getAsyncManager() {
     WebAsyncManager webAsyncManager = this.webAsyncManager;
     if (webAsyncManager == null) {
-      webAsyncManager = createWebAsyncManager();
+      WebAsyncManagerFactory factory = dispatcherHandler != null ? dispatcherHandler.webAsyncManagerFactory : null;
+      if (factory == null) {
+        factory = new WebAsyncManagerFactory();
+      }
+      webAsyncManager = factory.getWebAsyncManager(this);
       this.webAsyncManager = webAsyncManager;
     }
     return webAsyncManager;
-  }
-
-  private WebAsyncManagerFactory webAsyncManagerFactory;
-
-  public void setWebAsyncManagerFactory(WebAsyncManagerFactory webAsyncManagerFactory) {
-    this.webAsyncManagerFactory = webAsyncManagerFactory;
-  }
-
-  private WebAsyncManager createWebAsyncManager() {
-    return Objects.requireNonNullElseGet(webAsyncManagerFactory, WebAsyncManagerFactory::new)
-            .getWebAsyncManager(this);
   }
 
   // ---------------------------------------------------------------------

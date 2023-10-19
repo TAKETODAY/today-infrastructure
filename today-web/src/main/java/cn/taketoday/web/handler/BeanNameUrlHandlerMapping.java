@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.HandlerMapping;
 
 /**
@@ -29,7 +30,7 @@ import cn.taketoday.web.HandlerMapping;
  * maps URLs to action names.
  *
  * <p>This is the default implementation used by the
- * {@link cn.taketoday.web.handler.DispatcherHandler}, along with
+ * {@link DispatcherHandler}, along with
  * {@link cn.taketoday.web.handler.method.RequestMappingHandlerMapping}.
  * Alternatively, {@link SimpleUrlHandlerMapping}
  * allows for customizing a handler mapping declaratively.

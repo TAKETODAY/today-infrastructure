@@ -49,7 +49,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.RedirectModelManager;
@@ -71,7 +70,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   private static final long serialVersionUID = 1L;
 
   protected DecoratingRequestContext() {
-    super(null);
+    super(null, null);
   }
 
   @Override
@@ -637,11 +636,6 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   public WebAsyncManager getAsyncManager() {
     return getDelegate().getAsyncManager();
-  }
-
-  @Override
-  public void setWebAsyncManagerFactory(WebAsyncManagerFactory webAsyncManagerFactory) {
-    getDelegate().setWebAsyncManagerFactory(webAsyncManagerFactory);
   }
 
   @Override

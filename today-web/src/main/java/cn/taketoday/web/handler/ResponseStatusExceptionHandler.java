@@ -25,6 +25,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.i18n.LocaleContextHolder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ResponseStatusException;
@@ -36,7 +37,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * to HTTP status codes.
  *
  * <p>This exception resolver is enabled by default in the
- * {@link cn.taketoday.web.handler.DispatcherHandler DispatcherHandler}
+ * {@link DispatcherHandler DispatcherHandler}
  * and the MVC Java config and the MVC namespace.
  *
  * <p>this resolver also looks recursively for {@code @ResponseStatus}

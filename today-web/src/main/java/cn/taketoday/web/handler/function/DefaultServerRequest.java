@@ -487,7 +487,7 @@ class DefaultServerRequest implements ServerRequest {
     private final RequestContext context;
 
     protected CheckNotModifiedResponse(RequestContext context) {
-      super(null);
+      super(null, null);
       this.context = context;
     }
 
