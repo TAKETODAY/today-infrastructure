@@ -87,11 +87,6 @@ public class NettyChannelHandler extends DispatcherHandler
   }
 
   @Override
-  public void channelReadComplete(ChannelHandlerContext ctx) {
-    ctx.flush();
-  }
-
-  @Override
   public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest httpRequest) {
       var nettyContext = createContext(ctx, httpRequest);
@@ -176,6 +171,11 @@ public class NettyChannelHandler extends DispatcherHandler
   @Override
   public void channelWritabilityChanged(ChannelHandlerContext ctx) {
     ctx.fireChannelWritabilityChanged();
+  }
+
+  @Override
+  public void channelReadComplete(ChannelHandlerContext ctx) {
+    ctx.fireChannelReadComplete();
   }
 
   static class WebSocketDelegate {
