@@ -79,7 +79,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    */
   public static final String INIT_PARAM_DELIMITERS = ",; \t\n";
 
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /** If the ApplicationContext was injected via {@link #setApplicationContext}. */
   private boolean applicationContextInjected;
@@ -211,19 +211,19 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
         afterApplicationContextInit();
       }
       catch (Exception ex) {
-        log.error("Context initialization failed", ex);
+        logger.error("Context initialization failed", ex);
         throw ex;
       }
 
-      if (log.isDebugEnabled()) {
+      if (logger.isDebugEnabled()) {
         String value = isEnableLoggingRequestDetails() ?
                        "shown which may lead to unsafe logging of potentially sensitive data" :
                        "masked to prevent unsafe logging of potentially sensitive data";
-        log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
+        logger.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
                 isEnableLoggingRequestDetails(), value);
       }
 
-      log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+      logger.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
     }
   }
 
@@ -475,7 +475,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @param msg Log message
    */
   protected void logInfo(final String msg) {
-    log.info(msg);
+    logger.info(msg);
   }
 
   /**

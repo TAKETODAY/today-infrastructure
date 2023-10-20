@@ -104,7 +104,7 @@ public class NettyChannelHandler extends DispatcherHandler
     }
     else {
       if (websocketPresent && msg instanceof WebSocketFrame) {
-        WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg, log);
+        WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg, logger);
       }
       else {
         ctx.fireChannelRead(msg);
@@ -118,7 +118,7 @@ public class NettyChannelHandler extends DispatcherHandler
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    if (!websocketPresent || !WebSocketDelegate.isErrorHandled(ctx, cause, log)) {
+    if (!websocketPresent || !WebSocketDelegate.isErrorHandled(ctx, cause, logger)) {
       HttpResponse response = getErrorResponse(ctx, cause);
       ctx.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);

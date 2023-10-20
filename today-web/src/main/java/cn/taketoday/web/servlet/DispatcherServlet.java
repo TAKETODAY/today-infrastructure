@@ -158,7 +158,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     String servletName = servletConfig.getServletName();
     servletConfig.getServletContext().log(
             "Initializing Infra " + getClass().getSimpleName() + " '" + servletName + "'");
-    log.info("Initializing Servlet '{}'", servletName);
+    logger.info("Initializing Servlet '{}'", servletName);
 
     init();
   }

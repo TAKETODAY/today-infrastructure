@@ -420,11 +420,11 @@ public class DispatcherHandler extends InfraHandler {
       throw ex;
     }
     else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      if (log.isTraceEnabled()) {
-        log.trace("Using resolved error view: {}", returnValue, ex);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Using resolved error view: {}", returnValue, ex);
       }
-      else if (log.isDebugEnabled()) {
-        log.debug("Using resolved error view: {}", returnValue);
+      else if (logger.isDebugEnabled()) {
+        logger.debug("Using resolved error view: {}", returnValue);
       }
     }
     return returnValue;
@@ -577,7 +577,7 @@ public class DispatcherHandler extends InfraHandler {
 
   // @since 4.0
   private void logRequest(RequestContext request) {
-    if (log.isDebugEnabled()) {
+    if (logger.isDebugEnabled()) {
       String params;
       String contentType = request.getContentType();
       if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
@@ -603,7 +603,7 @@ public class DispatcherHandler extends InfraHandler {
       }
 
       message = URLDecoder.decode(message, StandardCharsets.UTF_8);
-      if (log.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
         StringBuilder headers = new StringBuilder();
         HttpHeaders httpHeaders = request.requestHeaders();
         if (!httpHeaders.isEmpty()) {
@@ -630,32 +630,32 @@ public class DispatcherHandler extends InfraHandler {
           }
         }
 
-        log.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
+        logger.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
       }
       else {
-        log.debug(message);
+        logger.debug(message);
       }
     }
   }
 
   private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (log.isDebugEnabled()) {
+    if (logger.isDebugEnabled()) {
       if (failureCause != null) {
-        if (log.isTraceEnabled()) {
-          log.trace("Failed to complete request", failureCause);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Failed to complete request", failureCause);
         }
         else {
-          log.debug("Failed to complete request", failureCause);
+          logger.debug("Failed to complete request", failureCause);
         }
       }
       else {
         if (request.isConcurrentHandlingStarted()) {
-          log.debug("Exiting but response remains open for further handling");
+          logger.debug("Exiting but response remains open for further handling");
           return;
         }
 
         String headers = "";  // nothing below trace
-        if (log.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
           HttpHeaders httpHeaders = request.responseHeaders();
           if (isEnableLoggingRequestDetails()) {
             headers = httpHeaders.entrySet().stream()
@@ -668,17 +668,17 @@ public class DispatcherHandler extends InfraHandler {
           headers = ", headers={" + headers + "}";
         }
         HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+        logger.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
       }
     }
   }
 
   private void logStrategy(Object strategy) {
-    if (log.isTraceEnabled()) {
-      log.trace("Detected {}", strategy);
+    if (logger.isTraceEnabled()) {
+      logger.trace("Detected {}", strategy);
     }
-    else if (log.isDebugEnabled()) {
-      log.debug("Detected {}", strategy.getClass().getSimpleName());
+    else if (logger.isDebugEnabled()) {
+      logger.debug("Detected {}", strategy.getClass().getSimpleName());
     }
   }
 
