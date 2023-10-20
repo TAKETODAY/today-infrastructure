@@ -674,11 +674,8 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   private void logStrategy(Object strategy) {
-    if (logger.isTraceEnabled()) {
-      logger.trace("Detected {}", strategy);
-    }
-    else if (logger.isDebugEnabled()) {
-      logger.debug("Detected {}", strategy.getClass().getSimpleName());
+    if (logger.isDebugEnabled()) {
+      logger.debug("Detected {}", strategy.getClass().getName());
     }
   }
 
