@@ -20,7 +20,6 @@ package cn.taketoday.web.context.async;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -57,17 +56,16 @@ import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
  * @since 4.0
  */
 public final class WebAsyncManager {
+
   /**
    * The name attribute of the {@link RequestContext}.
    */
-  public static final String WEB_ASYNC_REQUEST_ATTRIBUTE =
-          WebAsyncManager.class.getName() + ".WEB_REQUEST";
+  public static final String WEB_ASYNC_REQUEST_ATTRIBUTE = WebAsyncManager.class.getName() + ".WEB_REQUEST";
 
   /**
    * The name attribute containing the result.
    */
-  public static final String WEB_ASYNC_RESULT_ATTRIBUTE =
-          WebAsyncManager.class.getName() + ".WEB_ASYNC_RESULT";
+  public static final String WEB_ASYNC_RESULT_ATTRIBUTE = WebAsyncManager.class.getName() + ".WEB_ASYNC_RESULT";
 
   private static final Object RESULT_NONE = new Object();
 
@@ -79,6 +77,10 @@ public final class WebAsyncManager {
   private static final TimeoutAsyncProcessingInterceptor timeoutInterceptor =
           new TimeoutAsyncProcessingInterceptor();
 
+  @Nullable
+  private Long asyncRequestTimeout;
+
+  @Nullable
   private AsyncWebRequest asyncRequest;
 
   private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
@@ -94,9 +96,11 @@ public final class WebAsyncManager {
    */
   private volatile boolean errorHandlingInProgress;
 
-  private final Map<Object, CallableProcessingInterceptor> callableInterceptors = new LinkedHashMap<>();
+  @Nullable
+  private LinkedHashMap<Object, CallableProcessingInterceptor> callableInterceptors;
 
-  private final Map<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors = new LinkedHashMap<>();
+  @Nullable
+  private LinkedHashMap<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   private final RequestContext requestContext;
 
@@ -126,6 +130,16 @@ public final class WebAsyncManager {
    */
   public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
     this.taskExecutor = taskExecutor;
+  }
+
+  /**
+   * Set the time required for concurrent handling to complete.
+   *
+   * @param timeout amount of time in milliseconds; {@code null} means no
+   * timeout, i.e. rely on the default timeout of the container.
+   */
+  public void setTimeout(@Nullable Long timeout) {
+    this.asyncRequestTimeout = timeout;
   }
 
   /**
@@ -164,7 +178,7 @@ public final class WebAsyncManager {
    */
   @Nullable
   public CallableProcessingInterceptor getCallableInterceptor(Object key) {
-    return callableInterceptors.get(key);
+    return callableInterceptors == null ? null : callableInterceptors.get(key);
   }
 
   /**
@@ -175,7 +189,7 @@ public final class WebAsyncManager {
    */
   @Nullable
   public DeferredResultProcessingInterceptor getDeferredResultInterceptor(Object key) {
-    return deferredResultInterceptors.get(key);
+    return deferredResultInterceptors == null ? null : deferredResultInterceptors.get(key);
   }
 
   /**
@@ -187,6 +201,9 @@ public final class WebAsyncManager {
   public void registerCallableInterceptor(Object key, CallableProcessingInterceptor interceptor) {
     Assert.notNull(key, "Key is required");
     Assert.notNull(interceptor, "CallableProcessingInterceptor is required");
+    if (callableInterceptors == null) {
+      callableInterceptors = new LinkedHashMap<>();
+    }
     callableInterceptors.put(key, interceptor);
   }
 
@@ -196,11 +213,15 @@ public final class WebAsyncManager {
    *
    * @param interceptors one or more interceptors to register
    */
-  public void registerCallableInterceptors(CallableProcessingInterceptor... interceptors) {
-    Assert.notNull(interceptors, "A CallableProcessingInterceptor is required");
-    for (CallableProcessingInterceptor interceptor : interceptors) {
-      String key = interceptor.getClass().getName() + ":" + interceptor.hashCode();
-      callableInterceptors.put(key, interceptor);
+  public void registerCallableInterceptors(@Nullable List<CallableProcessingInterceptor> interceptors) {
+    if (interceptors != null) {
+      if (callableInterceptors == null) {
+        callableInterceptors = new LinkedHashMap<>();
+      }
+      for (CallableProcessingInterceptor interceptor : interceptors) {
+        String key = interceptor.getClass().getName() + ":" + interceptor.hashCode();
+        callableInterceptors.put(key, interceptor);
+      }
     }
   }
 
@@ -213,6 +234,9 @@ public final class WebAsyncManager {
   public void registerDeferredResultInterceptor(Object key, DeferredResultProcessingInterceptor interceptor) {
     Assert.notNull(key, "Key is required");
     Assert.notNull(interceptor, "DeferredResultProcessingInterceptor is required");
+    if (deferredResultInterceptors == null) {
+      deferredResultInterceptors = new LinkedHashMap<>();
+    }
     deferredResultInterceptors.put(key, interceptor);
   }
 
@@ -222,11 +246,15 @@ public final class WebAsyncManager {
    *
    * @param interceptors one or more interceptors to register
    */
-  public void registerDeferredResultInterceptors(DeferredResultProcessingInterceptor... interceptors) {
-    Assert.notNull(interceptors, "A DeferredResultProcessingInterceptor is required");
-    for (DeferredResultProcessingInterceptor interceptor : interceptors) {
-      String key = interceptor.getClass().getName() + ":" + interceptor.hashCode();
-      deferredResultInterceptors.put(key, interceptor);
+  public void registerDeferredResultInterceptors(@Nullable List<DeferredResultProcessingInterceptor> interceptors) {
+    if (interceptors != null) {
+      if (deferredResultInterceptors == null) {
+        deferredResultInterceptors = new LinkedHashMap<>();
+      }
+      for (DeferredResultProcessingInterceptor interceptor : interceptors) {
+        String key = interceptor.getClass().getName() + ":" + interceptor.hashCode();
+        deferredResultInterceptors.put(key, interceptor);
+      }
     }
   }
 
@@ -271,12 +299,14 @@ public final class WebAsyncManager {
    * via {@link #getConcurrentResultContext()}
    * @throws Exception if concurrent processing failed to start
    */
-  public void startCallableProcessing(
-          WebAsyncTask<?> webAsyncTask, Object... processingContext) throws Exception {
+  public void startCallableProcessing(WebAsyncTask<?> webAsyncTask, Object... processingContext) throws Exception {
     Assert.notNull(webAsyncTask, "WebAsyncTask is required");
-    Assert.state(asyncRequest != null, "AsyncWebRequest is required");
+    AsyncWebRequest asyncRequest = getAsyncWebRequest();
 
     Long timeout = webAsyncTask.getTimeout();
+    if (timeout == null) {
+      timeout = this.asyncRequestTimeout;
+    }
     if (timeout != null) {
       asyncRequest.setTimeout(timeout);
     }
@@ -288,12 +318,13 @@ public final class WebAsyncManager {
 
     var interceptors = new ArrayList<CallableProcessingInterceptor>();
     interceptors.add(webAsyncTask.getInterceptor());
-    interceptors.addAll(callableInterceptors.values());
+    if (callableInterceptors != null) {
+      interceptors.addAll(callableInterceptors.values());
+    }
     interceptors.add(timeoutInterceptor);
 
     Callable<?> callable = webAsyncTask.getCallable();
-    CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
-
+    var interceptorChain = new CallableInterceptorChain(interceptors);
     asyncRequest.addTimeoutHandler(() -> {
       if (logger.isDebugEnabled()) {
         logger.debug("Async request timeout for {}", formatRequestUri());
@@ -319,7 +350,7 @@ public final class WebAsyncManager {
             () -> interceptorChain.triggerAfterCompletion(requestContext, callable));
 
     interceptorChain.applyBeforeConcurrentHandling(requestContext, callable);
-    startAsyncProcessing(processingContext);
+    startAsyncProcessing(asyncRequest, processingContext);
     try {
       Future<?> future = taskExecutor.submit(() -> {
         // context aware
@@ -346,6 +377,15 @@ public final class WebAsyncManager {
     }
   }
 
+  private AsyncWebRequest getAsyncWebRequest() {
+    AsyncWebRequest asyncRequest = this.asyncRequest;
+    if (asyncRequest == null) {
+      asyncRequest = requestContext.getAsyncWebRequest();
+      this.asyncRequest = asyncRequest;
+    }
+    return asyncRequest;
+  }
+
   private String formatRequestUri() {
     return requestContext.getRequestURI();
   }
@@ -359,6 +399,7 @@ public final class WebAsyncManager {
       this.errorHandlingInProgress = (result instanceof Throwable);
     }
 
+    AsyncWebRequest asyncRequest = getAsyncWebRequest();
     if (asyncRequest.isAsyncComplete()) {
       if (logger.isDebugEnabled()) {
         logger.debug("Async result set but request already complete: {}", formatRequestUri());
@@ -388,20 +429,23 @@ public final class WebAsyncManager {
    * @see #getConcurrentResult()
    * @see #getConcurrentResultContext()
    */
-  public void startDeferredResultProcessing(
-          DeferredResult<?> deferredResult, Object... processingContext) throws Exception {
-
+  public void startDeferredResultProcessing(DeferredResult<?> deferredResult, Object... processingContext) throws Exception {
     Assert.notNull(deferredResult, "DeferredResult is required");
-    Assert.state(asyncRequest != null, "AsyncWebRequest is required");
-
+    AsyncWebRequest asyncRequest = getAsyncWebRequest();
     Long timeout = deferredResult.getTimeoutValue();
+    if (timeout == null) {
+      timeout = this.asyncRequestTimeout;
+    }
+
     if (timeout != null) {
       asyncRequest.setTimeout(timeout);
     }
 
-    List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
+    ArrayList<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
     interceptors.add(deferredResult.getInterceptor());
-    interceptors.addAll(deferredResultInterceptors.values());
+    if (deferredResultInterceptors != null) {
+      interceptors.addAll(deferredResultInterceptors.values());
+    }
     interceptors.add(timeoutInterceptor);
 
     var interceptorChain = new DeferredResultInterceptorChain(interceptors);
@@ -432,7 +476,7 @@ public final class WebAsyncManager {
             interceptorChain.triggerAfterCompletion(requestContext, deferredResult));
 
     interceptorChain.applyBeforeConcurrentHandling(requestContext, deferredResult);
-    startAsyncProcessing(processingContext);
+    startAsyncProcessing(asyncRequest, processingContext);
 
     try {
       interceptorChain.applyPreProcess(requestContext, deferredResult);
@@ -446,7 +490,7 @@ public final class WebAsyncManager {
     }
   }
 
-  private void startAsyncProcessing(Object[] processingContext) {
+  private void startAsyncProcessing(AsyncWebRequest asyncRequest, Object[] processingContext) {
     synchronized(WebAsyncManager.this) {
       this.concurrentResult = RESULT_NONE;
       this.concurrentResultContext = processingContext;

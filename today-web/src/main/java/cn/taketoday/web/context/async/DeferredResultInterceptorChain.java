@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,7 @@
 
 package cn.taketoday.web.context.async;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -30,17 +27,18 @@ import cn.taketoday.web.RequestContext;
  * Assists with the invocation of {@link DeferredResultProcessingInterceptor}'s.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class DeferredResultInterceptorChain {
 
   private static final Logger logger = LoggerFactory.getLogger(DeferredResultInterceptorChain.class);
 
-  private final List<DeferredResultProcessingInterceptor> interceptors;
+  private final ArrayList<DeferredResultProcessingInterceptor> interceptors;
 
   private int preProcessingIndex = -1;
 
-  public DeferredResultInterceptorChain(List<DeferredResultProcessingInterceptor> interceptors) {
+  public DeferredResultInterceptorChain(ArrayList<DeferredResultProcessingInterceptor> interceptors) {
     this.interceptors = interceptors;
   }
 

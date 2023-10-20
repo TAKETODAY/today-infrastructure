@@ -18,12 +18,12 @@
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.context.async.CallableProcessingInterceptor;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
@@ -38,14 +38,16 @@ import cn.taketoday.web.context.async.DeferredResultProcessingInterceptor;
 public class AsyncSupportConfigurer {
 
   @Nullable
-  private AsyncTaskExecutor taskExecutor;
+  protected AsyncTaskExecutor taskExecutor;
 
   @Nullable
-  private Long timeout;
+  protected Long timeout;
 
-  private final List<CallableProcessingInterceptor> callableInterceptors = new ArrayList<>();
+  @Nullable
+  protected List<CallableProcessingInterceptor> callableInterceptors;
 
-  private final List<DeferredResultProcessingInterceptor> deferredResultInterceptors = new ArrayList<>();
+  @Nullable
+  protected List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   /**
    * The provided task executor is used for the following:
@@ -88,7 +90,10 @@ public class AsyncSupportConfigurer {
    * @param interceptors the interceptors to register
    */
   public AsyncSupportConfigurer registerCallableInterceptors(CallableProcessingInterceptor... interceptors) {
-    this.callableInterceptors.addAll(Arrays.asList(interceptors));
+    if (callableInterceptors == null) {
+      callableInterceptors = new ArrayList<>();
+    }
+    CollectionUtils.addAll(callableInterceptors, interceptors);
     return this;
   }
 
@@ -98,29 +103,12 @@ public class AsyncSupportConfigurer {
    *
    * @param interceptors the interceptors to register
    */
-  public AsyncSupportConfigurer registerDeferredResultInterceptors(
-          DeferredResultProcessingInterceptor... interceptors) {
-
-    this.deferredResultInterceptors.addAll(Arrays.asList(interceptors));
+  public AsyncSupportConfigurer registerDeferredResultInterceptors(DeferredResultProcessingInterceptor... interceptors) {
+    if (deferredResultInterceptors == null) {
+      deferredResultInterceptors = new ArrayList<>();
+    }
+    CollectionUtils.addAll(deferredResultInterceptors, interceptors);
     return this;
-  }
-
-  @Nullable
-  protected AsyncTaskExecutor getTaskExecutor() {
-    return this.taskExecutor;
-  }
-
-  @Nullable
-  protected Long getTimeout() {
-    return this.timeout;
-  }
-
-  protected List<CallableProcessingInterceptor> getCallableInterceptors() {
-    return this.callableInterceptors;
-  }
-
-  protected List<DeferredResultProcessingInterceptor> getDeferredResultInterceptors() {
-    return this.deferredResultInterceptors;
   }
 
 }

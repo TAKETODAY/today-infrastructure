@@ -108,8 +108,8 @@ public class DispatcherHandler extends InfraHandler {
     initReturnValueHandler(context);
     initExceptionHandler(context);
     initNotFoundHandler(context);
-    initRequestCompletedListeners(context);
     initWebAsyncManagerFactory(context);
+    initRequestCompletedListeners(context);
   }
 
   /**
@@ -120,6 +120,7 @@ public class DispatcherHandler extends InfraHandler {
   private void initHandlerMapping(ApplicationContext context) {
     if (handlerMapping == null) {
       setHandlerMapping(HandlerMapping.find(context, detectAllHandlerMapping));
+      logStrategy(handlerMapping);
     }
   }
 
@@ -131,6 +132,7 @@ public class DispatcherHandler extends InfraHandler {
   private void initHandlerAdapters(ApplicationContext context) {
     if (handlerAdapter == null) {
       setHandlerAdapter(HandlerAdapter.find(context, detectAllHandlerAdapters));
+      logStrategy(handlerAdapter);
     }
   }
 
@@ -154,6 +156,7 @@ public class DispatcherHandler extends InfraHandler {
         manager.registerDefaultHandlers();
       }
       setReturnValueHandler(manager);
+      logStrategy(manager);
     }
   }
 
@@ -167,6 +170,7 @@ public class DispatcherHandler extends InfraHandler {
   private void initExceptionHandler(ApplicationContext context) {
     if (exceptionHandler == null) {
       setExceptionHandler(HandlerExceptionHandler.find(context, detectAllHandlerExceptionHandlers));
+      logStrategy(exceptionHandler);
     }
   }
 
@@ -183,6 +187,19 @@ public class DispatcherHandler extends InfraHandler {
       if (notFoundHandler == null) {
         setNotFoundHandler(NotFoundHandler.instance);
       }
+      logStrategy(notFoundHandler);
+    }
+  }
+
+  /**
+   * Initialize the WebAsyncManagerFactory used by this class.
+   *
+   * @see WebAsyncManagerFactory
+   */
+  private void initWebAsyncManagerFactory(ApplicationContext context) {
+    if (webAsyncManagerFactory == null) {
+      setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));
+      logStrategy(webAsyncManagerFactory);
     }
   }
 
@@ -201,19 +218,9 @@ public class DispatcherHandler extends InfraHandler {
     addRequestCompletedActions(RequestContext::requestCompleted);
   }
 
-  /**
-   * Initialize the WebAsyncManagerFactory used by this class.
-   *
-   * @see WebAsyncManagerFactory
-   */
-  private void initWebAsyncManagerFactory(ApplicationContext context) {
-    if (webAsyncManagerFactory == null) {
-      setWebAsyncManagerFactory(WebAsyncManagerFactory.find(context));
-    }
-  }
-
+  // ------------------------------------------------------------------------
   // Handler
-  // ----------------------------------
+  // ------------------------------------------------------------------------
 
   /**
    * Find a suitable handler to handle this HTTP request
@@ -663,6 +670,15 @@ public class DispatcherHandler extends InfraHandler {
         HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
         log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
       }
+    }
+  }
+
+  private void logStrategy(Object strategy) {
+    if (log.isTraceEnabled()) {
+      log.trace("Detected {}", strategy);
+    }
+    else if (log.isDebugEnabled()) {
+      log.debug("Detected {}", strategy.getClass().getSimpleName());
     }
   }
 

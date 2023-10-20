@@ -20,6 +20,7 @@ package cn.taketoday.web.context.async;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -240,7 +241,7 @@ class WebAsyncManagerTests {
 
     setupDefaultAsyncScenario();
 
-    this.asyncManager.registerCallableInterceptors(interceptor1, interceptor2);
+    this.asyncManager.registerCallableInterceptors(List.of(interceptor1, interceptor2));
     this.asyncManager.startCallableProcessing(task);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
@@ -384,11 +385,11 @@ class WebAsyncManagerTests {
     assertThat(asyncManager.getDeferredResultInterceptor("key")).isEqualTo(processingInterceptor);
     //
 
-    asyncManager.registerCallableInterceptors(interceptor);
+    asyncManager.registerCallableInterceptors(List.of(interceptor));
     assertThat(asyncManager.getCallableInterceptor(
             interceptor.getClass().getName() + ":" + interceptor.hashCode())).isEqualTo(interceptor);
 
-    asyncManager.registerDeferredResultInterceptors(processingInterceptor);
+    asyncManager.registerDeferredResultInterceptors(List.of(processingInterceptor));
     assertThat(asyncManager.getDeferredResultInterceptor(
             processingInterceptor.getClass().getName() + ":" + processingInterceptor.hashCode()))
             .isEqualTo(processingInterceptor);

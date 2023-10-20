@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 
+import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.core.AttributeAccessorSupport;
@@ -856,14 +857,28 @@ public abstract class RequestContext extends AttributeAccessorSupport
   public WebAsyncManager getAsyncManager() {
     WebAsyncManager webAsyncManager = this.webAsyncManager;
     if (webAsyncManager == null) {
-      WebAsyncManagerFactory factory = dispatcherHandler != null ? dispatcherHandler.webAsyncManagerFactory : null;
-      if (factory == null) {
-        factory = new WebAsyncManagerFactory();
-      }
-      webAsyncManager = factory.getWebAsyncManager(this);
+      webAsyncManager = createWebAsyncManager();
       this.webAsyncManager = webAsyncManager;
     }
     return webAsyncManager;
+  }
+
+  private WebAsyncManager createWebAsyncManager() {
+    DispatcherHandler dispatcherHandler = this.dispatcherHandler;
+    if (dispatcherHandler == null) {
+      dispatcherHandler = BeanFactoryUtils.find(getApplicationContext(), DispatcherHandler.class);
+    }
+    WebAsyncManagerFactory factory = null;
+    if (dispatcherHandler != null) {
+      factory = dispatcherHandler.webAsyncManagerFactory;
+    }
+    if (factory == null) {
+      factory = BeanFactoryUtils.find(getApplicationContext(), WebAsyncManagerFactory.class);
+    }
+    if (factory == null) {
+      factory = new WebAsyncManagerFactory();
+    }
+    return factory.getWebAsyncManager(this);
   }
 
   // ---------------------------------------------------------------------

@@ -29,10 +29,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.DispatcherType;
@@ -48,8 +48,8 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Central dispatcher for HTTP request handlers/controllers in Servlet
  *
- * @author TODAY 2018-06-25 19:47:14
- * @since 2.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.0 2018-06-25 19:47:14
  */
 public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
 
@@ -289,7 +289,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     boolean reset = false;
     if (context == null) {
       context = new ServletRequestContext(getApplicationContext(),
-              (HttpServletRequest) request, (HttpServletResponse) response);
+              (HttpServletRequest) request, (HttpServletResponse) response, this);
       RequestContextHolder.set(context);
       reset = true;
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,7 @@
 
 package cn.taketoday.web.context.async;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -33,19 +30,20 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class CallableInterceptorChain {
 
   private static final Logger log = LoggerFactory.getLogger(CallableInterceptorChain.class);
 
-  private final List<CallableProcessingInterceptor> interceptors;
+  private final ArrayList<CallableProcessingInterceptor> interceptors;
 
   private int preProcessIndex = -1;
 
   private volatile Future<?> taskFuture;
 
-  public CallableInterceptorChain(List<CallableProcessingInterceptor> interceptors) {
+  public CallableInterceptorChain(ArrayList<CallableProcessingInterceptor> interceptors) {
     this.interceptors = interceptors;
   }
 

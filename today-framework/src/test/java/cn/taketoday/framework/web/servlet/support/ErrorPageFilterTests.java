@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +39,6 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockRequestDispatcher;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.RequestDispatcher;
@@ -433,7 +429,7 @@ class ErrorPageFilterTests {
     DeferredResult<String> result = new DeferredResult<>();
     ServletRequestContext context = new ServletRequestContext(null, request, response);
     WebAsyncManager asyncManager = context.getAsyncManager();
-    asyncManager.setAsyncRequest(new StandardServletAsyncWebRequest(request, response));
+    asyncManager.setAsyncRequest(context.getAsyncWebRequest());
     asyncManager.startDeferredResultProcessing(result);
   }
 

@@ -357,16 +357,13 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   public WebAsyncManagerFactory webAsyncManagerFactory() {
     WebAsyncManagerFactory factory = new WebAsyncManagerFactory();
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
-    if (configurer.getTaskExecutor() != null) {
-      factory.setTaskExecutor(configurer.getTaskExecutor());
+    if (configurer.taskExecutor != null) {
+      factory.setTaskExecutor(configurer.taskExecutor);
     }
 
-    if (configurer.getTimeout() != null) {
-      factory.setAsyncRequestTimeout(configurer.getTimeout());
-    }
-
-    factory.setCallableInterceptors(configurer.getCallableInterceptors());
-    factory.setDeferredResultInterceptors(configurer.getDeferredResultInterceptors());
+    factory.setAsyncRequestTimeout(configurer.timeout);
+    factory.setCallableInterceptors(configurer.callableInterceptors);
+    factory.setDeferredResultInterceptors(configurer.deferredResultInterceptors);
 
     return factory;
   }
@@ -556,8 +553,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     manager.setRedirectModelManager(redirectModelManager);
 
     AsyncSupportConfigurer configurer = getAsyncSupportConfigurer();
-    if (configurer.getTaskExecutor() != null) {
-      manager.setTaskExecutor(configurer.getTaskExecutor());
+    if (configurer.taskExecutor != null) {
+      manager.setTaskExecutor(configurer.taskExecutor);
     }
 
     manager.setContentNegotiationManager(contentNegotiationManager);

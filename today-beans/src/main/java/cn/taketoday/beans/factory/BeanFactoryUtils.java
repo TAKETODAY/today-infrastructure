@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -323,9 +320,7 @@ public abstract class BeanFactoryUtils {
    * @throws BeansException if a bean could not be created
    * @see BeanFactory#getBeansOfType(Class)
    */
-  public static <T> Map<String, T> beansOfTypeIncludingAncestors(
-          BeanFactory factory, Class<T> type) throws BeansException {
-
+  public static <T> Map<String, T> beansOfTypeIncludingAncestors(BeanFactory factory, Class<T> type) throws BeansException {
     Assert.notNull(factory, "BeanFactory is required");
     LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
     result.putAll(factory.getBeansOfType(type));
@@ -374,10 +369,8 @@ public abstract class BeanFactoryUtils {
    * @throws BeansException if a bean could not be created
    * @see BeanFactory#getBeansOfType(Class, boolean, boolean)
    */
-  public static <T> Map<String, T> beansOfTypeIncludingAncestors(
-          BeanFactory factory, @Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
-          throws BeansException //
-  {
+  public static <T> Map<String, T> beansOfTypeIncludingAncestors(BeanFactory factory,
+          @Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
     Assert.notNull(factory, "BeanFactory is required");
 
     LinkedHashMap<String, T> result = new LinkedHashMap<>(4);
@@ -458,10 +451,10 @@ public abstract class BeanFactoryUtils {
    * @throws BeansException if the bean could not be created
    * @see #beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    */
-  public static <T> T beanOfTypeIncludingAncestors(BeanFactory factory, Class<T> type,
-          boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
-    Map<String, T> beansOfType = beansOfTypeIncludingAncestors(
-            factory, type, includeNonSingletons, allowEagerInit);
+  public static <T> T beanOfTypeIncludingAncestors(BeanFactory factory,
+          Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
+
+    Map<String, T> beansOfType = beansOfTypeIncludingAncestors(factory, type, includeNonSingletons, allowEagerInit);
     return uniqueBean(type, beansOfType);
   }
 
@@ -515,10 +508,10 @@ public abstract class BeanFactoryUtils {
    * @throws BeansException if the bean could not be created
    * @see BeanFactory#getBeansOfType(Class, boolean, boolean)
    */
-  public static <T> T beanOfType(
-          BeanFactory factory, Class<T> type,
+  public static <T> T beanOfType(BeanFactory factory, Class<T> type,
           boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
     Assert.notNull(factory, "BeanFactory is required");
+
     Map<String, T> beansOfType = factory.getBeansOfType(type, includeNonSingletons, allowEagerInit);
     return uniqueBean(type, beansOfType);
   }
@@ -530,8 +523,8 @@ public abstract class BeanFactoryUtils {
    * @param parentResult the parent bean name result (possibly empty)
    * @param hbf the local bean factory
    */
-  private static void mergeNamesWithParent(
-          Set<String> result, Set<String> parentResult, HierarchicalBeanFactory hbf) {
+  private static void mergeNamesWithParent(Set<String> result,
+          Set<String> parentResult, HierarchicalBeanFactory hbf) {
     if (!parentResult.isEmpty()) {
       for (String beanName : parentResult) {
         if (!result.contains(beanName) && !hbf.containsLocalBean(beanName)) {

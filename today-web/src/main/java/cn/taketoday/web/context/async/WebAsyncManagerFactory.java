@@ -36,11 +36,12 @@ import cn.taketoday.web.RequestContext;
  * @since 4.0 2022/12/3 22:26
  */
 public class WebAsyncManagerFactory {
-  private static final Logger log = LoggerFactory.getLogger(WebAsyncManagerFactory.class);
 
-  private CallableProcessingInterceptor[] callableInterceptors = new CallableProcessingInterceptor[0];
+  @Nullable
+  private List<CallableProcessingInterceptor> callableInterceptors;
 
-  private DeferredResultProcessingInterceptor[] deferredResultInterceptors = new DeferredResultProcessingInterceptor[0];
+  @Nullable
+  private List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   @Nullable
   private Long asyncRequestTimeout;
@@ -71,7 +72,7 @@ public class WebAsyncManagerFactory {
    *
    * @param timeout the timeout value in milliseconds
    */
-  public void setAsyncRequestTimeout(long timeout) {
+  public void setAsyncRequestTimeout(@Nullable Long timeout) {
     this.asyncRequestTimeout = timeout;
   }
 
@@ -80,8 +81,8 @@ public class WebAsyncManagerFactory {
    *
    * @param interceptors the interceptors to register
    */
-  public void setCallableInterceptors(List<CallableProcessingInterceptor> interceptors) {
-    this.callableInterceptors = interceptors.toArray(new CallableProcessingInterceptor[0]);
+  public void setCallableInterceptors(@Nullable List<CallableProcessingInterceptor> interceptors) {
+    this.callableInterceptors = interceptors;
   }
 
   /**
@@ -89,20 +90,16 @@ public class WebAsyncManagerFactory {
    *
    * @param interceptors the interceptors to register
    */
-  public void setDeferredResultInterceptors(List<DeferredResultProcessingInterceptor> interceptors) {
-    this.deferredResultInterceptors = interceptors.toArray(new DeferredResultProcessingInterceptor[0]);
+  public void setDeferredResultInterceptors(@Nullable List<DeferredResultProcessingInterceptor> interceptors) {
+    this.deferredResultInterceptors = interceptors;
   }
 
   public WebAsyncManager getWebAsyncManager(RequestContext request) {
-    AsyncWebRequest asyncWebRequest = request.getAsyncWebRequest();
-    asyncWebRequest.setTimeout(asyncRequestTimeout);
-
     WebAsyncManager asyncManager = new WebAsyncManager(request);
     asyncManager.setTaskExecutor(taskExecutor);
-    asyncManager.setAsyncRequest(asyncWebRequest);
+    asyncManager.setTimeout(asyncRequestTimeout);
     asyncManager.registerCallableInterceptors(callableInterceptors);
     asyncManager.registerDeferredResultInterceptors(deferredResultInterceptors);
-
     return asyncManager;
   }
 
@@ -128,17 +125,20 @@ public class WebAsyncManagerFactory {
 
     @Override
     public void execute(Runnable task) {
-      if (taskExecutorWarning && log.isWarnEnabled()) {
-        synchronized(this) {
-          if (taskExecutorWarning) {
-            log.warn("""
-                    !!!
-                    Performing asynchronous handling through the default Web MVC SimpleAsyncTaskExecutor.
-                    This executor is not suitable for production use under load.
-                    Please, configure an AsyncTaskExecutor through the WebMvc config.
-                    -------------------------------
-                    !!!""");
-            taskExecutorWarning = false;
+      if (taskExecutorWarning) {
+        Logger logger = LoggerFactory.getLogger(WebAsyncManagerFactory.class);
+        if (logger.isWarnEnabled()) {
+          synchronized(this) {
+            if (taskExecutorWarning) {
+              logger.warn("""
+                      !!!
+                      Performing asynchronous handling through the default Web MVC SimpleAsyncTaskExecutor.
+                      This executor is not suitable for production use under load.
+                      Please, configure an AsyncTaskExecutor through the WebMvc config.
+                      -------------------------------
+                      !!!""");
+              taskExecutorWarning = false;
+            }
           }
         }
       }
