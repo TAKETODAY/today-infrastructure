@@ -865,14 +865,14 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   private WebAsyncManager createWebAsyncManager() {
     DispatcherHandler dispatcherHandler = this.dispatcherHandler;
-    if (dispatcherHandler == null) {
+    if (dispatcherHandler == null && getApplicationContext() != null) {
       dispatcherHandler = BeanFactoryUtils.find(getApplicationContext(), DispatcherHandler.class);
     }
     WebAsyncManagerFactory factory = null;
     if (dispatcherHandler != null) {
       factory = dispatcherHandler.webAsyncManagerFactory;
     }
-    if (factory == null) {
+    if (factory == null && getApplicationContext() != null) {
       factory = BeanFactoryUtils.find(getApplicationContext(), WebAsyncManagerFactory.class);
     }
     if (factory == null) {

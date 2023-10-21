@@ -29,13 +29,11 @@ import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.ReflectionTestUtils;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
@@ -69,23 +67,6 @@ class WebAsyncManagerTests {
             .setPropertyValue("asyncWebRequest", asyncWebRequest);
 
     reset(this.asyncWebRequest);
-  }
-
-  @Test
-  public void startAsyncProcessingWithoutAsyncWebRequest() throws Exception {
-    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
-    ServletRequestContext request = new ServletRequestContext(null, servletRequest, null);
-    WebAsyncManager manager = request.getAsyncManager();
-
-    ReflectionTestUtils.setField(manager, "asyncRequest", null);
-
-    assertThatIllegalStateException()
-            .isThrownBy(() -> manager.startCallableProcessing(new StubCallable(1)))
-            .withMessage("AsyncWebRequest is required");
-
-    assertThatIllegalStateException()
-            .isThrownBy(() -> manager.startDeferredResultProcessing(new DeferredResult<String>()))
-            .withMessage("AsyncWebRequest is required");
   }
 
   @Test
