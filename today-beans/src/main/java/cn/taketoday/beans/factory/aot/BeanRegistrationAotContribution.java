@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.util.function.UnaryOperator;
 
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * AOT contribution from a {@link BeanRegistrationAotProcessor} used to register
@@ -31,6 +29,7 @@ import cn.taketoday.lang.Assert;
  *
  * @author Phillip Webb
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanRegistrationAotProcessor
  * @since 4.0
  */
@@ -87,6 +86,33 @@ public interface BeanRegistrationAotContribution {
       public void applyTo(GenerationContext generationContext,
               BeanRegistrationCode beanRegistrationCode) {
       }
+    };
+  }
+
+  /**
+   * Create a contribution that applies the contribution of the first contribution
+   * followed by the second contribution. Any contribution can be {@code null} to be
+   * ignored and the concatenated contribution is {@code null} if both inputs are
+   * {@code null}.
+   *
+   * @param a the first contribution
+   * @param b the second contribution
+   * @return the concatenation of the two contributions, or {@code null} if
+   * they are both {@code null}.
+   */
+  @Nullable
+  static BeanRegistrationAotContribution concat(@Nullable BeanRegistrationAotContribution a,
+          @Nullable BeanRegistrationAotContribution b) {
+
+    if (a == null) {
+      return b;
+    }
+    if (b == null) {
+      return a;
+    }
+    return (generationContext, beanRegistrationCode) -> {
+      a.applyTo(generationContext, beanRegistrationCode);
+      b.applyTo(generationContext, beanRegistrationCode);
     };
   }
 
