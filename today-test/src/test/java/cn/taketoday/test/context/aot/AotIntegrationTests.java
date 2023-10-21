@@ -19,8 +19,12 @@ package cn.taketoday.test.context.aot;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.engine.TestSource;
 import org.junit.platform.engine.discovery.ClassNameFilter;
+import org.junit.platform.engine.support.descriptor.ClassSource;
+import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
@@ -28,9 +32,11 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 import org.junit.platform.launcher.listeners.TestExecutionSummary.Failure;
 import org.opentest4j.MultipleFailuresError;
 
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -156,7 +162,11 @@ class AotIntegrationTests extends AbstractAotTests {
       SummaryGeneratingListener listener = new SummaryGeneratingListener();
       LauncherFactory.create().execute(request, listener);
       TestExecutionSummary summary = listener.getSummary();
+      if (expectedNumTests < 0) {
+        summary.printTo(new PrintWriter(System.err));
+      }
       if (summary.getTotalFailureCount() > 0) {
+        printFailingTestClasses(summary);
         List<Throwable> exceptions = summary.getFailures().stream().map(Failure::getException).toList();
         throw new MultipleFailuresError("Test execution failures", exceptions);
       }
@@ -166,6 +176,50 @@ class AotIntegrationTests extends AbstractAotTests {
     }
     finally {
       System.clearProperty(AotDetector.AOT_ENABLED);
+    }
+  }
+
+  private static void printFailingTestClasses(TestExecutionSummary summary) {
+    System.err.println("Failing Test Classes:");
+    summary.getFailures().stream()
+            .map(Failure::getTestIdentifier)
+            .map(TestIdentifier::getSource)
+            .flatMap(Optional::stream)
+            .map(TestSource.class::cast)
+            .map(source -> {
+              if (source instanceof ClassSource classSource) {
+                return getJavaClass(classSource);
+              }
+              else if (source instanceof MethodSource methodSource) {
+                return getJavaClass(methodSource);
+              }
+              return Optional.<Class<?>>empty();
+            })
+            .flatMap(Optional::stream)
+            .map(Class::getName)
+            .distinct()
+            .sorted()
+            .forEach(System.err::println);
+    System.err.println();
+  }
+
+  private static Optional<Class<?>> getJavaClass(ClassSource classSource) {
+    try {
+      return Optional.of(classSource.getJavaClass());
+    }
+    catch (Exception ex) {
+      // ignore exception
+      return Optional.empty();
+    }
+  }
+
+  private static Optional<Class<?>> getJavaClass(MethodSource methodSource) {
+    try {
+      return Optional.of(methodSource.getJavaClass());
+    }
+    catch (Exception ex) {
+      // ignore exception
+      return Optional.empty();
     }
   }
 
