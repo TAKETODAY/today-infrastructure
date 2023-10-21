@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.test.annotation.IfProfileValue;
 import cn.taketoday.test.annotation.ProfileValueSource;
 import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
 import cn.taketoday.test.context.TestExecutionListeners;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -51,6 +49,9 @@ import static org.assertj.core.api.Assertions.fail;
  */
 @RunWith(InfraRunner.class)
 @TestExecutionListeners({})
+// Since this test class does not load an ApplicationContext,
+// this test class simply is not supported for AOT processing.
+@DisabledInAotMode
 public class EnabledAndIgnoredSpringRunnerTests {
 
   protected static final String NAME = "EnabledAndIgnoredSpringRunnerTests.profile_value.name";

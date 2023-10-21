@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +23,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
 import cn.taketoday.test.context.TestPropertySource;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -37,6 +35,9 @@ import cn.taketoday.util.ClassUtils;
  * @author Sam Brannen
  * @since 4.0
  */
+// Since Spring test's AOT processing support does not invoke test lifecycle methods such
+// as @BeforeAll/@AfterAll, this test class simply is not supported for AOT processing.
+@DisabledInAotMode
 @DisplayName("Explicit properties file in @TestPropertySource")
 class ExplicitPropertiesFileTestPropertySourceTests {
 

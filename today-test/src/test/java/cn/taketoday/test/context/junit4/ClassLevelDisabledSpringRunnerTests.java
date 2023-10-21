@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import cn.taketoday.test.annotation.IfProfileValue;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.TestExecutionListeners;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 
 import static org.assertj.core.api.Assertions.fail;
 
@@ -37,6 +35,9 @@ import static org.assertj.core.api.Assertions.fail;
 @RunWith(InfraRunner.class)
 @TestExecutionListeners(ClassLevelDisabledSpringRunnerTests.CustomTestExecutionListener.class)
 @IfProfileValue(name = "ClassLevelDisabledSpringRunnerTests.profile_value.name", value = "enigmaX")
+// Since Infra test's AOT processing support does not evaluate @IfProfileValue,
+// this test class simply is not supported for AOT processing.
+@DisabledInAotMode
 public class ClassLevelDisabledSpringRunnerTests {
 
   @Test

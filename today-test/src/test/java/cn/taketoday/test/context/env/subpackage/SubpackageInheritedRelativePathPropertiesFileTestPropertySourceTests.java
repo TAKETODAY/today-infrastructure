@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.test.context.env.subpackage;
 
 import cn.taketoday.test.context.TestPropertySource;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.env.ExplicitPropertiesFileInClasspathTestPropertySourceTests;
 
 /**
@@ -31,6 +29,8 @@ import cn.taketoday.test.context.env.ExplicitPropertiesFileInClasspathTestProper
  * @author Sam Brannen
  * @since 4.0
  */
+// Since ExplicitPropertiesFileTestPropertySourceTests is disabled in AOT mode, this class must be also.
+@DisabledInAotMode
 class SubpackageInheritedRelativePathPropertiesFileTestPropertySourceTests extends
         ExplicitPropertiesFileInClasspathTestPropertySourceTests {
 

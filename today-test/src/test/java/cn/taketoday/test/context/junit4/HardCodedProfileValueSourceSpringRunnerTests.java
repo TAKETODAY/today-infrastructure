@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import org.junit.BeforeClass;
 
 import cn.taketoday.test.annotation.ProfileValueSource;
 import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 
 /**
  * <p>
@@ -40,6 +38,8 @@ import cn.taketoday.test.annotation.ProfileValueSourceConfiguration;
  * @since 4.0
  */
 @ProfileValueSourceConfiguration(HardCodedProfileValueSourceSpringRunnerTests.HardCodedProfileValueSource.class)
+// Since EnabledAndIgnoredSpringRunnerTests is disabled in AOT mode, this test class must be also.
+@DisabledInAotMode
 public class HardCodedProfileValueSourceSpringRunnerTests extends EnabledAndIgnoredSpringRunnerTests {
 
   @BeforeClass
