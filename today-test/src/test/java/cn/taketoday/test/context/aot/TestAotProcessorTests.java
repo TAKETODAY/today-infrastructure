@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
-import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterImportedConfigTests;
-import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
-import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterTests;
-import cn.taketoday.test.context.aot.samples.basic.BasicInfraVintageTests;
-import cn.taketoday.util.ClassUtils;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -38,6 +29,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterImportedConfigTests;
+import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
+import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterTests;
+import cn.taketoday.test.context.aot.samples.basic.BasicInfraVintageTests;
+import cn.taketoday.test.context.aot.samples.basic.DisabledInAotProcessingTests;
+import cn.taketoday.test.context.aot.samples.basic.DisabledInAotRuntimeClassLevelTests;
+import cn.taketoday.test.context.aot.samples.basic.DisabledInAotRuntimeMethodLevelTests;
+import cn.taketoday.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,7 +58,10 @@ class TestAotProcessorTests extends AbstractAotTests {
             BasicInfraJupiterSharedConfigTests.class,
             BasicInfraJupiterTests.class,
             BasicInfraJupiterTests.NestedTests.class,
-            BasicInfraVintageTests.class
+            BasicInfraVintageTests.class,
+            DisabledInAotProcessingTests.class,
+            DisabledInAotRuntimeClassLevelTests.class,
+            DisabledInAotRuntimeMethodLevelTests.class
     ).forEach(testClass -> copy(testClass, classpathRoot));
 
     Set<Path> classpathRoots = Set.of(classpathRoot);

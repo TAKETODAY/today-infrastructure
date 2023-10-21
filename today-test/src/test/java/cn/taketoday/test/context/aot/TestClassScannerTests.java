@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +23,9 @@ import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterImportedConf
 import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterSharedConfigTests;
 import cn.taketoday.test.context.aot.samples.basic.BasicInfraJupiterTests;
 import cn.taketoday.test.context.aot.samples.basic.BasicInfraVintageTests;
+import cn.taketoday.test.context.aot.samples.basic.DisabledInAotProcessingTests;
+import cn.taketoday.test.context.aot.samples.basic.DisabledInAotRuntimeClassLevelTests;
+import cn.taketoday.test.context.aot.samples.basic.DisabledInAotRuntimeMethodLevelTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +45,10 @@ class TestClassScannerTests extends AbstractAotTests {
                     BasicInfraJupiterSharedConfigTests.class,
                     BasicInfraJupiterTests.class,
                     BasicInfraJupiterTests.NestedTests.class,
-                    BasicInfraVintageTests.class
+                    BasicInfraVintageTests.class,
+                    DisabledInAotProcessingTests.class,
+                    DisabledInAotRuntimeClassLevelTests.class,
+                    DisabledInAotRuntimeMethodLevelTests.class
             );
   }
 
@@ -54,7 +57,11 @@ class TestClassScannerTests extends AbstractAotTests {
     assertThat(scan("cn.taketoday.test.context.aot.samples.suites.jupiter"))
             .containsExactlyInAnyOrder(BasicInfraJupiterImportedConfigTests.class,
                     BasicInfraJupiterSharedConfigTests.class, BasicInfraJupiterTests.class,
-                    BasicInfraJupiterTests.NestedTests.class);
+                    BasicInfraJupiterTests.NestedTests.class,
+                    DisabledInAotProcessingTests.class,
+                    DisabledInAotRuntimeClassLevelTests.class,
+                    DisabledInAotRuntimeMethodLevelTests.class
+            );
   }
 
   @Test
@@ -71,7 +78,10 @@ class TestClassScannerTests extends AbstractAotTests {
                     BasicInfraJupiterSharedConfigTests.class,
                     BasicInfraJupiterTests.class,
                     BasicInfraJupiterTests.NestedTests.class,
-                    BasicInfraVintageTests.class
+                    BasicInfraVintageTests.class,
+                    DisabledInAotProcessingTests.class,
+                    DisabledInAotRuntimeClassLevelTests.class,
+                    DisabledInAotRuntimeMethodLevelTests.class
             );
   }
 
@@ -83,12 +93,15 @@ class TestClassScannerTests extends AbstractAotTests {
                     BasicInfraJupiterSharedConfigTests.class,
                     BasicInfraJupiterTests.class,
                     BasicInfraJupiterTests.NestedTests.class,
-                    BasicInfraVintageTests.class
+                    BasicInfraVintageTests.class,
+                    DisabledInAotProcessingTests.class,
+                    DisabledInAotRuntimeClassLevelTests.class,
+                    DisabledInAotRuntimeMethodLevelTests.class
             );
   }
 
   @Test
-  void scanEntireSpringTestModule() {
+  void scanEntireTestModule() {
     assertThat(scan()).hasSizeGreaterThan(400);
   }
 

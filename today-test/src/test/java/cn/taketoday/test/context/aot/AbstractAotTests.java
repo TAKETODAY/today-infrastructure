@@ -51,7 +51,7 @@ abstract class AbstractAotTests {
           "cn/taketoday/test/context/aot/samples/basic/BasicTestConfiguration__TestContext002_BeanDefinitions.java",
           "cn/taketoday/test/context/aot/samples/management/ManagementConfiguration__TestContext002_BeanDefinitions.java",
           "cn/taketoday/test/context/aot/samples/management/ManagementMessageService__TestContext002_ManagementBeanDefinitions.java",
-          
+
           // BasicInfraJupiterTests -- not generated b/c already generated for BasicInfraJupiterSharedConfigTests.
           // BasicInfraJupiterTests.NestedTests
           "cn/taketoday/context/event/DefaultEventListenerFactory__TestContext003_BeanDefinitions.java",
@@ -64,7 +64,7 @@ abstract class AbstractAotTests {
           "cn/taketoday/test/context/aot/samples/basic/BasicTestConfiguration__TestContext003_BeanDefinitions.java",
           "cn/taketoday/test/context/aot/samples/management/ManagementConfiguration__TestContext003_BeanDefinitions.java",
           "cn/taketoday/test/context/aot/samples/management/ManagementMessageService__TestContext003_ManagementBeanDefinitions.java",
-          
+
           // BasicInfraVintageTests
           "cn/taketoday/context/event/DefaultEventListenerFactory__TestContext004_BeanDefinitions.java",
           "cn/taketoday/context/event/EventListenerMethodProcessor__TestContext004_BeanDefinitions.java",
@@ -75,7 +75,16 @@ abstract class AbstractAotTests {
           "cn/taketoday/framework/test/mock/mockito/MockitoPostProcessor__TestContext001_BeanDefinitions.java",
           "cn/taketoday/framework/test/mock/mockito/MockitoPostProcessor__TestContext002_BeanDefinitions.java",
           "cn/taketoday/framework/test/mock/mockito/MockitoPostProcessor__TestContext003_BeanDefinitions.java",
-          "cn/taketoday/framework/test/mock/mockito/MockitoPostProcessor__TestContext004_BeanDefinitions.java"
+          "cn/taketoday/framework/test/mock/mockito/MockitoPostProcessor__TestContext004_BeanDefinitions.java",
+
+          // DisabledInAotRuntimeMethodLevelTests
+          "cn/taketoday/context/event/DefaultEventListenerFactory__TestContext005_BeanDefinitions.java",
+          "cn/taketoday/context/event/EventListenerMethodProcessor__TestContext005_BeanDefinitions.java",
+          "cn/taketoday/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_ApplicationContextInitializer.java",
+          "cn/taketoday/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanDefinitions.java",
+          "cn/taketoday/test/context/aot/samples/basic/DisabledInAotRuntimeMethodLevelTests__TestContext005_BeanFactoryRegistrations.java",
+          "cn/taketoday/framework/test/mock/mockito/MockitoPostProcessor__TestContext005_BeanDefinitions.java"
+
   };
 
   Stream<Class<?>> scan() {
