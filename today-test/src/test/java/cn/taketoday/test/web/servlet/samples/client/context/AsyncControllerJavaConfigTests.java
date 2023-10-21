@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +31,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
@@ -60,6 +58,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(InfraExtension.class)
 @WebAppConfiguration
 @ContextHierarchy(@ContextConfiguration(classes = AsyncControllerJavaConfigTests.WebConfig.class))
+@DisabledInAotMode // @ContextHierarchy is not supported in AOT.
 public class AsyncControllerJavaConfigTests {
 
   @Autowired

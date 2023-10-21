@@ -26,6 +26,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.web.servlet.WebApplicationContext;
 
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @WebAppConfiguration
 @ContextHierarchy(@ContextConfiguration)
+@DisabledInAotMode // @ContextHierarchy is not supported in AOT.
 class RootWacEarTests extends EarTests {
 
   @Configuration(proxyBeanMethods = false)

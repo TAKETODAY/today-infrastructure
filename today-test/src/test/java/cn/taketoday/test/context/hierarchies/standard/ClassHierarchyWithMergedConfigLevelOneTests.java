@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         @ContextConfiguration(name = "parent", classes = ClassHierarchyWithMergedConfigLevelOneTests.AppConfig.class),//
         @ContextConfiguration(name = "child", classes = ClassHierarchyWithMergedConfigLevelOneTests.UserConfig.class) //
 })
+@DisabledInAotMode // @ContextHierarchy is not supported in AOT.
 class ClassHierarchyWithMergedConfigLevelOneTests {
 
   @Configuration

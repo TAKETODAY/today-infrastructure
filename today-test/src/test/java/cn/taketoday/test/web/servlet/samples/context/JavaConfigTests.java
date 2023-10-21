@@ -28,6 +28,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextHierarchy;
+import cn.taketoday.test.context.aot.DisabledInAotMode;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.web.Person;
@@ -66,6 +67,7 @@ import static org.mockito.Mockito.mock;
         @ContextConfiguration(classes = JavaConfigTests.RootConfig.class),
         @ContextConfiguration(classes = JavaConfigTests.WebConfig.class)
 })
+@DisabledInAotMode // @ContextHierarchy is not supported in AOT.
 public class JavaConfigTests {
 
   @Autowired
