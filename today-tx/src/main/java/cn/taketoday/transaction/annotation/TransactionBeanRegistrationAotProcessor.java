@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +52,7 @@ class TransactionBeanRegistrationAotProcessor implements BeanRegistrationAotProc
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
     Class<?> beanClass = registeredBean.getBeanClass();
     if (isTransactional(beanClass)) {
-      return new TransactionBeanRegistrationAotContribution(beanClass);
+      return new AotContribution(beanClass);
     }
     return null;
   }
@@ -75,11 +72,11 @@ class TransactionBeanRegistrationAotProcessor implements BeanRegistrationAotProc
     });
   }
 
-  private static class TransactionBeanRegistrationAotContribution implements BeanRegistrationAotContribution {
+  private static class AotContribution implements BeanRegistrationAotContribution {
 
     private final Class<?> beanClass;
 
-    public TransactionBeanRegistrationAotContribution(Class<?> beanClass) {
+    public AotContribution(Class<?> beanClass) {
       this.beanClass = beanClass;
     }
 
