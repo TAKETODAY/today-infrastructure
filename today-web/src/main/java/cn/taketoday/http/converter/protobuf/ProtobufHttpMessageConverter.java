@@ -23,7 +23,6 @@ import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.util.JsonFormat;
-import com.googlecode.protobuf.format.FormatFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,7 +70,6 @@ import static cn.taketoday.http.MediaType.TEXT_PLAIN;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see FormatFactory
  * @see JsonFormat
  * @see ProtobufJsonFormatHttpMessageConverter
  * @since 4.0
