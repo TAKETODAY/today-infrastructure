@@ -35,7 +35,7 @@ import static com.oracle.svm.core.annotate.RecomputeFieldValue.Kind;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@TargetClass(className = "org.hibernate.bytecode.internal.BytecodeProviderInitiator")
+@TargetClass(className = "org.hibernate.bytecode.internal.BytecodeProviderInitiator", onlyWith = SubstituteOnlyIfPresent.class)
 final class Target_BytecodeProviderInitiator {
 
   @Alias

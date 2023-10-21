@@ -17,28 +17,26 @@
 
 package cn.taketoday.orm.jpa.vendor;
 
-import com.oracle.svm.core.annotate.Substitute;
-import com.oracle.svm.core.annotate.TargetClass;
-
-import org.hibernate.bytecode.spi.ReflectionOptimizer;
-import org.hibernate.property.access.spi.PropertyAccess;
-
-import java.util.Map;
+import java.util.function.Predicate;
 
 /**
- * Hibernate 6.3+ substitution designed to leniently return {@code null}, as authorized by the API, to avoid throwing an
- * {@code HibernateException}.
- * TODO Ask Hibernate team to fix this as it looks like a bug
+ * Predicate intended to enable the related GraalVM substitution
+ * only when the class is present on the classpath.
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@TargetClass(className = "org.hibernate.bytecode.internal.none.BytecodeProviderImpl", onlyWith = SubstituteOnlyIfPresent.class)
-final class Target_BytecodeProvider {
+class SubstituteOnlyIfPresent implements Predicate<String> {
 
-  @Substitute
-  public ReflectionOptimizer getReflectionOptimizer(Class<?> clazz, Map<String, PropertyAccess> propertyAccessMap) {
-    return null;
+  @Override
+  public boolean test(String type) {
+    try {
+      Class.forName(type, false, getClass().getClassLoader());
+      return true;
+    }
+    catch (ClassNotFoundException | NoClassDefFoundError ex) {
+      return false;
+    }
   }
 }
