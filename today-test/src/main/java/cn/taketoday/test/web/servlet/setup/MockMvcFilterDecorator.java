@@ -48,6 +48,8 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 final class MockMvcFilterDecorator implements Filter {
 
+  private static final String ALL_MAPPING_PATTERN = "*";
+
   private static final String EXTENSION_MAPPING_PATTERN = "*.";
 
   private static final String PATH_MAPPING_PATTERN = "/*";
@@ -103,7 +105,7 @@ final class MockMvcFilterDecorator implements Filter {
     if (urlPattern.startsWith(EXTENSION_MAPPING_PATTERN)) {
       this.endsWithMatches.add(urlPattern.substring(1));
     }
-    else if (urlPattern.equals(PATH_MAPPING_PATTERN)) {
+    else if (urlPattern.equals(PATH_MAPPING_PATTERN) || urlPattern.equals(ALL_MAPPING_PATTERN)) {
       this.startsWithMatches.add("");
     }
     else if (urlPattern.endsWith(PATH_MAPPING_PATTERN)) {

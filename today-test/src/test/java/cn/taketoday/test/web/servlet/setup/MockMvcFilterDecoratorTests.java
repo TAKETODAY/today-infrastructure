@@ -88,21 +88,25 @@ class MockMvcFilterDecoratorTests {
 
   @Test
   public void matchPathMappingAllFolder() throws Exception {
+    assertFilterInvoked("/test/this", "*");
     assertFilterInvoked("/test/this", "/*");
   }
 
   @Test
   public void matchPathMappingAll() throws Exception {
+    assertFilterInvoked("/test", "*");
     assertFilterInvoked("/test", "/*");
   }
 
   @Test
   public void matchPathMappingAllContextRoot() throws Exception {
+    assertFilterInvoked("", "*");
     assertFilterInvoked("", "/*");
   }
 
   @Test
   public void matchPathMappingContextRootAndSlash() throws Exception {
+    assertFilterInvoked("/", "*");
     assertFilterInvoked("/", "/*");
   }
 
