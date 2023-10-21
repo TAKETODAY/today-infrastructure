@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,8 +59,8 @@ import cn.taketoday.lang.Nullable;
  * @param <V> the value type
  * @author Phillip Webb
  * @author Juergen Hoeller
- * @author TODAY 2021/9/11 12:49
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/9/11 12:49
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implements ConcurrentMap<K, V> {
@@ -588,7 +585,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
       boolean needsResize;
       lock();
       try {
-        int countAfterRestructure = this.count.get();
+        int expectedCount = this.count.get();
         Set<Reference<K, V>> toPurge = Collections.emptySet();
         if (ref != null) {
           toPurge = new HashSet<>();
@@ -597,36 +594,39 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
             ref = this.referenceManager.pollForPurge();
           }
         }
-        countAfterRestructure -= toPurge.size();
+        expectedCount -= toPurge.size();
 
-        // Recalculate taking into account count inside lock and items that
-        // will be purged
-        needsResize = (countAfterRestructure > 0 && countAfterRestructure >= this.resizeThreshold);
+        // Estimate new count, taking into account count inside lock and items that
+        // will be purged.
+        needsResize = (expectedCount > 0 && expectedCount >= this.resizeThreshold);
         boolean resizing = false;
-
-        int restructureSize = references.length;
+        int restructureSize = this.references.length;
         if (allowResize && needsResize && restructureSize < MAXIMUM_SEGMENT_SIZE) {
           restructureSize <<= 1;
           resizing = true;
         }
 
         // Either create a new table or reuse the existing one
-        final Reference<K, V>[] restructured =
-                resizing ? createReferenceArray(restructureSize) : references;
+        Reference<K, V>[] restructured =
+                (resizing ? createReferenceArray(restructureSize) : this.references);
 
         // Restructure
-        for (int i = 0; i < references.length; i++) {
-          ref = references[i];
+        int newCount = 0;
+        for (int i = 0; i < this.references.length; i++) {
+          ref = this.references[i];
           if (!resizing) {
             restructured[i] = null;
           }
           while (ref != null) {
             if (!toPurge.contains(ref)) {
               Entry<K, V> entry = ref.get();
+              // Also filter out null references that are now null
+              // they should be polled the queue in a later restructure call.
               if (entry != null) {
                 int index = getIndex(ref.getHash(), restructured);
                 restructured[index] = this.referenceManager.createReference(
                         entry, ref.getHash(), restructured[index]);
+                newCount++;
               }
             }
             ref = ref.getNext();
@@ -638,7 +638,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
           this.references = restructured;
           this.resizeThreshold = (int) (this.references.length * getLoadFactor());
         }
-        this.count.set(Math.max(countAfterRestructure, 0));
+        this.count.set(Math.max(newCount, 0));
       }
       finally {
         unlock();
@@ -648,14 +648,14 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
     /**
      * Return the size of the current references array.
      */
-    public final int getSize() {
+    public int getSize() {
       return this.references.length;
     }
 
     /**
      * Return the total number of references in this segment.
      */
-    public final int getCount() {
+    public int getCount() {
       return this.count.get();
     }
   }
@@ -818,8 +818,8 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
      * @see #execute(Reference, Entry)
      */
     @Nullable
-    protected T execute(
-            @Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries entries) {
+    protected T execute(@Nullable Reference<K, V> ref,
+            @Nullable Entry<K, V> entry, @Nullable Entries entries) {
       return execute(ref, entry);
     }
 
