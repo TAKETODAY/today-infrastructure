@@ -35,6 +35,7 @@ import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.handler.AbstractActionMappingMethodExceptionHandler;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
+import cn.taketoday.web.util.DisconnectedClientHelper;
 
 /**
  * Handle {@link ExceptionHandler} annotated method
@@ -42,21 +43,31 @@ import cn.taketoday.web.resource.ResourceHttpRequestHandler;
  * this method indicates that is a exception handler
  * </p>
  *
- * @author TODAY 2019-06-22 19:17
- * @since 2.3.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.3.7 2019-06-22 19:17
  */
 public class ExceptionHandlerAnnotationExceptionHandler
-    extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
+        extends AbstractActionMappingMethodExceptionHandler implements ApplicationContextAware, InitializingBean {
+  /**
+   * Log category to use for network failure after a client has gone away.
+   *
+   * @see DisconnectedClientHelper
+   */
+  private static final String DISCONNECTED_CLIENT_LOG_CATEGORY =
+          "cn.taketoday.web.handler.DisconnectedClient";
+
+  private static final DisconnectedClientHelper disconnectedClientHelper =
+          new DisconnectedClientHelper(DISCONNECTED_CLIENT_LOG_CATEGORY);
 
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
-      new ConcurrentHashMap<>(64);
+          new ConcurrentHashMap<>(64);
 
   private final LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
-      new LinkedHashMap<>();
+          new LinkedHashMap<>();
 
   // TODO optimise
   private final ConcurrentHashMap<Method, ActionMappingAnnotationHandler> exceptionHandlerMapping =
-      new ConcurrentHashMap<>(64);
+          new ConcurrentHashMap<>(64);
 
   @Nullable
   private ApplicationContext applicationContext;
@@ -66,7 +77,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
   @Nullable
   @Override
   protected Object handleInternal(
-      RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
+          RequestContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
     var exHandler = lookupExceptionHandler(handlerMethod, target);
     if (exHandler == null) {
@@ -98,10 +109,12 @@ public class ExceptionHandlerAnnotationExceptionHandler
       return NONE_RETURN_VALUE;
     }
     catch (Throwable invocationEx) {
-      // Any other than the original exception (or a cause) is unintended here,
-      // probably an accident (e.g. failed assertion or the like).
-      if (!exceptions.contains(invocationEx) && logger.isWarnEnabled()) {
-        logger.warn("Failure in @ExceptionHandler {}", exHandler, invocationEx);
+      if (!disconnectedClientHelper.checkAndLogClientDisconnectedException(invocationEx)) {
+        // Any other than the original exception (or a cause) is unintended here,
+        // probably an accident (e.g. failed assertion or the like).
+        if (!exceptions.contains(invocationEx) && logger.isWarnEnabled()) {
+          logger.warn("Failure in @ExceptionHandler {}", exHandler, invocationEx);
+        }
       }
       // Continue with default processing of the original exception...
       return null;
@@ -120,7 +133,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
    */
   @Nullable
   protected ActionMappingAnnotationHandler lookupExceptionHandler(
-      @Nullable HandlerMethod handlerMethod, Throwable exception) {
+          @Nullable HandlerMethod handlerMethod, Throwable exception) {
 
     Class<?> handlerType = null;
 
@@ -132,7 +145,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
       Method method = resolver.resolveMethod(exception);
       if (method != null) {
         return exceptionHandlerMapping.computeIfAbsent(method,
-            key -> getHandler(handlerMethod::getBean, key, handlerMethod.getBeanType()));
+                key -> getHandler(handlerMethod::getBean, key, handlerMethod.getBeanType()));
       }
       // For advice applicability check below (involving base packages, assignable types
       // and annotation presence), use target class instead of interface-based proxy.
@@ -148,7 +161,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
         Method method = resolver.resolveMethod(exception);
         if (method != null) {
           return exceptionHandlerMapping.computeIfAbsent(method,
-              key -> getHandler(advice::resolveBean, key, advice.getBeanType()));
+                  key -> getHandler(advice::resolveBean, key, advice.getBeanType()));
         }
       }
     }
@@ -157,7 +170,7 @@ public class ExceptionHandlerAnnotationExceptionHandler
   }
 
   private ActionMappingAnnotationHandler getHandler(
-      Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
+          Supplier<Object> handlerBean, Method method, Class<?> errorHandlerType) {
     return handlerFactory.create(handlerBean, method, errorHandlerType, null);
   }
 
