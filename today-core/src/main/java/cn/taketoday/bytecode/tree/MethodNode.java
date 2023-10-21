@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -244,7 +241,7 @@ public class MethodNode extends MethodVisitor {
     AnnotationNode annotation = new AnnotationNode(descriptor);
     if (visible) {
       if (visibleParameterAnnotations == null) {
-        int params = Type.getArgumentTypes(desc).length;
+        int params = Type.getArgumentCount(desc);
         visibleParameterAnnotations = (List<AnnotationNode>[]) new List<?>[params];
       }
       visibleParameterAnnotations[parameter] =
@@ -252,7 +249,7 @@ public class MethodNode extends MethodVisitor {
     }
     else {
       if (invisibleParameterAnnotations == null) {
-        int params = Type.getArgumentTypes(desc).length;
+        int params = Type.getArgumentCount(desc);
         invisibleParameterAnnotations = (List<AnnotationNode>[]) new List<?>[params];
       }
       invisibleParameterAnnotations[parameter] =

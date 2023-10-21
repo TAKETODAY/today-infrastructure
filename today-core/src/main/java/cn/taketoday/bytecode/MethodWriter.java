@@ -22,6 +22,7 @@ package cn.taketoday.bytecode;
  *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6">JVMS
  * 4.6</a>
  */
@@ -679,7 +680,7 @@ final class MethodWriter extends MethodVisitor {
     if (visible) {
       if (lastRuntimeVisibleParameterAnnotations == null) {
         lastRuntimeVisibleParameterAnnotations =
-                new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
+                new AnnotationWriter[Type.getArgumentCount(descriptor)];
       }
       return lastRuntimeVisibleParameterAnnotations[parameter] =
               AnnotationWriter.create(
@@ -688,7 +689,7 @@ final class MethodWriter extends MethodVisitor {
     else {
       if (lastRuntimeInvisibleParameterAnnotations == null) {
         lastRuntimeInvisibleParameterAnnotations =
-                new AnnotationWriter[Type.getArgumentTypes(descriptor).length];
+                new AnnotationWriter[Type.getArgumentCount(descriptor)];
       }
       return lastRuntimeInvisibleParameterAnnotations[parameter] =
               AnnotationWriter.create(

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -230,6 +227,34 @@ public class TypeTest implements Opcodes {
             Type.forReturnType(Arrays.class.getMethod("binarySearch", byte[].class, byte.class));
 
     assertEquals(Type.INT_TYPE, returnType);
+  }
+
+  @Test
+  void testGetArgumentCountFromType() {
+    assertEquals(
+            14,
+            Type.fromMethod("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
+                    .getArgumentCount());
+  }
+
+  @Test
+  void testGetArgumentCountFromDescriptor() {
+    assertEquals(
+            14, Type.getArgumentCount("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V"));
+    assertEquals(0, Type.getArgumentCount("()I"));
+  }
+
+  @Test
+  void testGetArgumentsAndReturnSizeFromType() {
+    assertEquals(
+            17 << 2,
+            Type.fromMethod("(IZBCSDFJLI;LV;Ljava/lang/Object;[I[LI;[[Ljava/lang/Object;)V")
+                    .getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.fromMethod("()I").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.fromMethod("()F").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 2, Type.fromMethod("()J").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 2, Type.fromMethod("()D").getArgumentsAndReturnSizes());
+    assertEquals(1 << 2 | 1, Type.fromMethod("()LD;").getArgumentsAndReturnSizes());
   }
 
   @Test

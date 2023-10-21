@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -538,11 +535,10 @@ public class Frame<V extends Value> {
     return false;
   }
 
-  private void executeInvokeInsn(
-          final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
+  private void executeInvokeInsn(final AbstractInsnNode insn, final String methodDescriptor, final Interpreter<V> interpreter)
           throws AnalyzerException {
     ArrayList<V> valueList = new ArrayList<>();
-    for (int i = Type.getArgumentTypes(methodDescriptor).length; i > 0; --i) {
+    for (int i = Type.getArgumentCount(methodDescriptor); i > 0; --i) {
       valueList.add(0, pop());
     }
     if (insn.getOpcode() != Opcodes.INVOKESTATIC && insn.getOpcode() != Opcodes.INVOKEDYNAMIC) {
