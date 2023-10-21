@@ -225,13 +225,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Set the type for the target object. When the target is {@code null},
-   * setting the targetType allows using {@link #construct(ValueResolver)} to
-   * create the target.
+   * setting the targetType allows using {@link #construct} to create the target.
    *
    * @param targetType the type of the target object
+   * @see #construct
    */
   public void setTargetType(ResolvableType targetType) {
-    Assert.state(this.target == null, "targetType is used to for target creation, but target is already set");
+    Assert.state(this.target == null, "targetType is used to for target creation but target is already set");
     this.targetType = targetType;
   }
 
@@ -901,7 +901,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @param valueResolver to resolve constructor argument values with
    * @throws BeanInstantiationException in case of constructor failure
    */
-  public final void construct(ValueResolver valueResolver) {
+  public void construct(ValueResolver valueResolver) {
     Assert.state(this.target == null, "Target instance already available");
     Assert.state(this.targetType != null, "Target type not set");
 
