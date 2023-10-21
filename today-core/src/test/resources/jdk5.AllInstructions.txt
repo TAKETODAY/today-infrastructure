@@ -1612,7 +1612,7 @@ class jdk5/AllInstructions {
     MAXLOCALS = 1
 
   // access flags 0x1
-  public jsrAndRetInstructions(I)I throws java/lang/Exception 
+  public jsrAndRetInstructions(I)I throws java/lang/Exception
     TRYCATCHBLOCK L0 L1 L2 java/lang/Throwable
     TRYCATCHBLOCK L0 L1 L3 null
     TRYCATCHBLOCK L2 L4 L3 null

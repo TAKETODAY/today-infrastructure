@@ -190,7 +190,7 @@ abstract class jdk3/AllStructures implements java/lang/Runnable java/lang/Clonea
   private native nativeMethod()V
 
   // access flags 0x2
-  private anonymousInnerClass()Ljava/lang/Runnable; throws java/lang/Exception 
+  private anonymousInnerClass()Ljava/lang/Runnable; throws java/lang/Exception
    L0
     LINENUMBER 71 L0
     ALOAD 0

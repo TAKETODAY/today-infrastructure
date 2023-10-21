@@ -101,7 +101,7 @@ public abstract class jdk8/AllStructures extends java/util/HashMap implements ja
   // access flags 0x1
   // signature <V0:TU0;V1:TU1;>(TV0;TV1;Ljava/util/Map<+TV0;+TV1;>;)Ljava/util/Map<+TV0;+TV1;>;
   // declaration: java.util.Map<? extends V0, ? extends V1> m<V0 extends U0, V1 extends U1>(V0, V1, java.util.Map<? extends V0, ? extends V1>)
-  public m(Ljava/lang/Object;Ljava/util/List;Ljava/util/Map;)Ljava/util/Map; throws java/lang/IllegalStateException java/lang/IllegalArgumentException 
+  public m(Ljava/lang/Object;Ljava/util/List;Ljava/util/Map;)Ljava/util/Map; throws java/lang/IllegalStateException java/lang/IllegalArgumentException
     // parameter  p0
     // parameter  p1
     // parameter  p2
@@ -253,7 +253,7 @@ public abstract class jdk8/AllStructures extends java/util/HashMap implements ja
     MAXLOCALS = 1
 
   // access flags 0x2
-  private anonymousInnerClass()Ljava/lang/Runnable; throws java/lang/Exception 
+  private anonymousInnerClass()Ljava/lang/Runnable; throws java/lang/Exception
    L0
     LINENUMBER 130 L0
     NEW jdk8/AllStructures$1

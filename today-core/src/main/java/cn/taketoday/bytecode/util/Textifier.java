@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -411,10 +408,10 @@ public class Textifier extends Printer {
     stringBuilder.append(name);
     appendDescriptor(METHOD_DESCRIPTOR, descriptor);
     if (exceptions != null && exceptions.length > 0) {
-      stringBuilder.append(" throws ");
+      stringBuilder.append(" throws");
       for (String exception : exceptions) {
-        appendDescriptor(INTERNAL_NAME, exception);
         stringBuilder.append(' ');
+        appendDescriptor(INTERNAL_NAME, exception);
       }
     }
 
