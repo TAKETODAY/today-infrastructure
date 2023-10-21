@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,7 @@ package cn.taketoday.http.server.reactive;
 
 import org.reactivestreams.Publisher;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -47,6 +44,7 @@ import reactor.core.publisher.Mono;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
@@ -70,8 +68,10 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   private final HttpHeaders headers;
   private final DataBufferFactory dataBufferFactory;
   private final MultiValueMap<String, ResponseCookie> cookies;
+
   private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
-  private final ArrayList<Supplier<? extends Mono<Void>>> commitActions = new ArrayList<>(4);
+
+  private final CopyOnWriteArrayList<Supplier<? extends Mono<Void>>> commitActions = new CopyOnWriteArrayList<>();
 
   public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory) {
     this(dataBufferFactory, HttpHeaders.create());
