@@ -56,7 +56,6 @@ dependencies {
   optional("com.fasterxml.jackson.dataformat:jackson-dataformat-cbor")
   optional("com.google.code.gson:gson")
   optional("com.google.protobuf:protobuf-java-util")
-  optional("com.googlecode.protobuf-java-format:protobuf-java-format")
   optional("com.rometools:rome")
   optional("org.apache.groovy:groovy")
   optional("org.freemarker:freemarker")
