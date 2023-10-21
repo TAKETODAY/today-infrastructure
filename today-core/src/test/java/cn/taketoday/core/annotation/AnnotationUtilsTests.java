@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -163,9 +159,8 @@ class AnnotationUtilsTests {
     assertThat(getAnnotation(bridgeMethod, Order.class)).isNull();
     assertThat(findAnnotation(bridgeMethod, Order.class)).isNotNull();
 
-    boolean runningInEclipse = Arrays.stream(new Exception().getStackTrace())
-            .anyMatch(element -> element.getClassName().startsWith("org.eclipse.jdt"));
-
+    boolean runningInEclipse = StackWalker.getInstance().walk(stream ->
+            stream.anyMatch(stackFrame -> stackFrame.getClassName().startsWith("org.eclipse.jdt")));
     // As of JDK 8, invoking getAnnotation() on a bridge method actually finds an
     // annotation on its 'bridged' method [1]; however, the Eclipse compiler will not
     // support this until Eclipse 4.9 [2]. Thus, we effectively ignore the following
