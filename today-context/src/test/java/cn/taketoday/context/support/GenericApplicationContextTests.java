@@ -30,8 +30,12 @@ import java.util.Map;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.BeanCreationException;
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
+import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.config.AbstractFactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -47,7 +51,6 @@ import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
@@ -61,6 +64,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -293,6 +297,42 @@ public class GenericApplicationContextTests {
   }
 
   @Test
+  void refreshWithRuntimeFailureOnBeanCreationDisposeExistingBeans() {
+    BeanE one = new BeanE();
+    context.registerBean("one", BeanE.class, () -> one);
+    context.registerBean("two", BeanE.class, () -> new BeanE() {
+      @Override
+      public void afterPropertiesSet() {
+        throw new IllegalStateException("Expected");
+      }
+    });
+    assertThatThrownBy(context::refresh).isInstanceOf(BeanCreationException.class)
+            .hasMessageContaining("two");
+    assertThat(one.initialized).isTrue();
+    assertThat(one.destroyed).isTrue();
+  }
+
+  @Test
+  void refreshWithRuntimeFailureOnAfterSingletonInstantiatedDisposeExistingBeans() {
+    BeanE one = new BeanE();
+    BeanE two = new BeanE();
+    context.registerBean("one", BeanE.class, () -> one);
+    context.registerBean("two", BeanE.class, () -> two);
+    context.registerBean("int", SmartInitializingSingleton.class, () -> new SmartInitializingSingleton() {
+      @Override
+      public void afterSingletonsInstantiated() {
+        throw new IllegalStateException("expected");
+      }
+    });
+    assertThatThrownBy(context::refresh).isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("expected");
+    assertThat(one.initialized).isTrue();
+    assertThat(two.initialized).isTrue();
+    assertThat(one.destroyed).isTrue();
+    assertThat(two.destroyed).isTrue();
+  }
+
+  @Test
   void refreshForAotSetsContextActive() {
     GenericApplicationContext context = new GenericApplicationContext();
     assertThat(context.isActive()).isFalse();
@@ -303,7 +343,7 @@ public class GenericApplicationContextTests {
 
   @Test
   void refreshForAotRegistersEnvironment() {
-    ConfigurableEnvironment environment = new StandardEnvironment();
+    ConfigurableEnvironment environment = mock();
     GenericApplicationContext context = new GenericApplicationContext();
     context.setEnvironment(environment);
     context.refreshForAotProcessing(new RuntimeHints());
@@ -636,6 +676,29 @@ public class GenericApplicationContextTests {
 
     public void setCounter(Integer counter) {
       this.counter = counter;
+    }
+  }
+
+  static class BeanE implements InitializingBean, DisposableBean {
+
+    private boolean initialized;
+
+    private boolean destroyed;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+      if (initialized) {
+        throw new IllegalStateException("AfterPropertiesSet called twice");
+      }
+      this.initialized = true;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+      if (destroyed) {
+        throw new IllegalStateException("Destroy called twice");
+      }
+      this.destroyed = true;
     }
   }
 

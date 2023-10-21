@@ -550,7 +550,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         finishRefresh();
       }
 
-      catch (BeansException ex) {
+      catch (RuntimeException | Error ex) {
         applyState(State.FAILED);
 
         logger.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
@@ -800,7 +800,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
    *
    * @param ex the exception that led to the cancellation
    */
-  protected void cancelRefresh(Exception ex) {
+  protected void cancelRefresh(Throwable ex) {
     this.active.set(false);
   }
 

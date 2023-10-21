@@ -136,7 +136,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
   }
 
   @Override
-  protected void cancelRefresh(Exception ex) {
+  protected void cancelRefresh(Throwable ex) {
     StandardBeanFactory beanFactory = this.beanFactory;
     if (beanFactory != null) {
       beanFactory.setSerializationId(null);

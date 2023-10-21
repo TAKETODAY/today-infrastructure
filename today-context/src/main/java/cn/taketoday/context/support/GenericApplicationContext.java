@@ -189,7 +189,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
   }
 
   @Override
-  protected void cancelRefresh(Exception ex) {
+  protected void cancelRefresh(Throwable ex) {
     this.beanFactory.setSerializationId(null);
     super.cancelRefresh(ex);
   }
@@ -571,9 +571,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
    * @see #registerBean(String, Class, Supplier, BeanDefinitionCustomizer...)
    */
-  public final <T> void registerBean(
-          @Nullable String beanName, Class<T> beanClass, BeanDefinitionCustomizer... customizers) {
-
+  public final <T> void registerBean(@Nullable String beanName, Class<T> beanClass, BeanDefinitionCustomizer... customizers) {
     registerBean(beanName, beanClass, null, customizers);
   }
 
@@ -589,9 +587,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
    * @see #registerBean(String, Class, Supplier, BeanDefinitionCustomizer...)
    */
-  public final <T> void registerBean(
-          Class<T> beanClass, Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
-
+  public final <T> void registerBean(Class<T> beanClass, Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
     registerBean(null, beanClass, supplier, customizers);
   }
 
@@ -610,8 +606,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * @param customizers one or more callbacks for customizing the factory's
    * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
    */
-  public <T> void registerBean(
-          @Nullable String beanName, Class<T> beanClass,
+  public <T> void registerBean(@Nullable String beanName, Class<T> beanClass,
           @Nullable Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
 
     RootBeanDefinition beanDefinition = new RootBeanDefinition(beanClass);
