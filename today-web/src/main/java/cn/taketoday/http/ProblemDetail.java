@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,9 +246,22 @@ public class ProblemDetail {
    */
   public void setProperty(String name, @Nullable Object value) {
     if (properties == null) {
-      properties = new LinkedHashMap<>();
+      this.properties = new LinkedHashMap<>();
     }
-    this.properties.put(name, value);
+    properties.put(name, value);
+  }
+
+  /**
+   * Setter for the {@link #getProperties() properties map}.
+   * <p>By default, this is not set.
+   * <p>When Jackson JSON is present on the classpath, any properties set here
+   * are rendered as top level key-value pairs in the output JSON. Otherwise,
+   * they are rendered as a {@code "properties"} sub-map.
+   *
+   * @param properties the properties map
+   */
+  public void setProperties(@Nullable Map<String, Object> properties) {
+    this.properties = properties;
   }
 
   // Getters
