@@ -144,7 +144,7 @@ import cn.taketoday.util.ReflectionUtils;
 public abstract class AbstractApplicationContext extends DefaultResourceLoader
         implements ConfigurableApplicationContext {
 
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   /**
    * The name of the {@link LifecycleProcessor} bean in the context.
@@ -553,7 +553,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
       catch (BeansException ex) {
         applyState(State.FAILED);
 
-        log.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
+        logger.warn("Exception encountered during context initialization - cancelling refresh attempt: {}",
                 ex.toString());
 
         // Destroy already created singletons to avoid dangling resources.
@@ -582,7 +582,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     applyState(State.STARTING);
     ApplicationContextHolder.register(this); // @since 4.0
 
-    log.info("Starting application context at '{}'", formatStartupDate());
+    logger.info("Starting application context at '{}'", formatStartupDate());
 
     ConfigurableEnvironment environment = getEnvironment();
 
@@ -605,12 +605,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     // to be published once the multicaster is available...
     this.earlyApplicationEvents = new LinkedHashSet<>();
 
-    if (log.isDebugEnabled()) {
-      if (log.isTraceEnabled()) {
-        log.trace("Refreshing {}", this);
+    if (logger.isDebugEnabled()) {
+      if (logger.isTraceEnabled()) {
+        logger.trace("Refreshing {}", this);
       }
       else {
-        log.debug("Refreshing {}", getDisplayName());
+        logger.debug("Refreshing {}", getDisplayName());
       }
     }
   }
@@ -627,7 +627,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
    * Register Framework Beans
    */
   protected void registerFrameworkComponents(ConfigurableBeanFactory beanFactory) {
-    log.debug("Registering framework components");
+    logger.debug("Registering framework components");
 
     BootstrapContext bootstrapContext = getBootstrapContext();
 
@@ -674,7 +674,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
    * @param beanFactory the BeanFactory to configure
    */
   protected void prepareBeanFactory(ConfigurableBeanFactory beanFactory) {
-    log.debug("Preparing bean-factory: {}", beanFactory);
+    logger.debug("Preparing bean-factory: {}", beanFactory);
     // Tell the internal bean factory to use the context's class loader etc.
     ClassLoader classLoader = getClassLoader();
     beanFactory.setBeanClassLoader(classLoader);
@@ -740,7 +740,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
    * <p>Must be called before singleton instantiation.
    */
   protected void invokeBeanFactoryPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.debug("Invoking bean-factory-post-processors");
+    logger.debug("Invoking bean-factory-post-processors");
     PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, factoryPostProcessors);
 
     // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
@@ -759,7 +759,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
    * <p>Must be called before any instantiation of application beans.
    */
   protected void registerBeanPostProcessors(ConfigurableBeanFactory beanFactory) {
-    log.debug("Registering bean-post-processors");
+    logger.debug("Registering bean-post-processors");
     PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);
   }
 
@@ -779,8 +779,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
           hms.setParentMessageSource(getInternalParentMessageSource());
         }
       }
-      if (log.isTraceEnabled()) {
-        log.trace("Using MessageSource [{}]", messageSource);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Using MessageSource [{}]", messageSource);
       }
     }
     else {
@@ -789,8 +789,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
       dms.setParentMessageSource(getInternalParentMessageSource());
       this.messageSource = dms;
       beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, messageSource);
-      if (log.isTraceEnabled()) {
-        log.trace("No '{}' bean, using [{}]", MESSAGE_SOURCE_BEAN_NAME, messageSource);
+      if (logger.isTraceEnabled()) {
+        logger.trace("No '{}' bean, using [{}]", MESSAGE_SOURCE_BEAN_NAME, messageSource);
       }
     }
   }
@@ -817,7 +817,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
   protected void doClose() {
     // Check whether an actual close attempt is necessary...
     if (active.get() && closed.compareAndSet(false, true)) {
-      log.info("Closing: [{}] at [{}]", this,
+      logger.info("Closing: [{}] at [{}]", this,
               new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(System.currentTimeMillis()));
 
       try {
@@ -825,7 +825,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         publishEvent(new ContextClosedEvent(this));
       }
       catch (Throwable ex) {
-        log.warn("Exception thrown from ApplicationListener handling ContextClosedEvent", ex);
+        logger.warn("Exception thrown from ApplicationListener handling ContextClosedEvent", ex);
       }
 
       // Stop all Lifecycle beans, to avoid delays during individual destruction.
@@ -834,7 +834,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
           lifecycleProcessor.onClose();
         }
         catch (Throwable ex) {
-          log.warn("Exception thrown from LifecycleProcessor on context close", ex);
+          logger.warn("Exception thrown from LifecycleProcessor on context close", ex);
         }
       }
       // Destroy all cached singletons in the context's BeanFactory.
@@ -1332,8 +1332,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
       ConfigurableBeanFactory beanFactory = getBeanFactory();
       if (beanFactory.containsLocalBean(LIFECYCLE_PROCESSOR_BEAN_NAME)) {
         this.lifecycleProcessor = beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
-        if (log.isTraceEnabled()) {
-          log.trace("Using LifecycleProcessor [{}]", lifecycleProcessor);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Using LifecycleProcessor [{}]", lifecycleProcessor);
         }
       }
       else {
@@ -1341,8 +1341,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         defaultProcessor.setBeanFactory(beanFactory);
         this.lifecycleProcessor = defaultProcessor;
         beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
-        if (log.isTraceEnabled()) {
-          log.trace("No '{}' bean, using [{}]", LIFECYCLE_PROCESSOR_BEAN_NAME, lifecycleProcessor.getClass().getSimpleName());
+        if (logger.isTraceEnabled()) {
+          logger.trace("No '{}' bean, using [{}]", LIFECYCLE_PROCESSOR_BEAN_NAME, lifecycleProcessor.getClass().getSimpleName());
         }
       }
     }
@@ -1392,15 +1392,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
       this.applicationEventMulticaster =
               beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
-      if (log.isTraceEnabled()) {
-        log.trace("Using ApplicationEventMulticaster [{}]", applicationEventMulticaster);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Using ApplicationEventMulticaster [{}]", applicationEventMulticaster);
       }
     }
     else {
       this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
       beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
-      if (log.isTraceEnabled()) {
-        log.trace("No '{}' bean, using [{}]",
+      if (logger.isTraceEnabled()) {
+        logger.trace("No '{}' bean, using [{}]",
                 APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster.getClass().getSimpleName());
       }
     }
@@ -1508,7 +1508,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
   }
 
   protected void registerApplicationListeners() {
-    log.debug("Registering application-listeners");
+    logger.debug("Registering application-listeners");
 
     // Register statically specified listeners first.
     ApplicationEventMulticaster eventMulticaster = getApplicationEventMulticaster();
@@ -1523,7 +1523,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
       eventMulticaster.addApplicationListenerBean(listenerBeanName);
     }
 
-    log.debug("Publish early application events");
+    logger.debug("Publish early application events");
     // Publish early application events now that we finally have a multicaster...
     Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
     this.earlyApplicationEvents = null;
@@ -1617,7 +1617,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     publishEvent(new ContextRefreshedEvent(this));
 
     applyState(State.STARTED);
-    log.info("Application context startup in {}ms", System.currentTimeMillis() - getStartupDate());
+    logger.info("Application context startup in {}ms", System.currentTimeMillis() - getStartupDate());
   }
 
   //---------------------------------------------------------------------

@@ -281,18 +281,18 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
     servletContext.log("Initializing embedded WebApplicationContext");
     try {
       servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this);
-      if (log.isDebugEnabled()) {
-        log.debug("Published root WebApplicationContext as ServletContext attribute with name [{}]",
+      if (logger.isDebugEnabled()) {
+        logger.debug("Published root WebApplicationContext as ServletContext attribute with name [{}]",
                 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
       }
       setServletContext(servletContext);
-      if (log.isInfoEnabled()) {
+      if (logger.isInfoEnabled()) {
         long elapsedTime = System.currentTimeMillis() - getStartupDate();
-        log.info("Root WebApplicationContext: initialization completed in {} ms", elapsedTime);
+        logger.info("Root WebApplicationContext: initialization completed in {} ms", elapsedTime);
       }
     }
     catch (RuntimeException | Error ex) {
-      log.error("Context initialization failed", ex);
+      logger.error("Context initialization failed", ex);
       servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ex);
       throw ex;
     }
@@ -374,7 +374,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
       for (Map.Entry<String, Scope> entry : scopes.entrySet()) {
         String key = entry.getKey();
         Scope value = entry.getValue();
-        log.info("Restoring user defined scope {}", key);
+        logger.info("Restoring user defined scope {}", key);
         beanFactory.registerScope(key, value);
       }
 

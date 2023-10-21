@@ -222,15 +222,15 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
     }
 
     if (!componentClasses.isEmpty()) {
-      if (log.isDebugEnabled()) {
-        log.debug("Registering component classes: [{}]", StringUtils.collectionToCommaDelimitedString(componentClasses));
+      if (logger.isDebugEnabled()) {
+        logger.debug("Registering component classes: [{}]", StringUtils.collectionToCommaDelimitedString(componentClasses));
       }
       reader.register(ClassUtils.toClassArray(componentClasses));
     }
 
     if (!basePackages.isEmpty()) {
-      if (log.isDebugEnabled()) {
-        log.debug("Scanning base packages: [{}]", StringUtils.collectionToCommaDelimitedString(basePackages));
+      if (logger.isDebugEnabled()) {
+        logger.debug("Scanning base packages: [{}]", StringUtils.collectionToCommaDelimitedString(basePackages));
       }
       scanner.scan(StringUtils.toStringArray(this.basePackages));
     }
@@ -240,19 +240,19 @@ public class AnnotationConfigWebApplicationContext extends AbstractRefreshableWe
       for (String configLocation : configLocations) {
         try {
           Class<?> clazz = ClassUtils.forName(configLocation, getClassLoader());
-          if (log.isTraceEnabled()) {
-            log.trace("Registering [{}]", configLocation);
+          if (logger.isTraceEnabled()) {
+            logger.trace("Registering [{}]", configLocation);
           }
           reader.register(clazz);
         }
         catch (ClassNotFoundException ex) {
-          if (log.isTraceEnabled()) {
-            log.trace("Could not load class for config location [{}] - trying package scan. {}",
+          if (logger.isTraceEnabled()) {
+            logger.trace("Could not load class for config location [{}] - trying package scan. {}",
                     configLocation, ex.toString());
           }
           int count = scanner.scan(configLocation);
-          if (count == 0 && log.isDebugEnabled()) {
-            log.debug("No component classes found for specified class/package [{}]", configLocation);
+          if (count == 0 && logger.isDebugEnabled()) {
+            logger.debug("No component classes found for specified class/package [{}]", configLocation);
           }
         }
       }

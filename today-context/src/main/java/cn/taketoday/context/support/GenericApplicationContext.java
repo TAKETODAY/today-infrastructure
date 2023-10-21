@@ -406,8 +406,8 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * attempts are not supported
    */
   public void refreshForAotProcessing(RuntimeHints runtimeHints) {
-    if (log.isDebugEnabled()) {
-      log.debug("Preparing bean factory for AOT processing");
+    if (logger.isDebugEnabled()) {
+      logger.debug("Preparing bean factory for AOT processing");
     }
     prepareRefresh();
     obtainFreshBeanFactory();
