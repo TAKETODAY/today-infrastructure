@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,13 @@
 
 package cn.taketoday.core.ssl;
 
+import java.util.function.Consumer;
+
 /**
  * A managed set of {@link SslBundle} instances that can be retrieved by name.
  *
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface SslBundles {
@@ -31,10 +31,19 @@ public interface SslBundles {
   /**
    * Return an {@link SslBundle} with the provided name.
    *
-   * @param bundleName the bundle name
+   * @param name the bundle name
    * @return the bundle
    * @throws NoSuchSslBundleException if a bundle with the provided name does not exist
    */
-  SslBundle getBundle(String bundleName) throws NoSuchSslBundleException;
+  SslBundle getBundle(String name) throws NoSuchSslBundleException;
+
+  /**
+   * Add a handler that will be called each time the named bundle is updated.
+   *
+   * @param name the bundle name
+   * @param updateHandler the handler that should be called
+   * @throws NoSuchSslBundleException if a bundle with the provided name does not exist
+   */
+  void addBundleUpdateHandler(String name, Consumer<SslBundle> updateHandler) throws NoSuchSslBundleException;
 
 }

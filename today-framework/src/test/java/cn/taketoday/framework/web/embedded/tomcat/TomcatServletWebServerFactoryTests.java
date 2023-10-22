@@ -35,8 +35,11 @@ import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.apache.hc.client5.http.HttpHostConnectException;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.NoHttpResponseException;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.jasper.servlet.JspServlet;
 import org.apache.tomcat.JarScanFilter;
 import org.apache.tomcat.JarScanType;
@@ -64,13 +67,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.PropertiesUtils;
+import cn.taketoday.core.ssl.DefaultSslBundleRegistry;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.Shutdown;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactoryTests;
@@ -79,6 +87,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
+import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.FileSystemUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -637,6 +646,30 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     this.webServer.stop();
   }
 
+  @Test
+  void shouldUpdateSslWhenReloadingSslBundles() throws Exception {
+    TomcatServletWebServerFactory factory = getFactory();
+    addTestTxtFile(factory);
+    DefaultSslBundleRegistry bundles = new DefaultSslBundleRegistry("test",
+            createPemSslBundle("classpath:cn/taketoday/framework/web/embedded/tomcat/1.crt",
+                    "classpath:cn/taketoday/framework/web/embedded/tomcat/1.key"));
+    factory.setSslBundles(bundles);
+    factory.setSsl(Ssl.forBundle("test"));
+    this.webServer = factory.getWebServer();
+    this.webServer.start();
+    RememberingHostnameVerifier verifier = new RememberingHostnameVerifier();
+    SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
+            new SSLContextBuilder().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build(), verifier);
+    HttpComponentsClientHttpRequestFactory requestFactory = createHttpComponentsRequestFactory(socketFactory);
+    assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
+    assertThat(verifier.getLastPrincipal()).isEqualTo("CN=1");
+    requestFactory = createHttpComponentsRequestFactory(socketFactory);
+    bundles.updateBundle("test", createPemSslBundle("classpath:cn/taketoday/framework/web/embedded/tomcat/2.crt",
+            "classpath:cn/taketoday/framework/web/embedded/tomcat/2.key"));
+    assertThat(getResponse(getLocalUrl("https", "/test.txt"), requestFactory)).isEqualTo("test");
+    assertThat(verifier.getLastPrincipal()).isEqualTo("CN=2");
+  }
+
   @Override
   protected Map<String, String> getActualMimeMappings() {
     Context context = (Context) ((TomcatWebServer) this.webServer).getTomcat().getHost().findChildren()[0];
@@ -681,6 +714,27 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   @Override
   protected String startedLogMessage() {
     return ((TomcatWebServer) this.webServer).getStartedLogMessage();
+  }
+
+  private static class RememberingHostnameVerifier implements HostnameVerifier {
+
+    private volatile String lastPrincipal;
+
+    @Override
+    public boolean verify(String hostname, SSLSession session) {
+      try {
+        this.lastPrincipal = session.getPeerPrincipal().getName();
+      }
+      catch (SSLPeerUnverifiedException ex) {
+        throw new RuntimeException(ex);
+      }
+      return true;
+    }
+
+    String getLastPrincipal() {
+      return this.lastPrincipal;
+    }
+
   }
 
 }

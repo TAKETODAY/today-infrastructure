@@ -67,6 +67,8 @@ dependencies {
   testImplementation "com.google.testing.compile:compile-testing:0.21.0"
   testImplementation 'com.google.jimfs:jimfs:1.2'
   testImplementation 'org.eclipse.jdt.core.compiler:ecj:4.6.1'
+  testImplementation(project(":today-test"))
+  testImplementation("org.awaitility:awaitility")
 
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.junit.platform:junit-platform-launcher")

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,15 @@
 
 package cn.taketoday.core.ssl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 
 /**
  * Default {@link SslBundleRegistry} implementation.
@@ -34,7 +36,9 @@ import cn.taketoday.lang.Assert;
  */
 public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
 
-  private final Map<String, SslBundle> bundles = new ConcurrentHashMap<>();
+  private static final Logger logger = LoggerFactory.getLogger(DefaultSslBundleRegistry.class);
+
+  private final Map<String, RegisteredSslBundle> registeredBundles = new ConcurrentHashMap<>();
 
   public DefaultSslBundleRegistry() { }
 
@@ -46,20 +50,65 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
   public void registerBundle(String name, SslBundle bundle) {
     Assert.notNull(name, "Name must not be null");
     Assert.notNull(bundle, "Bundle must not be null");
-    SslBundle previous = this.bundles.putIfAbsent(name, bundle);
-    if (previous != null) {
-      throw new IllegalStateException("Cannot replace existing SSL bundle '%s'".formatted(name));
-    }
+    RegisteredSslBundle previous = this.registeredBundles.putIfAbsent(name, new RegisteredSslBundle(name, bundle));
+    Assert.state(previous == null, () -> "Cannot replace existing SSL bundle '%s'".formatted(name));
+  }
+
+  @Override
+  public void updateBundle(String name, SslBundle updatedBundle) {
+    getRegistered(name).update(updatedBundle);
   }
 
   @Override
   public SslBundle getBundle(String name) {
+    return getRegistered(name).getBundle();
+  }
+
+  @Override
+  public void addBundleUpdateHandler(String name, Consumer<SslBundle> updateHandler) throws NoSuchSslBundleException {
+    getRegistered(name).addUpdateHandler(updateHandler);
+  }
+
+  private RegisteredSslBundle getRegistered(String name) throws NoSuchSslBundleException {
     Assert.notNull(name, "Name must not be null");
-    SslBundle bundle = this.bundles.get(name);
-    if (bundle == null) {
+    RegisteredSslBundle registered = this.registeredBundles.get(name);
+    if (registered == null) {
       throw new NoSuchSslBundleException(name, "SSL bundle name '%s' cannot be found".formatted(name));
     }
-    return bundle;
+    return registered;
+  }
+
+  private static class RegisteredSslBundle {
+
+    private final String name;
+
+    private final List<Consumer<SslBundle>> updateHandlers = new CopyOnWriteArrayList<>();
+
+    private volatile SslBundle bundle;
+
+    RegisteredSslBundle(String name, SslBundle bundle) {
+      this.name = name;
+      this.bundle = bundle;
+    }
+
+    void update(SslBundle updatedBundle) {
+      Assert.notNull(updatedBundle, "UpdatedBundle must not be null");
+      this.bundle = updatedBundle;
+      if (this.updateHandlers.isEmpty()) {
+        logger.warn("SSL bundle '{}' has been updated but may be in use by a technology that doesn't support SSL reloading", this.name);
+      }
+      this.updateHandlers.forEach((handler) -> handler.accept(updatedBundle));
+    }
+
+    SslBundle getBundle() {
+      return this.bundle;
+    }
+
+    void addUpdateHandler(Consumer<SslBundle> updateHandler) {
+      Assert.notNull(updateHandler, "UpdateHandler must not be null");
+      this.updateHandlers.add(updateHandler);
+    }
+
   }
 
 }

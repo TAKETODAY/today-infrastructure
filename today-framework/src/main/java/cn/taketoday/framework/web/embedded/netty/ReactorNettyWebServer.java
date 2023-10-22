@@ -89,25 +89,8 @@ public class ReactorNettyWebServer implements WebServer {
    * @param handlerAdapter the handler adapter
    * @param lifecycleTimeout the lifecycle timeout, may be {@code null}
    * @param shutdown the shutdown, may be {@code null}
-   * @deprecated since 3.2.0 for removal in 3.4.0 in favor of
-   * {@link #ReactorNettyWebServer(HttpServer, ReactorHttpHandlerAdapter, Duration, Shutdown, ReactorResourceFactory)}
-   */
-  @Deprecated(since = "3.2.0", forRemoval = true)
-  public ReactorNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter, Duration lifecycleTimeout,
-          Shutdown shutdown) {
-    this(httpServer, handlerAdapter, lifecycleTimeout, shutdown, null);
-  }
-
-  /**
-   * Creates a new {@code NettyWebServer} instance.
-   *
-   * @param httpServer the HTTP server
-   * @param handlerAdapter the handler adapter
-   * @param lifecycleTimeout the lifecycle timeout, may be {@code null}
-   * @param shutdown the shutdown, may be {@code null}
    * @param resourceFactory the factory for the server's {@link LoopResources loop
    * resources}, may be {@code null}
-   * {@link #ReactorNettyWebServer(HttpServer, ReactorHttpHandlerAdapter, Duration, Shutdown, ReactorResourceFactory)}
    */
   public ReactorNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
           @Nullable Duration lifecycleTimeout, Shutdown shutdown, @Nullable ReactorResourceFactory resourceFactory) {
@@ -152,7 +135,7 @@ public class ReactorNettyWebServer implements WebServer {
     StringBuilder message = new StringBuilder();
     tryAppend(message, "port %s", server::port);
     tryAppend(message, "path %s", server::path);
-    return (message.length() > 0) ? "Netty started on " + message : "Netty started";
+    return (!message.isEmpty()) ? "Netty started on " + message : "Netty started";
   }
 
   protected String getStartedLogMessage() {
@@ -162,7 +145,7 @@ public class ReactorNettyWebServer implements WebServer {
   private void tryAppend(StringBuilder message, String format, Supplier<Object> supplier) {
     try {
       Object value = supplier.get();
-      message.append((message.length() != 0) ? " " : "");
+      message.append((!message.isEmpty()) ? " " : "");
       message.append(String.format(format, value));
     }
     catch (UnsupportedOperationException ignored) { }

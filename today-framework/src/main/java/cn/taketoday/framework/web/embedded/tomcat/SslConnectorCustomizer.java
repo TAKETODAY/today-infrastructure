@@ -32,6 +32,7 @@ import cn.taketoday.core.ssl.SslStoreBundle;
 import cn.taketoday.framework.web.server.Ssl.ClientAuth;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -41,43 +42,55 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class SslConnectorCustomizer implements TomcatConnectorCustomizer {
+class SslConnectorCustomizer {
+
+  private final Logger logger;
 
   @Nullable
   private final ClientAuth clientAuth;
 
-  private final SslBundle sslBundle;
+  private final Connector connector;
 
-  SslConnectorCustomizer(@Nullable ClientAuth clientAuth, SslBundle sslBundle) {
+  SslConnectorCustomizer(Logger logger, Connector connector, @Nullable ClientAuth clientAuth) {
+    this.logger = logger;
     this.clientAuth = clientAuth;
-    this.sslBundle = sslBundle;
+    this.connector = connector;
   }
 
-  @Override
-  public void customize(Connector connector) {
-    ProtocolHandler handler = connector.getProtocolHandler();
+  void update(SslBundle updatedSslBundle) {
+    this.logger.debug("SSL Bundle has been updated, reloading SSL configuration");
+    customize(updatedSslBundle);
+  }
+
+  void customize(SslBundle sslBundle) {
+    ProtocolHandler handler = this.connector.getProtocolHandler();
     Assert.state(handler instanceof AbstractHttp11JsseProtocol,
             "To use SSL, the connector's protocol handler must be an AbstractHttp11JsseProtocol subclass");
-    configureSsl((AbstractHttp11JsseProtocol<?>) handler);
-    connector.setScheme("https");
-    connector.setSecure(true);
+    configureSsl(sslBundle, (AbstractHttp11JsseProtocol<?>) handler);
+    this.connector.setScheme("https");
+    this.connector.setSecure(true);
   }
 
   /**
    * Configure Tomcat's {@link AbstractHttp11JsseProtocol} for SSL.
    *
+   * @param sslBundle the SSL bundle
    * @param protocol the protocol
    */
-  void configureSsl(AbstractHttp11JsseProtocol<?> protocol) {
-    SslBundleKey key = this.sslBundle.getKey();
-    SslStoreBundle stores = this.sslBundle.getStores();
-    SslOptions options = this.sslBundle.getOptions();
+  private void configureSsl(SslBundle sslBundle, AbstractHttp11JsseProtocol<?> protocol) {
     protocol.setSSLEnabled(true);
     SSLHostConfig sslHostConfig = new SSLHostConfig();
     sslHostConfig.setHostName(protocol.getDefaultSSLHostConfigName());
-    sslHostConfig.setSslProtocol(this.sslBundle.getProtocol());
-    protocol.addSslHostConfig(sslHostConfig);
     configureSslClientAuth(sslHostConfig);
+    applySslBundle(sslBundle, protocol, sslHostConfig);
+    protocol.addSslHostConfig(sslHostConfig, true);
+  }
+
+  private void applySslBundle(SslBundle sslBundle, AbstractHttp11JsseProtocol<?> protocol, SSLHostConfig sslHostConfig) {
+    SslBundleKey key = sslBundle.getKey();
+    SslStoreBundle stores = sslBundle.getStores();
+    SslOptions options = sslBundle.getOptions();
+    sslHostConfig.setSslProtocol(sslBundle.getProtocol());
     SSLHostConfigCertificate certificate = new SSLHostConfigCertificate(sslHostConfig, Type.UNDEFINED);
     String keystorePassword = (stores.getKeyStorePassword() != null) ? stores.getKeyStorePassword() : "";
     certificate.setCertificateKeystorePassword(keystorePassword);
@@ -92,17 +105,14 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
       String ciphers = StringUtils.arrayToCommaDelimitedString(options.getCiphers());
       sslHostConfig.setCiphers(ciphers);
     }
-    configureEnabledProtocols(protocol);
-    configureSslStoreProvider(protocol, sslHostConfig, certificate);
+    configureSslStoreProvider(protocol, sslHostConfig, certificate, stores);
+    configureEnabledProtocols(sslHostConfig, options);
   }
 
-  private void configureEnabledProtocols(AbstractHttp11JsseProtocol<?> protocol) {
-    SslOptions options = this.sslBundle.getOptions();
+  private void configureEnabledProtocols(SSLHostConfig sslHostConfig, SslOptions options) {
     if (options.getEnabledProtocols() != null) {
       String enabledProtocols = StringUtils.arrayToDelimitedString(options.getEnabledProtocols(), "+");
-      for (SSLHostConfig sslHostConfig : protocol.findSslHostConfigs()) {
-        sslHostConfig.setProtocols(enabledProtocols);
-      }
+      sslHostConfig.setProtocols(enabledProtocols);
     }
   }
 
@@ -110,12 +120,11 @@ class SslConnectorCustomizer implements TomcatConnectorCustomizer {
     config.setCertificateVerification(ClientAuth.map(this.clientAuth, "none", "optional", "required"));
   }
 
-  protected void configureSslStoreProvider(AbstractHttp11JsseProtocol<?> protocol, SSLHostConfig sslHostConfig,
-          SSLHostConfigCertificate certificate) {
+  private void configureSslStoreProvider(AbstractHttp11JsseProtocol<?> protocol, SSLHostConfig sslHostConfig,
+          SSLHostConfigCertificate certificate, SslStoreBundle stores) {
     Assert.isInstanceOf(Http11NioProtocol.class, protocol,
             "SslStoreProvider can only be used with Http11NioProtocol");
     try {
-      SslStoreBundle stores = this.sslBundle.getStores();
       if (stores.getKeyStore() != null) {
         certificate.setCertificateKeystore(stores.getKeyStore());
       }

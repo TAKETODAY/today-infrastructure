@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.core.ssl.SslBundle;
  *
  * @author Scott Frederick
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SslBundle
  * @since 4.0
  */
@@ -40,7 +38,7 @@ public abstract class SslBundleProperties {
   private final Key key = new Key();
 
   /**
-   * Options for the SLL connection.
+   * Options for the SSL connection.
    */
   private final Options options = new Options();
 
@@ -48,6 +46,11 @@ public abstract class SslBundleProperties {
    * SSL Protocol to use.
    */
   private String protocol = SslBundle.DEFAULT_PROTOCOL;
+
+  /**
+   * Whether to reload the SSL bundle.
+   */
+  private boolean reloadOnUpdate;
 
   public Key getKey() {
     return this.key;
@@ -63,6 +66,14 @@ public abstract class SslBundleProperties {
 
   public void setProtocol(String protocol) {
     this.protocol = protocol;
+  }
+
+  public boolean isReloadOnUpdate() {
+    return this.reloadOnUpdate;
+  }
+
+  public void setReloadOnUpdate(boolean reloadOnUpdate) {
+    this.reloadOnUpdate = reloadOnUpdate;
   }
 
   public static class Options {

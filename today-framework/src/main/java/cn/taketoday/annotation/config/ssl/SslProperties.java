@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,7 @@
 
 package cn.taketoday.annotation.config.ssl;
 
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -59,12 +57,51 @@ public class SslProperties {
      */
     private final Map<String, JksSslBundleProperties> jks = new LinkedHashMap<>();
 
+    /**
+     * Trust material watching.
+     */
+    private final Watch watch = new Watch();
+
     public Map<String, PemSslBundleProperties> getPem() {
       return this.pem;
     }
 
     public Map<String, JksSslBundleProperties> getJks() {
       return this.jks;
+    }
+
+    public Watch getWatch() {
+      return this.watch;
+    }
+
+    public static class Watch {
+
+      /**
+       * File watching.
+       */
+      private final File file = new File();
+
+      public File getFile() {
+        return this.file;
+      }
+
+      public static class File {
+
+        /**
+         * Quiet period, after which changes are detected.
+         */
+        private Duration quietPeriod = Duration.ofSeconds(10);
+
+        public Duration getQuietPeriod() {
+          return this.quietPeriod;
+        }
+
+        public void setQuietPeriod(Duration quietPeriod) {
+          this.quietPeriod = quietPeriod;
+        }
+
+      }
+
     }
 
   }

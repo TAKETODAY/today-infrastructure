@@ -27,14 +27,19 @@ import java.net.SocketAddress;
 import java.time.Duration;
 import java.util.Arrays;
 
+import cn.taketoday.core.ssl.DefaultSslBundleRegistry;
+import cn.taketoday.core.ssl.SslBundle;
+import cn.taketoday.core.ssl.SslBundles;
+import cn.taketoday.core.ssl.pem.PemSslStoreBundle;
+import cn.taketoday.core.ssl.pem.PemSslStoreDetails;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactoryTests;
 import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.client.ReactorResourceFactory;
+import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.reactive.function.client.WebClient;
@@ -134,6 +139,16 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   }
 
   @Test
+  void whenSslBundleIsUpdatedThenSslIsReloaded() {
+    DefaultSslBundleRegistry bundles = new DefaultSslBundleRegistry("bundle1", createSslBundle("1.key", "1.crt"));
+    Mono<String> result = testSslWithBundle(bundles, "bundle1");
+    StepVerifier.create(result).expectNext("Hello World").expectComplete().verify(Duration.ofSeconds(30));
+    bundles.updateBundle("bundle1", createSslBundle("2.key", "2.crt"));
+    Mono<String> result2 = executeSslRequest();
+    StepVerifier.create(result2).expectNext("Hello World").expectComplete().verify(Duration.ofSeconds(30));
+  }
+
+  @Test
   void whenServerIsShuttingDownGracefullyThenNewConnectionsCannotBeMade() {
     ReactorNettyReactiveWebServerFactory factory = getFactory();
     factory.setShutdown(Shutdown.GRACEFUL);
@@ -173,6 +188,19 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     factory.setSsl(ssl);
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
+    return executeSslRequest();
+  }
+
+  private Mono<String> testSslWithBundle(SslBundles sslBundles, String bundle) {
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    factory.setSslBundles(sslBundles);
+    factory.setSsl(Ssl.forBundle(bundle));
+    this.webServer = factory.getWebServer(new EchoHandler());
+    this.webServer.start();
+    return executeSslRequest();
+  }
+
+  private Mono<String> executeSslRequest() {
     ReactorClientHttpConnector connector = buildTrustAllSslConnector();
     WebClient client = WebClient.builder()
             .baseUrl("https://localhost:" + this.webServer.getPort())
@@ -199,6 +227,13 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   @Override
   protected void addConnector(int port, AbstractReactiveWebServerFactory factory) {
     throw new UnsupportedOperationException("Reactor Netty does not support multiple ports");
+  }
+
+  private static SslBundle createSslBundle(String key, String certificate) {
+    return SslBundle.of(new PemSslStoreBundle(
+            new PemSslStoreDetails(null, "classpath:cn/taketoday/framework/web/embedded/netty/" + certificate,
+                    "classpath:cn/taketoday/framework/web/embedded/netty/" + key),
+            null));
   }
 
   static class NoPortNettyReactiveWebServerFactory extends ReactorNettyReactiveWebServerFactory {

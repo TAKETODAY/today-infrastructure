@@ -38,6 +38,7 @@ import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
 
@@ -165,7 +166,12 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {
-    return new SslServerCustomizer(getHttp2(), ssl.getClientAuth(), getSslBundle()).apply(httpServer);
+    SslServerCustomizer customizer = new SslServerCustomizer(getHttp2(), ssl.getClientAuth(), getSslBundle());
+    String bundleName = ssl.getBundle();
+    if (StringUtils.hasText(bundleName)) {
+      getSslBundles().addBundleUpdateHandler(bundleName, customizer::updateSslBundle);
+    }
+    return customizer.apply(httpServer);
   }
 
   private HttpProtocol[] listProtocols() {

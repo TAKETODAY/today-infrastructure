@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,16 @@
 
 package cn.taketoday.core.ssl;
 
+import org.awaitility.Awaitility;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+import cn.taketoday.framework.test.system.CapturedOutput;
+import cn.taketoday.framework.test.system.OutputCaptureExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -33,13 +39,19 @@ import static org.mockito.Mockito.mock;
  *
  * @author Phillip Webb
  */
+@ExtendWith(OutputCaptureExtension.class)
 class DefaultSslBundleRegistryTests {
 
-  private SslBundle bundle1 = mock(SslBundle.class);
+  private final SslBundle bundle1 = mock(SslBundle.class);
 
-  private SslBundle bundle2 = mock(SslBundle.class);
+  private final SslBundle bundle2 = mock(SslBundle.class);
 
-  private DefaultSslBundleRegistry registry = new DefaultSslBundleRegistry();
+  private DefaultSslBundleRegistry registry;
+
+  @BeforeEach
+  void setUp() {
+    this.registry = new DefaultSslBundleRegistry();
+  }
 
   @Test
   void createWithNameAndBundleRegistersBundle() {
@@ -91,6 +103,31 @@ class DefaultSslBundleRegistryTests {
     this.registry.registerBundle("test2", this.bundle2);
     assertThat(this.registry.getBundle("test1")).isSameAs(this.bundle1);
     assertThat(this.registry.getBundle("test2")).isSameAs(this.bundle2);
+  }
+
+  @Test
+  void updateBundleShouldNotifyUpdateHandlers() {
+    AtomicReference<SslBundle> updatedBundle = new AtomicReference<>();
+    this.registry.registerBundle("test1", this.bundle1);
+    this.registry.addBundleUpdateHandler("test1", updatedBundle::set);
+    this.registry.updateBundle("test1", this.bundle2);
+    Awaitility.await().untilAtomic(updatedBundle, Matchers.equalTo(this.bundle2));
+  }
+
+  @Test
+  void shouldFailIfUpdatingNonRegisteredBundle() {
+    assertThatExceptionOfType(NoSuchSslBundleException.class)
+            .isThrownBy(() -> this.registry.updateBundle("dummy", this.bundle1))
+            .withMessageContaining("'dummy'");
+  }
+
+  @Test
+  void shouldLogIfUpdatingBundleWithoutListeners(CapturedOutput output) {
+    this.registry.registerBundle("test1", this.bundle1);
+    this.registry.getBundle("test1");
+    this.registry.updateBundle("test1", this.bundle2);
+    assertThat(output).contains(
+            "SSL bundle 'test1' has been updated but may be in use by a technology that doesn't support SSL reloading");
   }
 
 }

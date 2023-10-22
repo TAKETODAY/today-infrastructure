@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +51,8 @@ import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.TomcatHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LambdaSafe;
@@ -64,10 +63,13 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Brian Clozel
  * @author HaiTao Zhang
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFactory
         implements ConfigurableTomcatWebServerFactory {
+
+  private static final Logger log = LoggerFactory.getLogger(TomcatServletWebServerFactory.class);
 
   private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
@@ -231,7 +233,12 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
   }
 
   private void customizeSsl(Ssl ssl, Connector connector) {
-    new SslConnectorCustomizer(ssl.getClientAuth(), getSslBundle()).customize(connector);
+    SslConnectorCustomizer customizer = new SslConnectorCustomizer(log, connector, ssl.getClientAuth());
+    customizer.customize(getSslBundle());
+    String sslBundleName = ssl.getBundle();
+    if (StringUtils.hasText(sslBundleName)) {
+      getSslBundles().addBundleUpdateHandler(sslBundleName, customizer::update);
+    }
   }
 
   @Override

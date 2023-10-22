@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ package cn.taketoday.core.ssl;
  * Interface that can be used to register an {@link SslBundle} for a given name.
  *
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface SslBundleRegistry {
@@ -35,5 +33,14 @@ public interface SslBundleRegistry {
    * @param bundle the bundle
    */
   void registerBundle(String name, SslBundle bundle);
+
+  /**
+   * Updates an {@link SslBundle}.
+   *
+   * @param name the bundle name
+   * @param updatedBundle the updated bundle
+   * @throws NoSuchSslBundleException if the bundle cannot be found
+   */
+  void updateBundle(String name, SslBundle updatedBundle) throws NoSuchSslBundleException;
 
 }
