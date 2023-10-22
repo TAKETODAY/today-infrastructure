@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
 
@@ -39,19 +37,19 @@ class PemCertificateParserTests {
 
   @Test
   void parseCertificate() throws Exception {
-    X509Certificate[] certificates = PemCertificateParser.parse(read("ssl/test-cert.pem"));
+    List<X509Certificate> certificates = PemCertificateParser.parse(read("ssl/test-cert.pem"));
     assertThat(certificates).isNotNull();
     assertThat(certificates).hasSize(1);
-    assertThat(certificates[0].getType()).isEqualTo("X.509");
+    assertThat(certificates.get(0).getType()).isEqualTo("X.509");
   }
 
   @Test
   void parseCertificateChain() throws Exception {
-    X509Certificate[] certificates = PemCertificateParser.parse(read("ssl/test-cert-chain.pem"));
+    List<X509Certificate> certificates = PemCertificateParser.parse(read("ssl/test-cert-chain.pem"));
     assertThat(certificates).isNotNull();
     assertThat(certificates).hasSize(2);
-    assertThat(certificates[0].getType()).isEqualTo("X.509");
-    assertThat(certificates[1].getType()).isEqualTo("X.509");
+    assertThat(certificates.get(0).getType()).isEqualTo("X.509");
+    assertThat(certificates.get(1).getType()).isEqualTo("X.509");
   }
 
   private String read(String path) throws IOException {

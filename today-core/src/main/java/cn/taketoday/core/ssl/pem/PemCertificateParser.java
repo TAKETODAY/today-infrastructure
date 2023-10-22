@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,18 +53,18 @@ final class PemCertificateParser {
   /**
    * Parse certificates from the specified string.
    *
-   * @param certificates the certificates to parse
+   * @param text the text to parse
    * @return the parsed certificates
    */
   @Nullable
-  static X509Certificate[] parse(@Nullable String certificates) {
-    if (certificates == null) {
+  static List<X509Certificate> parse(@Nullable String text) {
+    if (text == null) {
       return null;
     }
     CertificateFactory factory = getCertificateFactory();
     List<X509Certificate> certs = new ArrayList<>();
-    readCertificates(certificates, factory, certs::add);
-    return (!certs.isEmpty()) ? certs.toArray(X509Certificate[]::new) : null;
+    readCertificates(text, factory, certs::add);
+    return List.copyOf(certs);
   }
 
   private static CertificateFactory getCertificateFactory() {

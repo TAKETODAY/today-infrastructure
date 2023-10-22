@@ -27,6 +27,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -71,6 +72,10 @@ final class PemPrivateKeyParser {
 
   private static final String SEC1_EC_FOOTER = "-+END\\s+EC\\s+PRIVATE\\s+KEY[^-]*-+";
 
+  private static final String PKCS1_DSA_HEADER = "-+BEGIN\\s+DSA\\s+PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+";
+
+  private static final String PKCS1_DSA_FOOTER = "-+END\\s+DSA\\s+PRIVATE\\s+KEY[^-]*-+";
+
   private static final String BASE64_TEXT = "([a-z0-9+/=\\r\\n]+)";
 
   public static final int BASE64_TEXT_GROUP = 1;
@@ -78,10 +83,11 @@ final class PemPrivateKeyParser {
   private static final List<PemParser> PEM_PARSERS = List.of(
           new PemParser(PKCS1_RSA_HEADER, PKCS1_RSA_FOOTER, PemPrivateKeyParser::createKeySpecForPkcs1Rsa, "RSA"),
           new PemParser(SEC1_EC_HEADER, SEC1_EC_FOOTER, PemPrivateKeyParser::createKeySpecForSec1Ec, "EC"),
-          new PemParser(PKCS8_HEADER, PKCS8_FOOTER, PemPrivateKeyParser::createKeySpecForPkcs8,
-                  "RSA", "RSASSA-PSS", "EC", "DSA", "EdDSA", "XDH"),
-          new PemParser(PKCS8_ENCRYPTED_HEADER, PKCS8_ENCRYPTED_FOOTER, PemPrivateKeyParser::createKeySpecForPkcs8Encrypted,
-                  "RSA", "RSASSA-PSS", "EC", "DSA", "EdDSA", "XDH"));
+          new PemParser(PKCS8_HEADER, PKCS8_FOOTER, PemPrivateKeyParser::createKeySpecForPkcs8, "RSA", "RSASSA-PSS", "EC", "DSA", "EdDSA", "XDH"),
+          new PemParser(PKCS8_ENCRYPTED_HEADER, PKCS8_ENCRYPTED_FOOTER, PemPrivateKeyParser::createKeySpecForPkcs8Encrypted, "RSA", "RSASSA-PSS", "EC", "DSA", "EdDSA", "XDH"),
+          new PemParser(PKCS1_DSA_HEADER, PKCS1_DSA_FOOTER, (bytes, password) -> {
+            throw new IllegalStateException("Unsupported private key format");
+          }));
 
   /**
    * ASN.1 encoded object identifier {@literal 1.2.840.113549.1.1.1}.
@@ -162,38 +168,40 @@ final class PemPrivateKeyParser {
   /**
    * Parse a private key from the specified string.
    *
-   * @param key the private key to parse
+   * @param text the text to parse
    * @return the parsed private key
    */
-  static PrivateKey parse(String key) {
-    return parse(key, null);
+  @Nullable
+  static List<PrivateKey> parse(@Nullable String text) {
+    return parse(text, null);
   }
 
   /**
    * Parse a private key from the specified string, using the provided password for
    * decryption if necessary.
    *
-   * @param key the private key to parse
+   * @param text the text to parse
    * @param password the password used to decrypt an encrypted private key
    * @return the parsed private key
    */
   @Nullable
-  static PrivateKey parse(@Nullable String key, @Nullable String password) {
-    if (key == null) {
+  static List<PrivateKey> parse(@Nullable String text, @Nullable String password) {
+    if (text == null) {
       return null;
     }
+    ArrayList<PrivateKey> keys = new ArrayList<>();
     try {
       for (PemParser pemParser : PEM_PARSERS) {
-        PrivateKey privateKey = pemParser.parse(key, password);
+        PrivateKey privateKey = pemParser.parse(text, password);
         if (privateKey != null) {
-          return privateKey;
+          keys.add(privateKey);
         }
       }
-      throw new IllegalStateException("Unrecognized private key format");
     }
     catch (Exception ex) {
       throw new IllegalStateException("Error loading private key file: " + ex.getMessage(), ex);
     }
+    return List.copyOf(keys);
   }
 
   /**
@@ -233,11 +241,9 @@ final class PemPrivateKeyParser {
           KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
           return keyFactory.generatePrivate(keySpec);
         }
-        catch (InvalidKeySpecException | NoSuchAlgorithmException ignored) {
-
-        }
+        catch (InvalidKeySpecException | NoSuchAlgorithmException ignored) { }
       }
-      return null;
+      throw new IllegalStateException("Unrecognized private key format");
     }
 
   }
@@ -258,19 +264,19 @@ final class PemPrivateKeyParser {
       codeLengthBytes(0x02, bytes(encodedInteger));
     }
 
-    void octetString(byte[] bytes) throws IOException {
+    void octetString(@Nullable byte[] bytes) throws IOException {
       codeLengthBytes(0x04, bytes);
     }
 
-    void sequence(int... elements) throws IOException {
+    void sequence(@Nullable int... elements) throws IOException {
       sequence(bytes(elements));
     }
 
-    void sequence(byte[] bytes) throws IOException {
+    void sequence(@Nullable byte[] bytes) throws IOException {
       codeLengthBytes(0x30, bytes);
     }
 
-    void codeLengthBytes(int code, byte[] bytes) throws IOException {
+    void codeLengthBytes(int code, @Nullable byte[] bytes) throws IOException {
       this.stream.write(code);
       int length = (bytes != null) ? bytes.length : 0;
       if (length <= 127) {
@@ -441,7 +447,7 @@ final class PemPrivateKeyParser {
       }
     }
 
-    private static String getEncryptionAlgorithm(AlgorithmParameters algParameters, String algName) {
+    private static String getEncryptionAlgorithm(@Nullable AlgorithmParameters algParameters, String algName) {
       if (algParameters != null && PBES2_ALGORITHM.equals(algName)) {
         return algParameters.toString();
       }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import cn.taketoday.lang.Nullable;
@@ -45,15 +46,60 @@ final class PemContent {
 
   private static final Pattern PEM_FOOTER = Pattern.compile("-+END\\s+[^-]*-+", Pattern.CASE_INSENSITIVE);
 
+  private final String text;
+
+  private PemContent(String text) {
+    this.text = text;
+  }
+
   @Nullable
-  static String load(@Nullable String content) {
-    if (content == null || isPemContent(content)) {
-      return content;
+  List<X509Certificate> getCertificates() {
+    return PemCertificateParser.parse(this.text);
+  }
+
+  @Nullable
+  List<PrivateKey> getPrivateKeys() {
+    return PemPrivateKeyParser.parse(this.text);
+  }
+
+  @Nullable
+  List<PrivateKey> getPrivateKeys(@Nullable String password) {
+    return PemPrivateKeyParser.parse(this.text, password);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    return Objects.equals(this.text, ((PemContent) obj).text);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.text);
+  }
+
+  @Override
+  public String toString() {
+    return this.text;
+  }
+
+  @Nullable
+  static PemContent load(@Nullable String content) {
+    if (content == null) {
+      return null;
+    }
+    if (isPemContent(content)) {
+      return new PemContent(content);
     }
     try {
       URL url = ResourceUtils.getURL(content);
       try (Reader reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
-        return FileCopyUtils.copyToString(reader);
+        return new PemContent(FileCopyUtils.copyToString(reader));
       }
     }
     catch (IOException ex) {

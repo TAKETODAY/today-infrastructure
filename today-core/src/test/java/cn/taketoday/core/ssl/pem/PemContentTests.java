@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,19 +58,19 @@ class PemContentTests {
             +lGuHKdhNOVW9CmqPD1y76o6c8PQKuF7KZEoY2jvy3GeIfddBvqXgZ4PbWvFz1jO
             32C9XWHwRA4=
             -----END CERTIFICATE-----""";
-    assertThat(PemContent.load(content)).isEqualTo(content);
+    assertThat(PemContent.load(content)).hasToString(content);
   }
 
   @Test
   void loadWhenClasspathLocationReturnsContent() throws IOException {
-    String actual = PemContent.load("classpath:ssl/test-cert.pem");
+    String actual = PemContent.load("classpath:ssl/test-cert.pem").toString();
     String expected = new ClassPathResource("ssl/test-cert.pem").getContentAsString(StandardCharsets.UTF_8);
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   void loadWhenFileLocationReturnsContent() throws IOException {
-    String actual = PemContent.load("src/test/resources/ssl/test-cert.pem");
+    String actual = PemContent.load("src/test/resources/ssl/test-cert.pem").toString();
     String expected = new ClassPathResource("ssl/test-cert.pem").getContentAsString(StandardCharsets.UTF_8);
     assertThat(actual).isEqualTo(expected);
   }

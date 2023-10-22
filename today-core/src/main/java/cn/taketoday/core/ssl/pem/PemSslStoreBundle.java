@@ -24,11 +24,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import cn.taketoday.core.ssl.SslStoreBundle;
 import cn.taketoday.core.ssl.pem.KeyVerifier.Result;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -128,7 +130,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
     try {
       Assert.notNull(details.certificate(), "Certificate content must not be null");
       KeyStore store = createKeyStore(details);
-      X509Certificate[] certificates = loadCertificates(details);
+      X509Certificate[] certificates = loadCertificates(details.certificate());
       PrivateKey privateKey = loadPrivateKey(details);
       if (privateKey != null) {
         if (verifyKeys) {
@@ -160,15 +162,21 @@ public class PemSslStoreBundle implements SslStoreBundle {
 
   @Nullable
   private static PrivateKey loadPrivateKey(PemSslStoreDetails details) {
-    String privateKeyContent = PemContent.load(details.privateKey());
-    return PemPrivateKeyParser.parse(privateKeyContent, details.privateKeyPassword());
+    PemContent pemContent = PemContent.load(details.privateKey());
+    if (pemContent == null) {
+      return null;
+    }
+    List<PrivateKey> privateKeys = pemContent.getPrivateKeys(details.privateKeyPassword());
+    Assert.state(!CollectionUtils.isEmpty(privateKeys), "Loaded private keys are empty");
+    return privateKeys.get(0);
   }
 
-  private static X509Certificate[] loadCertificates(PemSslStoreDetails details) {
-    String certificateContent = PemContent.load(details.certificate());
-    X509Certificate[] certificates = PemCertificateParser.parse(certificateContent);
-    Assert.state(certificates != null && certificates.length > 0, "Loaded certificates are empty");
-    return certificates;
+  private static X509Certificate[] loadCertificates(String certificate) {
+    PemContent pemContent = PemContent.load(certificate);
+    assert pemContent != null;
+    List<X509Certificate> certificates = pemContent.getCertificates();
+    Assert.state(CollectionUtils.isNotEmpty(certificates), "Loaded certificates are empty");
+    return certificates.toArray(X509Certificate[]::new);
   }
 
   private static KeyStore createKeyStore(PemSslStoreDetails details)
@@ -179,8 +187,8 @@ public class PemSslStoreBundle implements SslStoreBundle {
     return store;
   }
 
-  private static void addPrivateKey(KeyStore keyStore, PrivateKey privateKey, @Nullable String alias, @Nullable String keyPassword,
-          X509Certificate[] certificates) throws KeyStoreException {
+  private static void addPrivateKey(KeyStore keyStore, PrivateKey privateKey,
+          @Nullable String alias, @Nullable String keyPassword, X509Certificate[] certificates) throws KeyStoreException {
     keyStore.setKeyEntry(alias, privateKey, (keyPassword != null) ? keyPassword.toCharArray() : null, certificates);
   }
 

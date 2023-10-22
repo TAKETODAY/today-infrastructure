@@ -22,6 +22,7 @@ import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.AopProxyUtils;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * {@code AopTestUtils} is a collection of AOP-related utility methods for
@@ -33,12 +34,15 @@ import cn.taketoday.lang.Assert;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.aop.support.AopUtils
  * @see cn.taketoday.aop.framework.AopProxyUtils
  * @see ReflectionTestUtils
  * @since 4.0
  */
 public abstract class AopTestUtils {
+
+  static final boolean isAopPresent = ClassUtils.isPresent("cn.taketoday.aop.Advisor", AopTestUtils.class);
 
   /**
    * Get the <em>target</em> object of the supplied {@code candidate} object.
@@ -59,10 +63,12 @@ public abstract class AopTestUtils {
   public static <T> T getTargetObject(Object candidate) {
     Assert.notNull(candidate, "Candidate must not be null");
     try {
-      if (AopUtils.isAopProxy(candidate) && candidate instanceof Advised advised) {
-        Object target = advised.getTargetSource().getTarget();
-        if (target != null) {
-          return (T) target;
+      if (isAopPresent) {
+        if (AopUtils.isAopProxy(candidate) && candidate instanceof Advised advised) {
+          Object target = advised.getTargetSource().getTarget();
+          if (target != null) {
+            return (T) target;
+          }
         }
       }
     }
@@ -99,10 +105,12 @@ public abstract class AopTestUtils {
   public static <T> T getUltimateTargetObject(Object candidate) {
     Assert.notNull(candidate, "Candidate must not be null");
     try {
-      if (AopUtils.isAopProxy(candidate) && candidate instanceof Advised advised) {
-        Object target = advised.getTargetSource().getTarget();
-        if (target != null) {
-          return getUltimateTargetObject(target);
+      if (isAopPresent) {
+        if (AopUtils.isAopProxy(candidate) && candidate instanceof Advised advised) {
+          Object target = advised.getTargetSource().getTarget();
+          if (target != null) {
+            return getUltimateTargetObject(target);
+          }
         }
       }
     }
