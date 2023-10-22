@@ -315,6 +315,14 @@
       "description": "Unconditionally activate the specified comma-separated list of profiles (or list of profiles if using YAML)."
     },
     {
+      "name": "jackson.constructor-detector",
+      "defaultValue": "default"
+    },
+    {
+      "name": "jackson.datatype.enum",
+      "description": "Jackson on/off features for enums."
+    },
+    {
       "name": "trace",
       "type": "java.lang.Boolean",
       "description": "Enable trace logs.",

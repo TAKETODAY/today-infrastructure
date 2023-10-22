@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +34,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
@@ -281,6 +280,27 @@ class JacksonAutoConfigurationTests {
       assertThat(mapper.getDeserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES))
               .isFalse();
     });
+  }
+
+  @Test
+  void enableEnumFeature() {
+    this.contextRunner.withPropertyValues("jackson.datatype.enum.write-enums-to-lowercase=true")
+            .run((context) -> {
+              ObjectMapper mapper = context.getBean(ObjectMapper.class);
+              assertThat(EnumFeature.WRITE_ENUMS_TO_LOWERCASE.enabledByDefault()).isFalse();
+              assertThat(mapper.getSerializationConfig().isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)).isTrue();
+            });
+  }
+
+  @Test
+  void disableJsonNodeFeature() {
+    this.contextRunner.withPropertyValues("jackson.datatype.jsonnode.write-null-properties:false")
+            .run((context) -> {
+              ObjectMapper mapper = context.getBean(ObjectMapper.class);
+              assertThat(JsonNodeFeature.WRITE_NULL_PROPERTIES.enabledByDefault()).isTrue();
+              assertThat(mapper.getDeserializationConfig().isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES))
+                      .isFalse();
+            });
   }
 
   @Test

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 
 import java.util.EnumMap;
 import java.util.Locale;
@@ -42,6 +41,8 @@ import cn.taketoday.context.properties.ConfigurationProperties;
  * @author Andy Wilkinson
  * @author Marcel Overdijk
  * @author Johannes Edmeier
+ * @author Eddú Meléndez
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @ConfigurationProperties(prefix = "jackson")
@@ -117,6 +118,8 @@ public class JacksonProperties {
    * Locale used for formatting.
    */
   private Locale locale;
+
+  private final Datatype datatype = new Datatype();
 
   public String getDateFormat() {
     return this.dateFormat;
@@ -198,6 +201,10 @@ public class JacksonProperties {
     this.locale = locale;
   }
 
+  public Datatype getDatatype() {
+    return this.datatype;
+  }
+
   public enum ConstructorDetectorStrategy {
 
     /**
@@ -220,6 +227,28 @@ public class JacksonProperties {
      * for ambiguous cases.
      */
     EXPLICIT_ONLY;
+
+  }
+
+  public static class Datatype {
+
+    /**
+     * Jackson on/off features for enums.
+     */
+    private final Map<EnumFeature, Boolean> enumFeatures = new EnumMap<>(EnumFeature.class);
+
+    /**
+     * Jackson on/off features for JsonNodes.
+     */
+    private final Map<JsonNodeFeature, Boolean> jsonNode = new EnumMap<>(JsonNodeFeature.class);
+
+    public Map<EnumFeature, Boolean> getEnum() {
+      return this.enumFeatures;
+    }
+
+    public Map<JsonNodeFeature, Boolean> getJsonNode() {
+      return this.jsonNode;
+    }
 
   }
 
