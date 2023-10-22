@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -1367,16 +1368,14 @@ public class Application {
   }
 
   private void callRunners(ApplicationContext context, ApplicationArguments args) {
-    ArrayList<Object> runners = new ArrayList<>(context.getBeansOfType(ApplicationRunner.class).values());
-    AnnotationAwareOrderComparator.sort(runners);
-
-    for (Object runner : new LinkedHashSet<>(runners)) {
-      if (runner instanceof ApplicationRunner applicationRunner) {
+    HashSet<ApplicationRunner> called = new HashSet<>(16);
+    for (ApplicationRunner runner : context.getBeanProvider(ApplicationRunner.class)) {
+      if (called.add(runner)) {
         try {
-          applicationRunner.run(args);
+          runner.run(args);
         }
         catch (Exception ex) {
-          throw new IllegalStateException("Failed to execute ApplicationRunner: " + applicationRunner, ex);
+          throw new IllegalStateException("Failed to execute ApplicationRunner: " + runner, ex);
         }
       }
     }

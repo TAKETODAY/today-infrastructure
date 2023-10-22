@@ -73,6 +73,7 @@ import cn.taketoday.context.event.SmartApplicationListener;
 import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.CommandLinePropertySource;
 import cn.taketoday.core.env.CompositePropertySource;
 import cn.taketoday.core.env.ConfigurableEnvironment;
@@ -628,6 +629,15 @@ class ApplicationTests {
     assertThat(this.context).has(runTestRunnerBean("runnerA"));
     assertThat(this.context).has(runTestRunnerBean("runnerB"));
     assertThat(this.context).has(runTestRunnerBean("runnerC"));
+  }
+
+  @Test
+  void runCommandLineRunnersAndApplicationRunnersUsingOrderOnBeanDefinitions() {
+    Application application = new Application(BeanDefinitionOrderRunnerConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    this.context = application.run("arg");
+    BeanDefinitionOrderRunnerConfig config = this.context.getBean(BeanDefinitionOrderRunnerConfig.class);
+    assertThat(config.runners).containsExactly("runnerA", "runnerB", "runnerC");
   }
 
   @Test
@@ -1604,6 +1614,31 @@ class ApplicationTests {
     @Bean
     TestCommandLineRunner runnerA() {
       return new TestCommandLineRunner(Ordered.HIGHEST_PRECEDENCE);
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class BeanDefinitionOrderRunnerConfig {
+
+    private final List<String> runners = new ArrayList<>();
+
+    @Bean
+    @Order(Ordered.LOWEST_PRECEDENCE - 1)
+    ApplicationRunner runnerB() {
+      return (args) -> this.runners.add("runnerB");
+    }
+
+    @Bean
+    @Order
+    CommandLineRunner runnerC() {
+      return (args) -> this.runners.add("runnerC");
+    }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    CommandLineRunner runnerA() {
+      return (args) -> this.runners.add("runnerA");
     }
 
   }
