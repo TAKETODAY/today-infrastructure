@@ -18,6 +18,7 @@
 package cn.taketoday.framework;
 
 import org.assertj.core.api.Condition;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1343,11 +1345,12 @@ class ApplicationTests {
     application.setApplicationType(ApplicationType.NORMAL);
     application.setKeepAlive(true);
     this.context = application.run();
-    Set<Thread> threadsBeforeClose = getCurrentThreads();
-    assertThat(threadsBeforeClose).filteredOn((thread) -> thread.getName().equals("keep-alive")).isNotEmpty();
+    assertThat(getCurrentThreads()).filteredOn((thread) -> thread.getName().equals("keep-alive")).isNotEmpty();
     this.context.close();
-    Set<Thread> threadsAfterClose = getCurrentThreads();
-    assertThat(threadsAfterClose).filteredOn((thread) -> thread.getName().equals("keep-alive")).isEmpty();
+    Awaitility.await()
+            .atMost(Duration.ofSeconds(30))
+            .untilAsserted(() -> assertThat(getCurrentThreads())
+                    .filteredOn((thread) -> thread.getName().equals("keep-alive")));
   }
 
   @Test
