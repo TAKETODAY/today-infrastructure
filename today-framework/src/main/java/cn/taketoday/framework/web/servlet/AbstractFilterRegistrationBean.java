@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,15 +232,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
   @Override
   protected void configure(Dynamic registration) {
     super.configure(registration);
-    EnumSet<DispatcherType> dispatcherTypes = this.dispatcherTypes;
-    if (dispatcherTypes == null) {
-      if (getFilter() instanceof OncePerRequestFilter) {
-        dispatcherTypes = EnumSet.allOf(DispatcherType.class);
-      }
-      else {
-        dispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
-      }
-    }
+    EnumSet<DispatcherType> dispatcherTypes = determineDispatcherTypes();
     var servletNames = new LinkedHashSet<String>();
     for (ServletRegistrationBean<?> servletRegistrationBean : servletRegistrationBeans) {
       servletNames.add(servletRegistrationBean.getServletName());
@@ -263,6 +252,24 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
                 dispatcherTypes, matchAfter, StringUtils.toStringArray(urlPatterns));
       }
     }
+  }
+
+  /**
+   * Determines the {@link DispatcherType dispatcher types} for which the filter should
+   * be registered. Applies defaults based on the type of filter being registered if
+   * none have been configured. Modifications to the returned {@link EnumSet} will have
+   * no effect on the registration.
+   *
+   * @return the dispatcher types, never {@code null}
+   */
+  public EnumSet<DispatcherType> determineDispatcherTypes() {
+    if (this.dispatcherTypes == null) {
+      if (getFilter() instanceof OncePerRequestFilter) {
+        return EnumSet.allOf(DispatcherType.class);
+      }
+      return EnumSet.of(DispatcherType.REQUEST);
+    }
+    return EnumSet.copyOf(this.dispatcherTypes);
   }
 
   /**
