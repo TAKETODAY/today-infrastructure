@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
+import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.stereotype.Component;
@@ -77,6 +75,20 @@ class ImportsContextCustomizerFactoryTests {
   }
 
   @Test
+  void contextCustomizerEqualsAndHashCodeConsidersComponentScan() {
+    ContextCustomizer customizer1 = this.factory
+            .createContextCustomizer(TestWithImportAndComponentScanOfSomePackage.class, null);
+    ContextCustomizer customizer2 = this.factory
+            .createContextCustomizer(TestWithImportAndComponentScanOfSomePackage.class, null);
+    ContextCustomizer customizer3 = this.factory
+            .createContextCustomizer(TestWithImportAndComponentScanOfAnotherPackage.class, null);
+    assertThat(customizer1.hashCode()).isEqualTo(customizer2.hashCode());
+    assertThat(customizer1).isEqualTo(customizer2);
+    assertThat(customizer3.hashCode()).isNotEqualTo(customizer2.hashCode()).isNotEqualTo(customizer1.hashCode());
+    assertThat(customizer3).isNotEqualTo(customizer2).isNotEqualTo(customizer1);
+  }
+
+  @Test
   void getContextCustomizerWhenClassHasBeanMethodsShouldThrowException() {
     assertThatIllegalStateException()
             .isThrownBy(() -> this.factory.createContextCustomizer(TestWithImportAndBeanMethod.class, null))
@@ -96,6 +108,18 @@ class ImportsContextCustomizerFactoryTests {
   void selfAnnotatingAnnotationDoesNotCauseStackOverflow() {
     assertThat(this.factory.createContextCustomizer(TestWithImportAndSelfAnnotatingAnnotation.class, null))
             .isNotNull();
+  }
+
+  @Import(ImportedBean.class)
+  @ComponentScan("some.package")
+  static class TestWithImportAndComponentScanOfSomePackage {
+
+  }
+
+  @Import(ImportedBean.class)
+  @ComponentScan("another.package")
+  static class TestWithImportAndComponentScanOfAnotherPackage {
+
   }
 
   static class TestWithNoImport {

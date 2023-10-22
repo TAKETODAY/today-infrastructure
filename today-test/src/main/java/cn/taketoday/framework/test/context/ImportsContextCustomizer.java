@@ -19,6 +19,7 @@ package cn.taketoday.framework.test.context;
 
 import java.lang.reflect.Constructor;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
+import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.ImportBeanDefinitionRegistrar;
@@ -226,7 +228,17 @@ class ImportsContextCustomizer implements ContextCustomizer {
               .withAnnotationFilter(this::isFilteredAnnotation)
               .from(testClass);
       Set<Object> determinedImports = determineImports(annotations, testClass);
-      this.key = determinedImports != null ? determinedImports : synthesize(annotations);
+      if (determinedImports == null) {
+        this.key = Collections.unmodifiableSet(synthesize(annotations));
+      }
+      else {
+        HashSet<Object> key = new HashSet<>(determinedImports);
+        annotations.stream()
+                .filter(annotation -> annotation.getType().equals(ComponentScan.class))
+                .map(MergedAnnotation::synthesize)
+                .forEach(key::add);
+        this.key = Collections.unmodifiableSet(key);
+      }
     }
 
     private boolean isFilteredAnnotation(String typeName) {
