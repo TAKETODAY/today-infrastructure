@@ -45,12 +45,11 @@ class CollectionBinder extends IndexedElementsBinder<Collection<Object>> {
   protected Object bindAggregate(ConfigurationPropertyName name,
           Bindable<?> target, AggregateElementBinder elementBinder) {
 
-    Class<?> collectionType = target.getValue() != null ? List.class : target.getType().resolve(Object.class);
     ResolvableType aggregateType = ResolvableType.forClassWithGenerics(List.class,
             target.getType().asCollection().getGenerics());
     ResolvableType elementType = target.getType().asCollection().getGeneric();
     IndexedCollectionSupplier result = new IndexedCollectionSupplier(
-            () -> CollectionUtils.createCollection(collectionType, elementType.resolve(), 0));
+            () -> CollectionUtils.createCollection(List.class, elementType.resolve(), 0));
     bindIndexed(name, target, elementBinder, aggregateType, elementType, result);
     if (result.wasSupplied()) {
       return result.get();
