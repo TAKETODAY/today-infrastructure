@@ -17,7 +17,10 @@
 
 package cn.taketoday.framework;
 
+import org.crac.management.CRaCMXBean;
+
 import java.lang.StackWalker.StackFrame;
+import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -326,10 +329,10 @@ public class Application {
    * @return a running {@link ApplicationContext}
    */
   public ConfigurableApplicationContext run(String... args) {
+    Startup startup = Startup.create();
     if (this.registerShutdownHook) {
       Application.shutdownHook.enableShutdownHookAddition();
     }
-    long startTime = System.nanoTime();
     ApplicationArguments arguments = new ApplicationArguments(args);
     DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 
@@ -356,12 +359,11 @@ public class Application {
       refreshContext(context);
       // after refresh
       afterRefresh(context, arguments);
-
-      Duration timeTakenToStartup = Duration.ofNanos(System.nanoTime() - startTime);
+      Duration timeTakenToStarted = startup.started();
       if (this.logStartupInfo) {
-        new StartupLogging(this.mainApplicationClass).logStarted(getApplicationLog(), timeTakenToStartup);
+        new StartupLogging(this.mainApplicationClass).logStarted(getApplicationLog(), startup);
       }
-      listeners.started(context, timeTakenToStartup);
+      listeners.started(context, timeTakenToStarted);
       callRunners(context, arguments);
     }
     catch (AbandonedRunException e) {
@@ -372,8 +374,9 @@ public class Application {
       throw new IllegalStateException(e);
     }
     try {
-      Duration timeTakenToReady = Duration.ofNanos(System.nanoTime() - startTime);
-      listeners.ready(context, timeTakenToReady);
+      if (context.isRunning()) {
+        listeners.ready(context, startup.ready());
+      }
       return context;
     }
     catch (AbandonedRunException e) {
@@ -1723,6 +1726,98 @@ public class Application {
           break;
         }
       }
+    }
+
+  }
+
+  abstract static class Startup {
+
+    private Duration timeTakenToStarted;
+
+    abstract long startTime();
+
+    @Nullable
+    abstract Long processUptime();
+
+    abstract String action();
+
+    final Duration started() {
+      long now = System.currentTimeMillis();
+      this.timeTakenToStarted = Duration.ofMillis(now - startTime());
+      return this.timeTakenToStarted;
+    }
+
+    private Duration ready() {
+      long now = System.currentTimeMillis();
+      return Duration.ofMillis(now - startTime());
+    }
+
+    Duration timeTakenToStarted() {
+      return this.timeTakenToStarted;
+    }
+
+    static Startup create() {
+      return (!ClassUtils.isPresent("jdk.crac.management.CRaCMXBean", Startup.class))
+             ? new StandardStartup() : new CoordinatedRestoreAtCheckpointStartup();
+    }
+
+  }
+
+  private static class CoordinatedRestoreAtCheckpointStartup extends Startup {
+
+    private final StandardStartup fallback = new StandardStartup();
+
+    @Override
+    Long processUptime() {
+      long uptime = CRaCMXBean.getCRaCMXBean().getUptimeSinceRestore();
+      return (uptime >= 0) ? uptime : this.fallback.processUptime();
+    }
+
+    @Override
+    String action() {
+      if (restoreTime() >= 0) {
+        return "Restored";
+      }
+      return this.fallback.action();
+    }
+
+    private long restoreTime() {
+      return CRaCMXBean.getCRaCMXBean().getRestoreTime();
+    }
+
+    @Override
+    long startTime() {
+      long restoreTime = restoreTime();
+      if (restoreTime >= 0) {
+        return restoreTime;
+      }
+      return this.fallback.startTime();
+    }
+
+  }
+
+  private static class StandardStartup extends Startup {
+
+    private final Long startTime = System.currentTimeMillis();
+
+    @Override
+    long startTime() {
+      return this.startTime;
+    }
+
+    @Override
+    Long processUptime() {
+      try {
+        return ManagementFactory.getRuntimeMXBean().getUptime();
+      }
+      catch (Throwable ex) {
+        return null;
+      }
+    }
+
+    @Override
+    String action() {
+      return "Started";
     }
 
   }

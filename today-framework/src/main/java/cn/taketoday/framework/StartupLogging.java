@@ -17,9 +17,7 @@
 
 package cn.taketoday.framework;
 
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
-import java.time.Duration;
 
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.core.ApplicationHome;
@@ -60,9 +58,9 @@ final class StartupLogging {
     }
   }
 
-  void logStarted(Logger applicationLog, Duration timeTakenToStartup) {
+  void logStarted(Logger applicationLog, Application.Startup startup) {
     if (applicationLog.isInfoEnabled()) {
-      applicationLog.info(getStartedMessage(timeTakenToStartup));
+      applicationLog.info(getStartedMessage(startup));
     }
   }
 
@@ -79,19 +77,17 @@ final class StartupLogging {
     return message;
   }
 
-  private CharSequence getStartedMessage(Duration timeTakenToStartup) {
+  private CharSequence getStartedMessage(Application.Startup startup) {
     StringBuilder message = new StringBuilder();
-    message.append("Started");
+    message.append(startup.action());
     appendApplicationName(message);
     message.append(" in ");
-    message.append(timeTakenToStartup.toMillis() / 1000.0);
+    message.append(startup.timeTakenToStarted().toMillis() / 1000.0);
     message.append(" seconds");
-    try {
-      double uptime = ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0;
-      message.append(" (JVM running for ").append(uptime).append(")");
-    }
-    catch (Throwable ex) {
-      // No JVM time available
+    Long uptimeMs = startup.processUptime();
+    if (uptimeMs != null) {
+      double uptime = uptimeMs / 1000.0;
+      message.append(" (process running for ").append(uptime).append(")");
     }
     return message;
   }
