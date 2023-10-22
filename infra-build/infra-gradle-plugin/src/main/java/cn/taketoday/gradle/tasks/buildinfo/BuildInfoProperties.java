@@ -20,6 +20,7 @@ package cn.taketoday.gradle.tasks.buildinfo;
 import org.gradle.api.Project;
 import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.SetProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
@@ -162,7 +163,12 @@ public abstract class BuildInfoProperties implements Serializable {
 
   private Map<String, String> coerceToStringValues(Map<String, Object> input) {
     Map<String, String> output = new HashMap<>();
-    input.forEach((key, value) -> output.put(key, (value != null) ? value.toString() : null));
+    input.forEach((key, value) -> {
+      if (value instanceof Provider<?> provider) {
+        value = provider.getOrNull();
+      }
+      output.put(key, (value != null) ? value.toString() : null);
+    });
     return output;
   }
 
