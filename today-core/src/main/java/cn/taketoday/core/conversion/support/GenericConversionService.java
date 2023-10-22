@@ -364,7 +364,7 @@ public class GenericConversionService implements ConfigurableConversionService {
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
       // Check raw type first...
-      if (this.typeInfo.getTargetType() != targetType.getObjectType()) {
+      if (this.typeInfo.targetType != targetType.getObjectType()) {
         return false;
       }
       // Full check for complex generic type match required?

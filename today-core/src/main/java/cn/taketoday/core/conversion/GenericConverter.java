@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +40,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Keith Donald
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TypeDescriptor
  * @see Converter
  * @see ConverterFactory
@@ -74,7 +72,10 @@ public interface GenericConverter {
   /**
    * Holder for a source-to-target class pair.
    */
-  record ConvertiblePair(Class<?> sourceType, Class<?> targetType) {
+  final class ConvertiblePair {
+    public final Class<?> sourceType;
+
+    public final Class<?> targetType;
 
     /**
      * Create a new source-to-target pair.
@@ -82,17 +83,11 @@ public interface GenericConverter {
      * @param sourceType the source type
      * @param targetType the target type
      */
-    public ConvertiblePair {
-      Assert.notNull(sourceType, "Source type must not be null");
-      Assert.notNull(targetType, "Target type must not be null");
-    }
-
-    public Class<?> getSourceType() {
-      return this.sourceType;
-    }
-
-    public Class<?> getTargetType() {
-      return this.targetType;
+    public ConvertiblePair(Class<?> sourceType, Class<?> targetType) {
+      Assert.notNull(sourceType, "Source type is required");
+      Assert.notNull(targetType, "Target type is required");
+      this.sourceType = sourceType;
+      this.targetType = targetType;
     }
 
     @Override
