@@ -21,7 +21,6 @@ import java.beans.PropertyEditor;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +40,7 @@ import cn.taketoday.core.conversion.ConversionFailedException;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.conversion.support.GenericConversionService;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -143,13 +143,13 @@ final class BindConverter {
    */
   private static class TypeConverterConversionService extends GenericConversionService {
 
-    TypeConverterConversionService(@Nullable Consumer<PropertyEditorRegistry> initializer) {
-      addConverter(new TypeConverterConverter(initializer));
+    TypeConverterConversionService(Consumer<PropertyEditorRegistry> initializer) {
       ApplicationConversionService.addDelimitedStringConverters(this);
+      addConverter(new TypeConverterConverter(initializer));
     }
 
     @Override
-    public boolean canConvert(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    public boolean canConvert(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
       // Prefer conversion service to handle things like String to char[].
       if (targetType.isArray()) {
         TypeDescriptor descriptor = targetType.getElementDescriptor();
@@ -185,17 +185,24 @@ final class BindConverter {
 
     @Override
     public Set<ConvertiblePair> getConvertibleTypes() {
-      return Collections.singleton(new ConvertiblePair(String.class, Object.class));
+      return Set.of(
+              new ConvertiblePair(String.class, Object.class),
+              new ConvertiblePair(String.class, Resource[].class),
+              new ConvertiblePair(String.class, Collection.class)
+      );
     }
 
     @Override
     public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
       Class<?> type = targetType.getType();
-      if (type == null
-              || type == Object.class
-              || Collection.class.isAssignableFrom(type)
-              || Map.class.isAssignableFrom(type)) {
+      if (type == null || type == Object.class || Map.class.isAssignableFrom(type)) {
         return false;
+      }
+      if (Collection.class.isAssignableFrom(type)) {
+        TypeDescriptor elementType = targetType.getElementDescriptor();
+        if (elementType == null || (!Resource.class.isAssignableFrom(elementType.getType()))) {
+          return false;
+        }
       }
       PropertyEditor editor = this.matchesOnlyTypeConverter.getDefaultEditor(type);
       if (editor == null) {
@@ -208,8 +215,8 @@ final class BindConverter {
     }
 
     @Override
-    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-      return createTypeConverter().convertIfNecessary(source, targetType.getType());
+    public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+      return createTypeConverter().convertIfNecessary(source, targetType.getType(), targetType);
     }
 
     private SimpleTypeConverter createTypeConverter() {
