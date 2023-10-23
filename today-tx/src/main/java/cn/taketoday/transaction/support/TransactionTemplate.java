@@ -160,8 +160,8 @@ public class TransactionTemplate
    * @param ex the thrown application exception or error
    * @throws TransactionException in case of a rollback error
    */
-  private void rollbackOnException(
-          PlatformTransactionManager transactionManager, TransactionStatus status, Throwable ex) throws TransactionException {
+  private void rollbackOnException(PlatformTransactionManager transactionManager,
+          TransactionStatus status, Throwable ex) throws TransactionException {
     log.debug("Initiating transaction rollback on application exception", ex);
     try {
       transactionManager.rollback(status);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +51,6 @@ import cn.taketoday.transaction.TransactionException;
 import cn.taketoday.transaction.TransactionStatus;
 import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.annotation.Isolation;
-import cn.taketoday.transaction.support.CallbackPreferringPlatformTransactionManager;
 import cn.taketoday.transaction.support.TransactionCallback;
 
 /**
@@ -755,31 +751,24 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   public <T> T runInTransaction(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
-    PlatformTransactionManager transactionManager = getTransactionManager();
-    Assert.state(transactionManager != null, "No PlatformTransactionManager set");
-
-    if (transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
-      return ((CallbackPreferringPlatformTransactionManager) transactionManager).execute(definition, action);
+    PlatformTransactionManager transactionManager = this.transactionManager;
+    TransactionStatus status = transactionManager.getTransaction(definition);
+    T result;
+    try {
+      result = action.doInTransaction(status);
     }
-    else {
-      TransactionStatus status = transactionManager.getTransaction(definition);
-      T result;
-      try {
-        result = action.doInTransaction(status);
-      }
-      catch (RuntimeException | Error ex) {
-        // Transactional code threw application exception -> rollback
-        rollbackOnException(transactionManager, status, ex);
-        throw ex;
-      }
-      catch (Throwable ex) {
-        // Transactional code threw unexpected exception -> rollback
-        rollbackOnException(transactionManager, status, ex);
-        throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
-      }
-      transactionManager.commit(status);
-      return result;
+    catch (RuntimeException | Error ex) {
+      // Transactional code threw application exception -> rollback
+      rollbackOnException(transactionManager, status, ex);
+      throw ex;
     }
+    catch (Throwable ex) {
+      // Transactional code threw unexpected exception -> rollback
+      rollbackOnException(transactionManager, status, ex);
+      throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
+    }
+    transactionManager.commit(status);
+    return result;
   }
 
   /**
@@ -790,8 +779,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param ex the thrown application exception or error
    * @throws TransactionException in case of a rollback error
    */
-  private void rollbackOnException(
-          PlatformTransactionManager transactionManager, TransactionStatus status, Throwable ex) throws TransactionException {
+  private void rollbackOnException(PlatformTransactionManager transactionManager,
+          TransactionStatus status, Throwable ex) throws TransactionException {
     logger.debug("Initiating transaction rollback on application exception", ex);
     try {
       transactionManager.rollback(status);
