@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.jdbc.HikariCheckpointRestoreLifecycle;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.jdbc.datasource.DelegatingDataSource;
-import cn.taketoday.test.classpath.ClassPathOverrides;
+import cn.taketoday.test.classpath.ClassPathExclusions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -108,14 +108,12 @@ class HikariDataSourceConfigurationTests {
   }
 
   @Test
-  @ClassPathOverrides("org.crac:crac:1.3.0")
   void whenCheckpointRestoreIsAvailableHikariAutoConfigRegistersLifecycleBean() {
     this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
             .run((context) -> assertThat(context).hasSingleBean(HikariCheckpointRestoreLifecycle.class));
   }
 
   @Test
-  @ClassPathOverrides("org.crac:crac:1.3.0")
   void whenCheckpointRestoreIsAvailableAndDataSourceHasBeenWrappedHikariAutoConfigRegistersLifecycleBean() {
     this.contextRunner.withUserConfiguration(DataSourceWrapperConfiguration.class)
             .withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
@@ -123,6 +121,7 @@ class HikariDataSourceConfigurationTests {
   }
 
   @Test
+  @ClassPathExclusions("crac-*.jar")
   void whenCheckpointRestoreIsNotAvailableHikariAutoConfigDoesNotRegisterLifecycleBean() {
     this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName())
             .run((context) -> assertThat(context).doesNotHaveBean(HikariCheckpointRestoreLifecycle.class));
