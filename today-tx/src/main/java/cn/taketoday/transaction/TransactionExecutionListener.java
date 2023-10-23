@@ -31,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * a {@link ReactiveTransaction} (for a {@link ReactiveTransactionManager} transaction).
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurableTransactionManager#addListener
  * @see cn.taketoday.transaction.support.TransactionSynchronizationManager#registerSynchronization
  * @see cn.taketoday.transaction.reactive.TransactionSynchronizationManager#registerSynchronization

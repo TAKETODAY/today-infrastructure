@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ import cn.taketoday.transaction.TransactionSuspensionNotSupportedException;
 import cn.taketoday.transaction.UnexpectedRollbackException;
 
 /**
- * Abstract base class that implements Framework's standard transaction workflow,
+ * Abstract base class that implements Infra standard transaction workflow,
  * serving as basis for concrete platform transaction managers like
  * {@link cn.taketoday.transaction.jta.JtaTransactionManager}.
  *
@@ -80,6 +79,7 @@ import cn.taketoday.transaction.UnexpectedRollbackException;
  * to Java serialization rules) if they need to restore any transient state.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setTransactionSynchronization
  * @see TransactionSynchronizationManager
  * @see cn.taketoday.transaction.jta.JtaTransactionManager
@@ -143,7 +143,8 @@ public abstract class AbstractPlatformTransactionManager
 
   private boolean rollbackOnCommitFailure = false;
 
-  private Collection<TransactionExecutionListener> transactionExecutionListeners = new ArrayList<>();
+  private final CompositeTransactionExecutionListener executionListeners
+          = new CompositeTransactionExecutionListener();
 
   /**
    * Set the transaction synchronization by the name of the corresponding constant
@@ -348,12 +349,12 @@ public abstract class AbstractPlatformTransactionManager
 
   @Override
   public final void setTransactionExecutionListeners(Collection<TransactionExecutionListener> listeners) {
-    this.transactionExecutionListeners = listeners;
+    this.executionListeners.listeners = listeners;
   }
 
   @Override
   public final Collection<TransactionExecutionListener> getTransactionExecutionListeners() {
-    return this.transactionExecutionListeners;
+    return executionListeners.listeners;
   }
 
   //---------------------------------------------------------------------
@@ -370,11 +371,13 @@ public abstract class AbstractPlatformTransactionManager
    * @see #doBegin
    */
   @Override
-  public final TransactionStatus getTransaction(@Nullable TransactionDefinition definition)
+  public final TransactionStatus getTransaction(@Nullable TransactionDefinition def)
           throws TransactionException {
 
     // Use defaults if no transaction definition given.
-    TransactionDefinition def = (definition != null ? definition : TransactionDefinition.withDefaults());
+    if (def == null) {
+      def = TransactionDefinition.withDefaults();
+    }
 
     Object transaction = doGetTransaction();
 
@@ -476,15 +479,15 @@ public abstract class AbstractPlatformTransactionManager
         // Usually uses JDBC 3.0 savepoints. Never activates Infra synchronization.
         DefaultTransactionStatus status = newTransactionStatus(
                 definition, transaction, false, false, true, debugEnabled, null);
-        this.transactionExecutionListeners.forEach(listener -> listener.beforeBegin(status));
+        executionListeners.beforeBegin(status);
         try {
           status.createAndHoldSavepoint();
         }
         catch (RuntimeException | Error ex) {
-          this.transactionExecutionListeners.forEach(listener -> listener.afterBegin(status, ex));
+          executionListeners.afterBegin(status, ex);
           throw ex;
         }
-        this.transactionExecutionListeners.forEach(listener -> listener.afterBegin(status, null));
+        executionListeners.afterBegin(status, null);
         return status;
       }
       else {
@@ -530,16 +533,16 @@ public abstract class AbstractPlatformTransactionManager
     boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
     DefaultTransactionStatus status = newTransactionStatus(
             definition, transaction, true, newSynchronization, nested, debugEnabled, suspendedResources);
-    this.transactionExecutionListeners.forEach(listener -> listener.beforeBegin(status));
+    executionListeners.beforeBegin(status);
     try {
       doBegin(transaction, definition);
     }
     catch (RuntimeException | Error ex) {
-      this.transactionExecutionListeners.forEach(listener -> listener.afterBegin(status, ex));
+      executionListeners.afterBegin(status, ex);
       throw ex;
     }
     prepareSynchronization(status, definition);
-    this.transactionExecutionListeners.forEach(listener -> listener.afterBegin(status, null));
+    executionListeners.afterBegin(status, null);
     return status;
   }
 
@@ -796,7 +799,7 @@ public abstract class AbstractPlatformTransactionManager
             logger.debug("Releasing transaction savepoint");
           }
           unexpectedRollback = status.isGlobalRollbackOnly();
-          this.transactionExecutionListeners.forEach(listener -> listener.beforeCommit(status));
+          executionListeners.beforeCommit(status);
           commitListenerInvoked = true;
           status.releaseHeldSavepoint();
         }
@@ -805,7 +808,7 @@ public abstract class AbstractPlatformTransactionManager
             logger.debug("Initiating transaction commit");
           }
           unexpectedRollback = status.isGlobalRollbackOnly();
-          this.transactionExecutionListeners.forEach(listener -> listener.beforeCommit(status));
+          executionListeners.beforeCommit(status);
           commitListenerInvoked = true;
           doCommit(status);
         }
@@ -822,7 +825,7 @@ public abstract class AbstractPlatformTransactionManager
       }
       catch (UnexpectedRollbackException ex) {
         triggerAfterCompletion(status, TransactionSynchronization.STATUS_ROLLED_BACK);
-        this.transactionExecutionListeners.forEach(listener -> listener.afterRollback(status, null));
+        executionListeners.afterRollback(status, null);
         throw ex;
       }
       catch (TransactionException ex) {
@@ -832,7 +835,7 @@ public abstract class AbstractPlatformTransactionManager
         else {
           triggerAfterCompletion(status, TransactionSynchronization.STATUS_UNKNOWN);
           if (commitListenerInvoked) {
-            this.transactionExecutionListeners.forEach(listener -> listener.afterCommit(status, ex));
+            executionListeners.afterCommit(status, ex);
           }
         }
         throw ex;
@@ -853,7 +856,7 @@ public abstract class AbstractPlatformTransactionManager
       finally {
         triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED);
         if (commitListenerInvoked) {
-          this.transactionExecutionListeners.forEach(listener -> listener.afterCommit(status, null));
+          executionListeners.afterCommit(status, null);
         }
       }
 
@@ -901,7 +904,7 @@ public abstract class AbstractPlatformTransactionManager
           if (status.isDebug()) {
             logger.debug("Rolling back transaction to savepoint");
           }
-          this.transactionExecutionListeners.forEach(listener -> listener.beforeRollback(status));
+          executionListeners.beforeRollback(status);
           rollbackListenerInvoked = true;
           status.rollbackToHeldSavepoint();
         }
@@ -909,7 +912,7 @@ public abstract class AbstractPlatformTransactionManager
           if (status.isDebug()) {
             logger.debug("Initiating transaction rollback");
           }
-          this.transactionExecutionListeners.forEach(listener -> listener.beforeRollback(status));
+          executionListeners.beforeRollback(status);
           rollbackListenerInvoked = true;
           doRollback(status);
         }
@@ -940,14 +943,14 @@ public abstract class AbstractPlatformTransactionManager
       catch (RuntimeException | Error ex) {
         triggerAfterCompletion(status, TransactionSynchronization.STATUS_UNKNOWN);
         if (rollbackListenerInvoked) {
-          this.transactionExecutionListeners.forEach(listener -> listener.afterRollback(status, ex));
+          executionListeners.afterRollback(status, ex);
         }
         throw ex;
       }
 
       triggerAfterCompletion(status, TransactionSynchronization.STATUS_ROLLED_BACK);
       if (rollbackListenerInvoked) {
-        this.transactionExecutionListeners.forEach(listener -> listener.afterRollback(status, null));
+        executionListeners.afterRollback(status, null);
       }
 
       // Raise UnexpectedRollbackException if we had a global rollback-only marker
@@ -987,11 +990,11 @@ public abstract class AbstractPlatformTransactionManager
     catch (RuntimeException | Error rbex) {
       logger.error("Commit exception overridden by rollback exception", ex);
       triggerAfterCompletion(status, TransactionSynchronization.STATUS_UNKNOWN);
-      this.transactionExecutionListeners.forEach(listener -> listener.afterRollback(status, rbex));
+      executionListeners.afterRollback(status, rbex);
       throw rbex;
     }
     triggerAfterCompletion(status, TransactionSynchronization.STATUS_ROLLED_BACK);
-    this.transactionExecutionListeners.forEach(listener -> listener.afterRollback(status, null));
+    executionListeners.afterRollback(status, null);
   }
 
   /**
