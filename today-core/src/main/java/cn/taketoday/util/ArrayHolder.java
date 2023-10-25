@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +45,9 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2022/1/12 15:28
  */
 public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomAccess {
-  private E[] array;
+
+  @Nullable
+  public E[] array;
 
   @Nullable
   private final Class<E> elementClass;
@@ -151,7 +150,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
     }
     else {
       if (arrayGenerator != null) {
-        set(list.toArray(arrayGenerator.apply(list.size())));
+        array = list.toArray(arrayGenerator.apply(list.size()));
       }
       else {
         Class<E> elementClass = this.elementClass;
@@ -160,7 +159,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
           Assert.state(firstElement != null, "list is empty");
           elementClass = (Class<E>) firstElement.getClass();
         }
-        set(list.toArray((E[]) Array.newInstance(elementClass, list.size())));
+        array = list.toArray((E[]) Array.newInstance(elementClass, list.size()));
       }
     }
   }
@@ -418,7 +417,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   @SafeVarargs
   public static <E> ArrayHolder<E> valueOf(E... array) {
     ArrayHolder<E> holder = new ArrayHolder<>();
-    holder.set(array);
+    holder.array = array;
     return holder;
   }
 
@@ -431,7 +430,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   public static <E> ArrayHolder<E> copyOf(ArrayHolder<E> holder) {
     ArrayHolder<E> arrayHolder = new ArrayHolder<>();
     if (ObjectUtils.isNotEmpty(holder.array)) {
-      arrayHolder.set(Arrays.copyOf(holder.array, holder.array.length));
+      arrayHolder.array = holder.array.clone();
     }
     return arrayHolder;
   }

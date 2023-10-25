@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +18,6 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.InterceptorChain;
@@ -47,8 +43,8 @@ public class InterceptableHandlerAdapterDecorator extends HandlerInterceptorHold
 
   @Override
   public Object handle(RequestContext context, Object handler) throws Throwable {
-    HandlerInterceptor[] interceptors = this.interceptors.get();
-    if (ObjectUtils.isNotEmpty(interceptors)) {
+    HandlerInterceptor[] interceptors = this.interceptors.array;
+    if (interceptors != null) {
       return new Chain(interceptors, handler).proceed(context);
     }
     return handlerAdapter.handle(context, handler);
