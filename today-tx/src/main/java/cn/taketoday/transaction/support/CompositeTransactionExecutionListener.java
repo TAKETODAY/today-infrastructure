@@ -17,6 +17,8 @@
 
 package cn.taketoday.transaction.support;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -30,7 +32,10 @@ import cn.taketoday.transaction.TransactionExecutionListener;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/10/23 15:32
  */
-class CompositeTransactionExecutionListener implements TransactionExecutionListener {
+class CompositeTransactionExecutionListener implements TransactionExecutionListener, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   public Collection<TransactionExecutionListener> listeners = new ArrayList<>();
 

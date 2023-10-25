@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +29,6 @@ import cn.taketoday.aop.framework.Advised;
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.testfixture.io.SerializationTestUtils;
-import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.interceptor.NoRollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RollbackRuleAttribute;
 import cn.taketoday.transaction.interceptor.RuleBasedTransactionAttribute;
@@ -56,7 +52,7 @@ public class AnnotationTransactionAttributeSourceTests {
     TestBean1 tb = new TestBean1();
     CallCountingTransactionManager ptm = new CallCountingTransactionManager();
     AnnotationTransactionAttributeSource tas = new AnnotationTransactionAttributeSource();
-    TransactionInterceptor ti = new TransactionInterceptor((PlatformTransactionManager) ptm, tas);
+    TransactionInterceptor ti = new TransactionInterceptor(ptm, tas);
 
     ProxyFactory proxyFactory = new ProxyFactory();
     proxyFactory.setInterfaces(ITestBean1.class);
