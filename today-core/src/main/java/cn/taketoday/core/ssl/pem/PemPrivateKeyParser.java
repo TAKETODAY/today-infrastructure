@@ -223,7 +223,7 @@ final class PemPrivateKeyParser {
     }
 
     @Nullable
-    PrivateKey parse(String text, String password) {
+    PrivateKey parse(String text, @Nullable String password) {
       Matcher matcher = this.pattern.matcher(text);
       return (!matcher.find()) ? null : parse(decodeBase64(matcher.group(BASE64_TEXT_GROUP)), password);
     }
@@ -234,7 +234,7 @@ final class PemPrivateKeyParser {
     }
 
     @Nullable
-    private PrivateKey parse(byte[] bytes, String password) {
+    private PrivateKey parse(byte[] bytes, @Nullable String password) {
       PKCS8EncodedKeySpec keySpec = this.keySpecFactory.apply(bytes, password);
       for (String algorithm : this.algorithms) {
         try {
