@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,9 +100,9 @@ public abstract class SerializationUtils {
    * @param object the object to clone
    * @param <T> the type of the object to clone
    * @return a clone (deep-copy) of the given object
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
+  @Nullable
   public static <T extends Serializable> T clone(T object) {
     return (T) SerializationUtils.deserialize(SerializationUtils.serialize(object));
   }
