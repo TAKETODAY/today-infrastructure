@@ -645,9 +645,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       PreparedStatement statement = prepareStatement(con, sql.toString(), false);
       metadata.idProperty.setParameter(statement, 1, id);
 
-      var iterator = new EntityIterator<T>(con, statement, entityClass);
-
-      return iterator.hasNext() ? iterator.next() : null;
+      try (var iterator = new EntityIterator<T>(con, statement, entityClass)) {
+        return iterator.hasNext() ? iterator.next() : null;
+      }
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
