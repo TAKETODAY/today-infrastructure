@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,8 +93,7 @@ public class BeanProperties {
    * @param converter type-converter to convert bean-properties
    * @param ignoreProperties array of property names to ignore
    */
-  public static void copy(
-          Object source, Object destination,
+  public static void copy(Object source, Object destination,
           @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination object must not be null");
@@ -161,8 +157,7 @@ public class BeanProperties {
    * @param converter type-converter to convert bean-properties
    */
   @SuppressWarnings("unchecked")
-  public static <T> T copy(
-          Object source, Class<T> destination,
+  public static <T> T copy(Object source, Class<T> destination,
           @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
     Assert.notNull(source, "source object must not be null");
     Assert.notNull(destination, "destination class must not be null");
@@ -177,8 +172,7 @@ public class BeanProperties {
    * Ignore read-only properties
    */
   @SuppressWarnings("unchecked")
-  private static void copy(
-          Object source, BeanMetadata destination,
+  private static void copy(Object source, BeanMetadata destination,
           Object destinationInstance, @Nullable TypeConverter converter, @Nullable String[] ignoreProperties) {
     if (converter == null) {
       converter = new SimpleTypeConverter();
@@ -292,8 +286,7 @@ public class BeanProperties {
    * @throws InvalidPropertyException Invalid property value
    * @see BeanWrapperImpl
    */
-  public static void populate(
-          Object bean, Map<String, Object> properties, boolean ignoreUnknown) {
+  public static void populate(Object bean, Map<String, Object> properties, boolean ignoreUnknown) {
     Assert.notNull(bean, "target bean must not be null");
     Assert.notNull(properties, "properties must not be null");
     BeanWrapperImpl beanWrapper = new BeanWrapperImpl(bean);

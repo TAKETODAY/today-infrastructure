@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +38,6 @@ public interface DefineClassStrategy {
    * @param domain if it is null, a default domain is used.
    * @param classFile the bytecode for the loaded class.
    */
-  Class<?> defineClass(
-          String className, ClassLoader classLoader,
+  Class<?> defineClass(String className, ClassLoader classLoader,
           @Nullable ProtectionDomain domain, @Nullable Class<?> neighbor, byte[] classFile);
 }

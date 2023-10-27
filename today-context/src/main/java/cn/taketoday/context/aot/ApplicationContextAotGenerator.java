@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +22,11 @@ import java.util.function.Supplier;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.bytecode.BytecodeCompiler;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.javapoet.ClassName;
-import cn.taketoday.util.DefineClassHelper;
 
 /**
  * Process an {@link ApplicationContext} and its {@link BeanFactory} to generate
@@ -67,13 +64,13 @@ public class ApplicationContextAotGenerator {
 
   private <T> T withCglibClassHandler(CglibClassHandler cglibClassHandler, Supplier<T> task) {
     try {
-      DefineClassHelper.setLoadedClassHandler(cglibClassHandler::handleLoadedClass);
-      DefineClassHelper.setGeneratedClassHandler(cglibClassHandler::handleGeneratedClass);
+      BytecodeCompiler.setLoadedClassHandler(cglibClassHandler::handleLoadedClass);
+      BytecodeCompiler.setGeneratedClassHandler(cglibClassHandler::handleGeneratedClass);
       return task.get();
     }
     finally {
-      DefineClassHelper.setLoadedClassHandler(null);
-      DefineClassHelper.setGeneratedClassHandler(null);
+      BytecodeCompiler.setLoadedClassHandler(null);
+      BytecodeCompiler.setGeneratedClassHandler(null);
     }
   }
 

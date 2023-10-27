@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,50 +17,100 @@
 
 package cn.taketoday.bytecode;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.ProtectionDomain;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
+import cn.taketoday.bytecode.core.CodeGenerationException;
+import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
+ * Helper class for invoking {@link ClassLoader#defineClass(String, byte[], int, int)}.
+ *
+ * <p>This first tries to use {@code java.lang.invoke.MethodHandle} to load a class.
+ * Otherwise, or if {@code neighbor} is null,
+ * this tries to use {@code sun.misc.Unsafe} to load a class.
+ * Then it tries to use a {@code protected} method in {@code java.lang.ClassLoader}
+ * via {@code PrivilegedAction}.  Since the latter approach is not available
+ * any longer by default in Java 9 or later, the JVM argument
+ * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
+ * </p>
+ * <pre>
+ * --add-opens java.base/java.lang=ALL-UNNAMED
+ * --add-opens java.base/java.util=ALL-UNNAMED
+ * --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+ * </pre>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/29 11:23
  */
-public class BytecodeCompiler {
-  private static final int CLASSES_DEFINED_LIMIT = 100;
+public abstract class BytecodeCompiler {
+  private static final int CLASSES_DEFINED_LIMIT = TodayStrategies.getInt("classes.defined.limit", 100);
 
   // A compiler is created for each classloader, it manages a child class loader of that
   // classloader and the child is used to load the compiled classes.
-  private static final ConcurrentReferenceHashMap<ClassLoader, BytecodeCompiler> compilers = new ConcurrentReferenceHashMap<>();
+  private static final ConcurrentReferenceHashMap<ClassLoader, BytecodeCompiler>
+          compilers = new ConcurrentReferenceHashMap<>();
+
+  @Nullable
+  private static final Method classLoaderDefineClassMethod;
+
+  @Nullable
+  private static final Throwable THROWABLE;
+
+  @Nullable
+  private static final ProtectionDomain PROTECTION_DOMAIN;
+
+  @Nullable
+  private static Consumer<Class<?>> loadedClassHandler;
+
+  @Nullable
+  private static BiConsumer<String, byte[]> generatedClassHandler;
+
+  static {
+    // Resolve protected ClassLoader.defineClass method for fallback use
+    // (even if JDK 9+ Lookup.defineClass is preferably used below)
+    Method classLoaderDefineClass;
+    Throwable throwable = null;
+    try {
+      classLoaderDefineClass = ClassLoader.class.getDeclaredMethod(
+              "defineClass", String.class, byte[].class, int.class, int.class, ProtectionDomain.class);
+      ReflectionUtils.makeAccessible(classLoaderDefineClass);
+    }
+    catch (Throwable t) {
+      classLoaderDefineClass = null;
+      throwable = t;
+    }
+
+    THROWABLE = throwable;
+    classLoaderDefineClassMethod = classLoaderDefineClass;
+    PROTECTION_DOMAIN = ReflectionUtils.getProtectionDomain(BytecodeCompiler.class);
+  }
+
+  public static void setGeneratedClassHandler(@Nullable BiConsumer<String, byte[]> handler) {
+    generatedClassHandler = handler;
+  }
+
+  public static void setLoadedClassHandler(@Nullable Consumer<Class<?>> handler) {
+    loadedClassHandler = handler;
+  }
 
   // The child ClassLoader used to load the compiled classes
   protected volatile ChildClassLoader childClassLoader;
 
   protected BytecodeCompiler(@Nullable ClassLoader classloader) {
     this.childClassLoader = new ChildClassLoader(classloader);
-  }
-
-  /**
-   * @param className class full name like 'cn.taketoday.xxx'
-   * @param classFile class byte-code data
-   * @param <T> class type
-   * @return Class
-   */
-  public <T> Class<T> compile(String className, byte[] classFile) {
-    return loadClass(className, classFile);
-  }
-
-  /**
-   * @param classFile class byte-code data
-   * @param <T> class type
-   * @return Class
-   */
-  public <T> Class<T> compile(byte[] classFile) {
-    String className = ClassUtils.getClassName(classFile);
-    return loadClass(className, classFile);
   }
 
   /**
@@ -77,7 +124,7 @@ public class BytecodeCompiler {
    * @return the Class object for the compiled expression
    */
   @SuppressWarnings("unchecked")
-  protected <T> Class<T> loadClass(String name, byte[] classFile) {
+  protected final <T> Class<T> loadClass(String name, byte[] classFile) {
     ChildClassLoader ccl = this.childClassLoader;
     if (ccl.getClassesDefinedCount() >= CLASSES_DEFINED_LIMIT) {
       synchronized(this) {
@@ -97,34 +144,140 @@ public class BytecodeCompiler {
   }
 
   /**
-   * Factory method for compiler instances. The returned BytecodeCompiler will
-   * attach a class loader as the child of the given class loader and this
-   * child will be used to load compiled expressions.
+   * Loads a class file by a given class loader.
    *
-   * @param classLoader the ClassLoader to use as the basis for compilation
-   * @return a corresponding BytecodeCompiler instance
+   * <p>This first tries to use {@code java.lang.invoke.MethodHandle} to load a class.
+   * Otherwise, or if {@code neighbor} is null,
+   * this tries to use {@code sun.misc.Unsafe} to load a class.
+   * Then it tries to use a {@code protected} method in {@code java.lang.ClassLoader}
+   * via {@code PrivilegedAction}.  Since the latter approach is not available
+   * any longer by default in Java 9 or later, the JVM argument
+   * {@code --add-opens java.base/java.lang=ALL-UNNAMED} must be given to the JVM.
+   * </p>
+   * <pre>
+   * --add-opens java.base/java.lang=ALL-UNNAMED
+   * --add-opens java.base/java.util=ALL-UNNAMED
+   * --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+   * </pre>
+   *
+   * @param className the name of the loaded class.
+   * @param neighbor the class contained in the same package as the loaded class.
+   * @param loader the class loader.  It can be null if {@code neighbor} is not null
+   * and the JVM is Java 11 or later.
+   * @param domain if it is null, a default domain is used.
+   * @param classFile the bytecode for the loaded class.
    */
-  public static BytecodeCompiler getCompiler(@Nullable ClassLoader classLoader) {
-    if (classLoader == null) {
-      classLoader = ClassUtils.getDefaultClassLoader();
+  public static Class<?> compile(String className, @Nullable Class<?> neighbor,
+          ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws CodeGenerationException {
+
+    Class<?> c = null;
+    Throwable t = THROWABLE;
+
+    BiConsumer<String, byte[]> handlerToUse = generatedClassHandler;
+    if (handlerToUse != null) {
+      handlerToUse.accept(className, classFile);
     }
-    // Quick check for existing compiler without lock contention
-    BytecodeCompiler compiler = compilers.get(classLoader);
-    if (compiler == null) {
-      // Full lock now since we're creating a child ClassLoader
-      synchronized(compilers) {
-        compiler = compilers.get(classLoader);
-        if (compiler == null) {
-          compiler = new BytecodeCompiler(classLoader);
-          compilers.put(classLoader, compiler);
+    // Preferred option: JDK 9+ Lookup.defineClass API if ClassLoader matches
+    if (neighbor != null && neighbor.getClassLoader() == loader) {
+      try {
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
+        c = lookup.defineClass(classFile);
+      }
+      catch (LinkageError | IllegalArgumentException ex) {
+        // in case of plain LinkageError (class already defined)
+        // or IllegalArgumentException (class in different package):
+        // fall through to traditional ClassLoader.defineClass below
+        t = ex;
+      }
+      catch (Throwable ex) {
+        throw newException(className, ex);
+      }
+    }
+
+    // Direct defineClass attempt on the target Classloader
+    if (c == null) {
+      if (domain == null) {
+        domain = PROTECTION_DOMAIN;
+      }
+
+      // Look for publicDefineClass(String name, byte[] b, ProtectionDomain protectionDomain)
+      if (loader instanceof SmartClassLoader smartLoader) {
+        try {
+          c = smartLoader.publicDefineClass(className, classFile, domain);
+        }
+        catch (Throwable ex) {
+          // publicDefineClass method not available -> fall through
+          t = ex;
         }
       }
     }
-    return compiler;
+
+    // Classic option: protected ClassLoader.defineClass method
+    if (c == null && classLoaderDefineClassMethod != null) {
+      try {
+        c = (Class<?>) classLoaderDefineClassMethod.invoke(loader, new Object[] { className, classFile, 0, classFile.length, domain });
+      }
+      catch (InvocationTargetException ex) {
+        throw new CodeGenerationException(ex.getTargetException());
+      }
+      catch (InaccessibleObjectException ex) {
+        // Fall through if setAccessible fails with InaccessibleObjectException on JDK 9+
+        // (on the module path and/or with a JVM bootstrapped with --illegal-access=deny)
+        t = ex;
+      }
+      catch (Throwable ex) {
+        throw newException(className, ex);
+      }
+    }
+
+    // Fallback option: JDK 9+ Lookup.defineClass API even if ClassLoader does not match
+    if (c == null && neighbor != null && neighbor.getClassLoader() != loader) {
+      try {
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(neighbor, MethodHandles.lookup());
+        c = lookup.defineClass(classFile);
+      }
+      catch (LinkageError | IllegalAccessException ex) {
+        throw new CodeGenerationException("ClassLoader mismatch for [" + neighbor.getName() +
+                "]: JVM should be started with --add-opens=java.base/java.lang=ALL-UNNAMED " +
+                "for ClassLoader.defineClass to be accessible on " + loader.getClass().getName() +
+                "; consider co-locating the affected class in that target ClassLoader instead.", ex);
+      }
+      catch (Throwable ex) {
+        throw newException(className, ex);
+      }
+    }
+
+    // No defineClass variant available at all?
+    if (c == null) {
+      throw newException(className, t);
+    }
+
+    // Force static initializers to run.
+    try {
+      Class.forName(className, true, loader);
+    }
+    catch (ClassNotFoundException e) {
+      throw newException(className, e);
+    }
+    return c;
+  }
+
+  public static Class<?> loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
+    // Force static initializers to run.
+    Class<?> clazz = Class.forName(className, true, classLoader);
+    Consumer<Class<?>> handlerToUse = loadedClassHandler;
+    if (handlerToUse != null) {
+      handlerToUse.accept(clazz);
+    }
+    return clazz;
+  }
+
+  private static CodeGenerationException newException(String className, Throwable ex) {
+    return new CodeGenerationException("Class: '" + className + "' define failed", ex);
   }
 
   /**
-   * A ChildClassLoader will load the generated compiled  classes.
+   * A ChildClassLoader will load the generated compiled classes.
    */
   private static class ChildClassLoader extends URLClassLoader {
     private static final URL[] NO_URLS = new URL[0];
@@ -132,7 +285,7 @@ public class BytecodeCompiler {
     private final AtomicInteger classesDefinedCount = new AtomicInteger(0);
 
     public ChildClassLoader(@Nullable ClassLoader classLoader) {
-      super(NO_URLS, classLoader);
+      super("bytecode", NO_URLS, classLoader);
     }
 
     public Class<?> defineClass(String name, byte[] bytes) {
@@ -144,6 +297,7 @@ public class BytecodeCompiler {
     public int getClassesDefinedCount() {
       return this.classesDefinedCount.get();
     }
+
   }
 
 }

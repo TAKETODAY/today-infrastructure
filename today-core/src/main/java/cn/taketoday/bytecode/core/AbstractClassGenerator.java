@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,7 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import cn.taketoday.bytecode.BytecodeCompiler;
 import cn.taketoday.bytecode.proxy.Enhancer;
 import cn.taketoday.core.NativeDetector;
 import cn.taketoday.core.NativeDetector.Context;
@@ -34,7 +32,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.DefineClassHelper;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to
@@ -343,7 +340,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
       if (isAttemptLoad()) {
         try {
           synchronized(classLoader) { // just in case
-            return DefineClassHelper.loadClass(getClassName(), classLoader);
+            return BytecodeCompiler.loadClass(getClassName(), classLoader);
           }
         }
         catch (ClassNotFoundException ignored) { }
@@ -361,7 +358,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
           return defineClassStrategy.defineClass(
                   getClassName(), classLoader, getProtectionDomain(), neighbor, bytes);
         }
-        return DefineClassHelper.defineClass(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
+        return BytecodeCompiler.compile(getClassName(), neighbor, classLoader, getProtectionDomain(), bytes);
       }
     }
     catch (RuntimeException | Error e) {

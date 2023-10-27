@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +27,8 @@ import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.TypeHint.Builder;
 import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.aot.hint.support.ClassHintUtils;
+import cn.taketoday.bytecode.BytecodeCompiler;
 import cn.taketoday.core.io.ByteArrayResource;
-import cn.taketoday.util.DefineClassHelper;
 
 /**
  * Handle CGLIB classes by adding them to a {@link GenerationContext},
@@ -39,8 +36,8 @@ import cn.taketoday.util.DefineClassHelper;
  *
  * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DefineClassHelper#setGeneratedClassHandler
- * @see DefineClassHelper#setLoadedClassHandler
+ * @see BytecodeCompiler#setGeneratedClassHandler
+ * @see BytecodeCompiler#setLoadedClassHandler
  * @see ClassHintUtils#registerProxyIfNecessary
  * @since 4.0
  */

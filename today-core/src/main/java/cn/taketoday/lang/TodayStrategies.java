@@ -53,8 +53,8 @@ import cn.taketoday.util.StringUtils;
  * <p>
  * Get keyed strategies
  *
- * @author TODAY 2021/9/5 13:57
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/9/5 13:57
  */
 public class TodayStrategies {
   private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
@@ -66,6 +66,7 @@ public class TodayStrategies {
 
   private static final String PROPERTIES_RESOURCE_LOCATION = "today.properties";
 
+  // local application properties file
   private static final Properties localProperties = new Properties();
 
   static {

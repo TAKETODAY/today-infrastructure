@@ -363,14 +363,12 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   @SuppressWarnings("unchecked")
-  public static <T> Class<T> forName(
-          String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
+  public static <T> Class<T> forName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
     Assert.notNull(name, "Name must not be null");
     return (Class<T>) doForName(name, classLoader);
   }
 
-  private static Class<?> doForName(
-          String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
+  private static Class<?> doForName(String name, @Nullable ClassLoader classLoader) throws ClassNotFoundException, LinkageError {
     Class<?> clazz = resolvePrimitiveClassName(name);
     if (clazz == null) {
       clazz = commonClassCache.get(name);
@@ -461,8 +459,7 @@ public abstract class ClassUtils {
    * @see #forName(String, ClassLoader)
    * @since 4.0
    */
-  public static <T> Class<T> resolveClassName(
-          String className, @Nullable ClassLoader classLoader) throws IllegalArgumentException {
+  public static <T> Class<T> resolveClassName(String className, @Nullable ClassLoader classLoader) throws IllegalArgumentException {
     try {
       return forName(className, classLoader);
     }

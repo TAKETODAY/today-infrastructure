@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.reflect;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 
-import cn.taketoday.core.NestedRuntimeException;
+import cn.taketoday.bytecode.BytecodeCompiler;
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
@@ -33,9 +31,9 @@ import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.bytecode.core.DefaultGeneratorStrategy;
 import cn.taketoday.bytecode.core.EmitUtils;
+import cn.taketoday.core.NestedRuntimeException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.DefineClassHelper;
 import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ReflectionUtils;
 
@@ -44,8 +42,8 @@ import static cn.taketoday.bytecode.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.bytecode.Opcodes.INVOKESTATIC;
 
 /**
- * @author TODAY
- * 2020/9/11 16:32
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2020/9/11 16:32
  */
 public abstract class GeneratorSupport<T extends Accessor> {
   static final Type GENERATOR_SUPPORT_TYPE = Type.fromClass(GeneratorSupport.class);
@@ -124,7 +122,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
     catch (ClassNotFoundException ignored) {
     }
     byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return (Class<T>) DefineClassHelper.defineClass(
+    return (Class<T>) BytecodeCompiler.compile(
             getClassName(), targetClass, classLoader, ReflectionUtils.getProtectionDomain(targetClass), bytes);
   }
 
