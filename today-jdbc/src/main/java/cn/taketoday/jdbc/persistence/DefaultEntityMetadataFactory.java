@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,7 @@ import java.util.Set;
 import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.type.TypeHandler;
-import cn.taketoday.jdbc.type.TypeHandlerRegistry;
+import cn.taketoday.jdbc.type.TypeHandlerManager;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
 
@@ -60,7 +57,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   private ColumnNameDiscover columnNameDiscover = ColumnNameDiscover.forColumnAnnotation()
           .and(ColumnNameDiscover.camelCaseToUnderscore());
 
-  private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
+  private TypeHandlerManager typeHandlerManager = TypeHandlerManager.sharedInstance;
 
   /**
    * set the ColumnNameDiscover to find the column name
@@ -103,13 +100,13 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   }
 
   /**
-   * Set the TypeHandlerRegistry to find {@link TypeHandler} for the {@link BeanProperty}
+   * Set the TypeHandlerManager to find {@link TypeHandler} for the {@link BeanProperty}
    *
-   * @param typeHandlerRegistry TypeHandlerRegistry
+   * @param typeHandlerManager TypeHandlerManager
    */
-  public void setTypeHandlerRegistry(TypeHandlerRegistry typeHandlerRegistry) {
-    Assert.notNull(typeHandlerRegistry, "typeHandlerRegistry is required");
-    this.typeHandlerRegistry = typeHandlerRegistry;
+  public void setTypeHandlerManager(TypeHandlerManager typeHandlerManager) {
+    Assert.notNull(typeHandlerManager, "TypeHandlerManager is required");
+    this.typeHandlerManager = typeHandlerManager;
   }
 
   @Override
@@ -161,7 +158,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   }
 
   private EntityProperty createEntityProperty(BeanProperty property, String columnName, boolean isId) {
-    return new EntityProperty(property, columnName, typeHandlerRegistry.getTypeHandler(property), isId);
+    return new EntityProperty(property, columnName, typeHandlerManager.getTypeHandler(property), isId);
   }
 
   private boolean isFiltered(BeanProperty property) {

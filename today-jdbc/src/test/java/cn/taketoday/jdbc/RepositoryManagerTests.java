@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +58,7 @@ import cn.taketoday.jdbc.result.Row;
 import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.Enumerated;
-import cn.taketoday.jdbc.type.TypeHandlerRegistry;
+import cn.taketoday.jdbc.type.TypeHandlerManager;
 import cn.taketoday.jdbc.utils.IOUtils;
 import cn.taketoday.util.StreamUtils;
 
@@ -955,8 +952,8 @@ public class RepositoryManagerTests extends BaseMemDbTest {
             .fetchScalar(TestEnum.class);
     assertThat(testEnum2).isNull();
 
-    TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
-    repositoryManager.setTypeHandlerRegistry(handlerRegistry);
+    TypeHandlerManager handlerRegistry = new TypeHandlerManager();
+    repositoryManager.setTypeHandlerManager(handlerRegistry);
 
     List<EntityWithEnum> list = repositoryManager.createNamedQuery("select id, enum_val val, enum_val2 val2 from EnumTest")
             .fetch(EntityWithEnum.class);
@@ -1017,9 +1014,9 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     BlobPOJO1 pojo1 = repositoryManager.createNamedQuery(sql)
             .fetchFirst(BlobPOJO1.class);
 
-    TypeHandlerRegistry handlerRegistry = new TypeHandlerRegistry();
+    TypeHandlerManager handlerRegistry = new TypeHandlerManager();
     handlerRegistry.register(InputStream.class, new BytesInputStreamTypeHandler());
-    repositoryManager.setTypeHandlerRegistry(handlerRegistry);
+    repositoryManager.setTypeHandlerManager(handlerRegistry);
 
     BlobPOJO2 pojo2 = repositoryManager.createNamedQuery(sql)
             .fetchFirst(BlobPOJO2.class);

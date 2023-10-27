@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
@@ -24,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -38,10 +35,9 @@ import cn.taketoday.lang.Nullable;
  * @author Clinton Begin
  * @author Simone Tripodi
  * @author Kzuki Shimizu
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public abstract class BaseTypeHandler<T>
-        extends ParameterizedTypeReference<T> implements TypeHandler<T> {
+public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
 
   @Override
   public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable T parameter) throws SQLException {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,15 +32,15 @@ import cn.taketoday.util.ClassUtils;
 public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   private boolean useColumnLabel = true;
-  private final TypeHandlerRegistry registry;
+  private final TypeHandlerManager registry;
 
   /**
    * The constructor that pass the type handler registry.
    *
-   * @param typeHandlerRegistry a type handler registry
+   * @param typeHandlerManager a type handler registry
    */
-  public UnknownTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
-    this.registry = typeHandlerRegistry;
+  public UnknownTypeHandler(TypeHandlerManager typeHandlerManager) {
+    this.registry = typeHandlerManager;
   }
 
   @Override
@@ -63,7 +60,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
   public Object getResult(ResultSet rs, int columnIndex) throws SQLException {
     TypeHandler<?> handler = resolveTypeHandler(rs.getMetaData(), columnIndex);
     if (handler == null || handler instanceof UnknownTypeHandler) {
-      handler = ObjectTypeHandler.getSharedInstance();
+      handler = ObjectTypeHandler.sharedInstance;
     }
     return handler.getResult(rs, columnIndex);
   }
@@ -75,12 +72,12 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
   protected TypeHandler<?> resolveTypeHandler(Object parameter) {
     if (parameter == null) {
-      return ObjectTypeHandler.getSharedInstance();
+      return ObjectTypeHandler.sharedInstance;
     }
     TypeHandler<?> handler = registry.getTypeHandler(parameter.getClass());
     // check if handler is null (issue #270)
     if (handler == null || handler instanceof UnknownTypeHandler) {
-      handler = ObjectTypeHandler.getSharedInstance();
+      handler = ObjectTypeHandler.sharedInstance;
     }
     return handler;
   }
@@ -99,7 +96,7 @@ public class UnknownTypeHandler extends BaseTypeHandler<Object> {
         }
       }
       if (handler == null || handler instanceof UnknownTypeHandler) {
-        handler = ObjectTypeHandler.getSharedInstance();
+        handler = ObjectTypeHandler.sharedInstance;
       }
       return handler;
     }

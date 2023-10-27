@@ -42,7 +42,7 @@ import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandler;
-import cn.taketoday.jdbc.type.TypeHandlerRegistry;
+import cn.taketoday.jdbc.type.TypeHandlerManager;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -74,7 +74,7 @@ import cn.taketoday.transaction.support.TransactionCallback;
  */
 public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
-  private TypeHandlerRegistry typeHandlerRegistry = TypeHandlerRegistry.getSharedInstance();
+  private TypeHandlerManager typeHandlerManager = TypeHandlerManager.sharedInstance;
 
   private boolean defaultCaseSensitive;
   private boolean generatedKeys = true;
@@ -83,7 +83,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   private Map<String, String> defaultColumnMappings;
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
 
-  private ConversionService conversionService;
+  private ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Nullable
   private PrimitiveTypeNullHandler primitiveTypeNullHandler;
@@ -93,12 +93,10 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   private DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
 
-  {
-    // TODO Converter 问题
+  static {
     DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
     sharedInstance.addConverter(new ClobToStringConverter());
     sharedInstance.addConverter(new OffsetTimeToSQLTimeConverter());
-    this.conversionService = sharedInstance;
   }
 
   public RepositoryManager(String jndiLookup) {
@@ -193,13 +191,13 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     return sqlParameterParser;
   }
 
-  public void setTypeHandlerRegistry(@Nullable TypeHandlerRegistry typeHandlerRegistry) {
-    this.typeHandlerRegistry =
-            typeHandlerRegistry == null ? TypeHandlerRegistry.getSharedInstance() : typeHandlerRegistry;
+  public void setTypeHandlerManager(@Nullable TypeHandlerManager typeHandlerManager) {
+    this.typeHandlerManager =
+            typeHandlerManager == null ? TypeHandlerManager.sharedInstance : typeHandlerManager;
   }
 
-  public TypeHandlerRegistry getTypeHandlerRegistry() {
-    return typeHandlerRegistry;
+  public TypeHandlerManager getTypeHandlerManager() {
+    return typeHandlerManager;
   }
 
   /**
@@ -811,11 +809,11 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   //
 
   public <T> TypeHandler<T> getTypeHandler(BeanProperty property) {
-    return typeHandlerRegistry.getTypeHandler(property);
+    return typeHandlerManager.getTypeHandler(property);
   }
 
   public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
-    return typeHandlerRegistry.getTypeHandler(type);
+    return typeHandlerManager.getTypeHandler(type);
   }
 
 }

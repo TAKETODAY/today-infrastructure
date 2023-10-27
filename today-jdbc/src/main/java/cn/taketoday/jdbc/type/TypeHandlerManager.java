@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.io.InputStream;
@@ -35,13 +36,12 @@ import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Assert;
@@ -51,20 +51,23 @@ import cn.taketoday.lang.Nullable;
 /**
  * @author Clinton Begin
  * @author Kazuki Shimizu
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @SuppressWarnings("rawtypes")
-public class TypeHandlerRegistry implements TypeHandlerResolver {
-  private static final TypeHandlerRegistry sharedInstance = new TypeHandlerRegistry();
+public class TypeHandlerManager implements TypeHandlerResolver {
 
-  private ObjectTypeHandler objectTypeHandler = ObjectTypeHandler.getSharedInstance();
+  public static final TypeHandlerManager sharedInstance = new TypeHandlerManager();
 
   private final TypeHandler<Object> unknownTypeHandler;
+
   private final HashMap<Class<?>, TypeHandler<?>> typeHandlers = new HashMap<>();
+
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumerationValueTypeHandler.class;
+
   private TypeHandlerResolver typeHandlerResolver = TypeHandlerResolver.forMappedTypeHandlerAnnotation();
 
-  public TypeHandlerRegistry() {
+  public TypeHandlerManager() {
     this.unknownTypeHandler = new UnknownTypeHandler(this);
     registerDefaults(this);
   }
@@ -79,25 +82,16 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     this.defaultEnumTypeHandler = typeHandler;
   }
 
-  /**
-   * Set a default object {@link TypeHandler}
-   */
-  public void setObjectTypeHandler(ObjectTypeHandler objectTypeHandler) {
-    this.objectTypeHandler = objectTypeHandler;
+  public void addHandlerResolver(TypeHandlerResolver resolver) {
+    Assert.notNull(resolver, "TypeHandlerResolver is required");
+    this.typeHandlerResolver = typeHandlerResolver.and(resolver);
   }
 
-  public ObjectTypeHandler getObjectTypeHandler() {
-    return objectTypeHandler;
+  public void setHandlerResolver(@Nullable TypeHandlerResolver resolver) {
+    this.typeHandlerResolver = resolver == null ? TypeHandlerResolver.forMappedTypeHandlerAnnotation() : resolver;
   }
 
   //
-
-  @SuppressWarnings("unchecked")
-  public <T> TypeHandler<T> getTypeHandler(ParameterizedTypeReference<T> javaTypeReference) {
-    ResolvableType resolvableType = javaTypeReference.getResolvableType();
-    Class<T> aClass = (Class<T>) resolvableType.toClass();
-    return getTypeHandler(aClass);
-  }
 
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
@@ -142,7 +136,7 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
         }
         else if (Enum.class.isAssignableFrom(type)) {
           // BeanProperty based
-          MergedAnnotation<Enumerated> enumerated = MergedAnnotations.from(property, property.getAnnotations()).get(Enumerated.class);
+          var enumerated = MergedAnnotations.from(property, property.getAnnotations()).get(Enumerated.class);
           if (!enumerated.isPresent()) {
             enumerated = MergedAnnotations.from(type).get(Enumerated.class);
           }
@@ -167,28 +161,6 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     }
 
     return (TypeHandler<T>) typeHandler;
-  }
-
-  public void addPropertyTypeHandlerResolver(TypeHandlerResolver resolver) {
-    Assert.notNull(resolver, "TypeHandlerResolver is required");
-    this.typeHandlerResolver = typeHandlerResolver.and(resolver);
-  }
-
-  public void addPropertyTypeHandlerResolvers(@Nullable TypeHandlerResolver... resolvers) {
-    Assert.notNull(resolvers, "TypeHandlerResolver is required");
-    this.typeHandlerResolver = typeHandlerResolver.and(TypeHandlerResolver.composite(resolvers));
-  }
-
-  public void setPropertyTypeHandlerResolvers(TypeHandlerResolver... resolvers) {
-    this.typeHandlerResolver = TypeHandlerResolver.composite(resolvers);
-  }
-
-  public void setPropertyTypeHandlerResolver(@Nullable TypeHandlerResolver resolver) {
-    this.typeHandlerResolver = resolver == null ? TypeHandlerResolver.forMappedTypeHandlerAnnotation() : resolver;
-  }
-
-  public TypeHandlerResolver getTypeHandlerResolver() {
-    return typeHandlerResolver;
   }
 
   protected TypeHandler<?> typeHandlerNotFound(Type type) {
@@ -300,7 +272,7 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     if (parameterType == Class.class) {
       return propertyType;
     }
-    if (parameterType == TypeHandlerRegistry.class) {
+    if (parameterType == TypeHandlerManager.class) {
       return this;
     }
     throw new IllegalArgumentException(
@@ -311,24 +283,9 @@ public class TypeHandlerRegistry implements TypeHandlerResolver {
     typeHandlers.clear();
   }
 
-  // get information
-
-  /**
-   * Gets the type handlers.
-   *
-   * @return the type handlers
-   */
-  public Map<Class<?>, TypeHandler<?>> getTypeHandlers() {
-    return typeHandlers;
-  }
-
-  public static TypeHandlerRegistry getSharedInstance() {
-    return sharedInstance;
-  }
-
   // static
 
-  public static void registerDefaults(TypeHandlerRegistry registry) {
+  public static void registerDefaults(TypeHandlerManager registry) {
 
     registry.register(Boolean.class, new BooleanTypeHandler());
     registry.register(boolean.class, new BooleanTypeHandler());

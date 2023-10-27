@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,7 +102,7 @@ class EnumerationValueTypeHandlerTests {
     TypeHandler<Integer> delegate = mock(TypeHandler.class);
     PreparedStatement statement = mock(PreparedStatement.class);
 
-    TypeHandlerRegistry registry = new TypeHandlerRegistry();
+    TypeHandlerManager registry = new TypeHandlerManager();
     registry.register(int.class, delegate);
 
     var handler = new EnumerationValueTypeHandler<>(StringCode.class, registry);
@@ -127,7 +124,7 @@ class EnumerationValueTypeHandlerTests {
     given(delegate.getResult(resultSet, "test")).willReturn(StringCode.TEST2.code);
     given(delegate.getResult(callableStatement, 1)).willReturn(StringCode.TEST2.code);
 
-    TypeHandlerRegistry registry = new TypeHandlerRegistry();
+    TypeHandlerManager registry = new TypeHandlerManager();
     registry.register(int.class, delegate);
 
     var handler = new EnumerationValueTypeHandler<>(StringCode.class, registry);

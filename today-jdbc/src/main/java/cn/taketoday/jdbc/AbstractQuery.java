@@ -45,7 +45,7 @@ import cn.taketoday.jdbc.result.TableResultSetIterator;
 import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
-import cn.taketoday.jdbc.type.TypeHandlerRegistry;
+import cn.taketoday.jdbc.type.TypeHandlerManager;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -81,7 +81,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   private PreparedStatement preparedStatement;
 
   @Nullable
-  private TypeHandlerRegistry typeHandlerRegistry;
+  private TypeHandlerManager typeHandlerManager;
 
   @Nullable
   private Map<String, String> columnMappings;
@@ -392,7 +392,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    */
   @SuppressWarnings("unchecked")
   public <T> UpdateResult<T> executeUpdate(boolean generatedKeys) {
-    return (UpdateResult<T>) executeUpdate(generatedKeys ? ObjectTypeHandler.getSharedInstance() : null);
+    return (UpdateResult<T>) executeUpdate(generatedKeys ? ObjectTypeHandler.sharedInstance : null);
   }
 
   /**
@@ -424,11 +424,11 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     }
   }
 
-  public TypeHandlerRegistry getTypeHandlerRegistry() {
-    TypeHandlerRegistry ret = this.typeHandlerRegistry;
+  public TypeHandlerManager getTypeHandlerManager() {
+    TypeHandlerManager ret = this.typeHandlerManager;
     if (ret == null) {
-      ret = this.connection.getManager().getTypeHandlerRegistry();
-      this.typeHandlerRegistry = ret;
+      ret = this.connection.getManager().getTypeHandlerManager();
+      this.typeHandlerManager = ret;
     }
     return ret;
   }
@@ -437,20 +437,20 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     return returnGeneratedKeys;
   }
 
-  public void setTypeHandlerRegistry(@Nullable TypeHandlerRegistry typeHandlerRegistry) {
-    this.typeHandlerRegistry = typeHandlerRegistry;
+  public void setTypeHandlerManager(@Nullable TypeHandlerManager typeHandlerManager) {
+    this.typeHandlerManager = typeHandlerManager;
   }
 
   public Object fetchScalar() {
-    return fetchScalar(ObjectTypeHandler.getSharedInstance());
+    return fetchScalar(ObjectTypeHandler.sharedInstance);
   }
 
   public <V> V fetchScalar(Class<V> returnType) {
-    return fetchScalar(getTypeHandlerRegistry().getTypeHandler(returnType));
+    return fetchScalar(getTypeHandlerManager().getTypeHandler(returnType));
   }
 
   public <T> List<T> fetchScalars(Class<T> returnType) {
-    TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(returnType);
+    TypeHandler<T> typeHandler = getTypeHandlerManager().getTypeHandler(returnType);
     return fetch(new TypeHandlerResultSetHandler<>(typeHandler));
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +92,7 @@ class EnumerableEnumTypeHandlerTests {
     TypeHandler<Integer> delegate = mock(TypeHandler.class);
     PreparedStatement statement = mock(PreparedStatement.class);
 
-    TypeHandlerRegistry registry = new TypeHandlerRegistry();
+    TypeHandlerManager registry = new TypeHandlerManager();
     registry.register(Integer.class, delegate);
 
     var handler = new EnumerableEnumTypeHandler<>(Gender.class, registry);
@@ -117,7 +114,7 @@ class EnumerableEnumTypeHandlerTests {
     given(delegate.getResult(resultSet, "gender")).willReturn(Gender.FEMALE.getValue());
     given(delegate.getResult(callableStatement, 1)).willReturn(Gender.FEMALE.getValue());
 
-    TypeHandlerRegistry registry = new TypeHandlerRegistry();
+    TypeHandlerManager registry = new TypeHandlerManager();
     registry.register(Integer.class, delegate);
 
     var handler = new EnumerableEnumTypeHandler<>(Gender.class, registry);

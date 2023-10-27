@@ -105,7 +105,7 @@ public final class Query extends AbstractQuery {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public Query addParameter(Object value) {
-    TypeHandler typeHandler = getTypeHandlerRegistry().getTypeHandler(value.getClass());
+    TypeHandler typeHandler = getTypeHandlerManager().getTypeHandler(value.getClass());
     addParameter(ParameterBinder.forTypeHandler(typeHandler, value));
     return this;
   }
@@ -159,7 +159,7 @@ public final class Query extends AbstractQuery {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public Query setParameter(int pos, Object value) {
-    TypeHandler typeHandler = getTypeHandlerRegistry().getTypeHandler(value.getClass());
+    TypeHandler typeHandler = getTypeHandlerManager().getTypeHandler(value.getClass());
     setParameter(pos, ParameterBinder.forTypeHandler(typeHandler, value));
     return this;
   }

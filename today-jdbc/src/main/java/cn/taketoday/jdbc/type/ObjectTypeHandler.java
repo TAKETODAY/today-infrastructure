@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.type;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -28,12 +25,7 @@ import java.sql.SQLException;
  * @author Clinton Begin
  */
 public class ObjectTypeHandler extends BaseTypeHandler<Object> {
-  private static final ObjectTypeHandler sharedInstance = new ObjectTypeHandler();
-
-  @Override
-  public void setNonNullParameter(PreparedStatement ps, int i, Object parameter) throws SQLException {
-    ps.setObject(i, parameter);
-  }
+  public static final ObjectTypeHandler sharedInstance = new ObjectTypeHandler();
 
   @Override
   public Object getResult(ResultSet rs, String columnName) throws SQLException {
@@ -50,7 +42,4 @@ public class ObjectTypeHandler extends BaseTypeHandler<Object> {
     return cs.getObject(columnIndex);
   }
 
-  public static ObjectTypeHandler getSharedInstance() {
-    return sharedInstance;
-  }
 }

@@ -114,7 +114,7 @@ public final class NamedQuery extends AbstractQuery {
     if (Collection.class.isAssignableFrom(parameterClass)) {
       return addParameter(name, (Collection<?>) value);
     }
-    TypeHandler<T> typeHandler = getTypeHandlerRegistry().getTypeHandler(parameterClass);
+    TypeHandler<T> typeHandler = getTypeHandlerManager().getTypeHandler(parameterClass);
     final class TypeHandlerParameterBinder extends ParameterBinder {
       @Override
       public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
@@ -344,11 +344,10 @@ public final class NamedQuery extends AbstractQuery {
     @Override
     public void bind(PreparedStatement statement, int paramIdx) throws SQLException {
       if (values.length == 0) {
-        getTypeHandlerRegistry().getObjectTypeHandler()
-                .setParameter(statement, paramIdx, null);
+        statement.setObject(paramIdx, null);
       }
       else {
-        TypeHandler<Object> typeHandler = getTypeHandlerRegistry().getUnknownTypeHandler();
+        TypeHandler<Object> typeHandler = getTypeHandlerManager().getUnknownTypeHandler();
         for (Object value : values) {
           typeHandler.setParameter(statement, paramIdx++, value);
         }
