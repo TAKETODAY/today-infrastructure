@@ -117,7 +117,6 @@ public abstract class TestConstructorUtils {
    * if no such value is found in {@link TodayStrategies}
    * @return {@code true} if the executable is an autowirable constructor
    * @see #isAutowirableConstructor(Constructor, Class, PropertyProvider)
-   * @since 5.3
    */
   public static boolean isAutowirableConstructor(Executable executable, Class<?> testClass,
           @Nullable PropertyProvider fallbackPropertyProvider) {
@@ -153,7 +152,6 @@ public abstract class TestConstructorUtils {
    * the value for the default <em>test constructor autowire mode</em> if no
    * such value is found in {@link TodayStrategies}
    * @return {@code true} if the constructor is autowirable
-   * @since 5.3
    */
   public static boolean isAutowirableConstructor(Constructor<?> constructor, Class<?> testClass,
           @Nullable PropertyProvider fallbackPropertyProvider) {

@@ -20,7 +20,6 @@ package cn.taketoday.http.client;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
@@ -96,12 +95,10 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
    * @return a {@code Publisher<T>} based on bytes written by
    * {@code outputStreamHandler} mapped by {@code byteMapper}
    */
-  public static <T> Flow.Publisher<T> create(
-          OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, Executor executor) {
-
-    Assert.notNull(outputStreamHandler, "OutputStreamHandler must not be null");
-    Assert.notNull(byteMapper, "ByteMapper must not be null");
-    Assert.notNull(executor, "Executor must not be null");
+  public static <T> Flow.Publisher<T> create(OutputStreamHandler outputStreamHandler, ByteMapper<T> byteMapper, Executor executor) {
+    Assert.notNull(outputStreamHandler, "OutputStreamHandler is required");
+    Assert.notNull(byteMapper, "ByteMapper is required");
+    Assert.notNull(executor, "Executor is required");
 
     return new OutputStreamPublisher<>(outputStreamHandler, byteMapper, executor, DEFAULT_CHUNK_SIZE);
   }
@@ -141,9 +138,9 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
   public static <T> Flow.Publisher<T> create(OutputStreamHandler outputStreamHandler,
           ByteMapper<T> byteMapper, Executor executor, int chunkSize) {
 
-    Assert.notNull(outputStreamHandler, "OutputStreamHandler must not be null");
-    Assert.notNull(byteMapper, "ByteMapper must not be null");
-    Assert.notNull(executor, "Executor must not be null");
+    Assert.notNull(outputStreamHandler, "OutputStreamHandler is required");
+    Assert.notNull(byteMapper, "ByteMapper is required");
+    Assert.notNull(executor, "Executor is required");
     Assert.isTrue(chunkSize > 0, "ChunkSize must be larger than 0");
 
     return new OutputStreamPublisher<>(outputStreamHandler, byteMapper, executor, chunkSize);
@@ -151,7 +148,7 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
   @Override
   public void subscribe(Flow.Subscriber<? super T> subscriber) {
-    Objects.requireNonNull(subscriber, "Subscriber must not be null");
+    Assert.notNull(subscriber, "Subscriber is required");
 
     OutputStreamSubscription<T> subscription = new OutputStreamSubscription<>(
             subscriber, this.outputStreamHandler, this.byteMapper, this.chunkSize);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @author Stephane Nicoll
  * @author Brian Clozel
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class ResourcePatternHints {
@@ -76,8 +74,7 @@ public final class ResourcePatternHints {
 
     private final Set<ResourcePatternHint> excludes = new LinkedHashSet<>();
 
-    Builder() {
-    }
+    Builder() { }
 
     /**
      * Include resources matching the specified patterns.
@@ -151,7 +148,7 @@ public final class ResourcePatternHints {
      * @param excludes the exclude patterns (see {@link ResourcePatternHint} documentation)
      * @return {@code this}, to facilitate method chaining
      */
-    public Builder excludes(TypeReference reachableType, String... excludes) {
+    public Builder excludes(@Nullable TypeReference reachableType, String... excludes) {
       List<ResourcePatternHint> newExcludes = Arrays.stream(excludes)
               .map(include -> new ResourcePatternHint(include, reachableType)).toList();
       this.excludes.addAll(newExcludes);

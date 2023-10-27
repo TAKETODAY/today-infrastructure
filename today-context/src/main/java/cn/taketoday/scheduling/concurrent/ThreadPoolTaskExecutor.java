@@ -337,7 +337,6 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
    * Return the current queue size.
    *
    * @see java.util.concurrent.ThreadPoolExecutor#getQueue()
-   * @since 5.3.21
    */
   public int getQueueSize() {
     if (this.threadPoolExecutor == null) {

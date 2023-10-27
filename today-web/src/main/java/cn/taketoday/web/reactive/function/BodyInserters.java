@@ -101,7 +101,7 @@ public abstract class BodyInserters {
    * @see #fromProducer(Object, Class)
    */
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromValue(T body) {
-    Assert.notNull(body, "'body' must not be null");
+    Assert.notNull(body, "'body' is required");
     Assert.isNull(registry.getAdapter(body.getClass()), "'body' should be an object, for reactive types use a variant specifying a publisher/producer and its related element type");
     return (message, context) ->
             writeWithMessageWriters(message, context, Mono.just(body), ResolvableType.forInstance(body), null);
@@ -121,8 +121,8 @@ public abstract class BodyInserters {
    * @return the inserter to write a producer
    */
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(T producer, Class<?> elementClass) {
-    Assert.notNull(producer, "'producer' must not be null");
-    Assert.notNull(elementClass, "'elementClass' must not be null");
+    Assert.notNull(producer, "'producer' is required");
+    Assert.notNull(elementClass, "'elementClass' is required");
     ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(producer.getClass());
     Assert.notNull(adapter, "'producer' type is unknown to ReactiveAdapterRegistry");
     return (message, context) ->
@@ -145,8 +145,8 @@ public abstract class BodyInserters {
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(
           T producer, ParameterizedTypeReference<?> elementTypeRef) {
 
-    Assert.notNull(producer, "'producer' must not be null");
-    Assert.notNull(elementTypeRef, "'elementTypeRef' must not be null");
+    Assert.notNull(producer, "'producer' is required");
+    Assert.notNull(elementTypeRef, "'elementTypeRef' is required");
     ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(producer.getClass());
     Assert.notNull(adapter, "'producer' type is unknown to ReactiveAdapterRegistry");
     return (message, context) ->
@@ -168,8 +168,8 @@ public abstract class BodyInserters {
   public static <T, P extends Publisher<T>> BodyInserter<P, ReactiveHttpOutputMessage> fromPublisher(
           P publisher, Class<T> elementClass) {
 
-    Assert.notNull(publisher, "'publisher' must not be null");
-    Assert.notNull(elementClass, "'elementClass' must not be null");
+    Assert.notNull(publisher, "'publisher' is required");
+    Assert.notNull(elementClass, "'elementClass' is required");
     return (message, context) ->
             writeWithMessageWriters(message, context, publisher, ResolvableType.forClass(elementClass), null);
   }
@@ -189,8 +189,8 @@ public abstract class BodyInserters {
   public static <T, P extends Publisher<T>> BodyInserter<P, ReactiveHttpOutputMessage> fromPublisher(
           P publisher, ParameterizedTypeReference<T> elementTypeRef) {
 
-    Assert.notNull(publisher, "'publisher' must not be null");
-    Assert.notNull(elementTypeRef, "'elementTypeRef' must not be null");
+    Assert.notNull(publisher, "'publisher' is required");
+    Assert.notNull(elementTypeRef, "'elementTypeRef' is required");
     return (message, context) ->
             writeWithMessageWriters(message, context, publisher, ResolvableType.forType(elementTypeRef.getType()), null);
   }
@@ -205,7 +205,7 @@ public abstract class BodyInserters {
    * @return the inserter to write a {@code Publisher}
    */
   public static <T extends Resource> BodyInserter<T, ReactiveHttpOutputMessage> fromResource(T resource) {
-    Assert.notNull(resource, "'resource' must not be null");
+    Assert.notNull(resource, "'resource' is required");
     return (outputMessage, context) -> {
       ResolvableType elementType = RESOURCE_TYPE;
       HttpMessageWriter<Resource> writer = findWriter(context, elementType, null);
@@ -228,7 +228,7 @@ public abstract class BodyInserters {
   // Parameterized for server-side use
   public static <T, S extends Publisher<ServerSentEvent<T>>>
   BodyInserter<S, ServerHttpResponse> fromServerSentEvents(S eventsPublisher) {
-    Assert.notNull(eventsPublisher, "'eventsPublisher' must not be null");
+    Assert.notNull(eventsPublisher, "'eventsPublisher' is required");
     return (serverResponse, context) -> {
       ResolvableType elementType = SSE_TYPE;
       MediaType mediaType = MediaType.TEXT_EVENT_STREAM;
@@ -264,8 +264,8 @@ public abstract class BodyInserters {
    * @return the inserter that allows adding more form data
    */
   public static FormInserter<String> fromFormData(String name, String value) {
-    Assert.notNull(name, "'name' must not be null");
-    Assert.notNull(value, "'value' must not be null");
+    Assert.notNull(name, "'name' is required");
+    Assert.notNull(value, "'value' is required");
     return new DefaultFormInserter().with(name, value);
   }
 
@@ -282,7 +282,7 @@ public abstract class BodyInserters {
    * @see MultipartBodyBuilder
    */
   public static MultipartInserter fromMultipartData(MultiValueMap<String, ?> multipartData) {
-    Assert.notNull(multipartData, "'multipartData' must not be null");
+    Assert.notNull(multipartData, "'multipartData' is required");
     return new DefaultMultipartInserter().withInternal(multipartData);
   }
 
@@ -299,8 +299,8 @@ public abstract class BodyInserters {
    * @return the inserter that allows adding more parts
    */
   public static MultipartInserter fromMultipartData(String name, Object value) {
-    Assert.notNull(name, "'name' must not be null");
-    Assert.notNull(value, "'value' must not be null");
+    Assert.notNull(name, "'name' is required");
+    Assert.notNull(value, "'value' is required");
     return new DefaultMultipartInserter().with(name, value);
   }
 
@@ -352,7 +352,7 @@ public abstract class BodyInserters {
   public static <T extends Publisher<DataBuffer>>
   BodyInserter<T, ReactiveHttpOutputMessage> fromDataBuffers(T publisher) {
 
-    Assert.notNull(publisher, "'publisher' must not be null");
+    Assert.notNull(publisher, "'publisher' is required");
     return (outputMessage, context) -> outputMessage.writeWith(publisher);
   }
 
@@ -369,8 +369,8 @@ public abstract class BodyInserters {
   public static <T extends Publisher<DataBuffer>> BodyInserter<T, ReactiveHttpOutputMessage> fromOutputStream(
           Consumer<OutputStream> outputStreamConsumer, Executor executor) {
 
-    Assert.notNull(outputStreamConsumer, "OutputStreamConsumer must not be null");
-    Assert.notNull(executor, "Executor must not be null");
+    Assert.notNull(outputStreamConsumer, "OutputStreamConsumer is required");
+    Assert.notNull(executor, "Executor is required");
 
     return (outputMessage, context) -> outputMessage.writeWith(
             DataBufferUtils.outputStreamPublisher(outputStreamConsumer, outputMessage.bufferFactory(), executor));
@@ -390,8 +390,8 @@ public abstract class BodyInserters {
   public static <T extends Publisher<DataBuffer>> BodyInserter<T, ReactiveHttpOutputMessage> fromOutputStream(
           Consumer<OutputStream> outputStreamConsumer, Executor executor, int chunkSize) {
 
-    Assert.notNull(outputStreamConsumer, "OutputStreamConsumer must not be null");
-    Assert.notNull(executor, "Executor must not be null");
+    Assert.notNull(outputStreamConsumer, "OutputStreamConsumer is required");
+    Assert.notNull(executor, "Executor is required");
     Assert.isTrue(chunkSize > 0, "Chunk size must be > 0");
 
     return (outputMessage, context) -> outputMessage.writeWith(

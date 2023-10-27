@@ -40,7 +40,7 @@ import cn.taketoday.util.ObjectUtils;
 class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
   @Nullable
-  private CacheOperationSource cacheOperationSource;
+  public CacheOperationSource cacheOperationSource;
 
   public CacheOperationSourcePointcut() {
     setClassFilter(new CacheOperationSourceClassFilter());
@@ -87,7 +87,7 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
     }
 
     @Nullable
-    private CacheOperationSource getCacheOperationSource() {
+    public CacheOperationSource getCacheOperationSource() {
       return cacheOperationSource;
     }
 

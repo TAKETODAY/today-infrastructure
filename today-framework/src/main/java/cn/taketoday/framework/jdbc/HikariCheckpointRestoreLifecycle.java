@@ -131,7 +131,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
       logger.warn("Hikari connections could not be closed within {}", shutdownTimeout, ex);
     }
     catch (ExecutionException ex) {
-      throw new RuntimeException("Failed to close Hikari connections", ex);
+      throw new IllegalStateException("Failed to close Hikari connections", ex);
     }
   }
 

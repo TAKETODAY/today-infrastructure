@@ -46,15 +46,13 @@ import cn.taketoday.lang.Nullable;
  * @author Rob Harrop
  * @author Chris Beams
  * @author Sam Brannen
- * @author TODAY 2019-08-23 00:16
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ClassUtils
  * @see CollectionUtils
  * @see StringUtils
+ * @since 2019-08-23 00:16
  */
 public abstract class ObjectUtils {
-
-  private static final int INITIAL_HASH = 7;
-  private static final int MULTIPLIER = 31;
 
   private static final String NULL_STRING = "null";
   private static final String ARRAY_START = "{";

@@ -91,7 +91,6 @@ public interface ApplicationEventMulticaster {
    * e.g. checking {@link SmartApplicationListener#getListenerId()}
    * @see #addApplicationListener(ApplicationListener)
    * @see #removeApplicationListener(ApplicationListener)
-   * @since 5.3.5
    */
   void removeApplicationListeners(Predicate<ApplicationListener<?>> predicate);
 
@@ -105,7 +104,6 @@ public interface ApplicationEventMulticaster {
    * @param predicate the predicate to identify listener bean names to remove
    * @see #addApplicationListenerBean(String)
    * @see #removeApplicationListenerBean(String)
-   * @since 5.3.5
    */
   void removeApplicationListenerBeans(Predicate<String> predicate);
 

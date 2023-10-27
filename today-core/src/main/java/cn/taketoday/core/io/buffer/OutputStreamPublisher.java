@@ -24,13 +24,13 @@ import org.reactivestreams.Subscription;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Consumer;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -65,7 +65,7 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
 
   @Override
   public void subscribe(Subscriber<? super DataBuffer> subscriber) {
-    Objects.requireNonNull(subscriber, "Subscriber must not be null");
+    Assert.notNull(subscriber, "Subscriber is required");
 
     var subscription = new OutputStreamSubscription(subscriber, this.outputStreamConsumer,
             this.bufferFactory, this.chunkSize);
@@ -163,7 +163,7 @@ final class OutputStreamPublisher implements Publisher<DataBuffer> {
       }
     }
 
-    private void invokeHandler() {
+    public void invokeHandler() {
       // assume sync write within try-with-resource block
 
       // use BufferedOutputStream, so that written bytes are buffered

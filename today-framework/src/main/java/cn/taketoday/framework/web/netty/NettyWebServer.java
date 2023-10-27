@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +26,6 @@ import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 
 /**
@@ -59,7 +55,7 @@ public class NettyWebServer implements WebServer {
   public void start() {
     try {
       serverBootstrap.bind(listenAddress)
-        .sync();
+              .sync();
     }
     catch (InterruptedException e) {
       Thread.currentThread().interrupt();

@@ -126,7 +126,7 @@ class SslPropertiesBundleRegistrar implements SslBundleRegistrar {
       return Path.of(url.toURI()).toAbsolutePath();
     }
     catch (Exception ex) {
-      throw new RuntimeException(
+      throw new IllegalStateException(
               "SSL bundle '%s' '%s' location '%s' cannot be watched".formatted(bundleName, field, value), ex);
     }
   }
