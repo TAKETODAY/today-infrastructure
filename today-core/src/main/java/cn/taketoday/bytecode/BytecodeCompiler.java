@@ -32,7 +32,6 @@ import cn.taketoday.bytecode.core.CodeGenerationException;
 import cn.taketoday.core.SmartClassLoader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -57,11 +56,6 @@ import cn.taketoday.util.ReflectionUtils;
  */
 public abstract class BytecodeCompiler {
   private static final int CLASSES_DEFINED_LIMIT = TodayStrategies.getInt("classes.defined.limit", 100);
-
-  // A compiler is created for each classloader, it manages a child class loader of that
-  // classloader and the child is used to load the compiled classes.
-  private static final ConcurrentReferenceHashMap<ClassLoader, BytecodeCompiler>
-          compilers = new ConcurrentReferenceHashMap<>();
 
   @Nullable
   private static final Method classLoaderDefineClassMethod;
