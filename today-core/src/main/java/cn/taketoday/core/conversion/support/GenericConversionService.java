@@ -94,9 +94,7 @@ public class GenericConversionService implements ConfigurableConversionService {
   }
 
   @Override
-  public <S, T> void addConverter(
-          Class<S> sourceType, Class<T> targetType,
-          Converter<? super S, ? extends T> converter) {
+  public <S, T> void addConverter(Class<S> sourceType, Class<T> targetType, Converter<? super S, ? extends T> converter) {
     addConverter(new ConverterAdapter(
             converter, ResolvableType.forClass(sourceType), ResolvableType.forClass(targetType)));
   }
@@ -176,8 +174,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
   @Override
   @Nullable
-  public Object convert(@Nullable Object source,
-          @Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
+  public Object convert(@Nullable Object source, @Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
     Assert.notNull(targetType, "Target type to convert to cannot be null");
     if (sourceType == null) {
       Assert.isTrue(source == null, "Source must be [null] if source type == [null]");
@@ -311,9 +308,8 @@ public class GenericConversionService implements ConfigurableConversionService {
   }
 
   @Nullable
-  private Object handleConverterNotFound(
-          @Nullable Object source, @Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
-
+  private Object handleConverterNotFound(@Nullable Object source,
+          @Nullable TypeDescriptor sourceType, TypeDescriptor targetType) {
     if (source == null) {
       assertNotPrimitiveTargetType(sourceType, targetType);
       return null;

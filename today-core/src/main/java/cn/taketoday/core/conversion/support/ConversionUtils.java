@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,14 +29,14 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Keith Donald
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 abstract class ConversionUtils {
 
   @Nullable
-  public static Object invokeConverter(
-          GenericConverter converter, @Nullable Object source,
-          TypeDescriptor sourceType, TypeDescriptor targetType) {
+  public static Object invokeConverter(GenericConverter converter,
+          @Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 
     try {
       return converter.convert(source, sourceType, targetType);
@@ -52,8 +49,7 @@ abstract class ConversionUtils {
     }
   }
 
-  public static boolean canConvertElements(
-          @Nullable TypeDescriptor sourceElementType,
+  public static boolean canConvertElements(@Nullable TypeDescriptor sourceElementType,
           @Nullable TypeDescriptor targetElementType, ConversionService conversionService) {
 
     if (targetElementType == null) {
@@ -64,16 +60,8 @@ abstract class ConversionUtils {
       // maybe
       return true;
     }
-    if (conversionService.canConvert(sourceElementType, targetElementType)) {
-      // yes
-      return true;
-    }
-    if (ClassUtils.isAssignable(sourceElementType.getType(), targetElementType.getType())) {
-      // maybe
-      return true;
-    }
-    // no
-    return false;
+    return conversionService.canConvert(sourceElementType, targetElementType)
+            || ClassUtils.isAssignable(sourceElementType.getType(), targetElementType.getType());
   }
 
 }

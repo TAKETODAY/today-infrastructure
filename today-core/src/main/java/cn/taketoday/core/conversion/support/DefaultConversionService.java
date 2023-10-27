@@ -38,6 +38,7 @@ import cn.taketoday.lang.Nullable;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
 public class DefaultConversionService extends GenericConversionService {
