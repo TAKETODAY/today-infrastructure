@@ -119,11 +119,10 @@ public abstract class GeneratorSupport<T extends Accessor> {
     try {
       return (Class<T>) classLoader.loadClass(getClassName());
     }
-    catch (ClassNotFoundException ignored) {
-    }
-    byte[] bytes = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-    return (Class<T>) BytecodeCompiler.compile(
-            getClassName(), targetClass, classLoader, ReflectionUtils.getProtectionDomain(targetClass), bytes);
+    catch (ClassNotFoundException ignored) { }
+    byte[] classFile = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
+    return BytecodeCompiler.compile(getClassName(), targetClass,
+            classLoader, ReflectionUtils.getProtectionDomain(targetClass), classFile);
   }
 
   protected abstract Object cacheKey();

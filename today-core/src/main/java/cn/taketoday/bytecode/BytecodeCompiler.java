@@ -161,7 +161,8 @@ public abstract class BytecodeCompiler {
    * @param domain if it is null, a default domain is used.
    * @param classFile the bytecode for the loaded class.
    */
-  public static Class<?> compile(String className, @Nullable Class<?> neighbor,
+  @SuppressWarnings("unchecked")
+  public static <T> Class<T> compile(String className, @Nullable Class<?> neighbor,
           ClassLoader loader, @Nullable ProtectionDomain domain, byte[] classFile) throws CodeGenerationException {
 
     Class<?> c = null;
@@ -253,7 +254,7 @@ public abstract class BytecodeCompiler {
     catch (ClassNotFoundException e) {
       throw newException(className, e);
     }
-    return c;
+    return (Class<T>) c;
   }
 
   public static Class<?> loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
