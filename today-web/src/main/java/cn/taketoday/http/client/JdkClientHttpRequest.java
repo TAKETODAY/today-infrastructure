@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Flow;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
@@ -144,14 +143,15 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
   private HttpRequest.BodyPublisher bodyPublisher(HttpHeaders headers, @Nullable Body body) {
     if (body != null) {
-      Flow.Publisher<ByteBuffer> outputStreamPublisher = OutputStreamPublisher.create(
-              outputStream -> body.writeTo(StreamUtils.nonClosing(outputStream)),
-              BYTE_MAPPER,
-              this.executor);
+      var outputStreamPublisher = OutputStreamPublisher.create(
+              outputStream -> body.writeTo(StreamUtils.nonClosing(outputStream)), BYTE_MAPPER, this.executor);
 
       long contentLength = headers.getContentLength();
-      if (contentLength != -1) {
+      if (contentLength > 0) {
         return HttpRequest.BodyPublishers.fromPublisher(outputStreamPublisher, contentLength);
+      }
+      else if (contentLength == 0) {
+        return HttpRequest.BodyPublishers.noBody();
       }
       else {
         return HttpRequest.BodyPublishers.fromPublisher(outputStreamPublisher);
