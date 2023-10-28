@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,13 +39,13 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * path variable.
  *
  * <p>When a name is specified, an argument of type Map is considered to be a single attribute
- * with a Map value, and is resolved by {@link MatrixParamParameterResolvingStrategy} instead.
+ * with a Map value, and is resolved by {@link MatrixParamMethodArgumentResolver} instead.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 22:23
  */
-public class MatrixParamMapParameterResolvingStrategy implements ParameterResolvingStrategy {
+public class MatrixParamMapMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -62,15 +58,19 @@ public class MatrixParamMapParameterResolvingStrategy implements ParameterResolv
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+    var matrixVariables = context.matchingMetadata().getMatrixVariables();
+    MethodParameter parameter = resolvable.getParameter();
+    MultiValueMap<String, String> map = mapMatrixVariables(parameter, matrixVariables);
+    return isSingleValueMap(parameter) ? map.toSingleValueMap() : map;
+  }
 
-    Map<String, MultiValueMap<String, String>> matrixVariables = context.getMatchingMetadata().getMatrixVariables();
-    if (CollectionUtils.isEmpty(matrixVariables)) {
-      return Collections.emptyMap();
-    }
+  private MultiValueMap<String, String> mapMatrixVariables(MethodParameter parameter,
+          @Nullable Map<String, MultiValueMap<String, String>> matrixVariables) {
 
     MultiValueMap<String, String> map = MultiValueMap.forLinkedHashMap();
-
-    MethodParameter parameter = resolvable.getParameter();
+    if (CollectionUtils.isEmpty(matrixVariables)) {
+      return map;
+    }
     MatrixParam ann = parameter.getParameterAnnotation(MatrixParam.class);
     Assert.state(ann != null, "No MatrixVariable annotation");
     String pathVariable = ann.pathVar();
@@ -78,7 +78,7 @@ public class MatrixParamMapParameterResolvingStrategy implements ParameterResolv
     if (!pathVariable.equals(Constant.DEFAULT_NONE)) {
       MultiValueMap<String, String> mapForPathVariable = matrixVariables.get(pathVariable);
       if (mapForPathVariable == null) {
-        return Collections.emptyMap();
+        return map;
       }
       map.putAll(mapForPathVariable);
     }
@@ -93,8 +93,7 @@ public class MatrixParamMapParameterResolvingStrategy implements ParameterResolv
         }
       }
     }
-
-    return (isSingleValueMap(parameter) ? map.toSingleValueMap() : map);
+    return map;
   }
 
   private boolean isSingleValueMap(MethodParameter parameter) {

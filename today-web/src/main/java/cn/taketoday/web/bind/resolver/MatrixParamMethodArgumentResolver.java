@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +38,7 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * Resolves arguments annotated with {@link MatrixParam @MatrixParam}.
  *
  * <p>If the method parameter is of type {@link Map} it will by resolved by
- * {@link MatrixParamMapParameterResolvingStrategy} instead unless the annotation
+ * {@link MatrixParamMapMethodArgumentResolver} instead unless the annotation
  * specifies a name in which case it is considered to be a single attribute of
  * type map (vs multiple attributes collected in a map).
  *
@@ -51,9 +48,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
  * @see MatrixParam
  * @since 4.0 2022/1/23 22:22
  */
-public class MatrixParamParameterResolvingStrategy extends AbstractNamedValueResolvingStrategy {
+public class MatrixParamMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
 
-  public MatrixParamParameterResolvingStrategy() {
+  public MatrixParamMethodArgumentResolver() {
     super(null);
   }
 
@@ -73,7 +70,7 @@ public class MatrixParamParameterResolvingStrategy extends AbstractNamedValueRes
   @Override
   protected Object resolveName(
           String name, ResolvableMethodParameter resolvable, RequestContext request) throws Exception {
-    Map<String, MultiValueMap<String, String>> pathParameters = request.getMatchingMetadata().getMatrixVariables();
+    Map<String, MultiValueMap<String, String>> pathParameters = request.matchingMetadata().getMatrixVariables();
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -236,8 +233,8 @@ public class ParameterResolvingRegistry
     strategies.add(new RequestParamMapMethodArgumentResolver());
     strategies.add(new PathVariableMethodArgumentResolver());
     strategies.add(new PathVariableMapMethodArgumentResolver());
-    strategies.add(new MatrixParamParameterResolvingStrategy());
-    strategies.add(new MatrixParamMapParameterResolvingStrategy());
+    strategies.add(new MatrixParamMethodArgumentResolver());
+    strategies.add(new MatrixParamMapMethodArgumentResolver());
     strategies.add(new ModelAttributeMethodProcessor(false));
     strategies.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), contentNegotiationManager, requestResponseBodyAdvice));
     strategies.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
