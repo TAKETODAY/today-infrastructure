@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
 
 import cn.taketoday.beans.BeansException;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.Order;
 
 /**
  * Factory hook that allows for custom modification of an application context's
@@ -59,10 +57,9 @@ import cn.taketoday.core.Ordered;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY <br>
- * 2020-02-27 11:15
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanPostProcessor
- * @since 2.1.7
+ * @since 2.1.7 2020-02-27 11:15
  */
 @FunctionalInterface
 public interface BeanFactoryPostProcessor {

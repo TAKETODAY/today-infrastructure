@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.beans.factory.support;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * Extension to the standard {@link BeanFactoryPostProcessor} SPI, allowing for
@@ -47,5 +45,15 @@ public interface BeanDefinitionRegistryPostProcessor extends BeanFactoryPostProc
    * @throws BeansException in case of errors
    */
   void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException;
+
+  /**
+   * Empty implementation of {@link BeanFactoryPostProcessor#postProcessBeanFactory}
+   * since custom {@code BeanDefinitionRegistryPostProcessor} implementations will
+   * typically only provide a {@link #postProcessBeanDefinitionRegistry} method.
+   */
+  @Override
+  default void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
+
+  }
 
 }

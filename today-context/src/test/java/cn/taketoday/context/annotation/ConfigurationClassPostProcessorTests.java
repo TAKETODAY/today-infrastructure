@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +46,6 @@ import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.taketoday.beans.factory.support.ChildBeanDefinition;
@@ -63,7 +59,6 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.DescriptiveResource;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.SyncTaskExecutor;
@@ -2061,9 +2056,6 @@ class ConfigurationClassPostProcessorTests {
           registry.registerBeanDefinition("myTestBean", new RootBeanDefinition(TestBean.class));
         }
 
-        @Override
-        public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-        }
       };
     }
   }
