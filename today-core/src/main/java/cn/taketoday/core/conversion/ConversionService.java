@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +61,7 @@ public interface ConversionService {
    */
   @Nullable
   default GenericConverter getConverter(Object sourceObject, TypeDescriptor targetType) {
-    Assert.notNull(sourceObject, "source object must not be null");
+    Assert.notNull(sourceObject, "source object is required");
     return getConverter(sourceObject.getClass(), targetType);
   }
 
