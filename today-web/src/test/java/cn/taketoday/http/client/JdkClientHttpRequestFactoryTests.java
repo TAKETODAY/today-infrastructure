@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 
@@ -69,11 +70,21 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
   @Test
   public void customizeDisallowedHeaders() throws IOException {
-    ClientHttpRequest request = factory.createRequest(URI.create(this.baseUrl + "/status/299"), HttpMethod.PUT);
+    ClientHttpRequest request = this.factory.createRequest(URI.create(this.baseUrl + "/status/299"), HttpMethod.PUT);
     request.getHeaders().set("Expect", "299");
 
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));
+    }
+  }
+
+  @Test // gh-31451
+  public void contentLength0() throws IOException {
+    BufferingClientHttpRequestFactory bufferingFactory = new BufferingClientHttpRequestFactory(this.factory);
+    ClientHttpRequest request = bufferingFactory.createRequest(URI.create(this.baseUrl + "/methods/get"), HttpMethod.GET);
+
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
     }
   }
 
