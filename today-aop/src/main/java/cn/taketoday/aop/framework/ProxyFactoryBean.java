@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,6 +90,7 @@ import cn.taketoday.util.ObjectUtils;
  * @see org.aopalliance.intercept.MethodInterceptor
  * @see Advisor
  * @see Advised
+ * @since 4.0
  */
 public class ProxyFactoryBean extends ProxyCreatorSupport
         implements FactoryBean<Object>, BeanClassLoaderAware, BeanFactoryAware {
@@ -284,9 +282,20 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
         return this.singletonInstance.getClass();
       }
     }
-    // This might be incomplete since it potentially misses introduced interfaces
-    // from Advisors that will be lazily retrieved via setInterceptorNames.
-    return createAopProxy().getProxyClass(this.proxyClassLoader);
+    try {
+      // This might be incomplete since it potentially misses introduced interfaces
+      // from Advisors that will be lazily retrieved via setInterceptorNames.
+      return createAopProxy().getProxyClass(this.proxyClassLoader);
+    }
+    catch (AopConfigException ex) {
+      if (getTargetClass() == null) {
+        logger.debug("Failed to determine early proxy class: {}", ex.getMessage());
+        return null;
+      }
+      else {
+        throw ex;
+      }
+    }
   }
 
   @Override
