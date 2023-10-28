@@ -484,59 +484,12 @@ public class SynchronizationInfo implements Serializable {
    * @see TransactionSynchronization#beforeCompletion()
    */
   public void triggerBeforeCompletion() {
-    for (final TransactionSynchronization synchronization : getSynchronizations()) {
+    for (TransactionSynchronization synchronization : getSynchronizations()) {
       try {
         synchronization.beforeCompletion();
       }
       catch (Throwable tsex) {
         log.error("TransactionSynchronization.beforeCompletion threw exception", tsex);
-      }
-    }
-  }
-
-  /**
-   * Trigger {@code afterCommit} callbacks on all currently registered
-   * synchronizations.
-   *
-   * @throws RuntimeException if thrown by a {@code afterCommit} callback
-   * @see TransactionSynchronization#afterCommit()
-   */
-  public void triggerAfterCommit() {
-    for (TransactionSynchronization synchronization : getSynchronizations()) {
-      synchronization.afterCommit();
-    }
-  }
-
-  /**
-   * Actually invoke the {@code afterCompletion} methods of the given  TransactionSynchronization objects.
-   *
-   * @param completionStatus the completion status according to the constants in the
-   * TransactionSynchronization interface
-   * @see TransactionSynchronization#afterCompletion(int)
-   * @see TransactionSynchronization#STATUS_COMMITTED
-   * @see TransactionSynchronization#STATUS_ROLLED_BACK
-   * @see TransactionSynchronization#STATUS_UNKNOWN
-   */
-  public void triggerAfterCompletion(final int completionStatus) {
-    for (TransactionSynchronization synchronization : getSynchronizations()) {
-      try {
-        synchronization.afterCompletion(completionStatus);
-      }
-      catch (Throwable tsex) {
-        log.error("TransactionSynchronization.afterCompletion threw exception", tsex);
-      }
-    }
-  }
-
-  public void invokeAfterCompletion(@Nullable List<TransactionSynchronization> syncs, int completionStatus) {
-    if (syncs != null) {
-      for (TransactionSynchronization synchronization : syncs) {
-        try {
-          synchronization.afterCompletion(completionStatus);
-        }
-        catch (Throwable tsex) {
-          log.error("TransactionSynchronization.afterCompletion threw exception", tsex);
-        }
       }
     }
   }

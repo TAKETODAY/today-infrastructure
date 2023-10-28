@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,17 +44,6 @@ public abstract class TransactionSynchronizationUtils {
           "cn.taketoday.aop.scope.ScopedObject", TransactionSynchronizationUtils.class.getClassLoader());
 
   /**
-   * Check whether the given resource transaction manager refers to the given
-   * (underlying) resource factory.
-   *
-   * @see ResourceTransactionManager#getResourceFactory()
-   * @see InfrastructureProxy#getWrappedObject()
-   */
-  public static boolean sameResourceFactory(ResourceTransactionManager tm, Object resourceFactory) {
-    return unwrapResourceIfNecessary(tm.getResourceFactory()).equals(unwrapResourceIfNecessary(resourceFactory));
-  }
-
-  /**
    * Unwrap the given resource handle if necessary; otherwise return
    * the given handle as-is.
    *
@@ -84,9 +70,8 @@ public abstract class TransactionSynchronizationUtils {
    * @see TransactionSynchronization#flush()
    */
   public static void triggerFlush() {
-    for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
-      synchronization.flush();
-    }
+    TransactionSynchronizationManager.getSynchronizationInfo()
+            .triggerFlush();
   }
 
   /**
@@ -97,9 +82,8 @@ public abstract class TransactionSynchronizationUtils {
    * @see TransactionSynchronization#beforeCommit(boolean)
    */
   public static void triggerBeforeCommit(boolean readOnly) {
-    for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
-      synchronization.beforeCommit(readOnly);
-    }
+    TransactionSynchronizationManager.getSynchronizationInfo()
+            .triggerBeforeCommit(readOnly);
   }
 
   /**
@@ -108,14 +92,8 @@ public abstract class TransactionSynchronizationUtils {
    * @see TransactionSynchronization#beforeCompletion()
    */
   public static void triggerBeforeCompletion() {
-    for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
-      try {
-        synchronization.beforeCompletion();
-      }
-      catch (Throwable ex) {
-        log.error("TransactionSynchronization.beforeCompletion threw exception", ex);
-      }
-    }
+    TransactionSynchronizationManager.getSynchronizationInfo()
+            .triggerBeforeCompletion();
   }
 
   /**
