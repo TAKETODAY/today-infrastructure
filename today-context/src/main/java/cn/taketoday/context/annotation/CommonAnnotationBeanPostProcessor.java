@@ -126,6 +126,7 @@ import jakarta.ejb.EJB;
  */
 public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBeanPostProcessor
         implements DependenciesBeanPostProcessor, BeanFactoryAware, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -134,10 +135,6 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
           "javax.naming.InitialContext", CommonAnnotationBeanPostProcessor.class.getClassLoader());
 
   private static final Set<Class<? extends Annotation>> resourceAnnotationTypes = new LinkedHashSet<>(4);
-
-  @Nullable
-  private static final Class<? extends Annotation> ejbClass = ClassUtils.load(
-          "jakarta.ejb.EJB", CommonAnnotationBeanPostProcessor.class.getClassLoader());
 
   @Nullable
   private static final Class<? extends Annotation> jakartaResourceType;

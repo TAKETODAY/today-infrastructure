@@ -372,7 +372,7 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   @Override
   public DependencyInjector getInjector() {
     if (dependencyInjector == null) {
-      this.dependencyInjector = new DependencyInjector(this);
+      this.dependencyInjector = new DependencyInjector(null);
     }
     return dependencyInjector;
   }

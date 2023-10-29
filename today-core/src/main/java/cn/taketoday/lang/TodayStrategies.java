@@ -581,13 +581,12 @@ public class TodayStrategies {
    * occurs while instantiating it, the given failure handler is called.
    *
    * @param strategyType the interface or abstract class representing the strategy
-   * @param argumentResolver strategy used to resolve constructor arguments by their type
+   * @param resolver strategy used to resolve constructor arguments by their type
    * @param failureHandler strategy used to handle strategy instantiation failures
    * @return Returns strategy object list that can be modified
    */
-  public <T> List<T> load(Class<T> strategyType,
-          @Nullable ArgumentResolver argumentResolver, @Nullable FailureHandler failureHandler) {
-    var instantiator = new DefaultInstantiator(argumentResolver);
+  public <T> List<T> load(Class<T> strategyType, @Nullable ArgumentResolver resolver, @Nullable FailureHandler failureHandler) {
+    var instantiator = new DefaultInstantiator(resolver);
     return load(strategyType, instantiator, failureHandler);
   }
 
@@ -608,8 +607,7 @@ public class TodayStrategies {
    * @param failureHandler strategy used to handle strategy instantiation failures
    * @return Returns strategy object list that can be modified
    */
-  public <T> List<T> load(Class<T> strategyType,
-          ClassInstantiator instantiator, @Nullable FailureHandler failureHandler) {
+  public <T> List<T> load(Class<T> strategyType, ClassInstantiator instantiator, @Nullable FailureHandler failureHandler) {
     Assert.notNull(strategyType, "'strategyType' is required");
     Assert.notNull(instantiator, "'instantiator' is required");
 
@@ -735,8 +733,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
-  public static <T> List<T> find(Class<T> strategyType,
-          @Nullable ClassLoader classLoader, ClassInstantiator instantiator) {
+  public static <T> List<T> find(Class<T> strategyType, @Nullable ClassLoader classLoader, ClassInstantiator instantiator) {
     return forDefaultResourceLocation(classLoader).load(strategyType, instantiator);
   }
 
@@ -879,8 +876,7 @@ public class TodayStrategies {
    * @return a {@link TodayStrategies} instance
    * @see #forLocation(String)
    */
-  public static TodayStrategies forLocation(
-          String resourceLocation, @Nullable ClassLoader classLoader) {
+  public static TodayStrategies forLocation(String resourceLocation, @Nullable ClassLoader classLoader) {
     Assert.hasText(resourceLocation, "'resourceLocation' must not be empty");
 
     if (classLoader == null) {
