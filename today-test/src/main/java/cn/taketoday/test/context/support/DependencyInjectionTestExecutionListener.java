@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,16 +17,17 @@
 
 package cn.taketoday.test.context.support;
 
+import cn.taketoday.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.condition.ConditionEvaluationReport;
-import cn.taketoday.context.condition.ConditionEvaluationReportMessage;
+import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.aot.AotTestContextInitializers;
 
 /**
  * {@code TestExecutionListener} which provides support for dependency
@@ -37,13 +35,14 @@ import cn.taketoday.test.context.TestExecutionListener;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DependencyInjectionTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
-   * whether or not the dependencies of a test instance should be
+   * whether the dependencies of a test instance should be
    * <em>reinjected</em> in
    * {@link #beforeTestMethod(TestContext) beforeTestMethod()}. Note that
    * dependencies will be injected in
@@ -60,6 +59,8 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
           DependencyInjectionTestExecutionListener.class, "reinjectDependencies");
 
   private static final Logger logger = LoggerFactory.getLogger(DependencyInjectionTestExecutionListener.class);
+
+  private final AotTestContextInitializers aotTestContextInitializers = new AotTestContextInitializers();
 
   /**
    * Returns {@code 2000}.
@@ -84,26 +85,17 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
    */
   @Override
   public void prepareTestInstance(TestContext testContext) throws Exception {
-    logger.debug("Performing dependency injection for test context [{}].", testContext);
-    try {
+    if (logger.isTraceEnabled()) {
+      logger.trace("Performing dependency injection for test context {}", testContext);
+    }
+    else if (logger.isDebugEnabled()) {
+      logger.debug("Performing dependency injection for test class {}", testContext.getTestClass().getName());
+    }
+    if (runningInAotMode(testContext.getTestClass())) {
+      injectDependenciesInAotMode(testContext);
+    }
+    else {
       injectDependencies(testContext);
-    }
-    catch (Exception ex) {
-      outputConditionEvaluationReport(testContext);
-      throw ex;
-    }
-  }
-
-  private void outputConditionEvaluationReport(TestContext testContext) {
-    try {
-      ApplicationContext context = testContext.getApplicationContext();
-      if (context instanceof ConfigurableApplicationContext configurableContext) {
-        var report = ConditionEvaluationReport.get(configurableContext.getBeanFactory());
-        System.err.println(new ConditionEvaluationReportMessage(report));
-      }
-    }
-    catch (Exception ex) {
-      // Allow original failure to be reported
     }
   }
 
@@ -117,8 +109,18 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
   @Override
   public void beforeTestMethod(TestContext testContext) throws Exception {
     if (Boolean.TRUE.equals(testContext.getAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE))) {
-      logger.debug("Reinjecting dependencies for test context [{}].", testContext);
-      injectDependencies(testContext);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Reinjecting dependencies for test context {}", testContext);
+      }
+      else if (logger.isDebugEnabled()) {
+        logger.debug("Reinjecting dependencies for test class {}", testContext.getTestClass().getName());
+      }
+      if (runningInAotMode(testContext.getTestClass())) {
+        injectDependenciesInAotMode(testContext);
+      }
+      else {
+        injectDependencies(testContext);
+      }
     }
   }
 
@@ -142,6 +144,30 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
     beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
     beanFactory.initializeBean(bean, clazz.getName() + AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX);
     testContext.removeAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE);
+  }
+
+  private void injectDependenciesInAotMode(TestContext testContext) throws Exception {
+    ApplicationContext applicationContext = testContext.getApplicationContext();
+    if (!(applicationContext instanceof GenericApplicationContext gac)) {
+      throw new IllegalStateException("AOT ApplicationContext must be a GenericApplicationContext instead of " +
+              applicationContext.getClass().getName());
+    }
+
+    Object bean = testContext.getTestInstance();
+    Class<?> clazz = testContext.getTestClass();
+    ConfigurableBeanFactory beanFactory = gac.getBeanFactory();
+    AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
+    beanPostProcessor.setBeanFactory(beanFactory);
+    beanPostProcessor.processInjection(bean);
+    beanFactory.initializeBean(bean, clazz.getName() + AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX);
+    testContext.removeAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE);
+  }
+
+  /**
+   * Determine if we are running in AOT mode for the supplied test class.
+   */
+  private boolean runningInAotMode(Class<?> testClass) {
+    return this.aotTestContextInitializers.isSupportedTestClass(testClass);
   }
 
 }
