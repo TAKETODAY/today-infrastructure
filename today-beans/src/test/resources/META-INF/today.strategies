@@ -1,0 +1,3 @@
+
+cn.taketoday.beans.factory.support.DependencyResolvingStrategy=\
+cn.taketoday.beans.factory.support.DependencyInjectorTests.TestDependencyResolvingStrategy

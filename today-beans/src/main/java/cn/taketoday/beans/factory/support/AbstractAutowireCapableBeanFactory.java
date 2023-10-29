@@ -110,8 +110,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @see BeanDefinitionRegistry
  * @since 4.0
  */
-public abstract class AbstractAutowireCapableBeanFactory
-        extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
   /** Whether to automatically try to resolve circular references between beans. @since 4.0 */
   private boolean allowCircularReferences = true;
@@ -220,6 +219,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #doCreateBean
    */
   @Nullable
+  @Override
   protected Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
           throws BeanCreationException {
 
@@ -290,8 +290,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @throws BeanCreationException if the bean could not be created
    */
   @Nullable
-  protected Object doCreateBean(
-          String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
+  protected Object doCreateBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
     // Instantiate the bean.
     BeanWrapper instanceWrapper = null;
     if (merged.isSingleton()) {
@@ -829,7 +828,9 @@ public abstract class AbstractAutowireCapableBeanFactory
    */
   @Nullable
   @Override
-  protected Object handleFactoryBean(String name, String beanName, @Nullable RootBeanDefinition definition, Object beanInstance) throws BeansException {
+  protected Object handleFactoryBean(String name, String beanName,
+          @Nullable RootBeanDefinition definition, Object beanInstance) throws BeansException {
+
     String currentlyCreatedBean = this.currentlyCreatedBean.get();
     if (currentlyCreatedBean != null) {
       registerDependentBean(beanName, currentlyCreatedBean);
@@ -850,8 +851,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @see #getBean(String, Object[])
    * @since 4.0
    */
-  protected BeanWrapper instantiateUsingFactoryMethod(
-          String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) {
+  protected BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) {
     return new ConstructorResolver(this).instantiateUsingFactoryMethod(beanName, mbd, explicitArgs);
   }
 
@@ -871,9 +871,8 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @return a BeanWrapper for the new instance
    * @since 4.0
    */
-  protected BeanWrapper autowireConstructor(
-          String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
-
+  protected BeanWrapper autowireConstructor(String beanName, RootBeanDefinition mbd,
+          @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
     return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
   }
 
@@ -1194,8 +1193,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * Convert the given value for the specified target property.
    */
   @Nullable
-  private Object convertForProperty(@Nullable Object value,
-          String propertyName, BeanWrapper bw, TypeConverter converter) {
+  private Object convertForProperty(@Nullable Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
     if (converter instanceof BeanWrapperImpl) {
       return ((BeanWrapperImpl) converter).convertForProperty(value, propertyName);
     }
@@ -1216,8 +1214,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param bw the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
-  protected void autowireByName(String beanName,
-          AbstractBeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
+  protected void autowireByName(String beanName, AbstractBeanDefinition definition, BeanWrapper bw, PropertyValues pvs) {
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, bw);
     for (String propertyName : propertyNames) {
       if (containsBean(propertyName)) {
@@ -1250,8 +1247,7 @@ public abstract class AbstractAutowireCapableBeanFactory
    * @param wrapper the BeanWrapper from which we can obtain information about the bean
    * @param pvs the PropertyValues to register wired objects with
    */
-  protected void autowireByType(String beanName,
-          BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
+  protected void autowireByType(String beanName, BeanDefinition definition, BeanWrapper wrapper, PropertyValues pvs) {
     BeanMetadata metadata = wrapper.getMetadata();
 
     String[] propertyNames = unsatisfiedNonSimpleProperties(definition, wrapper);

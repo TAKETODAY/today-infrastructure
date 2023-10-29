@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +16,6 @@
  */
 
 package cn.taketoday.beans.factory.support;
-
-import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
 
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Assert;
@@ -44,18 +38,8 @@ public class DependencyResolvingDecorator implements DependencyResolvingStrategy
   }
 
   @Override
-  public boolean supports(Field field) {
-    return delegate.supports(field);
-  }
-
-  @Override
-  public boolean supports(Executable method) {
-    return delegate.supports(method);
-  }
-
-  @Override
-  public void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context) {
-    delegate.resolveDependency(descriptor, context);
+  public Object resolveDependency(DependencyDescriptor descriptor, Context context) {
+    return delegate.resolveDependency(descriptor, context);
   }
 
 }

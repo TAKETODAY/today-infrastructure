@@ -113,8 +113,7 @@ import cn.taketoday.util.StringUtils;
  * @see StandardBeanFactory#getBeanDefinition
  * @since 2018-06-23 11:20:58
  */
-public abstract class AbstractBeanFactory
-        extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
   /** object factories */
   protected final ConcurrentHashMap<Class<?>, Object> objectFactories = new ConcurrentHashMap<>(16);
@@ -1050,14 +1049,16 @@ public abstract class AbstractBeanFactory
   }
 
   //---------------------------------------------------------------------
-  // Implementation of ArgumentsResolverProvider interface
+  // Implementation of DependencyInjectorProvider interface
   //---------------------------------------------------------------------
 
   /** @since 4.0 */
   @Override
   public DependencyInjector getInjector() {
+    DependencyInjector dependencyInjector = this.dependencyInjector;
     if (dependencyInjector == null) {
-      this.dependencyInjector = new DependencyInjector(this);
+      dependencyInjector = new DependencyInjector(this);
+      this.dependencyInjector = dependencyInjector;
     }
     return dependencyInjector;
   }

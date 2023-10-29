@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +17,13 @@
 
 package cn.taketoday.beans.factory.support;
 
-import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
+import java.util.Set;
 
+import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.lang.Nullable;
 
 /**
  * resolve dependency
@@ -36,32 +35,53 @@ import cn.taketoday.beans.factory.config.DependencyDescriptor;
 public interface DependencyResolvingStrategy {
 
   /**
-   * is that input field is supports to resolving
-   *
-   * @param field input field
-   */
-  default boolean supports(Field field) {
-    return true;
-  }
-
-  /**
-   * is that input method is supports to resolving
-   *
-   * @param executable input executable, generally not a {@link java.lang.reflect.Constructor}
-   */
-  default boolean supports(Executable executable) {
-    return true;
-  }
-
-  /**
-   * Resolve method/constructor parameter object
-   * <p>
-   * <b>NOTE<b/>: user must consider {@code resolvingContext}'s bean-factory is null or not
-   * </p>
+   * Resolve dependency from DependencyDescriptor
    *
    * @param descriptor Target method {@link Parameter} or a {@link java.lang.reflect.Field}
    * @param context resolving context never {@code null}
    */
-  void resolveDependency(DependencyDescriptor descriptor, DependencyResolvingContext context);
+  @Nullable
+  Object resolveDependency(DependencyDescriptor descriptor, Context context);
+
+  /**
+   * context
+   */
+  class Context {
+
+    @Nullable
+    public final Set<String> dependentBeans;
+
+    @Nullable
+    public final TypeConverter typeConverter;
+
+    @Nullable
+    public final String requestingBeanName;
+
+    public Context(@Nullable String requestingBeanName,
+            @Nullable Set<String> dependentBeans, @Nullable TypeConverter typeConverter) {
+      this.typeConverter = typeConverter;
+      this.dependentBeans = dependentBeans;
+      this.requestingBeanName = requestingBeanName;
+    }
+
+    /**
+     * add dependent bean
+     */
+    public void addDependentBean(String beanName) {
+      if (dependentBeans != null) {
+        dependentBeans.add(beanName);
+      }
+    }
+
+    @Override
+    public String toString() {
+      return ToStringBuilder.from(this)
+              .append("dependentBeans", dependentBeans)
+              .append("typeConverter", typeConverter)
+              .append("requestingBeanName", requestingBeanName)
+              .toString();
+    }
+
+  }
 
 }

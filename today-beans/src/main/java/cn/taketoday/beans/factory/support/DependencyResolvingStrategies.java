@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +17,6 @@
 
 package cn.taketoday.beans.factory.support;
 
-import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
 import java.util.List;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -29,56 +24,34 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ArrayHolder;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang 2021/11/16 22:50</a>
- * @since 4.0
+ * Composite DependencyResolvingStrategy
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/16 22:50
  */
 public class DependencyResolvingStrategies implements DependencyResolvingStrategy {
-  private static final Logger log = LoggerFactory.getLogger(DependencyResolvingStrategies.class);
 
-  private final ArrayHolder<DependencyResolvingStrategy> resolvingStrategies
+  private final ArrayHolder<DependencyResolvingStrategy> strategies
           = ArrayHolder.forClass(DependencyResolvingStrategy.class);
 
   @Override
-  public boolean supports(Field field) {
-    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      if (resolvingStrategy.supports(field)) {
-        return true;
+  public Object resolveDependency(DependencyDescriptor descriptor, Context context) {
+    for (DependencyResolvingStrategy resolvingStrategy : strategies) {
+      Object dependency = resolvingStrategy.resolveDependency(descriptor, context);
+      if (dependency != null) {
+        return dependency;
       }
     }
-    return false;
-  }
-
-  @Override
-  public boolean supports(Executable executable) {
-    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      if (resolvingStrategy.supports(executable)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @Override
-  public void resolveDependency(
-          DependencyDescriptor descriptor, DependencyResolvingContext resolvingContext) {
-    resolvingContext.setDependency(null);
-    resolvingContext.setDependencyResolved(false);
-    for (DependencyResolvingStrategy resolvingStrategy : resolvingStrategies) {
-      resolvingStrategy.resolveDependency(descriptor, resolvingContext);
-      if (resolvingContext.isDependencyResolved()) {
-        return;
-      }
-    }
-    // TODO maybe check required status?
+    return null;
   }
 
   public void initStrategies(@Nullable BeanFactory beanFactory) {
-    log.debug("Initialize dependency-resolving-strategies");
+    LoggerFactory.getLogger(DependencyResolvingStrategies.class)
+            .debug("Initialize dependency-resolving-strategies");
 
     List<DependencyResolvingStrategy> strategies;
     if (beanFactory != null) {
@@ -93,40 +66,11 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
       strategies = TodayStrategies.find(DependencyResolvingStrategy.class);
     }
 
-    strategies.add(new BeanFactoryDependencyResolver());
-    resolvingStrategies.addAll(strategies); // @since 4.0
+    this.strategies.addAll(strategies);
   }
 
   public ArrayHolder<DependencyResolvingStrategy> getStrategies() {
-    return resolvingStrategies;
-  }
-
-  public void setStrategies(DependencyResolvingStrategy... strategies) {
-    resolvingStrategies.set(strategies);
-    resolvingStrategies.sort();
-  }
-
-  public void setStrategies(List<DependencyResolvingStrategy> strategies) {
-    resolvingStrategies.set(strategies);
-    resolvingStrategies.sort();
-  }
-
-  public void addStrategies(DependencyResolvingStrategy... strategies) {
-    resolvingStrategies.add(strategies);
-    resolvingStrategies.sort();
-  }
-
-  public void addStrategies(List<DependencyResolvingStrategy> strategies) {
-    resolvingStrategies.addAll(strategies);
-    resolvingStrategies.sort();
-  }
-
-  public void clear() {
-    resolvingStrategies.clear();
-  }
-
-  public boolean isNotEmpty() {
-    return !resolvingStrategies.isEmpty();
+    return strategies;
   }
 
 }

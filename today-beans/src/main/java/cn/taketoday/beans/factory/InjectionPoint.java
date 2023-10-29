@@ -64,7 +64,7 @@ public class InjectionPoint {
    * @param methodParameter the MethodParameter to wrap
    */
   public InjectionPoint(MethodParameter methodParameter) {
-    Assert.notNull(methodParameter, "MethodParameter must not be null");
+    Assert.notNull(methodParameter, "MethodParameter is required");
     this.methodParameter = methodParameter;
   }
 
@@ -74,7 +74,7 @@ public class InjectionPoint {
    * @param field the field to wrap
    */
   public InjectionPoint(Field field) {
-    Assert.notNull(field, "Field must not be null");
+    Assert.notNull(field, "Field is required");
     this.field = field;
   }
 

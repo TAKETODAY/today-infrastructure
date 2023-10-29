@@ -76,8 +76,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   /** Map from bean name to bean instance. */
   private final Map<String, Object> beans;
 
-  private final DependencyInjector dependencyInjector = new DependencyInjector(this);
-
   /**
    * Create a regular {@code StaticListableBeanFactory}, to be populated
    * with singleton bean instances through {@link #addBean} calls.
@@ -532,6 +530,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
   @Override
   public DependencyInjector getInjector() {
-    return dependencyInjector;
+    throw new UnsupportedOperationException();
   }
 }

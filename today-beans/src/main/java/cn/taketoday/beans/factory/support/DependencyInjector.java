@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,24 +19,21 @@ package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.TypeConverter;
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.InjectionPoint;
-import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
+
+import static cn.taketoday.beans.factory.support.StandardBeanFactory.raiseNoMatchingBeanFound;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -51,22 +45,10 @@ public class DependencyInjector {
   private DependencyResolvingStrategies resolvingStrategies;
 
   @Nullable
-  private final BeanFactory beanFactory;
+  private final AutowireCapableBeanFactory beanFactory;
 
-  public DependencyInjector(@Nullable BeanFactory beanFactory) {
+  public DependencyInjector(@Nullable AutowireCapableBeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-  }
-
-  //---------------------------------------------------------------------
-  // DependencyResolvingStrategies supports
-  //---------------------------------------------------------------------
-
-  public boolean canInject(Field field) {
-    return getResolvingStrategies().supports(field);
-  }
-
-  public boolean canInject(Executable method) {
-    return getResolvingStrategies().supports(method);
   }
 
   //---------------------------------------------------------------------
@@ -96,109 +78,67 @@ public class DependencyInjector {
   //---------------------------------------------------------------------
 
   @Nullable
-  public Object resolveValue(DependencyDescriptor descriptor) {
-    DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory);
-    return resolveValue(descriptor, context);
-  }
-
-  @Nullable
-  public Object resolveValue(DependencyDescriptor descriptor, DependencyResolvingContext context) {
-    Object resolved = resolve(descriptor, context);
-    return resolved == InjectionPoint.DO_NOT_SET ? null : resolved;
-  }
-
-  @Nullable
-  public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName) {
-    return resolveValue(descriptor, beanName, null, null);
-  }
-
-  @Nullable
-  public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName,
-          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
-    DependencyResolvingContext context = new DependencyResolvingContext(null, beanFactory, beanName);
-    context.setTypeConverter(typeConverter);
-    context.setDependentBeans(autowiredBeanNames);
-    return resolveValue(descriptor, context);
-  }
-
-  @Nullable
   public Object[] resolveArguments(Executable executable, @Nullable Object... providedArgs) {
-    return resolveArguments(executable, null, providedArgs);
-  }
-
-  @Nullable
-  public Object[] resolveArguments(
-          Executable executable, @Nullable String beanName, @Nullable Object... providedArgs) {
     int parameterLength = executable.getParameterCount();
     if (parameterLength != 0) {
       Object[] arguments = new Object[parameterLength];
-      DependencyResolvingContext context = null;
       Parameter[] parameters = executable.getParameters();
       for (int i = 0; i < arguments.length; i++) {
         Object provided = findProvided(parameters[i], providedArgs);
         if (provided == null) {
           MethodParameter methodParam = MethodParameter.forExecutable(executable, i);
-          DependencyDescriptor currDesc = new DependencyDescriptor(methodParam, true);
-          if (context == null) {
-            context = new DependencyResolvingContext(executable, beanFactory, beanName);
-            if (beanName != null) {
-              context.setDependentBeans(new LinkedHashSet<>());
+          DependencyDescriptor descriptor = new DependencyDescriptor(methodParam, true);
+          Object resolved = resolve(descriptor, null, null, null, beanFactory);
+          if (resolved == null) {
+            if (beanFactory instanceof StandardBeanFactory sbf) {
+              if (sbf.isRequired(descriptor)) {
+                sbf.raiseNoMatchingBeanFound(descriptor.getDependencyType(), descriptor);
+              }
+            }
+            else if (descriptor.isRequired()) {
+              raiseNoMatchingBeanFound(descriptor);
             }
           }
-          arguments[i] = resolveValue(currDesc, context);
+          arguments[i] = resolved;
         }
         else {
           arguments[i] = provided;
         }
-      }
-      if (context != null) {
-        registerDependentBeans(beanName, context.getDependentBeans());
       }
       return arguments;
     }
     return null;
   }
 
-  /**
-   * @throws UnsatisfiedDependencyException No strategy supports this dependency
-   * @see InjectionPoint#DO_NOT_SET
-   */
   @Nullable
-  public Object resolve(DependencyDescriptor descriptor, DependencyResolvingContext context) {
-    getResolvingStrategies().resolveDependency(descriptor, context);
-    if (context.isDependencyResolved()) {
-      return context.getDependency();
-    }
-    else {
-      throw new UnsatisfiedDependencyException(null, context.getBeanName(), descriptor,
-              "Because: 'No strategy supports this dependency: " + descriptor + "'");
-    }
+  public Object resolveValue(DependencyDescriptor descriptor) {
+    return resolveValue(descriptor, null, null, null);
   }
 
-  /**
-   * Register the specified bean as dependent on the autowired beans.
-   */
-  private void registerDependentBeans(@Nullable String beanName, @Nullable Set<String> autowiredBeanNames) {
-    if (beanName != null && autowiredBeanNames != null
-            && beanFactory instanceof ConfigurableBeanFactory configurable) {
-      for (String autowiredBeanName : autowiredBeanNames) {
-        if (configurable.containsBean(autowiredBeanName)) {
-          configurable.registerDependentBean(autowiredBeanName, beanName);
-        }
-      }
+  @Nullable
+  public Object resolveValue(DependencyDescriptor descriptor, @Nullable String beanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
+    return resolve(descriptor, beanName, autowiredBeanNames, typeConverter, beanFactory);
+  }
+
+  @Nullable
+  Object resolve(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
+          @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter converter, @Nullable AutowireCapableBeanFactory beanFactory) {
+    if (beanFactory != null) {
+      return beanFactory.resolveDependency(descriptor, requestingBeanName, autowiredBeanNames, converter);
+    }
+    else {
+      var context = new DependencyResolvingStrategy.Context(requestingBeanName, autowiredBeanNames, converter);
+      return getResolvingStrategies().resolveDependency(descriptor, context);
     }
   }
 
   public DependencyResolvingStrategies getResolvingStrategies() {
     if (resolvingStrategies == null) {
       resolvingStrategies = new DependencyResolvingStrategies();
-      initStrategies(resolvingStrategies);
+      resolvingStrategies.initStrategies(beanFactory);
     }
     return resolvingStrategies;
-  }
-
-  private void initStrategies(DependencyResolvingStrategies resolvingStrategies) {
-    resolvingStrategies.initStrategies(beanFactory);
   }
 
   public void setResolvingStrategies(@Nullable DependencyResolvingStrategies resolvingStrategies) {

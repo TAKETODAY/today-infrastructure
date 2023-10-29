@@ -105,10 +105,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    * in this class.
    */
   private static final Map<String, Integer> constants = Map.of(
-      "VALIDATION_NONE", VALIDATION_NONE,
-      "VALIDATION_AUTO", VALIDATION_AUTO,
-      "VALIDATION_DTD", VALIDATION_DTD,
-      "VALIDATION_XSD", VALIDATION_XSD
+          "VALIDATION_NONE", VALIDATION_NONE,
+          "VALIDATION_AUTO", VALIDATION_AUTO,
+          "VALIDATION_DTD", VALIDATION_DTD,
+          "VALIDATION_XSD", VALIDATION_XSD
   );
 
   private int validationMode = VALIDATION_AUTO;
@@ -116,7 +116,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
   private boolean namespaceAware = false;
 
   private Class<? extends BeanDefinitionDocumentReader> documentReaderClass =
-      DefaultBeanDefinitionDocumentReader.class;
+          DefaultBeanDefinitionDocumentReader.class;
 
   private ProblemReporter problemReporter = new FailFastProblemReporter();
 
@@ -137,8 +137,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
   private final XmlValidationModeDetector validationModeDetector = new XmlValidationModeDetector();
 
   private final ThreadLocal<Set<EncodedResource>> resourcesCurrentlyBeingLoaded =
-      NamedThreadLocal.withInitial(
-          "XML bean definition resources currently being loaded", () -> new HashSet<>(4));
+          NamedThreadLocal.withInitial("XML bean definition resources currently being loaded", () -> new HashSet<>(4));
 
   /**
    * Create new XmlBeanDefinitionReader for the given bean factory.
@@ -183,7 +182,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    */
   public void setValidationMode(int validationMode) {
     Assert.isTrue(constants.containsValue(validationMode),
-        "Only values of validation mode constants allowed");
+            "Only values of validation mode constants allowed");
     this.validationMode = validationMode;
   }
 
@@ -341,7 +340,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
     if (!currentResources.add(encodedResource)) {
       throw new BeanDefinitionStoreException(
-          "Detected cyclic loading of " + encodedResource + " - check your import definitions!");
+              "Detected cyclic loading of " + encodedResource + " - check your import definitions!");
     }
 
     try (InputStream inputStream = encodedResource.getResource().getInputStream()) {
@@ -353,7 +352,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     }
     catch (IOException ex) {
       throw new BeanDefinitionStoreException(
-          "IOException parsing XML document from " + encodedResource.getResource(), ex);
+              "IOException parsing XML document from " + encodedResource.getResource(), ex);
     }
     finally {
       currentResources.remove(encodedResource);
@@ -384,7 +383,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    * @throws BeanDefinitionStoreException in case of loading or parsing errors
    */
   public int loadBeanDefinitions(InputSource inputSource, @Nullable String resourceDescription)
-      throws BeanDefinitionStoreException {
+          throws BeanDefinitionStoreException {
 
     return doLoadBeanDefinitions(inputSource, new DescriptiveResource(resourceDescription));
   }
@@ -400,7 +399,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    * @see #registerBeanDefinitions
    */
   protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
-      throws BeanDefinitionStoreException {
+          throws BeanDefinitionStoreException {
 
     try {
       Document doc = doLoadDocument(inputSource, resource);
@@ -415,23 +414,23 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     }
     catch (SAXParseException ex) {
       throw new XmlBeanDefinitionStoreException(resource.toString(),
-          "Line " + ex.getLineNumber() + " in XML document from " + resource + " is invalid", ex);
+              "Line " + ex.getLineNumber() + " in XML document from " + resource + " is invalid", ex);
     }
     catch (SAXException ex) {
       throw new XmlBeanDefinitionStoreException(resource.toString(),
-          "XML document from " + resource + " is invalid", ex);
+              "XML document from " + resource + " is invalid", ex);
     }
     catch (ParserConfigurationException ex) {
       throw new BeanDefinitionStoreException(resource.toString(),
-          "Parser configuration exception parsing XML from " + resource, ex);
+              "Parser configuration exception parsing XML from " + resource, ex);
     }
     catch (IOException ex) {
       throw new BeanDefinitionStoreException(resource.toString(),
-          "IOException parsing XML document from " + resource, ex);
+              "IOException parsing XML document from " + resource, ex);
     }
     catch (Throwable ex) {
       throw new BeanDefinitionStoreException(resource.toString(),
-          "Unexpected exception parsing XML document from " + resource, ex);
+              "Unexpected exception parsing XML document from " + resource, ex);
     }
   }
 
@@ -447,7 +446,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    */
   protected Document doLoadDocument(InputSource inputSource, Resource resource) throws Exception {
     return this.documentLoader.loadDocument(inputSource, getEntityResolver(), this.errorHandler,
-        getValidationModeForResource(resource), isNamespaceAware());
+            getValidationModeForResource(resource), isNamespaceAware());
   }
 
   /**
@@ -484,10 +483,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
   protected int detectValidationMode(Resource resource) {
     if (resource.isOpen()) {
       throw new BeanDefinitionStoreException(
-          "Passed-in Resource [" + resource + "] contains an open stream: " +
-              "cannot determine validation mode automatically. Either pass in a Resource " +
-              "that is able to create fresh streams, or explicitly specify the validationMode " +
-              "on your XmlBeanDefinitionReader instance.");
+              "Passed-in Resource [" + resource + "] contains an open stream: " +
+                      "cannot determine validation mode automatically. Either pass in a Resource " +
+                      "that is able to create fresh streams, or explicitly specify the validationMode " +
+                      "on your XmlBeanDefinitionReader instance.");
     }
 
     InputStream inputStream;
@@ -496,9 +495,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     }
     catch (IOException ex) {
       throw new BeanDefinitionStoreException(
-          "Unable to determine validation mode for [" + resource + "]: cannot open InputStream. " +
-              "Did you attempt to load directly from a SAX InputSource without specifying the " +
-              "validationMode on your XmlBeanDefinitionReader instance?", ex);
+              "Unable to determine validation mode for [" + resource + "]: cannot open InputStream. " +
+                      "Did you attempt to load directly from a SAX InputSource without specifying the " +
+                      "validationMode on your XmlBeanDefinitionReader instance?", ex);
     }
 
     try {
@@ -506,7 +505,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     }
     catch (IOException ex) {
       throw new BeanDefinitionStoreException("Unable to determine validation mode for [" +
-          resource + "]: an error occurred whilst reading from the InputStream.", ex);
+              resource + "]: an error occurred whilst reading from the InputStream.", ex);
     }
   }
 
@@ -550,7 +549,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    */
   public XmlReaderContext createReaderContext(Resource resource) {
     return new XmlReaderContext(resource, this.problemReporter, this.eventListener,
-        this.sourceExtractor, this, getNamespaceHandlerResolver());
+            this.sourceExtractor, this, getNamespaceHandlerResolver());
   }
 
   /**

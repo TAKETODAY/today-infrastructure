@@ -207,6 +207,9 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     return this.eager;
   }
 
+  /**
+   * is required order
+   */
   public boolean isOrdered() {
     Boolean ordered = this.ordered;
     if (ordered == null) {

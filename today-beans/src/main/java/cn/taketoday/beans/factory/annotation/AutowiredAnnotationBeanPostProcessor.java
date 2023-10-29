@@ -702,6 +702,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
       desc.setContainingClass(bean.getClass());
       var autowiredBeanNames = new LinkedHashSet<String>(2);
+      ConfigurableBeanFactory beanFactory = AutowiredAnnotationBeanPostProcessor.this.beanFactory;
       Assert.state(beanFactory != null, "No BeanFactory available");
       TypeConverter typeConverter = beanFactory.getTypeConverter();
       Object value;

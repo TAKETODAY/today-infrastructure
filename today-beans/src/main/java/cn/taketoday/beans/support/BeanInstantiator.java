@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.support;
 
 import java.lang.reflect.Constructor;
@@ -29,18 +27,19 @@ import java.util.function.Supplier;
 import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.core.ConstructorNotFoundException;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.reflect.MethodAccessor;
 import cn.taketoday.reflect.MethodInvoker;
 import cn.taketoday.reflect.ReflectionException;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
  * bean-instantiator: bean instantiate strategy
  *
- * @author TODAY 2020-08-13 19:31
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see java.lang.reflect.Constructor
+ * @since 2020-08-13 19:31
  */
 public abstract class BeanInstantiator {
 
@@ -87,7 +86,9 @@ public abstract class BeanInstantiator {
   protected abstract Object doInstantiate(@Nullable Object[] args)
           throws Throwable;
 
-  // static
+  //---------------------------------------------------------------------
+  // Static Factory Methods
+  //---------------------------------------------------------------------
 
   /**
    * use BeanInstantiatorGenerator to create bytecode Constructor access
@@ -151,7 +152,7 @@ public abstract class BeanInstantiator {
    * @return StaticMethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromStaticMethod(MethodAccessor accessor) {
-    Assert.notNull(accessor, "MethodAccessor must not be null");
+    Assert.notNull(accessor, "MethodAccessor is required");
     return new StaticMethodAccessorBeanInstantiator(accessor);
   }
 
@@ -185,7 +186,7 @@ public abstract class BeanInstantiator {
    * @param function function
    */
   public static FunctionInstantiator fromFunction(Function<Object[], ?> function) {
-    Assert.notNull(function, "instance function must not be null");
+    Assert.notNull(function, "instance function is required");
     return new FunctionInstantiator(function);
   }
 
@@ -193,7 +194,7 @@ public abstract class BeanInstantiator {
    * @param supplier bean instance supplier
    */
   public static SupplierInstantiator fromSupplier(Supplier<?> supplier) {
-    Assert.notNull(supplier, "instance supplier must not be null");
+    Assert.notNull(supplier, "instance supplier is required");
     return new SupplierInstantiator(supplier);
   }
 
@@ -203,7 +204,7 @@ public abstract class BeanInstantiator {
    * @param target target class
    */
   public static <T> BeanInstantiator fromConstructor(final Class<T> target) {
-    Assert.notNull(target, "target class must not be null");
+    Assert.notNull(target, "target class is required");
     if (target.isArray()) {
       Class<?> componentType = target.getComponentType();
       return new ArrayInstantiator(componentType);
@@ -231,7 +232,7 @@ public abstract class BeanInstantiator {
    * @see ReflectiveInstantiator
    */
   public static ConstructorAccessor forReflective(Constructor<?> constructor) {
-    Assert.notNull(constructor, "constructor must not be null");
+    Assert.notNull(constructor, "Constructor is required");
     ReflectionUtils.makeAccessible(constructor);
     return new ReflectiveInstantiator(constructor);
   }

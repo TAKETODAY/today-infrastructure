@@ -23,7 +23,6 @@ import cn.taketoday.beans.BeanInstantiationException;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
-import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.beans.support.BeanInstantiator;
@@ -39,15 +38,16 @@ import cn.taketoday.util.function.SingletonSupplier;
 /**
  * bean-factory aware instantiator
  *
- * @author TODAY 2021/10/4 22:26
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DependencyInjector
- * @since 4.0
+ * @since 4.0 2021/10/4 22:26
  */
 @Experimental
 public class BeanFactoryAwareInstantiator implements ClassInstantiator {
   public static final String BEAN_NAME = "beanFactoryAwareInstantiator";
 
   private final BeanFactory beanFactory;
+
   private BeanInstantiatorFactory instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
 
   public BeanFactoryAwareInstantiator(BeanFactory beanFactory) {
@@ -69,13 +69,9 @@ public class BeanFactoryAwareInstantiator implements ClassInstantiator {
    * @throws BeanInstantiationException if any reflective operation exception occurred
    * @throws ConstructorNotFoundException If beanClass has no suitable constructor
    * @see BeanUtils#obtainConstructor(Class)
-   * @since 4.0
    */
   @SuppressWarnings("unchecked")
   public <T> T instantiate(Class<T> beanClass, @Nullable Object[] providedArgs) {
-    if (beanFactory instanceof AutowireCapableBeanFactory acb) {
-      return acb.createBean(beanClass);
-    }
     Constructor<T> constructor = BeanUtils.obtainConstructor(beanClass);
     if (constructor.getParameterCount() == 0) {
       return (T) instantiatorFactory.newInstantiator(constructor).instantiate();
@@ -90,10 +86,6 @@ public class BeanFactoryAwareInstantiator implements ClassInstantiator {
       instantiatorFactory = ReflectiveInstantiatorFactory.INSTANCE;
     }
     this.instantiatorFactory = instantiatorFactory;
-  }
-
-  public BeanInstantiatorFactory getInstantiatorFactory() {
-    return instantiatorFactory;
   }
 
   // static factory-method
@@ -160,7 +152,7 @@ public class BeanFactoryAwareInstantiator implements ClassInstantiator {
     if (constructor.getParameterCount() == 0) {
       return BeanUtils.newInstance(constructor);
     }
-    Assert.notNull(injectorProvider, "resolverProvider is required");
+    Assert.notNull(injectorProvider, "injectorProvider is required");
     return injectorProvider.getInjector().inject(constructor, providedArgs);
   }
 

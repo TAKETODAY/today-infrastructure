@@ -49,8 +49,7 @@ import cn.taketoday.lang.Nullable;
  * @see BeanFactory
  * @since 2018-11-14 19:40
  */
-public interface ConfigurableBeanFactory
-        extends HierarchicalBeanFactory, SingletonBeanRegistry, AutowireCapableBeanFactory {
+public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, SingletonBeanRegistry, AutowireCapableBeanFactory {
 
   /**
    * Return a unified view over all bean names managed by this factory.

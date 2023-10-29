@@ -1324,8 +1324,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @param resolver the AutowireCandidateResolver to use for the actual resolution algorithm
    * @return whether the bean should be considered as autowire candidate
    */
-  protected boolean isAutowireCandidate(
-          String beanName, DependencyDescriptor descriptor, AutowireCandidateResolver resolver)
+  protected boolean isAutowireCandidate(String beanName, DependencyDescriptor descriptor, AutowireCandidateResolver resolver)
           throws NoSuchBeanDefinitionException {
 
     String bdName = BeanFactoryUtils.transformedBeanName(beanName);
@@ -1462,10 +1461,11 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           return multipleBeans;
         }
         // Raise exception if nothing found for required injection point
-        if (isRequired(descriptor)) {
-          raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
+        Object result = getInjector().resolve(descriptor, beanName, autowiredBeanNames, typeConverter, null);
+        if (result == null && isRequired(descriptor)) {
+          raiseNoMatchingBeanFound(type, descriptor);
         }
-        return null;
+        return result;
       }
 
       String autowiredBeanName;
@@ -1504,7 +1504,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
       Object result = instanceCandidate;
       if (result == null) {
-        if (isRequired(descriptor)) {
+        // for user define
+        result = getInjector().resolve(descriptor, beanName, autowiredBeanNames, typeConverter, null);
+        if (result == null && isRequired(descriptor)) {
           if (matchingBeans.size() == 1) {
             // factory method returns null
             BeanDefinition merged = getMergedBeanDefinition(autowiredBeanName);
@@ -1520,7 +1522,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
             }
           }
           // Raise exception if null encountered for required injection point
-          raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
+          raiseNoMatchingBeanFound(type, descriptor);
         }
       }
       if (!ClassUtils.isAssignableValue(type, result)) {
@@ -1538,6 +1540,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   private <T> T convertIfNecessary(@Nullable Object bean,
           @Nullable Class<?> requiredType, @Nullable TypeConverter converter) {
+
     // Check if required type matches the type of the actual bean instance.
     if (bean != null && requiredType != null && !ClassUtils.isAssignableValue(requiredType, bean)) {
       if (converter == null) {
@@ -1669,7 +1672,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     return converter.convertIfNecessary(matchingBeans, descriptor.getDependencyType());
   }
 
-  private boolean isRequired(DependencyDescriptor descriptor) {
+  boolean isRequired(DependencyDescriptor descriptor) {
     return getAutowireCandidateResolver().isRequired(descriptor);
   }
 
@@ -1950,11 +1953,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Raise a NoSuchBeanDefinitionException or BeanNotOfRequiredTypeException
    * for an unresolvable dependency.
    */
-  private void raiseNoMatchingBeanFound(Class<?> type,
-          ResolvableType resolvableType, DependencyDescriptor descriptor) throws BeansException {
-
+  void raiseNoMatchingBeanFound(Class<?> type, DependencyDescriptor descriptor) throws BeansException {
     checkBeanNotOfRequiredType(type, descriptor);
-    throw new NoSuchBeanDefinitionException(resolvableType,
+    raiseNoMatchingBeanFound(descriptor);
+  }
+
+  static void raiseNoMatchingBeanFound(DependencyDescriptor descriptor) {
+    throw new NoSuchBeanDefinitionException(descriptor.getResolvableType(),
             "expected at least 1 bean which qualifies as autowire candidate. " +
                     "Dependency annotations: " + ObjectUtils.nullSafeToString(descriptor.getAnnotations()));
   }
