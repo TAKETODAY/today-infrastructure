@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,22 +120,12 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
     BindingContext bindingContext = context.getBinding();
     if (bindingContext != null) {
-      WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
-      try {
-        arg = binder.convertIfNecessary(arg, methodParameter.getParameterType(), methodParameter);
-      }
-      catch (ConversionNotSupportedException ex) {
-        throw new MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),
-                namedValueInfo.name, methodParameter, ex.getCause());
-      }
-      catch (TypeMismatchException ex) {
-        throw new MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),
-                namedValueInfo.name, methodParameter, ex.getCause());
-      }
+      arg = convertIfNecessary(context, bindingContext, namedValueInfo, methodParameter, arg);
       // Check for null value after conversion of incoming argument value
       if (arg == null) {
         if (namedValueInfo.defaultValue != null) {
           arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
+          arg = convertIfNecessary(context, bindingContext, namedValueInfo, methodParameter, arg);
         }
         else if (namedValueInfo.required && !nestedParameter.isOptional()) {
           handleMissingValueAfterConversion(namedValueInfo.name, nestedParameter, context);
@@ -147,6 +134,24 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
     }
 
     handleResolvedValue(arg, namedValueInfo.name, resolvable, context);
+    return arg;
+  }
+
+  @Nullable
+  private static Object convertIfNecessary(RequestContext context, BindingContext bindingContext,
+          NamedValueInfo namedValueInfo, MethodParameter methodParameter, Object arg) throws Throwable {
+    WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
+    try {
+      arg = binder.convertIfNecessary(arg, methodParameter.getParameterType(), methodParameter);
+    }
+    catch (ConversionNotSupportedException ex) {
+      throw new MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),
+              namedValueInfo.name, methodParameter, ex.getCause());
+    }
+    catch (TypeMismatchException ex) {
+      throw new MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),
+              namedValueInfo.name, methodParameter, ex.getCause());
+    }
     return arg;
   }
 
