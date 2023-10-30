@@ -50,7 +50,7 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
   public E[] array;
 
   @Nullable
-  private final Class<E> elementClass;
+  private Class<E> elementClass;
 
   @Nullable
   private final IntFunction<E[]> arrayGenerator;
@@ -156,8 +156,9 @@ public final class ArrayHolder<E> implements Supplier<E[]>, Iterable<E>, RandomA
         Class<E> elementClass = this.elementClass;
         if (elementClass == null) {
           E firstElement = CollectionUtils.firstElement(list);
-          Assert.state(firstElement != null, "list is empty");
+          Assert.state(firstElement != null, "Cannot determine elementClass");
           elementClass = (Class<E>) firstElement.getClass();
+          this.elementClass = elementClass;
         }
         array = list.toArray((E[]) Array.newInstance(elementClass, list.size()));
       }
