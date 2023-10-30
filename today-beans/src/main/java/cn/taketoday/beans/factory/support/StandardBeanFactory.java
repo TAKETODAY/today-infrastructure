@@ -121,8 +121,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private static final long serialVersionUID = 1L;
 
   @Nullable
-  private static final Class<?> injectProviderClass =
-          // JSR-330 API not available - Provider interface simply not supported then.
+  private static final Class<?> injectProviderClass = // JSR-330 API not available - Provider interface simply not supported then.
           ClassUtils.load("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
 
   /** Optional id for this factory, for serialization purposes. @since 4.0 */

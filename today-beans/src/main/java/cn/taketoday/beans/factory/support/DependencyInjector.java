@@ -27,6 +27,7 @@ import java.util.Set;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
@@ -36,6 +37,8 @@ import cn.taketoday.util.ObjectUtils;
 import static cn.taketoday.beans.factory.support.StandardBeanFactory.raiseNoMatchingBeanFound;
 
 /**
+ * Dependency injector
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/12/27 21:06
  */
@@ -134,11 +137,13 @@ public class DependencyInjector {
   }
 
   public DependencyResolvingStrategies getResolvingStrategies() {
-    if (resolvingStrategies == null) {
-      resolvingStrategies = new DependencyResolvingStrategies();
-      resolvingStrategies.initStrategies(beanFactory);
+    DependencyResolvingStrategies strategies = this.resolvingStrategies;
+    if (strategies == null) {
+      strategies = new DependencyResolvingStrategies();
+      strategies.initStrategies(beanFactory instanceof ConfigurableBeanFactory cbf ? cbf.getBeanClassLoader() : null);
+      this.resolvingStrategies = strategies;
     }
-    return resolvingStrategies;
+    return strategies;
   }
 
   public void setResolvingStrategies(@Nullable DependencyResolvingStrategies resolvingStrategies) {

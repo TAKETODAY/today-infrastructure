@@ -125,16 +125,9 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   @Nullable
   private DependencyInjector dependencyInjector;
 
-  /**
-   * @param dependencyInjector Can be {@code null} but cannot support parameter injection
-   */
-  public void setDependencyInjector(@Nullable DependencyInjector dependencyInjector) {
-    this.dependencyInjector = dependencyInjector;
-  }
-
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     this.dependencyInjector = beanFactory.getInjector();
   }
 
@@ -441,6 +434,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       if (method.getParameterCount() != 0) {
         throw new IllegalStateException("Lifecycle annotation requires a no-arg method: " + method);
       }
+      ReflectionUtils.makeAccessible(method);
       this.method = method;
       this.identifier = isPrivateOrNotVisible(method, beanClass) ?
                         ClassUtils.getQualifiedMethodName(method) : method.getName();
@@ -455,7 +449,6 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     }
 
     public void invoke(Object target, @Nullable DependencyInjector resolver) throws Throwable {
-      ReflectionUtils.makeAccessible(method);
       if (resolver != null) {
         Object[] args = resolver.resolveArguments(method);
         method.invoke(target, args);

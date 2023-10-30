@@ -132,7 +132,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 
   // Defensive reference to JNDI API for JDK 9+ (optional java.naming module)
   private static final boolean jndiPresent = ClassUtils.isPresent(
-          "javax.naming.InitialContext", CommonAnnotationBeanPostProcessor.class.getClassLoader());
+          "javax.naming.InitialContext", CommonAnnotationBeanPostProcessor.class);
 
   private static final Set<Class<? extends Annotation>> resourceAnnotationTypes = new LinkedHashSet<>(4);
 
@@ -212,7 +212,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
    * @param resourceType the resource type to ignore
    */
   public void ignoreResourceType(String resourceType) {
-    Assert.notNull(resourceType, "Ignored resource type must not be null");
+    Assert.notNull(resourceType, "Ignored resource type is required");
     this.ignoredResourceTypes.add(resourceType);
   }
 
@@ -259,7 +259,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
    * @see #setAlwaysUseJndiLookup
    */
   public void setJndiFactory(BeanFactory jndiFactory) {
-    Assert.notNull(jndiFactory, "BeanFactory must not be null");
+    Assert.notNull(jndiFactory, "jndiFactory is required");
     this.jndiFactory = jndiFactory;
   }
 
@@ -278,7 +278,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
    * @see #setAlwaysUseJndiLookup
    */
   public void setResourceFactory(BeanFactory resourceFactory) {
-    Assert.notNull(resourceFactory, "BeanFactory must not be null");
+    Assert.notNull(resourceFactory, "resourceFactory is required");
     this.resourceFactory = resourceFactory;
   }
 

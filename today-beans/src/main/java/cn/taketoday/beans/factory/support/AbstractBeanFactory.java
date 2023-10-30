@@ -117,6 +117,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   /** object factories */
   protected final ConcurrentHashMap<Class<?>, Object> objectFactories = new ConcurrentHashMap<>(16);
+
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   /** @since 4.0 */
@@ -701,7 +702,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Override
   public void registerResolvableDependency(Class<?> dependencyType, @Nullable Object autowiredValue) {
-    Assert.notNull(dependencyType, "Dependency type must not be null");
+    Assert.notNull(dependencyType, "Dependency type is required");
     if (autowiredValue != null) {
       if (!(autowiredValue instanceof Supplier<?> || dependencyType.isInstance(autowiredValue))) {
         throw new IllegalArgumentException("Value [" + autowiredValue +
@@ -1106,8 +1107,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Override
   public void registerScope(String scopeName, Scope scope) {
-    Assert.notNull(scope, "scope object must not be null");
-    Assert.notNull(scopeName, "scope name must not be null");
+    Assert.notNull(scope, "scope object is required");
+    Assert.notNull(scopeName, "scope name is required");
     if (Scope.SINGLETON.equals(scopeName) || Scope.PROTOTYPE.equals(scopeName)) {
       throw new IllegalArgumentException("Cannot replace existing scopes 'singleton' and 'prototype'");
     }
@@ -1128,7 +1129,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   @Override
   @Nullable
   public Scope getRegisteredScope(String scopeName) {
-    Assert.notNull(scopeName, "Scope identifier must not be null");
+    Assert.notNull(scopeName, "Scope identifier is required");
     return this.scopes.get(scopeName);
   }
 
@@ -1209,7 +1210,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Override
   public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
-    Assert.notNull(otherFactory, "BeanFactory must not be null");
+    Assert.notNull(otherFactory, "BeanFactory is required");
     setBeanClassLoader(otherFactory.getBeanClassLoader());
     setCacheBeanMetadata(otherFactory.isCacheBeanMetadata());
     setConversionService(otherFactory.getConversionService());
@@ -1257,7 +1258,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Override
   public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+    Assert.notNull(beanPostProcessor, "BeanPostProcessor is required");
     invalidatePostProcessorsCache();
 
     postProcessors.remove(beanPostProcessor);
@@ -1661,7 +1662,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Override
   public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
-    Assert.notNull(valueResolver, "StringValueResolver must not be null");
+    Assert.notNull(valueResolver, "StringValueResolver is required");
     this.embeddedValueResolvers.add(valueResolver);
   }
 
@@ -1689,7 +1690,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   // @since 4.0
   @Override
   public void addPropertyEditorRegistrar(PropertyEditorRegistrar registrar) {
-    Assert.notNull(registrar, "PropertyEditorRegistrar must not be null");
+    Assert.notNull(registrar, "PropertyEditorRegistrar is required");
     this.propertyEditorRegistrars.add(registrar);
   }
 
@@ -1719,8 +1720,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Override
   public void registerCustomEditor(Class<?> requiredType, Class<? extends PropertyEditor> propertyEditorClass) {
-    Assert.notNull(requiredType, "Required type must not be null");
-    Assert.notNull(propertyEditorClass, "PropertyEditor class must not be null");
+    Assert.notNull(requiredType, "Required type is required");
+    Assert.notNull(propertyEditorClass, "PropertyEditor class is required");
     this.customEditors.put(requiredType, propertyEditorClass);
   }
 

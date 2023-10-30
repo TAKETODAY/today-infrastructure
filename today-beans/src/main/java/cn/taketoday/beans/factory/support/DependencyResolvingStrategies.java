@@ -19,8 +19,6 @@ package cn.taketoday.beans.factory.support;
 
 import java.util.List;
 
-import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
@@ -38,6 +36,12 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
   private final ArrayHolder<DependencyResolvingStrategy> strategies
           = ArrayHolder.forClass(DependencyResolvingStrategy.class);
 
+  public DependencyResolvingStrategies() { }
+
+  public DependencyResolvingStrategies(List<DependencyResolvingStrategy> strategyList) {
+    getStrategies().addAll(strategyList);
+  }
+
   @Override
   public Object resolveDependency(DependencyDescriptor descriptor, Context context) {
     for (DependencyResolvingStrategy resolvingStrategy : strategies) {
@@ -49,24 +53,10 @@ public class DependencyResolvingStrategies implements DependencyResolvingStrateg
     return null;
   }
 
-  public void initStrategies(@Nullable BeanFactory beanFactory) {
+  public void initStrategies(@Nullable ClassLoader classLoader) {
     LoggerFactory.getLogger(DependencyResolvingStrategies.class)
             .debug("Initialize dependency-resolving-strategies");
-
-    List<DependencyResolvingStrategy> strategies;
-    if (beanFactory != null) {
-      ClassLoader beanClassLoader = null;
-      if (beanFactory instanceof ConfigurableBeanFactory configurable) {
-        beanClassLoader = configurable.getBeanClassLoader();
-      }
-      strategies = TodayStrategies.find(DependencyResolvingStrategy.class,
-              beanClassLoader, BeanFactoryAwareInstantiator.from(beanFactory));
-    }
-    else {
-      strategies = TodayStrategies.find(DependencyResolvingStrategy.class);
-    }
-
-    this.strategies.addAll(strategies);
+    this.strategies.addAll(TodayStrategies.find(DependencyResolvingStrategy.class, classLoader));
   }
 
   public ArrayHolder<DependencyResolvingStrategy> getStrategies() {

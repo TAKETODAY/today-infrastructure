@@ -40,6 +40,8 @@ import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.ExpressionEvaluator;
 import cn.taketoday.beans.factory.support.DependencyInjector;
+import cn.taketoday.beans.factory.support.DependencyResolvingStrategies;
+import cn.taketoday.beans.factory.support.DependencyResolvingStrategy;
 import cn.taketoday.beans.support.ResourceEditorRegistrar;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
@@ -630,8 +632,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     logger.debug("Registering framework components");
 
     BootstrapContext bootstrapContext = getBootstrapContext();
+    beanFactory.registerSingleton(getDependencyInjector(bootstrapContext));
 
-    beanFactory.registerSingleton(getInjector());
     if (!beanFactory.containsLocalBean(BootstrapContext.BEAN_NAME)) {
       beanFactory.registerSingleton(BootstrapContext.BEAN_NAME, bootstrapContext);
     }
@@ -645,6 +647,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     if (!beanFactory.containsLocalBean(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME)) {
       beanFactory.registerSingleton(Environment.SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
     }
+  }
+
+  private DependencyInjector getDependencyInjector(BootstrapContext bootstrapContext) {
+    DependencyInjector injector = getInjector();
+    var strategies = TodayStrategies.find(DependencyResolvingStrategy.class, getClassLoader(), bootstrapContext);
+    injector.setResolvingStrategies(new DependencyResolvingStrategies(strategies));
+    return injector;
   }
 
   /**
@@ -1035,7 +1044,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
   @Override
   public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
-    Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
+    Assert.notNull(postProcessor, "BeanFactoryPostProcessor is required");
 
     factoryPostProcessors.add(postProcessor);
   }
@@ -1556,7 +1565,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
   @Override
   public void removeApplicationListener(ApplicationListener<?> listener) {
-    Assert.notNull(listener, "ApplicationListener must not be null");
+    Assert.notNull(listener, "ApplicationListener is required");
     if (applicationEventMulticaster != null) {
       applicationEventMulticaster.removeApplicationListener(listener);
     }
