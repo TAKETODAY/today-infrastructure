@@ -513,9 +513,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
   @Override
   protected boolean hasCorsConfigurationSource(Object handler) {
-    return super.hasCorsConfigurationSource(handler) ||
-            (handler instanceof HandlerMethod handlerMethod &&
-                    this.mappingRegistry.getCorsConfiguration(handlerMethod) != null);
+    return super.hasCorsConfigurationSource(handler)
+            || (handler instanceof HandlerMethod handlerMethod
+            && mappingRegistry.getCorsConfiguration(handlerMethod) != null);
   }
 
   @Override
@@ -705,9 +705,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   final class MappingRegistry extends MapCache<Method, HandlerInterceptor[], HandlerMethod> {
 
     public final HashMap<T, MappingRegistration<T>> registrations = new HashMap<>();
+
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+
     private final LinkedMultiValueMap<String, T> pathLookup = new LinkedMultiValueMap<>();
+
     private final ConcurrentHashMap<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
+
     private final ConcurrentHashMap<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
 
     /**

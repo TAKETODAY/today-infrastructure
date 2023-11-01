@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +82,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
   private final boolean combine;
 
   RequestMappingInfo(@Nullable String name,
-          PathPatternsRequestCondition pathPatternsCondition,
+          PathPatternsRequestCondition pathPatterns,
           RequestMethodsRequestCondition methodsCondition,
           ParamsRequestCondition paramsCondition,
           HeadersRequestCondition headersCondition,
@@ -102,11 +99,11 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     this.consumesCondition = consumesCondition;
     this.producesCondition = producesCondition;
     this.customConditionHolder = customCondition;
-    this.pathPatternsCondition = pathPatternsCondition;
+    this.pathPatternsCondition = pathPatterns;
     this.combine = combine;
 
     this.hashCode = calculateHashCode(
-            pathPatternsCondition,
+            pathPatterns,
             methodsCondition, paramsCondition, headersCondition,
             consumesCondition, producesCondition, customConditionHolder);
   }
@@ -289,8 +286,8 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     if (custom == null) {
       return null;
     }
-    return new RequestMappingInfo(name, pathPatterns,
-            methods, params, headers, consumes, produces, custom, options, combine);
+    return new RequestMappingInfo(name, pathPatterns, methods, params,
+            headers, consumes, produces, custom, options, combine);
   }
 
   /**
@@ -366,8 +363,7 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
     return this.hashCode;
   }
 
-  private static int calculateHashCode(
-          PathPatternsRequestCondition pathPatterns,
+  private static int calculateHashCode(PathPatternsRequestCondition pathPatterns,
           RequestMethodsRequestCondition methods, ParamsRequestCondition params, HeadersRequestCondition headers,
           ConsumesRequestCondition consumes, ProducesRequestCondition produces, RequestConditionHolder custom) {
 

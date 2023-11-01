@@ -17,18 +17,17 @@
 
 package cn.taketoday.web.handler.condition;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -39,21 +38,23 @@ import cn.taketoday.web.util.pattern.PathPatternParser;
  * against a set of URL path patterns.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class PathPatternsRequestCondition extends AbstractRequestCondition<PathPatternsRequestCondition> {
 
-  private static final SortedSet<PathPattern> EMPTY_PATH_PATTERN =
-          new TreeSet<>(Collections.singleton(PathPatternParser.defaultInstance.parse("")));
-
   private static final Set<String> EMPTY_PATH = Collections.singleton("");
 
-  private static final SortedSet<PathPattern> ROOT_PATH_PATTERNS =
-          new TreeSet<>(List.of(PathPatternParser.defaultInstance.parse(""),
-                  PathPatternParser.defaultInstance.parse("/")));
+  private static final PathPattern[] EMPTY_PATH_PATTERN = {
+          PathPatternParser.defaultInstance.parse("")
+  };
 
-  // TODO use patterns array
-  private final SortedSet<PathPattern> patterns;
+  private static final PathPattern[] ROOT_PATH_PATTERNS = {
+          EMPTY_PATH_PATTERN[0],
+          PathPatternParser.defaultInstance.parse("/")
+  };
+
+  private final PathPattern[] patterns;
 
   /**
    * Default constructor resulting in an {@code ""} (empty path) mapping.
@@ -69,19 +70,19 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
     this(parse(parser, patterns));
   }
 
-  private static SortedSet<PathPattern> parse(PathPatternParser parser, String... patterns) {
+  private static PathPattern[] parse(PathPatternParser parser, String... patterns) {
     if (patterns.length == 0 || (patterns.length == 1 && StringUtils.isBlank(patterns[0]))) {
       return EMPTY_PATH_PATTERN;
     }
-    SortedSet<PathPattern> result = new TreeSet<>();
+    TreeSet<PathPattern> result = new TreeSet<>();
     for (String path : patterns) {
       String pathPattern = StringUtils.prependLeadingSlash(path);
       result.add(parser.parse(pathPattern));
     }
-    return result;
+    return result.toArray(new PathPattern[0]);
   }
 
-  private PathPatternsRequestCondition(SortedSet<PathPattern> patterns) {
+  private PathPatternsRequestCondition(PathPattern[] patterns) {
     this.patterns = patterns;
   }
 
@@ -89,13 +90,13 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    * Return the patterns in this condition. If only the first (top) pattern
    * is needed use {@link #getFirstPattern()}.
    */
-  public Set<PathPattern> getPatterns() {
+  public PathPattern[] getPatterns() {
     return this.patterns;
   }
 
   @Override
   protected Collection<PathPattern> getContent() {
-    return this.patterns;
+    return Arrays.asList(patterns);
   }
 
   @Override
@@ -107,7 +108,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    * Return the first pattern.
    */
   public PathPattern getFirstPattern() {
-    return this.patterns.first();
+    return this.patterns[0];
   }
 
   /**
@@ -139,8 +140,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    */
   public Set<String> getPatternValues() {
     return isEmptyPathMapping() ? EMPTY_PATH :
-           getPatterns()
-                   .stream()
+           Arrays.stream(patterns)
                    .map(PathPattern::getPatternString)
                    .collect(Collectors.toSet());
   }
@@ -172,7 +172,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
           combined.add(pattern1.combine(pattern2));
         }
       }
-      return new PathPatternsRequestCondition(combined);
+      return new PathPatternsRequestCondition(combined.toArray(new PathPattern[0]));
     }
   }
 
@@ -189,22 +189,35 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   @Nullable
   public PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
     PathContainer lookupPath = request.getLookupPath();
-    SortedSet<PathPattern> matches = getMatchingPatterns(lookupPath);
+    PathPattern[] matches = getMatchingPatterns(lookupPath);
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
 
   @Nullable
-  private SortedSet<PathPattern> getMatchingPatterns(PathContainer lookupPath) {
-    TreeSet<PathPattern> result = null;
+  private PathPattern[] getMatchingPatterns(PathContainer lookupPath) {
+    PathPattern[] pathPatterns = new PathPattern[patterns.length];
+    int i = 0;
     for (PathPattern pattern : this.patterns) {
       if (pattern.matches(lookupPath)) {
-        if (result == null) {
-          result = new TreeSet<>();
-        }
-        result.add(pattern);
+        pathPatterns[i++] = pattern;
       }
     }
-    return result;
+    if (i == 0) {
+      return null;
+    }
+
+    if (i == 1 && this.patterns.length == 1) {
+      return pathPatterns;
+    }
+
+    PathPattern[] patterns = new PathPattern[i];
+    if (i == 1) {
+      patterns[0] = pathPatterns[0];
+    }
+    else {
+      System.arraycopy(pathPatterns, 0, patterns, 0, i);
+    }
+    return patterns;
   }
 
   /**
@@ -219,8 +232,8 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
    */
   @Override
   public int compareTo(PathPatternsRequestCondition other, RequestContext request) {
-    Iterator<PathPattern> iterator = this.patterns.iterator();
-    Iterator<PathPattern> iteratorOther = other.getPatterns().iterator();
+    var iterator = new ArrayIterator<>(patterns);
+    var iteratorOther = new ArrayIterator<>(other.patterns);
     while (iterator.hasNext() && iteratorOther.hasNext()) {
       int result = PathPattern.SPECIFICITY_COMPARATOR.compare(iterator.next(), iteratorOther.next());
       if (result != 0) {
