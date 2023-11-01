@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +75,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Andy Clement
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PathContainer
  * @since 4.0
  */
@@ -97,8 +95,8 @@ public class PathPattern implements Comparable<PathPattern> {
    */
   public static final Comparator<PathPattern> SPECIFICITY_COMPARATOR =
           Comparator.nullsLast(
-                  Comparator.<PathPattern>comparingInt(p -> p.isCatchAll() ? 1 : 0)
-                          .thenComparingInt(p -> p.isCatchAll() ? scoreByNormalizedLength(p) : 0)
+                  Comparator.<PathPattern>comparingInt(p -> p.catchAll ? 1 : 0)
+                          .thenComparingInt(p -> p.catchAll ? scoreByNormalizedLength(p) : 0)
                           .thenComparingInt(PathPattern::getScore)
                           .thenComparingInt(PathPattern::scoreByNormalizedLength)
           );
@@ -562,11 +560,11 @@ public class PathPattern implements Comparable<PathPattern> {
    * @return {@code true} has more than zero elements
    */
   private boolean hasLength(@Nullable PathContainer container) {
-    return container != null && container.elements().size() > 0;
+    return container != null && !container.elements().isEmpty();
   }
 
   private static int scoreByNormalizedLength(PathPattern pattern) {
-    return -pattern.getNormalizedLength();
+    return -pattern.normalizedLength;
   }
 
   private boolean pathContainerIsJustSeparator(PathContainer pathContainer) {
@@ -581,9 +579,19 @@ public class PathPattern implements Comparable<PathPattern> {
    */
   public static class PathRemainingMatchInfo {
 
-    private final PathContainer pathMatched;
-    private final PathContainer pathRemaining;
-    private final PathMatchInfo pathMatchInfo;
+    /**
+     * Return the part of a path that was matched by a pattern.
+     *
+     * @since 4.0
+     */
+    public final PathContainer pathMatched;
+
+    /**
+     * Return the part of a path that was not matched by a pattern.
+     */
+    public final PathContainer pathRemaining;
+
+    public final PathMatchInfo pathMatchInfo;
 
     PathRemainingMatchInfo(PathContainer pathMatched, PathContainer pathRemaining) {
       this(pathMatched, pathRemaining, PathMatchInfo.EMPTY);
@@ -594,22 +602,6 @@ public class PathPattern implements Comparable<PathPattern> {
       this.pathRemaining = pathRemaining;
       this.pathMatched = pathMatched;
       this.pathMatchInfo = pathMatchInfo;
-    }
-
-    /**
-     * Return the part of a path that was matched by a pattern.
-     *
-     * @since 4.0
-     */
-    public PathContainer getPathMatched() {
-      return this.pathMatched;
-    }
-
-    /**
-     * Return the part of a path that was not matched by a pattern.
-     */
-    public PathContainer getPathRemaining() {
-      return this.pathRemaining;
     }
 
     /**

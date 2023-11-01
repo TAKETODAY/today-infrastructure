@@ -1038,7 +1038,7 @@ public abstract class RequestPredicates {
 
     private static RequestPath requestPath(RequestPath original, PathPattern.PathRemainingMatchInfo info) {
       StringBuilder contextPath = new StringBuilder(original.contextPath().value());
-      contextPath.append(info.getPathMatched().value());
+      contextPath.append(info.pathMatched.value());
       int length = contextPath.length();
       if (length > 0 && contextPath.charAt(length - 1) == '/') {
         contextPath.setLength(length - 1);

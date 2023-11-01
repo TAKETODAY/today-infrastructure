@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -277,22 +274,22 @@ public class PathPatternTests {
   @Test
   public void pathRemainderBasicCases_spr15336() {
     // Cover all PathElement kinds
-    assertThat(getPathRemaining("/foo", "/foo/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/foo", "/foo/").getPathRemaining().value()).isEqualTo("/");
-    assertThat(getPathRemaining("/foo*", "/foo/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/*", "/foo/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/{foo}", "/foo/bar").getPathRemaining().value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/foo", "/foo/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/foo", "/foo/").pathRemaining.value()).isEqualTo("/");
+    assertThat(getPathRemaining("/foo*", "/foo/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/*", "/foo/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/{foo}", "/foo/bar").pathRemaining.value()).isEqualTo("/bar");
     assertThat(getPathRemaining("/foo", "/bar/baz")).isNull();
-    assertThat(getPathRemaining("/**", "/foo/bar").getPathRemaining().value()).isEqualTo("");
-    assertThat(getPathRemaining("/{*bar}", "/foo/bar").getPathRemaining().value()).isEqualTo("");
-    assertThat(getPathRemaining("/a?b/d?e", "/aab/dde/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/{abc}abc", "/xyzabc/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/*y*", "/xyzxyz/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/", "/").getPathRemaining().value()).isEqualTo("");
-    assertThat(getPathRemaining("/", "/a").getPathRemaining().value()).isEqualTo("a");
-    assertThat(getPathRemaining("/", "/a/").getPathRemaining().value()).isEqualTo("a/");
-    assertThat(getPathRemaining("/a{abc}", "/a/bar").getPathRemaining().value()).isEqualTo("/bar");
-    assertThat(getPathRemaining("/foo//", "/foo///bar").getPathRemaining().value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/**", "/foo/bar").pathRemaining.value()).isEqualTo("");
+    assertThat(getPathRemaining("/{*bar}", "/foo/bar").pathRemaining.value()).isEqualTo("");
+    assertThat(getPathRemaining("/a?b/d?e", "/aab/dde/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/{abc}abc", "/xyzabc/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/*y*", "/xyzxyz/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/", "/").pathRemaining.value()).isEqualTo("");
+    assertThat(getPathRemaining("/", "/a").pathRemaining.value()).isEqualTo("a");
+    assertThat(getPathRemaining("/", "/a/").pathRemaining.value()).isEqualTo("a/");
+    assertThat(getPathRemaining("/a{abc}", "/a/bar").pathRemaining.value()).isEqualTo("/bar");
+    assertThat(getPathRemaining("/foo//", "/foo///bar").pathRemaining.value()).isEqualTo("/bar");
   }
 
   @Test
@@ -340,34 +337,34 @@ public class PathPatternTests {
     // 'the match' it starts with a separator
     assertThat(parse("/resource/**").matchStartOfPath(toPathContainer("/resourceX"))).isNull();
     assertThat(parse("/resource/**")
-            .matchStartOfPath(toPathContainer("/resource")).getPathRemaining().value()).isEqualTo("");
+            .matchStartOfPath(toPathContainer("/resource")).pathRemaining.value()).isEqualTo("");
 
     // Similar to above for the capture-the-rest variant
     assertThat(parse("/resource/{*foo}").matchStartOfPath(toPathContainer("/resourceX"))).isNull();
     assertThat(parse("/resource/{*foo}")
-            .matchStartOfPath(toPathContainer("/resource")).getPathRemaining().value()).isEqualTo("");
+            .matchStartOfPath(toPathContainer("/resource")).pathRemaining.value()).isEqualTo("");
 
     PathPattern.PathRemainingMatchInfo pri = parse("/aaa/{bbb}/c?d/e*f/*/g")
             .matchStartOfPath(toPathContainer("/aaa/b/ccd/ef/x/g/i"));
     assertThat(pri).isNotNull();
-    assertThat(pri.getPathRemaining().value()).isEqualTo("/i");
+    assertThat(pri.pathRemaining.value()).isEqualTo("/i");
     assertThat(pri.getUriVariables().get("bbb")).isEqualTo("b");
 
     pri = parse("/aaa/{bbb}/c?d/e*f/*/g/").matchStartOfPath(toPathContainer("/aaa/b/ccd/ef/x/g/i"));
     assertThat(pri).isNotNull();
-    assertThat(pri.getPathRemaining().value()).isEqualTo("i");
+    assertThat(pri.pathRemaining.value()).isEqualTo("i");
     assertThat(pri.getUriVariables().get("bbb")).isEqualTo("b");
 
     pri = parse("/{aaa}_{bbb}/e*f/{x}/g").matchStartOfPath(toPathContainer("/aa_bb/ef/x/g/i"));
     assertThat(pri).isNotNull();
-    assertThat(pri.getPathRemaining().value()).isEqualTo("/i");
+    assertThat(pri.pathRemaining.value()).isEqualTo("/i");
     assertThat(pri.getUriVariables().get("aaa")).isEqualTo("aa");
     assertThat(pri.getUriVariables().get("bbb")).isEqualTo("bb");
     assertThat(pri.getUriVariables().get("x")).isEqualTo("x");
 
     assertThat(parse("/a/b").matchStartOfPath(toPathContainer(""))).isNull();
-    assertThat(parse("").matchStartOfPath(toPathContainer("/a/b")).getPathRemaining().value()).isEqualTo("/a/b");
-    assertThat(parse("").matchStartOfPath(toPathContainer("")).getPathRemaining().value()).isEqualTo("");
+    assertThat(parse("").matchStartOfPath(toPathContainer("/a/b")).pathRemaining.value()).isEqualTo("/a/b");
+    assertThat(parse("").matchStartOfPath(toPathContainer("")).pathRemaining.value()).isEqualTo("");
   }
 
   @Test
@@ -563,33 +560,33 @@ public class PathPatternTests {
     // It would be nice to partially match a path and get any bound variables in one step
     pp = parse("/{this}/{one}/{here}");
     pri = getPathRemaining(pp, "/foo/bar/goo/boo");
-    assertThat(pri.getPathRemaining().value()).isEqualTo("/boo");
-    assertThat(pri.getPathMatched().value()).isEqualTo("/foo/bar/goo");
+    assertThat(pri.pathRemaining.value()).isEqualTo("/boo");
+    assertThat(pri.pathMatched.value()).isEqualTo("/foo/bar/goo");
     assertThat(pri.getUriVariables().get("this")).isEqualTo("foo");
     assertThat(pri.getUriVariables().get("one")).isEqualTo("bar");
     assertThat(pri.getUriVariables().get("here")).isEqualTo("goo");
 
     pp = parse("/aaa/{foo}");
     pri = getPathRemaining(pp, "/aaa/bbb");
-    assertThat(pri.getPathRemaining().value()).isEqualTo("");
-    assertThat(pri.getPathMatched().value()).isEqualTo("/aaa/bbb");
+    assertThat(pri.pathRemaining.value()).isEqualTo("");
+    assertThat(pri.pathMatched.value()).isEqualTo("/aaa/bbb");
     assertThat(pri.getUriVariables().get("foo")).isEqualTo("bbb");
 
     pp = parse("/aaa/bbb");
     pri = getPathRemaining(pp, "/aaa/bbb");
-    assertThat(pri.getPathRemaining().value()).isEqualTo("");
-    assertThat(pri.getPathMatched().value()).isEqualTo("/aaa/bbb");
+    assertThat(pri.pathRemaining.value()).isEqualTo("");
+    assertThat(pri.pathMatched.value()).isEqualTo("/aaa/bbb");
     assertThat(pri.getUriVariables().size()).isEqualTo(0);
 
     pp = parse("/*/{foo}/b*");
     pri = getPathRemaining(pp, "/foo");
     assertThat((Object) pri).isNull();
     pri = getPathRemaining(pp, "/abc/def/bhi");
-    assertThat(pri.getPathRemaining().value()).isEqualTo("");
+    assertThat(pri.pathRemaining.value()).isEqualTo("");
     assertThat(pri.getUriVariables().get("foo")).isEqualTo("def");
 
     pri = getPathRemaining(pp, "/abc/def/bhi/jkl");
-    assertThat(pri.getPathRemaining().value()).isEqualTo("/jkl");
+    assertThat(pri.pathRemaining.value()).isEqualTo("/jkl");
     assertThat(pri.getUriVariables().get("foo")).isEqualTo("def");
   }
 
