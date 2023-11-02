@@ -22,7 +22,6 @@ import java.net.InetSocketAddress;
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
 import cn.taketoday.framework.web.server.WebServer;
-import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.bootstrap.ServerBootstrap;
@@ -53,15 +52,7 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void start() {
-    try {
-      serverBootstrap.bind(listenAddress)
-              .sync();
-    }
-    catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      log.error("Interrupted", e);
-      throw new WebServerException("Interrupted", e);
-    }
+    serverBootstrap.bind(listenAddress);
   }
 
   @Override
