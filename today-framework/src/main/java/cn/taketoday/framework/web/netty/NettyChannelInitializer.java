@@ -18,9 +18,9 @@
 package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.lang.Assert;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
@@ -32,7 +32,7 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:34
  */
-public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
+public class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler {
 
   private final NettyChannelHandler nettyChannelHandler;
 
@@ -94,7 +94,7 @@ public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> i
   }
 
   @Override
-  protected void initChannel(final SocketChannel ch) {
+  protected void initChannel(final Channel ch) {
 
     ch.pipeline()
             .addLast("HttpServerCodec", new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders))

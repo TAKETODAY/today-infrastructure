@@ -302,7 +302,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     }
     finally {
       if (reset) {
-        RequestContextHolder.remove();
+        RequestContextHolder.cleanup();
       }
     }
   }

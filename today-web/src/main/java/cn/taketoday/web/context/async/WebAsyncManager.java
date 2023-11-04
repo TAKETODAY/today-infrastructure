@@ -367,7 +367,7 @@ public final class WebAsyncManager {
           result = interceptorChain.applyPostProcess(requestContext, callable, result);
         }
         setConcurrentResultAndDispatch(result);
-        RequestContextHolder.remove();
+        RequestContextHolder.cleanup();
       });
       interceptorChain.setTaskFuture(future);
     }

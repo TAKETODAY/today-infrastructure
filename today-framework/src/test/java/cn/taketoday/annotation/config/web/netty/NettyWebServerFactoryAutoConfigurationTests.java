@@ -64,7 +64,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
     @Component
     WebServerFactory webServerFactory(NettyChannelInitializer nettyChannelInitializer) {
       NettyWebServerFactory factory = new NettyWebServerFactory();
-      factory.setWorkThreadCount(100);
+      factory.setWorkerThreadCount(100);
       factory.setPort(0);
       factory.setNettyChannelInitializer(nettyChannelInitializer);
       return factory;

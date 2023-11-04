@@ -98,7 +98,7 @@ public class NettyChannelHandler extends DispatcherHandler
         exceptionCaught(ctx, e);
       }
       finally {
-        RequestContextHolder.remove();
+        RequestContextHolder.cleanup();
         ReferenceCountUtil.safeRelease(httpRequest);
       }
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +91,7 @@ class ServletTestExecutionListenerTests {
   void legacyWebTestCaseWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(LegacyWebTestCase.class);
 
-    RequestContextHolder.remove();
+    RequestContextHolder.cleanup();
     assertRequestAttributesDoNotExist();
 
     listener.beforeTestClass(testContext);
@@ -139,7 +136,7 @@ class ServletTestExecutionListenerTests {
   void atWebAppConfigTestCaseWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(AtWebAppConfigWebTestCase.class);
 
-    RequestContextHolder.remove();
+    RequestContextHolder.cleanup();
     listener.beforeTestClass(testContext);
     assertRequestAttributesDoNotExist();
 
@@ -164,7 +161,7 @@ class ServletTestExecutionListenerTests {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(NoAtWebAppConfigWebTestCase.class);
     given(testContext.getAttribute(ServletTestExecutionListener.ACTIVATE_LISTENER)).willReturn(true);
 
-    RequestContextHolder.remove();
+    RequestContextHolder.cleanup();
     listener.beforeTestClass(testContext);
     assertRequestAttributesDoNotExist();
 

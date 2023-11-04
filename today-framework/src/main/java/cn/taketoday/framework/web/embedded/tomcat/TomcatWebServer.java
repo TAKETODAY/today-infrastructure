@@ -111,7 +111,7 @@ public class TomcatWebServer implements WebServer {
   }
 
   private void initialize() throws WebServerException {
-    logger.info("Tomcat initialized with " + getPortsDescription(false));
+    logger.info("Tomcat initialized with {}", getPortsDescription(false));
     synchronized(this.monitor) {
       try {
         addInstanceIdToEngineName();

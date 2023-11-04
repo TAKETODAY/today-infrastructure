@@ -16,7 +16,7 @@ infra:
 
 logging:
   level:
-    web: trace
+    web: info
     root: info
 
 server:

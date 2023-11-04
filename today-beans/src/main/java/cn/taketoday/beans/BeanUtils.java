@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,12 +99,11 @@ public abstract class BeanUtils {
    *
    * @param beanClassName bean class name string
    * @return the instance of target class
-   * @throws ClassNotFoundException If the class was not found
    * @see #obtainConstructor(Class)
    * @since 2.1.2
    */
-  public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
-    return newInstance(ClassUtils.forName(beanClassName));
+  public static <T> T newInstance(String beanClassName, @Nullable ClassLoader classLoader) {
+    return newInstance(ClassUtils.resolveClassName(beanClassName, classLoader));
   }
 
   /**
@@ -120,8 +116,7 @@ public abstract class BeanUtils {
    * @see #obtainConstructor(Class)
    * @since 4.0
    */
-  public static <T> T newInstance(
-          Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
+  public static <T> T newInstance(Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
     Assert.notNull(injector, "ArgumentsResolver must not be null");
     Constructor<T> constructor = obtainConstructor(beanClass);
     return injector.inject(constructor, providedArgs);

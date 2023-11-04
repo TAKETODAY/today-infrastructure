@@ -109,7 +109,7 @@ public final class WebServerSslBundle implements SslBundle {
    * @return a {@link SslBundle} instance
    * @throws NoSuchSslBundleException if a bundle lookup fails
    */
-  public static SslBundle get(Ssl ssl) throws NoSuchSslBundleException {
+  public static SslBundle get(@Nullable Ssl ssl) throws NoSuchSslBundleException {
     return get(ssl, null);
   }
 
@@ -122,7 +122,7 @@ public final class WebServerSslBundle implements SslBundle {
    * @return a {@link SslBundle} instance
    * @throws NoSuchSslBundleException if a bundle lookup fails
    */
-  public static SslBundle get(Ssl ssl, @Nullable SslBundles sslBundles) throws NoSuchSslBundleException {
+  public static SslBundle get(@Nullable Ssl ssl, @Nullable SslBundles sslBundles) throws NoSuchSslBundleException {
     Assert.state(Ssl.isEnabled(ssl), "SSL is not enabled");
     String bundleName = ssl.getBundle();
     if (StringUtils.hasText(bundleName)) {
@@ -145,15 +145,6 @@ public final class WebServerSslBundle implements SslBundle {
       return createJksStoreBundle(ssl);
     }
     throw new IllegalStateException("SSL is enabled but no trust material is configured");
-  }
-
-  @Nullable
-  static SslBundle createCertificateFileSslStoreProviderDelegate(Ssl ssl) {
-    if (!hasCertificateProperties(ssl)) {
-      return null;
-    }
-    SslStoreBundle stores = createPemStoreBundle(ssl);
-    return new WebServerSslBundle(stores, ssl.getKeyPassword(), ssl);
   }
 
   private static boolean hasCertificateProperties(Ssl ssl) {

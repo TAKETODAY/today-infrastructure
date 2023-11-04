@@ -30,7 +30,8 @@ import io.netty.channel.EventLoopGroup;
 /**
  * Netty {@link WebServer}
  *
- * @author TODAY 2019-07-02 21:15
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-02 21:15
  */
 public class NettyWebServer implements WebServer {
 
@@ -39,11 +40,13 @@ public class NettyWebServer implements WebServer {
   private final InetSocketAddress listenAddress;
 
   private final EventLoopGroup childGroup;
+
   private final EventLoopGroup parentGroup;
+
   private final ServerBootstrap serverBootstrap;
 
-  public NettyWebServer(ServerBootstrap serverBootstrap, InetSocketAddress listenAddress,
-          EventLoopGroup parentGroup, EventLoopGroup childGroup) {
+  public NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup,
+          ServerBootstrap serverBootstrap, InetSocketAddress listenAddress) {
     this.serverBootstrap = serverBootstrap;
     this.listenAddress = listenAddress;
     this.parentGroup = parentGroup;
@@ -52,12 +55,13 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void start() {
+    log.info("Netty web server started on port: '{}'", getPort());
     serverBootstrap.bind(listenAddress);
   }
 
   @Override
   public void stop() {
-    log.info("Shutdown netty web server: [{}]", this);
+    log.info("Shutdown netty web server: [{}] on port: '{}'", this, getPort());
 
     shutdown();
   }

@@ -26,6 +26,7 @@ import cn.taketoday.util.DataSize;
  * @author Ivan Sopov
  * @author Andy Wilkinson
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Compression {

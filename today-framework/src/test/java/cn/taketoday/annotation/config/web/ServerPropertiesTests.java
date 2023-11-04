@@ -500,23 +500,23 @@ class ServerPropertiesTests {
 
   @Test
   void nettyWorkThreadCount() {
-    assertThat(this.properties.getNetty().getWorkThreadCount()).isNull();
+    assertThat(this.properties.getNetty().getWorkerThreads()).isNull();
 
-    bind("server.netty.workThreadCount", "10");
-    assertThat(this.properties.getNetty().getWorkThreadCount()).isEqualTo(10);
+    bind("server.netty.workerThreads", "10");
+    assertThat(this.properties.getNetty().getWorkerThreads()).isEqualTo(10);
 
-    bind("server.netty.work-thread-count", "100");
-    assertThat(this.properties.getNetty().getWorkThreadCount()).isEqualTo(100);
+    bind("server.netty.worker-threads", "100");
+    assertThat(this.properties.getNetty().getWorkerThreads()).isEqualTo(100);
   }
 
   @Test
   void nettyBossThreadCount() {
-    assertThat(this.properties.getNetty().getBossThreadCount()).isNull();
-    bind("server.netty.bossThreadCount", "10");
-    assertThat(this.properties.getNetty().getBossThreadCount()).isEqualTo(10);
+    assertThat(this.properties.getNetty().getAcceptorThreads()).isNull();
+    bind("server.netty.acceptorThreads", "10");
+    assertThat(this.properties.getNetty().getAcceptorThreads()).isEqualTo(10);
 
-    bind("server.netty.boss-thread-count", "100");
-    assertThat(this.properties.getNetty().getBossThreadCount()).isEqualTo(100);
+    bind("server.netty.acceptor-threads", "100");
+    assertThat(this.properties.getNetty().getAcceptorThreads()).isEqualTo(100);
   }
 
   @Test
@@ -542,12 +542,12 @@ class ServerPropertiesTests {
   }
 
   @Test
-  void nettyFastThreadLocal() {
-    bind("server.netty.fastThreadLocal", "false");
-    assertThat(this.properties.getNetty().isFastThreadLocal()).isEqualTo(false);
+  void maxConnection() {
+    bind("server.netty.maxConnection", "100");
+    assertThat(this.properties.getNetty().getMaxConnection()).isEqualTo(100);
 
-    bind("server.netty.fast-thread-local", "true");
-    assertThat(this.properties.getNetty().isFastThreadLocal()).isEqualTo(true);
+    bind("server.netty.max-connection", "1000");
+    assertThat(this.properties.getNetty().getMaxConnection()).isEqualTo(1000);
   }
 
   private Connector getDefaultConnector() {

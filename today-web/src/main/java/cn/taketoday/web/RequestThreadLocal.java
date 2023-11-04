@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * @author TODAY 2021/4/1 19:28
+ * @see cn.taketoday.framework.web.netty.FastRequestThreadLocal
  * @since 3.0
  */
 public abstract class RequestThreadLocal {

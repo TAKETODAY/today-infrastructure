@@ -17,6 +17,8 @@
 
 package cn.taketoday.annotation.config.web.netty;
 
+import java.util.List;
+
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -36,7 +38,6 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.framework.web.netty.FastRequestThreadLocal;
 import cn.taketoday.framework.web.netty.NettyChannelHandler;
 import cn.taketoday.framework.web.netty.NettyChannelInitializer;
 import cn.taketoday.framework.web.netty.NettyRequestConfig;
@@ -46,9 +47,7 @@ import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.util.PropertyMapper;
 import cn.taketoday.web.DispatcherHandler;
-import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.multipart.MultipartConfig;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
@@ -82,34 +81,23 @@ public class NettyWebServerFactoryAutoConfiguration {
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
-          NettyChannelInitializer nettyChannelInitializer,
-          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
+          NettyChannelInitializer nettyChannelInitializer, @Nullable SslBundles sslBundles,
+          @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.setNettyChannelInitializer(nettyChannelInitializer);
 
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(sslBundles).to(factory::setSslBundles);
-    map.from(applicationTemp).to(factory::setApplicationTemp);
-
-    map.from(serverProperties::getSsl).to(factory::setSsl);
-    map.from(serverProperties::getPort).to(factory::setPort);
-    map.from(serverProperties::getHttp2).to(factory::setHttp2);
-    map.from(serverProperties::getAddress).to(factory::setAddress);
-    map.from(serverProperties.getShutdown()).to(factory::setShutdown);
-    map.from(serverProperties::getCompression).to(factory::setCompression);
-
-    ServerProperties.Netty netty = serverProperties.getNetty();
-
-    map.from(netty::getLoggingLevel).to(factory::setLoggingLevel);
-    map.from(netty::getSocketChannel).to(factory::setSocketChannel);
-    map.from(netty::getBossThreadCount).to(factory::setBossThreadCount);
-    map.from(netty::getWorkThreadCount).to(factory::setWorkThreadCount);
-
-    // replace context holder
-    if (netty.isFastThreadLocal()) {
-      RequestContextHolder.replaceContextHolder(new FastRequestThreadLocal());
+    if (sslBundles != null) {
+      factory.setSslBundles(sslBundles);
     }
 
+    if (applicationTemp != null) {
+      factory.setApplicationTemp(applicationTemp);
+    }
+
+    serverProperties.applyTo(factory);
+
+    factory.applyFrom(serverProperties.getNetty());
+    factory.setBootstrapCustomizers(customizers);
     return factory;
   }
 

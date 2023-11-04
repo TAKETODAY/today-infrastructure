@@ -91,7 +91,7 @@ public class ServerProperties {
   @NestedConfigurationProperty
   private final EncodingProperties encoding = new EncodingProperties();
 
-//  @NestedConfigurationProperty
+  //  @NestedConfigurationProperty
   private final SessionProperties session = new SessionProperties();
 
   @NestedConfigurationProperty
@@ -116,16 +116,20 @@ public class ServerProperties {
   /**
    * Type of shutdown that the server will support.
    */
+  @Nullable
   private Shutdown shutdown = Shutdown.IMMEDIATE;
 
+  @Nullable
   @NestedConfigurationProperty
   private Ssl ssl;
 
+  @Nullable
   @NestedConfigurationProperty
-  private final Compression compression = new Compression();
+  private Compression compression;
 
+  @Nullable
   @NestedConfigurationProperty
-  private final Http2 http2 = new Http2();
+  private Http2 http2;
 
   private final Servlet servlet = new Servlet();
 
@@ -175,11 +179,12 @@ public class ServerProperties {
     this.maxHttpRequestHeaderSize = maxHttpRequestHeaderSize;
   }
 
+  @Nullable
   public Shutdown getShutdown() {
     return this.shutdown;
   }
 
-  public void setShutdown(Shutdown shutdown) {
+  public void setShutdown(@Nullable Shutdown shutdown) {
     this.shutdown = shutdown;
   }
 
@@ -187,18 +192,29 @@ public class ServerProperties {
     return this.error;
   }
 
+  @Nullable
   public Ssl getSsl() {
     return this.ssl;
   }
 
-  public void setSsl(Ssl ssl) {
+  public void setSsl(@Nullable Ssl ssl) {
     this.ssl = ssl;
   }
 
+  @Nullable
   public Compression getCompression() {
     return this.compression;
   }
 
+  public void setCompression(@Nullable Compression compression) {
+    this.compression = compression;
+  }
+
+  public void setHttp2(@Nullable Http2 http2) {
+    this.http2 = http2;
+  }
+
+  @Nullable
   public Http2 getHttp2() {
     return this.http2;
   }
@@ -246,6 +262,27 @@ public class ServerProperties {
 
   public SessionProperties getSession() {
     return this.session;
+  }
+
+  public void applyTo(ConfigurableWebServerFactory factory) {
+    if (ssl != null) {
+      factory.setSsl(ssl);
+    }
+    if (port != null) {
+      factory.setPort(port);
+    }
+
+    factory.setHttp2(http2);
+
+    if (address != null) {
+      factory.setAddress(address);
+    }
+
+    if (shutdown != null) {
+      factory.setShutdown(shutdown);
+    }
+
+    factory.setCompression(compression);
   }
 
   /**
@@ -1405,7 +1442,7 @@ public class ServerProperties {
      * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
      */
     @Nullable
-    private Integer workThreadCount;
+    private Integer workerThreads;
 
     /**
      * the number of threads that will be used by
@@ -1416,19 +1453,20 @@ public class ServerProperties {
      * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
      */
     @Nullable
-    private Integer bossThreadCount;
+    private Integer acceptorThreads;
+
+    /**
+     * The SOMAXCONN value of the current machine. If failed to get the value,  {@code 200} is used as a
+     * default value for Windows and {@code 128} for others.
+     */
+    @Nullable
+    private Integer maxConnection;
 
     @Nullable
     private Class<? extends ServerSocketChannel> socketChannel;
 
     @Nullable
     private LogLevel loggingLevel;
-
-    private boolean fastThreadLocal = true;
-
-    public void setBossThreadCount(@Nullable Integer bossThreadCount) {
-      this.bossThreadCount = bossThreadCount;
-    }
 
     public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
       this.loggingLevel = loggingLevel;
@@ -1438,12 +1476,21 @@ public class ServerProperties {
       this.socketChannel = socketChannel;
     }
 
-    public void setWorkThreadCount(@Nullable Integer workThreadCount) {
-      this.workThreadCount = workThreadCount;
+    public void setAcceptorThreads(@Nullable Integer acceptorThreads) {
+      this.acceptorThreads = acceptorThreads;
     }
 
-    public void setFastThreadLocal(boolean fastThreadLocal) {
-      this.fastThreadLocal = fastThreadLocal;
+    public void setWorkerThreads(@Nullable Integer workerThreads) {
+      this.workerThreads = workerThreads;
+    }
+
+    public void setMaxConnection(@Nullable Integer maxConnection) {
+      this.maxConnection = maxConnection;
+    }
+
+    @Nullable
+    public Integer getMaxConnection() {
+      return maxConnection;
     }
 
     @Nullable
@@ -1452,22 +1499,18 @@ public class ServerProperties {
     }
 
     @Nullable
-    public Integer getBossThreadCount() {
-      return bossThreadCount;
+    public Integer getAcceptorThreads() {
+      return acceptorThreads;
     }
 
     @Nullable
-    public Integer getWorkThreadCount() {
-      return workThreadCount;
+    public Integer getWorkerThreads() {
+      return workerThreads;
     }
 
     @Nullable
     public LogLevel getLoggingLevel() {
       return loggingLevel;
-    }
-
-    public boolean isFastThreadLocal() {
-      return fastThreadLocal;
     }
 
   }

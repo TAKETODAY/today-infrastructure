@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +41,7 @@ import io.undertow.util.HttpString;
  *
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class CompressionHttpHandlerFactory implements HttpHandlerFactory {
 
@@ -55,9 +53,6 @@ class CompressionHttpHandlerFactory implements HttpHandlerFactory {
 
   @Override
   public HttpHandler getHandler(HttpHandler next) {
-    if (!this.compression.isEnabled()) {
-      return next;
-    }
     ContentEncodingRepository repository = new ContentEncodingRepository();
     repository.addEncodingHandler("gzip", new GzipEncodingProvider(), 50,
             Predicates.and(getCompressionPredicates(this.compression)));

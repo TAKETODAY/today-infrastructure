@@ -28,7 +28,7 @@ import io.netty.util.concurrent.FastThreadLocal;
  * @author TODAY 2021/4/2 17:17
  * @see FastThreadLocal
  */
-public final class FastRequestThreadLocal extends RequestThreadLocal {
+final class FastRequestThreadLocal extends RequestThreadLocal {
   private final FastThreadLocal<RequestContext> threadLocal = new FastThreadLocal<>();
 
   @Override

@@ -15,29 +15,25 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web;
+package cn.taketoday.annotation.config.web.netty;
 
-import cn.taketoday.core.NamedThreadLocal;
+import io.netty.bootstrap.ServerBootstrap;
 
 /**
- * @author TODAY 2021/4/2 16:53
- * @since 3.0
+ * Strategy interface for customizing {@link ServerBootstrap netty server bootstrap}. Any
+ * beans of this type will get a callback with the ServerBootstrap before the server itself
+ * is started, so you can set options etc.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/11/4 13:52
  */
-final class DefaultRequestThreadLocal extends RequestThreadLocal {
-  private final NamedThreadLocal<RequestContext> threadLocal = new NamedThreadLocal<>("Current Request Context");
+public interface ServerBootstrapCustomizer {
 
-  @Override
-  public void remove() {
-    threadLocal.remove();
-  }
+  /**
+   * Customize the specified {@link ServerBootstrap}.
+   *
+   * @param bootstrap the server bootstrap to customize
+   */
+  void customize(ServerBootstrap bootstrap);
 
-  @Override
-  public RequestContext get() {
-    return threadLocal.get();
-  }
-
-  @Override
-  public void set(final RequestContext context) {
-    threadLocal.set(context);
-  }
 }

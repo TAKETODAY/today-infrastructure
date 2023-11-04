@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,22 +18,24 @@
 package cn.taketoday.framework.web.netty;
 
 import java.net.InetSocketAddress;
-import java.util.Locale;
+import java.util.List;
 
+import cn.taketoday.annotation.config.web.netty.ServerBootstrapCustomizer;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.kqueue.KQueue;
 import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -44,6 +43,7 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.NetUtil;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
@@ -53,10 +53,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/20 13:44
  */
-public class NettyWebServerFactory
-        extends AbstractConfigurableWebServerFactory implements WebServerFactory {
-
-  private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
+public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory implements WebServerFactory {
 
   static boolean epollPresent = ClassUtils.isPresent(
           "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServerFactory.class.getClassLoader());
@@ -72,7 +69,7 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int workThreadCount = 4;
+  private int workerThreadCount = 4;
 
   /**
    * the number of threads that will be used by
@@ -82,13 +79,21 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  private int bossThreadCount = 2;
+  private int acceptorThreadCount = 2;
+
+  /**
+   * The SOMAXCONN value of the current machine.  If failed to get the value,  {@code 200} is used as a
+   * default value for Windows and {@code 128} for others.
+   * <p>
+   * so_backlog
+   */
+  private int maxConnection = NetUtil.SOMAXCONN;
 
   @Nullable
-  private EventLoopGroup workGroup;
+  private EventLoopGroup workerGroup;
 
   @Nullable
-  private EventLoopGroup bossGroup;
+  private EventLoopGroup acceptorGroup;
 
   @Nullable
   private Class<? extends ServerSocketChannel> socketChannel;
@@ -97,32 +102,30 @@ public class NettyWebServerFactory
   private LogLevel loggingLevel;
 
   /**
-   * Framework Channel Initializer
+   * netty http channel initializer
    */
   @Nullable
   private NettyChannelInitializer nettyChannelInitializer;
 
   @Nullable
-  public EventLoopGroup getWorkGroup() {
-    return workGroup;
+  private List<ServerBootstrapCustomizer> bootstrapCustomizers;
+
+  /**
+   * EventLoopGroup for acceptor
+   *
+   * @param acceptorGroup acceptor
+   */
+  public void setAcceptorGroup(EventLoopGroup acceptorGroup) {
+    this.acceptorGroup = acceptorGroup;
   }
 
-  @Nullable
-  public EventLoopGroup getBossGroup() {
-    return bossGroup;
-  }
-
-  @Nullable
-  public Class<? extends ServerSocketChannel> getSocketChannel() {
-    return socketChannel;
-  }
-
-  public void setBossGroup(EventLoopGroup bossGroup) {
-    this.bossGroup = bossGroup;
-  }
-
-  public void setWorkGroup(EventLoopGroup workGroup) {
-    this.workGroup = workGroup;
+  /**
+   * set the worker EventLoopGroup
+   *
+   * @param workerGroup worker
+   */
+  public void setWorkerGroup(EventLoopGroup workerGroup) {
+    this.workerGroup = workerGroup;
   }
 
   public void setSocketChannel(Class<? extends ServerSocketChannel> socketChannel) {
@@ -137,8 +140,8 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public void setBossThreadCount(int bossThreadCount) {
-    this.bossThreadCount = bossThreadCount;
+  public void setAcceptorThreadCount(int acceptorThreadCount) {
+    this.acceptorThreadCount = acceptorThreadCount;
   }
 
   /**
@@ -149,8 +152,8 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public int getBossThreadCount() {
-    return bossThreadCount;
+  public int getAcceptorThreadCount() {
+    return acceptorThreadCount;
   }
 
   /**
@@ -161,8 +164,18 @@ public class NettyWebServerFactory
    *
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
-  public void setWorkThreadCount(int workThreadCount) {
-    this.workThreadCount = workThreadCount;
+  public void setWorkerThreadCount(int workThreadCount) {
+    this.workerThreadCount = workThreadCount;
+  }
+
+  /**
+   * The SOMAXCONN value of the current machine.  If failed to get the value,  {@code 200} is used as a
+   * default value for Windows and {@code 128} for others.
+   * <p>
+   * so_backlog
+   */
+  public void setMaxConnection(int maxConnection) {
+    this.maxConnection = maxConnection;
   }
 
   /**
@@ -174,9 +187,15 @@ public class NettyWebServerFactory
    * @see io.netty.util.concurrent.MultithreadEventExecutorGroup
    */
   public int getWorkThreadCount() {
-    return workThreadCount;
+    return workerThreadCount;
   }
 
+  /**
+   * set netty http channel initializer
+   * for prepare channel
+   *
+   * @param nettyChannelInitializer netty http channel initializer
+   */
   public void setNettyChannelInitializer(NettyChannelInitializer nettyChannelInitializer) {
     this.nettyChannelInitializer = nettyChannelInitializer;
   }
@@ -196,6 +215,10 @@ public class NettyWebServerFactory
     this.loggingLevel = loggingLevel;
   }
 
+  public void setBootstrapCustomizers(@Nullable List<ServerBootstrapCustomizer> bootstrapCustomizers) {
+    this.bootstrapCustomizers = bootstrapCustomizers;
+  }
+
   /**
    * Get {@link LoggingHandler} logging Level
    *
@@ -208,19 +231,33 @@ public class NettyWebServerFactory
     return loggingLevel;
   }
 
+  @Nullable
+  public EventLoopGroup getWorkerGroup() {
+    return workerGroup;
+  }
+
+  @Nullable
+  public EventLoopGroup getAcceptorGroup() {
+    return acceptorGroup;
+  }
+
+  @Nullable
+  public Class<? extends ServerSocketChannel> getSocketChannel() {
+    return socketChannel;
+  }
+
   /**
    * Subclasses can override this method to perform epoll is available logic
    */
   protected boolean epollIsAvailable() {
-    return epollPresent && "Linux".equalsIgnoreCase(System.getProperty("os.name"));
+    return epollPresent && Epoll.isAvailable();
   }
 
   /**
    * Subclasses can override this method to perform KQueue is available logic
    */
   protected boolean kQueueIsAvailable() {
-    return kQueuePresent
-            && System.getProperty("os.name").toUpperCase(Locale.ENGLISH).contains("BSD");
+    return kQueuePresent && KQueue.isAvailable();
   }
 
   @Override
@@ -236,32 +273,43 @@ public class NettyWebServerFactory
       KQueueDelegate.init(this);
     }
     else {
-      if (bossGroup == null) {
-        bossGroup = new NioEventLoopGroup(bossThreadCount, new DefaultThreadFactory("boss"));
+      if (acceptorGroup == null) {
+        acceptorGroup = new NioEventLoopGroup(acceptorThreadCount, new DefaultThreadFactory("acceptor"));
       }
-      if (workGroup == null) {
-        workGroup = new NioEventLoopGroup(workThreadCount, new DefaultThreadFactory("workers"));
+      if (workerGroup == null) {
+        workerGroup = new NioEventLoopGroup(workerThreadCount, new DefaultThreadFactory("workers"));
       }
       if (socketChannel == null) {
         socketChannel = NioServerSocketChannel.class;
       }
     }
 
-    bootstrap.group(bossGroup, workGroup);
+    Assert.state(workerGroup != null, "No 'workerGroup'");
+    Assert.state(acceptorGroup != null, "No 'acceptorGroup'");
+
+    bootstrap.group(acceptorGroup, workerGroup);
     bootstrap.channel(socketChannel);
+    bootstrap.option(ChannelOption.SO_BACKLOG, maxConnection);
+
+    if (loggingLevel != null) {
+      bootstrap.handler(new LoggingHandler(loggingLevel));
+    }
 
     NettyChannelInitializer channelInitializer = getNettyChannelInitializer();
     Assert.state(channelInitializer != null, "No NettyChannelInitializer");
-
     bootstrap.childHandler(channelInitializer);
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
+    if (bootstrapCustomizers != null) {
+      for (ServerBootstrapCustomizer customizer : bootstrapCustomizers) {
+        customizer.customize(bootstrap);
+      }
+    }
+
     postBootstrap(bootstrap);
-    Assert.state(bossGroup != null, "No 'bossGroup'");
-    Assert.state(workGroup != null, "No 'workGroup'");
 
     InetSocketAddress listenAddress = getListenAddress();
-    return new NettyWebServer(bootstrap, listenAddress, bossGroup, workGroup);
+    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap, listenAddress);
   }
 
   private InetSocketAddress getListenAddress() {
@@ -286,10 +334,7 @@ public class NettyWebServerFactory
    * @param bootstrap netty ServerBootstrap
    */
   protected void postBootstrap(ServerBootstrap bootstrap) {
-    log.info("Netty web server started on port: '{}'", getPort());
-    if (loggingLevel != null) {
-      bootstrap.handler(new LoggingHandler(loggingLevel));
-    }
+
   }
 
   @Nullable
@@ -297,35 +342,57 @@ public class NettyWebServerFactory
     return nettyChannelInitializer;
   }
 
+  public void applyFrom(ServerProperties.Netty netty) {
+    if (netty.getLoggingLevel() != null) {
+      setLoggingLevel(netty.getLoggingLevel());
+    }
+
+    if (netty.getSocketChannel() != null) {
+      setSocketChannel(netty.getSocketChannel());
+    }
+
+    if (netty.getAcceptorThreads() != null) {
+      setAcceptorThreadCount(netty.getAcceptorThreads());
+    }
+
+    if (netty.getWorkerThreads() != null) {
+      setWorkerThreadCount(netty.getWorkerThreads());
+    }
+
+    if (netty.getMaxConnection() != null) {
+      setMaxConnection(netty.getMaxConnection());
+    }
+  }
+
   static class EpollDelegate {
     static void init(ServerBootstrap bootstrap, NettyWebServerFactory factory) {
       bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
-      if (factory.socketChannel == null) {
+      if (factory.getSocketChannel() == null) {
         factory.setSocketChannel(EpollServerSocketChannel.class);
       }
-      if (factory.bossGroup == null) {
-        factory.setBossGroup(new EpollEventLoopGroup(
-                factory.getBossThreadCount(), new DefaultThreadFactory("epoll-boss")));
+      if (factory.getAcceptorGroup() == null) {
+        factory.setAcceptorGroup(new EpollEventLoopGroup(
+                factory.acceptorThreadCount, new DefaultThreadFactory("epoll-acceptor")));
       }
-      if (factory.workGroup == null) {
-        factory.setWorkGroup(new EpollEventLoopGroup(
-                factory.getWorkThreadCount(), new DefaultThreadFactory("epoll-workers")));
+      if (factory.getWorkerGroup() == null) {
+        factory.setWorkerGroup(new EpollEventLoopGroup(
+                factory.workerThreadCount, new DefaultThreadFactory("epoll-workers")));
       }
     }
   }
 
   static class KQueueDelegate {
     static void init(NettyWebServerFactory factory) {
-      if (factory.socketChannel == null) {
+      if (factory.getSocketChannel() == null) {
         factory.setSocketChannel(KQueueServerSocketChannel.class);
       }
-      if (factory.bossGroup == null) {
-        factory.setBossGroup(new KQueueEventLoopGroup(
-                factory.getBossThreadCount(), new DefaultThreadFactory("kQueue-boss")));
+      if (factory.getAcceptorGroup() == null) {
+        factory.setAcceptorGroup(new KQueueEventLoopGroup(
+                factory.workerThreadCount, new DefaultThreadFactory("kQueue-acceptor")));
       }
-      if (factory.workGroup == null) {
-        factory.setWorkGroup(new KQueueEventLoopGroup(
-                factory.getWorkThreadCount(), new DefaultThreadFactory("kQueue-workers")));
+      if (factory.getWorkerGroup() == null) {
+        factory.setWorkerGroup(new KQueueEventLoopGroup(
+                factory.workerThreadCount, new DefaultThreadFactory("kQueue-workers")));
       }
     }
   }

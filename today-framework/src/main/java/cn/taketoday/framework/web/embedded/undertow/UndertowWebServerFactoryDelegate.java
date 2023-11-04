@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +19,6 @@ package cn.taketoday.framework.web.embedded.undertow;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,6 +33,7 @@ import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -50,6 +46,7 @@ import io.undertow.UndertowOptions;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class UndertowWebServerFactoryDelegate {
 
@@ -86,13 +83,13 @@ class UndertowWebServerFactoryDelegate {
   private boolean useForwardHeaders;
 
   void setBuilderCustomizers(Collection<? extends UndertowBuilderCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.builderCustomizers = new LinkedHashSet<>(customizers);
   }
 
   void addBuilderCustomizers(UndertowBuilderCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
-    this.builderCustomizers.addAll(Arrays.asList(customizers));
+    Assert.notNull(customizers, "Customizers is required");
+    CollectionUtils.addAll(builderCustomizers, customizers);
   }
 
   Collection<UndertowBuilderCustomizer> getBuilderCustomizers() {
@@ -194,8 +191,7 @@ class UndertowWebServerFactoryDelegate {
   List<HttpHandlerFactory> createHttpHandlerFactories(AbstractConfigurableWebServerFactory webServerFactory,
           HttpHandlerFactory... initialHttpHandlerFactories) {
     List<HttpHandlerFactory> factories = createHttpHandlerFactories(webServerFactory.getCompression(),
-            this.useForwardHeaders, webServerFactory.getServerHeader(), webServerFactory.getShutdown(),
-            initialHttpHandlerFactories);
+            this.useForwardHeaders, webServerFactory.getServerHeader(), webServerFactory.getShutdown(), initialHttpHandlerFactories);
     if (isAccessLogEnabled()) {
       factories.add(new AccessLogHttpHandlerFactory(this.accessLogDirectory, this.accessLogPattern,
               this.accessLogPrefix, this.accessLogSuffix, this.accessLogRotate));
@@ -206,15 +202,16 @@ class UndertowWebServerFactoryDelegate {
   static List<HttpHandlerFactory> createHttpHandlerFactories(
           @Nullable Compression compression, boolean useForwardHeaders,
           @Nullable String serverHeader, Shutdown shutdown, HttpHandlerFactory... initialHttpHandlerFactories) {
-    List<HttpHandlerFactory> factories = new ArrayList<>(Arrays.asList(initialHttpHandlerFactories));
-    if (compression != null && compression.isEnabled()) {
+
+    var factories = CollectionUtils.newArrayList(initialHttpHandlerFactories);
+    if (Compression.isEnabled(compression)) {
       factories.add(new CompressionHttpHandlerFactory(compression));
     }
     if (useForwardHeaders) {
       factories.add(Handlers::proxyPeerAddress);
     }
     if (StringUtils.hasText(serverHeader)) {
-      factories.add((next) -> Handlers.header(next, "Server", serverHeader));
+      factories.add(next -> Handlers.header(next, "Server", serverHeader));
     }
     if (shutdown == Shutdown.GRACEFUL) {
       factories.add(Handlers::gracefulShutdown);

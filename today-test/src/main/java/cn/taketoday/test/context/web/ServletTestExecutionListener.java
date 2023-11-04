@@ -67,7 +67,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
    * whether or not the {@code ServletTestExecutionListener} should {@linkplain
-   * RequestContextHolder#remove() reset} Infra Web's
+   * RequestContextHolder#cleanup() reset} Infra Web's
    * {@code RequestContextHolder} in {@link #afterTestMethod(TestContext)}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -145,7 +145,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * If the {@link #RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE} in the supplied
    * {@code TestContext} has a value of {@link Boolean#TRUE}, this method will
    * (1) clean up thread-local state after each test method by {@linkplain
-   * RequestContextHolder#remove() resetting} Infra Web's
+   * RequestContextHolder#cleanup() resetting} Infra Web's
    * {@code RequestContextHolder} and (2) ensure that new mocks are injected
    * into the test instance for subsequent tests by setting the
    * {@link DependencyInjectionTestExecutionListener#REINJECT_DEPENDENCIES_ATTRIBUTE}
@@ -160,7 +160,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
   public void afterTestMethod(TestContext testContext) throws Exception {
     if (Boolean.TRUE.equals(testContext.getAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE))) {
       logger.debug("Resetting RequestContextHolder for test context {}.", testContext);
-      RequestContextHolder.remove();
+      RequestContextHolder.cleanup();
       testContext.setAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE,
               Boolean.TRUE);
     }
