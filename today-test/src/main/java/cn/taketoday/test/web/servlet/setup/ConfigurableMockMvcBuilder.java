@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.EnumSet;
 import java.util.Map;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.web.servlet.DispatcherServletCustomizer;
 import cn.taketoday.test.web.servlet.MockMvcBuilder;
 import cn.taketoday.test.web.servlet.RequestBuilder;
@@ -44,7 +45,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
   /**
    * Add filters mapped to all requests. Filters are invoked in the same order.
    * <p>Note: if you need the filter to be initialized with {@link Filter#init(FilterConfig)},
-   * please use {@link #addFilter(Filter, Map, EnumSet, String...)} instead.
+   * please use {@link #addFilter(Filter, String, Map, EnumSet, String...)} instead.
    *
    * @param filters the filters to add
    */
@@ -53,7 +54,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
   /**
    * Add a filter mapped to specific patterns.
    * <p>Note: if you need the filter to be initialized with {@link Filter#init(FilterConfig)},
-   * please use {@link #addFilter(Filter, Map, EnumSet, String...)} instead.
+   * please use {@link #addFilter(Filter, String, Map, EnumSet, String...)} instead.
    *
    * @param filter the filter to add
    * @param urlPatterns the URL patterns to map to; if empty, matches all requests
@@ -66,12 +67,16 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * match the given dispatcher types and URL patterns.
    *
    * @param filter the filter to add
+   * @param filterName the name to use for the filter; if {@code null}, then
+   * {@link cn.taketoday.mock.web.MockFilterConfig} is created without
+   * a name, which defaults to an empty String for the name
    * @param initParams the init parameters to initialize the filter with
    * @param dispatcherTypes dispatcher types the filter applies to
    * @param urlPatterns the URL patterns to map to; if empty, matches all requests
    * @see cn.taketoday.mock.web.MockFilterConfig
    */
-  <T extends B> T addFilter(Filter filter, Map<String, String> initParams,
+  <T extends B> T addFilter(
+          Filter filter, @Nullable String filterName, Map<String, String> initParams,
           EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns);
 
   /**
@@ -95,6 +100,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * encouraged to override this method.
    *
    * @param defaultResponseCharacterEncoding the default response character encoding
+   * @since 5.3.10
    */
   default <T extends B> T defaultResponseCharacterEncoding(Charset defaultResponseCharacterEncoding) {
     throw new UnsupportedOperationException("defaultResponseCharacterEncoding is not supported by this MockMvcBuilder");

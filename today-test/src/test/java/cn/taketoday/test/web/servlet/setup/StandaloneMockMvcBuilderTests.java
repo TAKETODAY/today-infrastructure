@@ -140,7 +140,7 @@ class StandaloneMockMvcBuilderTests {
     ArgumentCaptor<FilterConfig> captor = ArgumentCaptor.forClass(FilterConfig.class);
 
     MockMvcBuilders.standaloneSetup(new PersonController())
-            .addFilter(filter, Map.of("p", "v"), EnumSet.of(DispatcherType.REQUEST), "/")
+            .addFilter(filter, null, Map.of("p", "v"), EnumSet.of(DispatcherType.REQUEST), "/")
             .build();
 
     verify(filter, times(1)).init(captor.capture());

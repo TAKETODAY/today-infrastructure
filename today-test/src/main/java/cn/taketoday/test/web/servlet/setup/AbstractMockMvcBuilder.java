@@ -99,11 +99,10 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   }
 
   @Override
-  public <T extends B> T addFilter(
-          Filter filter, Map<String, String> initParams,
-          EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
+  public <T extends B> T addFilter(Filter filter, @Nullable String filterName,
+          Map<String, String> initParams, EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns) {
 
-    filter = new MockMvcFilterDecorator(filter, initParams, dispatcherTypes, urlPatterns);
+    filter = new MockMvcFilterDecorator(filter, filterName, initParams, dispatcherTypes, urlPatterns);
     this.filters.add(filter);
     return self();
   }
