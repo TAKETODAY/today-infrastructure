@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +25,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.beans.propertyeditors.StringTrimmerEditor;
-import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
@@ -468,6 +466,25 @@ class RequestParamMethodArgumentResolverTests {
   }
 
   @Test
+  public void missingRequestParamAfterConversionWithDefaultValue() throws Throwable {
+
+    BindingContext binderFactory = new BindingContext() {
+      @Override
+      protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, RequestContext request) throws Exception {
+        return new WebDataBinder(null);
+      }
+    };
+
+    webRequest.setBinding(binderFactory);
+
+    request.addParameter("booleanParam", " ");
+
+    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Boolean.class);
+    Object arg = resolver.resolveArgument(webRequest, param);
+    assertThat(arg).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
   public void missingRequestParamEmptyValueNotRequired() throws Throwable {
     WebDataBinder binder = new WebDataBinder(null);
     binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -751,7 +768,8 @@ class RequestParamMethodArgumentResolverTests {
           @RequestParam("name") Optional<Integer> paramOptional,
           @RequestParam("name") Optional<Integer[]> paramOptionalArray,
           @RequestParam("name") Optional<List<?>> paramOptionalList,
-          @RequestParam("mfile") Optional<MultipartFile> multipartFileOptional) {
+          @RequestParam("mfile") Optional<MultipartFile> multipartFileOptional,
+          @RequestParam(defaultValue = "false") Boolean booleanParam) {
   }
 
 }
