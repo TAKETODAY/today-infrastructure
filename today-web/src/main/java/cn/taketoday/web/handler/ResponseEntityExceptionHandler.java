@@ -47,6 +47,7 @@ import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
+import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.RequestDispatcher;
@@ -115,6 +116,7 @@ public class ResponseEntityExceptionHandler {
           HandlerNotFoundException.class,
           AsyncRequestTimeoutException.class,
           ErrorResponseException.class,
+          MaxUploadSizeExceededException.class,
           ConversionNotSupportedException.class,
           TypeMismatchException.class,
           HttpMessageNotReadableException.class,
@@ -158,6 +160,9 @@ public class ResponseEntityExceptionHandler {
       }
       else if (ex instanceof ErrorResponseException subEx) {
         return handleErrorResponseException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
+      }
+      else if (ex instanceof MaxUploadSizeExceededException subEx) {
+        return handleMaxUploadSizeExceededException(subEx, subEx.getHeaders(), subEx.getStatusCode(), request);
       }
       else {
         // Another ErrorResponse
@@ -418,6 +423,24 @@ public class ResponseEntityExceptionHandler {
             "Failed to convert '" + ex.getPropertyName() + "' with value: '" + ex.getValue() + "'");
 
     return handleExceptionInternal(ex, body, headers, status, request);
+  }
+
+  /**
+   * Customize the handling of any {@link MaxUploadSizeExceededException}.
+   * <p>This method delegates to {@link #handleExceptionInternal}.
+   *
+   * @param ex the exception to handle
+   * @param headers the headers to use for the response
+   * @param status the status code to use for the response
+   * @param request the current request
+   * @return a {@code ResponseEntity} for the response to use, possibly
+   * {@code null} when the response is already committed
+   */
+  @Nullable
+  protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+          MaxUploadSizeExceededException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+
+    return handleExceptionInternal(ex, null, headers, status, request);
   }
 
   /**

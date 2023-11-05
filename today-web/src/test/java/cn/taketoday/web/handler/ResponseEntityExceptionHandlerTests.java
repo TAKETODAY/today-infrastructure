@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +56,7 @@ import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
@@ -222,6 +220,11 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   public void asyncRequestTimeoutException() {
     testException(new AsyncRequestTimeoutException());
+  }
+
+  @Test
+  public void maxUploadSizeExceededException() {
+    testException(new MaxUploadSizeExceededException(1000));
   }
 
   @Test

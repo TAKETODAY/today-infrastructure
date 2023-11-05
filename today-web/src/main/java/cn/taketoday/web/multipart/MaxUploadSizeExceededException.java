@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,11 @@
 
 package cn.taketoday.web.multipart;
 
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.http.HttpStatusCode;
+import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.bind.MultipartException;
 
 /**
@@ -32,7 +33,10 @@ import cn.taketoday.web.bind.MultipartException;
  * @since 4.0 2022/4/28 21:49
  */
 @SuppressWarnings("serial")
-public class MaxUploadSizeExceededException extends MultipartException {
+public class MaxUploadSizeExceededException extends MultipartException implements ErrorResponse {
+
+  private static final ProblemDetail body =
+          ProblemDetail.forStatusAndDetail(HttpStatus.PAYLOAD_TOO_LARGE, "Maximum upload size exceeded");
 
   private final long maxUploadSize;
 
@@ -64,6 +68,16 @@ public class MaxUploadSizeExceededException extends MultipartException {
    */
   public long getMaxUploadSize() {
     return this.maxUploadSize;
+  }
+
+  @Override
+  public HttpStatusCode getStatusCode() {
+    return HttpStatus.PAYLOAD_TOO_LARGE;
+  }
+
+  @Override
+  public ProblemDetail getBody() {
+    return body;
   }
 
 }
