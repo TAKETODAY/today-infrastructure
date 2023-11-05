@@ -699,6 +699,14 @@ public class ResolvableTypeTests {
   }
 
   @Test
+  void intArrayNotAssignableToIntegerArray() throws Exception {
+    ResolvableType integerArray = ResolvableType.forField(Fields.class.getField("integerArray"));
+    ResolvableType intArray = ResolvableType.forField(Fields.class.getField("intArray"));
+    assertThat(integerArray.isAssignableFrom(intArray)).isFalse();
+    assertThat(intArray.isAssignableFrom(integerArray)).isFalse();
+  }
+
+  @Test
   void resolveBoundedTypeVariableResult() throws Exception {
     ResolvableType type = ResolvableType.forReturnType(Methods.class.getMethod("boundedTypeVariableResult"));
     assertThat(type.resolve()).isEqualTo(CharSequence.class);
@@ -1425,6 +1433,10 @@ public class ResolvableTypeTests {
     public Map<Map<String, Integer>, Map<Byte, Long>> nested;
 
     public T[] variableTypeGenericArray;
+
+    public Integer[] integerArray;
+
+    public int[] intArray;
   }
 
   static class TypedFields extends Fields<String> {

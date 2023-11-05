@@ -275,7 +275,10 @@ public class ResolvableType implements Serializable {
    * @see #isAssignableFrom(ResolvableType)
    */
   public boolean isAssignableFrom(Class<?> other) {
-    return isAssignableFrom(forClass(other), null);
+    // shortcut assignability check for top-level Class references
+    return this.type instanceof Class<?> clazz
+           ? ClassUtils.isAssignable(clazz, other)
+           : isAssignableFrom(forClass(other), false, null);
   }
 
   /**
@@ -291,10 +294,10 @@ public class ResolvableType implements Serializable {
    * {@code ResolvableType}; {@code false} otherwise
    */
   public boolean isAssignableFrom(ResolvableType other) {
-    return isAssignableFrom(other, null);
+    return isAssignableFrom(other, false, null);
   }
 
-  private boolean isAssignableFrom(ResolvableType other, @Nullable Map<Type, Type> matchedBefore) {
+  private boolean isAssignableFrom(ResolvableType other, boolean strict, @Nullable Map<Type, Type> matchedBefore) {
     Assert.notNull(other, "ResolvableType is required");
 
     // If we cannot resolve types, we are not assignable
@@ -302,13 +305,21 @@ public class ResolvableType implements Serializable {
       return false;
     }
 
-    // Deal with array by delegating to the component type
-    if (isArray()) {
-      return other.isArray() && getComponentType().isAssignableFrom(other.getComponentType());
+    if (matchedBefore != null) {
+      if (matchedBefore.get(this.type) == other.type) {
+        return true;
+      }
+    }
+    else {
+      // shortcut assignability check for top-level Class references
+      if (this.type instanceof Class<?> clazz && other.type instanceof Class<?> otherClazz) {
+        return strict ? clazz.isAssignableFrom(otherClazz) : ClassUtils.isAssignable(clazz, otherClazz);
+      }
     }
 
-    if (matchedBefore != null && matchedBefore.get(this.type) == other.type) {
-      return true;
+    // Deal with array by delegating to the component type
+    if (isArray()) {
+      return other.isArray() && getComponentType().isAssignableFrom(other.getComponentType(), true, matchedBefore);
     }
 
     // Deal with wildcard bounds
@@ -339,6 +350,7 @@ public class ResolvableType implements Serializable {
           ourResolved = resolved.resolve();
         }
       }
+
       if (ourResolved == null && other.variableResolver != null) {
         // Try variable resolution against target type
         ResolvableType resolved = other.variableResolver.resolveVariable(variable);
@@ -353,13 +365,15 @@ public class ResolvableType implements Serializable {
       }
     }
     if (ourResolved == null) {
-      ourResolved = resolve(Object.class);
+      ourResolved = toClass();
     }
     Class<?> otherResolved = other.toClass();
 
     // We need an exact type match for generics
     // List<CharSequence> is not assignable from List<String>
-    if (exactMatch ? !ourResolved.equals(otherResolved) : !ClassUtils.isAssignable(ourResolved, otherResolved)) {
+    if (exactMatch ? !ourResolved.equals(otherResolved) :
+        (strict ? !ourResolved.isAssignableFrom(otherResolved) :
+         !ClassUtils.isAssignable(ourResolved, otherResolved))) {
       return false;
     }
 
@@ -370,13 +384,15 @@ public class ResolvableType implements Serializable {
       if (ourGenerics.length != typeGenerics.length) {
         return false;
       }
-      if (matchedBefore == null) {
-        matchedBefore = new IdentityHashMap<>(1);
-      }
-      matchedBefore.put(type, other.type);
-      for (int i = 0; i < ourGenerics.length; i++) {
-        if (!ourGenerics[i].isAssignableFrom(typeGenerics[i], matchedBefore)) {
-          return false;
+      if (ourGenerics.length > 0) {
+        if (matchedBefore == null) {
+          matchedBefore = new IdentityHashMap<>(1);
+        }
+        matchedBefore.put(this.type, other.type);
+        for (int i = 0; i < ourGenerics.length; i++) {
+          if (!ourGenerics[i].isAssignableFrom(typeGenerics[i], true, matchedBefore)) {
+            return false;
+          }
         }
       }
     }
@@ -1263,7 +1279,7 @@ public class ResolvableType implements Serializable {
    * @see #forReturnType(Method)
    */
   public static ResolvableType forReturnType(Method method, @Nullable Class<?> implementationClass) {
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method is required");
     MethodParameter methodParameter = new MethodParameter(method, -1, implementationClass);
     return forMethodParameter(methodParameter);
   }
