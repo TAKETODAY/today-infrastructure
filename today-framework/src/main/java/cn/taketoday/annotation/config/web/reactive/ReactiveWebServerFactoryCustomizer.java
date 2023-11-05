@@ -24,7 +24,6 @@ import cn.taketoday.framework.web.reactive.server.ConfigurableReactiveWebServerF
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.PropertyMapper;
 
 /**
  * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} to reactive
@@ -76,16 +75,7 @@ public class ReactiveWebServerFactoryCustomizer
 
   @Override
   public void customize(ConfigurableReactiveWebServerFactory factory) {
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(sslBundles).to(factory::setSslBundles);
-    map.from(applicationTemp).to(factory::setApplicationTemp);
-
-    map.from(serverProperties::getSsl).to(factory::setSsl);
-    map.from(serverProperties::getPort).to(factory::setPort);
-    map.from(serverProperties::getHttp2).to(factory::setHttp2);
-    map.from(serverProperties::getAddress).to(factory::setAddress);
-    map.from(serverProperties.getShutdown()).to(factory::setShutdown);
-    map.from(serverProperties::getCompression).to(factory::setCompression);
+    serverProperties.applyTo(factory, sslBundles, applicationTemp);
   }
 
 }

@@ -23,6 +23,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.cloud.CloudPlatform;
 import cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.util.PropertyMapper;
@@ -64,7 +65,7 @@ public class ReactorNettyWebServerFactoryCustomizer
     map.from(nettyProperties::getConnectionTimeout).whenNonNull().to(connectionTimeout -> customizeConnectionTimeout(factory, connectionTimeout));
     map.from(nettyProperties::getMaxKeepAliveRequests).to(maxKeepAliveRequests -> customizeMaxKeepAliveRequests(factory, maxKeepAliveRequests));
 
-    if (serverProperties.getHttp2().isEnabled()) {
+    if (Http2.isEnabled(serverProperties.getHttp2())) {
       map.from(serverProperties.getMaxHttpRequestHeaderSize())
               .whenNonNull()
               .to(size -> customizeHttp2MaxHeaderSize(factory, size.toBytes()));

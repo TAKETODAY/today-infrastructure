@@ -31,8 +31,11 @@ import java.util.Map;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
+import cn.taketoday.core.ApplicationTemp;
+import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.framework.web.error.ErrorProperties;
+import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.CookieProperties;
@@ -106,6 +109,7 @@ public class ServerProperties {
   /**
    * Value to use for the Server response header (if empty, no header is sent).
    */
+  @Nullable
   private String serverHeader;
 
   /**
@@ -163,11 +167,12 @@ public class ServerProperties {
     this.address = address;
   }
 
+  @Nullable
   public String getServerHeader() {
     return this.serverHeader;
   }
 
-  public void setServerHeader(String serverHeader) {
+  public void setServerHeader(@Nullable String serverHeader) {
     this.serverHeader = serverHeader;
   }
 
@@ -264,6 +269,18 @@ public class ServerProperties {
     return this.session;
   }
 
+  public void applyTo(ConfigurableWebServerFactory factory,
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
+    if (sslBundles != null) {
+      factory.setSslBundles(sslBundles);
+    }
+
+    if (applicationTemp != null) {
+      factory.setApplicationTemp(applicationTemp);
+    }
+    applyTo(factory);
+  }
+
   public void applyTo(ConfigurableWebServerFactory factory) {
     if (ssl != null) {
       factory.setSsl(ssl);
@@ -283,6 +300,38 @@ public class ServerProperties {
     }
 
     factory.setCompression(compression);
+
+    if (serverHeader != null) {
+      factory.setServerHeader(serverHeader);
+    }
+  }
+
+  public void applyTo(ConfigurableServletWebServerFactory factory,
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
+    if (sslBundles != null) {
+      factory.setSslBundles(sslBundles);
+    }
+
+    if (applicationTemp != null) {
+      factory.setApplicationTemp(applicationTemp);
+    }
+
+    if (servlet.contextPath != null) {
+      factory.setContextPath(servlet.contextPath);
+    }
+
+    factory.setSession(session);
+    factory.setJsp(servlet.jsp);
+    factory.setInitParameters(servlet.contextParameters);
+    factory.setRegisterDefaultServlet(servlet.registerDefaultServlet);
+
+    if (servlet.applicationDisplayName != null) {
+      factory.setDisplayName(servlet.applicationDisplayName);
+    }
+
+    if (encoding.getMapping() != null) {
+      factory.setLocaleCharsetMappings(encoding.getMapping());
+    }
   }
 
   /**
@@ -298,11 +347,13 @@ public class ServerProperties {
     /**
      * Context path of the application.
      */
+    @Nullable
     private String contextPath;
 
     /**
      * Display name of the application.
      */
+    @Nullable
     private String applicationDisplayName = "application";
 
     /**
@@ -313,15 +364,17 @@ public class ServerProperties {
     @NestedConfigurationProperty
     private final JspProperties jsp = new JspProperties();
 
+    @Nullable
     public String getContextPath() {
       return this.contextPath;
     }
 
-    public void setContextPath(String contextPath) {
+    public void setContextPath(@Nullable String contextPath) {
       this.contextPath = cleanContextPath(contextPath);
     }
 
-    private String cleanContextPath(String contextPath) {
+    @Nullable
+    private String cleanContextPath(@Nullable String contextPath) {
       String candidate = null;
       if (StringUtils.isNotEmpty(contextPath)) {
         candidate = contextPath.strip();
@@ -332,11 +385,12 @@ public class ServerProperties {
       return candidate;
     }
 
+    @Nullable
     public String getApplicationDisplayName() {
       return this.applicationDisplayName;
     }
 
-    public void setApplicationDisplayName(String displayName) {
+    public void setApplicationDisplayName(@Nullable String displayName) {
       this.applicationDisplayName = displayName;
     }
 

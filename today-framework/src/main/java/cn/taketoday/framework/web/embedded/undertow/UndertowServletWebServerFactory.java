@@ -88,6 +88,7 @@ import jakarta.servlet.ServletException;
  * @author Andy Wilkinson
  * @author Marcos Barbero
  * @author Eddú Meléndez
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see UndertowServletWebServer
  * @since 4.0
  */
@@ -233,7 +234,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * @param customizers the customizers to set
    */
   public void setDeploymentInfoCustomizers(Collection<? extends UndertowDeploymentInfoCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.deploymentInfoCustomizers = new LinkedHashSet<>(customizers);
   }
 
@@ -244,7 +245,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * @param customizers the customizers to add
    */
   public void addDeploymentInfoCustomizers(UndertowDeploymentInfoCustomizer... customizers) {
-    Assert.notNull(customizers, "UndertowDeploymentInfoCustomizers must not be null");
+    Assert.notNull(customizers, "UndertowDeploymentInfoCustomizers is required");
     CollectionUtils.addAll(deploymentInfoCustomizers, customizers);
   }
 

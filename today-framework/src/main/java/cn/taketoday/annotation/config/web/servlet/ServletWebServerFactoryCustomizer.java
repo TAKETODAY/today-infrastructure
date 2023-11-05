@@ -30,7 +30,6 @@ import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFac
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.PropertyMapper;
 
 /**
  * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} and
@@ -43,8 +42,7 @@ import cn.taketoday.util.PropertyMapper;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/27 21:57
  */
-class ServletWebServerFactoryCustomizer
-        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>, Ordered {
+class ServletWebServerFactoryCustomizer implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory>, Ordered {
 
   private final ServerProperties serverProperties;
 
@@ -66,10 +64,10 @@ class ServletWebServerFactoryCustomizer
           @Nullable List<CookieSameSiteSupplier> cookieSameSiteSuppliers,
           @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
     this.sslBundles = sslBundles;
+    this.applicationTemp = applicationTemp;
     this.serverProperties = serverProperties;
     this.webListenerRegistrars = webListenerRegistrars;
     this.cookieSameSiteSuppliers = cookieSameSiteSuppliers;
-    this.applicationTemp = applicationTemp;
   }
 
   @Override
@@ -79,27 +77,7 @@ class ServletWebServerFactoryCustomizer
 
   @Override
   public void customize(ConfigurableServletWebServerFactory factory) {
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(serverProperties::getPort).to(factory::setPort);
-    map.from(serverProperties::getSession).to(factory::setSession);
-    map.from(serverProperties::getAddress).to(factory::setAddress);
-
-    ServerProperties.Servlet servlet = serverProperties.getServlet();
-    map.from(servlet::getContextPath).to(factory::setContextPath);
-    map.from(servlet::getApplicationDisplayName).to(factory::setDisplayName);
-    map.from(servlet::isRegisterDefaultServlet).to(factory::setRegisterDefaultServlet);
-    map.from(servlet::getJsp).to(factory::setJsp);
-    map.from(servlet::getContextParameters).to(factory::setInitParameters);
-
-    map.from(serverProperties::getSsl).to(factory::setSsl);
-    map.from(serverProperties::getCompression).to(factory::setCompression);
-    map.from(serverProperties::getHttp2).to(factory::setHttp2);
-    map.from(serverProperties::getServerHeader).to(factory::setServerHeader);
-    map.from(serverProperties.getShutdown()).to(factory::setShutdown);
-
-    map.from(sslBundles).to(factory::setSslBundles);
-    map.from(applicationTemp).to(factory::setApplicationTemp);
-    map.from(serverProperties.getEncoding().getMapping()).to(factory::setLocaleCharsetMappings);
+    serverProperties.applyTo(factory, sslBundles, applicationTemp);
 
     for (WebListenerRegistrar registrar : webListenerRegistrars) {
       registrar.register(factory);

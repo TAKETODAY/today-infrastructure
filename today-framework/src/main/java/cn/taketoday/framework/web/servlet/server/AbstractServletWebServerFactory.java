@@ -137,7 +137,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   }
 
   private void checkContextPath(String contextPath) {
-    Assert.notNull(contextPath, "ContextPath must not be null");
+    Assert.notNull(contextPath, "ContextPath is required");
     if (!contextPath.isEmpty()) {
       if ("/".equals(contextPath)) {
         throw new IllegalArgumentException("Root ContextPath must be specified using an empty string");
@@ -203,13 +203,13 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   @Override
   public void setInitializers(List<? extends ServletContextInitializer> initializers) {
-    Assert.notNull(initializers, "Initializers must not be null");
+    Assert.notNull(initializers, "Initializers is required");
     this.initializers = new ArrayList<>(initializers);
   }
 
   @Override
   public void addInitializers(ServletContextInitializer... initializers) {
-    Assert.notNull(initializers, "Initializers must not be null");
+    Assert.notNull(initializers, "Initializers is required");
     CollectionUtils.addAll(this.initializers, initializers);
   }
 
@@ -244,7 +244,7 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   @Override
   public void setLocaleCharsetMappings(Map<Locale, Charset> localeCharsetMappings) {
-    Assert.notNull(localeCharsetMappings, "localeCharsetMappings must not be null");
+    Assert.notNull(localeCharsetMappings, "localeCharsetMappings is required");
     this.localeCharsetMappings = localeCharsetMappings;
   }
 
@@ -259,13 +259,13 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
 
   @Override
   public void setCookieSameSiteSuppliers(List<? extends CookieSameSiteSupplier> cookieSameSiteSuppliers) {
-    Assert.notNull(cookieSameSiteSuppliers, "CookieSameSiteSuppliers must not be null");
+    Assert.notNull(cookieSameSiteSuppliers, "CookieSameSiteSuppliers is required");
     this.cookieSameSiteSuppliers = new ArrayList<>(cookieSameSiteSuppliers);
   }
 
   @Override
   public void addCookieSameSiteSuppliers(CookieSameSiteSupplier... cookieSameSiteSuppliers) {
-    Assert.notNull(cookieSameSiteSuppliers, "CookieSameSiteSuppliers must not be null");
+    Assert.notNull(cookieSameSiteSuppliers, "CookieSameSiteSuppliers is required");
     CollectionUtils.addAll(this.cookieSameSiteSuppliers, cookieSameSiteSuppliers);
   }
 

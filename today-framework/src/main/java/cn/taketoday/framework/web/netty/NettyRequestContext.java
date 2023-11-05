@@ -504,7 +504,7 @@ public class NettyRequestContext extends RequestContext {
       }
 
       // write response
-      HttpVersion httpVersion = config.getHttpVersion();
+      HttpVersion httpVersion = config.getHttpVersion(); // todo http version
       if (isKeepAlive()) {
         HttpUtil.setKeepAlive(responseHeaders, httpVersion, true);
       }

@@ -17,7 +17,6 @@
 
 package cn.taketoday.framework.web.netty;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
@@ -38,7 +37,6 @@ import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -216,11 +214,10 @@ public class NettyChannelHandler extends DispatcherHandler
         catch (Exception ex) {
           logger.warn("Unhandled on-close exception for {}", webSocketSession, ex);
         }
-        channel.writeAndFlush(frame)
-                .addListener(ChannelFutureListener.CLOSE);
+        ctx.close();
       }
       else {
-        Message<?> message = getMessage(frame);
+        Message<?> message = adaptMessage(frame);
         if (message != null) {
           try {
             socketHandler.handleMessage(webSocketSession, message);
@@ -239,25 +236,19 @@ public class NettyChannelHandler extends DispatcherHandler
      * @return websocket message
      */
     @Nullable
-    private static Message<?> getMessage(WebSocketFrame frame) {
-      ByteBuf content = frame.content();
+    private static Message<?> adaptMessage(WebSocketFrame frame) {
       if (frame instanceof PingWebSocketFrame) {
-        ByteBuffer byteBuffer = content.nioBuffer();
-        return new PingMessage(byteBuffer);
+        return new PingMessage(frame.content().nioBuffer());
       }
       if (frame instanceof PongWebSocketFrame) {
-        ByteBuffer byteBuffer = content.nioBuffer();
-        return new PongMessage(byteBuffer);
+        return new PongMessage(frame.content().nioBuffer());
       }
       if (frame instanceof TextWebSocketFrame) {
-        String text = content.toString(StandardCharsets.UTF_8);
-        boolean finalFragment = frame.isFinalFragment();
-        return new TextMessage(text, finalFragment);
+        String text = frame.content().toString(StandardCharsets.UTF_8);
+        return new TextMessage(text, frame.isFinalFragment());
       }
       if (frame instanceof BinaryWebSocketFrame) {
-        ByteBuffer byteBuffer = content.nioBuffer();
-        boolean finalFragment = frame.isFinalFragment();
-        return new BinaryMessage(byteBuffer, finalFragment);
+        return new BinaryMessage(frame.content().nioBuffer(), frame.isFinalFragment());
       }
       return null;
     }

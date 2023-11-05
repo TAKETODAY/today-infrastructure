@@ -86,15 +86,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.setNettyChannelInitializer(nettyChannelInitializer);
 
-    if (sslBundles != null) {
-      factory.setSslBundles(sslBundles);
-    }
-
-    if (applicationTemp != null) {
-      factory.setApplicationTemp(applicationTemp);
-    }
-
-    serverProperties.applyTo(factory);
+    serverProperties.applyTo(factory, sslBundles, applicationTemp);
 
     factory.applyFrom(serverProperties.getNetty());
     factory.setBootstrapCustomizers(customizers);

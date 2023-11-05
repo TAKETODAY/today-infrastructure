@@ -252,7 +252,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @param initializers the set of initializers to apply
    */
   protected final void configureWebAppContext(WebAppContext context, ServletContextInitializer... initializers) {
-    Assert.notNull(context, "Context must not be null");
+    Assert.notNull(context, "Context is required");
     context.clearAliasChecks();
     context.setTempDirectory(getApplicationTemp().getDir("jetty").toFile());
     if (this.resourceLoader != null) {
@@ -358,7 +358,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @param context the jetty {@link WebAppContext}
    */
   protected final void addDefaultServlet(WebAppContext context) {
-    Assert.notNull(context, "Context must not be null");
+    Assert.notNull(context, "Context is required");
     ServletHolder holder = new ServletHolder();
     holder.setName("default");
     holder.setClassName("org.eclipse.jetty.ee10.servlet.DefaultServlet");
@@ -375,7 +375,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @param context the jetty {@link WebAppContext}
    */
   protected final void addJspServlet(WebAppContext context, JspProperties jsp) {
-    Assert.notNull(context, "Context must not be null");
+    Assert.notNull(context, "Context is required");
     ServletHolder holder = new ServletHolder();
     holder.setName("jsp");
     holder.setClassName(jsp.getClassName());
@@ -512,7 +512,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @param customizers the Jetty customizers to apply
    */
   public void setServerCustomizers(Collection<? extends JettyServerCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.jettyServerCustomizers = new LinkedHashSet<>(customizers);
   }
 
@@ -528,7 +528,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
 
   @Override
   public void addServerCustomizers(JettyServerCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.jettyServerCustomizers.addAll(Arrays.asList(customizers));
   }
 
@@ -540,7 +540,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @param configurations the Jetty configurations to apply
    */
   public void setConfigurations(Collection<? extends Configuration> configurations) {
-    Assert.notNull(configurations, "Configurations must not be null");
+    Assert.notNull(configurations, "Configurations is required");
     this.configurations = new ArrayList<>(configurations);
   }
 
@@ -561,7 +561,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
    * @param configurations the configurations to add
    */
   public void addConfigurations(Configuration... configurations) {
-    Assert.notNull(configurations, "Configurations must not be null");
+    Assert.notNull(configurations, "Configurations is required");
     this.configurations.addAll(Arrays.asList(configurations));
   }
 
