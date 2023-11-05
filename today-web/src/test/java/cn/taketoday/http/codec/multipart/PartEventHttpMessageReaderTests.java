@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +17,10 @@
 
 package cn.taketoday.http.codec.multipart;
 
-import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -33,6 +29,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
+import cn.taketoday.core.io.buffer.DataBufferLimitException;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
@@ -47,7 +44,7 @@ import reactor.test.StepVerifier;
 import static cn.taketoday.core.ResolvableType.forClass;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
-import static java.util.Map.entry;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -79,8 +76,8 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
-            .assertNext(form(headers -> Assertions.assertThat(headers).isEmpty(), "This is implicitly typed plain ASCII text.\r\nIt does NOT end with a linebreak."))
-            .assertNext(form(headers -> Assertions.assertThat(headers.getContentType()).isEqualTo(TEXT_PLAIN_ASCII),
+            .assertNext(form(headers -> assertThat(headers).isEmpty(), "This is implicitly typed plain ASCII text.\r\nIt does NOT end with a linebreak."))
+            .assertNext(form(headers -> assertThat(headers.getContentType()).isEqualTo(TEXT_PLAIN_ASCII),
                     "This is explicitly typed plain ASCII text.\r\nIt DOES end with a linebreak.\r\n"))
             .verifyComplete();
   }
@@ -92,7 +89,7 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
-            .assertNext(data(headers -> Assertions.assertThat(headers).isEmpty(), bodyText("a"), true))
+            .assertNext(data(headers -> assertThat(headers).isEmpty(), bodyText("a"), true))
             .verifyComplete();
   }
 
@@ -149,8 +146,8 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
-            .assertNext(form(headers -> Assertions.assertThat(headers).contains(entry("Part", List.of("1"))), ""))
-            .assertNext(data(headers -> Assertions.assertThat(headers).contains(entry("Part", List.of("2"))), bodyText("a"), true))
+            .assertNext(form(headers -> assertThat(headers).contains(AssertionsForClassTypes.entry("Part", List.of("1"))), ""))
+            .assertNext(data(headers -> assertThat(headers).contains(AssertionsForClassTypes.entry("Part", List.of("2"))), bodyText("a"), true))
             .verifyComplete();
   }
 
@@ -161,7 +158,7 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result, 3)
-            .assertNext(form(headers -> Assertions.assertThat(headers).isEmpty(),
+            .assertNext(form(headers -> assertThat(headers).isEmpty(),
                     "This is implicitly typed plain ASCII text.\r\nIt does NOT end with a linebreak."))
             .thenCancel()
             .verify();
@@ -232,6 +229,39 @@ class PartEventHttpMessageReaderTests {
   }
 
   @Test
+  void tooManyParts() {
+    MockServerHttpRequest request = createRequest(
+            new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
+
+    PartEventHttpMessageReader reader = new PartEventHttpMessageReader();
+    reader.setMaxParts(1);
+
+    Flux<PartEvent> result = reader.read(forClass(PartEvent.class), request, emptyMap());
+
+    StepVerifier.create(result)
+            .expectError(DecodingException.class)
+            .verify();
+  }
+
+  @Test
+  void partSizeTooLarge() {
+    MockServerHttpRequest request = createRequest(new ClassPathResource("safari.multipart", getClass()),
+            "----WebKitFormBoundaryG8fJ50opQOML0oGD");
+
+    PartEventHttpMessageReader reader = new PartEventHttpMessageReader();
+    reader.setMaxPartSize(60);
+
+    Flux<PartEvent> result = reader.read(forClass(PartEvent.class), request, emptyMap());
+
+    StepVerifier.create(result)
+            .assertNext(data(headersFormField("text1"), bodyText("a"), true))
+            .assertNext(data(headersFormField("text2"), bodyText("b"), true))
+            .expectError(DataBufferLimitException.class)
+            .verify();
+
+  }
+
+  @Test
   public void utf8Headers() {
     MockServerHttpRequest request = createRequest(
             new ClassPathResource("utf8.multipart", getClass()), "\"simple-boundary\"");
@@ -239,7 +269,7 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
-            .assertNext(data(headers -> Assertions.assertThat(headers).containsEntry("Føø", List.of("Bår")),
+            .assertNext(data(headers -> assertThat(headers).containsEntry("Føø", List.of("Bår")),
                     bodyText("This is plain ASCII text."), true))
             .verifyComplete();
   }
@@ -251,7 +281,7 @@ class PartEventHttpMessageReaderTests {
                     282);
 
     MediaType contentType = new MediaType("multipart", "form-data",
-            Collections.singletonMap("boundary", "----WebKitFormBoundaryG8fJ50opQOML0oGD"));
+            singletonMap("boundary", "----WebKitFormBoundaryG8fJ50opQOML0oGD"));
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .contentType(contentType)
             .body(body);
@@ -270,7 +300,7 @@ class PartEventHttpMessageReaderTests {
     Flux<DataBuffer> body = DataBufferUtils
             .readByteChannel(resource::readableChannel, bufferFactory, BUFFER_SIZE);
 
-    MediaType contentType = new MediaType("multipart", "form-data", Collections.singletonMap("boundary", boundary));
+    MediaType contentType = new MediaType("multipart", "form-data", singletonMap("boundary", boundary));
     return MockServerHttpRequest.post("/")
             .contentType(contentType)
             .body(body);

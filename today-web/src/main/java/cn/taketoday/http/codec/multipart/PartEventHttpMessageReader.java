@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.DecodingException;
@@ -57,6 +56,10 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
   private int maxInMemorySize = 256 * 1024;
 
   private int maxHeadersSize = 10 * 1024;
+
+  private int maxParts = -1;
+
+  private long maxPartSize = -1;
 
   private Charset headersCharset = StandardCharsets.UTF_8;
 
@@ -92,14 +95,30 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
   }
 
   /**
+   * Specify the maximum number of parts allowed in a given multipart request.
+   * <p>By default this is set to -1, meaning that there is no maximum.
+   */
+  public void setMaxParts(int maxParts) {
+    this.maxParts = maxParts;
+  }
+
+  /**
+   * Configure the maximum size allowed for any part.
+   * <p>By default this is set to -1, meaning that there is no maximum.
+   */
+  public void setMaxPartSize(long maxPartSize) {
+    this.maxPartSize = maxPartSize;
+  }
+
+  /**
    * Set the character set used to decode headers.
-   * Defaults to UTF-8 as per RFC 7578.
+   * <p>Defaults to UTF-8 as per RFC 7578.
    *
    * @param headersCharset the charset to use for decoding headers
    * @see <a href="https://tools.ietf.org/html/rfc7578#section-5.1">RFC-7578 Section 5.1</a>
    */
   public void setHeadersCharset(Charset headersCharset) {
-    Assert.notNull(headersCharset, "HeadersCharset must not be null");
+    Assert.notNull(headersCharset, "Charset is required");
     this.headersCharset = headersCharset;
   }
 
@@ -122,38 +141,58 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
   }
 
   @Override
-  public Flux<PartEvent> read(ResolvableType elementType,
-          ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Flux<PartEvent> read(ResolvableType elementType, ReactiveHttpInputMessage message,
+          Map<String, Object> hints) {
+
     return Flux.defer(() -> {
       byte[] boundary = MultipartUtils.boundary(message, this.headersCharset);
       if (boundary == null) {
         return Flux.error(new DecodingException("No multipart boundary found in Content-Type: \"" +
                 message.getHeaders().getContentType() + "\""));
       }
-      return MultipartParser.parse(message.getBody(), boundary, this.maxHeadersSize, this.headersCharset)
-              .windowUntil(t -> t instanceof MultipartParser.HeadersToken, true)
-              .concatMap(tokens -> tokens.switchOnFirst((signal, flux) -> {
-                if (signal.hasValue()) {
-                  var headersToken = (MultipartParser.HeadersToken) signal.get();
-                  Assert.state(headersToken != null, "Signal should be headers token");
+      Flux<MultipartParser.Token> allPartsTokens = MultipartParser.parse(message.getBody(), boundary,
+              this.maxHeadersSize, this.headersCharset);
 
-                  HttpHeaders headers = headersToken.getHeaders();
-                  var bodyTokens = flux.filter(t -> t instanceof MultipartParser.BodyToken)
-                          .cast(MultipartParser.BodyToken.class);
-                  return createEvents(headers, bodyTokens);
+      AtomicInteger partCount = new AtomicInteger();
+      return allPartsTokens
+              .windowUntil(t -> t instanceof MultipartParser.HeadersToken, true)
+              .concatMap(partTokens -> {
+                if (tooManyParts(partCount)) {
+                  return Mono.error(new DecodingException("Too many parts (" + partCount.get() + "/" +
+                          this.maxParts + " allowed)"));
                 }
                 else {
-                  // complete or error signal
-                  return flux.cast(PartEvent.class);
+                  return partTokens.switchOnFirst((signal, flux) -> {
+                    if (signal.hasValue()) {
+                      MultipartParser.HeadersToken headersToken = (MultipartParser.HeadersToken) signal.get();
+                      Assert.state(headersToken != null, "Signal should be headers token");
+
+                      HttpHeaders headers = headersToken.getHeaders();
+                      Flux<MultipartParser.BodyToken> bodyTokens =
+                              flux.filter(t -> t instanceof MultipartParser.BodyToken)
+                                      .cast(MultipartParser.BodyToken.class);
+                      return createEvents(headers, bodyTokens);
+                    }
+                    else {
+                      // complete or error signal
+                      return flux.cast(PartEvent.class);
+                    }
+                  });
                 }
-              }));
+              });
     });
+  }
+
+  private boolean tooManyParts(AtomicInteger partCount) {
+    int count = partCount.incrementAndGet();
+    return this.maxParts > 0 && count > this.maxParts;
   }
 
   private Publisher<? extends PartEvent> createEvents(HttpHeaders headers, Flux<MultipartParser.BodyToken> bodyTokens) {
     if (MultipartUtils.isFormField(headers)) {
       Flux<DataBuffer> contents = bodyTokens.map(MultipartParser.BodyToken::getBuffer);
-      return DataBufferUtils.join(contents, this.maxInMemorySize)
+      int maxSize = (int) Math.min(this.maxInMemorySize, this.maxPartSize);
+      return DataBufferUtils.join(contents, maxSize)
               .map(content -> {
                 String value = content.toString(MultipartUtils.charset(headers));
                 DataBufferUtils.release(content);
@@ -161,17 +200,30 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
               })
               .switchIfEmpty(Mono.fromCallable(() -> DefaultPartEvents.form(headers)));
     }
-    else if (headers.getContentDisposition().getFilename() != null) {
-      return bodyTokens
-              .map(body -> DefaultPartEvents.file(headers, body.getBuffer(), body.isLast()))
-              .switchIfEmpty(Mono.fromCallable(() -> DefaultPartEvents.file(headers)));
-    }
     else {
+      boolean isFilePart = headers.getContentDisposition().getFilename() != null;
+      AtomicLong partSize = new AtomicLong();
       return bodyTokens
-              .map(body -> DefaultPartEvents.create(headers, body.getBuffer(), body.isLast()))
-              .switchIfEmpty(Mono.fromCallable(() -> DefaultPartEvents.create(headers))); // empty body
+              .concatMap(body -> {
+                DataBuffer buffer = body.getBuffer();
+                if (tooLarge(partSize, buffer)) {
+                  DataBufferUtils.release(buffer);
+                  return Mono.error(new DataBufferLimitException("Part exceeded the limit of " +
+                          this.maxPartSize + " bytes"));
+                }
+                else {
+                  return isFilePart ? Mono.just(DefaultPartEvents.file(headers, buffer, body.isLast()))
+                                    : Mono.just(DefaultPartEvents.create(headers, body.getBuffer(), body.isLast()));
+                }
+              })
+              .switchIfEmpty(Mono.fromCallable(() ->
+                      isFilePart ? DefaultPartEvents.file(headers) : DefaultPartEvents.create(headers)));
     }
+  }
 
+  private boolean tooLarge(AtomicLong partSize, DataBuffer buffer) {
+    long size = partSize.addAndGet(buffer.readableByteCount());
+    return this.maxPartSize > 0 && size > this.maxPartSize;
   }
 
 }
