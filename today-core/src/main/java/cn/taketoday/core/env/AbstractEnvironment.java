@@ -48,6 +48,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurableEnvironment
  * @see StandardEnvironment
  * @since 4.0
@@ -56,9 +57,11 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
   private static final Logger log = LoggerFactory.getLogger(AbstractEnvironment.class);
 
   private final LinkedHashSet<String> activeProfiles = new LinkedHashSet<>();
+
   private final LinkedHashSet<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());
 
   private final PropertySources propertySources;
+
   private final ConfigurablePropertyResolver propertyResolver;
 
   /**
@@ -238,7 +241,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
 
   @Override
   public void setActiveProfiles(String... profiles) {
-    Assert.notNull(profiles, "Profile array must not be null");
+    Assert.notNull(profiles, "Profile array is required");
     if (log.isDebugEnabled()) {
       log.debug("Activating profiles {}", Arrays.asList(profiles));
     }
@@ -312,7 +315,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    */
   @Override
   public void setDefaultProfiles(String... profiles) {
-    Assert.notNull(profiles, "Profile array must not be null");
+    Assert.notNull(profiles, "Profile array is required");
     synchronized(this.defaultProfiles) {
       this.defaultProfiles.clear();
       for (String profile : profiles) {
@@ -324,7 +327,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
 
   @Override
   public boolean acceptsProfiles(Profiles profiles) {
-    Assert.notNull(profiles, "Profiles must not be null");
+    Assert.notNull(profiles, "Profiles is required");
     return profiles.matches(this::isProfileActive);
   }
 
@@ -527,8 +530,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
 
   @Override
   public Iterator<String> iterator() {
-    if (propertyResolver instanceof IterablePropertyResolver) {
-      return ((IterablePropertyResolver) propertyResolver).iterator();
+    if (propertyResolver instanceof IterablePropertyResolver resolver) {
+      return resolver.iterator();
     }
     return Collections.emptyIterator();
   }

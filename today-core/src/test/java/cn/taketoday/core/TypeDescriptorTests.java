@@ -97,9 +97,9 @@ public class TypeDescriptorTests {
     assertThat(desc.isCollection()).isTrue();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.getElementDescriptor().getType()).isEqualTo(List.class);
-    assertThat(desc.getElementDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 1));
-    assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 2));
-    assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 3));
+    assertThat(desc.getElementDescriptor()).isEqualTo(desc.nested(1));
+    assertThat(desc.getElementDescriptor().getElementDescriptor()).isEqualTo(desc.nested(2));
+    assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueDescriptor()).isEqualTo(desc.nested(3));
     assertThat(desc.getElementDescriptor().getElementDescriptor().getMapKeyDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getElementDescriptor().getElementDescriptor().getMapValueDescriptor().getType()).isEqualTo(Enum.class);
     assertThat(desc.isMap()).isFalse();
@@ -155,8 +155,8 @@ public class TypeDescriptorTests {
     assertThat(desc.isCollection()).isFalse();
     assertThat(desc.isArray()).isFalse();
     assertThat(desc.isMap()).isTrue();
-    assertThat(desc.getMapValueDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 1));
-    assertThat(desc.getMapValueDescriptor().getElementDescriptor()).isEqualTo(TypeDescriptor.nested(desc, 2));
+    assertThat(desc.getMapValueDescriptor()).isEqualTo(desc.nested(1));
+    assertThat(desc.getMapValueDescriptor().getElementDescriptor()).isEqualTo(desc.nested(2));
     assertThat(desc.getMapKeyDescriptor().getType()).isEqualTo(Integer.class);
     assertThat(desc.getMapValueDescriptor().getType()).isEqualTo(List.class);
     assertThat(desc.getMapValueDescriptor().getElementDescriptor().getType()).isEqualTo(String.class);
@@ -344,7 +344,7 @@ public class TypeDescriptorTests {
   public void nestedMethodParameterType2Levels() throws Exception {
     final Method test2 = getClass().getMethod("test2", List.class);
     final TypeDescriptor descriptor = TypeDescriptor.forParameter(test2, 0);
-    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 2);
+    TypeDescriptor t1 = descriptor.nested(2);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
@@ -352,7 +352,7 @@ public class TypeDescriptorTests {
   public void nestedMethodParameterTypeMap() throws Exception {
     final Method test3 = getClass().getMethod("test3", Map.class);
     final TypeDescriptor descriptor = TypeDescriptor.forParameter(test3, 0);
-    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 1);
+    TypeDescriptor t1 = descriptor.nested(1);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
@@ -360,7 +360,7 @@ public class TypeDescriptorTests {
   public void nestedMethodParameterTypeMapTwoLevels() throws Exception {
     final Method test4 = getClass().getMethod("test4", List.class);
     final TypeDescriptor descriptor = TypeDescriptor.forParameter(test4, 0);
-    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 2);
+    TypeDescriptor t1 = descriptor.nested(2);
     assertThat(t1.getType()).isEqualTo(String.class);
   }
 
@@ -368,7 +368,7 @@ public class TypeDescriptorTests {
   public void nestedTooManyLevels() throws Exception {
     final Method test4 = getClass().getMethod("test4", List.class);
     final TypeDescriptor descriptor = TypeDescriptor.forParameter(test4, 0);
-    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 3);
+    TypeDescriptor t1 = descriptor.nested(3);
     assertThat((Object) t1).isNull();
   }
 
@@ -377,7 +377,7 @@ public class TypeDescriptorTests {
     final Method test5 = getClass().getMethod("test5", String.class);
     final TypeDescriptor descriptor = TypeDescriptor.forParameter(test5, 0);
 
-    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 2);
+    TypeDescriptor t1 = descriptor.nested(2);
     assertThat((Object) t1).isNull();
   }
 
@@ -387,11 +387,11 @@ public class TypeDescriptorTests {
 
     final TypeDescriptor descriptor = TypeDescriptor.forParameter(test6, 0);
 
-    TypeDescriptor t1 = TypeDescriptor.nested(descriptor, 1);
+    TypeDescriptor t1 = descriptor.nested(1);
     assertThat(t1.getType()).isEqualTo(List.class);
     assertThat(t1.toString()).isEqualTo("java.util.List<?>");
 
-    TypeDescriptor t2 = TypeDescriptor.nested(descriptor, 2);
+    TypeDescriptor t2 = descriptor.nested(2);
 
     assertThat((Object) t2).isNull();
   }

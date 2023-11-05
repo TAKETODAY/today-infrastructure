@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,8 +69,6 @@ public interface Environment extends PropertyResolver {
 
   /**
    * Name of the {@link Environment} bean in the factory.
-   *
-   * @since 4.0
    */
   String ENVIRONMENT_BEAN_NAME = "environment";
 
@@ -81,7 +76,6 @@ public interface Environment extends PropertyResolver {
    * Name of the System properties bean in the factory.
    *
    * @see java.lang.System#getProperties()
-   * @since 4.0
    */
   String SYSTEM_PROPERTIES_BEAN_NAME = "systemProperties";
 
@@ -89,7 +83,6 @@ public interface Environment extends PropertyResolver {
    * Name of the System environment bean in the factory.
    *
    * @see java.lang.System#getenv()
-   * @since 4.0
    */
   String SYSTEM_ENVIRONMENT_BEAN_NAME = "systemEnvironment";
 

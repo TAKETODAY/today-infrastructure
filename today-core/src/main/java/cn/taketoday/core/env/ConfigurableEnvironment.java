@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,26 +35,26 @@ import java.util.Map;
  * though particular default property sources may differ.
  *
  * <h4>Example: adding a new property source with highest search priority</h4>
- * <pre class="code">
+ * <pre>{@code
  * ConfigurableEnvironment environment = new StandardEnvironment();
  * PropertySources propertySources = environment.getPropertySources();
- * Map&lt;String, String&gt; myMap = new HashMap&lt;&gt;();
+ * Map<String, String> myMap = new HashMap<>();
  * myMap.put("xyz", "myValue");
  * propertySources.addFirst(new MapPropertySource("MY_MAP", myMap));
- * </pre>
+ * }</pre>
  *
  * <h4>Example: removing the default system properties property source</h4>
- * <pre class="code">
+ * <pre>{@code
  * PropertySources propertySources = environment.getPropertySources();
  * propertySources.remove(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)
- * </pre>
+ * }</pre>
  *
  * <h4>Example: mocking the system environment for testing purposes</h4>
- * <pre class="code">
+ * <pre>{@code
  * PropertySources propertySources = environment.getPropertySources();
  * MockPropertySource mockEnvVars = new MockPropertySource().withProperty("xyz", "myValue");
  * propertySources.replace(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, mockEnvVars);
- * </pre>
+ * }</pre>
  *
  * When an {@link Environment} is being used by an {@code ApplicationContext}, it is
  * important that any such {@code PropertySource} manipulations be performed
@@ -67,6 +64,7 @@ import java.util.Map;
  * container bootstrap process.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see StandardEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment
  * @since 4.0
