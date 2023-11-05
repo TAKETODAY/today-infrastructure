@@ -145,8 +145,7 @@ class SimpleJdbcInsertIntegrationTests {
 
         insert.compile();
         assertThat(insert.getInsertString()).isEqualToIgnoringNewLines("""
-                INSERT INTO "Order" ("from", "Date") VALUES(?, ?)
-                """);
+                INSERT INTO "Order" ("from", "Date") VALUES(?, ?)""");
 
         insertOrderEntry(insert);
       }
@@ -254,7 +253,6 @@ class SimpleJdbcInsertIntegrationTests {
       }
 
       @Test
-        // gh-24013
       void usingColumnsAndQuotedIdentifiersWithSchemaName() throws Exception {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(embeddedDatabase)
                 .withoutTableColumnMetaDataAccess()
