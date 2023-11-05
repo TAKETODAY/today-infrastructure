@@ -237,6 +237,18 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
   }
 
   @Test
+  void constructorArgumentValuesWhenIndexedNullValue() {
+    this.beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, (Object) null);
+    compile((actual, compiled) -> {
+      ConstructorArgumentValues argumentValues = actual.getConstructorArgumentValues();
+      Map<Integer, ValueHolder> values = argumentValues.getIndexedArgumentValues();
+      assertThat(values.get(0)).satisfies(assertValueHolder(null, null, null));
+      assertThat(values).hasSize(1);
+      assertThat(argumentValues.getGenericArgumentValues()).isEmpty();
+    });
+  }
+
+  @Test
   void constructorArgumentValuesWhenGenericValuesWithName() {
     this.beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(String.class);
     this.beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(2, Long.class.getName());
