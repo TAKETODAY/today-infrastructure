@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +17,10 @@
 
 package cn.taketoday.context.annotation;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -27,10 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.lang.model.element.Modifier;
-
-import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aot.generate.MethodReference;
 import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
@@ -70,6 +67,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -269,6 +267,42 @@ class ConfigurationClassPostProcessorAotContributionTests {
     }
 
     @Test
+    void propertySourceWithClassPathStarLocationPattern() {
+      BeanFactoryInitializationAotContribution contribution =
+              getContribution(PropertySourceWithClassPathStarLocationPatternConfiguration.class);
+
+      // We can effectively only assert that an exception is not thrown; however,
+      // a WARN-level log message similar to the following should be logged.
+      //
+      // Runtime hint registration is not supported for the 'classpath*:' prefix or wildcards
+      // in @PropertySource locations. Please manually register a resource hint for each property
+      // source location represented by 'classpath*:org/springframework/context/annotation/*.properties'.
+      assertThatNoException().isThrownBy(() -> contribution.applyTo(generationContext, beanFactoryInitializationCode));
+
+      // But we can also ensure that a resource hint was not registered.
+      assertThat(resource("org/springframework/context/annotation/p1.properties"))
+              .rejects(generationContext.getRuntimeHints());
+    }
+
+    @Test
+    void propertySourceWithWildcardLocationPattern() {
+      BeanFactoryInitializationAotContribution contribution =
+              getContribution(PropertySourceWithWildcardLocationPatternConfiguration.class);
+
+      // We can effectively only assert that an exception is not thrown; however,
+      // a WARN-level log message similar to the following should be logged.
+      //
+      // Runtime hint registration is not supported for the 'classpath*:' prefix or wildcards
+      // in @PropertySource locations. Please manually register a resource hint for each property
+      // source location represented by 'classpath:org/springframework/context/annotation/p?.properties'.
+      assertThatNoException().isThrownBy(() -> contribution.applyTo(generationContext, beanFactoryInitializationCode));
+
+      // But we can also ensure that a resource hint was not registered.
+      assertThat(resource("org/springframework/context/annotation/p1.properties"))
+              .rejects(generationContext.getRuntimeHints());
+    }
+
+    @Test
     void applyToWhenHasPropertySourcesInvokesPropertySourceProcessorInOrder() {
       BeanFactoryInitializationAotContribution contribution = getContribution(
               PropertySourceConfiguration.class, PropertySourceDependentConfiguration.class);
@@ -366,6 +400,15 @@ class ConfigurationClassPostProcessorAotContributionTests {
 
     }
 
+    @Configuration(proxyBeanMethods = false)
+    @PropertySource("classpath*:cn/taketoday/context/annotation/*.properties")
+    static class PropertySourceWithClassPathStarLocationPatternConfiguration {
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @PropertySource("classpath:cn/taketoday/context/annotation/p?.properties")
+    static class PropertySourceWithWildcardLocationPatternConfiguration {
+    }
   }
 
   @Nested

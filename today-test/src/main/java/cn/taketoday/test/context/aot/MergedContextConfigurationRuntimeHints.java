@@ -19,7 +19,7 @@ package cn.taketoday.test.context.aot;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.List;
 
 import cn.taketoday.aot.hint.ResourceHints;
 import cn.taketoday.aot.hint.RuntimeHints;
@@ -27,11 +27,14 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.PropertySourceDescriptor;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.util.ClassUtils;
 
 import static cn.taketoday.aot.hint.MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
+import static cn.taketoday.core.io.PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX;
 import static cn.taketoday.util.ResourceUtils.CLASSPATH_URL_PREFIX;
 
 /**
@@ -59,6 +62,8 @@ class MergedContextConfigurationRuntimeHints {
 
   private static final Method getResourceBasePathMethod = loadGetResourceBasePathMethod();
 
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+
   public void registerHints(RuntimeHints runtimeHints, MergedContextConfiguration mergedConfig, ClassLoader classLoader) {
     // @ContextConfiguration(loader = ...)
     ContextLoader contextLoader = mergedConfig.getContextLoader();
@@ -71,11 +76,11 @@ class MergedContextConfigurationRuntimeHints {
             .forEach(clazz -> registerDeclaredConstructors(clazz, runtimeHints));
 
     // @ContextConfiguration(locations = ...)
-    registerClasspathResources(mergedConfig.getLocations(), runtimeHints, classLoader);
+    registerClasspathResources("@ContextConfiguration", mergedConfig.getLocations(), runtimeHints, classLoader);
 
     for (PropertySourceDescriptor descriptor : mergedConfig.getPropertySourceDescriptors()) {
       // @TestPropertySource(locations = ...)
-      registerClasspathResources(descriptor.locations().stream(), runtimeHints, classLoader);
+      registerClasspathResources("@TestPropertySource", descriptor.locations(), runtimeHints, classLoader);
 
       // @TestPropertySource(factory = ...)
       Class<?> factoryClass = descriptor.propertySourceFactory();
@@ -86,7 +91,7 @@ class MergedContextConfigurationRuntimeHints {
 
     // @WebAppConfiguration(value = ...)
     if (webMergedContextConfigurationClass.isInstance(mergedConfig)) {
-      String resourceBasePath = null;
+      String resourceBasePath;
       try {
         resourceBasePath = (String) getResourceBasePathMethod.invoke(mergedConfig);
       }
@@ -102,17 +107,32 @@ class MergedContextConfigurationRuntimeHints {
     runtimeHints.reflection().registerType(type, INVOKE_DECLARED_CONSTRUCTORS);
   }
 
-  private void registerClasspathResources(String[] locations, RuntimeHints runtimeHints, ClassLoader classLoader) {
-    registerClasspathResources(Arrays.stream(locations), runtimeHints, classLoader);
+  private void registerClasspathResources(String annotation, String[] locations, RuntimeHints runtimeHints, ClassLoader classLoader) {
+    registerClasspathResources(annotation, Arrays.asList(locations), runtimeHints, classLoader);
   }
 
-  private void registerClasspathResources(Stream<String> locations, RuntimeHints runtimeHints, ClassLoader classLoader) {
+  private void registerClasspathResources(String annotation, List<String> locations, RuntimeHints runtimeHints, ClassLoader classLoader) {
     DefaultResourceLoader resourceLoader = new DefaultResourceLoader(classLoader);
     ResourceHints resourceHints = runtimeHints.resources();
-    locations.map(resourceLoader::getResource)
-            .filter(ClassPathResource.class::isInstance)
-            .filter(Resource::exists)
-            .forEach(resourceHints::registerResource);
+    for (String location : locations) {
+      if (location.startsWith(CLASSPATH_ALL_URL_PREFIX) ||
+              (location.startsWith(CLASSPATH_URL_PREFIX) && (location.contains("*") || location.contains("?")))) {
+
+        if (logger.isWarnEnabled()) {
+          logger.warn("""
+                  Runtime hint registration is not supported for the 'classpath*:' \
+                  prefix or wildcards in %s locations. Please manually register a \
+                  resource hint for each location represented by '%s'."""
+                  .formatted(annotation, location));
+        }
+      }
+      else {
+        Resource resource = resourceLoader.getResource(location);
+        if (resource instanceof ClassPathResource classPathResource && classPathResource.exists()) {
+          resourceHints.registerPattern(classPathResource.getPath());
+        }
+      }
+    }
   }
 
   private void registerClasspathResourceDirectoryStructure(String directory, RuntimeHints runtimeHints) {

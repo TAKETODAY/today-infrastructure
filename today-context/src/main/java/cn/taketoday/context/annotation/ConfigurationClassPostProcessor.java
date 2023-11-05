@@ -80,6 +80,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.PropertySourceDescriptor;
 import cn.taketoday.core.io.PropertySourceProcessor;
 import cn.taketoday.core.io.Resource;
@@ -605,9 +606,23 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
           hints.reflection().registerType(factory, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
         }
         for (String location : descriptor.locations()) {
-          Resource resource = this.resourceResolver.apply(location);
-          if (resource != null && resource.exists() && resource instanceof ClassPathResource classpathResource) {
-            hints.resources().registerPattern(classpathResource.getPath());
+          if (location.startsWith(PatternResourceLoader.CLASSPATH_ALL_URL_PREFIX)
+                  || (location.startsWith(PatternResourceLoader.CLASSPATH_URL_PREFIX)
+                  && (location.contains("*") || location.contains("?")))) {
+
+            if (log.isWarnEnabled()) {
+              log.warn("""
+                      Runtime hint registration is not supported for the 'classpath*:' \
+                      prefix or wildcards in @PropertySource locations. Please manually \
+                      register a resource hint for each property source location represented \
+                      by '{}'.""", location);
+            }
+          }
+          else {
+            Resource resource = this.resourceResolver.apply(location);
+            if (resource instanceof ClassPathResource classPathResource && classPathResource.exists()) {
+              hints.resources().registerPattern(classPathResource.getPath());
+            }
           }
         }
       }
