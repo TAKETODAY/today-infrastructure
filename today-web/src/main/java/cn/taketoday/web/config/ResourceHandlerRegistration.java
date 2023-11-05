@@ -20,6 +20,7 @@ package cn.taketoday.web.config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.concurrent.ConcurrentMapCache;
@@ -61,6 +62,9 @@ public class ResourceHandlerRegistration {
   private boolean useLastModified = true;
 
   private boolean optimizeLocations = false;
+
+  @Nullable
+  private Function<Resource, String> etagGenerator;
 
   @Nullable
   HttpRequestHandler notFoundHandler;
@@ -148,6 +152,21 @@ public class ResourceHandlerRegistration {
    */
   public ResourceHandlerRegistration setUseLastModified(boolean useLastModified) {
     this.useLastModified = useLastModified;
+    return this;
+  }
+
+  /**
+   * Configure a generator function that will be used to create the ETag information,
+   * given a {@link Resource} that is about to be written to the response.
+   * <p>This function should return a String that will be used as an argument in
+   * {@link cn.taketoday.web.RequestContext#checkNotModified(String)}, or {@code null} if no value
+   * can be generated for the given resource.
+   *
+   * @param etagGenerator the HTTP ETag generator function to use.
+   * @see ResourceHttpRequestHandler#setEtagGenerator(Function)
+   */
+  public ResourceHandlerRegistration setEtagGenerator(@Nullable Function<Resource, String> etagGenerator) {
+    this.etagGenerator = etagGenerator;
     return this;
   }
 
@@ -246,6 +265,7 @@ public class ResourceHandlerRegistration {
     if (notFoundHandler != null) {
       handler.setNotFoundHandler(notFoundHandler);
     }
+    handler.setEtagGenerator(etagGenerator);
     handler.setUseLastModified(useLastModified);
     handler.setOptimizeLocations(optimizeLocations);
     return handler;
