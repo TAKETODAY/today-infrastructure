@@ -247,7 +247,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   void addNullAdditionalConnectorThrows() {
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.addAdditionalTomcatConnectors((Connector[]) null))
-            .withMessageContaining("Connectors must not be null");
+            .withMessageContaining("Connectors is required");
   }
 
   @Test
@@ -284,7 +284,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   void setNullTomcatContextCustomizersThrows() {
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setTomcatContextCustomizers(null))
-            .withMessageContaining("TomcatContextCustomizers must not be null");
+            .withMessageContaining("TomcatContextCustomizers is required");
   }
 
   @Test
@@ -292,14 +292,14 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addContextCustomizers((TomcatContextCustomizer[]) null))
-            .withMessageContaining("TomcatContextCustomizers must not be null");
+            .withMessageContaining("TomcatContextCustomizers is required");
   }
 
   @Test
   void setNullTomcatConnectorCustomizersThrows() {
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setTomcatConnectorCustomizers(null))
-            .withMessageContaining("TomcatConnectorCustomizers must not be null");
+            .withMessageContaining("TomcatConnectorCustomizers is required");
   }
 
   @Test
@@ -307,14 +307,14 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addConnectorCustomizers((TomcatConnectorCustomizer[]) null))
-            .withMessageContaining("TomcatConnectorCustomizers must not be null");
+            .withMessageContaining("TomcatConnectorCustomizers is required");
   }
 
   @Test
   void setNullTomcatProtocolHandlerCustomizersThrows() {
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setTomcatProtocolHandlerCustomizers(null))
-            .withMessageContaining("TomcatProtocolHandlerCustomizers must not be null");
+            .withMessageContaining("TomcatProtocolHandlerCustomizers is required");
   }
 
   @Test
@@ -322,7 +322,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     TomcatServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addProtocolHandlerCustomizers((TomcatProtocolHandlerCustomizer[]) null))
-            .withMessageContaining("TomcatProtocolHandlerCustomizers must not be null");
+            .withMessageContaining("TomcatProtocolHandlerCustomizers is required");
   }
 
   @Test

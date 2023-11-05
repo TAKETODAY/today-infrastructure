@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +64,7 @@ class UndertowReactiveWebServerFactoryTests extends AbstractReactiveWebServerFac
   void setNullBuilderCustomizersShouldThrowException() {
     UndertowReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setBuilderCustomizers(null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -75,7 +72,7 @@ class UndertowReactiveWebServerFactoryTests extends AbstractReactiveWebServerFac
     UndertowReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addBuilderCustomizers((UndertowBuilderCustomizer[]) null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
