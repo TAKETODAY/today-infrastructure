@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.http.client;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 
 import cn.taketoday.http.HttpHeaders;
@@ -65,7 +63,18 @@ final class BufferingClientHttpRequestWrapper extends AbstractBufferingClientHtt
     request.getHeaders().putAll(headers);
 
     if (request instanceof StreamingHttpOutputMessage streaming) {
-      streaming.setBody(stream -> StreamUtils.copy(bufferedOutput, stream));
+      streaming.setBody(new StreamingHttpOutputMessage.Body() {
+
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          StreamUtils.copy(bufferedOutput, outputStream);
+        }
+
+        @Override
+        public boolean repeatable() {
+          return true;
+        }
+      });
     }
     else {
       StreamUtils.copy(bufferedOutput, request.getBody());
