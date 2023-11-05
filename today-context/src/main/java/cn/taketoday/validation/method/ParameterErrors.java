@@ -33,11 +33,12 @@ import cn.taketoday.validation.ObjectError;
  * {@link Errors#getAllErrors()}, but this subclass provides access to the same
  * as {@link FieldError}s.
  *
- * <p>When the method parameter is a {@link List} or {@link java.util.Map},
- * a separate {@link ParameterErrors} is created for each list or map value for
- * which there are validation errors. In such cases, the {@link #getContainer()}
- * method returns the list or map, while {@link #getContainerIndex()}
- * and {@link #getContainerKey()} return the value index or key.
+ * <p>When the method parameter is a container with multiple elements such as a
+ * {@link List}, {@link java.util.Set}, array, {@link java.util.Map}, or others,
+ * then a separate {@link ParameterErrors} is created for each element that has
+ * errors. In that case, the {@link #getContainer() container},
+ * {@link #getContainerIndex() containerIndex}, and {@link #getContainerKey() containerKey}
+ * provide additional context.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -70,11 +71,12 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
   }
 
   /**
-   * When {@code @Valid} is declared on a {@link List} or {@link java.util.Map}
-   * method parameter, this method returns the list or map that contained the
-   * validated object {@link #getArgument() argument}, while
-   * {@link #getContainerIndex()} and {@link #getContainerKey()} returns the
-   * respective index or key.
+   * When {@code @Valid} is declared on a container of elements such as
+   * {@link java.util.Collection}, {@link java.util.Map},
+   * {@link java.util.Optional}, and others, this method returns the container
+   * of the validated {@link #getArgument() argument}, while
+   * {@link #getContainerIndex()} and {@link #getContainerKey()} provide
+   * information about the index or key if applicable.
    */
   @Nullable
   public Object getContainer() {
@@ -82,9 +84,9 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
   }
 
   /**
-   * When {@code @Valid} is declared on a {@link List}, this method returns
-   * the index under which the validated object {@link #getArgument() argument}
-   * is stored in the list {@link #getContainer() container}.
+   * When {@code @Valid} is declared on an indexed container of elements such as
+   * {@link List} or array, this method returns the index of the validated
+   * {@link #getArgument() argument}.
    */
   @Nullable
   public Integer getContainerIndex() {
@@ -92,9 +94,9 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
   }
 
   /**
-   * When {@code @Valid} is declared on a {@link java.util.Map}, this method
-   * returns the key under which the validated object {@link #getArgument()
-   * argument} is stored in the map {@link #getContainer()}.
+   * When {@code @Valid} is declared on a container of elements referenced by
+   * key such as {@link java.util.Map}, this method returns the key of the
+   * validated {@link #getArgument() argument}.
    */
   @Nullable
   public Object getContainerKey() {

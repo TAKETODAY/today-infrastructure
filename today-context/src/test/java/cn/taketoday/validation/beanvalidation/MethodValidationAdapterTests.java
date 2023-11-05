@@ -17,14 +17,16 @@
 
 package cn.taketoday.validation.beanvalidation;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.MessageSourceResolvable;
@@ -37,6 +39,7 @@ import cn.taketoday.validation.method.ParameterValidationResult;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,21 +51,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Order(1)
 class MethodValidationAdapterTests {
 
-  private static final Person faustino1234 = new Person("Faustino1234");
+  private static final Person faustino1234 = new Person("Faustino1234", List.of("Working on Spring"));
 
-  private static final Person cayetana6789 = new Person("Cayetana6789");
+  private static final Person cayetana6789 = new Person("Cayetana6789", List.of("  "));
 
   private final MethodValidationAdapter validationAdapter = new MethodValidationAdapter();
 
   private static final Locale originalLocale = Locale.getDefault();
 
-  @BeforeAll
-  static void setDefaultLocaleToEnglish() {
+  @BeforeEach
+  void setDefaultLocaleToEnglish() {
     Locale.setDefault(Locale.ENGLISH);
   }
 
-  @AfterAll
-  static void resetDefaultLocale() {
+  @AfterEach
+  void resetDefaultLocale() {
     Locale.setDefault(originalLocale);
   }
 
@@ -87,7 +90,13 @@ class MethodValidationAdapterTests {
               codes [Size.guardian.name,Size.name,Size.java.lang.String,Size]; \
               arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
               codes [guardian.name,name]; arguments []; default message [name],10,1]; \
-              default message [size must be between 1 and 10]"""));
+              default message [size must be between 1 and 10]""", """
+              Field error in object 'guardian' on field 'hobbies[0]': rejected value [  ]; \
+              codes [NotBlank.guardian.hobbies[0],NotBlank.guardian.hobbies,NotBlank.hobbies[0],\
+              NotBlank.hobbies,NotBlank.java.lang.String,NotBlank]; arguments \
+              [cn.taketoday.context.support.DefaultMessageSourceResolvable: codes \
+              [guardian.hobbies[0],hobbies[0]]; arguments []; default message [hobbies[0]]]; \
+              default message [must not be blank]"""));
 
       assertValueResult(ex.getValueResults().get(0), 2, 3, List.of("""
               cn.taketoday.context.support.DefaultMessageSourceResolvable: \
@@ -105,7 +114,7 @@ class MethodValidationAdapterTests {
 
     this.validationAdapter.setObjectNameResolver((param, value) -> "studentToAdd");
 
-    testArgs(target, method, new Object[] { faustino1234, new Person("Joe"), 1 }, ex -> {
+    testArgs(target, method, new Object[] { faustino1234, new Person("Joe", List.of()), 1 }, ex -> {
 
       assertThat(ex.getAllValidationResults()).hasSize(1);
 
@@ -177,7 +186,49 @@ class MethodValidationAdapterTests {
               codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
               arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
               codes [people.name,name]; arguments []; default message [name],10,1]; \
-              default message [size must be between 1 and 10]"""));
+              default message [size must be between 1 and 10]""", """
+              Field error in object 'people' on field 'hobbies[0]': rejected value [  ]; \
+              codes [NotBlank.people.hobbies[0],NotBlank.people.hobbies,NotBlank.hobbies[0],\
+              NotBlank.hobbies,NotBlank.java.lang.String,NotBlank]; arguments \
+              [cn.taketoday.context.support.DefaultMessageSourceResolvable: codes \
+              [people.hobbies[0],hobbies[0]]; arguments []; default message [hobbies[0]]]; \
+              default message [must not be blank]"""));
+    });
+  }
+
+  @Test
+  void validateSetArgument() {
+    MyService target = new MyService();
+    Method method = getMethod(target, "addPeople");
+
+    testArgs(target, method, new Object[] { Set.of(faustino1234, cayetana6789) }, ex -> {
+
+      assertThat(ex.getAllValidationResults()).hasSize(2);
+
+      int paramIndex = 0;
+      String objectName = "people";
+      List<ParameterErrors> results = ex.getBeanResults();
+
+      assertThat(results).satisfiesExactlyInAnyOrder(
+              result -> assertBeanResult(result, paramIndex, objectName, faustino1234, List.of("""
+                      Field error in object 'people' on field 'name': rejected value [Faustino1234]; \
+                      codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
+                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+                      codes [people.name,name]; arguments []; default message [name],10,1]; \
+                      default message [size must be between 1 and 10]""")),
+              result -> assertBeanResult(result, paramIndex, objectName, cayetana6789, List.of("""
+                      Field error in object 'people' on field 'name': rejected value [Cayetana6789]; \
+                      codes [Size.people.name,Size.name,Size.java.lang.String,Size]; \
+                      arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+                      codes [people.name,name]; arguments []; default message [name],10,1]; \
+                      default message [size must be between 1 and 10]""", """
+                      Field error in object 'people' on field 'hobbies[0]': rejected value [  ]; \
+                      codes [NotBlank.people.hobbies[0],NotBlank.people.hobbies,NotBlank.hobbies[0],\
+                      NotBlank.hobbies,NotBlank.java.lang.String,NotBlank]; arguments \
+                      [cn.taketoday.context.support.DefaultMessageSourceResolvable: codes \
+                      [people.hobbies[0],hobbies[0]]; arguments []; default message [hobbies[0]]]; \
+                      default message [must not be blank]"""))
+      );
     });
   }
 
@@ -190,7 +241,7 @@ class MethodValidationAdapterTests {
   }
 
   private static void assertBeanResult(
-          ParameterErrors errors, int parameterIndex, String objectName, Object argument,
+          ParameterErrors errors, int parameterIndex, String objectName, @Nullable Object argument,
           List<String> fieldErrors) {
 
     assertThat(errors.getMethodParameter().getParameterIndex()).isEqualTo(parameterIndex);
@@ -232,13 +283,13 @@ class MethodValidationAdapterTests {
       throw new UnsupportedOperationException();
     }
 
-    public void addPeople(@Valid List<Person> people) {
+    public void addPeople(@Valid Collection<Person> people) {
     }
 
   }
 
   @SuppressWarnings("unused")
-  private record Person(@Size(min = 1, max = 10) String name) {
+  private record Person(@Size(min = 1, max = 10) String name, List<@NotBlank String> hobbies) {
   }
 
 }
