@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.test.context.ContextConfiguration;
+import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.junit.jupiter.JUnitConfig;
 import cn.taketoday.test.context.web.WebAppConfiguration;
@@ -94,6 +92,12 @@ public @interface JUnitWebConfig {
    */
   @AliasFor(annotation = ContextConfiguration.class)
   boolean inheritInitializers() default true;
+
+  /**
+   * Alias for {@link ContextConfiguration#loader}.
+   */
+  @AliasFor(annotation = ContextConfiguration.class)
+  Class<? extends ContextLoader> loader() default ContextLoader.class;
 
   /**
    * Alias for {@link ContextConfiguration#name}.

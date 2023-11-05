@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.context.junit.jupiter.comics.Cat;
 import cn.taketoday.test.context.junit.jupiter.comics.Dog;
 import cn.taketoday.test.context.junit.jupiter.comics.Person;
+import cn.taketoday.test.context.support.AnnotationConfigContextLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,15 +37,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * can be used with JUnit Jupiter's {@link ParameterizedTest @ParameterizedTest}
  * support in conjunction with the {@link InfraExtension}.
  *
- * <p>To run these tests in an IDE that does not have built-in support for the
- * JUnit Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
- *
  * @author Sam Brannen
  * @see InfraExtension
  * @see ParameterizedTest
  * @since 4.0
  */
-@JUnitConfig(TestConfig.class)
+@JUnitConfig(classes = TestConfig.class, loader = AnnotationConfigContextLoader.class)
 class InfraExtensionParameterizedTests {
 
   @ParameterizedTest
