@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import cn.taketoday.beans.factory.InitializingBean;
@@ -135,6 +136,9 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   private CorsConfiguration corsConfiguration;
 
+  @Nullable
+  private Function<Resource, String> etagGenerator;
+
   private boolean useLastModified = true;
 
   private boolean optimizeLocations = false;
@@ -164,7 +168,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @see #setLocations(List)
    */
   public void setLocationValues(List<String> locations) {
-    Assert.notNull(locations, "Locations list must not be null");
+    Assert.notNull(locations, "Locations list is required");
     this.locationValues.clear();
     this.locationValues.addAll(locations);
   }
@@ -175,7 +179,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @see #setLocationValues(List)
    */
   public void setLocations(List<Resource> locations) {
-    Assert.notNull(locations, "Locations list must not be null");
+    Assert.notNull(locations, "Locations list is required");
     this.locationResources.clear();
     this.locationResources.addAll(locations);
   }
@@ -349,6 +353,29 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   }
 
   /**
+   * Configure a generator function that will be used to create the ETag information,
+   * given a {@link Resource} that is about to be written to the response.
+   * <p>This function should return a String that will be used as an argument in
+   * {@link RequestContext#checkNotModified(String)}, or {@code null} if no value
+   * can be generated for the given resource.
+   *
+   * @param etagGenerator the HTTP ETag generator function to use.
+   */
+  public void setEtagGenerator(@Nullable Function<Resource, String> etagGenerator) {
+    this.etagGenerator = etagGenerator;
+  }
+
+  /**
+   * Return the HTTP ETag generator function to be used when serving resources.
+   *
+   * @return the HTTP ETag generator function
+   */
+  @Nullable
+  public Function<Resource, String> getEtagGenerator() {
+    return this.etagGenerator;
+  }
+
+  /**
    * Set whether to optimize the specified locations through an existence
    * check on startup, filtering non-existing directories upfront so that
    * they do not have to be checked on every resource access.
@@ -517,7 +544,8 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     checkRequest(request);
 
     // Header phase
-    if (isUseLastModified() && request.checkNotModified(resource.lastModified())) {
+    String eTag = getETag(resource);
+    if (request.checkNotModified(eTag, isUseLastModified() ? resource.lastModified() : -1)) {
       log.trace("Resource not modified");
       return NONE_RETURN_VALUE;
     }
@@ -558,6 +586,15 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     }
 
     return NONE_RETURN_VALUE;
+  }
+
+  @Nullable
+  private String getETag(Resource resource) {
+    Function<Resource, String> etagGenerator = getEtagGenerator();
+    if (etagGenerator != null) {
+      return etagGenerator.apply(resource);
+    }
+    return null;
   }
 
   @Nullable

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -121,7 +118,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
         String headerName = entry.getKey();
         for (String headerValue : entry.getValue()) {
-          servletResponse.addHeader(headerName, headerValue);
+          servletResponse.setHeader(headerName, headerValue);
         }
       }
 
