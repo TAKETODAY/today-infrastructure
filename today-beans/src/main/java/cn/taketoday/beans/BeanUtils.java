@@ -117,7 +117,7 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static <T> T newInstance(Class<T> beanClass, DependencyInjector injector, @Nullable Object... providedArgs) {
-    Assert.notNull(injector, "ArgumentsResolver must not be null");
+    Assert.notNull(injector, "ArgumentsResolver is required");
     Constructor<T> constructor = obtainConstructor(beanClass);
     return injector.inject(constructor, providedArgs);
   }
@@ -223,7 +223,7 @@ public abstract class BeanUtils {
   @Nullable
   @SuppressWarnings("unchecked")
   public static <T> Constructor<T> getConstructor(Class<T> beanClass) {
-    Assert.notNull(beanClass, "bean-class must not be null");
+    Assert.notNull(beanClass, "bean-class is required");
     Constructor<?>[] ctors = beanClass.getConstructors();
     if (ctors.length == 1) {
       // A single public constructor
@@ -322,7 +322,7 @@ public abstract class BeanUtils {
    * @since 4.0
    */
   public static boolean isSimpleProperty(Class<?> type) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     return isSimpleValueType(type) || (type.isArray() && isSimpleValueType(type.getComponentType()));
   }
 
@@ -423,7 +423,7 @@ public abstract class BeanUtils {
    */
   @Nullable
   public static PropertyDescriptor findPropertyForMethod(Method method, Class<?> clazz) throws BeansException {
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method is required");
     PropertyDescriptor[] pds = getPropertyDescriptors(clazz);
     for (PropertyDescriptor pd : pds) {
       if (method.equals(pd.getReadMethod()) || method.equals(pd.getWriteMethod())) {
@@ -508,7 +508,7 @@ public abstract class BeanUtils {
   @Nullable
   public static Method resolveSignature(String signature, Class<?> clazz) {
     Assert.hasText(signature, "'signature' must not be empty");
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     int startParen = signature.indexOf('(');
     int endParen = signature.indexOf(')');
     if (startParen > -1 && endParen == -1) {
@@ -671,8 +671,8 @@ public abstract class BeanUtils {
    */
   private static void copyProperties(Object source, Object target,
           @Nullable Class<?> editable, @Nullable String[] ignoreProperties) throws BeansException {
-    Assert.notNull(source, "Source must not be null");
-    Assert.notNull(target, "Target must not be null");
+    Assert.notNull(source, "Source is required");
+    Assert.notNull(target, "Target is required");
     Class<?> actualEditable;
     if (editable != null) {
       if (!editable.isInstance(target)) {
