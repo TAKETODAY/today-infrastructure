@@ -63,6 +63,33 @@ class SimpleJdbcInsertTests {
     verify(connection).close();
   }
 
+  @Test
+  void missingTableName() throws Exception {
+    SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource);
+
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+            .isThrownBy(insert::compile)
+            .withMessage("Table name is required");
+
+    // Appease the @AfterEach checks.
+    connection.close();
+  }
+
+  @Test
+    // gh-24013 and gh-31208
+  void usingQuotedIdentifiersWithoutSupplyingColumnNames() throws Exception {
+    SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource)
+            .withTableName("my_table")
+            .usingQuotedIdentifiers();
+
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+            .isThrownBy(insert::compile)
+            .withMessage("Explicit column names must be provided when using quoted identifiers");
+
+    // Appease the @AfterEach checks.
+    connection.close();
+  }
+
   /**
    * This method does not test any functionality but rather only that
    * configuration methods can be chained without compiler errors.

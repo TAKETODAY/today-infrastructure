@@ -104,7 +104,7 @@ public abstract class AbstractJdbcInsert {
    * @param jdbcTemplate the JdbcTemplate to use
    */
   protected AbstractJdbcInsert(JdbcTemplate jdbcTemplate) {
-    Assert.notNull(jdbcTemplate, "JdbcTemplate must not be null");
+    Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
     this.jdbcTemplate = jdbcTemplate;
   }
 
@@ -274,6 +274,10 @@ public abstract class AbstractJdbcInsert {
     if (!isCompiled()) {
       if (getTableName() == null) {
         throw new InvalidDataAccessApiUsageException("Table name is required");
+      }
+      if (isQuoteIdentifiers() && this.declaredColumns.isEmpty()) {
+        throw new InvalidDataAccessApiUsageException(
+                "Explicit column names must be provided when using quoted identifiers");
       }
       try {
         this.jdbcTemplate.afterPropertiesSet();
@@ -486,7 +490,7 @@ public abstract class AbstractJdbcInsert {
       Assert.state(getTableName() != null, "No table name set");
       final String keyQuery = this.tableMetaDataContext.getSimpleQueryForGetGeneratedKey(
               getTableName(), getGeneratedKeyNames()[0]);
-      Assert.state(keyQuery != null, "Query for simulating get generated keys must not be null");
+      Assert.state(keyQuery != null, "Query for simulating get generated keys is required");
 
       // This is a hack to be able to get the generated key from a database that doesn't support
       // get generated keys feature. HSQL is one, PostgreSQL is another. Postgres uses a RETURNING

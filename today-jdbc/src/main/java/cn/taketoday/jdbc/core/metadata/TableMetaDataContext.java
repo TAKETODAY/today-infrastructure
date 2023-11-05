@@ -45,6 +45,7 @@ import cn.taketoday.util.StringUtils;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class TableMetaDataContext {
@@ -313,7 +314,7 @@ public class TableMetaDataContext {
     if (schemaName != null) {
       if (quoting) {
         insertStatement.append(identifierQuoteString);
-        insertStatement.append(this.metaDataProvider.schemaNameToUse(schemaName));
+        insertStatement.append(schemaName);
         insertStatement.append(identifierQuoteString);
       }
       else {
@@ -325,7 +326,7 @@ public class TableMetaDataContext {
     String tableName = getTableName();
     if (quoting) {
       insertStatement.append(identifierQuoteString);
-      insertStatement.append(this.metaDataProvider.tableNameToUse(tableName));
+      insertStatement.append(tableName);
       insertStatement.append(identifierQuoteString);
     }
     else {
