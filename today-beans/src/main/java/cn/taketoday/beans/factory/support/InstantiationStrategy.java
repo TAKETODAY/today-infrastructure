@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -191,6 +188,11 @@ public class InstantiationStrategy {
       }
     }
     catch (IllegalArgumentException ex) {
+      if (factoryBean != null && !factoryMethod.getDeclaringClass().isAssignableFrom(factoryBean.getClass())) {
+        throw new BeanInstantiationException(factoryMethod,
+                "Illegal factory instance for factory method '" + factoryMethod.getName() + "'; " +
+                        "instance: " + factoryBean.getClass().getName(), ex);
+      }
       throw new BeanInstantiationException(factoryMethod,
               "Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
                       "args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
