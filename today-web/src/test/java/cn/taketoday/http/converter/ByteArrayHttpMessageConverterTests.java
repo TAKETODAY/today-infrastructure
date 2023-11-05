@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,6 +76,20 @@ public class ByteArrayHttpMessageConverterTests {
     assertThat(outputMessage.getBodyAsBytes()).as("Invalid result").isEqualTo(body);
     assertThat(outputMessage.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM);
     assertThat(outputMessage.getHeaders().getContentLength()).isEqualTo(2);
+  }
+
+  @Test
+  public void repeatableWrites() throws IOException {
+    MockHttpOutputMessage outputMessage1 = new MockHttpOutputMessage();
+    byte[] body = new byte[] { 0x1, 0x2 };
+    assertThat(converter.supportsRepeatableWrites(body)).isTrue();
+
+    converter.write(body, null, outputMessage1);
+    assertThat(outputMessage1.getBodyAsBytes()).isEqualTo(body);
+
+    MockHttpOutputMessage outputMessage2 = new MockHttpOutputMessage();
+    converter.write(body, null, outputMessage2);
+    assertThat(outputMessage2.getBodyAsBytes()).isEqualTo(body);
   }
 
 }

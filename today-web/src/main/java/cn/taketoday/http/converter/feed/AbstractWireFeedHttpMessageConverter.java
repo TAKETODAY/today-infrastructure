@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +33,10 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AbstractHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -103,6 +100,11 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed>
     catch (FeedException ex) {
       throw new HttpMessageNotWritableException("Could not write WireFeed: " + ex.getMessage(), ex);
     }
+  }
+
+  @Override
+  protected boolean supportsRepeatableWrites(T t) {
+    return true;
   }
 
 }

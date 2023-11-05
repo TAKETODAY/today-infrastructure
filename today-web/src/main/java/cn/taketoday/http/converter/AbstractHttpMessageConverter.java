@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.http.converter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +29,6 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.SimpleHttpOutputMessage;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -48,6 +45,7 @@ import cn.taketoday.logging.Logger;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConverter<T> {
@@ -211,9 +209,28 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
     final HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
-      streamingOutput.setBody(outputStream ->
-              writeInternal(t, new SimpleHttpOutputMessage(headers, outputStream)));
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(new StreamingHttpOutputMessage.Body() {
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          writeInternal(t, new HttpOutputMessage() {
+            @Override
+            public OutputStream getBody() {
+              return outputStream;
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+              return headers;
+            }
+          });
+        }
+
+        @Override
+        public boolean repeatable() {
+          return supportsRepeatableWrites(t);
+        }
+      });
     }
     else {
       writeInternal(t, outputMessage);
@@ -227,8 +244,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
    * content type was not provided, set if necessary the default character set, calls
    * {@link #getContentLength}, and sets the corresponding headers.
    */
-  public void addDefaultHeaders(
-          HttpHeaders headers, T t, @Nullable MediaType contentType) throws IOException {
+  public void addDefaultHeaders(HttpHeaders headers, T t, @Nullable MediaType contentType) throws IOException {
     String contentTypeString = headers.getFirst(HttpHeaders.CONTENT_TYPE);
     if (contentTypeString == null) {
       MediaType contentTypeToUse = contentType;
@@ -288,6 +304,21 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
   @Nullable
   protected Long getContentLength(T t, @Nullable MediaType contentType) throws IOException {
     return null;
+  }
+
+  /**
+   * Indicates whether this message converter can
+   * {@linkplain #write(Object, MediaType, HttpOutputMessage) write} the
+   * given object multiple times.
+   *
+   * <p>Default implementation returns {@code false}.
+   *
+   * @param t the object t
+   * @return {@code true} if {@code t} can be written repeatedly;
+   * {@code false} otherwise
+   */
+  protected boolean supportsRepeatableWrites(T t) {
+    return false;
   }
 
   /**

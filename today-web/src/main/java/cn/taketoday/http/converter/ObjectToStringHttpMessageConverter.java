@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,10 +23,10 @@ import java.nio.charset.Charset;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 
 /**
  * An {@code HttpMessageConverter} that uses {@link StringHttpMessageConverter}
@@ -52,6 +49,7 @@ import cn.taketoday.http.MediaType;
  *
  * @author <a href="mailto:dmitry.katsubo@gmail.com">Dmitry Katsubo</a>
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConverter<Object> {
@@ -137,6 +135,11 @@ public class ObjectToStringHttpMessageConverter extends AbstractHttpMessageConve
       return 0L;
     }
     return this.stringHttpMessageConverter.getContentLength(value, contentType);
+  }
+
+  @Override
+  protected boolean supportsRepeatableWrites(Object o) {
+    return true;
   }
 
 }

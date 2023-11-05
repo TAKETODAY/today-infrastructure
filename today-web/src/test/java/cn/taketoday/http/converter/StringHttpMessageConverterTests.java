@@ -17,7 +17,6 @@
 
 package cn.taketoday.http.converter;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -36,31 +35,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class StringHttpMessageConverterTests {
 
-  public static final MediaType TEXT_PLAIN_UTF_8 = new MediaType("text", "plain", StandardCharsets.UTF_8);
+  private static final MediaType TEXT_PLAIN_UTF_8 = new MediaType("text", "plain", StandardCharsets.UTF_8);
 
-  private StringHttpMessageConverter converter;
+  private final StringHttpMessageConverter converter = new StringHttpMessageConverter();
 
-  private MockHttpOutputMessage outputMessage;
-
-  @BeforeEach
-  public void setUp() {
-    this.converter = new StringHttpMessageConverter();
-    this.outputMessage = new MockHttpOutputMessage();
-  }
+  private final MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 
   @Test
-  public void canRead() {
+  void canRead() {
     assertThat(this.converter.canRead(String.class, MediaType.TEXT_PLAIN)).isTrue();
   }
 
   @Test
-  public void canWrite() {
+  void canWrite() {
     assertThat(this.converter.canWrite(String.class, MediaType.TEXT_PLAIN)).isTrue();
     assertThat(this.converter.canWrite(String.class, MediaType.ALL)).isTrue();
   }
 
   @Test
-  public void read() throws IOException {
+  void read() throws IOException {
     String body = "Hello World";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(TEXT_PLAIN_UTF_8);
@@ -80,8 +73,9 @@ public class StringHttpMessageConverterTests {
     assertThat(result).as("Invalid result").isEqualTo(body);
   }
 
-  @Test // gh-24123
-  public void readJson() throws IOException {
+  @Test
+    // gh-24123
+  void readJson() throws IOException {
     String body = "{\"result\":\"\u0414\u0410\"}";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(MediaType.APPLICATION_JSON);
@@ -90,8 +84,9 @@ public class StringHttpMessageConverterTests {
     assertThat(result).as("Invalid result").isEqualTo(body);
   }
 
-  @Test // gh-25328
-  public void readJsonApi() throws IOException {
+  @Test
+    // gh-25328
+  void readJsonApi() throws IOException {
     String body = "{\"result\":\"\u0414\u0410\"}";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(body.getBytes(StandardCharsets.UTF_8));
     inputMessage.getHeaders().setContentType(new MediaType("application", "vnd.api.v1+json"));
@@ -101,7 +96,7 @@ public class StringHttpMessageConverterTests {
   }
 
   @Test
-  public void writeDefaultCharset() throws IOException {
+  void writeDefaultCharset() throws IOException {
     String body = "H\u00e9llo W\u00f6rld";
     this.converter.write(body, null, this.outputMessage);
 
@@ -109,11 +104,12 @@ public class StringHttpMessageConverterTests {
     assertThat(this.outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo(body);
     assertThat(headers.getContentType()).isEqualTo(new MediaType("text", "plain", StandardCharsets.UTF_8));
     assertThat(headers.getContentLength()).isEqualTo(body.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(headers.getAcceptCharset().isEmpty()).isTrue();
+    assertThat(headers.getAcceptCharset()).isEmpty();
   }
 
-  @Test  // gh-24123
-  public void writeJson() throws IOException {
+  @Test
+    // gh-24123
+  void writeJson() throws IOException {
     String body = "{\"føø\":\"bår\"}";
     this.converter.write(body, MediaType.APPLICATION_JSON, this.outputMessage);
 
@@ -121,11 +117,12 @@ public class StringHttpMessageConverterTests {
     assertThat(this.outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo(body);
     assertThat(headers.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
     assertThat(headers.getContentLength()).isEqualTo(body.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(headers.getAcceptCharset().isEmpty()).isTrue();
+    assertThat(headers.getAcceptCharset()).isEmpty();
   }
 
-  @Test  // gh-25328
-  public void writeJsonApi() throws IOException {
+  @Test
+    // gh-25328
+  void writeJsonApi() throws IOException {
     String body = "{\"føø\":\"bår\"}";
     MediaType contentType = new MediaType("application", "vnd.api.v1+json");
     this.converter.write(body, contentType, this.outputMessage);
@@ -134,11 +131,11 @@ public class StringHttpMessageConverterTests {
     assertThat(this.outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo(body);
     assertThat(headers.getContentType()).isEqualTo(contentType);
     assertThat(headers.getContentLength()).isEqualTo(body.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(headers.getAcceptCharset().isEmpty()).isTrue();
+    assertThat(headers.getAcceptCharset()).isEmpty();
   }
 
   @Test
-  public void writeUTF8() throws IOException {
+  void writeUTF8() throws IOException {
     String body = "H\u00e9llo W\u00f6rld";
     this.converter.write(body, TEXT_PLAIN_UTF_8, this.outputMessage);
 
@@ -146,11 +143,12 @@ public class StringHttpMessageConverterTests {
     assertThat(this.outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo(body);
     assertThat(headers.getContentType()).isEqualTo(TEXT_PLAIN_UTF_8);
     assertThat(headers.getContentLength()).isEqualTo(body.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(headers.getAcceptCharset().isEmpty()).isTrue();
+    assertThat(headers.getAcceptCharset()).isEmpty();
   }
 
-  @Test  // SPR-8867
-  public void writeOverrideRequestedContentType() throws IOException {
+  @Test
+    // SPR-8867
+  void writeOverrideRequestedContentType() throws IOException {
     String body = "H\u00e9llo W\u00f6rld";
     MediaType requestedContentType = new MediaType("text", "html");
 
@@ -161,11 +159,12 @@ public class StringHttpMessageConverterTests {
     assertThat(this.outputMessage.getBodyAsString(StandardCharsets.UTF_8)).isEqualTo(body);
     assertThat(headers.getContentType()).isEqualTo(TEXT_PLAIN_UTF_8);
     assertThat(headers.getContentLength()).isEqualTo(body.getBytes(StandardCharsets.UTF_8).length);
-    assertThat(headers.getAcceptCharset().isEmpty()).isTrue();
+    assertThat(headers.getAcceptCharset()).isEmpty();
   }
 
-  @Test // gh-24283
-  public void writeWithWildCardMediaType() throws IOException {
+  @Test
+    // gh-24283
+  void writeWithWildCardMediaType() throws IOException {
     String body = "Hello World";
     this.converter.write(body, MediaType.ALL, this.outputMessage);
 
@@ -173,7 +172,21 @@ public class StringHttpMessageConverterTests {
     assertThat(this.outputMessage.getBodyAsString(StandardCharsets.US_ASCII)).isEqualTo(body);
     assertThat(headers.getContentType()).isEqualTo(new MediaType("text", "plain", StandardCharsets.UTF_8));
     assertThat(headers.getContentLength()).isEqualTo(body.getBytes().length);
-    assertThat(headers.getAcceptCharset().isEmpty()).isTrue();
+    assertThat(headers.getAcceptCharset()).isEmpty();
+  }
+
+  @Test
+  public void repeatableWrites() throws IOException {
+    MockHttpOutputMessage outputMessage1 = new MockHttpOutputMessage();
+    String body = "Hello World";
+    assertThat(converter.supportsRepeatableWrites(body)).isTrue();
+
+    converter.write(body, TEXT_PLAIN_UTF_8, outputMessage1);
+    assertThat(outputMessage1.getBodyAsString()).isEqualTo(body);
+
+    MockHttpOutputMessage outputMessage2 = new MockHttpOutputMessage();
+    converter.write(body, TEXT_PLAIN_UTF_8, outputMessage2);
+    assertThat(outputMessage2.getBodyAsString()).isEqualTo(body);
   }
 
 }

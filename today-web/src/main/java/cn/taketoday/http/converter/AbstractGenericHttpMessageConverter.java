@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +18,12 @@
 package cn.taketoday.http.converter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.SimpleHttpOutputMessage;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Nullable;
 
@@ -90,12 +87,31 @@ public abstract class AbstractGenericHttpMessageConverter<T>
   public final void write(final T t, @Nullable final Type type, @Nullable MediaType contentType,
           HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
 
-    HttpHeaders headers = outputMessage.getHeaders();
+    final HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutput) {
-      streamingOutput.setBody(outputStream ->
-              writeInternal(t, type, new SimpleHttpOutputMessage(headers, outputStream)));
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(new StreamingHttpOutputMessage.Body() {
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          writeInternal(t, type, new HttpOutputMessage() {
+            @Override
+            public OutputStream getBody() {
+              return outputStream;
+            }
+
+            @Override
+            public HttpHeaders getHeaders() {
+              return headers;
+            }
+          });
+        }
+
+        @Override
+        public boolean repeatable() {
+          return supportsRepeatableWrites(t);
+        }
+      });
     }
     else {
       writeInternal(t, type, outputMessage);

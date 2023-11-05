@@ -150,6 +150,7 @@ import jakarta.mail.internet.MimeUtility;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AllEncompassingFormHttpMessageConverter
  * @see MultiValueMap
  * @since 4.0
@@ -333,8 +334,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   }
 
   @Override
-  public MultiValueMap<String, String> read(
-          @Nullable Class<? extends MultiValueMap<String, ?>> clazz,
+  public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz,
           HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
 
     MediaType contentType = inputMessage.getHeaders().getContentType();
@@ -385,8 +385,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     return false;
   }
 
-  private void writeForm(
-          MultiValueMap<String, Object> formData,
+  private void writeForm(MultiValueMap<String, Object> formData,
           @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     contentType = getFormContentType(contentType);
@@ -398,8 +397,18 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     byte[] bytes = serializeForm(formData, charset).getBytes(charset);
     outputMessage.getHeaders().setContentLength(bytes.length);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(outputStream -> StreamUtils.copy(bytes, outputStream));
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(new StreamingHttpOutputMessage.Body() {
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          StreamUtils.copy(bytes, outputStream);
+        }
+
+        @Override
+        public boolean repeatable() {
+          return true;
+        }
+      });
     }
     else {
       StreamUtils.copy(bytes, outputMessage.getBody());
@@ -442,7 +451,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
         continue;
       }
       for (Object value : values) {
-        if (builder.length() != 0) {
+        if (!builder.isEmpty()) {
           builder.append('&');
         }
         builder.append(URLEncoder.encode(name, charset));
@@ -456,8 +465,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     return builder.toString();
   }
 
-  private void writeMultipart(
-          MultiValueMap<String, Object> parts,
+  private void writeMultipart(MultiValueMap<String, Object> parts,
           @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     // If the supplied content type is null, fall back to multipart/form-data.

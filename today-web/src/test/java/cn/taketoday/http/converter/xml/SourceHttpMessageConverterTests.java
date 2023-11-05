@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,21 +111,22 @@ class SourceHttpMessageConverterTests {
   public void readDomSourceWithXmlBomb() throws Exception {
     // https://en.wikipedia.org/wiki/Billion_laughs
     // https://msdn.microsoft.com/en-us/magazine/ee335713.aspx
-    String content = "<?xml version=\"1.0\"?>\n" +
-            "<!DOCTYPE lolz [\n" +
-            " <!ENTITY lol \"lol\">\n" +
-            " <!ELEMENT lolz (#PCDATA)>\n" +
-            " <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\n" +
-            " <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\n" +
-            " <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\n" +
-            " <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\n" +
-            " <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\n" +
-            " <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\n" +
-            " <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\n" +
-            " <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\n" +
-            " <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
-            "]>\n" +
-            "<root>&lol9;</root>";
+    String content = """
+            <?xml version="1.0"?>
+            <!DOCTYPE lolz [
+            	<!ENTITY lol "lol">
+            	<!ELEMENT lolz (#PCDATA)>
+            	<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+            	<!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+            	<!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+            	<!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+            	<!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
+            	<!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
+            	<!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
+            	<!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
+            	<!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
+            ]>
+            <root>&lol9;</root>""";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(content.getBytes(StandardCharsets.UTF_8));
 
     assertThatExceptionOfType(HttpMessageNotReadableException.class).isThrownBy(() ->
@@ -168,21 +166,22 @@ class SourceHttpMessageConverterTests {
   public void readSAXSourceWithXmlBomb() throws Exception {
     // https://en.wikipedia.org/wiki/Billion_laughs
     // https://msdn.microsoft.com/en-us/magazine/ee335713.aspx
-    String content = "<?xml version=\"1.0\"?>\n" +
-            "<!DOCTYPE lolz [\n" +
-            " <!ENTITY lol \"lol\">\n" +
-            " <!ELEMENT lolz (#PCDATA)>\n" +
-            " <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\n" +
-            " <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\n" +
-            " <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\n" +
-            " <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\n" +
-            " <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\n" +
-            " <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\n" +
-            " <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\n" +
-            " <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\n" +
-            " <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
-            "]>\n" +
-            "<root>&lol9;</root>";
+    String content = """
+            <?xml version="1.0"?>
+            <!DOCTYPE lolz [
+            	<!ENTITY lol "lol">
+            	<!ELEMENT lolz (#PCDATA)>
+            	<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+            	<!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+            	<!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+            	<!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+            	<!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
+            	<!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
+            	<!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
+            	<!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
+            	<!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
+            ]>
+            <root>&lol9;</root>""";
 
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(content.getBytes(StandardCharsets.UTF_8));
     SAXSource result = (SAXSource) this.converter.read(SAXSource.class, inputMessage);
@@ -234,21 +233,22 @@ class SourceHttpMessageConverterTests {
   public void readStAXSourceWithXmlBomb() throws Exception {
     // https://en.wikipedia.org/wiki/Billion_laughs
     // https://msdn.microsoft.com/en-us/magazine/ee335713.aspx
-    String content = "<?xml version=\"1.0\"?>\n" +
-            "<!DOCTYPE lolz [\n" +
-            " <!ENTITY lol \"lol\">\n" +
-            " <!ELEMENT lolz (#PCDATA)>\n" +
-            " <!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">\n" +
-            " <!ENTITY lol2 \"&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;\">\n" +
-            " <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">\n" +
-            " <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">\n" +
-            " <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">\n" +
-            " <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">\n" +
-            " <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">\n" +
-            " <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">\n" +
-            " <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\">\n" +
-            "]>\n" +
-            "<root>&lol9;</root>";
+    String content = """
+            <?xml version="1.0"?>
+            <!DOCTYPE lolz [
+            	<!ENTITY lol "lol">
+            	<!ELEMENT lolz (#PCDATA)>
+            	<!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+            	<!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+            	<!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+            	<!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+            	<!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
+            	<!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
+            	<!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
+            	<!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
+            	<!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
+            ]>
+            <root>&lol9;</root>""";
     MockHttpInputMessage inputMessage = new MockHttpInputMessage(content.getBytes(StandardCharsets.UTF_8));
     StAXSource result = (StAXSource) this.converter.read(StAXSource.class, inputMessage);
 
@@ -289,6 +289,7 @@ class SourceHttpMessageConverterTests {
     DOMSource domSource = new DOMSource(document);
 
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    assertThat(converter.supportsRepeatableWrites(domSource)).isTrue();
     converter.write(domSource, null, outputMessage);
     assertThat(XmlContent.of(outputMessage.getBodyAsString(StandardCharsets.UTF_8)))
             .isSimilarTo("<root>Hello World</root>");
@@ -304,6 +305,7 @@ class SourceHttpMessageConverterTests {
     SAXSource saxSource = new SAXSource(new InputSource(new StringReader(xml)));
 
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    assertThat(converter.supportsRepeatableWrites(saxSource)).isFalse();
     converter.write(saxSource, null, outputMessage);
     assertThat(XmlContent.of(outputMessage.getBodyAsString(StandardCharsets.UTF_8)))
             .isSimilarTo("<root>Hello World</root>");
@@ -317,6 +319,7 @@ class SourceHttpMessageConverterTests {
     StreamSource streamSource = new StreamSource(new StringReader(xml));
 
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+    assertThat(converter.supportsRepeatableWrites(streamSource)).isFalse();
     converter.write(streamSource, null, outputMessage);
     assertThat(XmlContent.of(outputMessage.getBodyAsString(StandardCharsets.UTF_8)))
             .isSimilarTo("<root>Hello World</root>");

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Arjen Poutsma
@@ -62,6 +60,13 @@ public class MockHttpOutputMessage implements HttpOutputMessage {
   public byte[] getBodyAsBytes() {
     writeHeaders();
     return body.toByteArray();
+  }
+
+  /**
+   * Return the body content interpreted as a UTF-8 string.
+   */
+  public String getBodyAsString() {
+    return getBodyAsString(StandardCharsets.UTF_8);
   }
 
   public String getBodyAsString(Charset charset) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,6 +66,7 @@ import cn.taketoday.util.StringUtils;
  * template methods allow subclasses to override Image I/O parameters.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class BufferedImageHttpMessageConverter implements HttpMessageConverter<BufferedImage> {
@@ -215,8 +213,18 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
     MediaType selectedContentType = getContentType(contentType);
     outputMessage.getHeaders().setContentType(selectedContentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(outputStream -> writeInternal(image, selectedContentType, outputStream));
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(new StreamingHttpOutputMessage.Body() {
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          BufferedImageHttpMessageConverter.this.writeInternal(image, selectedContentType, outputStream);
+        }
+
+        @Override
+        public boolean repeatable() {
+          return true;
+        }
+      });
     }
     else {
       writeInternal(image, selectedContentType, outputMessage.getBody());

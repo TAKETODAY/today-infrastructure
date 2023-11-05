@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,15 +25,16 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
+import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MediaTypeFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StreamUtils;
 
@@ -47,6 +45,7 @@ import cn.taketoday.util.StreamUtils;
  * @author Brian Clozel
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessageConverter<Object> {
@@ -225,4 +224,24 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
     os.write(buf.getBytes(StandardCharsets.US_ASCII));
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  protected boolean supportsRepeatableWrites(Object object) {
+    if (object instanceof ResourceRegion resourceRegion) {
+      return supportsRepeatableWrites(resourceRegion);
+    }
+    else {
+      Collection<ResourceRegion> regions = (Collection<ResourceRegion>) object;
+      for (ResourceRegion region : regions) {
+        if (!supportsRepeatableWrites(region)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  private boolean supportsRepeatableWrites(ResourceRegion region) {
+    return !(region.getResource() instanceof InputStreamResource);
+  }
 }

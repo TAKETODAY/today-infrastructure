@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +40,7 @@ import cn.taketoday.oxm.Unmarshaller;
  * overridden by setting the {@link #setSupportedMediaTypes(java.util.List) supportedMediaTypes} property.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MarshallingHttpMessageConverter extends AbstractXmlHttpMessageConverter<Object> {
@@ -139,6 +137,11 @@ public class MarshallingHttpMessageConverter extends AbstractXmlHttpMessageConve
   protected void writeToResult(Object o, HttpHeaders headers, Result result) throws Exception {
     Assert.state(this.marshaller != null, "Property 'marshaller' is required");
     this.marshaller.marshal(o, result);
+  }
+
+  @Override
+  protected boolean supportsRepeatableWrites(Object o) {
+    return true;
   }
 
 }

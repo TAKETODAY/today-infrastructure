@@ -62,6 +62,7 @@ import jakarta.xml.bind.annotation.XmlType;
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MarshallingHttpMessageConverter
  * @since 4.0
  */
@@ -197,6 +198,11 @@ public class Jaxb2RootElementHttpMessageConverter extends AbstractJaxb2HttpMessa
     if (contentType != null && contentType.getCharset() != null) {
       marshaller.setProperty(Marshaller.JAXB_ENCODING, contentType.getCharset().name());
     }
+  }
+
+  @Override
+  protected boolean supportsRepeatableWrites(Object o) {
+    return true;
   }
 
   private static final EntityResolver NO_OP_ENTITY_RESOLVER =

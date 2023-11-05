@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +40,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Roy Clarkson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see com.google.gson.Gson
  * @see com.google.gson.GsonBuilder
  * @see #setGson
@@ -107,6 +105,11 @@ public class GsonHttpMessageConverter extends AbstractJsonHttpMessageConverter {
     else {
       getGson().toJson(object, writer);
     }
+  }
+
+  @Override
+  protected boolean supportsRepeatableWrites(Object o) {
+    return true;
   }
 
 }

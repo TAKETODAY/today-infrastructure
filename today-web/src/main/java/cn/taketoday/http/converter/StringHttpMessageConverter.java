@@ -156,4 +156,9 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
     return charset;
   }
 
+  @Override
+  protected boolean supportsRepeatableWrites(String s) {
+    return true;
+  }
+
 }
