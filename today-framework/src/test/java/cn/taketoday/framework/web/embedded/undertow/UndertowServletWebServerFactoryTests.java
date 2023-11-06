@@ -97,7 +97,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
   void setNullBuilderCustomizersThrows() {
     UndertowServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setBuilderCustomizers(null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -105,7 +105,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     UndertowServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addBuilderCustomizers((UndertowBuilderCustomizer[]) null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -126,7 +126,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
   void setNullDeploymentInfoCustomizersThrows() {
     UndertowServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setDeploymentInfoCustomizers(null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -134,7 +134,7 @@ class UndertowServletWebServerFactoryTests extends AbstractServletWebServerFacto
     UndertowServletWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addDeploymentInfoCustomizers((UndertowDeploymentInfoCustomizer[]) null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test

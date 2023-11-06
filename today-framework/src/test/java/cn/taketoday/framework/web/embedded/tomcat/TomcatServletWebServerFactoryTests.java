@@ -572,7 +572,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   }
 
   @Test
-  @ClassPathOverrides("org.apache.tomcat.embed:tomcat-embed-jasper:10.1.12")
+  @ClassPathOverrides("org.apache.tomcat.embed:tomcat-embed-jasper:10.1.15")
   void registerJspServletWithDefaultLoadOnStartup() {
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0);
     factory.addInitializers((context) -> context.addServlet("manually-registered-jsp-servlet", JspServlet.class));

@@ -123,7 +123,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
 
   @Override
   public void addServerCustomizers(JettyServerCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.jettyServerCustomizers.addAll(Arrays.asList(customizers));
   }
 
@@ -139,7 +139,7 @@ public class JettyReactiveWebServerFactory extends AbstractReactiveWebServerFact
    * @param customizers the Jetty customizers to apply
    */
   public void setServerCustomizers(Collection<? extends JettyServerCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.jettyServerCustomizers = new LinkedHashSet<>(customizers);
   }
 

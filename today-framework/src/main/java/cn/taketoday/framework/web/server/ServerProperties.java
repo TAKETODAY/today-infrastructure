@@ -316,6 +316,8 @@ public class ServerProperties {
       factory.setApplicationTemp(applicationTemp);
     }
 
+    applyTo(factory);
+
     if (servlet.contextPath != null) {
       factory.setContextPath(servlet.contextPath);
     }
