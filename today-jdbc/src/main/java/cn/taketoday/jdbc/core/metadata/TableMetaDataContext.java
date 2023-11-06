@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -298,7 +297,7 @@ public class TableMetaDataContext {
    * @return the insert string to be used
    */
   public String createInsertString(String... generatedKeyNames) {
-    Set<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
+    LinkedHashSet<String> keys = new LinkedHashSet<>(generatedKeyNames.length);
     for (String key : generatedKeyNames) {
       keys.add(key.toUpperCase());
     }
@@ -343,7 +342,7 @@ public class TableMetaDataContext {
         }
         if (quoting) {
           insertStatement.append(identifierQuoteString);
-          insertStatement.append(this.metaDataProvider.columnNameToUse(columnName));
+          insertStatement.append(columnName);
           insertStatement.append(identifierQuoteString);
         }
         else {
@@ -355,8 +354,7 @@ public class TableMetaDataContext {
     if (columnCount < 1) {
       if (this.generatedKeyColumnsUsed) {
         if (logger.isDebugEnabled()) {
-          logger.debug("Unable to locate non-key columns for table '" +
-                  tableName + "' so an empty insert statement is generated");
+          logger.debug("Unable to locate non-key columns for table '{}' so an empty insert statement is generated", tableName);
         }
       }
       else {
