@@ -385,7 +385,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
         String headerName = entry.getKey();
         for (String headerValue : entry.getValue()) {
-          response.setHeader(headerName, headerValue);
+          response.addHeader(headerName, headerValue);
         }
       }
 
