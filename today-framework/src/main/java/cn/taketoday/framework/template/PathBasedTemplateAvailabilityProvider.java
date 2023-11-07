@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.framework.template;
 import java.util.List;
 
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.util.ClassUtils;
@@ -57,7 +55,7 @@ public abstract class PathBasedTemplateAvailabilityProvider implements TemplateA
   public boolean isTemplateAvailable(String view, Environment environment,
           ClassLoader classLoader, ResourceLoader resourceLoader) {
     if (ClassUtils.isPresent(this.className, classLoader)) {
-      Binder binder = Binder.get(environment);
+      Binder binder = Binder.get((ConfigurableEnvironment) environment);
       var properties = binder.bindOrCreate(this.propertyPrefix, this.propertiesClass);
       return isTemplateAvailable(view, resourceLoader, properties);
     }

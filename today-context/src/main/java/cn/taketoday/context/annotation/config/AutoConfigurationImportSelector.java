@@ -255,7 +255,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       return Collections.emptyList();
     }
     if (environment instanceof ConfigurableEnvironment) {
-      Binder binder = Binder.get(environment);
+      Binder binder = Binder.get((ConfigurableEnvironment) environment);
       return binder.bind(PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE, String[].class)
               .map(Arrays::asList)
               .orElse(Collections.emptyList());

@@ -37,7 +37,7 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.NoneNestedConditions;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
-import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.server.EncodingProperties;
@@ -88,7 +88,7 @@ public class HttpMessageConvertersAutoConfiguration {
 
     @Component
     @ConditionalOnMissingBean
-    static StringHttpMessageConverter stringHttpMessageConverter(Environment environment) {
+    static StringHttpMessageConverter stringHttpMessageConverter(ConfigurableEnvironment environment) {
       var encoding = Binder.get(environment).bindOrCreate("server.encoding", EncodingProperties.class);
       StringHttpMessageConverter converter = new StringHttpMessageConverter(encoding.getCharset());
       converter.setWriteAcceptCharset(false);

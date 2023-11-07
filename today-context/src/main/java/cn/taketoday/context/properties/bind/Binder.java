@@ -38,6 +38,7 @@ import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.context.properties.source.ConfigurationPropertyState;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
@@ -562,7 +563,7 @@ public class Binder {
    * {@link ConfigurationPropertySources})
    * @return a {@link Binder} instance
    */
-  public static Binder get(Environment environment) {
+  public static Binder get(ConfigurableEnvironment environment) {
     return get(environment, null);
   }
 
@@ -575,7 +576,7 @@ public class Binder {
    * binding
    * @return a {@link Binder} instance
    */
-  public static Binder get(Environment environment, @Nullable BindHandler defaultBindHandler) {
+  public static Binder get(ConfigurableEnvironment environment, @Nullable BindHandler defaultBindHandler) {
     Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
     PropertySourcesPlaceholdersResolver placeholdersResolver = new PropertySourcesPlaceholdersResolver(environment);
     return new Binder(sources, placeholdersResolver, null, null, defaultBindHandler);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -31,7 +28,6 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySource.StubPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.core.env.PropertySourcesPropertyResolver;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -44,7 +40,7 @@ import cn.taketoday.lang.Nullable;
 public final class ConfigurationPropertySources {
 
   /**
-   * The name of the {@link PropertySource} {@link #attach(Environment) adapter}.
+   * The name of the {@link PropertySource} {@link #attach(ConfigurableEnvironment) adapter}.
    */
   private static final String ATTACHED_PROPERTY_SOURCE_NAME = "configurationProperties";
 
@@ -65,7 +61,7 @@ public final class ConfigurationPropertySources {
 
   /**
    * Determines if the specific {@link PropertySource} is the
-   * {@link ConfigurationPropertySource} that was {@link #attach(Environment) attached}
+   * {@link ConfigurationPropertySource} that was {@link #attach(ConfigurableEnvironment) attached}
    * to the {@link Environment}.
    *
    * @param propertySource the property source to test
@@ -87,11 +83,10 @@ public final class ConfigurationPropertySources {
    *
    * @param environment the source environment (must be an instance of
    * {@link ConfigurableEnvironment})
-   * @see #get(Environment)
+   * @see #get(ConfigurableEnvironment)
    */
-  public static void attach(Environment environment) {
-    Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
-    PropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
+  public static void attach(ConfigurableEnvironment environment) {
+    PropertySources sources = environment.getPropertySources();
     PropertySource<?> attached = getAttached(sources);
     if (attached == null || !isUsingSources(attached, sources)) {
       attached = new ConfigurationPropertySourcesPropertySource(ATTACHED_PROPERTY_SOURCE_NAME,
@@ -113,7 +108,7 @@ public final class ConfigurationPropertySources {
 
   /**
    * Return a set of {@link ConfigurationPropertySource} instances that have previously
-   * been {@link #attach(Environment) attached} to the {@link Environment}.
+   * been {@link #attach(ConfigurableEnvironment) attached} to the {@link Environment}.
    *
    * @param environment the source environment (must be an instance of
    * {@link ConfigurableEnvironment})
@@ -121,9 +116,8 @@ public final class ConfigurationPropertySources {
    * @throws IllegalStateException if not configuration property sources have been
    * attached
    */
-  public static Iterable<ConfigurationPropertySource> get(Environment environment) {
-    Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
-    PropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
+  public static Iterable<ConfigurationPropertySource> get(ConfigurableEnvironment environment) {
+    PropertySources sources = environment.getPropertySources();
     ConfigurationPropertySourcesPropertySource attached =
             (ConfigurationPropertySourcesPropertySource) sources.get(ATTACHED_PROPERTY_SOURCE_NAME);
     if (attached == null) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +25,7 @@ import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.properties.bind.BindResult;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 
 /**
@@ -61,7 +59,7 @@ public class OnPropertyListCondition extends InfraCondition {
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-    BindResult<?> property = Binder.get(context.getEnvironment()).bind(this.propertyName, STRING_LIST);
+    BindResult<?> property = Binder.get((ConfigurableEnvironment) context.getEnvironment()).bind(this.propertyName, STRING_LIST);
     ConditionMessage.Builder messageBuilder = this.messageBuilder.get();
     if (property.isBound()) {
       return ConditionOutcome.match(messageBuilder.found("property").items(this.propertyName));

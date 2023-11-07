@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
 
 import java.time.Duration;
 
-import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -64,7 +61,7 @@ public interface ConfigurationPropertyCaching {
    * @param environment the Framework environment
    * @return a caching instance that controls all sources in the environment
    */
-  static ConfigurationPropertyCaching get(Environment environment) {
+  static ConfigurationPropertyCaching get(ConfigurableEnvironment environment) {
     return get(environment, null);
   }
 
@@ -77,7 +74,7 @@ public interface ConfigurationPropertyCaching {
    * must match
    * @return a caching instance that controls the matching source
    */
-  static ConfigurationPropertyCaching get(Environment environment, @Nullable Object underlyingSource) {
+  static ConfigurationPropertyCaching get(ConfigurableEnvironment environment, @Nullable Object underlyingSource) {
     Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
     return get(sources, underlyingSource);
   }
@@ -102,8 +99,7 @@ public interface ConfigurationPropertyCaching {
    * must match
    * @return a caching instance that controls the matching source
    */
-  static ConfigurationPropertyCaching get(
-          Iterable<ConfigurationPropertySource> sources, @Nullable Object underlyingSource) {
+  static ConfigurationPropertyCaching get(Iterable<ConfigurationPropertySource> sources, @Nullable Object underlyingSource) {
     Assert.notNull(sources, "Sources must not be null");
     if (underlyingSource == null) {
       return new ConfigurationPropertySourcesCaching(sources);
