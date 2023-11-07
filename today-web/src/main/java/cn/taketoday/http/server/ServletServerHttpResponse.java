@@ -118,7 +118,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
         String headerName = entry.getKey();
         for (String headerValue : entry.getValue()) {
-          servletResponse.setHeader(headerName, headerValue);
+          servletResponse.addHeader(headerName, headerValue);
         }
       }
 
