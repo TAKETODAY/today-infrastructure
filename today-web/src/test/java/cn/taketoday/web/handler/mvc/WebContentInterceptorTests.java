@@ -75,7 +75,7 @@ class WebContentInterceptorTests {
     interceptor.beforeProcess(request, handler);
 
     List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
-    assertThat(cacheControlHeaders).isNull();
+    assertThat(cacheControlHeaders).isEmpty();
 
     request = requestFactory.apply("/example/bingo.html");
     interceptor.beforeProcess(request, handler);
