@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +43,7 @@ class ProfilesTests {
 
   @Test
   void getActiveWhenNoEnvironmentProfilesAndNoPropertyReturnsEmptyArray() {
-    Environment environment = new MockEnvironment();
+    MockEnvironment environment = new MockEnvironment();
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getActive()).isEmpty();
@@ -54,7 +51,7 @@ class ProfilesTests {
 
   @Test
   void getActiveWhenNoEnvironmentProfilesAndBinderProperty() {
-    Environment environment = new MockEnvironment();
+    MockEnvironment environment = new MockEnvironment();
     Binder binder = new Binder(
             new MapConfigurationPropertySource(Collections.singletonMap("infra.profiles.active", "a,b,c")));
     Profiles profiles = new Profiles(environment, binder, null);
@@ -155,7 +152,7 @@ class ProfilesTests {
 
   @Test
   void getDefaultWhenNoEnvironmentProfilesAndNoPropertyReturnsEmptyArray() {
-    Environment environment = new MockEnvironment();
+    MockEnvironment environment = new MockEnvironment();
     Binder binder = Binder.get(environment);
     Profiles profiles = new Profiles(environment, binder, null);
     assertThat(profiles.getDefault()).containsExactly("default");
