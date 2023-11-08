@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +58,8 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(10);
     interceptor.beforeProcess(context, handler);
 
-    Iterable<String> cacheControlHeaders = context.responseHeaders().get("Cache-Control");
+
+    Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
 
@@ -76,13 +74,13 @@ class WebContentInterceptorTests {
     RequestContext request = requestFactory.apply("/example/adminhandle.vm");
     interceptor.beforeProcess(request, handler);
 
-    List<String> cacheControlHeaders = request.responseHeaders().get("Cache-Control");
+    List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).isNull();
 
     request = requestFactory.apply("/example/bingo.html");
     interceptor.beforeProcess(request, handler);
 
-    cacheControlHeaders = request.responseHeaders().get("Cache-Control");
+    cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
 
@@ -92,7 +90,7 @@ class WebContentInterceptorTests {
     RequestContext requestContext = requestFactory.apply("/");
     interceptor.beforeProcess(requestContext, handler);
 
-    Iterable<String> cacheControlHeaders = requestContext.responseHeaders().get("Cache-Control");
+    Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("no-store");
   }
 
