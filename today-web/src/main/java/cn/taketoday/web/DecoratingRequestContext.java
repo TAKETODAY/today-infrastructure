@@ -439,6 +439,26 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
+  public void setHeader(String name, String value) {
+    getDelegate().setHeader(name, value);
+  }
+
+  @Override
+  public void addHeader(String name, @Nullable String value) {
+    getDelegate().addHeader(name, value);
+  }
+
+  @Override
+  public void removeHeader(String name) {
+    getDelegate().removeHeader(name);
+  }
+
+  @Override
+  public boolean containsResponseHeader(String name) {
+    return getDelegate().containsResponseHeader(name);
+  }
+
+  @Override
   public HttpHeaders responseHeaders() {
     return getDelegate().responseHeaders();
   }

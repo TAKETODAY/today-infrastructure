@@ -90,9 +90,9 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   public void addMappedHandlerClass(Class<?> mappedHandlerClass) {
     this.mappedHandlerClasses =
-        (this.mappedHandlerClasses != null ?
-         ObjectUtils.addObjectToArray(this.mappedHandlerClasses, mappedHandlerClass) :
-         new Class<?>[] { mappedHandlerClass });
+            (this.mappedHandlerClasses != null ?
+             ObjectUtils.addObjectToArray(this.mappedHandlerClasses, mappedHandlerClass) :
+             new Class<?>[] { mappedHandlerClass });
   }
 
   /**
@@ -257,7 +257,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @param response current HTTP response
    */
   protected void preventCaching(RequestContext response) {
-    response.responseHeaders().add(HttpHeaders.CACHE_CONTROL, "no-store");
+    response.addHeader(HttpHeaders.CACHE_CONTROL, "no-store");
   }
 
   /**
@@ -277,6 +277,6 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    */
   @Nullable
   protected abstract Object handleInternal(
-      RequestContext request, @Nullable Object handler, Throwable ex) throws Exception;
+          RequestContext request, @Nullable Object handler, Throwable ex) throws Exception;
 
 }

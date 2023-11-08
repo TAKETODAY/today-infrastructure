@@ -242,7 +242,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
                       ". Supported versions: " + Arrays.toString(getSupportedVersions()), -1, true));
     }
     request.setStatus(HttpStatus.UPGRADE_REQUIRED);
-    request.responseHeaders().set(WebSocketHttpHeaders.SEC_WEBSOCKET_VERSION,
+    request.setHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_VERSION,
             StringUtils.arrayToCommaDelimitedString(getSupportedVersions()));
   }
 

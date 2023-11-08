@@ -149,28 +149,28 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
   @Override
   @Nullable
-  public Object handleRequest(RequestContext request) throws Throwable {
-    if (HttpMethod.OPTIONS == request.getMethod()) {
-      request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
+  public Object handleRequest(RequestContext context) throws Throwable {
+    if (HttpMethod.OPTIONS == context.getMethod()) {
+      context.setHeader(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
     }
 
     // Delegate to WebContentGenerator for checking and preparing.
-    checkRequest(request);
-    prepareResponse(request);
+    checkRequest(context);
+    prepareResponse(context);
 
     // Execute handleRequestInternal in synchronized block if required.
     if (this.synchronizeOnSession) {
-      WebSession session = RequestContextUtils.getSession(request, false);
+      WebSession session = RequestContextUtils.getSession(context, false);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {
-          return handleRequestInternal(request);
+          return handleRequestInternal(context);
         }
       }
     }
 
-    return handleRequestInternal(request);
+    return handleRequestInternal(context);
   }
 
   /**

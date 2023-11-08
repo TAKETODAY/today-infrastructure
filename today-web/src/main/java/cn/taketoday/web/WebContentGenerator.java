@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +33,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * Convenient superclass for any kind of web content generator
@@ -64,12 +62,6 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
 
   /** HTTP method "POST". */
   public static final String METHOD_POST = "POST";
-
-  private static final String HEADER_PRAGMA = "Pragma";
-
-  private static final String HEADER_EXPIRES = "Expires";
-
-  protected static final String HEADER_CACHE_CONTROL = "Cache-Control";
 
   /** Set of supported HTTP methods. */
   @Nullable
@@ -307,17 +299,19 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
     String ccValue = cacheControl.getHeaderValue();
     if (ccValue != null) {
       // Set computed HTTP 1.1 Cache-Control header
-      HttpHeaders httpHeaders = response.responseHeaders();
-      httpHeaders.set(HEADER_CACHE_CONTROL, ccValue);
+      if (ServletDetector.runningInServlet(response)) {
+        ServletUtils.getServletResponse(response)
+                .setHeader(HttpHeaders.CACHE_CONTROL, ccValue);
+      }
+      else {
+        response.setHeader(HttpHeaders.CACHE_CONTROL, ccValue);
+      }
 
-      if (httpHeaders.containsKey(HEADER_PRAGMA)) {
-        // Reset HTTP 1.0 Pragma header if present
-        httpHeaders.set(HEADER_PRAGMA, "");
-      }
-      if (httpHeaders.containsKey(HEADER_EXPIRES)) {
-        // Reset HTTP 1.0 Expires header if present
-        httpHeaders.set(HEADER_EXPIRES, "");
-      }
+      // Reset HTTP 1.0 Pragma header if present
+      response.removeHeader(HttpHeaders.PRAGMA);
+
+      // Reset HTTP 1.0 Expires header if present
+      response.removeHeader(HttpHeaders.EXPIRES);
     }
   }
 
@@ -346,14 +340,13 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
   }
 
   private Collection<String> getVaryRequestHeadersToAdd(RequestContext response, String[] varyByRequestHeaders) {
-    HttpHeaders httpHeaders = response.responseHeaders();
-    if (!httpHeaders.containsKey(HttpHeaders.VARY)) {
+    if (!response.containsResponseHeader(HttpHeaders.VARY)) {
       return Arrays.asList(varyByRequestHeaders);
     }
     ArrayList<String> result = new ArrayList<>(varyByRequestHeaders.length);
     Collections.addAll(result, varyByRequestHeaders);
 
-    for (String existing : httpHeaders.getVary()) {
+    for (String existing : response.responseHeaders().getVary()) {
       if ("*".equals(existing)) {
         return Collections.emptyList();
       }

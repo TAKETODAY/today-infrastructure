@@ -536,7 +536,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     }
 
     if (HttpMethod.OPTIONS == request.getMethod()) {
-      request.responseHeaders().set(HttpHeaders.ALLOW, getAllowHeader());
+      request.setHeader(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
     }
 
@@ -580,7 +580,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
                 mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
-        request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+        request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
         request.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
       }
     }

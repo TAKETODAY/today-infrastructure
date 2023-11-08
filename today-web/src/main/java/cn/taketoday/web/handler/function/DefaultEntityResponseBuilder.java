@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +34,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -253,7 +250,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       Type entityType = this.entityType;
 
       if (entityClass != InputStreamResource.class && Resource.class.isAssignableFrom(entityClass)) {
-        request.responseHeaders().set(HttpHeaders.ACCEPT_RANGES, "bytes");
+        request.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
         String rangeHeader = request.requestHeaders().getFirst(HttpHeaders.RANGE);
         if (rangeHeader != null) {
           Resource resource = (Resource) entity;
@@ -265,7 +262,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
             entityType = RESOURCE_REGION_LIST_TYPE;
           }
           catch (IllegalArgumentException ex) {
-            request.responseHeaders().set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+            request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
             request.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
           }
         }

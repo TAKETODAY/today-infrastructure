@@ -235,9 +235,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
   @Override
   protected Object handleInternal(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
-
     Object returnValue;
-    checkRequest(request);
 
     // Execute invokeHandlerMethod in synchronized block if required.
     if (synchronizeOnSession) {
@@ -259,7 +257,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
     }
 
     HttpHeaders headers = request.getHeaders();
-    if (!headers.containsKey(HEADER_CACHE_CONTROL)) {
+    if (!headers.containsKey(HttpHeaders.CACHE_CONTROL)) {
       if (methodResolver.getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
         applyCacheSeconds(request, cacheSecondsForSessionAttributeHandlers);
       }

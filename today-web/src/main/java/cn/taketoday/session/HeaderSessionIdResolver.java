@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,14 +86,14 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
   @Override
   public void setSessionId(RequestContext context, String sessionId) {
     Assert.notNull(sessionId, "'sessionId' is required.");
-    context.responseHeaders().set(headerName, sessionId);
+    context.setHeader(headerName, sessionId);
     context.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
   }
 
   @Override
-  public void expireSession(RequestContext exchange) {
-    exchange.responseHeaders().remove(headerName);
-    exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
+  public void expireSession(RequestContext context) {
+    context.removeHeader(headerName);
+    context.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }
 
   /**

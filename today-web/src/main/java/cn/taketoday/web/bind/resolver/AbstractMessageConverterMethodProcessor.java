@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +31,8 @@ import java.util.Set;
 
 import cn.taketoday.core.GenericTypeResolver;
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -171,9 +168,8 @@ public abstract class AbstractMessageConverterMethodProcessor
       }
     }
 
-    HttpHeaders responseHeaders = context.responseHeaders();
     if (isResourceType(value, returnType)) {
-      responseHeaders.set(HttpHeaders.ACCEPT_RANGES, "bytes");
+      context.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
       if (value != null) {
         String headerRange = context.requestHeaders().getFirst(HttpHeaders.RANGE);
         if (headerRange != null && context.getStatus() == 200) {
@@ -186,7 +182,7 @@ public abstract class AbstractMessageConverterMethodProcessor
             targetType = RESOURCE_REGION_LIST_TYPE;
           }
           catch (IllegalArgumentException ex) {
-            responseHeaders.set(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
+            context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
             context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
           }
         }
@@ -194,15 +190,20 @@ public abstract class AbstractMessageConverterMethodProcessor
     }
 
     MediaType selectedMediaType = null;
-    MediaType contentType = responseHeaders.getContentType();
-    boolean isContentTypePreset = contentType != null && contentType.isConcrete();
-    if (isContentTypePreset) {
-      if (log.isDebugEnabled()) {
-        log.debug("Found 'Content-Type:{}' in response", contentType);
+    boolean isContentTypePreset = false;
+    String contentType = context.getResponseContentType();
+    if (contentType != null) {
+      MediaType mediaType = MediaType.parseMediaType(contentType);
+      isContentTypePreset = mediaType.isConcrete();
+      if (isContentTypePreset) {
+        if (log.isDebugEnabled()) {
+          log.debug("Found 'Content-Type:{}' in response", contentType);
+        }
+        selectedMediaType = mediaType;
       }
-      selectedMediaType = contentType;
     }
-    else {
+
+    if (!isContentTypePreset) {
       List<MediaType> acceptableTypes;
       try {
         acceptableTypes = getAcceptableMediaTypes(context);
@@ -426,8 +427,7 @@ public abstract class AbstractMessageConverterMethodProcessor
    * RFD exploits.
    */
   private void addContentDispositionHeader(RequestContext request) {
-    HttpHeaders headers = request.responseHeaders();
-    if (headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)) {
+    if (request.containsResponseHeader(HttpHeaders.CONTENT_DISPOSITION)) {
       return;
     }
 
@@ -459,7 +459,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     String extInPathParams = StringUtils.getFilenameExtension(pathParams);
 
     if (notSafeExtension(request, ext) || notSafeExtension(request, extInPathParams)) {
-      headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=f.txt");
+      request.addHeader(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=f.txt");
     }
   }
 

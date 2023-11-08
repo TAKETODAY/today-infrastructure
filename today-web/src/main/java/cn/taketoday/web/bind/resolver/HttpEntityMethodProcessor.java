@@ -203,9 +203,9 @@ public class HttpEntityMethodProcessor
       }
     }
 
-    HttpHeaders outputHeaders = context.responseHeaders();
     HttpHeaders entityHeaders = httpEntity.getHeaders();
     if (!entityHeaders.isEmpty()) {
+      HttpHeaders outputHeaders = context.responseHeaders();
 
       for (Map.Entry<String, List<String>> entry : entityHeaders.entrySet()) {
         String key = entry.getKey();
@@ -234,6 +234,7 @@ public class HttpEntityMethodProcessor
         }
       }
       else if (returnStatus / 100 == 3) {
+        HttpHeaders outputHeaders = context.responseHeaders();
         String location = outputHeaders.getFirst(HttpHeaders.LOCATION);
         if (location != null) {
           saveRedirectAttributes(context, location);

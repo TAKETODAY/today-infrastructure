@@ -1784,9 +1784,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param contentType a <code>String</code> specifying the MIME type of the content
    */
-  public void setContentType(String contentType) {
+  public void setContentType(@Nullable String contentType) {
     this.responseContentType = contentType;
-    responseHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
+    setHeader(HttpHeaders.CONTENT_TYPE, contentType);
   }
 
   /**
@@ -1834,6 +1834,52 @@ public abstract class RequestContext extends AttributeAccessorSupport
       }
     }
     return responseContentType;
+  }
+
+  /**
+   * Sets a response header with the given name and value. If the
+   * header had already been set, the new value overwrites the
+   * previous one.
+   *
+   * @param name the name of the header
+   * @param value the header value If it contains octet string,
+   * it should be encoded according to RFC 2047
+   * (<a href="http://www.ietf.org/rfc/rfc2047.txt">RFC 2047</a>)
+   * @see HttpHeaders#setOrRemove
+   * @since 4.0
+   */
+  public void setHeader(String name, @Nullable String value) {
+    responseHeaders().setOrRemove(name, value);
+  }
+
+  public void addHeader(String name, @Nullable String value) {
+    responseHeaders().add(name, value);
+  }
+
+  /**
+   * Remove a response header with the given name.
+   *
+   * @param name the name of the header
+   * @see HttpHeaders#remove
+   * @since 4.0
+   */
+  public void removeHeader(String name) {
+    if (responseHeaders != null) {
+      responseHeaders.remove(name);
+    }
+  }
+
+  /**
+   * Returns a boolean indicating whether the named
+   * response header has already been set.
+   *
+   * @param name the header name
+   * @return <code>true</code> if the named response header
+   * has already been set; <code>false</code> otherwise
+   * @since 4.0
+   */
+  public boolean containsResponseHeader(String name) {
+    return responseHeaders != null && responseHeaders.containsKey(name);
   }
 
   /**

@@ -721,6 +721,7 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Access-Control-Allow-Origin} response header.
    */
+  @Nullable
   public String getAccessControlAllowOrigin() {
     return getFieldValues(ACCESS_CONTROL_ALLOW_ORIGIN);
   }
@@ -967,6 +968,7 @@ public abstract class HttpHeaders
   /**
    * Return the value of the {@code Cache-Control} header.
    */
+  @Nullable
   public String getCacheControl() {
     return getFieldValues(CACHE_CONTROL);
   }
@@ -1005,7 +1007,7 @@ public abstract class HttpHeaders
    * @param filename the filename (may be {@code null})
    * @see #getContentDisposition()
    */
-  public void setContentDispositionFormData(String name, String filename) {
+  public void setContentDispositionFormData(String name, @Nullable String filename) {
     Assert.notNull(name, "Name must not be null");
     ContentDisposition.Builder disposition = ContentDisposition.builder("form-data").name(name);
     if (filename != null) {
