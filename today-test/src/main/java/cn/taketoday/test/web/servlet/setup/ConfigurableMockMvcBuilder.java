@@ -75,9 +75,8 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * @param urlPatterns the URL patterns to map to; if empty, matches all requests
    * @see cn.taketoday.mock.web.MockFilterConfig
    */
-  <T extends B> T addFilter(
-          Filter filter, @Nullable String filterName, Map<String, String> initParams,
-          EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns);
+  <T extends B> T addFilter(Filter filter, @Nullable String filterName,
+          Map<String, String> initParams, EnumSet<DispatcherType> dispatcherTypes, String... urlPatterns);
 
   /**
    * Define default request properties that should be merged into all
