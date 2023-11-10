@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -265,7 +262,7 @@ public final class Bindable<T> {
    */
   @SuppressWarnings("unchecked")
   public static <T> Bindable<T> ofInstance(T instance) {
-    Assert.notNull(instance, "Instance must not be null");
+    Assert.notNull(instance, "Instance is required");
     Class<T> type = (Class<T>) instance.getClass();
     return of(type).withExistingValue(instance);
   }
@@ -279,7 +276,7 @@ public final class Bindable<T> {
    * @see #of(ResolvableType)
    */
   public static <T> Bindable<T> of(Class<T> type) {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     return of(ResolvableType.forClass(type));
   }
 
@@ -327,7 +324,7 @@ public final class Bindable<T> {
    * @see #of(Class)
    */
   public static <T> Bindable<T> of(ResolvableType type) {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     ResolvableType boxedType = box(type);
     return new Bindable<>(type, boxedType, null,
             Constant.EMPTY_ANNOTATIONS, NO_BIND_RESTRICTIONS, null);
